@@ -313,11 +313,11 @@
         const SUPABASE_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // Check if already logged in
         async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await sb.auth.getSession();
             if (session) {
                 window.location.href = '/';
             }
@@ -371,7 +371,7 @@
             button.textContent = 'Logging in...';
 
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
+                const { data, error } = await sb.auth.signInWithPassword({
                     email,
                     password
                 });
@@ -411,7 +411,7 @@
             button.textContent = 'Creating account...';
 
             try {
-                const { data, error } = await supabase.auth.signUp({
+                const { data, error } = await sb.auth.signUp({
                     email,
                     password
                 });
@@ -446,7 +446,7 @@
             }
 
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(email);
+                const { error } = await sb.auth.resetPasswordForEmail(email);
 
                 if (error) {
                     showMessage(error.message, 'error');
