@@ -106,7 +106,9 @@ footer a{color:var(--txD);}
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
       <a href="#about">About</a>
-      <a href="#download" class="cta-btn">Download Free</a>
+      <a href="#download" class="cta-btn" id="nav-cta">Download Free</a>
+      <a href="/auth.html" class="cta-btn outline" id="nav-auth" style="display:none;">Login</a>
+      <a href="/account.html" class="cta-btn outline" id="nav-account" style="display:none;">My Account</a>
     </div>
   </div>
 </nav>
@@ -210,7 +212,7 @@ footer a{color:var(--txD);}
           <li>Reduced earnings calculator</li>
           <li>Severity crosswalk reference</li>
         </ul>
-        <a href="#download" class="cta-btn" style="width:100%;justify-content:center;">Start Pro</a>
+        <a href="#" class="cta-btn" style="width:100%;justify-content:center;" id="btn-start-pro" onclick="handleUpgrade('pro');return false;">Start Pro</a>
       </div>
       <div class="tier-card">
         <div class="tier-name" style="color:var(--gd)">Firm</div>
@@ -258,4 +260,118 @@ footer a{color:var(--txD);}
   <div class="wrap">
     <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
     <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
-    <p style="margin-top:8px;"><a href="#">Privacy Policy</a> · <a href="#">Terms of Service</a> · <a href="#">Contact</
+    <p style="margin-top:8px;"><a href="#">Privacy Policy</a> · <a href="#">Terms of Service</a> · <a href="#">Contact</a></p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const PRO_FEATURES = [
+  'slu_permanency', 'spine_brain', 'radiculopathy',
+  'fee_equations', 'concurrent_aww', 'amended_aww', 'reduced_earnings'
+];
+const FIRM_FEATURES = [
+  ...PRO_FEATURES,
+  'multi_attorney', 'data_export', 'custom_branding'
+];
+
+let currentUser = null;
+let currentTier = 'anonymous';
+
+async function initAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('subscription_tier, subscription_status')
+      .eq('id', session.user.id)
+      .single();
+    if (profile && profile.subscription_status === 'active') {
+      currentTier = profile.subscription_tier;
+    } else {
+      currentTier = 'free';
+    }
+    updateNav(true);
+  } else {
+    updateNav(false);
+  }
+  updateFeatureTags();
+}
+
+function updateNav(loggedIn) {
+  const navAuth = document.getElementById('nav-auth');
+  const navAccount = document.getElementById('nav-account');
+  if (loggedIn) {
+    navAuth.style.display = 'none';
+    navAccount.style.display = 'inline-flex';
+  } else {
+    navAuth.style.display = 'inline-flex';
+    navAccount.style.display = 'none';
+  }
+}
+
+function updateFeatureTags() {
+  // Add lock icons to pro features if user isn't pro/firm
+  document.querySelectorAll('.tag-pro').forEach(tag => {
+    if (currentTier === 'pro' || currentTier === 'firm') {
+      tag.textContent = 'UNLOCKED';
+      tag.style.background = 'rgba(45,212,160,0.12)';
+      tag.style.color = '#2dd4a0';
+    }
+  });
+}
+
+function canAccess(feature) {
+  if (currentTier === 'firm') return true;
+  if (currentTier === 'pro') return PRO_FEATURES.includes(feature);
+  return !PRO_FEATURES.includes(feature);
+}
+
+async function handleUpgrade(tier) {
+  if (!currentUser) {
+    window.location.href = '/auth.html';
+    return;
+  }
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch(SUPABASE_URL + '/functions/v1/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': SUPABASE_KEY
+      },
+      body: JSON.stringify({ tier: tier })
+    });
+    const data = await res.json();
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert('Error creating checkout: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+// Listen for auth changes
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    currentUser = session.user;
+    updateNav(true);
+  } else if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    currentTier = 'anonymous';
+    updateNav(false);
+  }
+});
+
+initAuth();
+</script>
+</body>
+</html>
