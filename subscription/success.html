@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Activated - The Comp Desk</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #06080f;
+            --card: #0e1322;
+            --cardA: #151d30;
+            --bd: #1c2d4a;
+            --ac: #4f8ff7;
+            --acG: rgba(79,143,247,0.12);
+            --gd: #f0a030;
+            --gn: #2dd4a0;
+            --tx: #dce4f0;
+            --txD: #8899b4;
+            --txM: #5a6a82;
+            --wh: #f4f6fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--tx);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: var(--card);
+            border-bottom: 1px solid var(--bd);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--wh);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--tx);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--ac);
+        }
+
+        /* Main Container */
+        .container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .success-card {
+            background-color: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 3rem;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(45,212,160,0.15);
+            border: 2px solid var(--gn);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+        }
+
+        .success-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--wh);
+        }
+
+        .success-message {
+            font-size: 1rem;
+            color: var(--txD);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--ac), rgba(79,143,247,0.8));
+            color: var(--wh);
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: 'DM Sans', system-ui, sans-serif;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(79,143,247,0.3);
+        }
+
+        .session-id {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--bd);
+            font-size: 0.85rem;
+            color: var(--txM);
+        }
+
+        .session-id-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--txD);
+        }
+
+        .session-id-value {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            color: var(--tx);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="/" class="nav-brand">The Comp Desk</a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/#features">Features</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h1 class="success-title" id="successTitle">Welcome to Pro!</h1>
+            <p class="success-message">Your subscription has been activated successfully. You now have access to all premium features.</p>
+
+            <a href="/account.html" class="button">Go to My Account</a>
+
+            <div class="session-id" id="sessionIdContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get session ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        // Update title based on tier if provided
+        const tier = urlParams.get('tier');
+        if (tier) {
+            const tierName = tier === 'firm' ? 'Firm' : 'Pro';
+            document.getElementById('successTitle').textContent = `Welcome to ${tierName}!`;
+        }
+
+        // Display session ID if available
+        if (sessionId) {
+            const container = document.getElementById('sessionIdContainer');
+            container.innerHTML = `
+                <span class="session-id-label">Session ID:</span>
+                <div class="session-id-value">${sessionId}</div>
+            `;
+        }
+    </script>
+</body>
+</html>
