@@ -352,7 +352,7 @@
         const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TG3E59PGuR7kQ67JKKxZvxAwOKFyB2UwkJK95wCOGDqcJBBa26TGqzhAovpkdkIFUEhoxGVUdGKx0kZzV2KTwZP00e7f4xr44';
         const EDGE_FUNCTION_URL = 'https://ltibymvlytodkemdeeox.supabase.co/functions/v1/create-checkout';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
         let userProfile = null;
@@ -360,7 +360,7 @@
         // Check auth and load data
         async function initializePage() {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await sb.auth.getSession();
 
                 if (!session) {
                     window.location.href = '/auth.html';
@@ -382,7 +382,7 @@
         // Load user profile from Supabase
         async function loadUserProfile() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await sb
                     .from('profiles')
                     .select('*')
                     .eq('id', currentUser.id)
@@ -471,7 +471,7 @@
                 button.textContent = 'Processing...';
 
                 // Call Supabase Edge Function
-                const { data, error } = await supabase.functions.invoke('create-checkout', {
+                const { data, error } = await sb.functions.invoke('create-checkout', {
                     body: {
                         tier: tier,
                         user_id: currentUser.id
@@ -505,7 +505,7 @@
                 button.disabled = true;
                 button.textContent = 'Signing out...';
 
-                const { error } = await supabase.auth.signOut();
+                const { error } = await sb.auth.signOut();
 
                 if (error) {
                     throw error;
