@@ -268,7 +268,7 @@ footer a{color:var(--txD);}
 <script>
 const SUPABASE_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const PRO_FEATURES = [
   'slu_permanency', 'spine_brain', 'radiculopathy',
@@ -283,10 +283,10 @@ let currentUser = null;
 let currentTier = 'anonymous';
 
 async function initAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session) {
     currentUser = session.user;
-    const { data: profile } = await supabase
+    const { data: profile } = await sb
       .from('profiles')
       .select('subscription_tier, subscription_status')
       .eq('id', session.user.id)
@@ -338,7 +338,7 @@ async function handleUpgrade(tier) {
     return;
   }
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await sb.auth.getSession();
     const res = await fetch(SUPABASE_URL + '/functions/v1/create-checkout', {
       method: 'POST',
       headers: {
@@ -360,7 +360,7 @@ async function handleUpgrade(tier) {
 }
 
 // Listen for auth changes
-supabase.auth.onAuthStateChange((event, session) => {
+sb.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session) {
     currentUser = session.user;
     updateNav(true);
