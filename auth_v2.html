@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In â The Comp Desk</title>
+<meta name="description" content="Sign in or create an account to access The Comp Desk Pro features.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acD:#1d4ed8;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gn:#2dd4a0;--gnG:rgba(16,185,129,0.12);--rd:#ef4444;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--font:'DM Sans',system-ui,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-container{max-width:440px;width:100%;}
+.logo{text-align:center;margin-bottom:28px;}
+.logo .brand{font-size:11px;color:var(--ac);font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.logo h1{font-size:28px;font-weight:800;color:var(--wh);margin-top:4px;}
+.logo .sub{font-size:13px;color:var(--txM);margin-top:6px;}
+.auth-card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:28px 24px;transition:all 0.3s;}
+.tab-row{display:flex;margin-bottom:20px;border-bottom:2px solid var(--bd);}
+.tab-btn{flex:1;padding:10px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--txD);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:-2px;transition:all 0.2s;}
+.tab-btn.active{border-bottom-color:var(--ac);color:var(--ac);}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:11px;color:var(--txD);font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input,.form-group textarea{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;font-family:var(--font);outline:none;transition:border-color 0.2s;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--ac);}
+.form-group textarea{resize:vertical;min-height:60px;}
+.submit-btn{width:100%;padding:13px;background:var(--ac);color:var(--wh);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:6px;transition:background 0.2s;}
+.submit-btn:hover{background:var(--acD);}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.msg{font-size:12px;margin-bottom:10px;min-height:18px;text-align:center;}
+.msg.error{color:var(--rd);}
+.msg.success{color:var(--gn);}
+.divider{text-align:center;color:var(--txM);font-size:12px;margin:18px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--bd);}
+.divider::before{left:0;}
+.divider::after{right:0;}
+.guest-btn{width:100%;padding:11px;background:transparent;border:1.5px solid var(--bd);color:var(--txD);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
+.guest-btn:hover{border-color:var(--ac);color:var(--ac);}
+.back-link{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--txD);}
+.back-link a{color:var(--ac);text-decoration:none;}
+.back-link a:hover{text-decoration:underline;}
+.forgot{text-align:right;margin-top:-6px;margin-bottom:14px;}
+.forgot a{font-size:11px;color:var(--txM);text-decoration:none;}
+.forgot a:hover{color:var(--ac);}
+
+/* User Type Selector */
+.type-selector{display:flex;gap:12px;margin-bottom:18px;}
+.type-card{flex:1;padding:16px 12px;background:var(--bg);border:2px solid var(--bd);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;user-select:none;}
+.type-card:hover{border-color:var(--ac);background:var(--acG);}
+.type-card.selected{border-color:var(--ac);background:var(--acG);box-shadow:0 0 16px rgba(79,143,247,0.15);}
+.type-card .type-icon{font-size:28px;margin-bottom:6px;}
+.type-card .type-label{font-size:13px;font-weight:700;color:var(--wh);}
+.type-card .type-desc{font-size:10px;color:var(--txM);margin-top:3px;line-height:1.4;}
+.type-card.selected .type-label{color:var(--ac);}
+
+/* Attorney Extra Fields */
+.attorney-fields{display:none;animation:slideDown 0.3s ease;}
+.attorney-fields.show{display:block;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.attorney-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--bd);}
+.attorney-section .section-title{font-size:12px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.row{display:flex;gap:10px;}
+.row .form-group{flex:1;}
+
+/* Referral Program */
+.referral-box{background:var(--acG);border:1px solid rgba(79,143,247,0.25);border-radius:10px;padding:14px;margin-top:14px;margin-bottom:6px;}
+.referral-box .ref-title{font-size:12px;font-weight:700;color:var(--ac);margin-bottom:4px;}
+.referral-box .ref-desc{font-size:11px;color:var(--txD);line-height:1.5;margin-bottom:8px;}
+.referral-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+.referral-toggle input{accent-color:var(--ac);width:16px;height:16px;cursor:pointer;}
+.referral-toggle span{font-size:12px;font-weight:600;color:var(--tx);}
+
+/* Steps indicator */
+.steps{display:flex;justify-content:center;gap:8px;margin-bottom:18px;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);transition:all 0.2s;}
+.step-dot.active{background:var(--ac);width:24px;border-radius:4px;}
+.step-dot.done{background:var(--gn);}
+</style>
+</head>
+<body>
+<div class="auth-container">
+  <div class="logo">
+    <div class="brand">NYS Workers' Compensation</div>
+    <h1>The Comp Desk</h1>
+    <div class="sub">Calculate. Verify. Know your rights.</div>
+  </div>
+
+  <div class="auth-card" id="auth-card">
+    <!-- Content rendered dynamically -->
+  </div>
+
+  <div class="back-link">
+    <a href="/">â Back to The Comp Desk</a>
+  </div>
+</div>
+
+<script>
+const SUPA_URL='https://ltibymvlytodkemdeeox.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+
+let state={
+  mode:'login',        // 'login' | 'signup_step1' | 'signup_step2'
+  userType:'worker',   // 'attorney' | 'worker'
+  referral:false,
+  email:'',
+  password:''
+};
+
+// Check if already logged in
+(async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(session)window.location.href='/account';
+})();
+
+function render(){
+  const card=document.getElementById('auth-card');
+  if(state.mode==='login') card.innerHTML=renderLogin();
+  else if(state.mode==='signup_step1') card.innerHTML=renderSignupStep1();
+  else if(state.mode==='signup_step2') card.innerHTML=renderSignupStep2();
+}
+
+function renderLogin(){
+  return `
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="state.mode='login';render()">Sign In</button>
+      <button class="tab-btn" onclick="state.mode='signup_step1';render()">Create Account</button>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password">
+    </div>
+    <div class="forgot"><a href="#" onclick="handleForgot();return false;">Forgot password?</a></div>
+    <button class="submit-btn" id="submit-btn" onclick="handleLogin()">Sign In</button>
+    <div class="divider">or</div>
+    <button class="guest-btn" onclick="window.location.href='/'">Continue as Guest</button>
+  `;
+}
+
+function renderSignupStep1(){
+  return `
+    <div class="tab-row">
+      <button class="tab-btn" onclick="state.mode='login';render()">Sign In</button>
+      <button class="tab-btn active" onclick="state.mode='signup_step1';render()">Create Account</button>
+    </div>
+    <div class="steps">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="msg" id="msg"></div>
+    <p style="font-size:13px;color:var(--txD);text-align:center;margin-bottom:16px;">Which best describes you?</p>
+    <div class="type-selector">
+      <div class="type-card ${state.userType==='attorney'?'selected':''}" onclick="state.userType='attorney';render()">
+        <div class="type-icon">âï¸</div>
+        <div class="type-label">Attorney</div>
+        <div class="type-desc">WC practitioner with fee app tools & Pro features</div>
+      </div>
+      <div class="type-card ${state.userType==='worker'?'selected':''}" onclick="state.userType='worker';render()">
+        <div class="type-icon">ð¡ï¸</div>
+        <div class="type-label">Injured Worker</div>
+        <div class="type-desc">Check your benefits & understand your rights</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" value="${state.email}">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="signup-pass" placeholder="At least 6 characters" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="signup-pass2" placeholder="Confirm password" autocomplete="new-password">
+    </div>
+    ${state.userType==='attorney'?`
+    <button class="submit-btn" onclick="goToStep2()">Next â Attorney Details</button>
+    `:`
+    <button class="submit-btn" onclick="handleWorkerSignup()">Create Account</button>
+    `}
+    <div class="divider">or</div>
+    <button class="guest-btn" onclick="window.location.href='/'">Continue as Guest</button>
+  `;
+}
+
+function renderSignupStep2(){
+  return `
+    <div class="tab-row">
+      <button class="tab-btn" onclick="state.mode='login';render()">Sign In</button>
+      <button class="tab-btn active">Create Account</button>
+    </div>
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div style="text-align:center;margin-bottom:4px;">
+      <span style="font-size:10px;color:var(--ac);cursor:pointer;" onclick="state.mode='signup_step1';render()">â Back</span>
+    </div>
+    <div class="attorney-section">
+      <div class="section-title">Attorney / Firm Information</div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="atty-name" placeholder="First and Last Name" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>Firm Name</label>
+        <input type="text" id="atty-firm" placeholder="Law Firm Name">
+      </div>
+      <div class="form-group">
+        <label>Firm Address</label>
+        <textarea id="atty-address" placeholder="Street Address, City, State, ZIP"></textarea>
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>R- Identification Number</label>
+          <input type="text" id="atty-rnumber" placeholder="R-XXXXX">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="atty-phone" placeholder="(212) 555-0100" autocomplete="tel">
+        </div>
+      </div>
+    </div>
+    <div class="referral-box">
+      <div class="ref-title">ð Comp Desk Referral Program</div>
+      <div class="ref-desc">Join our referral network and connect with injured workers in your area who are looking for representation. Program details coming soon.</div>
+      <label class="referral-toggle">
+        <input type="checkbox" id="atty-referral" ${state.referral?'checked':''} onchange="state.referral=this.checked">
+        <span>I'm interested in the referral program</span>
+      </label>
+    </div>
+    <button class="submit-btn" onclick="handleAttorneySignup()">Create Attorney Account</button>
+  `;
+}
+
+function goToStep2(){
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-pass').value;
+  const pass2=document.getElementById('signup-pass2').value;
+  const msg=document.getElementById('msg');
+  if(!email||!pass){msg.className='msg error';msg.textContent='Please enter email and password.';return;}
+  if(pass.length<6){msg.className='msg error';msg.textContent='Password must be at least 6 characters.';return;}
+  if(pass!==pass2){msg.className='msg error';msg.textContent='Passwords do not match.';return;}
+  state.email=email;
+  state.password=pass;
+  state.mode='signup_step2';
+  render();
+}
+
+async function handleWorkerSignup(){
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-pass').value;
+  const pass2=document.getElementById('signup-pass2').value;
+  const msg=document.getElementById('msg');
+  if(!email||!pass){msg.className='msg error';msg.textContent='Please enter email and password.';return;}
+  if(pass.length<6){msg.className='msg error';msg.textContent='Password must be at least 6 characters.';return;}
+  if(pass!==pass2){msg.className='msg error';msg.textContent='Passwords do not match.';return;}
+  const btn=document.querySelector('.submit-btn');
+  btn.disabled=true;btn.textContent='Creating account...';
+  const{data,error}=await sb.auth.signUp({
+    email,password:pass,
+    options:{data:{user_type:'worker'}}
+  });
+  if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Create Account';return;}
+  if(data.user&&!data.session){
+    msg.className='msg success';msg.textContent='Account created! Check your email to verify, then sign in.';
+    btn.disabled=false;btn.textContent='Create Account';
+    setTimeout(()=>{state.mode='login';render();},2500);
+  }else{window.location.href='/account';}
+}
+
+async function handleAttorneySignup(){
+  const name=document.getElementById('atty-name').value.trim();
+  const firm=document.getElementById('atty-firm').value.trim();
+  const address=document.getElementById('atty-address').value.trim();
+  const rnumber=document.getElementById('atty-rnumber').value.trim();
+  const phone=document.getElementById('atty-phone').value.trim();
+  const referral=document.getElementById('atty-referral').checked;
+  const msg=document.getElementById('msg');
+  if(!name||!firm){msg.className='msg error';msg.textContent='Please enter your name and firm name.';return;}
+  const btn=document.querySelector('.submit-btn');
+  btn.disabled=true;btn.textContent='Creating account...';
+  const{data,error}=await sb.auth.signUp({
+    email:state.email,password:state.password,
+    options:{data:{
+      user_type:'attorney',
+      full_name:name,
+      firm_name:firm,
+      firm_address:address,
+      r_number:rnumber,
+      phone:phone,
+      referral_enrolled:referral
+    }}
+  });
+  if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Create Attorney Account';return;}
+  if(data.user&&!data.session){
+    msg.className='msg success';msg.textContent='Attorney account created! Check your email to verify, then sign in.';
+    btn.disabled=false;btn.textContent='Create Attorney Account';
+    setTimeout(()=>{state.mode='login';render();},2500);
+  }else{window.location.href='/account';}
+}
+
+async function handleLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const msg=document.getElementById('msg');
+  if(!email||!pass){msg.className='msg error';msg.textContent='Please enter email and password.';return;}
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Signing in...';msg.textContent='';
+  const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Sign In';return;}
+  window.location.href='/account';
+}
+
+async function handleForgot(){
+  const email=document.getElementById('login-email').value.trim();
+  const msg=document.getElementById('msg');
+  if(!email){msg.className='msg error';msg.textContent='Enter your email first, then click Forgot Password.';return;}
+  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/account'});
+  if(error){msg.className='msg error';msg.textContent=error.message;}
+  else{msg.className='msg success';msg.textContent='Password reset email sent. Check your inbox.';}
+}
+
+// Enter key handling
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(state.mode==='login')handleLogin();
+    else if(state.mode==='signup_step1'&&state.userType==='worker')handleWorkerSignup();
+    else if(state.mode==='signup_step1'&&state.userType==='attorney')goToStep2();
+    else if(state.mode==='signup_step2')handleAttorneySignup();
+  }
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
