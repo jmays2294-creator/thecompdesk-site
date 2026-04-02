@@ -57,4 +57,73 @@
     <priority>0.7</priority>
   </url>
 
+
+  <!-- Coming Soon — Comp Buddy Features (high SEO value for injured worker traffic) -->
+  <url>
+    <loc>https://thecompdesk.com/coming-soon.html</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Landing Page â highest priority, main SEO target -->
+  <url>
+    <loc>https://thecompdesk.com/</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Authentication -->
+  <url>
+    <loc>https://thecompdesk.com/auth.html</loc>
+    <lastmod>2026-03-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Auth V2 (include once confirmed deployed) -->
+  <url>
+    <loc>https://thecompdesk.com/auth_v2.html</loc>
+    <lastmod>2026-03-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Account Dashboard -->
+  <url>
+    <loc>https://thecompdesk.com/account.html</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Find an Attorney â high SEO value for organic traffic -->
+  <url>
+    <loc>https://thecompdesk.com/find-attorney.html</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://thecompdesk.com/privacy.html</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Subscription Pages -->
+  <url>
+    <loc>https://thecompdesk.com/subscription/</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
