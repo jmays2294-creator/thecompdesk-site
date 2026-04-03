@@ -5,180 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Workers' Comp Award Calculator — Classified Compensation | NYS | The Comp Desk</title>
   <meta name="description" content="Free NYS workers' compensation award calculator. Calculate classified permanent partial disability, permanent total disability, and death benefits. Includes credit and offset calculations.">
-
-  <!-- Open Graph Tags -->
   <meta property="og:title" content="Workers' Comp Award Calculator — Classified Compensation | NYS">
   <meta property="og:description" content="Free calculator for NYS workers' compensation awards including PPD, PTD, and death benefits.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/ccp-award.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-award.png">
-
-  <!-- Canonical URL -->
   <link rel="canonical" href="https://thecompdesk.com/calculators/ccp-award.html">
-
   <link rel="stylesheet" href="../css/app.css">
 </head>
 <body>
   <div id="app-nav"></div>
 
   <div class="container">
-    <!-- Breadcrumb -->
     <div class="breadcrumb">
       <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>Award Calculator</span>
     </div>
 
-    <!-- Page Title -->
     <h1 class="page-title">NYS Workers' Compensation Award Calculator</h1>
     <p class="page-subtitle">Calculate classified awards for permanent partial disability, permanent total disability, and death benefits.</p>
 
-    <!-- Calculator Section -->
-    <div class="section">
-      <h2 class="section-title">Calculator</h2>
-
-      <div style="margin-bottom: 24px;">
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Classification Type</label>
-        <select id="classType" style="width: 100%;">
-          <option value="">Select a classification...</option>
-          <option value="ppd">Permanent Partial Disability (PPD)</option>
-          <option value="ptd">Permanent Total Disability (PTD)</option>
-          <option value="death">Death Benefits</option>
-        </select>
+    <!-- Calculator -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Calculator</span>
       </div>
+      <div class="calc-body">
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-        <!-- Compensation Rate -->
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Compensation Rate (Weekly)</label>
-          <div style="display: flex; gap: 8px;">
-            <span style="display: flex; align-items: center; color: #999;">$</span>
-            <input type="number" id="awardCompRate" value="750.00" step="0.01" style="width: 100%;">
+        <div style="margin-bottom:12px;">
+          <span class="field-label" style="display:block;margin-bottom:6px;">Classification Type</span>
+          <select id="classType" style="width:100%;">
+            <option value="">Select a classification...</option>
+            <option value="ppd">Permanent Partial Disability (PPD)</option>
+            <option value="ptd">Permanent Total Disability (PTD)</option>
+            <option value="death">Death Benefits</option>
+          </select>
+        </div>
+
+        <div class="fields-row">
+          <div class="field-group">
+            <span class="field-label">Compensation Rate</span>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="awardCompRate" value="750.00" step="0.01">
+            </div>
+          </div>
+          <div class="field-group">
+            <span class="field-label" id="durationLabel">Duration (Weeks)</span>
+            <div class="field-wrap">
+              <input type="number" id="durationWeeks" value="52" min="0">
+              <span class="field-suffix" id="durationSuffix">wks</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <span class="field-label">Credits / Offsets</span>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="creditsOffsets" value="0" step="0.01">
+            </div>
+            <span class="field-hint">Amounts already paid</span>
           </div>
         </div>
 
-        <!-- Duration/LWEC % -->
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;" id="durationLabel">Duration (Weeks)</label>
-          <input type="number" id="durationWeeks" value="52" min="0" style="width: 100%;">
-        </div>
-      </div>
-
-      <div id="lwecSection" style="display: none; margin-bottom: 24px;">
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">LWEC % (for PPD)</label>
-        <input type="number" id="lwecPercentage" min="0" max="100" value="25" style="width: 100%;">
-      </div>
-
-      <div style="margin-bottom: 24px;">
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Credits/Offsets</label>
-        <div style="display: flex; gap: 8px;">
-          <span style="display: flex; align-items: center; color: #999;">$</span>
-          <input type="number" id="creditsOffsets" value="0" step="0.01" style="width: 100%;">
-        </div>
-        <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">Amounts already paid to reduce total award</span>
-      </div>
-
-      <!-- Results Section -->
-      <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 20px; margin-top: 24px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
-          <div>
-            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Weekly Benefit</p>
-            <p style="color: #4CAF50; font-size: 32px; font-weight: 700; margin: 0;" id="awardWeeklyResult">—</p>
-          </div>
-          <div>
-            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Total Award</p>
-            <p style="color: #4CAF50; font-size: 32px; font-weight: 700; margin: 0;" id="awardTotalResult">—</p>
+        <div id="lwecSection" style="display:none;margin-bottom:12px;">
+          <div class="field-group">
+            <span class="field-label">LWEC % (PPD)</span>
+            <div class="field-wrap">
+              <input type="number" id="lwecPercentage" min="0" max="100" value="25">
+              <span class="field-suffix">%</span>
+            </div>
           </div>
         </div>
-        <div style="padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-          <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">After Credits/Offsets</p>
-          <p style="color: #4CAF50; font-size: 28px; font-weight: 700; margin: 0;" id="awardNetResult">—</p>
+
+        <!-- Results -->
+        <div class="result-box">
+          <div class="result-grid cols-3">
+            <div class="result-item">
+              <span class="result-label">Weekly Benefit</span>
+              <span class="result-value" id="awardWeeklyResult">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Total Award</span>
+              <span class="result-value blue" id="awardTotalResult">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Net After Credits</span>
+              <span class="result-value gold" id="awardNetResult">—</span>
+            </div>
+          </div>
+
+          <!-- Generate Fee App -->
+          <div id="fee-app-section" class="fee-app-section" style="display:none">
+            <div class="fee-app-row">
+              <div>
+                <strong>Ready to file?</strong>
+                <p>Generate a WCB fee application pre-filled with these award figures.</p>
+              </div>
+              <button onclick="window.triggerFeeApp()" class="fee-app-btn">
+                📄 Generate Fee App
+                <span style="font-size:9px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:3px;font-weight:700;">PRO</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Save prompt -->
+          <div id="save-prompt" class="save-prompt" style="display:none">
+            <p id="save-prompt-text"></p>
+            <div id="save-prompt-actions"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- SEO Content Section -->
-    <div class="section">
-      <h2 class="section-title">About Classified Awards in New York</h2>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        Classified awards are formal determinations by the Workers' Compensation Board that establish ongoing benefits for permanently disabled workers. The three main types of classifications in New York are Permanent Partial Disability (PPD), Permanent Total Disability (PTD), and Death Benefits. Each classification type has different requirements and benefit structures.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        <strong>Permanent Partial Disability (PPD):</strong> PPD classifications are issued when a worker has reached maximum medical improvement and has sustained a permanent injury that reduces wage earning capacity, but can still work in some capacity. The PPD award typically consists of a weekly benefit based on a percentage of loss of wage earning capacity, multiplied by the compensation rate, and continues until the worker reaches age 65 or returns to regular employment. The award may be calculated based on Loss of Wage Earning Capacity (LWEC) or as a lump sum settlement.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        <strong>Permanent Total Disability (PTD):</strong> A PTD classification is issued when the worker is permanently and completely unable to work due to the work injury. PTD benefits continue for life or until the worker returns to work, and provide a full weekly benefit equal to the worker's compensation rate. PTD is a permanent classification that provides lifetime benefits.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8;">
-        <strong>Death Benefits:</strong> When a worker dies as a result of a work-related injury, the worker's dependents may be entitled to death benefits. These include funeral expenses (up to a statutory maximum) and weekly benefits for eligible dependents, such as spouses and children. Death benefit calculations depend on the number of eligible dependents and may also include vocational rehabilitation for any surviving children.
-      </p>
+    <!-- About Classified Awards -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">About Classified Awards in New York</span>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          Classified awards are formal determinations by the Workers' Compensation Board that establish ongoing benefits for permanently disabled workers. The three main types of classifications in New York are Permanent Partial Disability (PPD), Permanent Total Disability (PTD), and Death Benefits.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">Permanent Partial Disability (PPD):</strong> PPD classifications are issued when a worker has reached maximum medical improvement and has sustained a permanent injury that reduces wage earning capacity but can still work in some capacity. The PPD award consists of a weekly benefit based on a percentage of loss of wage earning capacity, multiplied by the compensation rate.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">Permanent Total Disability (PTD):</strong> A PTD classification is issued when the worker is permanently and completely unable to work due to the work injury. PTD benefits continue for life or until the worker returns to work, providing a full weekly benefit equal to the compensation rate.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;">
+          <strong style="color:var(--tx);">Death Benefits:</strong> When a worker dies as a result of a work-related injury, eligible dependents may receive weekly benefits and funeral expense reimbursement. Calculations depend on the number of eligible dependents.
+        </p>
+      </div>
     </div>
 
-    <!-- Download App CTA -->
+    <!-- App CTA -->
     <div class="upgrade-banner">
-      <div class="upgrade-title">Mobile Calculation</div>
-      <div class="upgrade-description">Calculate awards on the go with our mobile app. Available on iOS and Android.</div>
+      <div class="upgrade-title">Full-Featured Mobile App</div>
+      <div class="upgrade-description">Calculate awards, build fee applications, and manage cases on the go.</div>
       <button class="btn-primary">Download the App</button>
     </div>
 
-    <!-- Footer Disclaimer -->
     <div class="disclaimer">
-      <p style="margin: 0;">
-        <strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Award calculations are based on current New York State workers' compensation law and Department of Financial Services regulations. Actual awards are determined by the Workers' Compensation Board and depend on the specific classification issued, medical evidence, hearing outcomes, and applicable credits or offsets. For legal guidance on award calculations specific to your case, consult a qualified workers' compensation attorney.
-      </p>
+      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Award calculations are based on current New York State workers' compensation law and Department of Financial Services regulations. Actual awards are determined by the Workers' Compensation Board and depend on the specific classification issued, medical evidence, hearing outcomes, and applicable credits or offsets. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
     </div>
   </div>
 
   <noscript>
-    <div style="background: rgba(255, 152, 0, 0.2); border-left: 4px solid #FF9800; padding: 20px; color: #e0e0e0; font-family: sans-serif;">
+    <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
       <h2>NYS Workers' Compensation Award Calculator</h2>
       <p>This interactive calculator requires JavaScript to calculate classified awards for permanent partial disability, permanent total disability, and death benefits.</p>
-
-      <h3>Award Types:</h3>
-      <ul>
-        <li><strong>PPD:</strong> Permanent Partial Disability for workers with permanent injuries but can still work</li>
-        <li><strong>PTD:</strong> Permanent Total Disability for workers completely unable to work</li>
-        <li><strong>Death:</strong> Death benefits for eligible dependents of workers who die from work injuries</li>
-      </ul>
-
-      <p>Award calculations depend on the compensation rate, duration of benefits, classification type, and any credits or offsets for amounts already paid.</p>
     </div>
   </noscript>
 
   <script type="module">
-    import { getOptionalUser } from '../js/auth.js';
+    import { getOptionalUser, saveCalculation } from '../js/auth.js';
     import { renderPublicNav } from '../js/nav.js';
+    import { initFeeAppPaywall } from '../js/fee-app-modal.js';
 
-    // Format currency helper
     function formatCurrency(value) {
       return '$' + parseFloat(value).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 2, maximumFractionDigits: 2
       });
     }
 
-    // Handle classification type changes
+    let hasCalculated = false;
+    let currentUser = null;
+
     document.getElementById('classType').addEventListener('change', (e) => {
       const lwecSection = document.getElementById('lwecSection');
       const durationLabel = document.getElementById('durationLabel');
+      const durationSuffix = document.getElementById('durationSuffix');
 
       if (e.target.value === 'ppd') {
         lwecSection.style.display = 'block';
         durationLabel.textContent = 'Duration (Weeks)';
+        durationSuffix.textContent = 'wks';
       } else {
         lwecSection.style.display = 'none';
         if (e.target.value === 'ptd') {
-          durationLabel.textContent = 'Duration (Years - for projection)';
+          durationLabel.textContent = 'Duration (Years — projection)';
+          durationSuffix.textContent = 'yrs';
         } else {
           durationLabel.textContent = 'Duration (Weeks)';
+          durationSuffix.textContent = 'wks';
         }
       }
       calculateAward();
     });
 
-    // Calculate Award
     function calculateAward() {
       const classType = document.getElementById('classType').value;
       const compRate = parseFloat(document.getElementById('awardCompRate').value) || 0;
@@ -189,11 +202,13 @@
       const weeklyResult = document.getElementById('awardWeeklyResult');
       const totalResult = document.getElementById('awardTotalResult');
       const netResult = document.getElementById('awardNetResult');
+      const feeSection = document.getElementById('fee-app-section');
 
       if (!classType || compRate <= 0) {
         weeklyResult.textContent = '—';
         totalResult.textContent = '—';
         netResult.textContent = '—';
+        if (feeSection) feeSection.style.display = 'none';
         return;
       }
 
@@ -207,8 +222,7 @@
           break;
         case 'ptd':
           weeklyBenefit = compRate;
-          const years = duration;
-          totalAward = weeklyBenefit * (years * 52);
+          totalAward = weeklyBenefit * (duration * 52);
           break;
         case 'death':
           weeklyBenefit = compRate;
@@ -221,18 +235,51 @@
       weeklyResult.textContent = formatCurrency(weeklyBenefit);
       totalResult.textContent = formatCurrency(totalAward);
       netResult.textContent = formatCurrency(netAward);
+
+      if (feeSection) feeSection.style.display = 'block';
+
+      if (!hasCalculated) {
+        hasCalculated = true;
+        showSavePrompt(currentUser);
+      }
     }
 
-    // Add event listeners
+    function showSavePrompt(user) {
+      const prompt = document.getElementById('save-prompt');
+      const text = document.getElementById('save-prompt-text');
+      const actions = document.getElementById('save-prompt-actions');
+      if (!prompt) return;
+
+      if (!user || !user.session) {
+        text.textContent = 'Want to save this calculation?';
+        actions.innerHTML = `<a href="/auth_v2.html?mode=signup">Create free account</a>`;
+      } else {
+        text.textContent = 'Save this calculation to your history.';
+        actions.innerHTML = `<button id="sp-save-btn">Save</button>`;
+        document.getElementById('sp-save-btn').addEventListener('click', async () => {
+          const ok = await saveCalculation(user.session.user.id, 'ccp-award', {
+            classType: document.getElementById('classType').value,
+            compRate: document.getElementById('awardCompRate').value,
+            duration: document.getElementById('durationWeeks').value,
+            weekly: document.getElementById('awardWeeklyResult').textContent,
+            total: document.getElementById('awardTotalResult').textContent,
+            net: document.getElementById('awardNetResult').textContent
+          });
+          document.getElementById('sp-save-btn').textContent = ok ? 'Saved!' : 'Error';
+        });
+      }
+      prompt.style.display = 'flex';
+    }
+
     document.getElementById('awardCompRate').addEventListener('input', calculateAward);
     document.getElementById('durationWeeks').addEventListener('input', calculateAward);
     document.getElementById('lwecPercentage').addEventListener('input', calculateAward);
     document.getElementById('creditsOffsets').addEventListener('input', calculateAward);
 
-    // Initialize auth and nav
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getOptionalUser();
-      renderPublicNav(user);
+      currentUser = await getOptionalUser();
+      renderPublicNav(currentUser);
+      initFeeAppPaywall(currentUser);
     });
   </script>
 </body>

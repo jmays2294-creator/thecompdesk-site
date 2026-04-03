@@ -5,132 +5,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWEC Calculator — Loss of Wage Earning Capacity | NYS Workers' Comp | The Comp Desk</title>
   <meta name="description" content="Free NYS Loss of Wage Earning Capacity (LWEC) calculator. Calculate weekly benefits and projected totals. Compare with SLU benefits under New York workers' compensation law.">
-
-  <!-- Open Graph Tags -->
   <meta property="og:title" content="LWEC Calculator — Loss of Wage Earning Capacity | NYS Workers' Comp">
   <meta property="og:description" content="Free calculator for NYS Loss of Wage Earning Capacity benefits. Calculate LWEC weekly benefits and projected totals instantly.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/lwec.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-lwec.png">
-
-  <!-- Canonical URL -->
   <link rel="canonical" href="https://thecompdesk.com/calculators/lwec.html">
-
   <link rel="stylesheet" href="../css/app.css">
 </head>
 <body>
   <div id="app-nav"></div>
 
   <div class="container">
-    <!-- Breadcrumb -->
     <div class="breadcrumb">
       <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>LWEC Calculator</span>
     </div>
 
-    <!-- Page Title -->
     <h1 class="page-title">NYS Loss of Wage Earning Capacity (LWEC) Calculator</h1>
-    <p class="page-subtitle">Calculate Loss of Wage Earning Capacity weekly benefits and projections.</p>
+    <p class="page-subtitle">Calculate Loss of Wage Earning Capacity weekly benefits and projections under New York Workers' Compensation Law.</p>
 
-    <!-- Calculator Section -->
-    <div class="section">
-      <h2 class="section-title">Calculator</h2>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-        <!-- LWEC Percentage -->
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">LWEC Loss Percentage (%)</label>
-          <input type="number" id="lwecPercent" min="0" max="100" value="25" style="width: 100%;">
-          <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">0-100% loss of earning capacity</span>
-        </div>
-
-        <!-- Compensation Rate -->
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Compensation Rate (Weekly)</label>
-          <div style="display: flex; gap: 8px;">
-            <span style="display: flex; align-items: center; color: #999;">$</span>
-            <input type="number" id="lwecCompRate" value="750.00" step="0.01" style="width: 100%;">
-          </div>
-          <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">2/3 of AWW (capped at statutory max)</span>
-        </div>
+    <!-- Calculator -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Calculator</span>
       </div>
-
-      <div style="margin-bottom: 24px;">
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Duration (Optional)</label>
-        <div style="display: flex; gap: 8px;">
-          <input type="number" id="lwecDuration" min="0" placeholder="Leave blank for weekly benefit only" style="width: 100%;">
-          <span style="display: flex; align-items: center; color: #999;">weeks</span>
-        </div>
-      </div>
-
-      <!-- Results Section -->
-      <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 20px; margin-top: 24px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div>
-            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Weekly Benefit</p>
-            <p style="color: #4CAF50; font-size: 32px; font-weight: 700; margin: 0;" id="weeklyLwecResult">—</p>
+      <div class="calc-body">
+        <div class="fields-row">
+          <div class="field-group">
+            <span class="field-label">LWEC Loss Percentage</span>
+            <div class="field-wrap">
+              <input type="number" id="lwecPercent" min="0" max="100" value="25">
+              <span class="field-suffix">%</span>
+            </div>
+            <span class="field-hint">0–100% loss of earning capacity</span>
           </div>
-          <div>
-            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Projected Total</p>
-            <p style="color: #4CAF50; font-size: 32px; font-weight: 700; margin: 0;" id="projectedTotalResult">—</p>
+          <div class="field-group">
+            <span class="field-label">Compensation Rate</span>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="lwecCompRate" value="750.00" step="0.01">
+            </div>
+            <span class="field-hint">2/3 of AWW (capped at statutory max)</span>
+          </div>
+          <div class="field-group">
+            <span class="field-label">Duration (Optional)</span>
+            <div class="field-wrap">
+              <input type="number" id="lwecDuration" min="0" placeholder="—">
+              <span class="field-suffix">wks</span>
+            </div>
+            <span class="field-hint">Leave blank for weekly benefit only</span>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="result-box">
+          <div class="result-grid">
+            <div class="result-item">
+              <span class="result-label">Weekly Benefit</span>
+              <span class="result-value" id="weeklyLwecResult">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Projected Total</span>
+              <span class="result-value blue" id="projectedTotalResult">—</span>
+            </div>
+          </div>
+
+          <!-- Save prompt -->
+          <div id="save-prompt" class="save-prompt" style="display:none">
+            <p id="save-prompt-text"></p>
+            <div id="save-prompt-actions"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Comparison Card -->
-    <div class="section">
-      <h2 class="section-title">Compare with SLU</h2>
-      <p style="color: #e0e0e0; margin-bottom: 16px;">
-        Not sure whether your case qualifies for Schedule Loss of Use or Loss of Wage Earning Capacity? Try our SLU calculator for comparison.
-      </p>
-      <a href="slu.html" class="btn-secondary" style="display: inline-block;">Go to SLU Calculator</a>
+    <!-- Compare with SLU -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Compare with SLU</span>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);margin-bottom:14px;">
+          Not sure whether your case qualifies for Schedule Loss of Use or Loss of Wage Earning Capacity? Try our SLU calculator for comparison.
+        </p>
+        <a href="slu.html" class="btn-secondary">Go to SLU Calculator</a>
+      </div>
     </div>
 
-    <!-- SEO Content Section -->
-    <div class="section">
-      <h2 class="section-title">About Loss of Wage Earning Capacity (LWEC)</h2>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        Loss of Wage Earning Capacity (LWEC), also known as permanent partial disability (PPD) in some contexts, is a form of workers' compensation benefit available to injured workers in New York State who have suffered permanent injuries that reduce their ability to earn wages. Unlike Schedule Loss of Use, which is a fixed benefit, LWEC is flexible and based on the individual worker's actual loss of earning capacity.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        <strong>Classification System:</strong> When an injured worker reaches maximum medical improvement and cannot return to their regular employment, the Workers' Compensation Board may classify the worker as having lost a percentage of their wage earning capacity. This classification is typically expressed as a percentage (e.g., 25%, 50%, 75% loss) based on the worker's medical condition, age, education, skills, and job market conditions.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        <strong>LWEC Benefit Calculation:</strong> The weekly LWEC benefit is calculated by multiplying the loss of earning capacity percentage by the worker's compensation rate (usually the 2/3 of AWW rate). For example, if a worker has a 50% loss of earning capacity and a compensation rate of $750/week, the LWEC benefit would be $375/week. LWEC benefits continue until the worker reaches age 65 or returns to work, depending on the terms of the classification.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8;">
-        The classification hearing is a key part of the LWEC process. At this hearing, both the worker and the employer (or insurer) present evidence regarding the degree of wage earning capacity loss. The Workers' Compensation Board judge will determine the appropriate classification percentage based on the evidence presented.
-      </p>
+    <!-- About LWEC -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">About Loss of Wage Earning Capacity (LWEC)</span>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          Loss of Wage Earning Capacity (LWEC), also known as permanent partial disability (PPD) in some contexts, is a form of workers' compensation benefit available to injured workers in New York State who have suffered permanent injuries that reduce their ability to earn wages. Unlike Schedule Loss of Use, which is a fixed benefit, LWEC is flexible and based on the individual worker's actual loss of earning capacity.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">Classification System:</strong> When an injured worker reaches maximum medical improvement and cannot return to regular employment, the Workers' Compensation Board may classify the worker as having lost a percentage of their wage earning capacity. This classification is expressed as a percentage (e.g., 25%, 50%, 75% loss) based on the worker's medical condition, age, education, skills, and job market conditions.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;">
+          <strong style="color:var(--tx);">LWEC Benefit Calculation:</strong> The weekly LWEC benefit is calculated by multiplying the loss of earning capacity percentage by the worker's compensation rate. For example, if a worker has a 50% loss of earning capacity and a compensation rate of $750/week, the LWEC benefit would be $375/week. LWEC benefits continue until the worker reaches age 65 or returns to work, depending on the terms of the classification.
+        </p>
+      </div>
     </div>
 
-    <!-- Download App CTA -->
+    <!-- App CTA -->
     <div class="upgrade-banner">
-      <div class="upgrade-title">Mobile Calculation</div>
-      <div class="upgrade-description">Calculate LWEC benefits on the go with our mobile app. Available on iOS and Android.</div>
+      <div class="upgrade-title">Full-Featured Mobile App</div>
+      <div class="upgrade-description">Calculate LWEC benefits, manage hearings, and track case history on the go.</div>
       <button class="btn-primary">Download the App</button>
     </div>
 
-    <!-- Footer Disclaimer -->
     <div class="disclaimer">
-      <p style="margin: 0;">
-        <strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. LWEC calculations are based on current New York State workers' compensation law and Department of Financial Services regulations. The classification percentage is determined by the Workers' Compensation Board and may vary based on medical evidence, vocational evaluation, and hearing outcomes. For legal guidance on LWEC classifications specific to your case, consult a qualified workers' compensation attorney.
-      </p>
+      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. LWEC calculations are based on current New York State workers' compensation law and Department of Financial Services regulations. The classification percentage is determined by the Workers' Compensation Board and may vary based on medical evidence, vocational evaluation, and hearing outcomes. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
     </div>
   </div>
 
   <noscript>
-    <div style="background: rgba(255, 152, 0, 0.2); border-left: 4px solid #FF9800; padding: 20px; color: #e0e0e0; font-family: sans-serif;">
+    <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
       <h2>NYS Loss of Wage Earning Capacity (LWEC) Calculator</h2>
       <p>This interactive calculator requires JavaScript to calculate Loss of Wage Earning Capacity weekly benefits and projections.</p>
-
-      <h3>About LWEC:</h3>
-      <p>Loss of Wage Earning Capacity (LWEC), also known as permanent partial disability (PPD) in some contexts, is a form of workers' compensation benefit available to injured workers in New York State who have suffered permanent injuries that reduce their ability to earn wages.</p>
-
-      <p>The weekly LWEC benefit is calculated by multiplying the loss of earning capacity percentage by the worker's compensation rate (usually the 2/3 of AWW rate). LWEC benefits continue until the worker reaches age 65 or returns to work, depending on the terms of the classification.</p>
     </div>
   </noscript>
 
@@ -138,15 +133,12 @@
     import { getOptionalUser, saveCalculation } from '../js/auth.js';
     import { renderPublicNav } from '../js/nav.js';
 
-    // Format currency helper
     function formatCurrency(value) {
       return '$' + parseFloat(value).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 2, maximumFractionDigits: 2
       });
     }
 
-    // Calculate LWEC
     function calculateLWEC() {
       const lwecPercent = parseFloat(document.getElementById('lwecPercent').value) || 0;
       const compRate = parseFloat(document.getElementById('lwecCompRate').value) || 0;
@@ -165,24 +157,58 @@
       weeklyResult.textContent = formatCurrency(weeklyBenefit);
 
       if (duration && duration > 0) {
-        const projected = weeklyBenefit * duration;
-        projectedResult.textContent = formatCurrency(projected);
+        projectedResult.textContent = formatCurrency(weeklyBenefit * duration);
       } else {
         projectedResult.textContent = '—';
       }
     }
 
-    // Add event listeners
     document.getElementById('lwecPercent').addEventListener('input', calculateLWEC);
     document.getElementById('lwecCompRate').addEventListener('input', calculateLWEC);
     document.getElementById('lwecDuration').addEventListener('input', calculateLWEC);
 
-    // Initialize auth and nav
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await getOptionalUser();
       renderPublicNav(user);
       calculateLWEC();
+
+      let prompted = false;
+      document.querySelectorAll('input').forEach(el => {
+        const trigger = () => {
+          if (!prompted && document.getElementById('weeklyLwecResult').textContent !== '—') {
+            prompted = true;
+            showSavePrompt(user);
+          }
+        };
+        el.addEventListener('input', trigger);
+      });
     });
+
+    function showSavePrompt(user) {
+      const prompt = document.getElementById('save-prompt');
+      const text = document.getElementById('save-prompt-text');
+      const actions = document.getElementById('save-prompt-actions');
+      if (!prompt) return;
+
+      if (!user || !user.session) {
+        text.textContent = 'Want to save this calculation?';
+        actions.innerHTML = `<a href="/auth_v2.html?mode=signup">Create free account</a>`;
+      } else {
+        text.textContent = 'Save this calculation to your history.';
+        actions.innerHTML = `<button id="sp-save-btn">Save</button>`;
+        document.getElementById('sp-save-btn').addEventListener('click', async () => {
+          const ok = await saveCalculation(user.session.user.id, 'lwec', {
+            lwecPercent: document.getElementById('lwecPercent').value,
+            compRate: document.getElementById('lwecCompRate').value,
+            duration: document.getElementById('lwecDuration').value,
+            weekly: document.getElementById('weeklyLwecResult').textContent,
+            projected: document.getElementById('projectedTotalResult').textContent
+          });
+          document.getElementById('sp-save-btn').textContent = ok ? 'Saved!' : 'Error';
+        });
+      }
+      prompt.style.display = 'flex';
+    }
   </script>
 </body>
 </html>

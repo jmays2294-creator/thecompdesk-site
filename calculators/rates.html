@@ -5,145 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NYS Workers' Comp Rate Lookup — 2026 Maximum Rates | The Comp Desk</title>
   <meta name="description" content="Free NYS workers' compensation maximum rate lookup. Find the statutory maximum rate for any injury date. Historical rates 2020-2026.">
-
-  <!-- Open Graph Tags -->
   <meta property="og:title" content="NYS Workers' Comp Rate Lookup — 2026 Maximum Rates">
   <meta property="og:description" content="Free lookup of NYS workers' compensation maximum rates by injury date. Historical rates and current statutory maxima.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/rates.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-rates.png">
-
-  <!-- Canonical URL -->
   <link rel="canonical" href="https://thecompdesk.com/calculators/rates.html">
-
   <link rel="stylesheet" href="../css/app.css">
 </head>
 <body>
   <div id="app-nav"></div>
 
   <div class="container">
-    <!-- Breadcrumb -->
     <div class="breadcrumb">
       <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>Rate Lookup</span>
     </div>
 
-    <!-- Page Title -->
     <h1 class="page-title">NYS Workers' Compensation Rate Lookup</h1>
     <p class="page-subtitle">Find the maximum weekly compensation rate for any date of injury in New York State.</p>
 
-    <!-- Calculator Section -->
-    <div class="section">
-      <h2 class="section-title">Rate Lookup</h2>
-
-      <div style="margin-bottom: 24px;">
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Date of Injury / Accident</label>
-        <input type="date" id="doiDate" style="width: 100%; max-width: 400px;">
-        <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">The statutory rate applies based on the accident date</span>
+    <!-- Rate Lookup -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Rate Lookup</span>
       </div>
+      <div class="calc-body">
+        <div class="fields-row">
+          <div class="field-group">
+            <span class="field-label">Date of Injury / Accident</span>
+            <input type="date" id="doiDate" style="width:100%;max-width:320px;">
+            <span class="field-hint">The statutory rate applies based on the accident date</span>
+          </div>
+        </div>
 
-      <!-- Results Section -->
-      <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 20px; margin-top: 24px;">
-        <div>
-          <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Applicable Maximum Rate</p>
-          <p style="color: #4CAF50; font-size: 36px; font-weight: 700; margin: 0 0 12px 0;" id="applicableRateResult">—</p>
-          <p style="color: #999; font-size: 12px; margin: 0;" id="rateEffectiveDate">—</p>
+        <!-- Result -->
+        <div class="result-box">
+          <div class="result-item" style="margin-bottom:10px;">
+            <span class="result-label">Applicable Maximum Rate</span>
+            <span class="result-value" id="applicableRateResult" style="font-size:30px;">—</span>
+          </div>
+          <div class="result-meta" id="rateEffectiveDate">—</div>
+        </div>
+
+        <div class="info-note" style="margin-top:14px;">
+          <strong>How This Works:</strong> The maximum weekly compensation rate in New York is adjusted annually on July 1st. The rate that applies to your case is determined by the date of injury. Benefits are typically calculated as 2/3 of the worker's Average Weekly Wage but cannot exceed the statutory maximum for the year of injury.
         </div>
       </div>
+    </div>
 
-      <!-- Information Note -->
-      <div style="background: rgba(33, 150, 243, 0.1); border-left: 4px solid #2196F3; padding: 16px; border-radius: 8px; margin-top: 24px;">
-        <p style="color: #e0e0e0; font-size: 14px; margin: 0;">
-          <strong>How This Works:</strong> The maximum weekly compensation rate in New York is adjusted annually on July 1st based on wage trends. The rate that applies to your case is determined by the date of injury. Workers' compensation benefits are typically calculated as 2/3 of the worker's Average Weekly Wage, but cannot exceed the statutory maximum rate for the year of injury.
+    <!-- Historical Rates -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Historical Maximum Rates</span>
+      </div>
+      <div class="calc-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Effective Date</th>
+              <th>Maximum Weekly Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>July 1, 2025</td><td>$1,145.43</td></tr>
+            <tr><td>July 1, 2024</td><td>$1,125.46</td></tr>
+            <tr><td>July 1, 2023</td><td>$1,063.05</td></tr>
+            <tr><td>July 1, 2022</td><td>$1,063.05</td></tr>
+            <tr><td>July 1, 2021</td><td>$966.78</td></tr>
+            <tr><td>July 1, 2020</td><td>$934.11</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--txM);font-size:11px;padding:10px 14px;">
+          Rates are updated annually by the New York Department of Financial Services. The rate effective on the date of injury applies throughout the case, unless modified by subsequent legislation.
         </p>
       </div>
     </div>
 
-    <!-- Historical Rates Table -->
-    <div class="section">
-      <h2 class="section-title">Historical Maximum Rates</h2>
-
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Effective Date</th>
-            <th>Maximum Weekly Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>July 1, 2025</td>
-            <td>$1,145.43</td>
-          </tr>
-          <tr>
-            <td>July 1, 2024</td>
-            <td>$1,125.46</td>
-          </tr>
-          <tr>
-            <td>July 1, 2023</td>
-            <td>$1,063.05</td>
-          </tr>
-          <tr>
-            <td>July 1, 2022</td>
-            <td>$1,063.05</td>
-          </tr>
-          <tr>
-            <td>July 1, 2021</td>
-            <td>$966.78</td>
-          </tr>
-          <tr>
-            <td>July 1, 2020</td>
-            <td>$934.11</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p style="color: #999; font-size: 12px; margin-top: 16px;">
-        Rates are updated annually by the New York Department of Financial Services. The rate effective on the date of injury applies throughout the case, unless modified by subsequent legislation.
-      </p>
+    <!-- About rates -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Understanding NYS Maximum Compensation Rates</span>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          The maximum weekly compensation rate in New York State is the highest amount a workers' compensation insurance carrier can pay to an injured worker for temporary or permanent disability benefits. This rate is adjusted annually by the New York Department of Financial Services, effective July 1st each year, based on wage indices calculated from U.S. Department of Labor data.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">How Rates Apply:</strong> The maximum rate that applies to a specific workers' compensation case is determined by the date of the work-related injury or occupational disease. Once established for a case, that rate remains applicable throughout the life of the case regardless of subsequent rate changes.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;">
+          <strong style="color:var(--tx);">Impact on Benefits:</strong> The maximum rate affects all types of workers' compensation benefits. A worker's 2/3 compensation rate cannot exceed the statutory maximum for the year of injury. Workers with higher wages are capped at the maximum, while lower-wage workers receive 2/3 of their AWW.
+        </p>
+      </div>
     </div>
 
-    <!-- SEO Content Section -->
-    <div class="section">
-      <h2 class="section-title">Understanding NYS Maximum Compensation Rates</h2>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        The maximum weekly compensation rate in New York State is the highest amount a workers' compensation insurance carrier can pay to an injured worker for temporary or permanent disability benefits. This rate is adjusted annually by the New York Department of Financial Services, effective July 1st each year. The adjustment is based on wage indices calculated from data provided by the U.S. Department of Labor.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        <strong>How Rates Apply:</strong> The maximum rate that applies to a specific workers' compensation case is determined by the date of the work-related injury or occupational disease. Once a rate is established for a case based on the date of injury, that rate remains applicable throughout the life of the case. If a worker receives benefits spanning multiple rate years, the applicable rate depends on when the injury occurred, not when benefits are being paid.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        <strong>Impact on Benefits:</strong> The maximum rate affects all types of workers' compensation benefits. For example, a worker's 2/3 compensation rate (calculated as two-thirds of Average Weekly Wage) cannot exceed the statutory maximum for the year of injury. This means that workers with higher wages are capped at the maximum rate, while lower-wage workers receive 2/3 of their AWW regardless of the maximum.
-      </p>
-
-      <p style="color: #e0e0e0; line-height: 1.8;">
-        It is important to use the correct rate for the date of injury when calculating or estimating workers' compensation benefits. Using an incorrect rate can lead to significant overestimates or underestimates of benefit amounts. When in doubt, consult with a workers' compensation professional or attorney to ensure the correct rate is being applied to your case.
-      </p>
-    </div>
-
-    <!-- Download App CTA -->
+    <!-- App CTA -->
     <div class="upgrade-banner">
-      <div class="upgrade-title">Mobile Lookup</div>
-      <div class="upgrade-description">Look up rates on the go with our mobile app. Available on iOS and Android.</div>
+      <div class="upgrade-title">Full-Featured Mobile App</div>
+      <div class="upgrade-description">Look up rates and calculate benefits on the go with the full Comp Desk app.</div>
       <button class="btn-primary">Download the App</button>
     </div>
 
-    <!-- Footer Disclaimer -->
     <div class="disclaimer">
-      <p style="margin: 0;">
-        <strong>Disclaimer:</strong> This rate lookup is provided for informational purposes only and does not constitute legal advice. Rates shown are based on New York Department of Financial Services announcements and are accurate as of the date shown. For the most current rate information, consult the official DFS website or a qualified workers' compensation attorney. Rates may be subject to future adjustments or modifications by state law.
-      </p>
+      <p style="margin:0;"><strong>Disclaimer:</strong> This rate lookup is provided for informational purposes only and does not constitute legal advice. Rates shown are based on New York Department of Financial Services announcements and are accurate as of the dates shown. For the most current rate information, consult the official DFS website or a qualified workers' compensation attorney.</p>
     </div>
   </div>
 
   <noscript>
-    <div style="background: rgba(255, 152, 0, 0.2); border-left: 4px solid #FF9800; padding: 20px; color: #e0e0e0; font-family: sans-serif;">
+    <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
       <h2>NYS Workers' Compensation Rate Lookup</h2>
-      <p>This interactive calculator requires JavaScript to look up maximum weekly compensation rates by date of injury.</p>
-
-      <h3>Historical Maximum Rates:</h3>
       <ul>
         <li>July 1, 2025: $1,145.43</li>
         <li>July 1, 2024: $1,125.46</li>
@@ -152,8 +122,6 @@
         <li>July 1, 2021: $966.78</li>
         <li>July 1, 2020: $934.11</li>
       </ul>
-
-      <p>The maximum rate that applies to a workers' compensation case is determined by the date of the work-related injury. This rate remains applicable throughout the life of the case.</p>
     </div>
   </noscript>
 
@@ -161,7 +129,6 @@
     import { getOptionalUser } from '../js/auth.js';
     import { renderPublicNav } from '../js/nav.js';
 
-    // Rate schedule
     const rates = [
       { effectiveDate: new Date(2025, 6, 1), rate: 1145.43 },
       { effectiveDate: new Date(2024, 6, 1), rate: 1125.46 },
@@ -169,41 +136,29 @@
       { effectiveDate: new Date(2022, 6, 1), rate: 1063.05 },
       { effectiveDate: new Date(2021, 6, 1), rate: 966.78 },
       { effectiveDate: new Date(2020, 6, 1), rate: 934.11 },
-      { effectiveDate: new Date(2000, 0, 1), rate: 934.11 } // fallback for old dates
+      { effectiveDate: new Date(2000, 0, 1), rate: 934.11 }
     ];
 
-    // Format currency helper
     function formatCurrency(value) {
       return '$' + parseFloat(value).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 2, maximumFractionDigits: 2
       });
     }
 
-    // Get rate for a date
     function getRateForDate(dateString) {
       if (!dateString) return null;
-
       const selectedDate = new Date(dateString);
       selectedDate.setHours(0, 0, 0, 0);
-
-      // Find the applicable rate (most recent rate before or on the selected date)
       for (const rateEntry of rates) {
-        if (selectedDate >= rateEntry.effectiveDate) {
-          return rateEntry;
-        }
+        if (selectedDate >= rateEntry.effectiveDate) return rateEntry;
       }
-
       return rates[rates.length - 1];
     }
 
-    // Format effective date
     function formatEffectiveDate(date) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return 'Effective ' + date.toLocaleDateString('en-US', options);
+      return 'Effective ' + date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 
-    // Look up rate
     function lookupRate() {
       const doiInput = document.getElementById('doiDate').value;
       const resultElement = document.getElementById('applicableRateResult');
@@ -232,10 +187,8 @@
     const dd = String(today.getDate()).padStart(2, '0');
     document.getElementById('doiDate').value = yyyy + '-' + mm + '-' + dd;
 
-    // Add event listener
     document.getElementById('doiDate').addEventListener('change', lookupRate);
 
-    // Initialize auth and nav
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await getOptionalUser();
       renderPublicNav(user);
