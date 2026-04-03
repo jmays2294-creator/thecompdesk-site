@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWEC Calculator — Loss of Wage Earning Capacity | NYS Workers' Comp | The Comp Desk</title>
-  <meta name="description" content="Free NYS Loss of Wage Earning Capacity (LWEC) calculator. Calculate weekly benefits and projected totals. Compare with SLU benefits under New York workers' compensation law.">
+  <meta name="description" content="Free NYS Loss of Wage Earning Capacity (LWEC) calculator. Calculate weekly benefits, bracket classification, max weeks, attorney fee (15 weeks), and net to claimant under New York workers' compensation law.">
   <meta property="og:title" content="LWEC Calculator — Loss of Wage Earning Capacity | NYS Workers' Comp">
-  <meta property="og:description" content="Free calculator for NYS Loss of Wage Earning Capacity benefits. Calculate LWEC weekly benefits and projected totals instantly.">
+  <meta property="og:description" content="Free calculator for NYS Loss of Wage Earning Capacity benefits with bracket system, max weeks, attorney fee, and net to claimant.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/lwec.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-lwec.png">
@@ -22,7 +22,7 @@
     </div>
 
     <h1 class="page-title">NYS Loss of Wage Earning Capacity (LWEC) Calculator</h1>
-    <p class="page-subtitle">Calculate Loss of Wage Earning Capacity weekly benefits and projections under New York Workers' Compensation Law.</p>
+    <p class="page-subtitle">Calculate Loss of Wage Earning Capacity classification rate, bracket, max weeks, attorney fee, and net to claimant under New York Workers' Compensation Law.</p>
 
     <!-- Calculator -->
     <div class="calc-section">
@@ -30,44 +30,103 @@
         <span class="calc-header-title">Calculator</span>
       </div>
       <div class="calc-body">
+
+        <!-- AWW inputs -->
+        <div class="fields-row" style="margin-bottom:12px;">
+          <div class="field-group">
+            <label class="field-label" for="awwInput">Average Weekly Wage (AWW)</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="awwInput" value="1125.00" step="0.01" aria-label="Average weekly wage">
+            </div>
+            <span class="field-hint">2/3 AWW = comp rate (auto-calculated)</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="maxRate">Maximum Rate</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="maxRate" value="1222.42" step="0.01" aria-label="Statutory maximum weekly rate">
+            </div>
+            <span class="field-hint" id="maxRateHint">Current max: $1,222.42 (7/1/2025)</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="doiDate">Date of Injury</label>
+            <input type="date" id="doiDate" aria-label="Date of injury — auto-fills max rate">
+            <span class="field-hint">Auto-fills max rate</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;padding:8px 12px;background:var(--cardA);border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--txD);">
+          2/3 AWW (Comp Rate): <span id="compRateDisplay" style="color:var(--gd);font-weight:800;font-family:var(--mono);">—</span>
+        </div>
+
         <div class="fields-row">
           <div class="field-group">
-            <span class="field-label">LWEC Loss Percentage</span>
+            <label class="field-label" for="lwecPercent">LWEC Loss Percentage</label>
             <div class="field-wrap">
-              <input type="number" id="lwecPercent" min="0" max="100" value="25">
+              <input type="number" id="lwecPercent" min="0" max="100" value="25" aria-label="LWEC loss percentage">
               <span class="field-suffix">%</span>
             </div>
             <span class="field-hint">0–100% loss of earning capacity</span>
           </div>
           <div class="field-group">
-            <span class="field-label">Compensation Rate</span>
+            <label class="field-label" for="lwecFeePerWeek">Attorney Fee/Week (Optional)</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="lwecCompRate" value="750.00" step="0.01">
+              <input type="number" id="lwecFeePerWeek" value="0" step="0.01" placeholder="0" aria-label="Weekly attorney fee amount">
             </div>
-            <span class="field-hint">2/3 of AWW (capped at statutory max)</span>
-          </div>
-          <div class="field-group">
-            <span class="field-label">Duration (Optional)</span>
-            <div class="field-wrap">
-              <input type="number" id="lwecDuration" min="0" placeholder="—">
-              <span class="field-suffix">wks</span>
-            </div>
-            <span class="field-hint">Leave blank for weekly benefit only</span>
+            <span class="field-hint">Deducted from weekly net</span>
           </div>
         </div>
 
         <!-- Results -->
-        <div class="result-box">
+        <div class="result-box" style="margin-top:16px;">
           <div class="result-grid">
             <div class="result-item">
-              <span class="result-label">Weekly Benefit</span>
-              <span class="result-value" id="weeklyLwecResult">—</span>
+              <span class="result-label">2/3 AWW (Comp Rate)</span>
+              <span class="result-value" id="ttResult">—</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Projected Total</span>
-              <span class="result-value blue" id="projectedTotalResult">—</span>
+              <span class="result-label">Classification Rate</span>
+              <span class="result-value gold" id="classRateResult">—</span>
             </div>
+            <div class="result-item">
+              <span class="result-label">Bracket</span>
+              <span class="result-value" id="bracketResult">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Max Weeks</span>
+              <span class="result-value blue" id="maxWeeksResult">—</span>
+            </div>
+          </div>
+
+          <!-- Fee & Net breakdown -->
+          <div id="feeBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;">Award &amp; Fee Breakdown</div>
+            <div class="result-row-list">
+              <div class="result-row-item">
+                <span class="result-row-label">Total Award (rate × max weeks)</span>
+                <span class="result-row-val mono" id="totalAwardResult">—</span>
+              </div>
+              <div class="result-row-item">
+                <span class="result-row-label" style="color:var(--gn);">Attorney Fee (15 weeks × rate)</span>
+                <span class="result-row-val mono" style="color:var(--gn);" id="attyFeeResult">—</span>
+              </div>
+              <div class="result-row-item">
+                <span class="result-row-label">Weekly Net (after fee/wk)</span>
+                <span class="result-row-val mono" id="weeklyNetResult">—</span>
+              </div>
+              <div class="result-row-item" style="border-top:1px solid var(--bd);padding-top:6px;margin-top:4px;">
+                <span class="result-row-label" style="color:var(--gd);font-weight:700;">Total Net to Claimant</span>
+                <span class="result-row-val mono" style="color:var(--gd);font-weight:800;" id="totalNetResult">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equation -->
+          <div id="equationBox" style="display:none;margin-top:14px;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;">Calculation Breakdown</div>
+            <pre id="equationText" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
           </div>
 
           <!-- Save prompt -->
@@ -76,6 +135,42 @@
             <div id="save-prompt-actions"></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- LWEC Bracket Reference -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">LWEC Classification Brackets</span>
+      </div>
+      <div class="calc-body" style="padding:0;">
+        <table class="data-table" id="bracketTable">
+          <thead>
+            <tr>
+              <th>Classification</th>
+              <th>LWEC % Range</th>
+              <th>Max Weeks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Total (Industrial)</td><td>100%</td><td>Lifetime</td></tr>
+            <tr><td>96%+</td><td>96–100%</td><td>525</td></tr>
+            <tr><td>91–95%</td><td>91–95%</td><td>500</td></tr>
+            <tr><td>86–90%</td><td>86–90%</td><td>475</td></tr>
+            <tr><td>81–85%</td><td>81–85%</td><td>450</td></tr>
+            <tr><td>76–80%</td><td>76–80%</td><td>425</td></tr>
+            <tr><td>71–75%</td><td>71–75%</td><td>400</td></tr>
+            <tr><td>61–70%</td><td>61–70%</td><td>375</td></tr>
+            <tr><td>51–60%</td><td>51–60%</td><td>350</td></tr>
+            <tr><td>41–50%</td><td>41–50%</td><td>300</td></tr>
+            <tr><td>31–40%</td><td>31–40%</td><td>275</td></tr>
+            <tr><td>16–30%</td><td>16–30%</td><td>250</td></tr>
+            <tr><td>15% or less</td><td>0–15%</td><td>225</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--txM);font-size:11px;padding:10px 14px;">
+          Attorney fee is assessed as 15 weeks × the classification rate, deducted from the total award. For "Total (Industrial)" classifications, benefits continue for life.
+        </p>
       </div>
     </div>
 
@@ -102,10 +197,13 @@
           Loss of Wage Earning Capacity (LWEC), also known as permanent partial disability (PPD) in some contexts, is a form of workers' compensation benefit available to injured workers in New York State who have suffered permanent injuries that reduce their ability to earn wages. Unlike Schedule Loss of Use, which is a fixed benefit, LWEC is flexible and based on the individual worker's actual loss of earning capacity.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">Classification System:</strong> When an injured worker reaches maximum medical improvement and cannot return to regular employment, the Workers' Compensation Board may classify the worker as having lost a percentage of their wage earning capacity. This classification is expressed as a percentage (e.g., 25%, 50%, 75% loss) based on the worker's medical condition, age, education, skills, and job market conditions.
+          <strong style="color:var(--tx);">Classification System:</strong> When an injured worker reaches maximum medical improvement and cannot return to regular employment, the Workers' Compensation Board classifies the worker as having lost a percentage of their wage earning capacity. This percentage falls into a bracket that determines the maximum number of weeks of benefits payable.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">LWEC Benefit Calculation:</strong> The weekly LWEC classification rate equals the LWEC percentage × the worker's 2/3 AWW compensation rate. For example, a 50% LWEC classification with a $750/week comp rate yields $375/week. That rate is paid for the maximum weeks in the bracket (350 weeks for 51–60%).
         </p>
         <p style="color:var(--txD);line-height:1.8;">
-          <strong style="color:var(--tx);">LWEC Benefit Calculation:</strong> The weekly LWEC benefit is calculated by multiplying the loss of earning capacity percentage by the worker's compensation rate. For example, if a worker has a 50% loss of earning capacity and a compensation rate of $750/week, the LWEC benefit would be $375/week. LWEC benefits continue until the worker reaches age 65 or returns to work, depending on the terms of the classification.
+          <strong style="color:var(--tx);">Attorney Fee:</strong> Under WCL §24, attorneys are typically awarded 15 weeks × the weekly classification rate as their fee, deducted from the total award. This calculator shows the full fee and net-to-claimant breakdown.
         </p>
       </div>
     </div>
@@ -133,60 +231,166 @@
     import { getOptionalUser, saveCalculation } from '../js/auth.js';
     import { renderPublicNav } from '../js/nav.js';
 
+    // LWEC bracket table — matches app LWEC_BR
+    const LWEC_BR = [
+      { l: "Total (Industrial)", mw: "Lifetime" },
+      { l: "96%+",      lo: 96,  hi: 100, mw: 525 },
+      { l: "91–95%",    lo: 91,  hi: 95,  mw: 500 },
+      { l: "86–90%",    lo: 86,  hi: 90,  mw: 475 },
+      { l: "81–85%",    lo: 81,  hi: 85,  mw: 450 },
+      { l: "76–80%",    lo: 76,  hi: 80,  mw: 425 },
+      { l: "71–75%",    lo: 71,  hi: 75,  mw: 400 },
+      { l: "61–70%",    lo: 61,  hi: 70,  mw: 375 },
+      { l: "51–60%",    lo: 51,  hi: 60,  mw: 350 },
+      { l: "41–50%",    lo: 41,  hi: 50,  mw: 300 },
+      { l: "31–40%",    lo: 31,  hi: 40,  mw: 275 },
+      { l: "16–30%",    lo: 16,  hi: 30,  mw: 250 },
+      { l: "15% or less", lo: 0, hi: 15,  mw: 225 },
+    ];
+
+    const MAX_RATES = [
+      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025+",               max: 1222.42 },
+      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025", max: 1171.46 },
+      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024", max: 1145.43 },
+      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023", max: 1125.46 },
+      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022", max: 1063.05 },
+      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021", max: 966.78  },
+      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020", max: 934.11  },
+      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019", max: 904.74  },
+      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018", max: 870.61  },
+      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017", max: 864.32  },
+      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016", max: 844.29  },
+      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015", max: 808.65  },
+      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014", max: 803.21  },
+      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013", max: 792.07  },
+      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012", max: 772.96  },
+      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011", max: 739.83  },
+      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010", max: 600.00  },
+      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009", max: 550.00  },
+      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008", max: 500.00  },
+      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400.00  },
+    ];
+
+    function getMaxForDate(dateStr) {
+      if (!dateStr) return MAX_RATES[0];
+      const dt = new Date(dateStr + 'T00:00:00');
+      for (const r of MAX_RATES) {
+        if (dt >= new Date(r.s + 'T00:00:00') && dt <= new Date(r.e + 'T23:59:59')) return r;
+      }
+      return MAX_RATES[MAX_RATES.length - 1];
+    }
+
+    function getBracket(pct) {
+      if (pct >= 100) return LWEC_BR[0];
+      for (const b of LWEC_BR) {
+        if (b.lo !== undefined && pct >= b.lo && pct <= b.hi) return b;
+      }
+      return LWEC_BR[LWEC_BR.length - 1];
+    }
+
     function formatCurrency(value) {
       return '$' + parseFloat(value).toLocaleString('en-US', {
         minimumFractionDigits: 2, maximumFractionDigits: 2
       });
     }
 
+    // Highlight active bracket row
+    function highlightBracketTable(bracket) {
+      document.querySelectorAll('#bracketTable tbody tr').forEach(tr => {
+        tr.style.background = '';
+        tr.style.color = '';
+      });
+      if (!bracket) return;
+      const rows = document.querySelectorAll('#bracketTable tbody tr');
+      rows.forEach(tr => {
+        if (tr.cells[0].textContent.trim() === bracket.l) {
+          tr.style.background = 'rgba(59,130,246,0.12)';
+          tr.style.color = 'var(--ac)';
+        }
+      });
+    }
+
     function calculateLWEC() {
-      const lwecPercent = parseFloat(document.getElementById('lwecPercent').value) || 0;
-      const compRate = parseFloat(document.getElementById('lwecCompRate').value) || 0;
-      const duration = parseFloat(document.getElementById('lwecDuration').value) || null;
+      const aww      = parseFloat(document.getElementById('awwInput').value) || 0;
+      const maxRate  = parseFloat(document.getElementById('maxRate').value) || 1222.42;
+      const lwecPct  = parseFloat(document.getElementById('lwecPercent').value) || 0;
+      const feePerWk = parseFloat(document.getElementById('lwecFeePerWeek').value) || 0;
 
-      const weeklyResult = document.getElementById('weeklyLwecResult');
-      const projectedResult = document.getElementById('projectedTotalResult');
+      const tt = Math.min(aww * (2 / 3), maxRate);
 
-      if (lwecPercent < 0 || compRate <= 0) {
-        weeklyResult.textContent = '—';
-        projectedResult.textContent = '—';
+      document.getElementById('compRateDisplay').textContent = formatCurrency(tt);
+      document.getElementById('ttResult').textContent = formatCurrency(tt);
+
+      if (lwecPct <= 0 || tt <= 0) {
+        ['classRateResult','bracketResult','maxWeeksResult'].forEach(id =>
+          document.getElementById(id).textContent = '—'
+        );
+        document.getElementById('feeBreakdown').style.display = 'none';
+        document.getElementById('equationBox').style.display = 'none';
+        highlightBracketTable(null);
         return;
       }
 
-      const weeklyBenefit = (lwecPercent / 100) * compRate;
-      weeklyResult.textContent = formatCurrency(weeklyBenefit);
+      const classRate = tt * (lwecPct / 100);
+      const bracket   = getBracket(lwecPct);
+      const mw        = bracket.mw;
+      const isLifetime = mw === 'Lifetime';
 
-      if (duration && duration > 0) {
-        projectedResult.textContent = formatCurrency(weeklyBenefit * duration);
-      } else {
-        projectedResult.textContent = '—';
+      document.getElementById('classRateResult').textContent = formatCurrency(classRate);
+      document.getElementById('bracketResult').textContent   = bracket.l;
+      document.getElementById('maxWeeksResult').textContent  = String(mw);
+
+      highlightBracketTable(bracket);
+
+      const totalAward  = isLifetime ? null : classRate * mw;
+      const attyFee     = classRate * 15;
+      const weeklyNet   = classRate - feePerWk;
+      const totalNet    = totalAward !== null ? totalAward - attyFee : null;
+
+      document.getElementById('feeBreakdown').style.display = 'block';
+      document.getElementById('totalAwardResult').textContent = totalAward !== null ? formatCurrency(totalAward) : 'Lifetime';
+      document.getElementById('attyFeeResult').textContent    = formatCurrency(attyFee);
+      document.getElementById('weeklyNetResult').textContent  = formatCurrency(weeklyNet);
+      document.getElementById('totalNetResult').textContent   = totalNet !== null ? formatCurrency(totalNet) : 'Lifetime (less fee)';
+
+      // Equation
+      let eq = 'LWEC Classification:\n';
+      eq += `2/3 AWW: ${formatCurrency(tt)}\n`;
+      eq += `LWEC: ${lwecPct.toFixed(1)}% → Classification Rate: ${formatCurrency(tt)} × ${lwecPct.toFixed(1)}% = ${formatCurrency(classRate)}/wk\n`;
+      eq += `Bracket: ${bracket.l} (Max ${mw} weeks)\n`;
+      if (totalAward !== null) {
+        eq += `Total Award: ${mw} wks × ${formatCurrency(classRate)} = ${formatCurrency(totalAward)}\n`;
       }
+      eq += `Fee (15 wks): ${formatCurrency(classRate)} × 15 = ${formatCurrency(attyFee)}\n`;
+      if (totalNet !== null) {
+        eq += `Net to Claimant: ${formatCurrency(totalAward)} − ${formatCurrency(attyFee)} = ${formatCurrency(totalNet)}`;
+      } else {
+        eq += `Net: Lifetime benefits less ${formatCurrency(attyFee)} attorney fee`;
+      }
+
+      document.getElementById('equationBox').style.display = 'block';
+      document.getElementById('equationText').textContent = eq;
     }
 
-    document.getElementById('lwecPercent').addEventListener('input', calculateLWEC);
-    document.getElementById('lwecCompRate').addEventListener('input', calculateLWEC);
-    document.getElementById('lwecDuration').addEventListener('input', calculateLWEC);
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getOptionalUser();
-      renderPublicNav(user);
-      calculateLWEC();
-
-      let prompted = false;
-      document.querySelectorAll('input').forEach(el => {
-        const trigger = () => {
-          if (!prompted && document.getElementById('weeklyLwecResult').textContent !== '—') {
-            prompted = true;
-            showSavePrompt(user);
-          }
-        };
-        el.addEventListener('input', trigger);
-      });
+    ['awwInput','maxRate','lwecPercent','lwecFeePerWeek'].forEach(id => {
+      document.getElementById(id).addEventListener('input', calculateLWEC);
     });
 
+    document.getElementById('doiDate').addEventListener('change', () => {
+      const doi = document.getElementById('doiDate').value;
+      const rateObj = getMaxForDate(doi);
+      document.getElementById('maxRate').value = rateObj.max.toFixed(2);
+      document.getElementById('maxRateHint').textContent = `Rate: ${formatCurrency(rateObj.max)} (${rateObj.l})`;
+      calculateLWEC();
+    });
+
+    function formatCurrencyLocal(v) {
+      return '$' + parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     function showSavePrompt(user) {
-      const prompt = document.getElementById('save-prompt');
-      const text = document.getElementById('save-prompt-text');
+      const prompt  = document.getElementById('save-prompt');
+      const text    = document.getElementById('save-prompt-text');
       const actions = document.getElementById('save-prompt-actions');
       if (!prompt) return;
 
@@ -198,17 +402,43 @@
         actions.innerHTML = `<button id="sp-save-btn">Save</button>`;
         document.getElementById('sp-save-btn').addEventListener('click', async () => {
           const ok = await saveCalculation(user.session.user.id, 'lwec', {
-            lwecPercent: document.getElementById('lwecPercent').value,
-            compRate: document.getElementById('lwecCompRate').value,
-            duration: document.getElementById('lwecDuration').value,
-            weekly: document.getElementById('weeklyLwecResult').textContent,
-            projected: document.getElementById('projectedTotalResult').textContent
+            lwecPct:   document.getElementById('lwecPercent').value,
+            classRate: document.getElementById('classRateResult').textContent,
+            bracket:   document.getElementById('bracketResult').textContent,
+            maxWeeks:  document.getElementById('maxWeeksResult').textContent,
+            totalAward: document.getElementById('totalAwardResult').textContent,
+            attyFee:   document.getElementById('attyFeeResult').textContent,
+            totalNet:  document.getElementById('totalNetResult').textContent
           });
           document.getElementById('sp-save-btn').textContent = ok ? 'Saved!' : 'Error';
         });
       }
       prompt.style.display = 'flex';
     }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await getOptionalUser();
+      renderPublicNav(user);
+      calculateLWEC();
+
+      let prompted = false;
+      document.querySelectorAll('input').forEach(el => {
+        const trigger = () => {
+          if (!prompted && document.getElementById('classRateResult').textContent !== '—') {
+            prompted = true;
+            showSavePrompt(user);
+          }
+        };
+        el.addEventListener('input', trigger);
+      });
+    });
   </script>
+
+  <style>
+    .result-row-list { display: flex; flex-direction: column; gap: 4px; }
+    .result-row-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
+    .result-row-label { color: var(--txD); }
+    .result-row-val { font-family: var(--mono); color: var(--tx); font-weight: 600; }
+  </style>
 </body>
 </html>

@@ -3,94 +3,386 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workers' Comp Award Calculator — Classified Compensation | NYS | The Comp Desk</title>
-  <meta name="description" content="Free NYS workers' compensation award calculator. Calculate classified permanent partial disability, permanent total disability, and death benefits. Includes credit and offset calculations.">
-  <meta property="og:title" content="Workers' Comp Award Calculator — Classified Compensation | NYS">
-  <meta property="og:description" content="Free calculator for NYS workers' compensation awards including PPD, PTD, and death benefits.">
+  <title>CCP / Award Calculator — Period-Based NYS Workers' Comp | The Comp Desk</title>
+  <meta name="description" content="Free NYS workers' compensation CCP award calculator. Enter date ranges by period designation (TT, RE, TR, TP) to calculate gross award, attorney fee, and net to claimant. Exact app formulas.">
+  <meta property="og:title" content="CCP / Award Calculator — Period-Based NYS Workers' Comp | The Comp Desk">
+  <meta property="og:description" content="Calculate classified CCP awards period-by-period with automatic rate calculation from AWW. Includes attorney fee breakdown and net to claimant.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/ccp-award.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-award.png">
   <link rel="canonical" href="https://thecompdesk.com/calculators/ccp-award.html">
   <link rel="stylesheet" href="../css/app.css">
+  <style>
+    /* Period row layout */
+    .period-row {
+      background: var(--cardA);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .period-row:focus-within {
+      border-color: var(--ac);
+    }
+    .period-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+    @media (max-width: 700px) {
+      .period-fields { grid-template-columns: 1fr 1fr; }
+    }
+    .desig-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .desig-btn {
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      border: 1px solid var(--bd);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--txD);
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .desig-btn:hover { border-color: var(--ac); color: var(--tx); }
+    .desig-btn.active-TT  { background: rgba(59,130,246,.18); border-color: var(--ac); color: var(--ac); }
+    .desig-btn.active-RE  { background: rgba(168,85,247,.18); border-color: #a855f7; color: #a855f7; }
+    .desig-btn.active-TR  { background: rgba(59,130,246,.10); border-color: var(--ac); color: var(--ac); }
+    .desig-btn.active-TP  { background: rgba(245,158,11,.12); border-color: var(--gd); color: var(--gd); }
+    .desig-btn.active-NCLT{ background: rgba(239,68,68,.12);  border-color: var(--rd); color: var(--rd); }
+    .desig-btn.active-NME { background: rgba(16,185,129,.12); border-color: var(--gn); color: var(--gn); }
+
+    /* Weeks display pill */
+    .weeks-pill {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ac);
+      background: var(--acG);
+      border: 1px solid rgba(59,130,246,.2);
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-top: 4px;
+    }
+    /* Rate note */
+    .rate-note {
+      font-size: 10px;
+      color: var(--txM);
+      margin-top: 3px;
+    }
+    .rate-note.re { color: #a855f7; }
+    .rate-note.tr { color: var(--ac); }
+
+    /* Del button */
+    .del-period-btn {
+      background: transparent;
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 4px;
+      color: var(--rd);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0 8px;
+      height: 32px;
+      line-height: 1;
+      transition: background .15s;
+      align-self: center;
+    }
+    .del-period-btn:hover { background: rgba(239,68,68,.1); }
+
+    /* Award summary table */
+    .award-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .award-table th {
+      text-align: left;
+      color: var(--txM);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      padding: 4px 8px 6px;
+      border-bottom: 1px solid var(--bd);
+    }
+    .award-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(30,58,95,.4);
+      color: var(--tx);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .award-table td.label { font-family: var(--font); font-size: 11px; color: var(--txD); }
+    .award-table td.amount { color: var(--gn); font-weight: 700; }
+    .award-table tfoot td { border-top: 2px solid var(--bd); border-bottom: none; font-weight: 800; }
+
+    /* Desig badge */
+    .desig-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 3px;
+      letter-spacing: .3px;
+    }
+    .badge-TT   { background: rgba(59,130,246,.15);  color: var(--ac); }
+    .badge-RE   { background: rgba(168,85,247,.15);  color: #a855f7; }
+    .badge-TR   { background: rgba(59,130,246,.10);  color: var(--ac); }
+    .badge-TP   { background: rgba(245,158,11,.15);  color: var(--gd); }
+    .badge-NCLT { background: rgba(239,68,68,.12);   color: var(--rd); }
+    .badge-NME  { background: rgba(16,185,129,.12);  color: var(--gn); }
+
+    /* Result row list (same as SLU page) */
+    .result-row-list { display: flex; flex-direction: column; gap: 0; }
+    .result-row-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(30,58,95,.35);
+    }
+    .result-row-item:last-child { border-bottom: none; }
+    .result-row-label { font-size: 12px; color: var(--txD); }
+    .result-row-val   { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--tx); }
+
+    /* Section divider in results */
+    .section-divider {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--txM);
+      letter-spacing: .5px;
+      margin: 12px 0 6px;
+    }
+
+    /* AWW hero */
+    .aww-hero {
+      background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(59,130,246,.03));
+      border: 1px solid rgba(59,130,246,.25);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .aww-hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--ac);
+      letter-spacing: .5px;
+    }
+    .aww-computed {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--txD);
+      margin-top: 2px;
+    }
+  </style>
 </head>
 <body>
   <div id="app-nav"></div>
 
   <div class="container">
     <div class="breadcrumb">
-      <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>Award Calculator</span>
+      <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>CCP / Award Calculator</span>
     </div>
 
-    <h1 class="page-title">NYS Workers' Compensation Award Calculator</h1>
-    <p class="page-subtitle">Calculate classified awards for permanent partial disability, permanent total disability, and death benefits.</p>
+    <h1 class="page-title">NYS CCP / Award Calculator</h1>
+    <p class="page-subtitle">Period-by-period calculation of workers' compensation awards (TT, RE, TR, TP, NCLT, NME). Automatically derives rates from AWW. Includes attorney fee breakdown and net to claimant.</p>
 
-    <!-- Calculator -->
+    <!-- ═══════════════════════════════════════════
+         GLOBAL INPUTS: AWW + DOA + TT Rate
+    ═══════════════════════════════════════════ -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Calculator</span>
+        <span class="calc-header-title">Global Inputs</span>
       </div>
       <div class="calc-body">
 
-        <div style="margin-bottom:12px;">
-          <span class="field-label" style="display:block;margin-bottom:6px;">Classification Type</span>
-          <select id="classType" style="width:100%;">
-            <option value="">Select a classification...</option>
-            <option value="ppd">Permanent Partial Disability (PPD)</option>
-            <option value="ptd">Permanent Total Disability (PTD)</option>
-            <option value="death">Death Benefits</option>
-          </select>
+        <!-- AWW Hero -->
+        <div class="aww-hero">
+          <div style="flex:0 0 auto;">
+            <div class="aww-hero-label">Average Weekly Wage (AWW)</div>
+            <div class="field-wrap" style="margin-top:6px;max-width:200px;">
+              <span class="field-prefix">$</span>
+              <input type="number" id="awwInput" value="1200.00" step="0.01"
+                     aria-label="Average weekly wage — used to auto-calculate all period rates"
+                     min="0">
+            </div>
+          </div>
+          <div style="flex:1;min-width:160px;">
+            <div class="aww-hero-label">Computed TT Rate</div>
+            <div class="aww-computed" id="ttRateDisplay">—</div>
+            <div style="font-size:10px;color:var(--txM);margin-top:2px;">2/3 AWW capped at statutory max</div>
+          </div>
         </div>
 
+        <!-- DOA + Max Rate -->
+        <div class="fields-row" style="margin-bottom:0;">
+          <div class="field-group">
+            <label class="field-label" for="doaDate">Date of Accident (DOA)</label>
+            <input type="date" id="doaDate" aria-label="Date of accident — auto-fills statutory max rate">
+            <span class="field-hint">Auto-fills statutory max rate</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="maxRateInput">Statutory Max Rate</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="maxRateInput" value="1222.42" step="0.01"
+                     aria-label="Statutory maximum weekly rate for date of accident" min="0">
+            </div>
+            <span class="field-hint" id="maxRateHint">Current: $1,222.42 (Jul 1, 2025)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         PERIOD ENTRIES
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Period Entries</span>
+        <button id="resetBtn" class="btn-ghost" style="margin-left:auto;font-size:10px;padding:3px 8px;" aria-label="Reset all period entries">Reset</button>
+      </div>
+      <div class="calc-body">
+
+        <div id="periods-container" role="list" aria-label="Award periods">
+          <!-- injected by JS -->
+        </div>
+
+        <button id="addPeriodBtn" class="btn-secondary" aria-label="Add another award period">
+          + Add Period
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         CCP AMOUNT + PRIOR PAYMENTS
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">CCP &amp; Prior Payments</span>
+      </div>
+      <div class="calc-body">
         <div class="fields-row">
           <div class="field-group">
-            <span class="field-label">Compensation Rate</span>
+            <label class="field-label" for="ccpAmount">CCP Amount</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="awardCompRate" value="750.00" step="0.01">
+              <input type="number" id="ccpAmount" value="0" step="0.01" min="0"
+                     aria-label="CCP dollar amount — attorney receives 1/3">
             </div>
+            <span class="field-hint">Attorney fee = CCP ÷ 3</span>
           </div>
           <div class="field-group">
-            <span class="field-label" id="durationLabel">Duration (Weeks)</span>
-            <div class="field-wrap">
-              <input type="number" id="durationWeeks" value="52" min="0">
-              <span class="field-suffix" id="durationSuffix">wks</span>
-            </div>
-          </div>
-          <div class="field-group">
-            <span class="field-label">Credits / Offsets</span>
+            <label class="field-label" for="priorPayments">Prior Payments Already Made</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="creditsOffsets" value="0" step="0.01">
+              <input type="number" id="priorPayments" value="0" step="0.01" min="0"
+                     aria-label="Prior award payments already made — deducted before fee calculation">
             </div>
-            <span class="field-hint">Amounts already paid</span>
+            <span class="field-hint">Deducted before attorney fee</span>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div id="lwecSection" style="display:none;margin-bottom:12px;">
-          <div class="field-group">
-            <span class="field-label">LWEC % (PPD)</span>
-            <div class="field-wrap">
-              <input type="number" id="lwecPercentage" min="0" max="100" value="25">
-              <span class="field-suffix">%</span>
-            </div>
-          </div>
-        </div>
+    <!-- ═══════════════════════════════════════════
+         RESULTS
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Results</span>
+      </div>
+      <div class="calc-body" style="padding-bottom:8px;">
 
-        <!-- Results -->
-        <div class="result-box">
+        <!-- Top-line summary -->
+        <div class="result-box" style="margin-bottom:0;">
           <div class="result-grid cols-3">
             <div class="result-item">
-              <span class="result-label">Weekly Benefit</span>
-              <span class="result-value" id="awardWeeklyResult">—</span>
-            </div>
-            <div class="result-item">
               <span class="result-label">Total Award</span>
-              <span class="result-value blue" id="awardTotalResult">—</span>
+              <span class="result-value" id="totalAwardResult">—</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Net After Credits</span>
-              <span class="result-value gold" id="awardNetResult">—</span>
+              <span class="result-label">Total Attorney Fee</span>
+              <span class="result-value blue" id="totalFeeResult">—</span>
             </div>
+            <div class="result-item">
+              <span class="result-label">Net to Claimant</span>
+              <span class="result-value gold" id="netResult">—</span>
+            </div>
+          </div>
+
+          <!-- Award period summary table -->
+          <div id="summaryTableWrap" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;">
+            <div class="section-divider">Award Period Breakdown</div>
+            <div style="overflow-x:auto;">
+              <table class="award-table" id="summaryTable" aria-label="Award period summary">
+                <thead>
+                  <tr>
+                    <th>Period</th>
+                    <th>Desig</th>
+                    <th>Rate / wk</th>
+                    <th>%</th>
+                    <th>Weeks</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+                <tfoot id="summaryTableFoot"></tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Fee breakdown -->
+          <div id="feeBreakdown" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;">
+            <div class="section-divider">Attorney Fee &amp; Net</div>
+            <div class="result-row-list">
+              <div class="result-row-item">
+                <span class="result-row-label">Total Award</span>
+                <span class="result-row-val mono" id="fbTotalAward">—</span>
+              </div>
+              <div class="result-row-item">
+                <span class="result-row-label">Prior Payments</span>
+                <span class="result-row-val mono" id="fbPrior">—</span>
+              </div>
+              <div class="result-row-item" style="border-top:2px solid var(--bd);padding-top:6px;margin-top:4px;">
+                <span class="result-row-label" style="color:var(--gd);font-weight:700;">Moving Amount</span>
+                <span class="result-row-val mono" style="color:var(--gd);" id="fbMoving">—</span>
+              </div>
+              <div class="result-row-item">
+                <span class="result-row-label" style="color:var(--gn);">Fee on Award (15%)</span>
+                <span class="result-row-val mono" style="color:var(--gn);" id="fbFeeAward">—</span>
+              </div>
+              <div class="result-row-item">
+                <span class="result-row-label" style="color:var(--gn);">Fee on CCP (÷ 3)</span>
+                <span class="result-row-val mono" style="color:var(--gn);" id="fbFeeCCP">—</span>
+              </div>
+              <div class="result-row-item">
+                <span class="result-row-label" style="color:var(--gn);font-weight:700;">Total Attorney Fee</span>
+                <span class="result-row-val mono" style="color:var(--gn);font-weight:800;" id="fbTotalFee">—</span>
+              </div>
+              <div class="result-row-item" style="border-top:2px solid var(--bd);padding-top:6px;margin-top:4px;">
+                <span class="result-row-label" style="color:var(--gd);font-weight:700;">Net to Claimant</span>
+                <span class="result-row-val mono" style="color:var(--gd);font-weight:800;" id="fbNet">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equation box -->
+          <div id="equationBox" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;">
+            <div class="section-divider">Fee App Breakdown</div>
+            <pre id="equationText" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
           </div>
 
           <!-- Generate Fee App -->
@@ -100,59 +392,102 @@
                 <strong>Ready to file?</strong>
                 <p>Generate a WCB fee application pre-filled with these award figures.</p>
               </div>
-              <button onclick="window.triggerFeeApp()" class="fee-app-btn">
-                📄 Generate Fee App
+              <button onclick="window.triggerFeeApp()" class="fee-app-btn" aria-label="Generate WCB fee application (Pro feature)">
+                Generate Fee App
                 <span style="font-size:9px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:3px;font-weight:700;">PRO</span>
               </button>
             </div>
           </div>
 
           <!-- Save prompt -->
-          <div id="save-prompt" class="save-prompt" style="display:none">
+          <div id="save-prompt" class="save-prompt" style="display:none" role="status" aria-live="polite">
             <p id="save-prompt-text"></p>
             <div id="save-prompt-actions"></div>
           </div>
+
         </div>
       </div>
     </div>
 
-    <!-- About Classified Awards -->
+    <!-- About -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">About Classified Awards in New York</span>
+        <span class="calc-header-title">About CCP Awards in New York</span>
       </div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          Classified awards are formal determinations by the Workers' Compensation Board that establish ongoing benefits for permanently disabled workers. The three main types of classifications in New York are Permanent Partial Disability (PPD), Permanent Total Disability (PTD), and Death Benefits.
+          A Classified Compensation Period (CCP) award is a formal determination by the Workers' Compensation Board that establishes a period of indemnity benefits. Awards are built period-by-period, each with its own benefit type (designation) and dates.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">Permanent Partial Disability (PPD):</strong> PPD classifications are issued when a worker has reached maximum medical improvement and has sustained a permanent injury that reduces wage earning capacity but can still work in some capacity. The PPD award consists of a weekly benefit based on a percentage of loss of wage earning capacity, multiplied by the compensation rate.
+          <strong style="color:var(--tx);">TT — Temporary Total:</strong> Rate = 2/3 of AWW, capped at the statutory maximum for the date of accident. Used when the claimant is totally disabled from all work.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">Permanent Total Disability (PTD):</strong> A PTD classification is issued when the worker is permanently and completely unable to work due to the work injury. PTD benefits continue for life or until the worker returns to work, providing a full weekly benefit equal to the compensation rate.
+          <strong style="color:var(--tx);">RE — Reduced Earnings:</strong> Rate = 2/3 × (AWW − current weekly earnings). Used when the claimant returns to lighter duty at reduced wages.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">TR — Temporary Reduced:</strong> Rate = a percentage of the TT rate, entered manually. Used by stipulation or direction.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">TP / NCLT / NME:</strong> Manual rate entry. TP = temporary partial; NCLT = no-comp lost time; NME = no medical evidence.
         </p>
         <p style="color:var(--txD);line-height:1.8;">
-          <strong style="color:var(--tx);">Death Benefits:</strong> When a worker dies as a result of a work-related injury, eligible dependents may receive weekly benefits and funeral expense reimbursement. Calculations depend on the number of eligible dependents.
+          <strong style="color:var(--tx);">Attorney Fee (WCL §24):</strong> The fee on the award equals 15% of the moving (new money) amount. The fee on the CCP is 1/3 of the CCP dollar amount. Both are paid from claimant's award.
         </p>
+      </div>
+    </div>
+
+    <!-- Statutory Max Rate Reference -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Statutory Maximum Weekly Rates</span>
+      </div>
+      <div class="calc-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr><th>Period</th><th>Max Weekly Rate</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Jul 1, 2025 – Jun 30, 2026</td><td>$1,222.42</td></tr>
+            <tr><td>Jul 1, 2024 – Jun 30, 2025</td><td>$1,171.46</td></tr>
+            <tr><td>Jul 1, 2023 – Jun 30, 2024</td><td>$1,145.43</td></tr>
+            <tr><td>Jul 1, 2022 – Jun 30, 2023</td><td>$1,125.46</td></tr>
+            <tr><td>Jul 1, 2021 – Jun 30, 2022</td><td>$1,063.05</td></tr>
+            <tr><td>Jul 1, 2020 – Jun 30, 2021</td><td>$966.78</td></tr>
+            <tr><td>Jul 1, 2019 – Jun 30, 2020</td><td>$934.11</td></tr>
+            <tr><td>Jul 1, 2018 – Jun 30, 2019</td><td>$904.74</td></tr>
+            <tr><td>Jul 1, 2017 – Jun 30, 2018</td><td>$870.61</td></tr>
+            <tr><td>Jul 1, 2016 – Jun 30, 2017</td><td>$864.32</td></tr>
+            <tr><td>Jul 1, 2015 – Jun 30, 2016</td><td>$844.29</td></tr>
+            <tr><td>Jul 1, 2014 – Jun 30, 2015</td><td>$808.65</td></tr>
+            <tr><td>Jul 1, 2013 – Jun 30, 2014</td><td>$803.21</td></tr>
+            <tr><td>Jul 1, 2012 – Jun 30, 2013</td><td>$792.07</td></tr>
+            <tr><td>Jul 1, 2011 – Jun 30, 2012</td><td>$772.96</td></tr>
+            <tr><td>Jul 1, 2010 – Jun 30, 2011</td><td>$739.83</td></tr>
+            <tr><td>Jul 1, 2009 – Jun 30, 2010</td><td>$600.00</td></tr>
+            <tr><td>Jul 1, 2008 – Jun 30, 2009</td><td>$550.00</td></tr>
+            <tr><td>Jul 1, 2007 – Jun 30, 2008</td><td>$500.00</td></tr>
+            <tr><td>Jul 1, 1985 – Jun 30, 2007</td><td>$400.00</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
     <!-- App CTA -->
     <div class="upgrade-banner">
       <div class="upgrade-title">Full-Featured Mobile App</div>
-      <div class="upgrade-description">Calculate awards, build fee applications, and manage cases on the go.</div>
+      <div class="upgrade-description">Calculate awards, track cases, and generate fee applications on the go.</div>
       <button class="btn-primary">Download the App</button>
     </div>
 
     <div class="disclaimer">
-      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Award calculations are based on current New York State workers' compensation law and Department of Financial Services regulations. Actual awards are determined by the Workers' Compensation Board and depend on the specific classification issued, medical evidence, hearing outcomes, and applicable credits or offsets. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
+      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Award calculations are based on current New York State workers' compensation law and Department of Financial Services regulations. Actual awards are determined by the Workers' Compensation Board based on the specific record, medical evidence, and hearing outcomes. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
     </div>
   </div>
 
   <noscript>
     <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
-      <h2>NYS Workers' Compensation Award Calculator</h2>
-      <p>This interactive calculator requires JavaScript to calculate classified awards for permanent partial disability, permanent total disability, and death benefits.</p>
+      <h2>NYS CCP / Award Calculator</h2>
+      <p>This interactive calculator requires JavaScript to calculate period-based CCP awards. Please enable JavaScript in your browser.</p>
     </div>
   </noscript>
 
@@ -161,95 +496,480 @@
     import { renderPublicNav } from '../js/nav.js';
     import { initFeeAppPaywall } from '../js/fee-app-modal.js';
 
-    function formatCurrency(value) {
-      return '$' + parseFloat(value).toLocaleString('en-US', {
-        minimumFractionDigits: 2, maximumFractionDigits: 2
-      });
-    }
+    // ─── Statutory max rates — exact match to app MAX_RATES ───
+    const MAX_RATES = [
+      { s: "2025-07-01", e: "2026-06-30", l: "Jul 1, 2025 – Jun 30, 2026", max: 1222.42 },
+      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025", max: 1171.46 },
+      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024", max: 1145.43 },
+      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023", max: 1125.46 },
+      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022", max: 1063.05 },
+      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021", max: 966.78  },
+      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020", max: 934.11  },
+      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019", max: 904.74  },
+      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018", max: 870.61  },
+      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017", max: 864.32  },
+      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016", max: 844.29  },
+      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015", max: 808.65  },
+      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014", max: 803.21  },
+      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013", max: 792.07  },
+      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012", max: 772.96  },
+      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011", max: 739.83  },
+      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010", max: 600.00  },
+      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009", max: 550.00  },
+      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008", max: 500.00  },
+      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400.00  },
+    ];
 
+    const DESIGS = ['TT', 'RE', 'TR', 'TP', 'NCLT', 'NME'];
+
+    // ─── State ───
+    let periods = [{ start: '', end: '', desig: 'TT', rate: '', ratePct: '', curEarn: '' }];
     let hasCalculated = false;
     let currentUser = null;
 
-    document.getElementById('classType').addEventListener('change', (e) => {
-      const lwecSection = document.getElementById('lwecSection');
-      const durationLabel = document.getElementById('durationLabel');
-      const durationSuffix = document.getElementById('durationSuffix');
+    // ─── Helpers ───
+    function pF(v) { return parseFloat(v) || 0; }
+    function fC(v) {
+      return '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function fW(v) { return v.toFixed(4).replace(/\.?0+$/, '') || '0'; }
+    function fD(s) {
+      if (!s) return '—';
+      const [y, m, d] = s.split('-');
+      return m + '/' + d + '/' + y;
+    }
 
-      if (e.target.value === 'ppd') {
-        lwecSection.style.display = 'block';
-        durationLabel.textContent = 'Duration (Weeks)';
-        durationSuffix.textContent = 'wks';
+    function getMaxForDate(dateStr) {
+      if (!dateStr) return MAX_RATES[0];
+      const dt = new Date(dateStr + 'T00:00:00');
+      for (const r of MAX_RATES) {
+        const s = new Date(r.s + 'T00:00:00');
+        const e = new Date(r.e + 'T23:59:59');
+        if (dt >= s && dt <= e) return r;
+      }
+      return MAX_RATES[MAX_RATES.length - 1];
+    }
+
+    function getAWW()     { return pF(document.getElementById('awwInput').value); }
+    function getMaxRate() { return pF(document.getElementById('maxRateInput').value); }
+    function getCappedTT() {
+      const tt = getAWW() * 2 / 3;
+      const mx = getMaxRate();
+      return mx > 0 ? Math.min(tt, mx) : tt;
+    }
+
+    // ─── Compute rate for a period based on designation ───
+    function computeRate(p) {
+      const cappedTT = getCappedTT();
+      if (p.desig === 'TT') return cappedTT;
+      if (p.desig === 'RE') return (2 / 3) * (getAWW() - pF(p.curEarn));
+      if (p.desig === 'TR' && p.ratePct) return (pF(p.ratePct) / 100) * cappedTT;
+      return pF(p.rate);
+    }
+
+    // ─── Render TT Rate display ───
+    function updateTTDisplay() {
+      const cappedTT = getCappedTT();
+      const aww = getAWW();
+      const mx = getMaxRate();
+      const tt23 = aww * 2 / 3;
+      const capped = mx > 0 && tt23 > mx;
+      let text = fC(cappedTT) + '/wk';
+      if (capped) text += '  (2/3 AWW ' + fC(tt23) + ' → capped at ' + fC(mx) + ')';
+      else text += '  (2/3 × ' + fC(aww) + ' = ' + fC(tt23) + ')';
+      document.getElementById('ttRateDisplay').textContent = text;
+    }
+
+    // ─── Render one period row ───
+    function renderPeriodRow(p, i) {
+      const cappedTT = getCappedTT();
+      const effectiveRate = computeRate(p);
+
+      // Compute weeks for display
+      let weeksDisplay = '';
+      if (p.start && p.end) {
+        const s = new Date(p.start + 'T00:00:00');
+        const e = new Date(p.end + 'T00:00:00');
+        const wks = (e - s) / (864e5 * 7);
+        if (wks > 0) weeksDisplay = fW(wks) + ' wks';
+        else if (wks <= 0) weeksDisplay = '⚠ end before start';
+      }
+
+      const div = document.createElement('div');
+      div.className = 'period-row';
+      div.setAttribute('role', 'listitem');
+      div.setAttribute('aria-label', 'Period ' + (i + 1));
+
+      // Fields row
+      const fields = document.createElement('div');
+      fields.className = 'period-fields';
+
+      // Start date
+      fields.appendChild(makeDateField('Start Date', p.start, 'period-start-' + i, v => {
+        periods[i].start = v; renderPeriods(); calculate();
+      }));
+
+      // End date
+      fields.appendChild(makeDateField('End Date', p.end, 'period-end-' + i, v => {
+        periods[i].end = v; renderPeriods(); calculate();
+      }));
+
+      // Rate field — read-only for TT/RE; manual for others
+      const rateReadOnly = p.desig === 'TT' || p.desig === 'RE';
+      const rateFG = document.createElement('div');
+      rateFG.className = 'field-group';
+      const rateLbl = document.createElement('label');
+      rateLbl.className = 'field-label';
+      rateLbl.htmlFor = 'period-rate-' + i;
+      rateLbl.textContent = 'Rate / wk';
+      const rateWrap = document.createElement('div');
+      rateWrap.className = 'field-wrap';
+      const ratePrefix = document.createElement('span');
+      ratePrefix.className = 'field-prefix';
+      ratePrefix.textContent = '$';
+      const rateInput = document.createElement('input');
+      rateInput.type = 'number';
+      rateInput.id = 'period-rate-' + i;
+      rateInput.step = '0.01';
+      rateInput.min = '0';
+      rateInput.setAttribute('aria-label', 'Weekly rate for period ' + (i + 1));
+      if (rateReadOnly) {
+        rateInput.value = effectiveRate.toFixed(2);
+        rateInput.readOnly = true;
+        rateInput.style.color = 'var(--txM)';
+        rateInput.style.cursor = 'default';
       } else {
-        lwecSection.style.display = 'none';
-        if (e.target.value === 'ptd') {
-          durationLabel.textContent = 'Duration (Years — projection)';
-          durationSuffix.textContent = 'yrs';
-        } else {
-          durationLabel.textContent = 'Duration (Weeks)';
-          durationSuffix.textContent = 'wks';
+        rateInput.value = p.rate;
+        rateInput.addEventListener('input', e => {
+          periods[i].rate = e.target.value; calculate();
+        });
+      }
+      rateWrap.appendChild(ratePrefix);
+      rateWrap.appendChild(rateInput);
+      rateFG.appendChild(rateLbl);
+      rateFG.appendChild(rateWrap);
+
+      // Rate % — always shown, editable for TR
+      const pctFG = document.createElement('div');
+      pctFG.className = 'field-group';
+      const pctLbl = document.createElement('label');
+      pctLbl.className = 'field-label';
+      pctLbl.htmlFor = 'period-pct-' + i;
+      pctLbl.textContent = 'Rate %';
+      const pctWrap = document.createElement('div');
+      pctWrap.className = 'field-wrap';
+      const pctInput = document.createElement('input');
+      pctInput.type = 'number';
+      pctInput.id = 'period-pct-' + i;
+      pctInput.min = '0';
+      pctInput.max = '200';
+      pctInput.step = '0.1';
+      pctInput.setAttribute('aria-label', 'Rate as percentage of TT rate for period ' + (i + 1));
+      if (p.desig === 'TT') {
+        pctInput.value = '100';
+        pctInput.readOnly = true;
+        pctInput.style.color = 'var(--txM)';
+        pctInput.style.cursor = 'default';
+      } else if (p.desig === 'TR') {
+        pctInput.value = p.ratePct;
+        pctInput.addEventListener('input', e => {
+          periods[i].ratePct = e.target.value;
+          if (e.target.value && cappedTT > 0) {
+            periods[i].rate = (pF(e.target.value) / 100 * cappedTT).toFixed(2);
+          }
+          renderPeriods(); calculate();
+        });
+      } else {
+        // Compute display pct from rate vs cappedTT
+        pctInput.value = cappedTT > 0 ? (effectiveRate / cappedTT * 100).toFixed(1) : '';
+        pctInput.readOnly = true;
+        pctInput.style.color = 'var(--txM)';
+        pctInput.style.cursor = 'default';
+      }
+      const pctSuffix = document.createElement('span');
+      pctSuffix.className = 'field-suffix';
+      pctSuffix.textContent = '%';
+      pctWrap.appendChild(pctInput);
+      pctWrap.appendChild(pctSuffix);
+      pctFG.appendChild(pctLbl);
+      pctFG.appendChild(pctWrap);
+
+      fields.appendChild(rateFG);
+      fields.appendChild(pctFG);
+
+      // Delete button
+      if (periods.length > 1) {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'del-period-btn';
+        delBtn.innerHTML = '✕';
+        delBtn.setAttribute('aria-label', 'Remove period ' + (i + 1));
+        delBtn.addEventListener('click', () => {
+          periods.splice(i, 1);
+          renderPeriods(); calculate();
+        });
+        fields.appendChild(delBtn);
+      }
+
+      div.appendChild(fields);
+
+      // Weeks display
+      if (weeksDisplay) {
+        const wp = document.createElement('div');
+        wp.style.marginTop = '6px';
+        const pill = document.createElement('span');
+        pill.className = 'weeks-pill';
+        pill.textContent = weeksDisplay;
+        wp.appendChild(pill);
+        div.appendChild(wp);
+      }
+
+      // Designation buttons
+      const desigRow = document.createElement('div');
+      desigRow.className = 'desig-row';
+      desigRow.setAttribute('role', 'group');
+      desigRow.setAttribute('aria-label', 'Period designation for period ' + (i + 1));
+      DESIGS.forEach(dg => {
+        const btn = document.createElement('button');
+        btn.className = 'desig-btn' + (p.desig === dg ? ' active-' + dg : '');
+        btn.textContent = dg;
+        btn.setAttribute('aria-pressed', String(p.desig === dg));
+        btn.setAttribute('aria-label', 'Set designation to ' + dg);
+        btn.addEventListener('click', () => {
+          periods[i].desig = dg;
+          if (dg === 'TT') {
+            periods[i].rate = cappedTT.toFixed(2);
+            periods[i].ratePct = '100';
+          }
+          if (dg !== 'RE') periods[i].curEarn = '';
+          if (dg !== 'TR') periods[i].ratePct = '';
+          renderPeriods(); calculate();
+        });
+        desigRow.appendChild(btn);
+      });
+      div.appendChild(desigRow);
+
+      // RE: Current Earnings input
+      if (p.desig === 'RE') {
+        const reWrap = document.createElement('div');
+        reWrap.style.marginTop = '8px';
+        reWrap.style.display = 'flex';
+        reWrap.style.alignItems = 'center';
+        reWrap.style.gap = '10px';
+        const reFG = document.createElement('div');
+        reFG.className = 'field-group';
+        reFG.style.maxWidth = '220px';
+        const reLbl = document.createElement('label');
+        reLbl.className = 'field-label';
+        reLbl.htmlFor = 'period-earn-' + i;
+        reLbl.textContent = 'Current Earnings (weekly)';
+        const reFieldWrap = document.createElement('div');
+        reFieldWrap.className = 'field-wrap';
+        const rePrefix = document.createElement('span');
+        rePrefix.className = 'field-prefix';
+        rePrefix.textContent = '$';
+        const reInput = document.createElement('input');
+        reInput.type = 'number';
+        reInput.id = 'period-earn-' + i;
+        reInput.step = '0.01';
+        reInput.min = '0';
+        reInput.value = p.curEarn;
+        reInput.setAttribute('aria-label', 'Current weekly earnings for RE period ' + (i + 1));
+        reInput.addEventListener('input', e => {
+          periods[i].curEarn = e.target.value;
+          periods[i].rate = ((2 / 3) * (getAWW() - pF(e.target.value))).toFixed(2);
+          renderPeriods(); calculate();
+        });
+        reFieldWrap.appendChild(rePrefix);
+        reFieldWrap.appendChild(reInput);
+        reFG.appendChild(reLbl);
+        reFG.appendChild(reFieldWrap);
+        reWrap.appendChild(reFG);
+        const reNote = document.createElement('div');
+        reNote.className = 'rate-note re';
+        reNote.style.marginTop = '16px';
+        reNote.textContent = 'Rate = 2/3 × (AWW − Earnings) = ' + fC(effectiveRate) + '/wk';
+        reWrap.appendChild(reNote);
+        div.appendChild(reWrap);
+      }
+
+      // TR: rate note
+      if (p.desig === 'TR') {
+        const trNote = document.createElement('div');
+        trNote.className = 'rate-note tr';
+        trNote.style.marginTop = '6px';
+        const pct = pF(p.ratePct || 0);
+        trNote.textContent = 'TR Rate = ' + pct.toFixed(1) + '% × ' + fC(cappedTT) + ' = ' + fC(pct / 100 * cappedTT) + '/wk';
+        div.appendChild(trNote);
+      }
+
+      return div;
+    }
+
+    function makeDateField(labelText, value, id, onChange) {
+      const fg = document.createElement('div');
+      fg.className = 'field-group';
+      const lbl = document.createElement('label');
+      lbl.className = 'field-label';
+      lbl.htmlFor = id;
+      lbl.textContent = labelText;
+      const input = document.createElement('input');
+      input.type = 'date';
+      input.id = id;
+      input.value = value;
+      input.setAttribute('aria-label', labelText);
+      input.addEventListener('change', e => onChange(e.target.value));
+      fg.appendChild(lbl);
+      fg.appendChild(input);
+      return fg;
+    }
+
+    // ─── Render all period rows ───
+    function renderPeriods() {
+      const container = document.getElementById('periods-container');
+      container.innerHTML = '';
+      periods.forEach((p, i) => {
+        container.appendChild(renderPeriodRow(p, i));
+      });
+    }
+
+    // ─── Main calculation — exact app logic ───
+    function calculate() {
+      updateTTDisplay();
+
+      const aww = getAWW();
+      const cappedTT = getCappedTT();
+      const ccpV = pF(document.getElementById('ccpAmount').value);
+      const prV  = pF(document.getElementById('priorPayments').value);
+
+      // Build details array — mirrors app renderCCP()
+      let total = 0;
+      const details = [];
+
+      periods.forEach(p => {
+        if (!p.start || !p.end) { details.push(null); return; }
+        const s = new Date(p.start + 'T00:00:00');
+        const e = new Date(p.end + 'T00:00:00');
+        const wks = (e - s) / (864e5 * 7);
+        if (wks <= 0) { details.push(null); return; }
+
+        let rate = pF(p.rate);
+        if (p.desig === 'TT') rate = cappedTT;
+        if (p.desig === 'RE') rate = (2 / 3) * (aww - pF(p.curEarn));
+        if (p.desig === 'TR' && p.ratePct) rate = pF(p.ratePct) / 100 * cappedTT;
+
+        const amt = wks * rate;
+        const pct = cappedTT > 0 ? rate / cappedTT : 0;
+        total += amt;
+        details.push({ wks, amt, rate, desig: p.desig, start: p.start, end: p.end, pct, curEarn: p.curEarn, ratePct: p.ratePct });
+      });
+
+      // Fee calculation — exact app formula
+      const mov = total - prV;
+      const fA  = Math.max(mov, 0) * 0.15;   // 15% of moving amount
+      const fC2 = ccpV / 3;                   // 1/3 of CCP
+      const tF  = fA + fC2;                   // total attorney fee
+      const net = mov - tF;                    // net to claimant
+
+      const hasValid = details.some(x => x);
+
+      // ── Top-line results ──
+      document.getElementById('totalAwardResult').textContent = hasValid ? fC(total) : '—';
+      document.getElementById('totalFeeResult').textContent   = hasValid ? fC(tF) : '—';
+      document.getElementById('netResult').textContent        = hasValid ? fC(net) : '—';
+
+      // ── Summary table ──
+      const tableWrap = document.getElementById('summaryTableWrap');
+      const tbody = document.getElementById('summaryTableBody');
+      const tfoot = document.getElementById('summaryTableFoot');
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+      if (hasValid) {
+        details.forEach(x => {
+          if (!x) return;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="label">${fD(x.start)} – ${fD(x.end)}</td>
+            <td><span class="desig-badge badge-${x.desig}">${x.desig}</span></td>
+            <td>${fC(x.rate)}</td>
+            <td style="color:var(--txM);font-size:10px;">(${(x.pct * 100).toFixed(0)}%)</td>
+            <td>${fW(x.wks)}</td>
+            <td class="amount">${fC(x.amt)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        tfoot.innerHTML = `<tr>
+          <td colspan="5" style="font-family:var(--font);font-size:12px;color:var(--txD);">Total Award</td>
+          <td style="font-family:var(--mono);font-weight:800;color:var(--gn);">${fC(total)}</td>
+        </tr>`;
+        tableWrap.style.display = 'block';
+      } else {
+        tableWrap.style.display = 'none';
+      }
+
+      // ── Fee breakdown ──
+      const feeBreak = document.getElementById('feeBreakdown');
+      if (hasValid) {
+        document.getElementById('fbTotalAward').textContent = fC(total);
+        document.getElementById('fbPrior').textContent      = prV > 0 ? '(' + fC(prV) + ')' : fC(0);
+        document.getElementById('fbMoving').textContent     = fC(mov);
+        document.getElementById('fbFeeAward').textContent   = fC(fA) + '  (' + fC(mov) + ' × 15%)';
+        document.getElementById('fbFeeCCP').textContent     = fC(fC2) + (ccpV > 0 ? '  (' + fC(ccpV) + ' ÷ 3)' : '');
+        document.getElementById('fbTotalFee').textContent   = fC(tF);
+        document.getElementById('fbNet').textContent        = fC(net);
+        feeBreak.style.display = 'block';
+      } else {
+        feeBreak.style.display = 'none';
+      }
+
+      // ── Equation / Fee App breakdown ──
+      const eqBox  = document.getElementById('equationBox');
+      const eqText = document.getElementById('equationText');
+      if (hasValid) {
+        let eq = '';
+        details.forEach(x => {
+          if (!x) return;
+          let label = x.desig;
+          if (x.desig === 'RE') {
+            label = 'RE (AWW ' + fC(aww) + ' − Earn ' + fC(pF(x.curEarn)) + ')';
+          } else if (x.desig === 'TR' && x.ratePct) {
+            label = 'TR (' + pF(x.ratePct).toFixed(1) + '% of TT ' + fC(cappedTT) + ')';
+          }
+          eq += fW(x.wks) + ' wks × ' + fC(x.rate) + '/wk [' + label + '] = ' + fC(x.amt) + '\n';
+        });
+        eq += '────────────────────────────────────────\n';
+        eq += 'Total Award:       ' + fC(total) + '\n';
+        if (prV > 0) eq += 'Less Prior:        (' + fC(prV) + ')\n';
+        eq += 'Moving Amount:     ' + fC(mov) + '\n\n';
+        eq += 'Fee Calculation:\n';
+        if (fA > 0) eq += 'Award Fee:         ' + fC(mov) + ' × 15% = ' + fC(fA) + '\n';
+        if (fC2 > 0) eq += 'CCP Fee:           ' + fC(ccpV) + ' ÷ 3 = ' + fC(fC2) + '\n';
+        eq += 'Total Atty Fee:    ' + fC(tF) + '\n';
+        eq += 'Net to Claimant:   ' + fC(net);
+        eqText.textContent = eq;
+        eqBox.style.display = 'block';
+      } else {
+        eqBox.style.display = 'none';
+      }
+
+      // ── Fee app / save prompt ──
+      const feeAppSection = document.getElementById('fee-app-section');
+      if (hasValid) {
+        feeAppSection.style.display = 'block';
+        if (!hasCalculated) {
+          hasCalculated = true;
+          showSavePrompt(currentUser);
         }
-      }
-      calculateAward();
-    });
-
-    function calculateAward() {
-      const classType = document.getElementById('classType').value;
-      const compRate = parseFloat(document.getElementById('awardCompRate').value) || 0;
-      const duration = parseFloat(document.getElementById('durationWeeks').value) || 0;
-      const lwecPercent = parseFloat(document.getElementById('lwecPercentage').value) || 0;
-      const credits = parseFloat(document.getElementById('creditsOffsets').value) || 0;
-
-      const weeklyResult = document.getElementById('awardWeeklyResult');
-      const totalResult = document.getElementById('awardTotalResult');
-      const netResult = document.getElementById('awardNetResult');
-      const feeSection = document.getElementById('fee-app-section');
-
-      if (!classType || compRate <= 0) {
-        weeklyResult.textContent = '—';
-        totalResult.textContent = '—';
-        netResult.textContent = '—';
-        if (feeSection) feeSection.style.display = 'none';
-        return;
-      }
-
-      let weeklyBenefit = 0;
-      let totalAward = 0;
-
-      switch (classType) {
-        case 'ppd':
-          weeklyBenefit = (lwecPercent / 100) * compRate;
-          totalAward = weeklyBenefit * duration;
-          break;
-        case 'ptd':
-          weeklyBenefit = compRate;
-          totalAward = weeklyBenefit * (duration * 52);
-          break;
-        case 'death':
-          weeklyBenefit = compRate;
-          totalAward = weeklyBenefit * duration;
-          break;
-      }
-
-      const netAward = Math.max(0, totalAward - credits);
-
-      weeklyResult.textContent = formatCurrency(weeklyBenefit);
-      totalResult.textContent = formatCurrency(totalAward);
-      netResult.textContent = formatCurrency(netAward);
-
-      if (feeSection) feeSection.style.display = 'block';
-
-      if (!hasCalculated) {
-        hasCalculated = true;
-        showSavePrompt(currentUser);
+      } else {
+        feeAppSection.style.display = 'none';
       }
     }
 
+    // ─── Save prompt ───
     function showSavePrompt(user) {
-      const prompt = document.getElementById('save-prompt');
-      const text = document.getElementById('save-prompt-text');
+      const prompt  = document.getElementById('save-prompt');
+      const text    = document.getElementById('save-prompt-text');
       const actions = document.getElementById('save-prompt-actions');
       if (!prompt) return;
-
       if (!user || !user.session) {
         text.textContent = 'Want to save this calculation?';
         actions.innerHTML = `<a href="/auth_v2.html?mode=signup">Create free account</a>`;
@@ -257,29 +977,64 @@
         text.textContent = 'Save this calculation to your history.';
         actions.innerHTML = `<button id="sp-save-btn">Save</button>`;
         document.getElementById('sp-save-btn').addEventListener('click', async () => {
-          const ok = await saveCalculation(user.session.user.id, 'ccp-award', {
-            classType: document.getElementById('classType').value,
-            compRate: document.getElementById('awardCompRate').value,
-            duration: document.getElementById('durationWeeks').value,
-            weekly: document.getElementById('awardWeeklyResult').textContent,
-            total: document.getElementById('awardTotalResult').textContent,
-            net: document.getElementById('awardNetResult').textContent
-          });
+          const snap = {
+            aww: document.getElementById('awwInput').value,
+            maxRate: document.getElementById('maxRateInput').value,
+            doa: document.getElementById('doaDate').value,
+            ccp: document.getElementById('ccpAmount').value,
+            prior: document.getElementById('priorPayments').value,
+            periods: periods,
+            total: document.getElementById('totalAwardResult').textContent,
+            fee:   document.getElementById('totalFeeResult').textContent,
+            net:   document.getElementById('netResult').textContent,
+          };
+          const ok = await saveCalculation(user.session.user.id, 'ccp-award', snap);
           document.getElementById('sp-save-btn').textContent = ok ? 'Saved!' : 'Error';
         });
       }
       prompt.style.display = 'flex';
     }
 
-    document.getElementById('awardCompRate').addEventListener('input', calculateAward);
-    document.getElementById('durationWeeks').addEventListener('input', calculateAward);
-    document.getElementById('lwecPercentage').addEventListener('input', calculateAward);
-    document.getElementById('creditsOffsets').addEventListener('input', calculateAward);
+    // ─── Wire global inputs ───
+    document.getElementById('awwInput').addEventListener('input', () => {
+      renderPeriods(); calculate();
+    });
+    document.getElementById('maxRateInput').addEventListener('input', () => {
+      renderPeriods(); calculate();
+    });
+    document.getElementById('doaDate').addEventListener('change', e => {
+      const entry = getMaxForDate(e.target.value);
+      if (entry) {
+        document.getElementById('maxRateInput').value = entry.max;
+        document.getElementById('maxRateHint').textContent =
+          'Max for DOA: $' + entry.max.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+          ' (' + entry.l + ')';
+      }
+      renderPeriods(); calculate();
+    });
+    document.getElementById('ccpAmount').addEventListener('input', calculate);
+    document.getElementById('priorPayments').addEventListener('input', calculate);
 
+    // ─── Add / Reset ───
+    document.getElementById('addPeriodBtn').addEventListener('click', () => {
+      periods.push({ start: '', end: '', desig: 'TT', rate: '', ratePct: '', curEarn: '' });
+      renderPeriods(); calculate();
+    });
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('Reset all period entries?')) return;
+      periods = [{ start: '', end: '', desig: 'TT', rate: '', ratePct: '', curEarn: '' }];
+      document.getElementById('ccpAmount').value = '0';
+      document.getElementById('priorPayments').value = '0';
+      renderPeriods(); calculate();
+    });
+
+    // ─── Init ───
     document.addEventListener('DOMContentLoaded', async () => {
       currentUser = await getOptionalUser();
       renderPublicNav(currentUser);
       initFeeAppPaywall(currentUser);
+      renderPeriods();
+      calculate();
     });
   </script>
 </body>

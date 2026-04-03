@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schedule Loss of Use (SLU) Calculator — NYS Workers' Comp | The Comp Desk</title>
-  <meta name="description" content="Free NYS Schedule Loss of Use (SLU) calculator. Calculate workers' compensation awards for extremity injuries under WCL §15(3). Instant results based on body part, loss of use percentage, and compensation rate.">
+  <meta name="description" content="Free NYS Schedule Loss of Use (SLU) calculator. Calculate workers' compensation awards for extremity injuries under WCL §15(3). Includes prior award deductions, attorney fee, and net to claimant.">
   <meta property="og:title" content="Schedule Loss of Use (SLU) Calculator — NYS Workers' Comp">
   <meta property="og:description" content="Free calculator for NYS Schedule Loss of Use benefits under WCL §15(3). Calculate SLU awards instantly.">
   <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
     </div>
 
     <h1 class="page-title">NYS Schedule Loss of Use (SLU) Calculator</h1>
-    <p class="page-subtitle">Calculate Schedule Loss of Use benefits for extremity injuries under New York Workers' Compensation Law §15(3).</p>
+    <p class="page-subtitle">Calculate Schedule Loss of Use benefits for extremity injuries under New York Workers' Compensation Law §15(3). Includes prior award deductions, attorney fee, and net to claimant.</p>
 
     <!-- Calculator -->
     <div class="calc-section">
@@ -30,55 +30,93 @@
         <span class="calc-header-title">Calculator</span>
       </div>
       <div class="calc-body">
-        <div class="fields-row">
+
+        <!-- AWW / Comp Rate -->
+        <div class="fields-row" style="margin-bottom:12px;">
           <div class="field-group">
-            <span class="field-label">Body Part</span>
-            <select id="bodyPart">
-              <option value="">Select a body part...</option>
-              <option value="arm">Arm (312 weeks)</option>
-              <option value="leg">Leg (288 weeks)</option>
-              <option value="hand">Hand (244 weeks)</option>
-              <option value="foot">Foot (205 weeks)</option>
-              <option value="finger">Finger (75–150 weeks)</option>
-              <option value="thumb">Thumb (75 weeks)</option>
-              <option value="great_toe">Great Toe (38 weeks)</option>
-              <option value="toe">Toe (16 weeks)</option>
-              <option value="eye">Eye (160 weeks)</option>
-              <option value="ear">Ear (150 weeks)</option>
-            </select>
-          </div>
-          <div class="field-group">
-            <span class="field-label">Loss of Use (%)</span>
-            <div class="field-wrap">
-              <input type="number" id="lossOfUse" min="0" max="100" value="50">
-              <span class="field-suffix">%</span>
-            </div>
-            <span class="field-hint">0–100%</span>
-          </div>
-          <div class="field-group">
-            <span class="field-label">Compensation Rate</span>
+            <label class="field-label" for="awwInput">Average Weekly Wage (AWW)</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="compRate" value="1125.46" step="0.01">
+              <input type="number" id="awwInput" value="1683.69" step="0.01" aria-label="Average weekly wage">
             </div>
-            <span class="field-hint">Current max: $1,125.46 (7/1/2024)</span>
+            <span class="field-hint">Enter AWW — comp rate auto-calculated as 2/3 (capped)</span>
           </div>
+          <div class="field-group">
+            <label class="field-label" for="maxRate">Maximum Rate</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="maxRate" value="1222.42" step="0.01" aria-label="Statutory maximum weekly rate">
+            </div>
+            <span class="field-hint" id="maxRateHint">Current max: $1,222.42 (7/1/2025)</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="doiDate">Date of Injury</label>
+            <input type="date" id="doiDate" aria-label="Date of injury — auto-fills max rate">
+            <span class="field-hint">Auto-fills max rate</span>
+          </div>
+        </div>
+
+        <div id="compRateDisplay" style="margin-bottom:14px;padding:8px 12px;background:var(--cardA);border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--txD);">
+          SLU Rate: <span id="sluRateDisplay" style="color:var(--gd);font-weight:800;font-family:var(--mono);">—</span>
+          <span style="font-size:10px;color:var(--txM);margin-left:8px;">(2/3 AWW capped at statutory max)</span>
+        </div>
+
+        <!-- SLU Entries -->
+        <div id="slu-entries">
+          <!-- entries injected by JS -->
+        </div>
+        <button id="addEntryBtn" class="btn-secondary" style="margin-bottom:14px;" aria-label="Add another body part">+ Add Body Part</button>
+
+        <!-- Prior Payments -->
+        <div class="field-group" style="max-width:320px;margin-bottom:14px;">
+          <label class="field-label" for="priorPayments">Prior Payments Already Made</label>
+          <div class="field-wrap">
+            <span class="field-prefix">$</span>
+            <input type="number" id="priorPayments" value="0" step="0.01" aria-label="Prior SLU payments already made in this case">
+          </div>
+          <span class="field-hint">Paid-in amounts deducted before attorney fee</span>
         </div>
 
         <!-- Results -->
         <div class="result-box">
           <div class="result-grid">
             <div class="result-item">
-              <span class="result-label">Weeks of SLU</span>
+              <span class="result-label">Total SLU Weeks</span>
               <span class="result-value" id="weeksResult">—</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Total SLU Award</span>
+              <span class="result-label">Total SLU Value</span>
               <span class="result-value" id="awardResult">—</span>
             </div>
+            <div class="result-item">
+              <span class="result-label">Moving (after prior)</span>
+              <span class="result-value gold" id="movingResult">—</span>
+            </div>
           </div>
-          <div class="result-meta">
-            Rate used: <span id="rateUsed" class="mono">—</span>
+
+          <!-- Fee / Net breakdown -->
+          <div id="feeBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;">Attorney Fee &amp; Net</div>
+            <div class="result-row-list">
+              <div class="result-row-item">
+                <span class="result-row-label">Moving Amount</span>
+                <span class="result-row-val mono" id="feeMoving">—</span>
+              </div>
+              <div class="result-row-item">
+                <span class="result-row-label" style="color:var(--gn);">Attorney Fee (15%)</span>
+                <span class="result-row-val mono" style="color:var(--gn);" id="attyFee">—</span>
+              </div>
+              <div class="result-row-item" style="border-top:1px solid var(--bd);padding-top:6px;margin-top:4px;">
+                <span class="result-row-label" style="color:var(--gd);font-weight:700;">Net to Claimant</span>
+                <span class="result-row-val mono" style="color:var(--gd);font-weight:800;" id="netClaimant">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equation -->
+          <div id="equationBox" style="display:none;margin-top:14px;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;">Calculation Breakdown</div>
+            <pre id="equationText" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
           </div>
 
           <!-- Generate Fee App -->
@@ -89,7 +127,7 @@
                 <p>Generate a WCB fee application pre-filled with these results.</p>
               </div>
               <button onclick="window.triggerFeeApp()" class="fee-app-btn">
-                📄 Generate Fee App
+                Generate Fee App
                 <span style="font-size:9px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:3px;font-weight:700;">PRO</span>
               </button>
             </div>
@@ -114,10 +152,50 @@
           Schedule Loss of Use (SLU) is a fixed benefit available to injured workers in New York State under Workers' Compensation Law §15(3). Unlike permanent partial disability benefits, SLU provides a predetermined number of weeks of benefits based on the specific body part injured and the degree of permanent loss of use.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">How SLU Works:</strong> The law assigns a maximum number of weeks to each body part. For example, an arm injury has a maximum of 312 weeks, while an eye injury has 160 weeks. The benefit is calculated by multiplying the percentage of loss of use by the maximum weeks for that body part, then multiplying by the worker's compensation rate.
+          <strong style="color:var(--tx);">How SLU Works:</strong> The law assigns a maximum number of weeks to each body part. The benefit is calculated by multiplying the percentage of loss of use by the maximum weeks for that body part, then multiplying by the worker's SLU rate (2/3 of AWW, capped at the statutory maximum for the date of injury).
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">Prior Weeks Paid at TT (PHP):</strong> Weeks paid at the temporary total rate during the healing period may be credited and added to the SLU calculation, depending on the body part schedule.
         </p>
         <p style="color:var(--txD);line-height:1.8;">
-          SLU awards are typically made in cases where the worker has reached maximum medical improvement and the degree of permanent loss of use can be established. The Workers' Compensation Board determines the percentage based on medical evidence, functional capacity evaluations, and statutory guidelines.
+          <strong style="color:var(--tx);">Attorney Fee:</strong> Under WCL §24, attorneys are typically awarded 15% of the moving (new money) portion of any SLU award. This calculator shows the full breakdown: total value, prior deduction, moving amount, attorney fee (15%), and net to claimant.
+        </p>
+      </div>
+    </div>
+
+    <!-- Body Part Schedule Reference -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">NYS SLU Schedule — Maximum Weeks</span>
+      </div>
+      <div class="calc-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Body Part</th>
+              <th>Max Weeks</th>
+              <th>PHP Weeks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Arm</td><td>312</td><td>32</td></tr>
+            <tr><td>Hand</td><td>244</td><td>32</td></tr>
+            <tr><td>Leg</td><td>288</td><td>40</td></tr>
+            <tr><td>Foot</td><td>205</td><td>32</td></tr>
+            <tr><td>Thumb</td><td>75</td><td>24</td></tr>
+            <tr><td>1st Finger (Index)</td><td>46</td><td>18</td></tr>
+            <tr><td>2nd Finger (Middle)</td><td>30</td><td>12</td></tr>
+            <tr><td>3rd Finger (Ring)</td><td>25</td><td>8</td></tr>
+            <tr><td>4th Finger (Pinky)</td><td>15</td><td>8</td></tr>
+            <tr><td>Great Toe</td><td>38</td><td>12</td></tr>
+            <tr><td>Other Toe (2nd–5th)</td><td>16</td><td>8</td></tr>
+            <tr><td>Eye</td><td>160</td><td>20</td></tr>
+            <tr><td>One Ear</td><td>60</td><td>0</td></tr>
+            <tr><td>Binaural (Both Ears)</td><td>150</td><td>0</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--txM);font-size:11px;padding:10px 14px;">
+          PHP = Prior weeks paid at the temporary total (healing) rate, which may be added to the SLU calculation depending on specific circumstances.
         </p>
       </div>
     </div>
@@ -146,12 +224,57 @@
     import { renderPublicNav } from '../js/nav.js';
     import { initFeeAppPaywall } from '../js/fee-app-modal.js';
 
-    // Body part schedules (maximum weeks)
-    const schedules = {
-      arm: 312, leg: 288, hand: 244, foot: 205,
-      finger: 75, thumb: 75, great_toe: 38, toe: 16,
-      eye: 160, ear: 150
-    };
+    // Body part schedules — matches app SLU_BP
+    const SLU_BP = [
+      { n: "Arm",                  w: 312, hp: 32 },
+      { n: "Hand",                 w: 244, hp: 32 },
+      { n: "Leg",                  w: 288, hp: 40 },
+      { n: "Foot",                 w: 205, hp: 32 },
+      { n: "Thumb",                w: 75,  hp: 24 },
+      { n: "1st Finger (Index)",   w: 46,  hp: 18 },
+      { n: "2nd Finger (Middle)",  w: 30,  hp: 12 },
+      { n: "3rd Finger (Ring)",    w: 25,  hp:  8 },
+      { n: "4th Finger (Pinky)",   w: 15,  hp:  8 },
+      { n: "Great Toe",            w: 38,  hp: 12 },
+      { n: "Other Toe (2nd–5th)",  w: 16,  hp:  8 },
+      { n: "Eye",                  w: 160, hp: 20 },
+      { n: "One Ear",              w: 60,  hp:  0 },
+      { n: "Binaural (Both Ears)", w: 150, hp:  0 },
+    ];
+
+    const MAX_RATES = [
+      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025+",               max: 1222.42 },
+      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025", max: 1171.46 },
+      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024", max: 1145.43 },
+      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023", max: 1125.46 },
+      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022", max: 1063.05 },
+      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021", max: 966.78  },
+      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020", max: 934.11  },
+      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019", max: 904.74  },
+      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018", max: 870.61  },
+      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017", max: 864.32  },
+      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016", max: 844.29  },
+      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015", max: 808.65  },
+      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014", max: 803.21  },
+      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013", max: 792.07  },
+      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012", max: 772.96  },
+      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011", max: 739.83  },
+      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010", max: 600.00  },
+      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009", max: 550.00  },
+      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008", max: 500.00  },
+      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400.00  },
+    ];
+
+    function getMaxForDate(dateStr) {
+      if (!dateStr) return MAX_RATES[0];
+      const dt = new Date(dateStr + 'T00:00:00');
+      for (const r of MAX_RATES) {
+        const s = new Date(r.s + 'T00:00:00');
+        const e = new Date(r.e + 'T23:59:59');
+        if (dt >= s && dt <= e) return r;
+      }
+      return MAX_RATES[MAX_RATES.length - 1];
+    }
 
     function formatCurrency(value) {
       return '$' + parseFloat(value).toLocaleString('en-US', {
@@ -159,12 +282,162 @@
       });
     }
 
+    // Entry state
+    let entries = [{ part: 'Leg', pct: '', pw: '0' }];
+
+    function buildEntryHTML(idx, entry) {
+      const optionsHTML = SLU_BP.map(bp =>
+        `<option value="${bp.n}"${bp.n === entry.part ? ' selected' : ''}>${bp.n} (${bp.w} wks)</option>`
+      ).join('');
+      return `
+        <div class="slu-entry fields-row" data-idx="${idx}" style="margin-bottom:10px;align-items:flex-end;">
+          <div class="field-group">
+            <label class="field-label" for="part-${idx}">Body Part</label>
+            <select id="part-${idx}" class="entry-part" data-idx="${idx}" aria-label="Body part ${idx+1}">
+              ${optionsHTML}
+            </select>
+          </div>
+          <div class="field-group" style="max-width:130px;">
+            <label class="field-label" for="pct-${idx}">Loss of Use %</label>
+            <div class="field-wrap">
+              <input type="number" id="pct-${idx}" class="entry-pct" data-idx="${idx}" min="0" max="100"
+                value="${entry.pct}" placeholder="0" aria-label="Percentage loss of use for entry ${idx+1}">
+              <span class="field-suffix">%</span>
+            </div>
+          </div>
+          <div class="field-group" style="max-width:160px;">
+            <label class="field-label" for="pw-${idx}">Prior Wks @ TT (PHP)</label>
+            <input type="number" id="pw-${idx}" class="entry-pw" data-idx="${idx}" min="0"
+              value="${entry.pw}" placeholder="0" aria-label="Prior weeks paid at temporary total for entry ${idx+1}">
+            <span class="field-hint">Healing period weeks</span>
+          </div>
+          ${entries.length > 1 ? `<button class="del-entry-btn" data-idx="${idx}" aria-label="Remove entry ${idx+1}" style="background:var(--rdD);border:1px solid rgba(239,68,68,.3);color:var(--rd);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:11px;font-weight:700;align-self:flex-end;">✕</button>` : ''}
+        </div>`;
+    }
+
+    function renderEntries() {
+      const container = document.getElementById('slu-entries');
+      container.innerHTML = entries.map((e, i) => buildEntryHTML(i, e)).join('');
+
+      container.querySelectorAll('.entry-part').forEach(el => {
+        el.addEventListener('change', e => {
+          entries[+e.target.dataset.idx].part = e.target.value;
+          calculate();
+        });
+      });
+      container.querySelectorAll('.entry-pct').forEach(el => {
+        el.addEventListener('input', e => {
+          entries[+e.target.dataset.idx].pct = e.target.value;
+          calculate();
+        });
+      });
+      container.querySelectorAll('.entry-pw').forEach(el => {
+        el.addEventListener('input', e => {
+          entries[+e.target.dataset.idx].pw = e.target.value;
+          calculate();
+        });
+      });
+      container.querySelectorAll('.del-entry-btn').forEach(el => {
+        el.addEventListener('click', e => {
+          entries.splice(+e.target.dataset.idx, 1);
+          renderEntries();
+          calculate();
+        });
+      });
+    }
+
+    document.getElementById('addEntryBtn').addEventListener('click', () => {
+      entries.push({ part: 'Arm', pct: '', pw: '0' });
+      renderEntries();
+    });
+
     let currentUser = null;
     let hasCalculated = false;
 
+    function getSLURate() {
+      const aww     = parseFloat(document.getElementById('awwInput').value) || 0;
+      const maxRate = parseFloat(document.getElementById('maxRate').value) || 1222.42;
+      const twoThirds = aww * (2 / 3);
+      return Math.min(twoThirds, maxRate);
+    }
+
+    function calculate() {
+      const sr    = getSLURate();
+      const prior = parseFloat(document.getElementById('priorPayments').value) || 0;
+
+      // Update SLU rate display
+      document.getElementById('sluRateDisplay').textContent = formatCurrency(sr);
+
+      let totalWeeks = 0;
+      let totalValue = 0;
+      const details  = [];
+
+      entries.forEach(e => {
+        const bp  = SLU_BP.find(b => b.n === e.part);
+        if (!bp) return;
+        const pct = parseFloat(e.pct) || 0;
+        const pw  = parseFloat(e.pw) || 0;
+        if (pct <= 0) return;
+
+        const sluWeeks  = (pct / 100) * bp.w;
+        const phpWeeks  = Math.max(0, pw - bp.hp);
+        const totWeeks  = sluWeeks + phpWeeks;
+        const val       = totWeeks * sr;
+        totalWeeks     += totWeeks;
+        totalValue     += val;
+        details.push({ part: e.part, pct, bp, sluWeeks, phpWeeks, totWeeks, val });
+      });
+
+      const moving    = totalValue - prior;
+      const attyFee   = Math.max(moving, 0) * 0.15;
+      const netToClaimant = moving - attyFee;
+
+      document.getElementById('weeksResult').textContent = totalWeeks > 0 ? totalWeeks.toFixed(2) : '—';
+      document.getElementById('awardResult').textContent = totalValue > 0 ? formatCurrency(totalValue) : '—';
+      document.getElementById('movingResult').textContent = totalValue > 0 ? formatCurrency(moving) : '—';
+
+      const feeBreak = document.getElementById('feeBreakdown');
+      const feeAppSec = document.getElementById('fee-app-section');
+      const eqBox    = document.getElementById('equationBox');
+
+      if (totalValue > 0) {
+        feeBreak.style.display = 'block';
+        document.getElementById('feeMoving').textContent  = formatCurrency(moving);
+        document.getElementById('attyFee').textContent    = formatCurrency(attyFee);
+        document.getElementById('netClaimant').textContent = formatCurrency(netToClaimant);
+
+        if (feeAppSec) feeAppSec.style.display = 'block';
+
+        // Build equation
+        let eq = 'SLU Award Calculation:\n';
+        details.forEach(d => {
+          eq += `${d.part}: ${d.pct}% × ${d.bp.w} wks = ${d.sluWeeks.toFixed(2)} wks`;
+          if (d.phpWeeks > 0) eq += ` + ${d.phpWeeks.toFixed(2)} PHP`;
+          eq += ` = ${d.totWeeks.toFixed(2)} wks\n`;
+        });
+        eq += `Total weeks: ${totalWeeks.toFixed(2)} × ${formatCurrency(sr)}/wk = ${formatCurrency(totalValue)}\n`;
+        if (prior > 0) eq += `Less Prior: (${formatCurrency(prior)})\n`;
+        eq += `Moving: ${formatCurrency(moving)}\n`;
+        eq += `Fee: ${formatCurrency(moving)} × 15% = ${formatCurrency(attyFee)}\n`;
+        eq += `Net to Claimant: ${formatCurrency(netToClaimant)}`;
+
+        eqBox.style.display = 'block';
+        document.getElementById('equationText').textContent = eq;
+
+        if (!hasCalculated) {
+          hasCalculated = true;
+          showSavePrompt();
+        }
+      } else {
+        feeBreak.style.display = 'none';
+        eqBox.style.display    = 'none';
+        if (feeAppSec) feeAppSec.style.display = 'none';
+      }
+    }
+
     function showSavePrompt() {
-      const prompt = document.getElementById('save-prompt');
-      const text = document.getElementById('save-prompt-text');
+      const prompt  = document.getElementById('save-prompt');
+      const text    = document.getElementById('save-prompt-text');
       const actions = document.getElementById('save-prompt-actions');
       if (!prompt) return;
 
@@ -176,63 +449,46 @@
         actions.innerHTML = `<button id="save-calc-btn">Save</button>`;
         document.getElementById('save-calc-btn').addEventListener('click', async () => {
           const ok = await saveCalculation(currentUser.session.user.id, 'slu', {
-            bodyPart: document.getElementById('bodyPart').value,
-            lossOfUse: document.getElementById('lossOfUse').value,
-            compRate: document.getElementById('compRate').value,
-            weeks: document.getElementById('weeksResult').textContent,
-            award: document.getElementById('awardResult').textContent
+            weeks:      document.getElementById('weeksResult').textContent,
+            award:      document.getElementById('awardResult').textContent,
+            moving:     document.getElementById('movingResult').textContent,
+            attyFee:    document.getElementById('attyFee').textContent,
+            netToClaimant: document.getElementById('netClaimant').textContent
           });
           const btn = document.getElementById('save-calc-btn');
           if (btn) btn.textContent = ok ? 'Saved!' : 'Error saving';
         });
       }
-
       prompt.style.display = 'flex';
     }
 
-    function calculateSLU() {
-      const bodyPart = document.getElementById('bodyPart').value;
-      const lossOfUse = parseFloat(document.getElementById('lossOfUse').value) || 0;
-      const compRate = parseFloat(document.getElementById('compRate').value) || 0;
+    // Date of injury auto-fills max rate
+    document.getElementById('doiDate').addEventListener('change', () => {
+      const doi = document.getElementById('doiDate').value;
+      const rateObj = getMaxForDate(doi);
+      document.getElementById('maxRate').value = rateObj.max.toFixed(2);
+      document.getElementById('maxRateHint').textContent = `Rate: ${formatCurrency(rateObj.max)} (${rateObj.l})`;
+      calculate();
+    });
 
-      const weeksResult = document.getElementById('weeksResult');
-      const awardResult = document.getElementById('awardResult');
-      const rateUsed = document.getElementById('rateUsed');
-      const feeSection = document.getElementById('fee-app-section');
-
-      if (!bodyPart || lossOfUse < 0 || compRate <= 0) {
-        weeksResult.textContent = '—';
-        awardResult.textContent = '—';
-        rateUsed.textContent = '—';
-        if (feeSection) feeSection.style.display = 'none';
-        return;
-      }
-
-      const maxWeeks = schedules[bodyPart];
-      const weeks = (lossOfUse / 100) * maxWeeks;
-      const totalAward = weeks * compRate;
-
-      weeksResult.textContent = weeks.toFixed(2);
-      awardResult.textContent = formatCurrency(totalAward);
-      rateUsed.textContent = formatCurrency(compRate);
-
-      if (feeSection) feeSection.style.display = 'block';
-
-      if (!hasCalculated) {
-        hasCalculated = true;
-        showSavePrompt();
-      }
-    }
-
-    document.getElementById('bodyPart').addEventListener('change', calculateSLU);
-    document.getElementById('lossOfUse').addEventListener('input', calculateSLU);
-    document.getElementById('compRate').addEventListener('input', calculateSLU);
+    document.getElementById('awwInput').addEventListener('input', calculate);
+    document.getElementById('maxRate').addEventListener('input', calculate);
+    document.getElementById('priorPayments').addEventListener('input', calculate);
 
     document.addEventListener('DOMContentLoaded', async () => {
       currentUser = await getOptionalUser();
       renderPublicNav(currentUser);
       initFeeAppPaywall(currentUser);
+      renderEntries();
+      calculate();
     });
   </script>
+
+  <style>
+    .result-row-list { display: flex; flex-direction: column; gap: 4px; }
+    .result-row-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
+    .result-row-label { color: var(--txD); }
+    .result-row-val { font-family: var(--mono); color: var(--tx); font-weight: 600; }
+  </style>
 </body>
 </html>

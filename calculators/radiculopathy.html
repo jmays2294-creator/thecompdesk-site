@@ -9,6 +9,7 @@
   <meta property="og:description" content="Free calculator for radiculopathy SLU benefits under NYS Workers' Compensation Law. Cervical and lumbar nerve injury analysis.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/radiculopathy.html">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-radiculopathy.png">
   <link rel="canonical" href="https://thecompdesk.com/calculators/radiculopathy.html">
   <link rel="stylesheet" href="../css/app.css">
 </head>
@@ -29,18 +30,48 @@
         <span class="calc-header-title">Calculator</span>
       </div>
       <div class="calc-body">
+
+        <!-- AWW / Rate — global input, drives all benefit calculations -->
+        <div class="fields-row" style="margin-bottom:12px;">
+          <div class="field-group">
+            <label class="field-label" for="awwInput">Average Weekly Wage (AWW)</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="awwInput" value="1833.63" step="0.01" aria-label="Average weekly wage">
+            </div>
+            <span class="field-hint">2/3 AWW = comp rate (auto-calculated)</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="maxRateInput">Maximum Rate</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="maxRateInput" value="1222.42" step="0.01" aria-label="Statutory maximum weekly rate">
+            </div>
+            <span class="field-hint" id="maxRateHint">Current max: $1,222.42 (7/1/2025)</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="doiDate">Date of Injury</label>
+            <input type="date" id="doiDate" aria-label="Date of injury — auto-fills max rate">
+            <span class="field-hint">Auto-fills max rate</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;padding:8px 12px;background:var(--cardA);border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--txD);">
+          Comp Rate (2/3 AWW, capped): <span id="compRateDisplay" style="color:var(--gd);font-weight:800;font-family:var(--mono);">—</span>
+        </div>
+
         <div class="fields-row">
           <div class="field-group">
-            <span class="field-label">Spine Region</span>
-            <select id="spineRegion">
+            <label class="field-label" for="spineRegion">Spine Region</label>
+            <select id="spineRegion" aria-label="Spine region">
               <option value="">Select region...</option>
               <option value="cervical">Cervical (Neck — affects arm/hand)</option>
               <option value="lumbar">Lumbar / Sacral (Low back — affects leg/foot)</option>
             </select>
           </div>
           <div class="field-group">
-            <span class="field-label">Nerve Root Level</span>
-            <select id="nerveLevel">
+            <label class="field-label" for="nerveLevel">Nerve Root Level</label>
+            <select id="nerveLevel" aria-label="Nerve root level">
               <option value="">Select region first...</option>
             </select>
           </div>
@@ -48,8 +79,8 @@
 
         <div class="fields-row">
           <div class="field-group">
-            <span class="field-label">Severity</span>
-            <select id="severity">
+            <label class="field-label" for="severity">Severity</label>
+            <select id="severity" aria-label="Severity of radiculopathy">
               <option value="">Select severity...</option>
               <option value="mild">Mild — EMG positive, minimal deficits</option>
               <option value="moderate">Moderate — Motor/sensory loss, managed conservatively</option>
@@ -58,8 +89,8 @@
             <span class="field-hint">Based on EMG/NCV findings and clinical presentation</span>
           </div>
           <div class="field-group">
-            <span class="field-label">Affected Levels</span>
-            <select id="numLevels">
+            <label class="field-label" for="numLevels">Affected Levels</label>
+            <select id="numLevels" aria-label="Number of affected spinal levels">
               <option value="1">1 level</option>
               <option value="2">2 levels</option>
               <option value="3">3 or more levels</option>
@@ -68,17 +99,11 @@
         </div>
 
         <div class="fields-row">
+          <!-- compRate is auto-calculated from AWW; kept as hidden input so calculate() still reads it -->
+          <input type="hidden" id="compRate" value="1222.42">
           <div class="field-group">
-            <span class="field-label">Compensation Rate</span>
-            <div class="field-wrap">
-              <span class="field-prefix">$</span>
-              <input type="number" id="compRate" value="1125.46" step="0.01">
-            </div>
-            <span class="field-hint">Current max: $1,125.46 (7/1/2024)</span>
-          </div>
-          <div class="field-group">
-            <span class="field-label">Affected Extremity</span>
-            <input type="text" id="affectedExtremity" readonly value="—" style="color:var(--txM);cursor:default;">
+            <label class="field-label" for="affectedExtremity">Affected Extremity</label>
+            <input type="text" id="affectedExtremity" readonly value="—" style="color:var(--txM);cursor:default;" aria-label="Affected extremity (auto-populated)">
             <span class="field-hint">Auto-populated from spine region</span>
           </div>
         </div>
@@ -149,10 +174,25 @@
       </div>
     </div>
 
+    <!-- App CTA -->
+    <div class="upgrade-banner">
+      <div class="upgrade-title">Full-Featured Mobile App</div>
+      <div class="upgrade-description">Calculate SLU awards, manage hearings, and generate fee applications on the go.</div>
+      <button class="btn-primary">Download the App</button>
+    </div>
+
     <div class="disclaimer" style="margin-top:12px;">
       <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Radiculopathy SLU percentages shown are typical ranges based on NYS WCB practice — actual awards are determined by the Workers' Compensation Board based on all medical and vocational evidence. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
     </div>
   </div>
+
+  <noscript>
+    <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
+      <h2>NYS Radiculopathy Calculator</h2>
+      <p>This interactive calculator requires JavaScript. Please enable JavaScript to calculate Schedule Loss of Use ranges for cervical and lumbar radiculopathy.</p>
+      <p>Typical SLU ranges (arm/leg): Mild 1-level: 5–12% | Moderate 1-level: 15–25% | Severe 1-level: 30–45%</p>
+    </div>
+  </noscript>
 
   <script type="module">
     import { getOptionalUser, saveCalculation } from '../js/auth.js';
@@ -186,8 +226,49 @@
       severe:   { 1: [30, 45], 2: [40, 55], 3: [50, 65] }
     };
 
+    const MAX_RATES = [
+      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025+",               max: 1222.42 },
+      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025", max: 1171.46 },
+      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024", max: 1145.43 },
+      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023", max: 1125.46 },
+      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022", max: 1063.05 },
+      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021", max: 966.78  },
+      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020", max: 934.11  },
+      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019", max: 904.74  },
+      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018", max: 870.61  },
+      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017", max: 864.32  },
+      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016", max: 844.29  },
+      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015", max: 808.65  },
+      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014", max: 803.21  },
+      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013", max: 792.07  },
+      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012", max: 772.96  },
+      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011", max: 739.83  },
+      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010", max: 600.00  },
+      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009", max: 550.00  },
+      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008", max: 500.00  },
+      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400.00  },
+    ];
+
+    function getMaxForDate(dateStr) {
+      if (!dateStr) return MAX_RATES[0];
+      const dt = new Date(dateStr + 'T00:00:00');
+      for (const r of MAX_RATES) {
+        if (dt >= new Date(r.s + 'T00:00:00') && dt <= new Date(r.e + 'T23:59:59')) return r;
+      }
+      return MAX_RATES[MAX_RATES.length - 1];
+    }
+
     function formatCurrency(v) {
       return '$' + parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function updateCompRate() {
+      const aww     = parseFloat(document.getElementById('awwInput').value) || 0;
+      const maxRate = parseFloat(document.getElementById('maxRateInput').value) || 1222.42;
+      const cr      = Math.min(aww * (2 / 3), maxRate);
+      document.getElementById('compRate').value = cr.toFixed(2);
+      document.getElementById('compRateDisplay').textContent = aww > 0 ? formatCurrency(cr) : '—';
+      calculate();
     }
 
     let currentUser = null;
@@ -287,11 +368,22 @@
     document.getElementById('nerveLevel').addEventListener('change', calculate);
     document.getElementById('severity').addEventListener('change', calculate);
     document.getElementById('numLevels').addEventListener('change', calculate);
-    document.getElementById('compRate').addEventListener('input', calculate);
+
+    document.getElementById('awwInput').addEventListener('input', updateCompRate);
+    document.getElementById('maxRateInput').addEventListener('input', updateCompRate);
+
+    document.getElementById('doiDate').addEventListener('change', () => {
+      const doi     = document.getElementById('doiDate').value;
+      const rateObj = getMaxForDate(doi);
+      document.getElementById('maxRateInput').value = rateObj.max.toFixed(2);
+      document.getElementById('maxRateHint').textContent = `Rate: ${formatCurrency(rateObj.max)} (${rateObj.l})`;
+      updateCompRate();
+    });
 
     document.addEventListener('DOMContentLoaded', async () => {
       currentUser = await getOptionalUser();
       renderPublicNav(currentUser);
+      updateCompRate();
     });
   </script>
 </body>
