@@ -100,6 +100,8 @@ function hasAccess(userRole, requiredTiers) {
 
 /**
  * Main entry point: Get current user and tier
+ * Requires authentication — redirects to login if not signed in.
+ * Use getOptionalUser() for public/calculator pages.
  * @returns {Promise<Object>} Object with session and tier properties
  */
 async function getUser() {
@@ -115,6 +117,51 @@ async function getUser() {
     session,
     tier
   };
+}
+
+/**
+ * Get current user and tier without requiring authentication.
+ * Returns { session: null, tier: 'free' } for unauthenticated visitors.
+ * Use this on public/calculator pages instead of getUser().
+ * @returns {Promise<Object>} Object with session (nullable) and tier
+ */
+async function getOptionalUser() {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+      return { session: null, tier: TIERS.FREE };
+    }
+    const tier = await getUserTier(session);
+    return { session, tier };
+  } catch (err) {
+    return { session: null, tier: TIERS.FREE };
+  }
+}
+
+/**
+ * Save a calculation to the user's history in Supabase.
+ * No-ops silently if user is not logged in.
+ * @param {string} userId - The authenticated user's ID
+ * @param {string} calcType - Calculator type key (e.g. 'slu', 'aww')
+ * @param {Object} data - Calculation inputs and results to persist
+ * @returns {Promise<boolean>} True if saved successfully
+ */
+async function saveCalculation(userId, calcType, data) {
+  if (!userId) return false;
+  try {
+    const { error } = await supabase
+      .from('saved_calculations')
+      .insert({
+        user_id: userId,
+        calc_type: calcType,
+        data: data,
+        created_at: new Date().toISOString()
+      });
+    return !error;
+  } catch (err) {
+    console.error('Failed to save calculation:', err);
+    return false;
+  }
 }
 
 /**
@@ -137,6 +184,8 @@ export {
   getUserTier,
   hasAccess,
   getUser,
+  getOptionalUser,
+  saveCalculation,
   signOut,
   TIERS,
   TIER_LEVEL

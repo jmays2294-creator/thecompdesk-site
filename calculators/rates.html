@@ -158,8 +158,8 @@
   </noscript>
 
   <script type="module">
-    import { getUser } from '../js/auth.js';
-    import { renderNav } from '../js/nav.js';
+    import { getOptionalUser } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
 
     // Rate schedule
     const rates = [
@@ -237,10 +237,8 @@
 
     // Initialize auth and nav
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getUser();
-      if (user) {
-        renderNav(user.session, user.tier);
-      }
+      const user = await getOptionalUser();
+      renderPublicNav(user);
       lookupRate();
     });
   </script>

@@ -135,8 +135,8 @@
   </noscript>
 
   <script type="module">
-    import { getUser } from '../js/auth.js';
-    import { renderNav } from '../js/nav.js';
+    import { getOptionalUser, saveCalculation } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
 
     // Format currency helper
     function formatCurrency(value) {
@@ -179,10 +179,8 @@
 
     // Initialize auth and nav
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getUser();
-      if (user) {
-        renderNav(user.session, user.tier);
-      }
+      const user = await getOptionalUser();
+      renderPublicNav(user);
       calculateLWEC();
     });
   </script>

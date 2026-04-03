@@ -92,6 +92,31 @@
         <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
           <p style="color: #999; font-size: 12px; margin: 0;">Rate Used: <span id="rateUsed" style="color: #e0e0e0; font-weight: 600;">—</span></p>
         </div>
+
+        <!-- Generate Fee App Button -->
+        <div id="fee-app-section" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <p style="color: #fff; font-weight: 600; font-size: 14px; margin: 0 0 4px 0;">Ready to file?</p>
+              <p style="color: #999; font-size: 12px; margin: 0;">Generate a WCB fee application pre-filled with these results.</p>
+            </div>
+            <button onclick="window.triggerFeeApp()" style="
+              background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+              color: #fff; font-weight: 600; font-size: 14px;
+              border: none; border-radius: 8px;
+              padding: 12px 20px; cursor: pointer; white-space: nowrap;
+              transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+            " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+              📄 Generate Fee App <span style="font-size:10px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;font-weight:700;">PRO</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Calculation Prompt (shown after first calculation) -->
+      <div id="save-prompt" style="display: none; margin-top: 16px; background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.2); border-radius: 10px; padding: 14px 18px; display: none; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <p id="save-prompt-text" style="color: #e0e0e0; font-size: 13px; margin: 0;"></p>
+        <div id="save-prompt-actions" style="display: flex; gap: 8px; flex-shrink: 0;"></div>
       </div>
     </div>
 
@@ -146,32 +171,67 @@
   </noscript>
 
   <script type="module">
-    import { getUser } from '../js/auth.js';
-    import { renderNav } from '../js/nav.js';
+    import { getOptionalUser, saveCalculation } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
+    import { initFeeAppPaywall } from '../js/fee-app-modal.js';
 
     // Body part schedules (maximum weeks)
     const schedules = {
-      arm: 312,
-      leg: 288,
-      hand: 244,
-      foot: 205,
-      finger: 75,  // varies, using lower end
-      thumb: 75,
-      great_toe: 38,
-      toe: 16,
-      eye: 160,
-      ear: 150
+      arm: 312, leg: 288, hand: 244, foot: 205,
+      finger: 75, thumb: 75, great_toe: 38, toe: 16,
+      eye: 160, ear: 150
     };
 
-    // Format currency helper
     function formatCurrency(value) {
       return '$' + parseFloat(value).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 2, maximumFractionDigits: 2
       });
     }
 
-    // Calculate SLU
+    let currentUser = null;
+    let hasCalculated = false;
+
+    function showSavePrompt() {
+      const prompt = document.getElementById('save-prompt');
+      const text = document.getElementById('save-prompt-text');
+      const actions = document.getElementById('save-prompt-actions');
+      if (!prompt) return;
+
+      if (!currentUser || !currentUser.session) {
+        text.textContent = 'Want to save this calculation?';
+        actions.innerHTML = `
+          <a href="/auth_v2.html?mode=signup" style="
+            color:#fff; font-size:12px; font-weight:600; text-decoration:none;
+            background:rgba(76,175,80,0.8); padding:6px 14px; border-radius:6px;
+            transition:opacity 0.2s;
+          " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Create free account</a>
+        `;
+      } else {
+        text.textContent = 'Save this calculation to your history.';
+        actions.innerHTML = `
+          <button id="save-calc-btn" style="
+            color:#fff; font-size:12px; font-weight:600;
+            background:rgba(76,175,80,0.8); padding:6px 14px; border-radius:6px;
+            border:none; cursor:pointer; transition:opacity 0.2s;
+          " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Save</button>
+        `;
+        document.getElementById('save-calc-btn').addEventListener('click', async () => {
+          const bodyPart = document.getElementById('bodyPart').value;
+          const lossOfUse = document.getElementById('lossOfUse').value;
+          const compRate = document.getElementById('compRate').value;
+          const weeks = document.getElementById('weeksResult').textContent;
+          const award = document.getElementById('awardResult').textContent;
+          const ok = await saveCalculation(currentUser.session.user.id, 'slu', {
+            bodyPart, lossOfUse, compRate, weeks, award
+          });
+          const btn = document.getElementById('save-calc-btn');
+          if (btn) btn.textContent = ok ? 'Saved!' : 'Error saving';
+        });
+      }
+
+      prompt.style.display = 'flex';
+    }
+
     function calculateSLU() {
       const bodyPart = document.getElementById('bodyPart').value;
       const lossOfUse = parseFloat(document.getElementById('lossOfUse').value) || 0;
@@ -180,11 +240,13 @@
       const weeksResult = document.getElementById('weeksResult');
       const awardResult = document.getElementById('awardResult');
       const rateUsed = document.getElementById('rateUsed');
+      const feeSection = document.getElementById('fee-app-section');
 
       if (!bodyPart || lossOfUse < 0 || compRate <= 0) {
         weeksResult.textContent = '—';
         awardResult.textContent = '—';
         rateUsed.textContent = '—';
+        if (feeSection) feeSection.style.display = 'none';
         return;
       }
 
@@ -195,19 +257,25 @@
       weeksResult.textContent = weeks.toFixed(2);
       awardResult.textContent = formatCurrency(totalAward);
       rateUsed.textContent = formatCurrency(compRate);
+
+      // Show Generate Fee App button once there's a result
+      if (feeSection) feeSection.style.display = 'block';
+
+      // Show save prompt on first real calculation
+      if (!hasCalculated) {
+        hasCalculated = true;
+        showSavePrompt();
+      }
     }
 
-    // Add event listeners
     document.getElementById('bodyPart').addEventListener('change', calculateSLU);
     document.getElementById('lossOfUse').addEventListener('input', calculateSLU);
     document.getElementById('compRate').addEventListener('input', calculateSLU);
 
-    // Initialize auth and nav
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getUser();
-      if (user) {
-        renderNav(user.session, user.tier);
-      }
+      currentUser = await getOptionalUser();
+      renderPublicNav(currentUser);
+      initFeeAppPaywall(currentUser);
     });
   </script>
 </body>

@@ -3,139 +3,302 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radiculopathy Calculator — Advanced Nerve Injury Analysis | The Comp Desk</title>
-  <meta name="description" content="Pro tier radiculopathy calculator for advanced nerve injury compensation analysis. Available with Pro membership at The Comp Desk.">
+  <title>Radiculopathy Calculator — NYS Workers' Comp Nerve Injury | The Comp Desk</title>
+  <meta name="description" content="Free NYS radiculopathy calculator. Calculate workers' compensation SLU benefits for cervical and lumbar nerve root injuries under New York Workers' Compensation Law.">
 
-  <!-- Open Graph Tags -->
-  <meta property="og:title" content="Radiculopathy Calculator — Advanced Nerve Injury Analysis">
-  <meta property="og:description" content="Pro tier calculator for radiculopathy and nerve injury benefits analysis.">
+  <meta property="og:title" content="Radiculopathy Calculator — NYS Workers' Comp Nerve Injury">
+  <meta property="og:description" content="Free calculator for radiculopathy SLU benefits under NYS Workers' Compensation Law. Cervical and lumbar nerve injury analysis.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/radiculopathy.html">
-  <meta property="og:image" content="https://thecompdesk.com/images/og-radiculopathy.png">
 
-  <!-- Canonical URL -->
   <link rel="canonical" href="https://thecompdesk.com/calculators/radiculopathy.html">
-
   <link rel="stylesheet" href="../css/app.css">
 </head>
 <body>
   <div id="app-nav"></div>
 
   <div class="container">
-    <!-- Breadcrumb -->
     <div class="breadcrumb">
       <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>Radiculopathy Calculator</span>
     </div>
 
-    <!-- Page Title -->
-    <h1 class="page-title">Radiculopathy Calculator (Pro)</h1>
-    <p class="page-subtitle">Advanced nerve injury compensation analysis for complex radiculopathy cases.</p>
+    <h1 class="page-title">NYS Radiculopathy Calculator</h1>
+    <p class="page-subtitle">Calculate Schedule Loss of Use benefits for cervical and lumbar radiculopathy under New York Workers' Compensation Law.</p>
 
-    <!-- Upgrade Required Banner -->
-    <div class="upgrade-banner" style="background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 150, 243, 0.05) 100%); border: 1px solid rgba(33, 150, 243, 0.3);">
-      <div class="lock-icon" style="width: auto; height: auto; background: none; margin: 0 0 16px 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span style="font-size: 28px;">🔒</span>
+    <!-- Calculator Section -->
+    <div class="section">
+      <h2 class="section-title">Calculator</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <!-- Spine Region -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Spine Region</label>
+          <select id="spineRegion" style="width: 100%;">
+            <option value="">Select region...</option>
+            <option value="cervical">Cervical (Neck — affects arm/hand)</option>
+            <option value="lumbar">Lumbar / Sacral (Low back — affects leg/foot)</option>
+          </select>
+        </div>
+
+        <!-- Nerve Root Level -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Nerve Root Level</label>
+          <select id="nerveLevel" style="width: 100%;">
+            <option value="">Select region first...</option>
+          </select>
+        </div>
       </div>
-      <div class="upgrade-title" style="color: #2196F3;">This Tool Requires Pro Membership</div>
-      <div class="upgrade-description">Advanced radiculopathy analysis is available exclusively to Pro and Firm tier members.</div>
-      <button class="btn-primary" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">Upgrade to Pro</button>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <!-- Severity -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Severity</label>
+          <select id="severity" style="width: 100%;">
+            <option value="">Select severity...</option>
+            <option value="mild">Mild — EMG positive, minimal deficits</option>
+            <option value="moderate">Moderate — Motor/sensory loss, managed conservatively</option>
+            <option value="severe">Severe — Significant deficit or surgical</option>
+          </select>
+          <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">Based on EMG/NCV findings and clinical presentation</span>
+        </div>
+
+        <!-- Number of levels -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Number of Affected Levels</label>
+          <select id="numLevels" style="width: 100%;">
+            <option value="1">1 level</option>
+            <option value="2">2 levels</option>
+            <option value="3">3 or more levels</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <!-- Compensation Rate -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Compensation Rate (Weekly)</label>
+          <div style="display: flex; gap: 8px;">
+            <span style="display: flex; align-items: center; color: #999;">$</span>
+            <input type="number" id="compRate" value="1125.46" step="0.01" style="width: 100%;">
+          </div>
+          <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">Current max: $1,125.46 (as of 7/1/2024)</span>
+        </div>
+
+        <!-- Affected Extremity (auto-populated) -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Affected Extremity</label>
+          <input type="text" id="affectedExtremity" readonly value="—" style="width: 100%; background: rgba(255,255,255,0.05); color: #999; cursor: default;">
+          <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">Auto-populated from spine region</span>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 20px; margin-top: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+          <div>
+            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">SLU % Range</p>
+            <p style="color: #4CAF50; font-size: 28px; font-weight: 700; margin: 0;" id="sluPercent">—</p>
+          </div>
+          <div>
+            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Weeks of SLU</p>
+            <p style="color: #4CAF50; font-size: 28px; font-weight: 700; margin: 0;" id="weeksResult">—</p>
+          </div>
+          <div>
+            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Award Range</p>
+            <p style="color: #4CAF50; font-size: 28px; font-weight: 700; margin: 0;" id="awardResult">—</p>
+          </div>
+        </div>
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+          <p style="color: #999; font-size: 12px; margin: 0;">Body Part: <span id="bodyPartLabel" style="color: #e0e0e0; font-weight: 600;">—</span> &nbsp;|&nbsp; Max Weeks: <span id="maxWeeksLabel" style="color: #e0e0e0; font-weight: 600;">—</span> &nbsp;|&nbsp; Rate: <span id="rateLabel" style="color: #e0e0e0; font-weight: 600;">—</span></p>
+        </div>
+
+        <!-- Save prompt -->
+        <div id="save-prompt" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1); align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <p id="save-prompt-text" style="color:#e0e0e0; font-size:13px; margin:0;"></p>
+          <div id="save-prompt-actions"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Feature Overview -->
+    <!-- How it Works -->
     <div class="section">
-      <h2 class="section-title">What's Included in Radiculopathy Calculator</h2>
-
+      <h2 class="section-title">How Radiculopathy SLU is Calculated</h2>
       <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
-        The Radiculopathy Calculator is a specialized tool designed for complex nerve root compression and radicular pain cases. It provides advanced analysis for determining compensation for radiculopathy injuries, which occur when a nerve root in the spine is compressed or irritated.
+        Under New York Workers' Compensation Law, radiculopathy — nerve root compression causing radiating pain, sensory loss, or motor deficits — is compensated through the Schedule Loss of Use (SLU) framework. The affected nerve root determines which extremity is evaluated, and the severity of the radiculopathy determines the percentage of loss assigned to that extremity.
       </p>
-
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-        <div style="background: rgba(33, 150, 243, 0.1); padding: 16px; border-radius: 8px; border-left: 4px solid #2196F3;">
-          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Nerve Level Analysis</p>
-          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">Differentiated compensation by cervical, thoracic, and lumbar radiculopathy levels.</p>
+        <div style="background: rgba(76,175,80,0.08); padding: 16px; border-radius: 8px; border-left: 4px solid #4CAF50;">
+          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Cervical Radiculopathy</p>
+          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">C4–C8 nerve roots affect the arm (312 weeks max). Mild: 5–15%, Moderate: 15–30%, Severe: 30–50%.</p>
         </div>
-
-        <div style="background: rgba(33, 150, 243, 0.1); padding: 16px; border-radius: 8px; border-left: 4px solid #2196F3;">
-          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Symptom Severity Factors</p>
-          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">Adjust calculations based on pain, sensory loss, and motor deficits.</p>
+        <div style="background: rgba(76,175,80,0.08); padding: 16px; border-radius: 8px; border-left: 4px solid #4CAF50;">
+          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Lumbar / Sacral Radiculopathy</p>
+          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">L3–S1 nerve roots affect the leg (288 weeks max). Mild: 5–15%, Moderate: 15–30%, Severe: 30–50%.</p>
         </div>
-
-        <div style="background: rgba(33, 150, 243, 0.1); padding: 16px; border-radius: 8px; border-left: 4px solid #2196F3;">
-          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Multiple Level Injuries</p>
-          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">Handle cases with damage to multiple nerve roots or spinal levels.</p>
+        <div style="background: rgba(76,175,80,0.08); padding: 16px; border-radius: 8px; border-left: 4px solid #4CAF50;">
+          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Multi-Level Injuries</p>
+          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">Additional affected levels increase the SLU percentage. Multiple levels are not simply additive — the Board applies clinical judgment.</p>
         </div>
-
-        <div style="background: rgba(33, 150, 243, 0.1); padding: 16px; border-radius: 8px; border-left: 4px solid #2196F3;">
-          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Treatment History Impact</p>
-          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">Account for surgical vs. non-surgical management outcomes.</p>
+        <div style="background: rgba(76,175,80,0.08); padding: 16px; border-radius: 8px; border-left: 4px solid #4CAF50;">
+          <p style="color: #fff; font-weight: 600; margin: 0 0 8px 0;">Treatment History</p>
+          <p style="color: #e0e0e0; font-size: 14px; margin: 0;">Surgical cases generally support higher SLU percentages than conservatively managed cases at the same severity level.</p>
         </div>
       </div>
-
       <p style="color: #e0e0e0; line-height: 1.8;">
-        This advanced calculator is part of our Pro tier offering and is designed for attorneys, specialists, and case managers who handle complex workers' compensation disputes involving nerve injuries.
+        These ranges are based on typical WCB adjudication patterns. Actual SLU awards depend on the specific medical evidence, IME findings, treating physician opinion, and the Workers' Compensation Board judge's determination.
       </p>
     </div>
 
-    <!-- Membership Tiers -->
-    <div class="section">
-      <h2 class="section-title">Pro Membership Includes</h2>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div class="card">
-          <h3 style="color: #fff; margin: 0 0 12px 0;">Radiculopathy Calculator</h3>
-          <p style="color: #999; font-size: 14px; margin: 0;">Advanced nerve root injury analysis and compensation calculations.</p>
-        </div>
-
-        <div class="card">
-          <h3 style="color: #fff; margin: 0 0 12px 0;">Spine & Brain Calculator</h3>
-          <p style="color: #999; font-size: 14px; margin: 0;">Complex spinal cord and traumatic brain injury assessments.</p>
-        </div>
-      </div>
-
-      <div style="margin-top: 24px; text-align: center;">
-        <button class="btn-primary" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">Explore Pro Membership</button>
-      </div>
-    </div>
-
-    <!-- Download App CTA -->
-    <div class="upgrade-banner">
-      <div class="upgrade-title">Available on All Devices</div>
-      <div class="upgrade-description">Pro calculators work seamlessly across web, iOS, and Android.</div>
-      <button class="btn-primary">Download the App</button>
-    </div>
-
-    <!-- Footer Disclaimer -->
-    <div class="disclaimer">
+    <!-- Disclaimer -->
+    <div class="disclaimer" style="margin-top: 40px; margin-bottom: 40px;">
       <p style="margin: 0;">
-        <strong>Disclaimer:</strong> This calculator requires Pro membership. Once unlocked, all calculations are provided for informational purposes only and do not constitute legal advice. Workers' compensation calculations depend on detailed medical evidence, hearing outcomes, and specific case circumstances. For legal guidance on radiculopathy cases, consult a qualified workers' compensation attorney.
+        <strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Radiculopathy SLU percentages shown are typical ranges based on NYS WCB practice — actual awards are determined by the Workers' Compensation Board based on all medical and vocational evidence. Consult a qualified workers' compensation attorney for guidance on your specific case.
       </p>
     </div>
   </div>
 
-  <noscript>
-    <div style="background: rgba(255, 152, 0, 0.2); border-left: 4px solid #FF9800; padding: 20px; color: #e0e0e0; font-family: sans-serif;">
-      <h2>Radiculopathy Calculator (Pro)</h2>
-      <p>This advanced calculator requires Pro membership and JavaScript to be enabled.</p>
-
-      <h3>Features Include:</h3>
-      <ul>
-        <li>Nerve level analysis for cervical, thoracic, and lumbar radiculopathy</li>
-        <li>Symptom severity factors (pain, sensory loss, motor deficits)</li>
-        <li>Multiple level injury handling</li>
-        <li>Treatment history impact assessment</li>
-      </ul>
-    </div>
-  </noscript>
-
   <script type="module">
-    import { getUser } from '../js/auth.js';
-    import { renderNav } from '../js/nav.js';
+    import { getOptionalUser, saveCalculation } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
+
+    // Nerve root options by region
+    const nerveLevels = {
+      cervical: [
+        { value: 'C4', label: 'C4 — shoulder/neck' },
+        { value: 'C5', label: 'C5 — shoulder/upper arm' },
+        { value: 'C6', label: 'C6 — thumb/index finger' },
+        { value: 'C7', label: 'C7 — middle finger/triceps' },
+        { value: 'C8', label: 'C8 — ring/little finger' },
+      ],
+      lumbar: [
+        { value: 'L3', label: 'L3 — anterior thigh' },
+        { value: 'L4', label: 'L4 — anterior leg/knee' },
+        { value: 'L5', label: 'L5 — lateral leg/dorsum foot' },
+        { value: 'S1', label: 'S1 — posterior leg/plantar foot' },
+        { value: 'S2', label: 'S2 — posterior thigh/perineum' },
+      ]
+    };
+
+    // Extremity by region
+    const extremityMap = {
+      cervical: { label: 'Arm', maxWeeks: 312 },
+      lumbar:   { label: 'Leg', maxWeeks: 288 }
+    };
+
+    // SLU % ranges by severity and number of levels [low, high]
+    const sluRanges = {
+      mild:     { 1: [5, 12],  2: [10, 18], 3: [15, 22] },
+      moderate: { 1: [15, 25], 2: [22, 35], 3: [30, 45] },
+      severe:   { 1: [30, 45], 2: [40, 55], 3: [50, 65] }
+    };
+
+    function formatCurrency(v) {
+      return '$' + parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    let currentUser = null;
+    let hasCalculated = false;
+
+    function populateNerveLevels() {
+      const region = document.getElementById('spineRegion').value;
+      const select = document.getElementById('nerveLevel');
+      select.innerHTML = '<option value="">Select nerve root...</option>';
+      if (!region) {
+        select.innerHTML = '<option value="">Select region first...</option>';
+        document.getElementById('affectedExtremity').value = '—';
+        return;
+      }
+      nerveLevels[region].forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.value;
+        opt.textContent = n.label;
+        select.appendChild(opt);
+      });
+      const ext = extremityMap[region];
+      document.getElementById('affectedExtremity').value = `${ext.label} (${ext.maxWeeks} weeks max)`;
+      calculate();
+    }
+
+    function calculate() {
+      const region   = document.getElementById('spineRegion').value;
+      const severity = document.getElementById('severity').value;
+      const levels   = parseInt(document.getElementById('numLevels').value) || 1;
+      const compRate = parseFloat(document.getElementById('compRate').value) || 0;
+
+      const sluEl    = document.getElementById('sluPercent');
+      const weeksEl  = document.getElementById('weeksResult');
+      const awardEl  = document.getElementById('awardResult');
+      const bpLabel  = document.getElementById('bodyPartLabel');
+      const mwLabel  = document.getElementById('maxWeeksLabel');
+      const rLabel   = document.getElementById('rateLabel');
+
+      if (!region || !severity || compRate <= 0) {
+        sluEl.textContent = weeksEl.textContent = awardEl.textContent = '—';
+        bpLabel.textContent = mwLabel.textContent = rLabel.textContent = '—';
+        return;
+      }
+
+      const ext = extremityMap[region];
+      const levKey = levels >= 3 ? 3 : levels;
+      const [low, high] = sluRanges[severity][levKey];
+
+      const weeksLow  = (low  / 100) * ext.maxWeeks;
+      const weeksHigh = (high / 100) * ext.maxWeeks;
+      const awardLow  = weeksLow  * compRate;
+      const awardHigh = weeksHigh * compRate;
+
+      sluEl.textContent   = `${low}–${high}%`;
+      weeksEl.textContent = `${weeksLow.toFixed(1)}–${weeksHigh.toFixed(1)}`;
+      awardEl.textContent = `${formatCurrency(awardLow)}–${formatCurrency(awardHigh)}`;
+      bpLabel.textContent = ext.label;
+      mwLabel.textContent = `${ext.maxWeeks} wks`;
+      rLabel.textContent  = formatCurrency(compRate);
+
+      if (!hasCalculated) {
+        hasCalculated = true;
+        showSavePrompt();
+      }
+    }
+
+    function showSavePrompt() {
+      const prompt  = document.getElementById('save-prompt');
+      const text    = document.getElementById('save-prompt-text');
+      const actions = document.getElementById('save-prompt-actions');
+      if (!prompt) return;
+
+      if (!currentUser || !currentUser.session) {
+        text.textContent = 'Want to save this calculation?';
+        actions.innerHTML = `<a href="/auth_v2.html?mode=signup" style="color:#fff;font-size:12px;font-weight:600;text-decoration:none;background:rgba(76,175,80,0.8);padding:6px 14px;border-radius:6px;">Create free account</a>`;
+      } else {
+        text.textContent = 'Save this calculation to your history.';
+        actions.innerHTML = `<button id="sp-btn" style="color:#fff;font-size:12px;font-weight:600;background:rgba(76,175,80,0.8);padding:6px 14px;border-radius:6px;border:none;cursor:pointer;">Save</button>`;
+        document.getElementById('sp-btn').addEventListener('click', async () => {
+          const ok = await saveCalculation(currentUser.session.user.id, 'radiculopathy', {
+            region: document.getElementById('spineRegion').value,
+            nerveLevel: document.getElementById('nerveLevel').value,
+            severity: document.getElementById('severity').value,
+            numLevels: document.getElementById('numLevels').value,
+            compRate: document.getElementById('compRate').value,
+            sluRange: document.getElementById('sluPercent').textContent,
+            weeksRange: document.getElementById('weeksResult').textContent,
+            awardRange: document.getElementById('awardResult').textContent
+          });
+          document.getElementById('sp-btn').textContent = ok ? 'Saved!' : 'Error';
+        });
+      }
+      prompt.style.display = 'flex';
+    }
+
+    // Event listeners
+    document.getElementById('spineRegion').addEventListener('change', populateNerveLevels);
+    document.getElementById('nerveLevel').addEventListener('change', calculate);
+    document.getElementById('severity').addEventListener('change', calculate);
+    document.getElementById('numLevels').addEventListener('change', calculate);
+    document.getElementById('compRate').addEventListener('input', calculate);
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getUser();
-      if (user) {
-        renderNav(user.session, user.tier);
-      }
+      currentUser = await getOptionalUser();
+      renderPublicNav(currentUser);
     });
   </script>
 </body>

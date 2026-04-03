@@ -101,23 +101,23 @@
         </div>
       </a>
 
-      <!-- Radiculopathy (Pro) -->
+      <!-- Radiculopathy -->
       <a href="radiculopathy.html" style="text-decoration: none; color: inherit;">
-        <div class="card locked" style="cursor: pointer;">
+        <div class="card" style="cursor: pointer;">
           <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
             <h3 style="font-size: 18px; color: #fff; margin: 0;">Radiculopathy</h3>
-            <span class="tier-badge pro">Pro</span>
+            <span class="tier-badge free">Free</span>
           </div>
           <p style="color: #999; font-size: 14px; margin: 0;">Advanced nerve injury compensation analysis.</p>
         </div>
       </a>
 
-      <!-- Spine & Brain (Pro) -->
+      <!-- Spine & Brain -->
       <a href="spine-brain.html" style="text-decoration: none; color: inherit;">
-        <div class="card locked" style="cursor: pointer;">
+        <div class="card" style="cursor: pointer;">
           <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
             <h3 style="font-size: 18px; color: #fff; margin: 0;">Spine & Brain</h3>
-            <span class="tier-badge pro">Pro</span>
+            <span class="tier-badge free">Free</span>
           </div>
           <p style="color: #999; font-size: 14px; margin: 0;">Complex spine and brain injury calculations.</p>
         </div>
@@ -162,14 +162,12 @@
   </noscript>
 
   <script type="module">
-    import { getUser } from '../js/auth.js';
-    import { renderNav } from '../js/nav.js';
+    import { getOptionalUser } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getUser();
-      if (user) {
-        renderNav(user.session, user.tier);
-      }
+      const user = await getOptionalUser();
+      renderPublicNav(user);
     });
   </script>
 </body>

@@ -375,6 +375,91 @@ textarea:focus {
 }
 
 /* ============================================
+   Fee App Paywall Modal
+   ============================================ */
+
+#fee-app-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+#fee-app-overlay.visible {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ============================================
+   Save Calculation Prompt
+   ============================================ */
+
+.save-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 16px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.save-prompt p {
+  color: #e0e0e0;
+  font-size: 13px;
+  margin: 0;
+}
+
+.save-prompt a,
+.save-prompt button {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(76, 175, 80, 0.8);
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.save-prompt a:hover,
+.save-prompt button:hover {
+  opacity: 0.8;
+}
+
+/* ============================================
+   Responsive: calculator grids on mobile
+   ============================================ */
+
+@media (max-width: 600px) {
+  .section > div[style*="grid-template-columns: 1fr 1fr"],
+  .section > div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ============================================
    Responsive Design
    ============================================ */
 
