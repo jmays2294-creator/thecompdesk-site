@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settlement Comparison Tool — NYS Workers' Comp | The Comp Desk</title>
+  <meta name="description" content="Compare settlement values from treating vs IME doctors in NYS workers' compensation claims. See potential awards and what an attorney could get you.">
+
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="Settlement Comparison Tool — NYS Workers' Comp">
+  <meta property="og:description" content="Compare settlement values from different doctor assessments in NYS workers' compensation claims.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thecompdesk.com/tools/settlement.html">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://thecompdesk.com/tools/settlement.html">
+
+  <link rel="stylesheet" href="../css/app.css">
+
+  <style>
+    /* Settlement Tool Specific Styles */
+    .settlement-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .settlement-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .assessment-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .assessment-card:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .assessment-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .assessment-stat {
+      margin-bottom: 20px;
+    }
+
+    .assessment-label {
+      font-size: 12px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .assessment-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #4CAF50;
+    }
+
+    .midpoint-card {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 100%);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .midpoint-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .midpoint-subtitle {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    .midpoint-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #4CAF50;
+      margin-bottom: 12px;
+    }
+
+    .midpoint-percentage {
+      font-size: 14px;
+      color: #b0b0b0;
+      margin-bottom: 12px;
+    }
+
+    .midpoint-description {
+      font-size: 13px;
+      color: #b0b0b0;
+      line-height: 1.6;
+    }
+
+    .attorney-section {
+      background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 150, 243, 0.05) 100%);
+      border: 1px solid rgba(33, 150, 243, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .attorney-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(33, 150, 243, 0.2);
+    }
+
+    .attorney-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .attorney-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .attorney-stat-box {
+      background: rgba(33, 150, 243, 0.1);
+      border: 1px solid rgba(33, 150, 243, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .attorney-stat-label {
+      font-size: 12px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .attorney-stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2196F3;
+    }
+
+    .attorney-benefits {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .attorney-benefits-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .attorney-benefits-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .attorney-benefits-list li {
+      color: #b0b0b0;
+      font-size: 13px;
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .attorney-benefits-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #2196F3;
+      font-weight: bold;
+    }
+
+    .btn-attorney {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-attorney:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+    }
+
+    .btn-attorney:active {
+      transform: translateY(0);
+    }
+
+    .locked-overlay {
+      position: relative;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .lock-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      z-index: 10;
+      border: 2px solid rgba(255, 152, 0, 0.5);
+      max-width: 400px;
+    }
+
+    .lock-message h3 {
+      color: #FF9800;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .lock-message p {
+      color: #b0b0b0;
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .disclaimer-warning {
+      background: rgba(255, 152, 0, 0.15);
+      border-left: 4px solid #FF9800;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      color: #e0e0e0;
+    }
+
+    .disclaimer-warning strong {
+      color: #FF9800;
+    }
+
+    .values-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .values-table thead {
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .values-table th {
+      padding: 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .values-table td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+      color: #b0b0b0;
+    }
+
+    .values-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .value-cell-percentage {
+      color: #4CAF50;
+      font-weight: 600;
+    }
+
+    .value-cell-amount {
+      color: #2196F3;
+      font-weight: 600;
+    }
+
+    .setup-section {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .setup-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .setup-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .setup-input {
+      width: 100%;
+    }
+
+    .setup-helper {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <div class="container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/tools/">Tools</a> &gt; <span>Settlement Comparison</span>
+    </div>
+
+    <!-- Page Title -->
+    <h1 class="page-title">Settlement Comparison Tool</h1>
+    <p class="page-subtitle">Compare settlement values from treating doctor vs IME assessments and see what an attorney could negotiate.</p>
+
+    <!-- Setup Section -->
+    <div class="setup-section">
+      <h2 class="section-title">Your Information</h2>
+
+      <div class="setup-grid">
+        <div class="setup-field">
+          <label class="setup-label">Body Part</label>
+          <select id="bodyPart" class="setup-input">
+            <option value="">Select a body part...</option>
+            <option value="shoulder">Shoulder (312 weeks)</option>
+            <option value="knee">Knee (312 weeks)</option>
+            <option value="hand">Hand (244 weeks)</option>
+            <option value="foot">Foot (205 weeks)</option>
+            <option value="ankle">Ankle (312 weeks)</option>
+            <option value="wrist">Wrist (150 weeks)</option>
+            <option value="elbow">Elbow (200 weeks)</option>
+            <option value="hip">Hip (312 weeks)</option>
+            <option value="arm">Arm (312 weeks)</option>
+            <option value="leg">Leg (288 weeks)</option>
+          </select>
+        </div>
+
+        <div class="setup-field">
+          <label class="setup-label">Treating Doctor's SLU %</label>
+          <input type="number" id="treatingPercent" class="setup-input" min="0" max="100" value="50">
+          <span class="setup-helper">0-100%</span>
+        </div>
+
+        <div class="setup-field">
+          <label class="setup-label">IME Doctor's SLU %</label>
+          <input type="number" id="imePercent" class="setup-input" min="0" max="100" value="25">
+          <span class="setup-helper">0-100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer-warning">
+      <strong>Important:</strong> This calculator uses the 2024-2025 NYS Workers' Compensation rate of $1,125.46/week. Settlement amounts are estimates for educational purposes only and not guaranteed.
+    </div>
+
+    <!-- Main Content (Conditional - Locked if Free Tier) -->
+    <div id="calculator-content">
+      <!-- Two-Column Comparison -->
+      <div class="settlement-grid">
+        <!-- Left Card: Treating Doctor -->
+        <div class="assessment-card">
+          <h3 class="assessment-title">Treating Doctor's Assessment</h3>
+
+          <div class="assessment-stat">
+            <div class="assessment-label">SLU %</div>
+            <div class="assessment-value" id="treating-percent">50%</div>
+          </div>
+
+          <div class="assessment-stat">
+            <div class="assessment-label">Schedule Weeks at SLU</div>
+            <div class="assessment-value" id="treating-weeks">—</div>
+          </div>
+
+          <div class="assessment-stat">
+            <div class="assessment-label">Settlement Value</div>
+            <div class="assessment-value" id="treating-value">—</div>
+          </div>
+
+          <div style="background: rgba(76, 175, 80, 0.1); border-radius: 8px; padding: 12px; margin-top: 16px;">
+            <div class="assessment-label">Your Potential Award</div>
+            <div style="font-size: 20px; font-weight: 700; color: #4CAF50; margin-top: 8px;" id="treating-award">—</div>
+          </div>
+        </div>
+
+        <!-- Right Card: IME Doctor -->
+        <div class="assessment-card">
+          <h3 class="assessment-title">IME Doctor's Assessment</h3>
+
+          <div class="assessment-stat">
+            <div class="assessment-label">SLU %</div>
+            <div class="assessment-value" id="ime-percent">25%</div>
+          </div>
+
+          <div class="assessment-stat">
+            <div class="assessment-label">Schedule Weeks at SLU</div>
+            <div class="assessment-value" id="ime-weeks">—</div>
+          </div>
+
+          <div class="assessment-stat">
+            <div class="assessment-label">Settlement Value</div>
+            <div class="assessment-value" id="ime-value">—</div>
+          </div>
+
+          <div style="background: rgba(76, 175, 80, 0.1); border-radius: 8px; padding: 12px; margin-top: 16px;">
+            <div class="assessment-label">Your Potential Award</div>
+            <div style="font-size: 20px; font-weight: 700; color: #4CAF50; margin-top: 8px;" id="ime-award">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Midpoint Card -->
+      <div class="midpoint-card">
+        <h3 class="midpoint-title">How Judges Often Decide</h3>
+        <p class="midpoint-subtitle">Even Split (50/50 Midpoint)</p>
+
+        <div class="midpoint-percentage">Midpoint SLU %: <strong id="midpoint-percent">37.5%</strong></div>
+        <div class="midpoint-value" id="midpoint-value">—</div>
+
+        <p class="midpoint-description">
+          If the judge can't decide between doctors, they often split the difference. This shows what that middle ground would likely mean for your settlement value.
+        </p>
+      </div>
+
+      <!-- Settlement Value Table -->
+      <div class="section">
+        <h2 class="section-title">Settlement Value Table</h2>
+        <p style="color: #999; font-size: 13px; margin-bottom: 16px;">
+          See how different SLU percentages affect your settlement value for the selected body part.
+        </p>
+
+        <table class="values-table">
+          <thead>
+            <tr>
+              <th>SLU %</th>
+              <th>Weeks at SLU</th>
+              <th>Weekly Rate</th>
+              <th>Total Value</th>
+            </tr>
+          </thead>
+          <tbody id="values-tbody">
+            <!-- Generated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Attorney Section -->
+      <div class="attorney-section">
+        <h3 class="attorney-title">What Would an Attorney Get You?</h3>
+
+        <div class="attorney-stats">
+          <div class="attorney-stat-box">
+            <div class="attorney-stat-label">Without Attorney</div>
+            <div class="attorney-stat-value" id="without-attorney">—</div>
+            <p style="font-size: 12px; color: #999; margin-top: 8px;">Midpoint settlement</p>
+          </div>
+
+          <div class="attorney-stat-box">
+            <div class="attorney-stat-label">With Attorney (Estimated)</div>
+            <div class="attorney-stat-value" id="with-attorney">—</div>
+            <p style="font-size: 12px; color: #999; margin-top: 8px;">85% of treating doctor value</p>
+          </div>
+        </div>
+
+        <div class="attorney-benefits">
+          <div class="attorney-benefits-title">What an Attorney Can Do:</div>
+          <ul class="attorney-benefits-list">
+            <li>Negotiate higher settlements based on medical evidence</li>
+            <li>Challenge IME assessments with expert witnesses</li>
+            <li>Gather additional medical documentation</li>
+            <li>Represent you at Workers' Compensation Board hearings</li>
+            <li>Ensure you receive the maximum award possible</li>
+          </ul>
+        </div>
+
+        <a href="/find-attorney.html" class="btn-attorney">Hire an Attorney — Free Consultation</a>
+      </div>
+    </div>
+
+    <!-- Lock Overlay for Free Tier -->
+    <div id="lock-overlay" style="display: none;">
+      <div class="lock-message">
+        <h3>Tool Locked</h3>
+        <p>Settlement Comparison is available for Comp Buddy, Pro, and Firm members.</p>
+        <button class="btn-upgrade" id="upgrade-btn" style="margin-top: 12px;">Upgrade Now</button>
+      </div>
+    </div>
+
+    <!-- Footer Disclaimer -->
+    <div class="disclaimer">
+      <p style="margin: 0;">
+        <strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Settlement amounts are estimates based on 2024-2025 NYS Workers' Compensation rates and are not guaranteed. Actual awards are determined by the Workers' Compensation Board based on medical evidence, hearing decisions, and specific case circumstances. For legal guidance on your settlement options, consult a qualified workers' compensation attorney.
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getUser, hasAccess, TIER_LEVEL } from '../js/auth.js';
+    import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+
+    // Body part schedule mapping (weeks)
+    const bodyPartWeeks = {
+      shoulder: 312,
+      knee: 312,
+      hand: 244,
+      foot: 205,
+      ankle: 312,
+      wrist: 150,
+      elbow: 200,
+      hip: 312,
+      arm: 312,
+      leg: 288
+    };
+
+    const WEEKLY_RATE = 1125.46;
+    const REQUIRED_TIERS = ['comp_buddy', 'pro', 'firm'];
+
+    // Format currency
+    function formatCurrency(value) {
+      return '$' + value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    // Calculate settlement value
+    function calculateSettlement(percent, weeks) {
+      return (percent / 100) * weeks * WEEKLY_RATE;
+    }
+
+    // Update all calculations
+    function updateCalculations() {
+      const bodyPart = document.getElementById('bodyPart').value;
+      const treatingPercent = parseFloat(document.getElementById('treatingPercent').value) || 0;
+      const imePercent = parseFloat(document.getElementById('imePercent').value) || 0;
+
+      if (!bodyPart) {
+        // Clear all outputs
+        document.getElementById('treating-percent').textContent = '—';
+        document.getElementById('treating-weeks').textContent = '—';
+        document.getElementById('treating-value').textContent = '—';
+        document.getElementById('treating-award').textContent = '—';
+        document.getElementById('ime-percent').textContent = '—';
+        document.getElementById('ime-weeks').textContent = '—';
+        document.getElementById('ime-value').textContent = '—';
+        document.getElementById('ime-award').textContent = '—';
+        document.getElementById('midpoint-percent').textContent = '—';
+        document.getElementById('midpoint-value').textContent = '—';
+        document.getElementById('without-attorney').textContent = '—';
+        document.getElementById('with-attorney').textContent = '—';
+        document.getElementById('values-tbody').innerHTML = '';
+        return;
+      }
+
+      const weeks = bodyPartWeeks[bodyPart];
+
+      // Treating doctor calculations
+      const treatingValue = calculateSettlement(treatingPercent, weeks);
+      document.getElementById('treating-percent').textContent = treatingPercent + '%';
+      document.getElementById('treating-weeks').textContent = Math.round((treatingPercent / 100) * weeks) + ' weeks';
+      document.getElementById('treating-value').textContent = formatCurrency(treatingValue);
+      document.getElementById('treating-award').textContent = formatCurrency(treatingValue);
+
+      // IME doctor calculations
+      const imeValue = calculateSettlement(imePercent, weeks);
+      document.getElementById('ime-percent').textContent = imePercent + '%';
+      document.getElementById('ime-weeks').textContent = Math.round((imePercent / 100) * weeks) + ' weeks';
+      document.getElementById('ime-value').textContent = formatCurrency(imeValue);
+      document.getElementById('ime-award').textContent = formatCurrency(imeValue);
+
+      // Midpoint calculations
+      const midpointPercent = (treatingPercent + imePercent) / 2;
+      const midpointValue = calculateSettlement(midpointPercent, weeks);
+      document.getElementById('midpoint-percent').textContent = midpointPercent.toFixed(1) + '%';
+      document.getElementById('midpoint-value').textContent = formatCurrency(midpointValue);
+
+      // Attorney calculations
+      const withAttorney = treatingValue * 0.85;
+      document.getElementById('without-attorney').textContent = formatCurrency(midpointValue);
+      document.getElementById('with-attorney').textContent = formatCurrency(withAttorney);
+
+      // Populate values table (0-100% in 10% increments)
+      const tbody = document.getElementById('values-tbody');
+      tbody.innerHTML = '';
+      for (let percent = 0; percent <= 100; percent += 10) {
+        const weeksAtSLU = Math.round((percent / 100) * weeks);
+        const value = calculateSettlement(percent, weeks);
+        const row = `
+          <tr>
+            <td class="value-cell-percentage">${percent}%</td>
+            <td>${weeksAtSLU} weeks</td>
+            <td>${formatCurrency(WEEKLY_RATE)}</td>
+            <td class="value-cell-amount">${formatCurrency(value)}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      }
+    }
+
+    // Main initialization
+    async function init() {
+      const user = await getUser();
+
+      if (!user) {
+        return;
+      }
+
+      // Render navigation
+      renderNav(user.session, user.tier);
+
+      // Check access
+      const hasToolAccess = hasAccess(user.tier, REQUIRED_TIERS);
+
+      // Show/hide content based on tier
+      const calculatorContent = document.getElementById('calculator-content');
+      const lockOverlay = document.getElementById('lock-overlay');
+
+      if (!hasToolAccess) {
+        calculatorContent.style.display = 'none';
+        lockOverlay.style.display = 'block';
+
+        // Upgrade button
+        const upgradeBtn = document.getElementById('upgrade-btn');
+        if (upgradeBtn) {
+          upgradeBtn.addEventListener('click', () => {
+            window.location.href = '/account.html';
+          });
+        }
+      } else {
+        // Attach event listeners
+        document.getElementById('bodyPart').addEventListener('change', updateCalculations);
+        document.getElementById('treatingPercent').addEventListener('input', updateCalculations);
+        document.getElementById('imePercent').addEventListener('input', updateCalculations);
+
+        // Initial calculation
+        updateCalculations();
+      }
+
+      // Append footer disclaimer
+      document.body.appendChild(
+        document.createRange().createContextualFragment(renderFooterDisclaimer())
+      );
+    }
+
+    // Start initialization
+    init().catch(err => {
+      console.error('Settlement tool initialization failed:', err);
+    });
+  </script>
+</body>
+</html>

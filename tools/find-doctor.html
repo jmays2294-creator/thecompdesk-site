@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a WCB-Authorized Doctor — NYS Workers' Comp | The Comp Desk</title>
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+    <div id="app-nav"></div>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-6 text-sm text-gray-400">
+            <a href="/" class="hover:text-gray-300">Home</a> >
+            <a href="/tools/" class="hover:text-gray-300">Tools</a> >
+            <span>Find a Doctor</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Find a WCB-Authorized Doctor</h1>
+            <p class="text-gray-300">Browse WCB-authorized medical providers in the NYC area.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar Filters -->
+            <aside class="lg:col-span-1">
+                <div class="bg-gray-800 rounded-lg p-6 sticky top-4">
+                    <h2 class="text-lg font-semibold text-white mb-6">Filters</h2>
+
+                    <!-- Specialty Dropdown -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Specialty</label>
+                        <select id="specialty-filter" class="w-full bg-gray-700 text-white rounded px-3 py-2 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none">
+                            <option value="">All Specialties</option>
+                            <option value="Orthopedic">Orthopedic</option>
+                            <option value="Neurologist">Neurologist</option>
+                            <option value="Pain Management">Pain Management</option>
+                            <option value="Chiropractor">Chiropractor</option>
+                            <option value="Physical Therapy">Physical Therapy</option>
+                        </select>
+                    </div>
+
+                    <!-- Distance Slider -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Distance: <span id="distance-value">10</span> mi</label>
+                        <input type="range" id="distance-filter" min="1" max="25" value="10" class="w-full">
+                    </div>
+
+                    <!-- Language Dropdown -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Language</label>
+                        <select id="language-filter" class="w-full bg-gray-700 text-white rounded px-3 py-2 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none">
+                            <option value="">All Languages</option>
+                            <option value="English">English</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="Chinese">Chinese</option>
+                            <option value="Russian">Russian</option>
+                            <option value="Korean">Korean</option>
+                        </select>
+                    </div>
+
+                    <!-- WCB Authorized Checkbox -->
+                    <div class="mb-6">
+                        <label class="flex items-center text-sm text-gray-300">
+                            <input type="checkbox" id="wcb-filter" class="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-600">
+                            <span class="ml-2">WCB Authorized Only</span>
+                        </label>
+                    </div>
+
+                    <!-- Recommend Button -->
+                    <button id="recommend-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+                        Recommend a Doctor
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3">
+                <!-- Map Placeholder -->
+                <div class="bg-gray-800 rounded-lg p-6 mb-8 h-80 flex items-center justify-center border border-gray-700">
+                    <p class="text-gray-400 text-center">
+                        <span class="text-blue-400 font-semibold">Map view</span> — Doctor locations appear on an interactive map here
+                    </p>
+                </div>
+
+                <!-- Results Info -->
+                <div class="mb-6">
+                    <p class="text-gray-300">Showing <span id="result-count">8</span> doctors</p>
+                </div>
+
+                <!-- Doctor Cards Grid -->
+                <div id="doctors-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Recommend Doctor Modal -->
+    <div id="recommend-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold text-white mb-6">Recommend a Doctor</h2>
+            <form id="recommend-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Doctor Name</label>
+                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Specialty</label>
+                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Phone</label>
+                    <input type="tel" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Your Name</label>
+                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Notes</label>
+                    <textarea class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" rows="3"></textarea>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+                        Submit
+                    </button>
+                    <button type="button" id="close-modal" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer Disclaimer -->
+    <div id="app-footer"></div>
+
+    <script type="module">
+        import { getUser, hasAccess, TIER_LEVEL } from '../js/auth.js';
+        import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+
+        const doctors = [
+            {
+                id: 1,
+                name: "Dr. Sarah Chen",
+                credential: "MD",
+                specialty: "Orthopedic",
+                address: "230 Park Ave S, NY",
+                phone: "(212) 555-0101",
+                distance: 2.3,
+                rating: 4.8,
+                reviews: 127,
+                languages: ["English", "Chinese"],
+                wcbAuthorized: true
+            },
+            {
+                id: 2,
+                name: "Dr. Michael Rodriguez",
+                credential: "DC",
+                specialty: "Chiropractor",
+                address: "450 Lexington Ave, NY",
+                phone: "(212) 555-0102",
+                distance: 3.1,
+                rating: 4.6,
+                reviews: 94,
+                languages: ["English", "Spanish"],
+                wcbAuthorized: true
+            },
+            {
+                id: 3,
+                name: "Dr. James O'Neill",
+                credential: "MD",
+                specialty: "Pain Management",
+                address: "501 Park Ave, NY",
+                phone: "(212) 555-0103",
+                distance: 4.5,
+                rating: 4.7,
+                reviews: 156,
+                languages: ["English"],
+                wcbAuthorized: true
+            },
+            {
+                id: 4,
+                name: "Dr. Elena Volkov",
+                credential: "MD",
+                specialty: "Neurologist",
+                address: "100 E 42nd St, NY",
+                phone: "(212) 555-0104",
+                distance: 1.8,
+                rating: 4.9,
+                reviews: 203,
+                languages: ["English", "Russian"],
+                wcbAuthorized: true
+            },
+            {
+                id: 5,
+                name: "Ms. Patricia Garcia",
+                credential: "PT",
+                specialty: "Physical Therapy",
+                address: "75 Broad St, NY",
+                phone: "(212) 555-0105",
+                distance: 6.2,
+                rating: 4.5,
+                reviews: 78,
+                languages: ["English", "Spanish"],
+                wcbAuthorized: true
+            },
+            {
+                id: 6,
+                name: "Dr. David Park",
+                credential: "MD",
+                specialty: "Orthopedic",
+                address: "1 World Trade Center, NY",
+                phone: "(212) 555-0106",
+                distance: 5.4,
+                rating: 4.7,
+                reviews: 142,
+                languages: ["English", "Korean"],
+                wcbAuthorized: true
+            },
+            {
+                id: 7,
+                name: "Dr. Lisa Thompson",
+                credential: "DC",
+                specialty: "Chiropractor",
+                address: "350 5th Ave, NY",
+                phone: "(212) 555-0107",
+                distance: 7.3,
+                rating: 4.4,
+                reviews: 65,
+                languages: ["English"],
+                wcbAuthorized: false
+            },
+            {
+                id: 8,
+                name: "Dr. Raymond Martinez",
+                credential: "MD",
+                specialty: "Pain Management",
+                address: "2 E 72nd St, NY",
+                phone: "(212) 555-0108",
+                distance: 8.9,
+                rating: 4.6,
+                reviews: 119,
+                languages: ["English", "Spanish"],
+                wcbAuthorized: true
+            }
+        ];
+
+        function renderStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalf = rating % 1 >= 0.5;
+            let html = '';
+            for (let i = 0; i < fullStars; i++) {
+                html += '★';
+            }
+            if (hasHalf) html += '✦';
+            return html;
+        }
+
+        function renderDoctorCard(doctor) {
+            return `
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">${doctor.name}, ${doctor.credential}</h3>
+                            <p class="text-blue-400 text-sm">${doctor.specialty}</p>
+                        </div>
+                        <button class="text-gray-400 hover:text-red-500 text-2xl transition">♡</button>
+                    </div>
+
+                    <p class="text-gray-300 text-sm mb-2">${doctor.address}</p>
+                    <p class="text-gray-400 text-sm mb-4">${doctor.distance}mi away</p>
+
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-yellow-400">${renderStars(doctor.rating)}</span>
+                        <span class="text-gray-400 text-sm">${doctor.rating} (${doctor.reviews})</span>
+                    </div>
+
+                    <p class="text-gray-300 text-sm mb-4">
+                        <span class="text-gray-500">Languages:</span> ${doctor.languages.join(', ')}
+                    </p>
+
+                    <div class="flex gap-2 mb-4">
+                        ${doctor.wcbAuthorized ? '<span class="bg-green-900 text-green-200 text-xs font-semibold px-3 py-1 rounded">WCB Auth</span>' : '<span class="bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-1 rounded">Not WCB Auth</span>'}
+                    </div>
+
+                    <div class="flex gap-3">
+                        <a href="tel:${doctor.phone}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-center text-sm transition">
+                            Call
+                        </a>
+                        <button class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded text-sm transition">
+                            Details
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterDoctors() {
+            const specialtyFilter = document.getElementById('specialty-filter').value;
+            const distanceFilter = parseFloat(document.getElementById('distance-filter').value);
+            const languageFilter = document.getElementById('language-filter').value;
+            const wcbFilter = document.getElementById('wcb-filter').checked;
+
+            const filtered = doctors.filter(doc => {
+                if (specialtyFilter && doc.specialty !== specialtyFilter) return false;
+                if (doc.distance > distanceFilter) return false;
+                if (languageFilter && !doc.languages.includes(languageFilter)) return false;
+                if (wcbFilter && !doc.wcbAuthorized) return false;
+                return true;
+            });
+
+            const grid = document.getElementById('doctors-grid');
+            grid.innerHTML = filtered.map(renderDoctorCard).join('');
+            document.getElementById('result-count').textContent = filtered.length;
+        }
+
+        // Initialize
+        const session = await getUser();
+        const tier = TIER_LEVEL[session?.tier] || 'free';
+        renderNav(session, tier);
+        renderFooterDisclaimer();
+
+        // Render initial doctors
+        filterDoctors();
+
+        // Filter event listeners
+        document.getElementById('specialty-filter').addEventListener('change', filterDoctors);
+        document.getElementById('distance-filter').addEventListener('input', (e) => {
+            document.getElementById('distance-value').textContent = e.target.value;
+            filterDoctors();
+        });
+        document.getElementById('language-filter').addEventListener('change', filterDoctors);
+        document.getElementById('wcb-filter').addEventListener('change', filterDoctors);
+
+        // Modal handling
+        const modal = document.getElementById('recommend-modal');
+        document.getElementById('recommend-btn').addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+        document.getElementById('close-modal').addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+
+        document.getElementById('recommend-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Thank you for your recommendation!');
+            modal.classList.add('hidden');
+            document.getElementById('recommend-form').reset();
+        });
+    </script>
+</body>
+</html>

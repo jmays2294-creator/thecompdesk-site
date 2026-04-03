@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Loss of Use (SLU) Calculator — NYS Workers' Comp | The Comp Desk</title>
+  <meta name="description" content="Free NYS Schedule Loss of Use (SLU) calculator. Calculate workers' compensation awards for extremity injuries under WCL §15(3). Instant results based on body part, loss of use percentage, and compensation rate.">
+
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="Schedule Loss of Use (SLU) Calculator — NYS Workers' Comp">
+  <meta property="og:description" content="Free calculator for NYS Schedule Loss of Use benefits under WCL §15(3). Calculate SLU awards instantly.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thecompdesk.com/calculators/slu.html">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-slu.png">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://thecompdesk.com/calculators/slu.html">
+
+  <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <div class="container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>SLU Calculator</span>
+    </div>
+
+    <!-- Page Title -->
+    <h1 class="page-title">NYS Schedule Loss of Use (SLU) Calculator</h1>
+    <p class="page-subtitle">Calculate Schedule Loss of Use benefits for extremity injuries under New York Workers' Compensation Law §15(3).</p>
+
+    <!-- Calculator Section -->
+    <div class="section">
+      <h2 class="section-title">Calculator</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <!-- Left Column: Inputs -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Body Part</label>
+          <select id="bodyPart" style="width: 100%;">
+            <option value="">Select a body part...</option>
+            <option value="arm">Arm (312 weeks)</option>
+            <option value="leg">Leg (288 weeks)</option>
+            <option value="hand">Hand (244 weeks)</option>
+            <option value="foot">Foot (205 weeks)</option>
+            <option value="finger">Finger (75-150 weeks)</option>
+            <option value="thumb">Thumb (75 weeks)</option>
+            <option value="great_toe">Great Toe (38 weeks)</option>
+            <option value="toe">Toe (16 weeks)</option>
+            <option value="eye">Eye (160 weeks)</option>
+            <option value="ear">Ear (150 weeks)</option>
+          </select>
+        </div>
+
+        <!-- Right Column: Percentage Loss -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Loss of Use (%)</label>
+          <input type="number" id="lossOfUse" min="0" max="100" value="50" style="width: 100%;">
+          <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">0-100%</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <!-- Compensation Rate -->
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #fff;">Compensation Rate (Weekly)</label>
+          <div style="display: flex; gap: 8px;">
+            <span style="display: flex; align-items: center; color: #999;">$</span>
+            <input type="number" id="compRate" value="1125.46" step="0.01" style="width: 100%;">
+          </div>
+          <span style="font-size: 12px; color: #999; display: block; margin-top: 4px;">Current max: $1,125.46 (as of 7/1/2024)</span>
+        </div>
+
+        <!-- Placeholder for alignment -->
+        <div></div>
+      </div>
+
+      <!-- Results Section -->
+      <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 20px; margin-top: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Weeks of SLU</p>
+            <p style="color: #4CAF50; font-size: 32px; font-weight: 700; margin: 0;" id="weeksResult">—</p>
+          </div>
+          <div>
+            <p style="color: #999; font-size: 12px; text-transform: uppercase; margin: 0 0 8px 0;">Total SLU Award</p>
+            <p style="color: #4CAF50; font-size: 32px; font-weight: 700; margin: 0;" id="awardResult">—</p>
+          </div>
+        </div>
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+          <p style="color: #999; font-size: 12px; margin: 0;">Rate Used: <span id="rateUsed" style="color: #e0e0e0; font-weight: 600;">—</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEO Content Section -->
+    <div class="section">
+      <h2 class="section-title">About Schedule Loss of Use (SLU)</h2>
+
+      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
+        Schedule Loss of Use (SLU) is a fixed benefit available to injured workers in New York State under Workers' Compensation Law §15(3). Unlike permanent partial disability benefits, which vary by case, SLU provides a predetermined number of weeks of benefits based on the specific body part injured and the degree of permanent loss of use.
+      </p>
+
+      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
+        <strong>How SLU Works:</strong> The workers' compensation law assigns a maximum number of weeks to each body part. For example, an arm injury has a maximum of 312 weeks, while an eye injury has 160 weeks. The actual benefit is calculated by multiplying the percentage of loss of use (0-100%) by the maximum weeks for that body part, then multiplying by the worker's compensation rate (typically 2/3 of their average weekly wage, subject to the statutory maximum).
+      </p>
+
+      <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 16px;">
+        <strong>Schedule Loss of Use Benefits:</strong> SLU benefits are available for permanent injuries to specific body parts including arms, hands, legs, feet, fingers, toes, thumbs, eyes, and ears. The schedule of benefits is contained in WCL §15(3) and is adjusted annually by the Department of Financial Services based on cost-of-living changes.
+      </p>
+
+      <p style="color: #e0e0e0; line-height: 1.8;">
+        SLU awards are typically made in cases where the worker has reached maximum medical improvement and the degree of permanent loss of use can be established. The Workers' Compensation Board determines the percentage of loss of use based on medical evidence, functional capacity evaluations, and statutory guidelines.
+      </p>
+    </div>
+
+    <!-- Download App CTA -->
+    <div class="upgrade-banner">
+      <div class="upgrade-title">Mobile Calculation</div>
+      <div class="upgrade-description">Calculate SLU awards on the go with our mobile app. Available on iOS and Android.</div>
+      <button class="btn-primary">Download the App</button>
+    </div>
+
+    <!-- Footer Disclaimer -->
+    <div class="disclaimer">
+      <p style="margin: 0;">
+        <strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. SLU calculations are based on current New York State Workers' Compensation Law §15(3) and Department of Financial Services regulations. Actual awards are determined by the Workers' Compensation Board and may vary based on medical evidence, hearing decisions, and specific case circumstances. For legal guidance on your specific case, consult a qualified workers' compensation attorney.
+      </p>
+    </div>
+  </div>
+
+  <noscript>
+    <div style="background: rgba(255, 152, 0, 0.2); border-left: 4px solid #FF9800; padding: 20px; color: #e0e0e0; font-family: sans-serif;">
+      <h2>NYS Schedule Loss of Use (SLU) Calculator</h2>
+      <p>This interactive calculator requires JavaScript to calculate Schedule Loss of Use benefits for extremity injuries under WCL §15(3).</p>
+
+      <h3>About SLU Benefits:</h3>
+      <p>Schedule Loss of Use (SLU) is a fixed benefit available to injured workers in New York State under Workers' Compensation Law §15(3). Unlike permanent partial disability benefits, which vary by case, SLU provides a predetermined number of weeks of benefits based on the specific body part injured and the degree of permanent loss of use.</p>
+
+      <p>The workers' compensation law assigns a maximum number of weeks to each body part. For example, an arm injury has a maximum of 312 weeks, while an eye injury has 160 weeks. The actual benefit is calculated by multiplying the percentage of loss of use (0-100%) by the maximum weeks for that body part, then multiplying by the worker's compensation rate (typically 2/3 of their average weekly wage, subject to the statutory maximum).</p>
+
+      <p>SLU benefits are available for permanent injuries to specific body parts including arms, hands, legs, feet, fingers, toes, thumbs, eyes, and ears. The schedule of benefits is contained in WCL §15(3) and is adjusted annually by the Department of Financial Services.</p>
+    </div>
+  </noscript>
+
+  <script type="module">
+    import { getUser } from '../js/auth.js';
+    import { renderNav } from '../js/nav.js';
+
+    // Body part schedules (maximum weeks)
+    const schedules = {
+      arm: 312,
+      leg: 288,
+      hand: 244,
+      foot: 205,
+      finger: 75,  // varies, using lower end
+      thumb: 75,
+      great_toe: 38,
+      toe: 16,
+      eye: 160,
+      ear: 150
+    };
+
+    // Format currency helper
+    function formatCurrency(value) {
+      return '$' + parseFloat(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    // Calculate SLU
+    function calculateSLU() {
+      const bodyPart = document.getElementById('bodyPart').value;
+      const lossOfUse = parseFloat(document.getElementById('lossOfUse').value) || 0;
+      const compRate = parseFloat(document.getElementById('compRate').value) || 0;
+
+      const weeksResult = document.getElementById('weeksResult');
+      const awardResult = document.getElementById('awardResult');
+      const rateUsed = document.getElementById('rateUsed');
+
+      if (!bodyPart || lossOfUse < 0 || compRate <= 0) {
+        weeksResult.textContent = '—';
+        awardResult.textContent = '—';
+        rateUsed.textContent = '—';
+        return;
+      }
+
+      const maxWeeks = schedules[bodyPart];
+      const weeks = (lossOfUse / 100) * maxWeeks;
+      const totalAward = weeks * compRate;
+
+      weeksResult.textContent = weeks.toFixed(2);
+      awardResult.textContent = formatCurrency(totalAward);
+      rateUsed.textContent = formatCurrency(compRate);
+    }
+
+    // Add event listeners
+    document.getElementById('bodyPart').addEventListener('change', calculateSLU);
+    document.getElementById('lossOfUse').addEventListener('input', calculateSLU);
+    document.getElementById('compRate').addEventListener('input', calculateSLU);
+
+    // Initialize auth and nav
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await getUser();
+      if (user) {
+        renderNav(user.session, user.tier);
+      }
+    });
+  </script>
+</body>
+</html>

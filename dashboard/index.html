@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your personal dashboard for workers compensation tools and features.">
+    <title>Dashboard — The Comp Desk</title>
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+    <!-- Navigation container -->
+    <div id="app-nav"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <div style="margin-bottom: 32px;">
+            <h1 class="page-title" id="welcomeTitle">Welcome back</h1>
+            <p class="page-subtitle" id="userTierInfo"></p>
+        </div>
+
+        <!-- Upgrade Banner (Free tier only) -->
+        <div class="upgrade-banner" id="upgradeBanner" style="display: none;">
+            <div class="upgrade-title">Ready to unlock more features?</div>
+            <div class="upgrade-description">Upgrade to Comp Buddy to access Settlement Comparison, Learning Portal, Find a Doctor, and more premium tools.</div>
+            <a href="/subscribe/" class="btn-primary" style="display: inline-block;">Upgrade to Comp Buddy — $9.99/month</a>
+        </div>
+
+        <!-- Core Tools Section -->
+        <div style="margin-bottom: 32px;">
+            <h2 style="font-size: 16px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-weight: 600;">Core Tools</h2>
+            <div class="cards-grid">
+                <!-- Quick Calc Card -->
+                <a href="/calculators/" style="text-decoration: none; display: block;">
+                    <div class="card" style="height: 100%; cursor: pointer; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                            <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Quick Calc</h3>
+                        </div>
+                        <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Calculate CCP awards, AWW, LWEC, and workers compensation rates instantly.</p>
+                        <div style="display: flex; gap: 8px;">
+                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">FREE</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- My Cases Card -->
+                <a href="/dashboard/my-cases.html" style="text-decoration: none; display: block;">
+                    <div class="card" style="height: 100%; cursor: pointer; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                            <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">My Cases</h3>
+                        </div>
+                        <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Save and organize your calculations. Access your complete case history anytime.</p>
+                        <div style="display: flex; gap: 8px;">
+                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">FREE</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Premium Features Section -->
+        <div style="margin-bottom: 32px;">
+            <h2 style="font-size: 16px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-weight: 600;">Premium Features</h2>
+            <div class="cards-grid" id="premiumFeaturesGrid">
+                <!-- Settlement Comparison -->
+                <div class="card premium-card" data-feature="settlement" data-tier="comp_buddy" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Settlement Comparison</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Compare settlement values side-by-side. See what an attorney could negotiate for you.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Comp Buddy+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- Learning Portal -->
+                <div class="card premium-card" data-feature="learning" data-tier="comp_buddy" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Learning Portal</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Video guides, glossary, and your comp journey. Personalized learning for every stage.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Comp Buddy+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- Find a Doctor -->
+                <div class="card premium-card" data-feature="doctor" data-tier="comp_buddy" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Find a Doctor</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">WCB-authorized providers near you. Enhanced map with reviews and ratings.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Comp Buddy+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- IME Reminders -->
+                <div class="card premium-card" data-feature="ime" data-tier="comp_buddy" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">IME Reminders</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Push notifications and calendar integration for appointments. Don't miss a hearing.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Comp Buddy+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- UTDM Monitoring -->
+                <div class="card premium-card" data-feature="utdm" data-tier="comp_buddy" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">UTDM Monitoring</h3>
+                        <div style="background: rgba(255, 152, 0, 0.2); color: #FF9800; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; white-space: nowrap;">Coming Soon</div>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Monitor medical reports and treatment gaps. Stay on top of your case.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Comp Buddy+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- M&T Tracking -->
+                <div class="card premium-card" data-feature="mileage" data-tier="comp_buddy" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">M&T Tracking</h3>
+                        <div style="background: rgba(255, 152, 0, 0.2); color: #FF9800; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; white-space: nowrap;">Coming Soon</div>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Auto-track travel mileage. Generate C-257 forms automatically.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Comp Buddy+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- Work Search Agent (Pro+) -->
+                <div class="card premium-card" data-feature="worksearch" data-tier="pro" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Work Search Agent</h3>
+                        <div style="background: rgba(255, 152, 0, 0.2); color: #FF9800; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; white-space: nowrap;">Coming Soon</div>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">AI-powered job matching with medical restrictions. Auto-generate work search logs.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Pro+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- Claim Filing Wizard (Pro+) -->
+                <div class="card premium-card" data-feature="claiming" data-tier="pro" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Claim Filing Wizard</h3>
+                        <div style="background: rgba(255, 152, 0, 0.2); color: #FF9800; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; white-space: nowrap;">Coming Soon</div>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">File a claim without an attorney. Guided C-3/C-3.3 auto-fill and submission.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Pro+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attorney Tools Section (Pro+) -->
+        <div style="margin-bottom: 32px; display: none;" id="attorneySection">
+            <h2 style="font-size: 16px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-weight: 600;">Attorney Tools</h2>
+            <div class="cards-grid" id="attorneyGrid">
+                <!-- OC-400.1 Auto-Fill -->
+                <div class="card premium-card" data-feature="oc400" data-tier="pro" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">OC-400.1 Auto-Fill</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Auto-fill attorney fee request forms. Digital signature and PDF generation.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Pro+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- Saved Cases & Export -->
+                <div class="card premium-card" data-feature="export" data-tier="pro" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Saved Cases & Export</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Save unlimited cases. Export calculations as PDFs for client delivery.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Pro+</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Firm Management Section (Firm tier) -->
+        <div style="margin-bottom: 32px; display: none;" id="firmSection">
+            <h2 style="font-size: 16px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-weight: 600;">Firm Management</h2>
+            <div class="cards-grid" id="firmGrid">
+                <!-- Multi-Attorney Access -->
+                <div class="card premium-card" data-feature="multiattorney" data-tier="firm" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Multi-Attorney Access</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">Add team members. Shared case library and permissions management.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Firm Only</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+
+                <!-- Custom Branding -->
+                <div class="card premium-card" data-feature="branding" data-tier="firm" style="position: relative; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; flex: 1;">Custom Branding</h3>
+                        <div class="lock-icon" style="display: none;">🔒</div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; line-height: 1.5; flex-grow: 1;">White-label your firm. Custom logo, colors, and domain.</p>
+                    <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; color: #999; text-transform: uppercase; font-weight: 500;">Firm Only</span>
+                        <button class="unlock-btn" style="display: none; padding: 8px 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: #4CAF50; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onclick="scrollToUpgrade(event)">Unlock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download App CTA -->
+        <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px;">
+            <h3 style="font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px;">Take Comp Desk On the Go</h3>
+            <p style="font-size: 14px; color: #b0b0b0; margin-bottom: 16px;">Download our mobile app for instant access to calculators, case tracking, and tools.</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="display: inline-block;">Download on App Store</a>
+                <a href="https://play.google.com" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="display: inline-block;">Get on Google Play</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Disclaimer -->
+    <div id="disclaimerFooter"></div>
+
+    <script type="module">
+        import { getUser, hasAccess, TIERS, TIER_LEVEL } from '../js/auth.js';
+        import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+
+        // Initialize dashboard
+        async function initDashboard() {
+            // Get user and tier
+            const user = await getUser();
+
+            if (!user) {
+                console.error('User not authenticated');
+                return;
+            }
+
+            const { session, tier } = user;
+            const userEmail = session.user?.email || 'User';
+
+            // Render navigation
+            renderNav(session, tier);
+
+            // Render footer disclaimer
+            const disclaimerFooter = document.getElementById('disclaimerFooter');
+            disclaimerFooter.innerHTML = renderFooterDisclaimer();
+
+            // Update welcome message
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const userTierInfo = document.getElementById('userTierInfo');
+            welcomeTitle.textContent = `Welcome back, ${userEmail}`;
+
+            // Format tier name for display
+            const tierDisplayName = {
+                free: 'Free',
+                comp_buddy: 'Comp Buddy',
+                pro: 'Pro',
+                firm: 'Firm'
+            }[tier] || 'Free';
+
+            userTierInfo.innerHTML = `<span class="tier-badge ${tier === 'comp_buddy' ? 'comp-buddy' : tier}">${tierDisplayName}</span>`;
+
+            // Show upgrade banner only for free tier
+            const upgradeBanner = document.getElementById('upgradeBanner');
+            if (tier === 'free') {
+                upgradeBanner.style.display = 'block';
+            }
+
+            // Apply tier gating to all premium feature cards
+            const tierLevel = TIER_LEVEL[tier] || 0;
+            const premiumCards = document.querySelectorAll('.premium-card');
+
+            premiumCards.forEach(card => {
+                const requiredTier = card.dataset.tier;
+                const requiredLevel = TIER_LEVEL[requiredTier] || 0;
+                const hasFeatureAccess = tierLevel >= requiredLevel;
+
+                if (!hasFeatureAccess) {
+                    // Lock the card
+                    card.classList.add('locked');
+
+                    // Show lock icon and unlock button
+                    const lockIcon = card.querySelector('.lock-icon');
+                    const unlockBtn = card.querySelector('.unlock-btn');
+                    if (lockIcon) lockIcon.style.display = 'flex';
+                    if (unlockBtn) unlockBtn.style.display = 'block';
+                } else {
+                    // Unlock the card
+                    card.classList.remove('locked');
+
+                    // Hide lock icon and unlock button
+                    const lockIcon = card.querySelector('.lock-icon');
+                    const unlockBtn = card.querySelector('.unlock-btn');
+                    if (lockIcon) lockIcon.style.display = 'none';
+                    if (unlockBtn) unlockBtn.style.display = 'none';
+                }
+            });
+
+            // Show/hide sections based on tier
+            const attorneySection = document.getElementById('attorneySection');
+            const firmSection = document.getElementById('firmSection');
+
+            // Pro tier (level 2) can see attorney tools
+            if (tierLevel >= TIER_LEVEL.pro) {
+                attorneySection.style.display = 'block';
+            }
+
+            // Firm tier (level 3) can see firm management
+            if (tierLevel >= TIER_LEVEL.firm) {
+                firmSection.style.display = 'block';
+            }
+        }
+
+        // Scroll to upgrade banner
+        function scrollToUpgrade(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const upgradeBanner = document.getElementById('upgradeBanner');
+            upgradeBanner.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Make scrollToUpgrade globally available
+        window.scrollToUpgrade = scrollToUpgrade;
+
+        // Initialize on page load
+        initDashboard().catch(err => {
+            console.error('Dashboard initialization failed:', err);
+        });
+    </script>
+</body>
+</html>

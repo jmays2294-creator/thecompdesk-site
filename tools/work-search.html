@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Search Agent - The Comp Desk</title>
+    <link rel="stylesheet" href="../css/app.css">
+    <style>
+        body {
+            background-color: #0a0e27;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #app-nav {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(10, 14, 39, 0.95);
+        }
+
+        .breadcrumb {
+            max-width: 600px;
+            margin: 20px auto 0;
+            padding: 0 20px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .breadcrumb a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        .feature-icon {
+            font-size: 72px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            color: #FFC107;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            color: #ffffff;
+        }
+
+        .description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #b0b0b0;
+            margin-bottom: 32px;
+        }
+
+        .benefits {
+            margin-bottom: 32px;
+        }
+
+        .benefits h3 {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #999;
+            margin: 0 0 16px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .benefits ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .benefits li {
+            padding: 12px 0;
+            padding-left: 24px;
+            position: relative;
+            color: #d0d0d0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .benefits li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        .email-section {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+
+        .email-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            color: #ffffff;
+        }
+
+        .email-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .email-form input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .email-form input::placeholder {
+            color: #666;
+        }
+
+        .email-form input:focus {
+            border-color: #6366f1;
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .email-form button {
+            padding: 10px 20px;
+            background: #6366f1;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .email-form button:hover {
+            background: #4f46e5;
+        }
+
+        .email-form button:active {
+            background: #4338ca;
+        }
+
+        .success-message {
+            display: none;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #22c55e;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .cta-button {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            background: #6366f1;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: background 0.2s;
+        }
+
+        .cta-button:hover {
+            background: #4f46e5;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(10, 14, 39, 0.95);
+            padding: 24px 20px;
+            font-size: 12px;
+            color: #666;
+            margin-top: auto;
+        }
+
+        #footer-disclaimer {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-nav"></div>
+
+    <div class="breadcrumb">
+        <a href="/">Home</a> > <a href="/tools/">Tools</a> > Work Search Agent
+    </div>
+
+    <div class="container">
+        <div class="feature-icon">🔍</div>
+
+        <div class="coming-soon-badge">Coming Soon</div>
+
+        <h1>Work Search Agent</h1>
+
+        <p class="description">
+            AI-powered job matching that respects your medical restrictions. Automatically generate work search logs required by the Workers' Compensation Board and find suitable employment opportunities.
+        </p>
+
+        <div class="benefits">
+            <h3>Key Features</h3>
+            <ul>
+                <li>Job matching based on medical restrictions</li>
+                <li>Auto-generate required work search logs</li>
+                <li>Track application status and responses</li>
+                <li>Stay compliant with WCB requirements</li>
+            </ul>
+        </div>
+
+        <div class="email-section">
+            <h3>Get Notified When This Launches</h3>
+            <form class="email-form" id="notifyForm">
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit">Notify Me</button>
+            </form>
+            <div class="success-message">Thanks! You'll be notified when Work Search Agent launches.</div>
+        </div>
+
+        <a href="/subscribe/" class="cta-button">Get Comp Buddy</a>
+
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <footer>
+        <div id="footer-disclaimer"></div>
+    </footer>
+
+    <script type="module">
+        import { getUser } from '../js/auth.js';
+        import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+
+        async function init() {
+            const session = await getUser();
+            renderNav(session, session?.tier);
+            renderFooterDisclaimer();
+
+            const form = document.getElementById('notifyForm');
+            const successMessage = document.querySelector('.success-message');
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = form.querySelector('input[type="email"]');
+                input.value = '';
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe — The Comp Desk</title>
+    <link rel="stylesheet" href="../css/app.css">
+    <!-- Stripe checkout handled server-side via Supabase Edge Function -->
+    <style>
+        /* Subscription-Specific Styles */
+        .page-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .plans-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .plans-header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .plans-header p {
+            font-size: 18px;
+            color: #aaa;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Plans Grid */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 32px;
+            margin-bottom: 80px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            justify-items: center;
+        }
+
+        .plan-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 32px;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 360px;
+            min-height: 600px;
+        }
+
+        .plan-card:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-8px);
+        }
+
+        /* Highlighted "Most Popular" Card */
+        .plan-card.featured {
+            border: 2px solid #4CAF50;
+            box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.3);
+            transform: scale(1.03);
+        }
+
+        .plan-card.featured:hover {
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: -12px;
+            left: 32px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        .badge-gold {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+        }
+
+        .badge-blue {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: #fff;
+        }
+
+        .badge-purple {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+            color: #fff;
+        }
+
+        .badge-popular {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 4px;
+            letter-spacing: -1px;
+        }
+
+        .plan-price-period {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        .plan-features {
+            flex: 1;
+            margin-bottom: 32px;
+        }
+
+        .plan-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .plan-features li {
+            padding: 12px 0;
+            font-size: 14px;
+            color: #ccc;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .checkmark {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkmark-gold::before {
+            content: '✓';
+            color: #FFD700;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .checkmark-blue::before {
+            content: '✓';
+            color: #2196F3;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .checkmark-purple::before {
+            content: '✓';
+            color: #9C27B0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .plan-cta {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-cta-gold {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: #fff;
+        }
+
+        .plan-cta-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .plan-cta-blue {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: #fff;
+        }
+
+        .plan-cta-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .plan-cta-purple {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .plan-cta-purple:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .plan-cta:active {
+            transform: translateY(0);
+        }
+
+        /* Current Subscription Message */
+        .current-subscription {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 40px auto;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .current-subscription h3 {
+            color: #4CAF50;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .current-subscription p {
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .manage-subscription-btn {
+            display: inline-block;
+            padding: 10px 24px;
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .manage-subscription-btn:hover {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.7);
+        }
+
+        /* Trust Badges */
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 60px 0;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .badge::before {
+            content: '✓';
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .faq-section h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .faq-question {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-toggle {
+            font-size: 20px;
+            color: #4CAF50;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            font-size: 14px;
+            color: #aaa;
+            margin: 16px 0 0 0;
+            line-height: 1.6;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer.open {
+            max-height: 200px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .plans-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 24px;
+            }
+
+            .plan-card.featured {
+                transform: scale(1);
+            }
+
+            .plan-card {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-content {
+                padding: 40px 20px;
+            }
+
+            .plans-header h1 {
+                font-size: 32px;
+            }
+
+            .plans-header p {
+                font-size: 16px;
+            }
+
+            .plans-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .plan-card {
+                max-width: 100%;
+            }
+
+            .plan-price {
+                font-size: 36px;
+            }
+
+            .trust-badges {
+                gap: 20px;
+            }
+
+            .badge {
+                font-size: 12px;
+            }
+        }
+
+        /* Loading State */
+        .plan-cta:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .plan-cta.loading::after {
+            content: ' ...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {
+                content: ' ...';
+            }
+            40% {
+                content: ' .';
+            }
+            60% {
+                content: ' ..';
+            }
+            80%, 100% {
+                content: ' ...';
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-nav"></div>
+
+    <div class="page-content">
+        <div class="plans-header">
+            <h1>Choose Your Plan</h1>
+            <p>Unlock premium workers' compensation tools and features.</p>
+        </div>
+
+        <div id="plans-container">
+            <div class="plans-grid" id="plans-grid">
+                <!-- Plan cards will be rendered here by JavaScript -->
+            </div>
+        </div>
+
+        <div class="trust-badges">
+            <div class="badge">Powered by Stripe</div>
+            <div class="badge">256-bit SSL Encryption</div>
+            <div class="badge">Cancel Anytime</div>
+        </div>
+
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <p class="faq-question">
+                    Can I cancel anytime?
+                    <span class="faq-toggle">+</span>
+                </p>
+                <p class="faq-answer">Yes, cancel anytime from your account settings. Your subscription will remain active until the end of your billing period.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question">
+                    Is my payment secure?
+                    <span class="faq-toggle">+</span>
+                </p>
+                <p class="faq-answer">All payments are processed securely by Stripe, a leading payment processor. Your financial information is encrypted and never stored on our servers.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question">
+                    What happens after I subscribe?
+                    <span class="faq-toggle">+</span>
+                </p>
+                <p class="faq-answer">Your account is upgraded instantly. You'll have immediate access to all premium features for your chosen plan.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question">
+                    Can I switch plans?
+                    <span class="faq-toggle">+</span>
+                </p>
+                <p class="faq-answer">Yes, you can upgrade or downgrade your plan anytime. Contact us at info@thecompdesk.com for plan changes.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer-disclaimer"></footer>
+
+    <script type="module">
+        import { getUser, supabase, TIERS } from '../js/auth.js';
+        import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+
+        // Edge Function endpoint for Stripe checkout
+        const CHECKOUT_URL = 'https://ltibymvlytodkemdeeox.supabase.co/functions/v1/create-checkout';
+
+        // Plan configurations
+        const PLANS = {
+            comp_buddy: {
+                name: 'Comp Buddy',
+                price: 9.99,
+                badgeClass: 'badge-gold',
+                checkmarkClass: 'checkmark-gold',
+                buttonClass: 'plan-cta-gold',
+                tier: 'comp_buddy',
+                featured: true,
+                features: [
+                    'All 7 Calculators',
+                    'Settlement Comparison Tool',
+                    'Learning Portal (Full Access)',
+                    'Find a Doctor (Enhanced)',
+                    'IME Reminders & Calendar',
+                    'Priority Support'
+                ]
+            },
+            pro: {
+                name: 'Pro',
+                price: 9.99,
+                badgeClass: 'badge-blue',
+                checkmarkClass: 'checkmark-blue',
+                buttonClass: 'plan-cta-blue',
+                tier: 'pro',
+                featured: false,
+                features: [
+                    'Everything in Comp Buddy, plus:',
+                    'Radiculopathy Calculator',
+                    'Spine & Brain Calculator',
+                    'OC-400.1 Auto-Fill',
+                    'Unlimited Saved Cases',
+                    'PDF Export'
+                ]
+            },
+            firm: {
+                name: 'Firm',
+                price: 99,
+                badgeClass: 'badge-purple',
+                checkmarkClass: 'checkmark-purple',
+                buttonClass: 'plan-cta-purple',
+                tier: 'firm',
+                featured: false,
+                features: [
+                    'Everything in Pro, plus:',
+                    'Multi-Attorney Access',
+                    'Custom Branding',
+                    'Team Management',
+                    'Priority Firm Support'
+                ]
+            }
+        };
+
+        // Check if user has a paid tier
+        let currentUserTier = TIERS.FREE;
+
+        /**
+         * Render all plan cards
+         */
+        function renderPlans(userTier) {
+            const plansGrid = document.getElementById('plans-grid');
+            const plansContainer = document.getElementById('plans-container');
+
+            // Check if user already has a paid tier
+            if ([TIERS.COMP_BUDDY, TIERS.PRO, TIERS.FIRM].includes(userTier)) {
+                const tierLabels = {
+                    comp_buddy: 'Comp Buddy',
+                    pro: 'Pro',
+                    firm: 'Firm'
+                };
+
+                plansContainer.innerHTML = `
+                    <div class="current-subscription">
+                        <h3>You're currently on ${tierLabels[userTier]}</h3>
+                        <p>Manage your subscription settings, payment method, and billing information.</p>
+                        <a href="/account.html" class="manage-subscription-btn">Manage Subscription</a>
+                    </div>
+                    <div class="plans-grid" id="plans-grid">
+                        <!-- Plans shown below for reference -->
+                    </div>
+                `;
+            }
+
+            let html = '';
+
+            Object.entries(PLANS).forEach(([key, plan]) => {
+                const featuredClass = plan.featured ? 'featured' : '';
+                const popularBadge = plan.featured ? '<div class="badge-popular">Most Popular</div>' : '';
+
+                html += `
+                    <div class="plan-card ${featuredClass}">
+                        <div class="plan-badge ${plan.badgeClass}">
+                            ${key === 'comp_buddy' ? 'Gold' : key === 'pro' ? 'Blue' : 'Purple'}
+                        </div>
+                        ${popularBadge}
+                        <h2 class="plan-name">${plan.name}</h2>
+                        <div class="plan-price">$${plan.price.toFixed(2)}</div>
+                        <div class="plan-price-period">/month, billed monthly</div>
+                        <div class="plan-features">
+                            <ul>
+                                ${plan.features.map(feature => `
+                                    <li>
+                                        <div class="checkmark ${plan.checkmarkClass}"></div>
+                                        <span>${feature}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <button
+                            class="plan-cta ${plan.buttonClass}"
+                            data-plan-key="${key}"
+                            ${key === 'firm' ? 'onclick="window.location.href=\'mailto:info@thecompdesk.com?subject=Firm%20Plan%20Inquiry\'"' : ''}
+                        >
+                            ${key === 'firm' ? 'Contact Sales' : `Get ${plan.name}`}
+                        </button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('plans-grid').innerHTML = html;
+
+            // Attach event listeners to non-Firm plan buttons
+            document.querySelectorAll('.plan-cta:not([onclick])').forEach(button => {
+                button.addEventListener('click', handleCheckout);
+            });
+        }
+
+        /**
+         * Handle Stripe checkout via Supabase Edge Function
+         */
+        async function handleCheckout(e) {
+            const planKey = e.target.dataset.planKey;
+
+            if (!planKey || !PLANS[planKey]) {
+                alert('Invalid plan selected. Please try again.');
+                return;
+            }
+
+            // Disable button and show loading state
+            e.target.disabled = true;
+            e.target.classList.add('loading');
+            const originalText = e.target.textContent;
+
+            try {
+                // Get current user session (JWT needed for Edge Function auth)
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError || !session) {
+                    alert('Please sign in to continue.');
+                    window.location.href = '/auth_v2.html?redirect=/subscribe/';
+                    return;
+                }
+
+                // Call Supabase Edge Function to create Stripe Checkout session
+                const response = await fetch(CHECKOUT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({ tier: planKey })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Failed to create checkout session');
+                }
+
+                const data = await response.json();
+
+                if (!data.checkout_url) {
+                    throw new Error('No checkout URL returned');
+                }
+
+                // Redirect to Stripe Checkout page
+                window.location.href = data.checkout_url;
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('An error occurred: ' + error.message);
+            } finally {
+                e.target.disabled = false;
+                e.target.classList.remove('loading');
+                e.target.textContent = originalText;
+            }
+        }
+
+        /**
+         * Handle FAQ toggle
+         */
+        function initializeFAQ() {
+            document.querySelectorAll('.faq-item').forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+                const toggle = item.querySelector('.faq-toggle');
+
+                question.addEventListener('click', () => {
+                    answer.classList.toggle('open');
+                    toggle.classList.toggle('open');
+                    item.classList.toggle('open');
+                });
+            });
+        }
+
+        /**
+         * Handle URL parameter for pre-selection
+         */
+        function handlePlanPreSelection() {
+            const params = new URLSearchParams(window.location.search);
+            const selectedPlan = params.get('plan');
+
+            if (selectedPlan && PLANS[selectedPlan]) {
+                // Find and highlight the plan card
+                setTimeout(() => {
+                    const planCards = document.querySelectorAll('.plan-card');
+                    planCards.forEach((card, index) => {
+                        const planKeys = Object.keys(PLANS);
+                        if (planKeys[index] === selectedPlan) {
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            card.style.animation = 'pulse 1s ease-in-out 3';
+                        }
+                    });
+                }, 100);
+            }
+        }
+
+        /**
+         * Initialize page
+         */
+        async function initializePage() {
+            try {
+                const user = await getUser();
+
+                if (user) {
+                    currentUserTier = user.tier;
+                    renderNav(user.session, user.tier);
+                }
+
+                renderPlans(currentUserTier);
+                initializeFAQ();
+                handlePlanPreSelection();
+
+                // Render footer disclaimer
+                const footerContainer = document.getElementById('footer-disclaimer');
+                if (footerContainer) {
+                    footerContainer.innerHTML = renderFooterDisclaimer();
+                }
+            } catch (error) {
+                console.error('Page initialization error:', error);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IME Reminders & Calendar — NYS Workers' Comp | The Comp Desk</title>
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+    <div id="app-nav"></div>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-6 text-sm text-gray-400">
+            <a href="/" class="hover:text-gray-300">Home</a> >
+            <a href="/tools/" class="hover:text-gray-300">Tools</a> >
+            <span>IME Reminders</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Your Upcoming IME</h1>
+            <p class="text-gray-300">Track reminders, preparation checklist, and what to expect at your appointment.</p>
+        </div>
+
+        <!-- Tier Gate Overlay (for free tier) -->
+        <div id="tier-gate" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40">
+            <div class="bg-gray-800 rounded-lg p-8 max-w-md text-center">
+                <div class="text-5xl mb-4">🔒</div>
+                <h2 class="text-2xl font-bold text-white mb-4">Upgrade to Access IME Reminders</h2>
+                <p class="text-gray-300 mb-6">Get reminders, checklists, and preparation tips to ace your IME exam.</p>
+                <a href="/subscribe/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded transition">
+                    Upgrade to Comp Buddy
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content (hidden if free tier) -->
+        <div id="content">
+            <!-- Next Appointment Card -->
+            <div class="bg-green-900 border-2 border-green-600 rounded-lg p-8 mb-8">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="inline-block bg-green-600 text-green-100 text-xs font-bold px-3 py-1 rounded mb-4">IME EXAM</span>
+                        <h2 class="text-2xl font-bold text-white mb-2">May 18, 2026 at 2:30 PM</h2>
+                        <p class="text-green-100 text-lg font-semibold mb-4">Dr. James Robertson, MD — Orthopedic Surgeon</p>
+                        <p class="text-green-100 mb-2">450 Lexington Ave, New York, NY 10017</p>
+                        <a href="tel:(212)555-0100" class="text-green-200 hover:text-green-100 font-semibold">(212) 555-0100</a>
+                    </div>
+                    <div class="text-5xl text-green-300">📅</div>
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition">
+                        Add to Calendar
+                    </button>
+                    <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition">
+                        Get Directions
+                    </button>
+                    <a href="tel:(212)555-0100" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition">
+                        Call Doctor
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column: Reminders & Checklist -->
+                <div class="lg:col-span-2">
+                    <!-- Reminder Schedule -->
+                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-6">Reminder Schedule</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4">
+                                <input type="checkbox" checked disabled class="mt-1">
+                                <div class="flex-1">
+                                    <p class="text-white font-semibold">1 Week Before — May 11</p>
+                                    <p class="text-gray-400 text-sm">Advance notice to prepare documents</p>
+                                </div>
+                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <input type="checkbox" checked disabled class="mt-1">
+                                <div class="flex-1">
+                                    <p class="text-white font-semibold">3 Days Before — May 15</p>
+                                    <p class="text-gray-400 text-sm">Review your medical records</p>
+                                </div>
+                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <input type="checkbox" checked disabled class="mt-1">
+                                <div class="flex-1">
+                                    <p class="text-white font-semibold">1 Day Before — May 17</p>
+                                    <p class="text-gray-400 text-sm">Plan your travel and confirm location</p>
+                                </div>
+                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <input type="checkbox" checked disabled class="mt-1">
+                                <div class="flex-1">
+                                    <p class="text-white font-semibold">2 Hours Before — May 18</p>
+                                    <p class="text-gray-400 text-sm">Get ready and leave soon</p>
+                                </div>
+                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What to Bring -->
+                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-6">What to Bring</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
+                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+                                <span class="ml-3">Photo ID</span>
+                            </label>
+                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
+                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+                                <span class="ml-3">Insurance Card</span>
+                            </label>
+                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
+                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+                                <span class="ml-3">Medical Records</span>
+                            </label>
+                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
+                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+                                <span class="ml-3">Medications List</span>
+                            </label>
+                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
+                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+                                <span class="ml-3">Doctor's Letters</span>
+                            </label>
+                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
+                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+                                <span class="ml-3">Notepad</span>
+                            </label>
+                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
+                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
+                                <span class="ml-3">Pen</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- What to Expect -->
+                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+                        <button class="w-full flex justify-between items-center text-lg font-bold text-white hover:text-blue-400 transition">
+                            <span>What to Expect</span>
+                            <span class="text-2xl" id="expand-toggle">▶</span>
+                        </button>
+                        <div id="expect-content" class="hidden mt-6 space-y-6">
+                            <div>
+                                <h4 class="font-semibold text-white mb-3">Before You Arrive</h4>
+                                <ul class="text-gray-300 space-y-2 text-sm">
+                                    <li>• Arrive 10-15 minutes early to complete check-in paperwork</li>
+                                    <li>• Bring all required documents (see checklist above)</li>
+                                    <li>• Wear comfortable, clean clothing</li>
+                                    <li>• Avoid heavy perfume or cologne</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white mb-3">During the Exam</h4>
+                                <ul class="text-gray-300 space-y-2 text-sm">
+                                    <li>• The doctor will perform a physical examination</li>
+                                    <li>• You may be asked to perform movements or exercises</li>
+                                    <li>• The exam typically lasts 30-60 minutes</li>
+                                    <li>• You can take notes during or after the exam</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white mb-3">Important Reminders</h4>
+                                <ul class="text-gray-300 space-y-2 text-sm">
+                                    <li>• Be honest about your condition and symptoms</li>
+                                    <li>• The IME doctor works for the insurance company, not you</li>
+                                    <li>• Do not exaggerate or minimize your injuries</li>
+                                    <li>• Ask questions if you don't understand something</li>
+                                    <li>• Bring a friend or family member for support if allowed</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Rating & Upcoming Appointments -->
+                <div class="lg:col-span-1">
+                    <!-- How Did It Go -->
+                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
+                        <h3 class="text-lg font-bold text-white mb-6">How Did It Go?</h3>
+                        <div class="mb-6">
+                            <div class="flex justify-center gap-2 mb-4" id="star-rating">
+                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="1">★</button>
+                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="2">★</button>
+                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="3">★</button>
+                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="4">★</button>
+                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="5">★</button>
+                            </div>
+                            <p class="text-center text-gray-400 text-sm" id="rating-text">Select a rating</p>
+                        </div>
+                        <textarea placeholder="Any notes about your exam?" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none text-sm resize-none" rows="4"></textarea>
+                        <button class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
+                            Save Notes
+                        </button>
+                    </div>
+
+                    <!-- Upcoming Appointments -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <h3 class="text-lg font-bold text-white mb-6">Upcoming Appointments</h3>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-blue-500 pl-4 py-2">
+                                <p class="text-white font-semibold text-sm">May 18, 2026</p>
+                                <p class="text-gray-300 text-sm">Dr. James Robertson — Orthopedic</p>
+                            </div>
+                            <div class="border-l-4 border-gray-600 pl-4 py-2">
+                                <p class="text-white font-semibold text-sm">June 8, 2026</p>
+                                <p class="text-gray-300 text-sm">Dr. Sarah Chen — Neurology Follow-up</p>
+                            </div>
+                            <div class="border-l-4 border-gray-600 pl-4 py-2">
+                                <p class="text-white font-semibold text-sm">June 22, 2026</p>
+                                <p class="text-gray-300 text-sm">Dr. Michael Rodriguez — Chiropractor</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Disclaimer -->
+    <div id="app-footer"></div>
+
+    <script type="module">
+        import { getUser, hasAccess, TIER_LEVEL } from '../js/auth.js';
+        import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+
+        // Initialize
+        const session = await getUser();
+        const tier = TIER_LEVEL[session?.tier] || 'free';
+        renderNav(session, tier);
+        renderFooterDisclaimer();
+
+        // Tier gating
+        const requiredTier = ['comp_buddy', 'pro', 'firm'];
+        if (!requiredTier.includes(session?.tier)) {
+            document.getElementById('tier-gate').classList.remove('hidden');
+            document.getElementById('content').classList.add('hidden');
+        }
+
+        // Expandable "What to Expect" section
+        const expandToggle = document.getElementById('expand-toggle');
+        const expandContent = document.getElementById('expect-content');
+        document.querySelector('button[data-expand="expect"]')?.addEventListener('click', () => {
+            expandContent.classList.toggle('hidden');
+            expandToggle.textContent = expandContent.classList.contains('hidden') ? '▶' : '▼';
+        });
+
+        // Toggle via button click
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.textContent.includes('What to Expect')) {
+                btn.addEventListener('click', () => {
+                    expandContent.classList.toggle('hidden');
+                    expandToggle.textContent = expandContent.classList.contains('hidden') ? '▶' : '▼';
+                });
+            }
+        });
+
+        // Star rating
+        let selectedRating = 0;
+        document.querySelectorAll('#star-rating button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectedRating = parseInt(btn.dataset.rating);
+                document.querySelectorAll('#star-rating button').forEach((b, i) => {
+                    if (i < selectedRating) {
+                        b.classList.remove('text-gray-400');
+                        b.classList.add('text-yellow-400');
+                    } else {
+                        b.classList.remove('text-yellow-400');
+                        b.classList.add('text-gray-400');
+                    }
+                });
+                const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+                document.getElementById('rating-text').textContent = labels[selectedRating];
+            });
+            btn.addEventListener('mouseover', (e) => {
+                const hoverRating = parseInt(btn.dataset.rating);
+                document.querySelectorAll('#star-rating button').forEach((b, i) => {
+                    if (i < hoverRating) {
+                        b.classList.add('text-yellow-400');
+                    } else {
+                        b.classList.remove('text-yellow-400');
+                    }
+                });
+            });
+        });
+
+        document.getElementById('star-rating').addEventListener('mouseout', () => {
+            document.querySelectorAll('#star-rating button').forEach((b, i) => {
+                if (i < selectedRating) {
+                    b.classList.add('text-yellow-400');
+                    b.classList.remove('text-gray-400');
+                } else {
+                    b.classList.remove('text-yellow-400');
+                    b.classList.add('text-gray-400');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

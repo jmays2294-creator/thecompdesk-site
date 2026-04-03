@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In â The Comp Desk</title>
+<title>Sign In — The Comp Desk</title>
 <meta name="description" content="Sign in or create an account to access The Comp Desk Pro features.">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -91,7 +91,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100
   </div>
 
   <div class="back-link">
-    <a href="/">â Back to The Comp Desk</a>
+    <a href="/">← Back to The Comp Desk</a>
   </div>
 </div>
 
@@ -108,10 +108,14 @@ let state={
   password:''
 };
 
+// Redirect parameter support
+const urlParams=new URLSearchParams(window.location.search);
+const redirectTo=urlParams.get('redirect')||'/dashboard/';
+
 // Check if already logged in
 (async()=>{
   const{data:{session}}=await sb.auth.getSession();
-  if(session)window.location.href='/account';
+  if(session)window.location.href=redirectTo;
 })();
 
 function render(){
@@ -157,12 +161,12 @@ function renderSignupStep1(){
     <p style="font-size:13px;color:var(--txD);text-align:center;margin-bottom:16px;">Which best describes you?</p>
     <div class="type-selector">
       <div class="type-card ${state.userType==='attorney'?'selected':''}" onclick="state.userType='attorney';render()">
-        <div class="type-icon">âï¸</div>
+        <div class="type-icon">⚖️</div>
         <div class="type-label">Attorney</div>
         <div class="type-desc">WC practitioner with fee app tools & Pro features</div>
       </div>
       <div class="type-card ${state.userType==='worker'?'selected':''}" onclick="state.userType='worker';render()">
-        <div class="type-icon">ð¡ï¸</div>
+        <div class="type-icon">🛡️</div>
         <div class="type-label">Injured Worker</div>
         <div class="type-desc">Check your benefits & understand your rights</div>
       </div>
@@ -180,7 +184,7 @@ function renderSignupStep1(){
       <input type="password" id="signup-pass2" placeholder="Confirm password" autocomplete="new-password">
     </div>
     ${state.userType==='attorney'?`
-    <button class="submit-btn" onclick="goToStep2()">Next â Attorney Details</button>
+    <button class="submit-btn" onclick="goToStep2()">Next — Attorney Details</button>
     `:`
     <button class="submit-btn" onclick="handleWorkerSignup()">Create Account</button>
     `}
@@ -201,7 +205,7 @@ function renderSignupStep2(){
     </div>
     <div class="msg" id="msg"></div>
     <div style="text-align:center;margin-bottom:4px;">
-      <span style="font-size:10px;color:var(--ac);cursor:pointer;" onclick="state.mode='signup_step1';render()">â Back</span>
+      <span style="font-size:10px;color:var(--ac);cursor:pointer;" onclick="state.mode='signup_step1';render()">← Back</span>
     </div>
     <div class="attorney-section">
       <div class="section-title">Attorney / Firm Information</div>
@@ -229,7 +233,7 @@ function renderSignupStep2(){
       </div>
     </div>
     <div class="referral-box">
-      <div class="ref-title">ð Comp Desk Referral Program</div>
+      <div class="ref-title">📋 Comp Desk Referral Program</div>
       <div class="ref-desc">Join our referral network and connect with injured workers in your area who are looking for representation. Program details coming soon.</div>
       <label class="referral-toggle">
         <input type="checkbox" id="atty-referral" ${state.referral?'checked':''} onchange="state.referral=this.checked">
@@ -273,7 +277,7 @@ async function handleWorkerSignup(){
     msg.className='msg success';msg.textContent='Account created! Check your email to verify, then sign in.';
     btn.disabled=false;btn.textContent='Create Account';
     setTimeout(()=>{state.mode='login';render();},2500);
-  }else{window.location.href='/account';}
+  }else{window.location.href=redirectTo;}
 }
 
 async function handleAttorneySignup(){
@@ -304,7 +308,7 @@ async function handleAttorneySignup(){
     msg.className='msg success';msg.textContent='Attorney account created! Check your email to verify, then sign in.';
     btn.disabled=false;btn.textContent='Create Attorney Account';
     setTimeout(()=>{state.mode='login';render();},2500);
-  }else{window.location.href='/account';}
+  }else{window.location.href=redirectTo;}
 }
 
 async function handleLogin(){
@@ -316,7 +320,7 @@ async function handleLogin(){
   btn.disabled=true;btn.textContent='Signing in...';msg.textContent='';
   const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Sign In';return;}
-  window.location.href='/account';
+  window.location.href=redirectTo;
 }
 
 async function handleForgot(){

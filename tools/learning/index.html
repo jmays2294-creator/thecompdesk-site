@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Portal — NYS Workers' Comp Education | The Comp Desk</title>
+    <link rel="stylesheet" href="../../css/app.css">
+    <style>
+        /* Learning Portal Styles */
+        .breadcrumb {
+            font-size: 0.875rem;
+            color: #888;
+            margin-bottom: 1.5rem;
+            padding: 0 1rem;
+        }
+
+        .breadcrumb a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .page-header {
+            padding: 2rem 1rem 1rem;
+            border-bottom: 1px solid #333;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            margin: 0;
+            color: #fff;
+        }
+
+        .page-header p {
+            color: #aaa;
+            margin: 0.5rem 0 0;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #333;
+            padding: 0 1rem;
+            margin: 0 0 2rem;
+            gap: 2rem;
+            overflow-x: auto;
+        }
+
+        .tab-nav button {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1rem;
+            padding: 1rem 0;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+            transition: color 0.3s;
+        }
+
+        .tab-nav button:hover {
+            color: #ccc;
+        }
+
+        .tab-nav button.active {
+            color: #4CAF50;
+        }
+
+        .tab-nav button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #4CAF50;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 0 1rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Glossary Tab */
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #444;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .search-input::placeholder {
+            color: #666;
+        }
+
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .term-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .term-card:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.1);
+        }
+
+        .term-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-financial {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .category-medical {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+        }
+
+        .category-legal {
+            background: rgba(156, 39, 176, 0.2);
+            color: #9C27B0;
+        }
+
+        .category-process {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+        }
+
+        .term-definition {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .term-card.expanded .term-definition-short {
+            display: none;
+        }
+
+        .term-card .term-definition-full {
+            display: none;
+            color: #bbb;
+            line-height: 1.7;
+        }
+
+        .term-card.expanded .term-definition-full {
+            display: block;
+        }
+
+        .expand-btn {
+            color: #4CAF50;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .expand-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Journey Timeline */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: #333;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+        }
+
+        .timeline-stage {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .timeline-stage:nth-child(odd) {
+            text-align: right;
+            padding-right: 52%;
+        }
+
+        .timeline-stage:nth-child(even) {
+            text-align: left;
+            padding-left: 52%;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-stage {
+                padding-left: 60px !important;
+                text-align: left !important;
+                padding-right: 0 !important;
+            }
+        }
+
+        .timeline-stage::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #4CAF50;
+            border: 3px solid #0a0a0a;
+            border-radius: 50%;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-stage::before {
+                left: 14px;
+                top: 0;
+            }
+        }
+
+        .timeline-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .timeline-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-timeframe {
+            color: #4CAF50;
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-points {
+            color: #aaa;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-points li {
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-link {
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .timeline-link:hover {
+            text-decoration: underline;
+        }
+
+        /* FAQ Accordion */
+        .faq-container {
+            max-width: 800px;
+        }
+
+        .faq-item {
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.3s;
+        }
+
+        .faq-question:hover {
+            background: #222;
+        }
+
+        .faq-question-text {
+            font-weight: bold;
+            color: #fff;
+            flex: 1;
+        }
+
+        .faq-toggle {
+            color: #4CAF50;
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .faq-item.open .faq-toggle {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            display: none;
+            background: #0f0f0f;
+            padding: 1.5rem;
+            color: #aaa;
+            line-height: 1.7;
+            border-top: 1px solid #333;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        .faq-cta {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .faq-cta p {
+            color: #aaa;
+            margin-bottom: 1rem;
+        }
+
+        .cta-link {
+            display: inline-block;
+            background: #4CAF50;
+            color: #000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .cta-link:hover {
+            background: #45a049;
+        }
+
+        /* Videos Grid */
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .video-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .video-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-4px);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            background: #0f0f0f;
+            overflow: hidden;
+        }
+
+        .video-thumbnail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            z-index: 0;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(76, 175, 80, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            transition: background 0.3s;
+        }
+
+        .video-card:hover .play-button {
+            background: rgba(76, 175, 80, 1);
+        }
+
+        .play-button::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 15px solid #000;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            margin-left: 4px;
+        }
+
+        .coming-soon-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #fff;
+            z-index: 2;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        .video-info {
+            padding: 1.5rem;
+        }
+
+        .video-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .video-duration {
+            color: #888;
+            font-size: 0.875rem;
+        }
+
+        .video-description {
+            color: #aaa;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .learning-footer {
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+            text-align: center;
+            color: #666;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .learning-footer p {
+            margin: 0.5rem 0;
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .no-results p {
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem 1rem 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-nav {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-nav"></div>
+
+    <div class="breadcrumb">
+        <a href="/">Home</a> > <a href="/tools/">Tools</a> > Learning Portal
+    </div>
+
+    <div class="page-header">
+        <h1>Learning Portal</h1>
+        <p>NYS Workers' Compensation Education & Resources</p>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="glossary">Glossary</button>
+        <button class="tab-btn" data-tab="journey">Your Comp Journey</button>
+        <button class="tab-btn" data-tab="faq">FAQ</button>
+        <button class="tab-btn" data-tab="videos">Videos</button>
+    </div>
+
+    <!-- Tab 1: Glossary -->
+    <div id="glossary" class="tab-content active">
+        <div class="search-container">
+            <input type="text" class="search-input" id="glossary-search" placeholder="Search terms...">
+        </div>
+        <div class="glossary-grid" id="glossary-grid"></div>
+        <div id="no-results" class="no-results" style="display: none;">
+            <p>No terms found matching your search.</p>
+        </div>
+    </div>
+
+    <!-- Tab 2: Your Comp Journey -->
+    <div id="journey" class="tab-content">
+        <div class="timeline" id="journey-timeline"></div>
+    </div>
+
+    <!-- Tab 3: FAQ -->
+    <div id="faq" class="tab-content">
+        <div class="faq-container" id="faq-container"></div>
+        <div class="faq-cta">
+            <p>Still have questions? Our experienced attorneys are here to help.</p>
+            <a href="/find-attorney.html" class="cta-link">Find an Attorney</a>
+        </div>
+    </div>
+
+    <!-- Tab 4: Videos -->
+    <div id="videos" class="tab-content">
+        <div class="videos-grid" id="videos-grid"></div>
+    </div>
+
+    <div class="learning-footer">
+        <p><strong>Disclaimer:</strong> This educational content is provided for informational purposes only and does not constitute legal or medical advice. For specific guidance regarding your individual case, please consult with a qualified attorney or medical professional.</p>
+        <p>&copy; 2026 The Comp Desk. All rights reserved.</p>
+    </div>
+
+    <script type="module">
+        import { getUser, renderNav } from '../../js/auth.js';
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const session = await getUser();
+                renderNav(session, 'basic');
+
+                // Check tier for advanced content
+                const tier = session?.tier || 'basic';
+                window.userTier = tier;
+
+                // Initialize tabs
+                initializeTabs();
+
+                // Populate content
+                populateGlossary();
+                populateJourney();
+                populateFAQ();
+                populateVideos();
+
+                // Setup search
+                setupSearch();
+            } catch (error) {
+                console.error('Error initializing Learning Portal:', error);
+                renderNav(null, 'basic');
+                initializeTabs();
+                populateGlossary();
+                populateJourney();
+                populateFAQ();
+                populateVideos();
+                setupSearch();
+            }
+        });
+
+        // Glossary data
+        const glossaryTerms = [
+            {
+                name: "Schedule Loss of Use (SLU)",
+                category: "Financial",
+                short: "Compensation for permanent loss or loss of use of specific body parts.",
+                full: "Schedule Loss of Use (SLU) is a form of workers' compensation benefit paid for permanent partial disability to scheduled body parts such as arms, legs, fingers, or hearing loss. The amount is determined by a fixed schedule set by the Workers' Compensation Board based on the specific body part and degree of disability."
+            },
+            {
+                name: "Average Weekly Wage (AWW)",
+                category: "Financial",
+                short: "The average weekly earnings used to calculate compensation benefits.",
+                full: "Average Weekly Wage (AWW) is calculated based on the worker's earnings in the 52 weeks before the injury. It is used to determine the rate of temporary total disability (TTD) benefits, which are typically 2/3 of the AWW. AWW calculation is critical for ensuring fair compensation benefits."
+            },
+            {
+                name: "Loss of Wage Earning Capacity (LWEC)",
+                category: "Financial",
+                short: "Compensation for reduced earning ability due to work-related injury.",
+                full: "Loss of Wage Earning Capacity (LWEC) is compensation awarded when a worker can return to work but earns less due to the work-related injury. It represents the difference between pre-injury earnings and post-injury earning capacity, ensuring workers are compensated for reduced wage-earning ability."
+            },
+            {
+                name: "Independent Medical Examination (IME)",
+                category: "Medical",
+                short: "Medical exam ordered by the employer/insurer to evaluate the worker's injury.",
+                full: "An Independent Medical Examination (IME) is a medical evaluation conducted by a physician selected by the employer or insurance company (not the worker's treating physician). The IME is used to assess the extent of injury, treatment necessity, and disability status. Workers have the right to have counsel present."
+            },
+            {
+                name: "Permanent Partial Disability (PPD)",
+                category: "Legal",
+                short: "Permanent but non-total disability resulting from a work-related injury.",
+                full: "Permanent Partial Disability (PPD) is a disability classification indicating the worker has permanent impairment but can still work in some capacity. PPD benefits may include Schedule Loss of Use awards, LWEC, or structured settlements depending on the nature and extent of the disability."
+            },
+            {
+                name: "Permanent Total Disability (PTD)",
+                category: "Legal",
+                short: "Total disability preventing the worker from any gainful employment.",
+                full: "Permanent Total Disability (PTD) is when a worker is permanently unable to work due to a work-related injury. PTD benefits continue for life and include wage replacement at 2/3 of AWW. This is a significant benefit classification requiring substantial evidence of permanent incapacity."
+            },
+            {
+                name: "Temporary Total Disability (TTD)",
+                category: "Financial",
+                short: "Wage replacement benefits while the worker is unable to work temporarily.",
+                full: "Temporary Total Disability (TTD) is a benefit paid when the worker is completely unable to work during recovery. TTD is calculated as 2/3 of the Average Weekly Wage and continues until the worker returns to work, reaches Maximum Medical Improvement, or is deemed to have permanent disability."
+            },
+            {
+                name: "Workers' Compensation Board (WCB)",
+                category: "Process",
+                short: "The administrative agency that oversees workers' compensation claims in New York.",
+                full: "The New York Workers' Compensation Board (WCB) is a state agency that administers the workers' compensation insurance program. The WCB reviews claims, schedules hearings, and judges make decisions on disputed cases. Claimants can request a hearing before a Workers' Compensation Judge if their claim is denied or disputed."
+            },
+            {
+                name: "Compensation Rate",
+                category: "Financial",
+                short: "The amount paid as a percentage of the worker's Average Weekly Wage.",
+                full: "The Compensation Rate is the percentage of Average Weekly Wage paid as workers' compensation benefits. For temporary total disability, it is typically 2/3 (66.67%) of AWW. The rate may vary for permanent disabilities, and there are minimum and maximum benefit amounts set by the WCB annually."
+            },
+            {
+                name: "Date of Accident (DOA)",
+                category: "Process",
+                short: "The date on which the work-related injury or occupational disease occurred.",
+                full: "The Date of Accident (DOA) is a critical date in the workers' compensation process. It marks when the injury happened (for traumatic injuries) or when the occupational disease became disabling. DOA determines the statute of limitations, which benefits apply, and when the workers' compensation claim must be filed."
+            },
+            {
+                name: "Classification",
+                category: "Legal",
+                short: "The category assigned to a disability (e.g., PPD, PTD, TTD).",
+                full: "Classification refers to how the disability is formally categorized under workers' compensation law: Temporary Total Disability (TTD), Permanent Partial Disability (PPD), or Permanent Total Disability (PTD). The classification determines which benefits the worker receives and how long benefits continue."
+            },
+            {
+                name: "Treating Physician",
+                category: "Medical",
+                short: "The doctor primarily responsible for treating the worker's injury.",
+                full: "The Treating Physician is the medical professional (selected by the worker in New York after the initial treatment) who provides ongoing care for the work-related injury. The treating physician's medical records and opinions are critical evidence in workers' compensation cases and can significantly impact benefit eligibility."
+            },
+            {
+                name: "Maximum Medical Improvement (MMI)",
+                category: "Medical",
+                short: "The point when the worker's condition is stable and unlikely to improve further.",
+                full: "Maximum Medical Improvement (MMI) is reached when the worker's medical condition becomes stable and is unlikely to improve with further treatment. This milestone is important in workers' compensation because it often marks the end of Temporary Total Disability benefits and the beginning of Permanent Partial Disability evaluations if applicable."
+            },
+            {
+                name: "C-3 Form",
+                category: "Process",
+                short: "The official form for reporting a workers' compensation claim injury.",
+                full: "The C-3 Form (Employer's Report of Employee Injury) is the official form used to report a work-related injury to the Workers' Compensation Insurance Carrier and the WCB. It must be filed within 10 days of the employer learning of the injury. Failure to file timely can result in penalties and loss of protections."
+            },
+            {
+                name: "OC-110a Form",
+                category: "Process",
+                short: "The form used to request a hearing before the Workers' Compensation Board.",
+                full: "The OC-110a Form (Request for Hearing) is filed when a workers' compensation claim is denied or benefits are disputed. Filing this form requests a hearing before a Workers' Compensation Judge. The form must be filed within the appropriate timeframe, typically within a certain period after a denial or modification notice."
+            },
+            {
+                name: "Hearing",
+                category: "Process",
+                short: "A formal proceeding before a Workers' Compensation Judge to resolve disputes.",
+                full: "A hearing is a formal proceeding conducted before a Workers' Compensation Judge where evidence is presented, witnesses testify, and arguments are made regarding a disputed workers' compensation claim. Both the claimant and the employer/carrier can present evidence. The judge issues a decision, which can be appealed."
+            },
+            {
+                name: "Settlement",
+                category: "Legal",
+                short: "A negotiated agreement resolving a workers' compensation dispute.",
+                full: "A Settlement is an agreement between the claimant and the employer/insurance company that resolves the workers' compensation claim. Settlements may include a lump sum payment, annuity, or structured payment plan. The Board must approve settlements to ensure they are fair and in the claimant's best interest."
+            },
+            {
+                name: "Radiculopathy",
+                category: "Medical",
+                short: "Nerve pain or dysfunction resulting from nerve root compression.",
+                full: "Radiculopathy is a condition where a nerve root is compressed or irritated, causing pain, numbness, or weakness along the affected nerve pathway. Common in work-related back injuries, radiculopathy can cause significant disability. Medical imaging and nerve studies help diagnose this condition, which is often addressed in workers' compensation claims."
+            },
+            {
+                name: "Causal Relationship",
+                category: "Legal",
+                short: "The medical and factual connection between the injury and work.",
+                full: "Causal Relationship means the work-related injury is proven to have been caused by the job duties or workplace conditions. Establishing causal relationship is essential to approve workers' compensation benefits. Both the injury (diagnosis) and the mechanism of injury (how it happened at work) must be proven."
+            },
+            {
+                name: "Notice of Decision",
+                category: "Process",
+                short: "The official document issued by the WCB or Judge deciding a claim.",
+                full: "A Notice of Decision is the formal ruling issued by a Workers' Compensation Judge or the WCB on a claim. It states whether the claim is approved or denied, what benefits are awarded, and the reasoning behind the decision. Claimants can appeal this decision within 30 days if they disagree."
+            }
+        ];
+
+        function populateGlossary() {
+            const grid = document.getElementById('glossary-grid');
+            const noResults = document.getElementById('no-results');
+
+            function renderTerms(terms) {
+                grid.innerHTML = '';
+                if (terms.length === 0) {
+                    noResults.style.display = 'block';
+                    return;
+                }
+                noResults.style.display = 'none';
+
+                terms.forEach(term => {
+                    const categoryClass = `category-${term.category.toLowerCase()}`;
+                    const card = document.createElement('div');
+                    card.className = 'term-card';
+                    card.innerHTML = `
+                        <div class="term-name">${term.name}</div>
+                        <div class="category-badge ${categoryClass}">${term.category}</div>
+                        <div class="term-definition">
+                            <div class="term-definition-short">${term.short}</div>
+                            <div class="term-definition-full">${term.full}</div>
+                        </div>
+                        <div class="expand-btn">Read ${card.classList.contains('expanded') ? 'less' : 'more'}</div>
+                    `;
+                    card.addEventListener('click', () => {
+                        card.classList.toggle('expanded');
+                        const btn = card.querySelector('.expand-btn');
+                        btn.textContent = card.classList.contains('expanded') ? 'Read less' : 'Read more';
+                    });
+                    grid.appendChild(card);
+                });
+            }
+
+            renderTerms(glossaryTerms);
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('glossary-search');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = glossaryTerms.filter(term =>
+                    term.name.toLowerCase().includes(query) ||
+                    term.category.toLowerCase().includes(query) ||
+                    term.short.toLowerCase().includes(query)
+                );
+
+                const grid = document.getElementById('glossary-grid');
+                const noResults = document.getElementById('no-results');
+
+                grid.innerHTML = '';
+                if (filtered.length === 0) {
+                    noResults.style.display = 'block';
+                    return;
+                }
+                noResults.style.display = 'none';
+
+                filtered.forEach(term => {
+                    const categoryClass = `category-${term.category.toLowerCase()}`;
+                    const card = document.createElement('div');
+                    card.className = 'term-card';
+                    card.innerHTML = `
+                        <div class="term-name">${term.name}</div>
+                        <div class="category-badge ${categoryClass}">${term.category}</div>
+                        <div class="term-definition">
+                            <div class="term-definition-short">${term.short}</div>
+                            <div class="term-definition-full">${term.full}</div>
+                        </div>
+                        <div class="expand-btn">Read more</div>
+                    `;
+                    card.addEventListener('click', () => {
+                        card.classList.toggle('expanded');
+                        const btn = card.querySelector('.expand-btn');
+                        btn.textContent = card.classList.contains('expanded') ? 'Read less' : 'Read more';
+                    });
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        const journeyStages = [
+            {
+                title: "Injury & First Report",
+                timeframe: "Week 1",
+                icon: "1",
+                points: [
+                    "Report the injury to your employer immediately or within 30 days",
+                    "Seek immediate medical care if needed",
+                    "Provide a detailed account of how the injury occurred",
+                    "Request the workers' compensation notice and carrier information"
+                ],
+                calculator: "/tools/sluc.html"
+            },
+            {
+                title: "Medical Treatment Phase",
+                timeframe: "Weeks 2-12",
+                icon: "2",
+                points: [
+                    "Begin treatment with your employer's initial physician or your own",
+                    "Receive Temporary Total Disability (TTD) benefits if unable to work",
+                    "Attend all scheduled medical appointments and follow treatment",
+                    "Keep detailed records of medical visits and symptoms"
+                ],
+                calculator: "/tools/aww-calculator.html"
+            },
+            {
+                title: "IME & Dispute Phase",
+                timeframe: "Weeks 8-16",
+                icon: "3",
+                points: [
+                    "The employer/carrier may request an Independent Medical Examination",
+                    "Prepare documents and medical records for the IME",
+                    "Attend the IME with your treating physician's records available",
+                    "Review the IME report and discuss with your attorney if opinions conflict"
+                ],
+                calculator: "/tools/ime-prep.html"
+            },
+            {
+                title: "Settlement Negotiations",
+                timeframe: "Weeks 16-24",
+                icon: "4",
+                points: [
+                    "Your attorney negotiates settlement terms with the insurance carrier",
+                    "Understand settlement offers: lump sum, annuity, or structured payments",
+                    "Evaluate fairness based on disability level and future needs",
+                    "Approve or counter-offer settlement proposals"
+                ],
+                calculator: "/tools/settlement-eval.html"
+            },
+            {
+                title: "Hearing & Resolution",
+                timeframe: "Weeks 24+",
+                icon: "5",
+                points: [
+                    "If no settlement, a hearing is scheduled before a Workers' Compensation Judge",
+                    "Present evidence, medical records, and witness testimony at the hearing",
+                    "The judge issues a decision on your claim within 30 days",
+                    "You can appeal the decision if you disagree with the outcome"
+                ],
+                calculator: "/tools/hearing-guide.html"
+            }
+        ];
+
+        function populateJourney() {
+            const timeline = document.getElementById('journey-timeline');
+            timeline.innerHTML = journeyStages.map(stage => `
+                <div class="timeline-stage">
+                    <div class="timeline-content">
+                        <div class="timeline-title">${stage.title}</div>
+                        <div class="timeline-timeframe">${stage.timeframe}</div>
+                        <ul class="timeline-points">
+                            ${stage.points.map(point => `<li>${point}</li>`).join('')}
+                        </ul>
+                        <a href="${stage.calculator}" class="timeline-link">View related calculator →</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        const faqItems = [
+            {
+                q: "What is workers' compensation?",
+                a: "Workers' compensation is a form of insurance providing wage replacement and medical benefits to employees injured during employment. In New York, it is a no-fault system, meaning you don't need to prove the employer was negligent to receive benefits."
+            },
+            {
+                q: "How do I file a workers' comp claim in New York?",
+                a: "Report your injury to your employer immediately or within 30 days. Your employer must file the C-3 form (Employer's Report of Employee Injury) with the Workers' Compensation Insurance Carrier and the WCB. If your claim is denied, you can file an OC-110a form to request a hearing."
+            },
+            {
+                q: "What if my treating doctor and the IME doctor disagree?",
+                a: "If medical opinions conflict, your treating physician's opinion typically carries more weight because they have an ongoing relationship with you and understand your full medical history. You can present both opinions at a hearing, and the judge will decide which is more credible."
+            },
+            {
+                q: "How is my compensation rate calculated?",
+                a: "The compensation rate for temporary disability is typically 2/3 of your Average Weekly Wage (AWW), which is calculated based on your earnings in the 52 weeks before the injury. There are minimum and maximum benefit amounts set annually by the Workers' Compensation Board."
+            },
+            {
+                q: "What is Schedule Loss of Use (SLU)?",
+                a: "Schedule Loss of Use (SLU) is compensation for permanent loss or loss of function of specific body parts (arms, legs, fingers, hearing, etc.). The amount is determined by a fixed schedule established by the WCB based on the specific body part and degree of disability."
+            },
+            {
+                q: "Do I need an attorney for my workers' comp case?",
+                a: "While not required, an attorney can help maximize your benefits, protect your rights, and ensure compliance with deadlines. Many workers' compensation attorneys work on a contingency basis, taking a percentage of awarded benefits. Consultations are often free."
+            },
+            {
+                q: "What happens at a workers' comp hearing?",
+                a: "A hearing is held before a Workers' Compensation Judge. Both sides present evidence, documents, medical records, and witness testimony. The judge then issues a decision. Hearings are less formal than court trials but follow specific procedural rules. You have the right to have an attorney represent you."
+            },
+            {
+                q: "How long does a workers' comp case take?",
+                a: "The timeline varies widely. Some cases resolve quickly through settlement (weeks to months), while others go to hearing (months to a year or more). Complex cases with medical disputes or appeals can take several years. Prompt reporting and documentation help expedite resolution."
+            },
+            {
+                q: "Can I choose my own doctor?",
+                a: "In New York, your employer selects the initial treating physician. However, after 10 days of treatment (or as specified by law), you can select your own treating physician. Your treating physician's opinion is crucial to your case, so choose someone experienced with your type of injury."
+            },
+            {
+                q: "What if my claim is denied?",
+                a: "If your claim is denied, you will receive a Notice of Decision. You have 30 days to file an OC-110a form requesting a hearing before a Workers' Compensation Judge. At the hearing, you can present evidence and argue why your claim should be approved. An attorney can greatly strengthen your case."
+            }
+        ];
+
+        function populateFAQ() {
+            const container = document.getElementById('faq-container');
+            container.innerHTML = faqItems.map((item, idx) => `
+                <div class="faq-item" data-index="${idx}">
+                    <div class="faq-question">
+                        <div class="faq-question-text">${item.q}</div>
+                        <div class="faq-toggle">+</div>
+                    </div>
+                    <div class="faq-answer">${item.a}</div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', () => {
+                    const faqItem = question.parentElement;
+                    faqItem.classList.toggle('open');
+                });
+            });
+        }
+
+        const videoData = [
+            {
+                title: "What is Schedule Loss of Use?",
+                category: "Financial",
+                duration: "3:00",
+                description: "Learn how SLU benefits are calculated and what body parts are covered."
+            },
+            {
+                title: "How to Prepare for an IME",
+                category: "Medical",
+                duration: "4:00",
+                description: "Tips for preparing documentation and what to expect during an IME."
+            },
+            {
+                title: "Understanding Settlement Offers",
+                category: "Legal",
+                duration: "3:30",
+                description: "Evaluate settlement proposals and understand lump sum vs. annuity options."
+            },
+            {
+                title: "Your Hearing: What to Expect",
+                category: "Process",
+                duration: "5:00",
+                description: "A walkthrough of the workers' comp hearing process and what to prepare."
+            },
+            {
+                title: "When to Hire an Attorney",
+                category: "Legal",
+                duration: "2:30",
+                description: "Signs you should consult with a workers' compensation attorney."
+            },
+            {
+                title: "How Workers' Comp Rates Work",
+                category: "Financial",
+                duration: "3:00",
+                description: "Understanding AWW, compensation rates, and benefit calculations."
+            }
+        ];
+
+        function populateVideos() {
+            const grid = document.getElementById('videos-grid');
+            grid.innerHTML = videoData.map(video => {
+                const categoryClass = `category-${video.category.toLowerCase()}`;
+                return `
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <div class="play-button"></div>
+                            <div class="coming-soon-overlay">Coming Soon</div>
+                        </div>
+                        <div class="video-info">
+                            <div class="video-title">${video.title}</div>
+                            <div class="video-meta">
+                                <span class="category-badge ${categoryClass}">${video.category}</span>
+                                <span class="video-duration">${video.duration}</span>
+                            </div>
+                            <div class="video-description">${video.description}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function initializeTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.getAttribute('data-tab');
+
+                    // Remove active class from all
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+
+                    // Add active class to clicked
+                    btn.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
