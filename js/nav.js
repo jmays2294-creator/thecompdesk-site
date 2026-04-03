@@ -285,6 +285,7 @@ function renderNav(session, tier) {
       </button>
 
       <ul class="nav-menu" id="nav-menu">
+        <li><a href="/" class="nav-link" style="color:#4f8ff7;">← Website</a></li>
         <li><a href="/dashboard/" class="nav-link">Dashboard</a></li>
         <li><a href="/calculators/" class="nav-link">Calculators</a></li>
         <li class="nav-dropdown">
