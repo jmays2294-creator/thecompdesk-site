@@ -8,7 +8,7 @@
 <meta name="keywords" content="workers compensation calculator, NYS, New York, schedule loss of use, SLU, AWW, LWEC, permanency guidelines, work injury, comp benefits">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;}
+:root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#3b82f6;--acG:rgba(59,130,246,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
@@ -25,15 +25,15 @@ nav .links{display:flex;gap:24px;align-items:center;}
 nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
 nav .links a:hover{color:var(--wh);text-decoration:none;}
 .cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
-.cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,143,247,0.3);text-decoration:none;}
+.cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(59,130,246,0.3);text-decoration:none;}
 .cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
 .cta-btn.outline:hover{background:var(--acG);}
 .cta-btn.gold{background:var(--gd);color:#1a1200;}
 
 /* HERO */
 .hero{padding:140px 0 80px;text-align:center;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(79,143,247,0.08) 0%,transparent 70%);pointer-events:none;}
-.hero .badge{display:inline-block;background:var(--acG);border:1px solid rgba(79,143,247,0.25);color:var(--ac);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;}
+.hero .badge{display:inline-block;background:var(--acG);border:1px solid rgba(59,130,246,0.25);color:var(--ac);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
 .hero h1{font-size:clamp(36px,6vw,56px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
 .hero h1 span{color:var(--ac);}
 .hero .sub{font-size:clamp(16px,2.5vw,20px);color:var(--txD);max-width:640px;margin:0 auto 32px;line-height:1.6;}
@@ -67,7 +67,7 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .tiers h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:48px;}
 .tier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:900px;margin:0 auto;}
 .tier-card{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:32px 24px;text-align:center;}
-.tier-card.featured{border-color:var(--ac);box-shadow:0 0 30px rgba(79,143,247,0.15);}
+.tier-card.featured{border-color:var(--ac);box-shadow:0 0 30px rgba(59,130,246,0.15);}
 .tier-card .tier-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txD);margin-bottom:8px;}
 .tier-card .tier-price{font-size:36px;font-weight:900;color:var(--wh);margin-bottom:4px;font-family:'JetBrains Mono',monospace;}
 .tier-card .tier-price span{font-size:16px;color:var(--txD);font-weight:500;}
@@ -109,9 +109,9 @@ footer a{color:var(--txD);}
       <a href="#about">About</a>
       <a href="/find-attorney">Find Attorney</a>
       <a href="/coming-soon" style="color:#2dd4a0;">Coming Soon</a>
-      <a href="/login" class="cta-btn">Sign In</a>
+      <a href="/auth_v2.html" class="cta-btn">Sign In</a>
       <a href="#download" class="cta-btn" id="nav-cta">Download Free</a>
-      <a href="/auth.html" class="cta-btn outline" id="nav-auth" style="display:none;">Login</a>
+      <a href="/auth_v2.html" class="cta-btn outline" id="nav-auth" style="display:none;">Login</a>
       <a href="/account.html" class="cta-btn outline" id="nav-account" style="display:none;">My Account</a>
     </div>
   </div>
@@ -264,7 +264,7 @@ footer a{color:var(--txD);}
   <div class="wrap">
     <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
     <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
-    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> · <a href="/find-attorney">Find Attorney</a> · <a href="/login">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
+    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> · <a href="/find-attorney">Find Attorney</a> · <a href="/auth_v2.html">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
   </div>
 </footer>
 
@@ -338,7 +338,7 @@ function canAccess(feature) {
 
 async function handleUpgrade(tier) {
   if (!currentUser) {
-    window.location.href = '/auth.html';
+    window.location.href = '/auth_v2.html';
     return;
   }
   try {
