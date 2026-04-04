@@ -140,22 +140,24 @@ async function getOptionalUser() {
 
 /**
  * Save a calculation to the user's history in Supabase.
+ * Writes to calculation_history — shared with the native app for cross-platform sync.
  * No-ops silently if user is not logged in.
  * @param {string} userId - The authenticated user's ID
- * @param {string} calcType - Calculator type key (e.g. 'slu', 'aww')
- * @param {Object} data - Calculation inputs and results to persist
+ * @param {string} calcType - Calculator type key (e.g. 'slu', 'ccp_award', 'aww')
+ * @param {Object} data - Object with { caseName, inputData, resultData }
  * @returns {Promise<boolean>} True if saved successfully
  */
 async function saveCalculation(userId, calcType, data) {
   if (!userId) return false;
   try {
     const { error } = await supabase
-      .from('saved_calculations')
+      .from('calculation_history')
       .insert({
         user_id: userId,
-        calc_type: calcType,
-        data: data,
-        created_at: new Date().toISOString()
+        calculator_type: calcType,
+        case_name: data.caseName || null,
+        input_data: data.inputData || data,
+        result_data: data.resultData || null
       });
     return !error;
   } catch (err) {

@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Attorney Calculator Suite — All 7 Calculators | The Comp Desk</title>
+  <meta name="description" content="Pro-tier unified NYS workers' compensation calculator suite. SLU, AWW, LWEC, CCP/Award, Rate Lookup, Radiculopathy, and Spine/Brain — all in one workspace.">
+  <link rel="canonical" href="https://thecompdesk.com/calculators/pro.html">
+  <link rel="stylesheet" href="../css/app.css">
+  <style>
+    /* ── Tab bar ── */
+    .pro-tabs {
+      display: flex;
+      gap: 2px;
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .pro-tab-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 7px 10px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--txD);
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .pro-tab-btn:hover { background: var(--cardA); color: var(--tx); }
+    .pro-tab-btn.active { background: var(--ac); color: #fff; }
+    .pro-tab-panel { display: none; }
+    .pro-tab-panel.active { display: block; }
+
+    /* ── Global header bar ── */
+    .pro-global {
+      background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(59,130,246,.03));
+      border: 1px solid rgba(59,130,246,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .pro-global-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .pro-global .field-group { flex: 1; min-width: 140px; }
+    .pro-rate-display {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--txD);
+      margin-top: 6px;
+      padding: 6px 10px;
+      background: var(--cardA);
+      border-radius: 5px;
+      border: 1px solid var(--bd);
+    }
+    .pro-rate-display strong { color: var(--gd); }
+
+    /* ── Case name bar ── */
+    .case-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .case-bar label { font-size: 11px; font-weight: 700; color: var(--txM); white-space: nowrap; }
+    .case-bar input {
+      flex: 1;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: var(--tx);
+      font-family: var(--font);
+      font-size: 13px;
+    }
+
+    /* ── Pro gate overlay ── */
+    .pro-gate-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pro-gate-box {
+      background: linear-gradient(135deg, #101828 0%, #0d1f3c 100%);
+      border: 1px solid rgba(59,130,246,.3);
+      border-radius: 16px;
+      padding: 36px 32px;
+      max-width: 480px;
+      width: 92%;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+    .pro-gate-icon { font-size: 40px; margin-bottom: 12px; }
+    .pro-gate-box h2 { color: #fff; font-size: 22px; font-weight: 800; margin: 0 0 8px; }
+    .pro-gate-box p { color: #999; font-size: 14px; line-height: 1.7; margin: 0 0 20px; }
+    .pro-gate-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+      text-align: left;
+      background: rgba(59,130,246,.07);
+      border: 1px solid rgba(59,130,246,.2);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .pro-gate-features li {
+      color: #e0e0e0;
+      font-size: 13px;
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pro-gate-features li::before { content: "✓"; color: var(--ac); font-weight: 700; }
+    .pro-gate-btns { display: flex; flex-direction: column; gap: 10px; }
+    .pro-gate-upgrade {
+      background: var(--ac);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+    .pro-gate-upgrade:hover { opacity: .9; }
+    .pro-gate-signin {
+      background: rgba(255,255,255,.07);
+      color: rgba(200,200,200,.9);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 11px 24px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+
+    /* ── Save bar ── */
+    .save-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--bd);
+      flex-wrap: wrap;
+    }
+    .save-bar-status { font-size: 11px; color: var(--txM); flex: 1; min-width: 100px; }
+    .save-bar-status.ok { color: var(--gn); }
+    .save-bar-status.err { color: var(--rd); }
+    .btn-save {
+      background: rgba(59,130,246,.15);
+      border: 1px solid rgba(59,130,246,.3);
+      border-radius: 6px;
+      color: var(--ac);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-save:hover { background: rgba(59,130,246,.25); }
+
+    /* ── SLU entry row ── */
+    .slu-entry-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+      background: var(--cardA);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    @media(max-width:600px) {
+      .slu-entry-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── CCP period row ── */
+    .period-row {
+      background: var(--cardA);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .period-row:focus-within { border-color: var(--ac); }
+    .period-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+    @media(max-width:700px) {
+      .period-fields { grid-template-columns: 1fr 1fr; }
+    }
+    .desig-row { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+    .desig-btn {
+      padding:3px 8px; font-size:10px; font-weight:700; letter-spacing:.4px;
+      border:1px solid var(--bd); border-radius:4px;
+      background:var(--bg); color:var(--txD); cursor:pointer;
+      transition:background .15s,color .15s,border-color .15s;
+    }
+    .desig-btn:hover { border-color:var(--ac); color:var(--tx); }
+    .desig-btn.active-TT  { background:rgba(59,130,246,.18);border-color:var(--ac);color:var(--ac); }
+    .desig-btn.active-RE  { background:rgba(168,85,247,.18);border-color:#a855f7;color:#a855f7; }
+    .desig-btn.active-TR  { background:rgba(59,130,246,.10);border-color:var(--ac);color:var(--ac); }
+    .desig-btn.active-TP  { background:rgba(245,158,11,.12);border-color:var(--gd);color:var(--gd); }
+    .desig-btn.active-NCLT{ background:rgba(239,68,68,.12);border-color:var(--rd);color:var(--rd); }
+    .desig-btn.active-NME { background:rgba(16,185,129,.12);border-color:var(--gn);color:var(--gn); }
+    .weeks-pill {
+      display:inline-block; font-family:var(--mono); font-size:11px; font-weight:700;
+      color:var(--ac); background:var(--acG); border:1px solid rgba(59,130,246,.2);
+      border-radius:4px; padding:2px 7px; margin-top:4px;
+    }
+    .del-row-btn {
+      background:transparent; border:1px solid rgba(239,68,68,.3);
+      border-radius:4px; color:var(--rd); cursor:pointer;
+      font-size:12px; padding:0 8px; height:32px; transition:background .15s;
+      align-self:center;
+    }
+    .del-row-btn:hover { background:rgba(239,68,68,.1); }
+    .desig-badge {
+      display:inline-block; font-size:9px; font-weight:800;
+      padding:1px 5px; border-radius:3px; letter-spacing:.3px;
+    }
+    .badge-TT   { background:rgba(59,130,246,.15);  color:var(--ac); }
+    .badge-RE   { background:rgba(168,85,247,.15);  color:#a855f7; }
+    .badge-TR   { background:rgba(59,130,246,.10);  color:var(--ac); }
+    .badge-TP   { background:rgba(245,158,11,.15);  color:var(--gd); }
+    .badge-NCLT { background:rgba(239,68,68,.12);   color:var(--rd); }
+    .badge-NME  { background:rgba(16,185,129,.12);  color:var(--gn); }
+
+    /* ── Award table ── */
+    .award-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .award-table th {
+      text-align:left; color:var(--txM); font-size:10px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.4px;
+      padding:4px 8px 6px; border-bottom:1px solid var(--bd);
+    }
+    .award-table td { padding:6px 8px; border-bottom:1px solid rgba(30,58,95,.4); color:var(--tx); font-family:var(--mono); font-size:12px; }
+    .award-table td.label { font-family:var(--font); font-size:11px; color:var(--txD); }
+    .award-table td.amount { color:var(--gn); font-weight:700; }
+    .award-table tfoot td { border-top:2px solid var(--bd); border-bottom:none; font-weight:800; }
+
+    .pro-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3);
+      border-radius:6px; padding:4px 10px;
+      font-size:11px; font-weight:700; color:var(--ac);
+      margin-bottom:12px;
+    }
+
+    .result-row-list { display:flex; flex-direction:column; gap:0; }
+    .result-row-item {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:5px 0; border-bottom:1px solid rgba(30,58,95,.35);
+    }
+    .result-row-item:last-child { border-bottom:none; }
+    .result-row-label { font-size:12px; color:var(--txD); }
+    .result-row-val { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--tx); }
+    .section-divider {
+      font-size:10px; font-weight:700; text-transform:uppercase;
+      color:var(--txM); letter-spacing:.5px; margin:12px 0 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <!-- Pro gate overlay (shown until auth confirmed) -->
+  <div id="pro-gate-overlay" class="pro-gate-overlay" style="display:none">
+    <div class="pro-gate-box">
+      <div class="pro-gate-icon">⚖️</div>
+      <h2>Pro Attorney Calculator</h2>
+      <p>All 7 NYS workers' comp calculators unified in one workspace — SLU, AWW, LWEC, CCP/Award, Rate Lookup, Radiculopathy, and Spine/Brain.</p>
+      <ul class="pro-gate-features">
+        <li>Full period-by-period CCP / Award builder</li>
+        <li>Multi-body-part SLU with attorney fee breakdown</li>
+        <li>LWEC bracket classification &amp; net to claimant</li>
+        <li>Radiculopathy SLU range calculator</li>
+        <li>SCI / TBI benefit &amp; lifetime projection</li>
+        <li>Calculations sync to the app via shared history</li>
+      </ul>
+      <div class="pro-gate-btns">
+        <a id="gate-upgrade-btn" href="/subscribe/?tier=pro" class="pro-gate-upgrade">Upgrade to Pro — $9.99/mo</a>
+        <a href="/auth_v2.html?mode=signup&next=/calculators/pro.html" class="pro-gate-signin">Create Free Account</a>
+        <a href="/auth_v2.html?next=/calculators/pro.html" class="pro-gate-signin">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="pro-content" style="display:none">
+
+    <div class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>Pro Suite</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap;">
+      <h1 class="page-title" style="margin:0;">Pro Attorney Calculator Suite</h1>
+      <span class="pro-badge">⚖️ Pro</span>
+    </div>
+    <p class="page-subtitle" style="margin-bottom:16px;">All 7 calculators in one workspace. Set AWW &amp; DOA once — every tab updates automatically.</p>
+
+    <!-- Case Name -->
+    <div class="case-bar">
+      <label for="g-case-name">Case:</label>
+      <input type="text" id="g-case-name" placeholder="Enter case name or WCB# (optional — used when saving)">
+    </div>
+
+    <!-- ═══ GLOBAL INPUTS ═══ -->
+    <div class="pro-global">
+      <div class="pro-global-row">
+        <div class="field-group">
+          <label class="field-label" for="g-aww">Average Weekly Wage (AWW)</label>
+          <div class="field-wrap">
+            <span class="field-prefix">$</span>
+            <input type="number" id="g-aww" value="1500.00" step="0.01" min="0"
+                   aria-label="Average weekly wage — shared across all calculators">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="g-doi">Date of Injury (DOI)</label>
+          <input type="date" id="g-doi" aria-label="Date of injury — auto-fills max rate">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="g-maxrate">Statutory Max Rate</label>
+          <div class="field-wrap">
+            <span class="field-prefix">$</span>
+            <input type="number" id="g-maxrate" value="1222.42" step="0.01" min="0"
+                   aria-label="Statutory maximum weekly rate">
+          </div>
+        </div>
+      </div>
+      <div class="pro-rate-display" id="g-rate-display">
+        TT Rate: <strong id="g-tt-rate">$1,000.00/wk</strong>
+        <span style="color:var(--txM);margin-left:8px;font-size:10px;">= 2/3 × AWW capped at max</span>
+        &nbsp;|&nbsp; SLU Rate: <strong id="g-slu-rate">$1,000.00/wk</strong>
+      </div>
+    </div>
+
+    <!-- ═══ TAB BAR ═══ -->
+    <div class="pro-tabs" role="tablist">
+      <button class="pro-tab-btn active" role="tab" data-tab="slu">SLU</button>
+      <button class="pro-tab-btn" role="tab" data-tab="aww">AWW Calc</button>
+      <button class="pro-tab-btn" role="tab" data-tab="lwec">LWEC</button>
+      <button class="pro-tab-btn" role="tab" data-tab="ccp">CCP/Award</button>
+      <button class="pro-tab-btn" role="tab" data-tab="rates">Rate Lookup</button>
+      <button class="pro-tab-btn" role="tab" data-tab="rad">Radiculopathy</button>
+      <button class="pro-tab-btn" role="tab" data-tab="spine">Spine/Brain</button>
+    </div>
+
+    <!-- ════════════════════════════════════
+         TAB: SLU
+    ════════════════════════════════════ -->
+    <div id="tab-slu" class="pro-tab-panel active">
+      <div class="calc-section">
+        <div class="calc-header">
+          <span class="calc-header-title">Schedule Loss of Use (SLU)</span>
+          <button id="slu-reset" class="btn-ghost" style="margin-left:auto;font-size:10px;padding:3px 8px;">Reset</button>
+        </div>
+        <div class="calc-body">
+          <div id="slu-entries"></div>
+          <button id="slu-add" class="btn-secondary" style="margin-bottom:14px;">+ Add Body Part</button>
+          <div class="field-group" style="max-width:280px;margin-bottom:14px;">
+            <label class="field-label" for="slu-prior">Prior Payments Already Made</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="number" id="slu-prior" value="0" step="0.01" min="0">
+            </div>
+            <span class="field-hint">Deducted before attorney fee</span>
+          </div>
+          <div class="result-box">
+            <div class="result-grid">
+              <div class="result-item"><span class="result-label">Total SLU Weeks</span><span class="result-value" id="slu-r-weeks">—</span></div>
+              <div class="result-item"><span class="result-label">Total Award</span><span class="result-value" id="slu-r-award">—</span></div>
+              <div class="result-item"><span class="result-label">Moving (after prior)</span><span class="result-value gold" id="slu-r-moving">—</span></div>
+            </div>
+            <div id="slu-r-breakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
+              <div class="section-divider">Attorney Fee &amp; Net</div>
+              <div class="result-row-list">
+                <div class="result-row-item"><span class="result-row-label">Total Award</span><span class="result-row-val" id="slu-fb-award">—</span></div>
+                <div class="result-row-item"><span class="result-row-label">Prior Payments</span><span class="result-row-val" id="slu-fb-prior">—</span></div>
+                <div class="result-row-item" style="border-top:2px solid var(--bd);padding-top:6px;margin-top:4px;">
+                  <span class="result-row-label" style="color:var(--gd);font-weight:700;">Moving Amount</span>
+                  <span class="result-row-val" style="color:var(--gd);" id="slu-fb-moving">—</span>
+                </div>
+                <div class="result-row-item"><span class="result-row-label" style="color:var(--gn);">Attorney Fee (15%)</span><span class="result-row-val" style="color:var(--gn);" id="slu-fb-fee">—</span></div>
+                <div class="result-row-item" style="border-top:2px solid var(--bd);padding-top:6px;margin-top:4px;">
+                  <span class="result-row-label" style="color:var(--gd);font-weight:700;">Net to Claimant</span>
+                  <span class="result-row-val" style="color:var(--gd);font-weight:800;" id="slu-fb-net">—</span>
+                </div>
+              </div>
+            </div>
+            <div id="slu-r-eq" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;">
+              <div class="section-divider">Fee App Equation</div>
+              <pre id="slu-eq-text" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
+              <button id="slu-copy-eq" class="copy-btn" style="margin-top:6px;">Copy to Clipboard</button>
+            </div>
+            <div class="save-bar">
+              <span class="save-bar-status" id="slu-save-status"></span>
+              <button class="btn-save" id="slu-save-btn">Save Calculation</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         TAB: AWW CALC
+    ════════════════════════════════════ -->
+    <div id="tab-aww" class="pro-tab-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">AWW Calculator (WCL §14)</span></div>
+        <div class="calc-body">
+          <div style="margin-bottom:10px;">
+            <span class="field-label" style="display:block;margin-bottom:6px;">Calculation Method</span>
+            <div class="radio-group" role="radiogroup">
+              <label class="radio-option"><input type="radio" name="aww-method" value="wages" checked> Enter Wages Directly</label>
+              <label class="radio-option"><input type="radio" name="aww-method" value="salary"> Salary / Days Worked</label>
+              <label class="radio-option"><input type="radio" name="aww-method" value="hourly"> Hourly Rate</label>
+            </div>
+          </div>
+          <div id="aww-wages-section">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="aww-pay-period">Pay Period</label>
+                <select id="aww-pay-period"><option value="weekly">Weekly</option><option value="biweekly">Bi-weekly</option><option value="monthly">Monthly</option><option value="annual">Annual</option></select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="aww-gross">Gross Wages</label>
+                <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="aww-gross" value="1500" step="0.01"></div>
+              </div>
+            </div>
+          </div>
+          <div id="aww-salary-section" style="display:none">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="aww-days-pw">Days/Week</label>
+                <select id="aww-days-pw"><option value="4">4 days</option><option value="5" selected>5 days</option><option value="6">6 days</option><option value="7">7 days</option></select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="aww-salary">Annual Salary</label>
+                <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="aww-salary" placeholder="78000" step="0.01"></div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="aww-days-paid">Days Paid in Period</label>
+                <input type="number" id="aww-days-paid" value="260"><span class="field-hint">260 = 5d/wk × 52 wks</span>
+              </div>
+            </div>
+          </div>
+          <div id="aww-hourly-section" style="display:none">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="aww-hr">Hourly Rate</label>
+                <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="aww-hr" placeholder="25.00" step="0.01"></div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="aww-hpw">Hours/Week</label>
+                <input type="number" id="aww-hpw" value="40">
+              </div>
+            </div>
+          </div>
+          <label class="check-row" style="margin-top:8px;"><input type="checkbox" id="aww-has-ot"> Include Overtime / Tips / Bonuses</label>
+          <div id="aww-ot-section" style="display:none;margin:8px 0 12px;">
+            <div class="field-group" style="max-width:260px;">
+              <label class="field-label" for="aww-ot-amt">Additional Weekly Overtime / Tips</label>
+              <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="aww-ot-amt" value="0" step="0.01"></div>
+              <span class="field-hint">Per-week average over 52 weeks</span>
+            </div>
+          </div>
+          <label class="check-row"><input type="checkbox" id="aww-has-conc"> Concurrent Employment (2nd Job)</label>
+          <div id="aww-conc-section" style="display:none;margin:8px 0 12px;padding:10px 12px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.3);border-radius:7px;">
+            <div class="field-group" style="max-width:260px;">
+              <label class="field-label" for="aww-conc-aww">Concurrent Job AWW</label>
+              <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="aww-conc-aww" value="0" step="0.01"></div>
+              <span class="field-hint">Added to primary AWW (WCL §14)</span>
+            </div>
+          </div>
+          <label class="check-row"><input type="checkbox" id="aww-has-amended"> Amended AWW (Board Decision)</label>
+          <div id="aww-amended-section" style="display:none;margin:8px 0 12px;padding:10px 12px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.3);border-radius:7px;">
+            <div class="fields-row">
+              <div class="field-group"><label class="field-label" for="aww-prior-aww">Prior AWW</label><div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="aww-prior-aww" placeholder="—" step="0.01"></div></div>
+              <div class="field-group"><label class="field-label" for="aww-new-aww">New / Amended AWW</label><div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="aww-new-aww" placeholder="—" step="0.01"></div><span class="field-hint">Overrides calculated AWW &amp; pushes to global</span></div>
+            </div>
+          </div>
+          <div class="result-box" style="margin-top:16px;">
+            <div class="result-grid">
+              <div class="result-item"><span class="result-label">Calculated AWW</span><span class="result-value" id="aww-r-aww">—</span></div>
+              <div class="result-item"><span class="result-label">2/3 Rate (before cap)</span><span class="result-value" id="aww-r-23">—</span></div>
+              <div class="result-item"><span class="result-label">Applicable Maximum</span><span class="result-value blue" id="aww-r-max">—</span></div>
+              <div class="result-item"><span class="result-label">Final Comp Rate</span><span class="result-value gold" id="aww-r-final">—</span></div>
+            </div>
+            <div id="aww-r-notes" style="margin-top:8px;font-size:11px;color:var(--ac);"></div>
+            <div class="save-bar">
+              <span class="save-bar-status" id="aww-save-status"></span>
+              <button class="btn-save" id="aww-save-btn">Save &amp; Push to Global AWW</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         TAB: LWEC
+    ════════════════════════════════════ -->
+    <div id="tab-lwec" class="pro-tab-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Loss of Wage Earning Capacity (LWEC)</span></div>
+        <div class="calc-body">
+          <div class="fields-row">
+            <div class="field-group">
+              <label class="field-label" for="lwec-pct">LWEC Loss Percentage</label>
+              <div class="field-wrap"><input type="number" id="lwec-pct" min="0" max="100" value="25"><span class="field-suffix">%</span></div>
+              <span class="field-hint">0–100% loss of earning capacity</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="lwec-fpw">Attorney Fee/Week (Optional)</label>
+              <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="lwec-fpw" value="0" step="0.01" placeholder="0"></div>
+              <span class="field-hint">Deducted from weekly net</span>
+            </div>
+          </div>
+          <div class="result-box" style="margin-top:16px;">
+            <div class="result-grid">
+              <div class="result-item"><span class="result-label">2/3 AWW Comp Rate</span><span class="result-value" id="lwec-r-tt">—</span></div>
+              <div class="result-item"><span class="result-label">Classification Rate</span><span class="result-value gold" id="lwec-r-class">—</span></div>
+              <div class="result-item"><span class="result-label">Bracket</span><span class="result-value" id="lwec-r-bracket">—</span></div>
+              <div class="result-item"><span class="result-label">Max Weeks</span><span class="result-value blue" id="lwec-r-mw">—</span></div>
+            </div>
+            <div id="lwec-r-breakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
+              <div class="section-divider">Award &amp; Fee Breakdown</div>
+              <div class="result-row-list">
+                <div class="result-row-item"><span class="result-row-label">Total Award (rate × max weeks)</span><span class="result-row-val" id="lwec-fb-total">—</span></div>
+                <div class="result-row-item"><span class="result-row-label" style="color:var(--gn);">Attorney Fee (15 weeks × rate)</span><span class="result-row-val" style="color:var(--gn);" id="lwec-fb-fee">—</span></div>
+                <div class="result-row-item"><span class="result-row-label">Weekly Net (after fee/wk)</span><span class="result-row-val" id="lwec-fb-wkly-net">—</span></div>
+                <div class="result-row-item" style="border-top:1px solid var(--bd);padding-top:6px;margin-top:4px;">
+                  <span class="result-row-label" style="color:var(--gd);font-weight:700;">Total Net to Claimant</span>
+                  <span class="result-row-val" style="color:var(--gd);font-weight:800;" id="lwec-fb-net">—</span>
+                </div>
+              </div>
+            </div>
+            <div id="lwec-eq-box" style="display:none;margin-top:14px;">
+              <pre id="lwec-eq-text" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
+              <button id="lwec-copy-eq" class="copy-btn" style="margin-top:6px;">Copy to Clipboard</button>
+            </div>
+            <div class="save-bar">
+              <span class="save-bar-status" id="lwec-save-status"></span>
+              <button class="btn-save" id="lwec-save-btn">Save Calculation</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         TAB: CCP/AWARD
+    ════════════════════════════════════ -->
+    <div id="tab-ccp" class="pro-tab-panel">
+      <div class="calc-section">
+        <div class="calc-header">
+          <span class="calc-header-title">CCP / Award Calculator</span>
+          <button id="ccp-reset" class="btn-ghost" style="margin-left:auto;font-size:10px;padding:3px 8px;">Reset</button>
+        </div>
+        <div class="calc-body">
+          <div id="ccp-periods" role="list"></div>
+          <button id="ccp-add" class="btn-secondary">+ Add Period</button>
+          <div class="fields-row" style="margin-top:14px;">
+            <div class="field-group">
+              <label class="field-label" for="ccp-amt">CCP Amount</label>
+              <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="ccp-amt" value="0" step="0.01" min="0"></div>
+              <span class="field-hint">Attorney fee = CCP ÷ 3</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="ccp-prior">Prior Payments Already Made</label>
+              <div class="field-wrap"><span class="field-prefix">$</span><input type="number" id="ccp-prior" value="0" step="0.01" min="0"></div>
+              <span class="field-hint">Deducted before attorney fee</span>
+            </div>
+          </div>
+          <div class="result-box" style="margin-top:14px;">
+            <div class="result-grid cols-3">
+              <div class="result-item"><span class="result-label">Total Award</span><span class="result-value" id="ccp-r-total">—</span></div>
+              <div class="result-item"><span class="result-label">Total Attorney Fee</span><span class="result-value blue" id="ccp-r-fee">—</span></div>
+              <div class="result-item"><span class="result-label">Net to Claimant</span><span class="result-value gold" id="ccp-r-net">—</span></div>
+            </div>
+            <div id="ccp-r-table-wrap" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;">
+              <div class="section-divider">Award Period Breakdown</div>
+              <div style="overflow-x:auto;">
+                <table class="award-table"><thead><tr><th>Period</th><th>Desig</th><th>Rate/wk</th><th>%</th><th>Weeks</th><th>Amount</th></tr></thead>
+                <tbody id="ccp-r-tbody"></tbody>
+                <tfoot id="ccp-r-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div id="ccp-r-fee-breakdown" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;">
+              <div class="section-divider">Attorney Fee &amp; Net</div>
+              <div class="result-row-list">
+                <div class="result-row-item"><span class="result-row-label">Total Award</span><span class="result-row-val" id="ccp-fb-award">—</span></div>
+                <div class="result-row-item"><span class="result-row-label">Prior Payments</span><span class="result-row-val" id="ccp-fb-prior">—</span></div>
+                <div class="result-row-item" style="border-top:2px solid var(--bd);padding-top:6px;margin-top:4px;">
+                  <span class="result-row-label" style="color:var(--gd);font-weight:700;">Moving Amount</span>
+                  <span class="result-row-val" style="color:var(--gd);" id="ccp-fb-moving">—</span>
+                </div>
+                <div class="result-row-item"><span class="result-row-label" style="color:var(--gn);">Fee on Award (15%)</span><span class="result-row-val" style="color:var(--gn);" id="ccp-fb-faward">—</span></div>
+                <div class="result-row-item"><span class="result-row-label" style="color:var(--gn);">Fee on CCP (÷ 3)</span><span class="result-row-val" style="color:var(--gn);" id="ccp-fb-fccp">—</span></div>
+                <div class="result-row-item"><span class="result-row-label" style="color:var(--gn);font-weight:700;">Total Attorney Fee</span><span class="result-row-val" style="color:var(--gn);font-weight:800;" id="ccp-fb-tfee">—</span></div>
+                <div class="result-row-item" style="border-top:2px solid var(--bd);padding-top:6px;margin-top:4px;">
+                  <span class="result-row-label" style="color:var(--gd);font-weight:700;">Net to Claimant</span>
+                  <span class="result-row-val" style="color:var(--gd);font-weight:800;" id="ccp-fb-net">—</span>
+                </div>
+              </div>
+            </div>
+            <div id="ccp-r-eq-box" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;">
+              <div class="section-divider">Fee App Breakdown</div>
+              <pre id="ccp-eq-text" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
+              <button id="ccp-copy-eq" class="copy-btn" style="margin-top:6px;">Copy to Clipboard</button>
+            </div>
+            <div class="save-bar">
+              <span class="save-bar-status" id="ccp-save-status"></span>
+              <button class="btn-save" id="ccp-save-btn">Save Calculation</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         TAB: RATE LOOKUP
+    ════════════════════════════════════ -->
+    <div id="tab-rates" class="pro-tab-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Statutory Rate Lookup</span></div>
+        <div class="calc-body">
+          <p style="color:var(--txD);font-size:13px;margin-bottom:14px;">Date of Injury is synced from the global inputs above. Change it there to update the lookup, or enter a different date below for a one-off check.</p>
+          <div class="field-group" style="max-width:280px;margin-bottom:14px;">
+            <label class="field-label" for="rates-doi">Date of Injury / Accident</label>
+            <input type="date" id="rates-doi">
+            <span class="field-hint">Overrides global DOI for this lookup only</span>
+          </div>
+          <div class="result-box">
+            <div class="result-item" style="margin-bottom:10px;">
+              <span class="result-label">Applicable Maximum Rate</span>
+              <span class="result-value" id="rates-r-rate" style="font-size:30px;">—</span>
+            </div>
+            <div class="result-meta" id="rates-r-period">—</div>
+          </div>
+          <div style="margin-top:20px;overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>Period</th><th>Max Weekly Rate</th></tr></thead>
+              <tbody id="rates-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         TAB: RADICULOPATHY
+    ════════════════════════════════════ -->
+    <div id="tab-rad" class="pro-tab-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Radiculopathy SLU Calculator</span></div>
+        <div class="calc-body">
+          <div class="fields-row">
+            <div class="field-group">
+              <label class="field-label" for="rad-region">Spine Region</label>
+              <select id="rad-region"><option value="">Select region...</option><option value="cervical">Cervical (Arm)</option><option value="lumbar">Lumbar/Sacral (Leg)</option></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="rad-nerve">Nerve Root Level</label>
+              <select id="rad-nerve"><option value="">Select region first...</option></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="rad-severity">Severity</label>
+              <select id="rad-severity"><option value="">Select severity...</option><option value="mild">Mild — sensory only, minimal findings</option><option value="moderate">Moderate — motor + sensory deficits</option><option value="severe">Severe — significant motor loss, EMG positive</option></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="rad-levels">Affected Levels</label>
+              <select id="rad-levels"><option value="1">1 level</option><option value="2">2 levels</option><option value="3">3+ levels</option></select>
+            </div>
+          </div>
+          <div class="result-box">
+            <div class="result-grid cols-3">
+              <div class="result-item"><span class="result-label">SLU % Range</span><span class="result-value" id="rad-r-pct">—</span></div>
+              <div class="result-item"><span class="result-label">Weeks of SLU</span><span class="result-value blue" id="rad-r-weeks">—</span></div>
+              <div class="result-item"><span class="result-label">Award Range</span><span class="result-value gold" id="rad-r-award">—</span></div>
+            </div>
+            <div class="result-meta">
+              Body Part: <span id="rad-r-bp" class="mono">—</span> &nbsp;·&nbsp; Max Weeks: <span id="rad-r-mw" class="mono">—</span> &nbsp;·&nbsp; Rate: <span id="rad-r-rate" class="mono">—</span>
+            </div>
+            <div class="save-bar">
+              <span class="save-bar-status" id="rad-save-status"></span>
+              <button class="btn-save" id="rad-save-btn">Save Calculation</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         TAB: SPINE / BRAIN
+    ════════════════════════════════════ -->
+    <div id="tab-spine" class="pro-tab-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Spine / Brain Injury Benefits</span></div>
+        <div class="calc-body">
+          <div class="radio-group" role="radiogroup" style="margin-bottom:14px;">
+            <label class="radio-option"><input type="radio" name="spine-type" value="sci" checked> Spinal Cord Injury (SCI)</label>
+            <label class="radio-option"><input type="radio" name="spine-type" value="tbi"> Traumatic Brain Injury (TBI)</label>
+          </div>
+          <div id="spine-sci-inputs">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="spine-sci-level">SCI Level</label>
+                <select id="spine-sci-level">
+                  <option value="">Select level...</option>
+                  <option value="C1-C4">C1–C4 (High cervical)</option><option value="C5">C5</option><option value="C6">C6</option><option value="C7">C7</option><option value="C8-T1">C8–T1</option>
+                  <option value="T1-T6">T1–T6 (High thoracic)</option><option value="T7-T12">T7–T12</option>
+                  <option value="L1-L2">L1–L2</option><option value="L3-L4">L3–L4</option><option value="L5-S1">L5–S1</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="spine-asia">ASIA Classification</label>
+                <select id="spine-asia">
+                  <option value="">Select ASIA...</option>
+                  <option value="A">A — Complete (no motor/sensory below)</option>
+                  <option value="B">B — Motor complete, some sensory</option>
+                  <option value="C">C — Motor incomplete (&lt;50% key muscles)</option>
+                  <option value="D">D — Motor incomplete (≥50% key muscles)</option>
+                  <option value="E">E — Normal motor &amp; sensory</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="spine-tbi-inputs" style="display:none">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="spine-tbi-sev">TBI Severity</label>
+                <select id="spine-tbi-sev">
+                  <option value="">Select severity...</option>
+                  <option value="mild">Mild — GCS 13–15, LOC &lt;30 min</option>
+                  <option value="moderate">Moderate — GCS 9–12, LOC 30 min–24 hrs</option>
+                  <option value="severe">Severe — GCS ≤8 or PTD-level deficits</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="spine-tbi-cog">Cognitive Impairment</label>
+                <select id="spine-tbi-cog">
+                  <option value="">Select impairment...</option>
+                  <option value="minimal">Minimal — mild memory issues, working w/ accommodations</option>
+                  <option value="moderate">Moderate — executive dysfunction, reduced work capacity</option>
+                  <option value="severe">Severe — unable to sustain competitive employment</option>
+                  <option value="total">Total — requires supervision/care, no work capacity</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="fields-row" style="margin-top:10px;">
+            <div class="field-group">
+              <label class="field-label" for="spine-age">Claimant Age</label>
+              <div class="field-wrap"><input type="number" id="spine-age" min="16" max="80" value="40"><span class="field-suffix">yrs</span></div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="spine-le">Life Expectancy</label>
+              <div class="field-wrap"><input type="number" id="spine-le" min="16" max="100" value="80"><span class="field-suffix">yrs</span></div>
+              <span class="field-hint">Default: 80 (US average)</span>
+            </div>
+          </div>
+          <div class="result-box" style="margin-top:14px;">
+            <div style="margin-bottom:10px;"><span id="spine-r-badge" style="display:inline-block;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:rgba(255,255,255,.06);color:var(--txM);">Select inputs above</span></div>
+            <div class="result-grid">
+              <div class="result-item"><span class="result-label">LWEC / PTD %</span><span class="result-value" id="spine-r-lwec">—</span></div>
+              <div class="result-item"><span class="result-label">Weekly Benefit</span><span class="result-value blue" id="spine-r-weekly">—</span></div>
+              <div class="result-item"><span class="result-label">LWEC Bracket</span><span class="result-value" id="spine-r-bracket">—</span></div>
+              <div class="result-item"><span class="result-label">Max Benefit Weeks</span><span class="result-value" id="spine-r-maxwk">—</span></div>
+              <div class="result-item"><span class="result-label">Effective Weeks</span><span class="result-value" id="spine-r-effwk">—</span></div>
+              <div class="result-item"><span class="result-label">Lifetime Projection</span><span class="result-value gold" id="spine-r-lifetime">—</span></div>
+            </div>
+            <div class="result-meta" id="spine-r-note"></div>
+            <div class="save-bar">
+              <span class="save-bar-status" id="spine-save-status"></span>
+              <button class="btn-save" id="spine-save-btn">Save Calculation</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer" style="margin-top:24px;">
+      <p style="margin:0;"><strong>Disclaimer:</strong> This tool is for informational purposes only and does not constitute legal advice. All calculations are based on current NYS Workers' Compensation Law. Actual awards are determined by the Workers' Compensation Board. Comp Buddy is a document preparation service operated by NJJ Document Services, Inc.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getOptionalUser, saveCalculation, supabase } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
+
+    // ══════════════════════════════════════════
+    // SHARED DATA
+    // ══════════════════════════════════════════
+    const MAX_RATES = [
+      {s:"2025-07-01",e:"2099-12-31",l:"Jul 1, 2025+",max:1222.42},
+      {s:"2024-07-01",e:"2025-06-30",l:"Jul 1, 2024 – Jun 30, 2025",max:1171.46},
+      {s:"2023-07-01",e:"2024-06-30",l:"Jul 1, 2023 – Jun 30, 2024",max:1145.43},
+      {s:"2022-07-01",e:"2023-06-30",l:"Jul 1, 2022 – Jun 30, 2023",max:1125.46},
+      {s:"2021-07-01",e:"2022-06-30",l:"Jul 1, 2021 – Jun 30, 2022",max:1063.05},
+      {s:"2020-07-01",e:"2021-06-30",l:"Jul 1, 2020 – Jun 30, 2021",max:966.78},
+      {s:"2019-07-01",e:"2020-06-30",l:"Jul 1, 2019 – Jun 30, 2020",max:934.11},
+      {s:"2018-07-01",e:"2019-06-30",l:"Jul 1, 2018 – Jun 30, 2019",max:904.74},
+      {s:"2017-07-01",e:"2018-06-30",l:"Jul 1, 2017 – Jun 30, 2018",max:870.61},
+      {s:"2016-07-01",e:"2017-06-30",l:"Jul 1, 2016 – Jun 30, 2017",max:864.32},
+      {s:"2015-07-01",e:"2016-06-30",l:"Jul 1, 2015 – Jun 30, 2016",max:844.29},
+      {s:"2014-07-01",e:"2015-06-30",l:"Jul 1, 2014 – Jun 30, 2015",max:808.65},
+      {s:"2013-07-01",e:"2014-06-30",l:"Jul 1, 2013 – Jun 30, 2014",max:803.21},
+      {s:"2012-07-01",e:"2013-06-30",l:"Jul 1, 2012 – Jun 30, 2013",max:792.07},
+      {s:"2011-07-01",e:"2012-06-30",l:"Jul 1, 2011 – Jun 30, 2012",max:772.96},
+      {s:"2010-07-01",e:"2011-06-30",l:"Jul 1, 2010 – Jun 30, 2011",max:739.83},
+      {s:"2009-07-01",e:"2010-06-30",l:"Jul 1, 2009 – Jun 30, 2010",max:600},
+      {s:"2008-07-01",e:"2009-06-30",l:"Jul 1, 2008 – Jun 30, 2009",max:550},
+      {s:"2007-07-01",e:"2008-06-30",l:"Jul 1, 2007 – Jun 30, 2008",max:500},
+      {s:"1985-07-01",e:"2007-06-30",l:"Jul 1, 1985 – Jun 30, 2007",max:400},
+    ];
+    const SLU_BP = [
+      {n:"Arm",w:312,hp:32},{n:"Hand",w:244,hp:32},{n:"Leg",w:288,hp:40},{n:"Foot",w:205,hp:32},
+      {n:"Thumb",w:75,hp:24},{n:"1st Finger (Index)",w:46,hp:18},{n:"2nd Finger (Middle)",w:30,hp:12},
+      {n:"3rd Finger (Ring)",w:25,hp:8},{n:"4th Finger (Pinky)",w:15,hp:8},
+      {n:"Great Toe",w:38,hp:12},{n:"Other Toe (2nd–5th)",w:16,hp:8},
+      {n:"Eye",w:160,hp:20},{n:"One Ear",w:60,hp:0},{n:"Binaural (Both Ears)",w:150,hp:0},
+    ];
+    const LWEC_BR = [
+      {l:"Total (Industrial)",mw:"Lifetime"},
+      {l:"96%+",lo:96,hi:100,mw:525},{l:"91–95%",lo:91,hi:95,mw:500},{l:"86–90%",lo:86,hi:90,mw:475},
+      {l:"81–85%",lo:81,hi:85,mw:450},{l:"76–80%",lo:76,hi:80,mw:425},{l:"71–75%",lo:71,hi:75,mw:400},
+      {l:"61–70%",lo:61,hi:70,mw:375},{l:"51–60%",lo:51,hi:60,mw:350},{l:"41–50%",lo:41,hi:50,mw:300},
+      {l:"31–40%",lo:31,hi:40,mw:275},{l:"16–30%",lo:16,hi:30,mw:250},{l:"15% or less",lo:0,hi:15,mw:225},
+    ];
+
+    // ── Utilities ──
+    const pF = v => parseFloat(v) || 0;
+    const fC = v => '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const fW = v => { const s = v.toFixed(4).replace(/\.?0+$/,''); return s || '0'; };
+    const fD = s => { if(!s) return '—'; const [y,m,d] = s.split('-'); return m+'/'+d+'/'+y; };
+    const fLarge = v => v >= 1e6 ? '$'+(v/1e6).toFixed(2)+'M' : fC(v);
+
+    function getMaxForDate(dateStr) {
+      if (!dateStr) return MAX_RATES[0];
+      const dt = new Date(dateStr+'T00:00:00');
+      for (const r of MAX_RATES) {
+        if (dt >= new Date(r.s+'T00:00:00') && dt <= new Date(r.e+'T23:59:59')) return r;
+      }
+      return MAX_RATES[MAX_RATES.length-1];
+    }
+    function getBracket(pct) {
+      if (pct >= 100) return LWEC_BR[0];
+      for (const b of LWEC_BR) { if (b.lo !== undefined && pct >= b.lo && pct <= b.hi) return b; }
+      return LWEC_BR[LWEC_BR.length-1];
+    }
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(()=>{btn.textContent='✓ Copied!';setTimeout(()=>{btn.textContent='Copy to Clipboard';},1500);}).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);btn.textContent='✓ Copied!';setTimeout(()=>{btn.textContent='Copy to Clipboard';},1500);});
+    }
+
+    // ── Global state ──
+    let currentUser = null;
+    function getAWW()     { return pF(document.getElementById('g-aww').value); }
+    function getMaxRate() { return pF(document.getElementById('g-maxrate').value); }
+    function getCappedTT(){ const tt=getAWW()*2/3; const mx=getMaxRate(); return mx>0?Math.min(tt,mx):tt; }
+    function getSLURate() { return getCappedTT(); }
+    function getCaseName(){ return document.getElementById('g-case-name').value.trim(); }
+
+    function updateGlobalDisplay() {
+      const tt = getCappedTT();
+      const aww = getAWW(); const mx = getMaxRate(); const raw = aww*2/3;
+      document.getElementById('g-tt-rate').textContent = fC(tt)+'/wk';
+      document.getElementById('g-slu-rate').textContent = fC(tt)+'/wk';
+      if (mx>0 && raw>mx) document.getElementById('g-tt-rate').title = '2/3 AWW '+fC(raw)+' capped at '+fC(mx);
+    }
+
+    async function doSave(calcType, inputData, resultData, statusEl) {
+      if (!currentUser || !currentUser.session) {
+        statusEl.textContent = 'Sign in to save calculations';
+        statusEl.className = 'save-bar-status err';
+        return;
+      }
+      statusEl.textContent = 'Saving…';
+      statusEl.className = 'save-bar-status';
+      const ok = await saveCalculation(currentUser.session.user.id, calcType, {
+        caseName: getCaseName(),
+        inputData,
+        resultData
+      });
+      statusEl.textContent = ok ? '✓ Saved to history' : '✗ Save failed';
+      statusEl.className = 'save-bar-status '+(ok?'ok':'err');
+    }
+
+    // ══════════════════════════════════════════
+    // SLU MODULE
+    // ══════════════════════════════════════════
+    let sluEntries = [{part:'Leg',pct:''}];
+
+    function renderSLUEntries() {
+      const container = document.getElementById('slu-entries');
+      container.innerHTML = '';
+      sluEntries.forEach((e,i) => {
+        const row = document.createElement('div');
+        row.className = 'slu-entry-row';
+
+        // Body part select
+        const bpFG = document.createElement('div');
+        bpFG.className = 'field-group';
+        const bpLbl = document.createElement('label');
+        bpLbl.className = 'field-label';
+        bpLbl.textContent = 'Body Part';
+        const bpSel = document.createElement('select');
+        SLU_BP.forEach(bp => {
+          const opt = document.createElement('option');
+          opt.value = bp.n; opt.textContent = bp.n + ' ('+bp.w+' wks)';
+          if (bp.n === e.part) opt.selected = true;
+          bpSel.appendChild(opt);
+        });
+        bpSel.addEventListener('change', ev => { sluEntries[i].part = ev.target.value; calcSLU(); });
+        bpFG.appendChild(bpLbl); bpFG.appendChild(bpSel); row.appendChild(bpFG);
+
+        // % SLU
+        const pctFG = document.createElement('div');
+        pctFG.className = 'field-group';
+        const pctLbl = document.createElement('label');
+        pctLbl.className = 'field-label';
+        pctLbl.textContent = '% SLU';
+        const pctWrap = document.createElement('div');
+        pctWrap.className = 'field-wrap';
+        const pctInp = document.createElement('input');
+        pctInp.type = 'number'; pctInp.min = '0'; pctInp.max = '100'; pctInp.step = '0.5';
+        pctInp.value = e.pct; pctInp.placeholder = '0';
+        pctInp.addEventListener('input', ev => { sluEntries[i].pct = ev.target.value; calcSLU(); });
+        const pctSfx = document.createElement('span');
+        pctSfx.className = 'field-suffix'; pctSfx.textContent = '%';
+        pctWrap.appendChild(pctInp); pctWrap.appendChild(pctSfx);
+        pctFG.appendChild(pctLbl); pctFG.appendChild(pctWrap); row.appendChild(pctFG);
+
+        // Computed weeks
+        const wkFG = document.createElement('div');
+        wkFG.className = 'field-group';
+        const wkLbl = document.createElement('label');
+        wkLbl.className = 'field-label';
+        wkLbl.textContent = 'Weeks';
+        const bp = SLU_BP.find(b=>b.n===e.part)||SLU_BP[2];
+        const wks = (pF(e.pct)/100)*bp.w;
+        const wkVal = document.createElement('div');
+        wkVal.style.cssText = 'padding:6px 10px;font-family:var(--mono);font-size:13px;color:var(--gd);font-weight:700;';
+        wkVal.textContent = pF(e.pct)>0 ? fW(wks)+' wks' : '—';
+        wkFG.appendChild(wkLbl); wkFG.appendChild(wkVal); row.appendChild(wkFG);
+
+        // Del
+        if (sluEntries.length > 1) {
+          const del = document.createElement('button');
+          del.className = 'del-row-btn'; del.innerHTML = '✕';
+          del.addEventListener('click',()=>{ sluEntries.splice(i,1); renderSLUEntries(); calcSLU(); });
+          row.appendChild(del);
+        }
+        container.appendChild(row);
+      });
+    }
+
+    function calcSLU() {
+      const rate = getSLURate();
+      const prior = pF(document.getElementById('slu-prior').value);
+      let totalWks = 0, totalAmt = 0;
+      const lines = [];
+      sluEntries.forEach(e => {
+        if (!e.pct || pF(e.pct)<=0) return;
+        const bp = SLU_BP.find(b=>b.n===e.part)||SLU_BP[2];
+        const wks = (pF(e.pct)/100)*bp.w;
+        const amt = wks*rate;
+        totalWks += wks; totalAmt += amt;
+        lines.push(`${e.part}: ${pF(e.pct)}% × ${bp.w} wks = ${fW(wks)} wks × ${fC(rate)} = ${fC(amt)}`);
+      });
+      if (totalWks <= 0) {
+        ['slu-r-weeks','slu-r-award','slu-r-moving'].forEach(id=>document.getElementById(id).textContent='—');
+        document.getElementById('slu-r-breakdown').style.display='none';
+        document.getElementById('slu-r-eq').style.display='none';
+        return;
+      }
+      const moving = totalAmt - prior;
+      const fee = Math.max(moving,0)*0.15;
+      const net = moving - fee;
+      document.getElementById('slu-r-weeks').textContent = fW(totalWks)+' wks';
+      document.getElementById('slu-r-award').textContent = fC(totalAmt);
+      document.getElementById('slu-r-moving').textContent = fC(moving);
+      document.getElementById('slu-fb-award').textContent = fC(totalAmt);
+      document.getElementById('slu-fb-prior').textContent = prior>0 ? '('+fC(prior)+')' : fC(0);
+      document.getElementById('slu-fb-moving').textContent = fC(moving);
+      document.getElementById('slu-fb-fee').textContent = fC(fee)+' ('+fC(moving)+' × 15%)';
+      document.getElementById('slu-fb-net').textContent = fC(net);
+      document.getElementById('slu-r-breakdown').style.display='block';
+      let eq = lines.join('\n');
+      eq += '\n────────────────────────────────────────';
+      eq += '\nTotal SLU:         '+fW(totalWks)+' wks × '+fC(rate)+' = '+fC(totalAmt);
+      if (prior>0) eq += '\nLess Prior:        ('+fC(prior)+')';
+      eq += '\nMoving Amount:     '+fC(moving);
+      eq += '\nAttorney Fee:      '+fC(moving)+' × 15% = '+fC(fee);
+      eq += '\nNet to Claimant:   '+fC(net);
+      document.getElementById('slu-eq-text').textContent = eq;
+      document.getElementById('slu-r-eq').style.display='block';
+    }
+
+    document.getElementById('slu-add').addEventListener('click', ()=>{ sluEntries.push({part:'Arm',pct:''}); renderSLUEntries(); calcSLU(); });
+    document.getElementById('slu-reset').addEventListener('click', ()=>{ if(!confirm('Reset SLU entries?')) return; sluEntries=[{part:'Leg',pct:''}]; document.getElementById('slu-prior').value='0'; renderSLUEntries(); calcSLU(); });
+    document.getElementById('slu-prior').addEventListener('input', calcSLU);
+    document.getElementById('slu-copy-eq').addEventListener('click', function(){ copyToClipboard(document.getElementById('slu-eq-text').textContent, this); });
+    document.getElementById('slu-save-btn').addEventListener('click', ()=>{
+      const rate=getSLURate(), prior=pF(document.getElementById('slu-prior').value);
+      let totalWks=0,totalAmt=0;
+      sluEntries.forEach(e=>{if(!e.pct||pF(e.pct)<=0)return;const bp=SLU_BP.find(b=>b.n===e.part)||SLU_BP[2];const wks=(pF(e.pct)/100)*bp.w;totalWks+=wks;totalAmt+=wks*rate;});
+      const moving=totalAmt-prior, fee=Math.max(moving,0)*0.15;
+      doSave('slu',{entries:sluEntries,prior,aww:getAWW(),maxRate:getMaxRate()},{totalWeeks:fW(totalWks),totalAward:fC(totalAmt),moving:fC(moving),fee:fC(fee),net:fC(moving-fee)},document.getElementById('slu-save-status'));
+    });
+
+    // ══════════════════════════════════════════
+    // AWW MODULE
+    // ══════════════════════════════════════════
+    function calcAWW() {
+      const method = document.querySelector('input[name="aww-method"]:checked').value;
+      const hasOT = document.getElementById('aww-has-ot').checked;
+      const hasConc = document.getElementById('aww-has-conc').checked;
+      const hasAmended = document.getElementById('aww-has-amended').checked;
+      const maxRate = getMaxRate();
+      let primary = 0;
+      if (method==='wages') {
+        const pp = document.getElementById('aww-pay-period').value;
+        const g = pF(document.getElementById('aww-gross').value);
+        primary = pp==='weekly'?g:pp==='biweekly'?g/2:pp==='monthly'?(g*12)/52:g/52;
+      } else if (method==='salary') {
+        const sal = pF(document.getElementById('aww-salary').value);
+        const dp = pF(document.getElementById('aww-days-paid').value)||260;
+        const dpw = document.getElementById('aww-days-pw').value;
+        const dmap = {'4':200,'5':260,'6':300,'7':365};
+        primary = ((sal/dp)*(dmap[dpw]||260))/52;
+      } else {
+        const hr = pF(document.getElementById('aww-hr').value);
+        const hpw = pF(document.getElementById('aww-hpw').value)||40;
+        primary = hr*hpw;
+      }
+      primary += hasOT ? pF(document.getElementById('aww-ot-amt').value) : 0;
+      const conc = hasConc ? pF(document.getElementById('aww-conc-aww').value) : 0;
+      let composite = primary + conc;
+      const newAWWVal = hasAmended ? pF(document.getElementById('aww-new-aww').value) : 0;
+      const finalAWW = (hasAmended && newAWWVal>0) ? newAWWVal : composite;
+      const twoThirds = finalAWW * 2/3;
+      const finalRate = Math.min(twoThirds, maxRate);
+      document.getElementById('aww-r-aww').textContent = fC(finalAWW);
+      document.getElementById('aww-r-23').textContent = fC(twoThirds);
+      document.getElementById('aww-r-max').textContent = fC(maxRate);
+      document.getElementById('aww-r-final').textContent = fC(finalRate);
+      const notes = [];
+      if (hasConc && conc>0) notes.push('Concurrent: +'+fC(conc)+' added to primary AWW');
+      if (hasAmended && newAWWVal>0) notes.push('Amended AWW overrides calculated value');
+      document.getElementById('aww-r-notes').textContent = notes.join(' · ');
+      return {finalAWW, finalRate};
+    }
+
+    ['aww-pay-period','aww-gross','aww-salary','aww-days-paid','aww-days-pw','aww-hr','aww-hpw','aww-ot-amt','aww-conc-aww','aww-prior-aww','aww-new-aww'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('input', calcAWW);
+    });
+    document.querySelectorAll('input[name="aww-method"]').forEach(r=>r.addEventListener('change', ()=>{
+      document.getElementById('aww-wages-section').style.display = r.value==='wages'&&r.checked?'block':'none';
+      document.getElementById('aww-salary-section').style.display = r.value==='salary'&&r.checked?'block':'none';
+      document.getElementById('aww-hourly-section').style.display = r.value==='hourly'&&r.checked?'block':'none';
+      calcAWW();
+    }));
+    document.getElementById('aww-has-ot').addEventListener('change', e=>{ document.getElementById('aww-ot-section').style.display=e.target.checked?'block':'none'; calcAWW(); });
+    document.getElementById('aww-has-conc').addEventListener('change', e=>{ document.getElementById('aww-conc-section').style.display=e.target.checked?'block':'none'; calcAWW(); });
+    document.getElementById('aww-has-amended').addEventListener('change', e=>{ document.getElementById('aww-amended-section').style.display=e.target.checked?'block':'none'; calcAWW(); });
+    document.getElementById('aww-save-btn').addEventListener('click', ()=>{
+      const {finalAWW, finalRate} = calcAWW();
+      // push to global
+      document.getElementById('g-aww').value = finalAWW.toFixed(2);
+      updateGlobalDisplay(); recalcAll();
+      doSave('aww',{method:document.querySelector('input[name="aww-method"]:checked').value,gross:document.getElementById('aww-gross').value,maxRate:getMaxRate()},{aww:fC(finalAWW),rate:fC(finalRate)},document.getElementById('aww-save-status'));
+    });
+
+    // ══════════════════════════════════════════
+    // LWEC MODULE
+    // ══════════════════════════════════════════
+    function calcLWEC() {
+      const aww = getAWW(), mx = getMaxRate();
+      const tt = Math.min(aww*2/3, mx);
+      const pct = pF(document.getElementById('lwec-pct').value);
+      const fpw = pF(document.getElementById('lwec-fpw').value);
+      document.getElementById('lwec-r-tt').textContent = fC(tt);
+      if (pct<=0||tt<=0) {
+        ['lwec-r-class','lwec-r-bracket','lwec-r-mw'].forEach(id=>document.getElementById(id).textContent='—');
+        document.getElementById('lwec-r-breakdown').style.display='none';
+        document.getElementById('lwec-eq-box').style.display='none';
+        return;
+      }
+      const classRate = tt*(pct/100);
+      const bracket = getBracket(pct);
+      const mw = bracket.mw;
+      const isLifetime = mw==='Lifetime';
+      document.getElementById('lwec-r-class').textContent = fC(classRate);
+      document.getElementById('lwec-r-bracket').textContent = bracket.l;
+      document.getElementById('lwec-r-mw').textContent = String(mw);
+      const totalAward = isLifetime ? null : classRate*mw;
+      const attyFee = classRate*15;
+      const weeklyNet = classRate-fpw;
+      const totalNet = totalAward!==null ? totalAward-attyFee : null;
+      document.getElementById('lwec-fb-total').textContent = totalAward!==null ? fC(totalAward) : 'Lifetime';
+      document.getElementById('lwec-fb-fee').textContent = fC(attyFee)+' (15 × '+fC(classRate)+')';
+      document.getElementById('lwec-fb-wkly-net').textContent = fC(weeklyNet)+'/wk';
+      document.getElementById('lwec-fb-net').textContent = totalNet!==null ? fC(totalNet) : 'Lifetime';
+      document.getElementById('lwec-r-breakdown').style.display='block';
+      let eq = pct+'% LWEC × '+fC(tt)+'/wk = '+fC(classRate)+'/wk\n';
+      eq += 'Bracket: '+bracket.l+' → '+mw+(isLifetime?'':' weeks')+'\n';
+      if (!isLifetime) eq += 'Total Award: '+fC(classRate)+' × '+mw+' wks = '+fC(totalAward)+'\n';
+      eq += 'Attorney Fee: 15 wks × '+fC(classRate)+' = '+fC(attyFee)+'\n';
+      if (!isLifetime && totalNet!==null) eq += 'Net to Claimant: '+fC(totalNet);
+      document.getElementById('lwec-eq-text').textContent = eq;
+      document.getElementById('lwec-eq-box').style.display='block';
+    }
+    document.getElementById('lwec-pct').addEventListener('input', calcLWEC);
+    document.getElementById('lwec-fpw').addEventListener('input', calcLWEC);
+    document.getElementById('lwec-copy-eq').addEventListener('click', function(){ copyToClipboard(document.getElementById('lwec-eq-text').textContent, this); });
+    document.getElementById('lwec-save-btn').addEventListener('click', ()=>{
+      const pct=pF(document.getElementById('lwec-pct').value);
+      const tt=Math.min(getAWW()*2/3,getMaxRate());
+      const classRate=tt*(pct/100);
+      const bracket=getBracket(pct);
+      doSave('lwec',{lwecPct:pct,fpw:pF(document.getElementById('lwec-fpw').value),aww:getAWW(),maxRate:getMaxRate()},{classRate:fC(classRate),bracket:bracket.l,maxWeeks:bracket.mw},document.getElementById('lwec-save-status'));
+    });
+
+    // ══════════════════════════════════════════
+    // CCP MODULE
+    // ══════════════════════════════════════════
+    let ccpPeriods = [{start:'',end:'',desig:'TT',rate:'',ratePct:'',curEarn:''}];
+    const DESIGS = ['TT','RE','TR','TP','NCLT','NME'];
+
+    function makeCCPDateFG(label, value, id, onChange) {
+      const fg = document.createElement('div'); fg.className='field-group';
+      const lbl = document.createElement('label'); lbl.className='field-label'; lbl.htmlFor=id; lbl.textContent=label;
+      const inp = document.createElement('input'); inp.type='date'; inp.id=id; inp.value=value;
+      inp.addEventListener('change', e=>onChange(e.target.value));
+      fg.appendChild(lbl); fg.appendChild(inp); return fg;
+    }
+
+    function renderCCPPeriods() {
+      const ct = document.getElementById('ccp-periods'); ct.innerHTML='';
+      const cappedTT = getCappedTT(), aww = getAWW();
+      ccpPeriods.forEach((p,i) => {
+        let weeksDisplay='';
+        if(p.start&&p.end){const wks=(new Date(p.end+'T00:00:00')-new Date(p.start+'T00:00:00'))/(864e5*7);if(wks>0)weeksDisplay=fW(wks)+' wks';else if(wks<=0)weeksDisplay='⚠ end before start';}
+        const div=document.createElement('div'); div.className='period-row'; div.setAttribute('role','listitem');
+        const fields=document.createElement('div'); fields.className='period-fields';
+
+        fields.appendChild(makeCCPDateFG('Start Date',p.start,'ccp-s-'+i,v=>{ccpPeriods[i].start=v;renderCCPPeriods();calcCCP();}));
+        fields.appendChild(makeCCPDateFG('End Date',p.end,'ccp-e-'+i,v=>{ccpPeriods[i].end=v;renderCCPPeriods();calcCCP();}));
+
+        const rateRO = p.desig==='TT'||p.desig==='RE';
+        const effRate = p.desig==='TT'?cappedTT:p.desig==='RE'?(2/3)*(aww-pF(p.curEarn)):p.desig==='TR'&&p.ratePct?(pF(p.ratePct)/100)*cappedTT:pF(p.rate);
+        const rateFG=document.createElement('div'); rateFG.className='field-group';
+        const rateLbl=document.createElement('label'); rateLbl.className='field-label'; rateLbl.textContent='Rate/wk';
+        const rateWrap=document.createElement('div'); rateWrap.className='field-wrap';
+        const rPfx=document.createElement('span'); rPfx.className='field-prefix'; rPfx.textContent='$';
+        const rInp=document.createElement('input'); rInp.type='number'; rInp.step='0.01'; rInp.min='0';
+        if(rateRO){rInp.value=effRate.toFixed(2);rInp.readOnly=true;rInp.style.color='var(--txM)';}
+        else{rInp.value=p.rate;rInp.addEventListener('input',e=>{ccpPeriods[i].rate=e.target.value;calcCCP();});}
+        rateWrap.appendChild(rPfx);rateWrap.appendChild(rInp);rateFG.appendChild(rateLbl);rateFG.appendChild(rateWrap);fields.appendChild(rateFG);
+
+        const pctFG=document.createElement('div'); pctFG.className='field-group';
+        const pctLbl=document.createElement('label'); pctLbl.className='field-label'; pctLbl.textContent='Rate %';
+        const pctWrap=document.createElement('div'); pctWrap.className='field-wrap';
+        const pInp=document.createElement('input'); pInp.type='number'; pInp.min='0'; pInp.max='200'; pInp.step='0.1';
+        if(p.desig==='TT'){pInp.value='100';pInp.readOnly=true;pInp.style.color='var(--txM)';}
+        else if(p.desig==='TR'){pInp.value=p.ratePct;pInp.addEventListener('input',e=>{ccpPeriods[i].ratePct=e.target.value;if(e.target.value&&cappedTT>0)ccpPeriods[i].rate=(pF(e.target.value)/100*cappedTT).toFixed(2);renderCCPPeriods();calcCCP();});}
+        else{pInp.value=cappedTT>0?(effRate/cappedTT*100).toFixed(1):'';pInp.readOnly=true;pInp.style.color='var(--txM)';}
+        const pSfx=document.createElement('span'); pSfx.className='field-suffix'; pSfx.textContent='%';
+        pctWrap.appendChild(pInp);pctWrap.appendChild(pSfx);pctFG.appendChild(pctLbl);pctFG.appendChild(pctWrap);fields.appendChild(pctFG);
+
+        if(ccpPeriods.length>1){const del=document.createElement('button');del.className='del-row-btn';del.innerHTML='✕';del.addEventListener('click',()=>{ccpPeriods.splice(i,1);renderCCPPeriods();calcCCP();});fields.appendChild(del);}
+        div.appendChild(fields);
+
+        if(weeksDisplay){const wp=document.createElement('div');wp.style.marginTop='6px';const pill=document.createElement('span');pill.className='weeks-pill';pill.textContent=weeksDisplay;wp.appendChild(pill);div.appendChild(wp);}
+
+        const desigRow=document.createElement('div'); desigRow.className='desig-row';
+        DESIGS.forEach(dg=>{const btn=document.createElement('button');btn.className='desig-btn'+(p.desig===dg?' active-'+dg:'');btn.textContent=dg;
+          btn.addEventListener('click',()=>{ccpPeriods[i].desig=dg;if(dg==='TT'){ccpPeriods[i].rate=cappedTT.toFixed(2);ccpPeriods[i].ratePct='100';}if(dg!=='RE')ccpPeriods[i].curEarn='';if(dg!=='TR')ccpPeriods[i].ratePct='';renderCCPPeriods();calcCCP();});
+          desigRow.appendChild(btn);});
+        div.appendChild(desigRow);
+
+        if(p.desig==='RE'){const reWrap=document.createElement('div');reWrap.style.cssText='margin-top:8px;display:flex;align-items:center;gap:10px;';
+          const reFG=document.createElement('div');reFG.className='field-group';reFG.style.maxWidth='220px';
+          const reLbl=document.createElement('label');reLbl.className='field-label';reLbl.textContent='Current Earnings (weekly)';
+          const reWrapI=document.createElement('div');reWrapI.className='field-wrap';
+          const rePfx=document.createElement('span');rePfx.className='field-prefix';rePfx.textContent='$';
+          const reInp=document.createElement('input');reInp.type='number';reInp.step='0.01';reInp.min='0';reInp.value=p.curEarn;
+          reInp.addEventListener('input',e=>{ccpPeriods[i].curEarn=e.target.value;ccpPeriods[i].rate=((2/3)*(aww-pF(e.target.value))).toFixed(2);renderCCPPeriods();calcCCP();});
+          reWrapI.appendChild(rePfx);reWrapI.appendChild(reInp);reFG.appendChild(reLbl);reFG.appendChild(reWrapI);reWrap.appendChild(reFG);
+          const reNote=document.createElement('div');reNote.style.cssText='font-size:10px;color:#a855f7;margin-top:16px;';
+          reNote.textContent='Rate = 2/3 × (AWW − Earnings) = '+fC(effRate)+'/wk';
+          reWrap.appendChild(reNote);div.appendChild(reWrap);}
+
+        ct.appendChild(div);
+      });
+    }
+
+    function calcCCP() {
+      const aww=getAWW(), cappedTT=getCappedTT();
+      const ccpV=pF(document.getElementById('ccp-amt').value);
+      const prV=pF(document.getElementById('ccp-prior').value);
+      let total=0; const details=[];
+      ccpPeriods.forEach(p=>{
+        if(!p.start||!p.end){details.push(null);return;}
+        const s=new Date(p.start+'T00:00:00'), e=new Date(p.end+'T00:00:00');
+        const wks=(e-s)/(864e5*7);
+        if(wks<=0){details.push(null);return;}
+        let rate=pF(p.rate);
+        if(p.desig==='TT')rate=cappedTT;
+        if(p.desig==='RE')rate=(2/3)*(aww-pF(p.curEarn));
+        if(p.desig==='TR'&&p.ratePct)rate=pF(p.ratePct)/100*cappedTT;
+        const amt=wks*rate; const pct=cappedTT>0?rate/cappedTT:0;
+        total+=amt; details.push({wks,amt,rate,desig:p.desig,start:p.start,end:p.end,pct,curEarn:p.curEarn,ratePct:p.ratePct});
+      });
+      const mov=total-prV, fA=Math.max(mov,0)*0.15, fCCP=ccpV/3, tF=fA+fCCP, net=mov-tF;
+      const hasValid=details.some(x=>x);
+      document.getElementById('ccp-r-total').textContent=hasValid?fC(total):'—';
+      document.getElementById('ccp-r-fee').textContent=hasValid?fC(tF):'—';
+      document.getElementById('ccp-r-net').textContent=hasValid?fC(net):'—';
+      const tableWrap=document.getElementById('ccp-r-table-wrap');
+      const tbody=document.getElementById('ccp-r-tbody'), tfoot=document.getElementById('ccp-r-tfoot');
+      tbody.innerHTML=''; tfoot.innerHTML='';
+      if(hasValid){
+        details.forEach(x=>{if(!x)return;const tr=document.createElement('tr');tr.innerHTML=`<td class="label">${fD(x.start)} – ${fD(x.end)}</td><td><span class="desig-badge badge-${x.desig}">${x.desig}</span></td><td>${fC(x.rate)}</td><td style="color:var(--txM);font-size:10px;">(${(x.pct*100).toFixed(0)}%)</td><td>${fW(x.wks)}</td><td class="amount">${fC(x.amt)}</td>`;tbody.appendChild(tr);});
+        tfoot.innerHTML=`<tr><td colspan="5" style="font-family:var(--font);font-size:12px;color:var(--txD);">Total Award</td><td style="font-family:var(--mono);font-weight:800;color:var(--gn);">${fC(total)}</td></tr>`;
+        tableWrap.style.display='block';
+        document.getElementById('ccp-fb-award').textContent=fC(total);
+        document.getElementById('ccp-fb-prior').textContent=prV>0?'('+fC(prV)+')':fC(0);
+        document.getElementById('ccp-fb-moving').textContent=fC(mov);
+        document.getElementById('ccp-fb-faward').textContent=fC(fA)+'  ('+fC(mov)+' × 15%)';
+        document.getElementById('ccp-fb-fccp').textContent=fC(fCCP)+(ccpV>0?'  ('+fC(ccpV)+' ÷ 3)':'');
+        document.getElementById('ccp-fb-tfee').textContent=fC(tF);
+        document.getElementById('ccp-fb-net').textContent=fC(net);
+        document.getElementById('ccp-r-fee-breakdown').style.display='block';
+        let eq='';
+        details.forEach(x=>{if(!x)return;let lbl=x.desig;if(x.desig==='RE')lbl='RE (AWW '+fC(aww)+' − Earn '+fC(pF(x.curEarn))+')';else if(x.desig==='TR'&&x.ratePct)lbl='TR ('+pF(x.ratePct).toFixed(1)+'% of TT '+fC(cappedTT)+')';eq+=fW(x.wks)+' wks × '+fC(x.rate)+'/wk ['+lbl+'] = '+fC(x.amt)+'\n';});
+        eq+='────────────────────────────────────────\nTotal Award:       '+fC(total)+'\n';
+        if(prV>0)eq+='Less Prior:        ('+fC(prV)+')\n';
+        eq+='Moving Amount:     '+fC(mov)+'\n\nFee Calculation:\n';
+        if(fA>0)eq+='Award Fee:         '+fC(mov)+' × 15% = '+fC(fA)+'\n';
+        if(fCCP>0)eq+='CCP Fee:           '+fC(ccpV)+' ÷ 3 = '+fC(fCCP)+'\n';
+        eq+='Total Atty Fee:    '+fC(tF)+'\nNet to Claimant:   '+fC(net);
+        document.getElementById('ccp-eq-text').textContent=eq;
+        document.getElementById('ccp-r-eq-box').style.display='block';
+      } else {
+        tableWrap.style.display='none';
+        document.getElementById('ccp-r-fee-breakdown').style.display='none';
+        document.getElementById('ccp-r-eq-box').style.display='none';
+      }
+    }
+
+    document.getElementById('ccp-add').addEventListener('click',()=>{ccpPeriods.push({start:'',end:'',desig:'TT',rate:'',ratePct:'',curEarn:''});renderCCPPeriods();calcCCP();});
+    document.getElementById('ccp-reset').addEventListener('click',()=>{if(!confirm('Reset all CCP periods?'))return;ccpPeriods=[{start:'',end:'',desig:'TT',rate:'',ratePct:'',curEarn:''}];document.getElementById('ccp-amt').value='0';document.getElementById('ccp-prior').value='0';renderCCPPeriods();calcCCP();});
+    document.getElementById('ccp-amt').addEventListener('input',calcCCP);
+    document.getElementById('ccp-prior').addEventListener('input',calcCCP);
+    document.getElementById('ccp-copy-eq').addEventListener('click',function(){copyToClipboard(document.getElementById('ccp-eq-text').textContent,this);});
+    document.getElementById('ccp-save-btn').addEventListener('click',()=>{
+      doSave('ccp_award',{periods:ccpPeriods,ccpAmt:pF(document.getElementById('ccp-amt').value),prior:pF(document.getElementById('ccp-prior').value),aww:getAWW(),maxRate:getMaxRate()},{total:document.getElementById('ccp-r-total').textContent,fee:document.getElementById('ccp-r-fee').textContent,net:document.getElementById('ccp-r-net').textContent},document.getElementById('ccp-save-status'));
+    });
+
+    // ══════════════════════════════════════════
+    // RATES MODULE
+    // ══════════════════════════════════════════
+    function calcRates(dateStr) {
+      const r = getMaxForDate(dateStr);
+      document.getElementById('rates-r-rate').textContent = r ? fC(r.max) : '—';
+      document.getElementById('rates-r-period').textContent = r ? r.l : '—';
+    }
+    function buildRatesTable() {
+      const tbody = document.getElementById('rates-table-body');
+      MAX_RATES.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.l}</td><td style="font-family:var(--mono);">${fC(r.max)}</td>`; tbody.appendChild(tr); });
+    }
+    document.getElementById('rates-doi').addEventListener('change', e=>calcRates(e.target.value));
+
+    // ══════════════════════════════════════════
+    // RADICULOPATHY MODULE
+    // ══════════════════════════════════════════
+    const RAD_NERVES = {
+      cervical:[{v:'C4',l:'C4 — shoulder/neck'},{v:'C5',l:'C5 — shoulder/upper arm'},{v:'C6',l:'C6 — thumb/index finger'},{v:'C7',l:'C7 — middle finger/triceps'},{v:'C8',l:'C8 — ring/little finger'}],
+      lumbar:[{v:'L3',l:'L3 — anterior thigh'},{v:'L4',l:'L4 — anterior leg/knee'},{v:'L5',l:'L5 — lateral leg/dorsum foot'},{v:'S1',l:'S1 — posterior leg/plantar foot'},{v:'S2',l:'S2 — posterior thigh/perineum'}]
+    };
+    const RAD_EXT = {cervical:{label:'Arm',maxWeeks:312},lumbar:{label:'Leg',maxWeeks:288}};
+    const RAD_RANGES = {mild:{1:[5,12],2:[10,18],3:[15,22]},moderate:{1:[15,25],2:[22,35],3:[30,45]},severe:{1:[30,45],2:[40,55],3:[50,65]}};
+
+    document.getElementById('rad-region').addEventListener('change', ()=>{
+      const region = document.getElementById('rad-region').value;
+      const sel = document.getElementById('rad-nerve');
+      sel.innerHTML = '<option value="">Select nerve root...</option>';
+      if (region && RAD_NERVES[region]) RAD_NERVES[region].forEach(n=>{ const o=document.createElement('option');o.value=n.v;o.textContent=n.l;sel.appendChild(o); });
+      calcRad();
+    });
+    ['rad-nerve','rad-severity','rad-levels'].forEach(id=>document.getElementById(id).addEventListener('change',calcRad));
+    function calcRad() {
+      const region=document.getElementById('rad-region').value;
+      const sev=document.getElementById('rad-severity').value;
+      const levels=parseInt(document.getElementById('rad-levels').value)||1;
+      const rate=getSLURate();
+      if(!region||!sev||rate<=0){
+        ['rad-r-pct','rad-r-weeks','rad-r-award','rad-r-bp','rad-r-mw','rad-r-rate'].forEach(id=>document.getElementById(id).textContent='—');
+        return;
+      }
+      const ext=RAD_EXT[region];
+      const lk=levels>=3?3:levels;
+      const [lo,hi]=RAD_RANGES[sev][lk];
+      const wLo=(lo/100)*ext.maxWeeks, wHi=(hi/100)*ext.maxWeeks;
+      const aLo=wLo*rate, aHi=wHi*rate;
+      document.getElementById('rad-r-pct').textContent=lo+'–'+hi+'%';
+      document.getElementById('rad-r-weeks').textContent=wLo.toFixed(1)+'–'+wHi.toFixed(1);
+      document.getElementById('rad-r-award').textContent=fC(aLo)+'–'+fC(aHi);
+      document.getElementById('rad-r-bp').textContent=ext.label;
+      document.getElementById('rad-r-mw').textContent=ext.maxWeeks+' wks';
+      document.getElementById('rad-r-rate').textContent=fC(rate);
+    }
+    document.getElementById('rad-save-btn').addEventListener('click',()=>{
+      doSave('radiculopathy',{region:document.getElementById('rad-region').value,nerve:document.getElementById('rad-nerve').value,severity:document.getElementById('rad-severity').value,levels:document.getElementById('rad-levels').value,aww:getAWW(),maxRate:getMaxRate()},{sluRange:document.getElementById('rad-r-pct').textContent,weeksRange:document.getElementById('rad-r-weeks').textContent,awardRange:document.getElementById('rad-r-award').textContent},document.getElementById('rad-save-status'));
+    });
+
+    // ══════════════════════════════════════════
+    // SPINE/BRAIN MODULE
+    // ══════════════════════════════════════════
+    const SCI_LWEC = {A:100,B:100,C:75,D:45,E:10};
+    const SCI_MOD = {'C1-C4':1.15,'C5':1.10,'C6':1.05,'C7':1.0,'C8-T1':0.95,'T1-T6':1.05,'T7-T12':1.0,'L1-L2':0.85,'L3-L4':0.75,'L5-S1':0.60};
+    const TBI_LWEC = {minimal:{mild:15,moderate:25,severe:40},moderate:{mild:30,moderate:50,severe:70},severe:{mild:60,moderate:80,severe:100},total:{mild:90,moderate:100,severe:100}};
+
+    document.querySelectorAll('input[name="spine-type"]').forEach(r=>r.addEventListener('change',()=>{
+      const isSCI=r.value==='sci'&&r.checked;
+      document.getElementById('spine-sci-inputs').style.display=isSCI?'block':'none';
+      document.getElementById('spine-tbi-inputs').style.display=isSCI?'none':'block';
+      calcSpine();
+    }));
+    ['spine-sci-level','spine-asia','spine-tbi-sev','spine-tbi-cog','spine-age','spine-le'].forEach(id=>document.getElementById(id).addEventListener('change',calcSpine));
+
+    function calcSpine() {
+      const type=document.querySelector('input[name="spine-type"]:checked').value;
+      const rate=getCappedTT();
+      const age=parseInt(document.getElementById('spine-age').value)||40;
+      const le=parseInt(document.getElementById('spine-le').value)||80;
+      let lwecPct=null;
+      if(type==='sci'){
+        const level=document.getElementById('spine-sci-level').value;
+        const asia=document.getElementById('spine-asia').value;
+        if(!level||!asia||rate<=0){['spine-r-lwec','spine-r-weekly','spine-r-bracket','spine-r-maxwk','spine-r-effwk','spine-r-lifetime'].forEach(id=>document.getElementById(id).textContent='—');return;}
+        const base=SCI_LWEC[asia];
+        const mod=SCI_MOD[level]||1.0;
+        lwecPct=Math.min(100,Math.round(base*(asia==='A'||asia==='B'?1.0:mod)));
+      } else {
+        const sev=document.getElementById('spine-tbi-sev').value;
+        const cog=document.getElementById('spine-tbi-cog').value;
+        if(!sev||!cog||rate<=0){['spine-r-lwec','spine-r-weekly','spine-r-bracket','spine-r-maxwk','spine-r-effwk','spine-r-lifetime'].forEach(id=>document.getElementById(id).textContent='—');return;}
+        lwecPct=TBI_LWEC[cog][sev];
+      }
+      const isPTD=lwecPct>=100;
+      const weeklyBen=isPTD?rate:(lwecPct/100)*rate;
+      const yearsLeft=Math.max(0,le-age);
+      const lifeWeeks=yearsLeft*52;
+      const bracket=getBracket(lwecPct);
+      const bracketMW=isPTD?null:bracket.mw;
+      const effWeeks=isPTD?lifeWeeks:Math.min(bracketMW,lifeWeeks);
+      const lifetime=weeklyBen*effWeeks;
+      document.getElementById('spine-r-badge').textContent=isPTD?'PTD — Lifetime Benefits':'LWEC Classification';
+      document.getElementById('spine-r-badge').style.background=isPTD?'rgba(239,68,68,.12)':'rgba(59,130,246,.12)';
+      document.getElementById('spine-r-badge').style.color=isPTD?'var(--rd)':'var(--ac)';
+      document.getElementById('spine-r-lwec').textContent=isPTD?'PTD (100%)':lwecPct+'%';
+      document.getElementById('spine-r-weekly').textContent=fC(weeklyBen);
+      document.getElementById('spine-r-bracket').textContent=isPTD?'PTD — Lifetime':bracket.l;
+      document.getElementById('spine-r-maxwk').textContent=isPTD?'Lifetime':bracketMW+' wks';
+      document.getElementById('spine-r-effwk').textContent=effWeeks.toLocaleString()+' wks'+((!isPTD&&lifeWeeks<bracketMW)?' (life expectancy limits)':'');
+      document.getElementById('spine-r-lifetime').textContent=fLarge(lifetime)+(isPTD?' (nominal, non-discounted)':'');
+      document.getElementById('spine-r-note').textContent=isPTD?'PTD provides weekly benefits for life. Settlement requires Board approval and present-value discounting.':'';
+    }
+    document.getElementById('spine-save-btn').addEventListener('click',()=>{
+      const type=document.querySelector('input[name="spine-type"]:checked').value;
+      doSave('spine_brain',{type,sciLevel:document.getElementById('spine-sci-level').value,asia:document.getElementById('spine-asia').value,tbiSev:document.getElementById('spine-tbi-sev').value,tbiCog:document.getElementById('spine-tbi-cog').value,age:document.getElementById('spine-age').value,le:document.getElementById('spine-le').value,aww:getAWW(),maxRate:getMaxRate()},{lwec:document.getElementById('spine-r-lwec').textContent,weekly:document.getElementById('spine-r-weekly').textContent,bracket:document.getElementById('spine-r-bracket').textContent,lifetime:document.getElementById('spine-r-lifetime').textContent},document.getElementById('spine-save-status'));
+    });
+
+    // ══════════════════════════════════════════
+    // GLOBAL INPUTS → recalc all
+    // ══════════════════════════════════════════
+    function recalcAll() {
+      updateGlobalDisplay();
+      calcSLU(); calcLWEC(); calcCCP(); calcRad(); calcSpine();
+      // sync rates tab DOI
+      const doi = document.getElementById('g-doi').value;
+      if (!document.getElementById('rates-doi').value) {
+        document.getElementById('rates-doi').value = doi;
+        calcRates(doi);
+      }
+    }
+
+    document.getElementById('g-aww').addEventListener('input', recalcAll);
+    document.getElementById('g-maxrate').addEventListener('input', recalcAll);
+    document.getElementById('g-doi').addEventListener('change', e=>{
+      const r=getMaxForDate(e.target.value);
+      if(r){ document.getElementById('g-maxrate').value=r.max.toFixed(2); }
+      document.getElementById('rates-doi').value=e.target.value;
+      calcRates(e.target.value);
+      recalcAll();
+    });
+
+    // ══════════════════════════════════════════
+    // TABS
+    // ══════════════════════════════════════════
+    document.querySelectorAll('.pro-tab-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.pro-tab-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.pro-tab-panel').forEach(p=>p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ══════════════════════════════════════════
+    // AUTH GATE
+    // ══════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      currentUser = await getOptionalUser();
+      renderPublicNav(currentUser);
+
+      const tier = currentUser?.tier || 'free';
+      const isPro = tier==='pro'||tier==='firm';
+
+      if (!isPro) {
+        // Show gate overlay
+        const gate = document.getElementById('pro-gate-overlay');
+        gate.style.display='flex';
+        // Wire upgrade button with Supabase checkout for logged-in users
+        if (currentUser?.session) {
+          const upgradeBtn = document.getElementById('gate-upgrade-btn');
+          upgradeBtn.href='#';
+          upgradeBtn.addEventListener('click', async e=>{
+            e.preventDefault();
+            upgradeBtn.textContent='Loading…';
+            try {
+              const {data,error}=await supabase.functions.invoke('create-checkout',{body:{tier:'pro',user_id:currentUser.session.user.id}});
+              if(error||!data?.checkout_url) throw new Error();
+              window.location.href=data.checkout_url;
+            } catch {
+              upgradeBtn.textContent='Upgrade to Pro — $9.99/mo';
+              alert('Checkout unavailable. Please try from the pricing page.');
+            }
+          });
+        }
+        return; // don't render content
+      }
+
+      // Pro user — show content
+      document.getElementById('pro-content').style.display='block';
+      buildRatesTable();
+      renderSLUEntries();
+      renderCCPPeriods();
+      recalcAll();
+    });
+  </script>
+</body>
+</html>
