@@ -1,0 +1,5 @@
+# robots.txt for thecompdesk.com
+User-agent: *
+Allow: /
+
+Sitemap: https://thecompdesk.com/sitemap.xml
