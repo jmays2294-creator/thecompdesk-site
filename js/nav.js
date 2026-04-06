@@ -6,41 +6,28 @@
 import { signOut, TIERS } from './auth.js';
 
 // ─────────────────────────────────────────────────────────────
-// Global date-input guard: no year before 2000 on any calculator
+// Global date-input guard: validate pre-2000 years on BLUR only.
+// We intentionally do NOT set min/max attributes on date inputs —
+// native date inputs with a min reject partially-typed years and
+// prevent the user from entering a 4-digit year at all. We also
+// don't watch mutations or clamp on 'change', since 'change' can
+// fire mid-edit as the user tabs between date segments.
 // ─────────────────────────────────────────────────────────────
 (function enforceGlobalDateMin() {
-  const MIN = '2000-01-01';
-  const MAX = '2099-12-31';
-  function apply(el) {
-    if (!el || el.tagName !== 'INPUT' || el.type !== 'date') return;
-    if (!el.min || el.min < MIN) el.min = MIN;
-    if (!el.max) el.max = MAX;
-  }
-  function clampValue(el) {
+  function clampOnBlur(e) {
+    const el = e.target;
+    if (!el || !el.matches || !el.matches('input[type="date"]')) return;
     if (!el.value) return;
-    // Only clamp fully-formed dates (YYYY-MM-DD with 4-digit year)
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value);
     if (!m) return;
     const yr = parseInt(m[1], 10);
-    if (yr < 2000) el.value = '';
-  }
-  function scan(root) {
-    (root || document).querySelectorAll('input[type="date"]').forEach(apply);
+    if (yr < 2000 || yr > 2099) {
+      el.value = '';
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
   function init() {
-    scan(document);
-    const mo = new MutationObserver(muts => {
-      muts.forEach(m => m.addedNodes.forEach(n => {
-        if (n.nodeType !== 1) return;
-        if (n.matches && n.matches('input[type="date"]')) apply(n);
-        if (n.querySelectorAll) scan(n);
-      }));
-    });
-    mo.observe(document.body, { childList: true, subtree: true });
-    // Clamp on blur/change (not input) so we don't interrupt typing the year
-    document.addEventListener('change', e => {
-      if (e.target && e.target.matches && e.target.matches('input[type="date"]')) clampValue(e.target);
-    }, true);
+    document.addEventListener('blur', clampOnBlur, true);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

@@ -1174,14 +1174,28 @@
       const fg = document.createElement('div'); fg.className='field-group';
       const lbl = document.createElement('label'); lbl.className='field-label'; lbl.htmlFor=id; lbl.textContent=label;
       const inp = document.createElement('input'); inp.type='date'; inp.id=id; inp.value=value;
-      inp.min='2000-01-01'; inp.max='2099-12-31';
-      // Use 'change' (fires when user commits a complete date) so typing
-      // the 4-digit year isn't interrupted by a mid-type re-render.
-      inp.addEventListener('change', e=>{
-        // Guard: reject pre-2000 years rather than letting them through
-        const m=/^(\d{4})-\d{2}-\d{2}$/.exec(e.target.value);
-        if(m && parseInt(m[1],10)<2000){ e.target.value=''; onChange(''); return; }
-        onChange(e.target.value);
+      // NOTE: intentionally no min/max attributes — the native date input
+      // rejects partially-typed years when min is set (user can't type the
+      // 4-digit year). Validation happens on blur instead.
+      inp.addEventListener('change', e=>{ onChange(e.target.value); });
+      inp.addEventListener('blur', e=>{
+        const v=e.target.value;
+        if(!v){ onChange(''); return; }
+        const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+        if(!m){ return; }
+        const yr=parseInt(m[1],10);
+        if(yr<2000 || yr>2099){ e.target.value=''; onChange(''); return; }
+        onChange(v);
+      });
+      // Enter on a date field commits the row (if it's the last row)
+      inp.addEventListener('keydown',e=>{
+        if(e.key==='Enter'){
+          e.preventDefault();
+          // Flush any pending value first
+          onChange(e.target.value);
+          const idx=parseInt((id.match(/-(\d+)$/)||[])[1],10);
+          if(!isNaN(idx)) commitCCPRowIfLast(idx);
+        }
       });
       fg.appendChild(lbl); fg.appendChild(inp); return fg;
     }
@@ -1191,7 +1205,7 @@
     function commitCCPRowIfLast(i){
       if(i!==ccpPeriods.length-1) return;
       const p=ccpPeriods[i];
-      if(!p.start||!p.end) return; // need at least dates to commit
+      if(!p.start) return; // need at least a start date to commit
       ccpPeriods.push(blankCCPPeriod());
       renderCCPPeriods();
       calcCCP();
