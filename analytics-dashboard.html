@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Comp Desk — Internal Analytics Dashboard</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 32px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0b1220; color: #e6edf3;
+  }
+  h1 { margin: 0 0 4px; font-size: 24px; }
+  .sub { color: #93a3b8; margin-bottom: 24px; font-size: 14px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card {
+    background: #111a2e; border: 1px solid #1f2a44; border-radius: 12px;
+    padding: 18px;
+  }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em;
+             color: #93a3b8; margin: 0 0 8px; }
+  .num { font-size: 32px; font-weight: 700; }
+  .delta { font-size: 12px; color: #93a3b8; margin-top: 4px; }
+  .links { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .links a {
+    display: inline-block; padding: 10px 16px; border-radius: 8px;
+    background: #1e3a8a; color: white; text-decoration: none; font-weight: 600;
+    font-size: 14px;
+  }
+  .links a.secondary { background: #1f2a44; }
+  .note {
+    margin-top: 32px; padding: 16px; border-radius: 8px;
+    background: #1a2440; border: 1px solid #2b3a55; font-size: 13px;
+    color: #cbd5e1; line-height: 1.5;
+  }
+  .note code { background: #0b1220; padding: 2px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>Comp Desk — Internal Analytics</h1>
+  <p class="sub">Marketing dashboard. Privacy-first PostHog (self-hosted). Not linked from public nav.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Page Views (7d)</h2>
+      <div class="num" id="m-pv">—</div>
+      <div class="delta">vs. previous 7d</div>
+    </div>
+    <div class="card">
+      <h2>Calculators Started (7d)</h2>
+      <div class="num" id="m-cs">—</div>
+      <div class="delta">unique sessions</div>
+    </div>
+    <div class="card">
+      <h2>Calculators Completed (7d)</h2>
+      <div class="num" id="m-cc">—</div>
+      <div class="delta">completion rate</div>
+    </div>
+    <div class="card">
+      <h2>Email Signups (7d)</h2>
+      <div class="num" id="m-es">—</div>
+      <div class="delta">no email contents stored</div>
+    </div>
+    <div class="card">
+      <h2>Share Links (7d)</h2>
+      <div class="num" id="m-sl">—</div>
+    </div>
+    <div class="card">
+      <h2>Stories Submitted (7d)</h2>
+      <div class="num" id="m-ss">—</div>
+    </div>
+  </div>
+
+  <div class="links">
+    <a href="https://ph.thecompdesk.com/project/insights" target="_blank" rel="noopener">Open PostHog</a>
+    <a href="https://ph.thecompdesk.com/project/dashboard/weekly" target="_blank" rel="noopener" class="secondary">Weekly Dashboard</a>
+    <a href="/docs/ANALYTICS_AUDIT.md" class="secondary">Privacy & Isolation Audit</a>
+  </div>
+
+  <div class="note">
+    <strong>Data source:</strong> The number tiles above will populate
+    automatically once the self-hosted PostHog instance at
+    <code>ph.thecompdesk.com</code> is provisioned and the public project
+    key is set in <code>js/analytics.js</code>. Until then they show
+    <code>—</code>. See <code>docs/ANALYTICS_AUDIT.md</code> for the
+    isolation audit and the provisioning checklist.
+    <br><br>
+    <strong>What this dashboard does NOT show:</strong> visitor IP
+    addresses, email addresses, names, calculator input values, or any
+    other personal information. By design — see the audit doc.
+  </div>
+
+  <script type="module">
+    // Lightweight live read once PostHog is up. Falls back to dashes.
+    import('./js/analytics.js').then(() => {
+      const ph = window.posthog;
+      if (!ph || !ph.__loaded) return;
+      // Real numbers will come from PostHog dashboards via embedded
+      // iframe in a follow-up; for v1 we keep this static and link out.
+    }).catch(() => {});
+  </script>
+</body>
+</html>

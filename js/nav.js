@@ -4,6 +4,10 @@
  */
 
 import { signOut, TIERS } from './auth.js';
+// Privacy-first product analytics (PostHog self-hosted).
+// Self-bootstraps on import; no PII; consent-gated for EU/UK/CA.
+// See docs/ANALYTICS_AUDIT.md for the isolation audit.
+import './analytics.js';
 
 // ─────────────────────────────────────────────────────────────
 // Global date-input guard: validate pre-2000 years on BLUR only.
