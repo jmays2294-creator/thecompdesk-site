@@ -5,6 +5,50 @@
 
 import { signOut, TIERS } from './auth.js';
 
+// ─────────────────────────────────────────────────────────────
+// Global date-input guard: no year before 2000 on any calculator
+// ─────────────────────────────────────────────────────────────
+(function enforceGlobalDateMin() {
+  const MIN = '2000-01-01';
+  const MAX = '2099-12-31';
+  function apply(el) {
+    if (!el || el.tagName !== 'INPUT' || el.type !== 'date') return;
+    if (!el.min || el.min < MIN) el.min = MIN;
+    if (!el.max) el.max = MAX;
+  }
+  function clampValue(el) {
+    if (!el.value) return;
+    // Only clamp fully-formed dates (YYYY-MM-DD with 4-digit year)
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value);
+    if (!m) return;
+    const yr = parseInt(m[1], 10);
+    if (yr < 2000) el.value = '';
+  }
+  function scan(root) {
+    (root || document).querySelectorAll('input[type="date"]').forEach(apply);
+  }
+  function init() {
+    scan(document);
+    const mo = new MutationObserver(muts => {
+      muts.forEach(m => m.addedNodes.forEach(n => {
+        if (n.nodeType !== 1) return;
+        if (n.matches && n.matches('input[type="date"]')) apply(n);
+        if (n.querySelectorAll) scan(n);
+      }));
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    // Clamp on blur/change (not input) so we don't interrupt typing the year
+    document.addEventListener('change', e => {
+      if (e.target && e.target.matches && e.target.matches('input[type="date"]')) clampValue(e.target);
+    }, true);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
 /**
  * Render the authenticated navigation bar
  * Injects into element with id="app-nav"

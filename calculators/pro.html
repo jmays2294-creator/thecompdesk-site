@@ -1174,8 +1174,30 @@
       const fg = document.createElement('div'); fg.className='field-group';
       const lbl = document.createElement('label'); lbl.className='field-label'; lbl.htmlFor=id; lbl.textContent=label;
       const inp = document.createElement('input'); inp.type='date'; inp.id=id; inp.value=value;
-      inp.addEventListener('change', e=>onChange(e.target.value));
+      inp.min='2000-01-01'; inp.max='2099-12-31';
+      // Use 'change' (fires when user commits a complete date) so typing
+      // the 4-digit year isn't interrupted by a mid-type re-render.
+      inp.addEventListener('change', e=>{
+        // Guard: reject pre-2000 years rather than letting them through
+        const m=/^(\d{4})-\d{2}-\d{2}$/.exec(e.target.value);
+        if(m && parseInt(m[1],10)<2000){ e.target.value=''; onChange(''); return; }
+        onChange(e.target.value);
+      });
       fg.appendChild(lbl); fg.appendChild(inp); return fg;
+    }
+
+    function getDOI(){ return document.getElementById('g-doi').value || ''; }
+    function blankCCPPeriod(){ return {start:getDOI(),end:'',desig:'TT',rate:'',ratePct:'',curEarn:''}; }
+    function commitCCPRowIfLast(i){
+      if(i!==ccpPeriods.length-1) return;
+      const p=ccpPeriods[i];
+      if(!p.start||!p.end) return; // need at least dates to commit
+      ccpPeriods.push(blankCCPPeriod());
+      renderCCPPeriods();
+      calcCCP();
+      const ni=ccpPeriods.length-1;
+      const first=document.getElementById('ccp-s-'+ni);
+      if(first) first.focus();
     }
 
     function renderCCPPeriods() {
@@ -1187,8 +1209,8 @@
         const div=document.createElement('div'); div.className='period-row'; div.setAttribute('role','listitem');
         const fields=document.createElement('div'); fields.className='period-fields';
 
-        fields.appendChild(makeCCPDateFG('Start Date',p.start,'ccp-s-'+i,v=>{ccpPeriods[i].start=v;renderCCPPeriods();calcCCP();}));
-        fields.appendChild(makeCCPDateFG('End Date',p.end,'ccp-e-'+i,v=>{ccpPeriods[i].end=v;renderCCPPeriods();calcCCP();}));
+        fields.appendChild(makeCCPDateFG('Start Date',p.start,'ccp-s-'+i,v=>{ccpPeriods[i].start=v;calcCCP();}));
+        fields.appendChild(makeCCPDateFG('End Date',p.end,'ccp-e-'+i,v=>{ccpPeriods[i].end=v;calcCCP();}));
 
         const rateRO = p.desig==='TT'||p.desig==='RE';
         const effRate = p.desig==='TT'?cappedTT:p.desig==='RE'?(2/3)*(aww-pF(p.curEarn)):p.desig==='TR'&&p.ratePct?(pF(p.ratePct)/100)*cappedTT:pF(p.rate);
@@ -1199,6 +1221,7 @@
         const rInp=document.createElement('input'); rInp.type='number'; rInp.step='0.01'; rInp.min='0';
         if(rateRO){rInp.value=effRate.toFixed(2);rInp.readOnly=true;rInp.style.color='var(--txM)';}
         else{rInp.value=p.rate;rInp.addEventListener('input',e=>{ccpPeriods[i].rate=e.target.value;calcCCP();});}
+        rInp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commitCCPRowIfLast(i);}});
         rateWrap.appendChild(rPfx);rateWrap.appendChild(rInp);rateFG.appendChild(rateLbl);rateFG.appendChild(rateWrap);fields.appendChild(rateFG);
 
         const pctFG=document.createElement('div'); pctFG.className='field-group';
@@ -1208,6 +1231,7 @@
         if(p.desig==='TT'){pInp.value='100';pInp.readOnly=true;pInp.style.color='var(--txM)';}
         else if(p.desig==='TR'){pInp.value=p.ratePct;pInp.addEventListener('input',e=>{ccpPeriods[i].ratePct=e.target.value;if(e.target.value&&cappedTT>0)ccpPeriods[i].rate=(pF(e.target.value)/100*cappedTT).toFixed(2);renderCCPPeriods();calcCCP();});}
         else{pInp.value=cappedTT>0?(effRate/cappedTT*100).toFixed(1):'';pInp.readOnly=true;pInp.style.color='var(--txM)';}
+        pInp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commitCCPRowIfLast(i);}});
         const pSfx=document.createElement('span'); pSfx.className='field-suffix'; pSfx.textContent='%';
         pctWrap.appendChild(pInp);pctWrap.appendChild(pSfx);pctFG.appendChild(pctLbl);pctFG.appendChild(pctWrap);fields.appendChild(pctFG);
 
@@ -1292,8 +1316,15 @@
       }
     }
 
-    document.getElementById('ccp-add').addEventListener('click',()=>{ccpPeriods.push({start:'',end:'',desig:'TT',rate:'',ratePct:'',curEarn:''});renderCCPPeriods();calcCCP();});
-    document.getElementById('ccp-reset').addEventListener('click',()=>{if(!confirm('Reset all CCP periods?'))return;ccpPeriods=[{start:'',end:'',desig:'TT',rate:'',ratePct:'',curEarn:''}];document.getElementById('ccp-amt').value='0';document.getElementById('ccp-prior').value='0';renderCCPPeriods();calcCCP();});
+    document.getElementById('ccp-add').addEventListener('click',()=>{ccpPeriods.push(blankCCPPeriod());renderCCPPeriods();calcCCP();const ni=ccpPeriods.length-1;const f=document.getElementById('ccp-s-'+ni);if(f)f.focus();});
+    document.getElementById('ccp-reset').addEventListener('click',()=>{if(!confirm('Reset all CCP periods?'))return;ccpPeriods=[blankCCPPeriod()];document.getElementById('ccp-amt').value='0';document.getElementById('ccp-prior').value='0';renderCCPPeriods();calcCCP();});
+    // Auto-fill DOI into any CCP period whose start is blank whenever the global DOI changes
+    document.getElementById('g-doi').addEventListener('change',()=>{
+      const doi=getDOI(); if(!doi) return;
+      let changed=false;
+      ccpPeriods.forEach(p=>{ if(!p.start){ p.start=doi; changed=true; }});
+      if(changed){ renderCCPPeriods(); calcCCP(); }
+    });
     document.getElementById('ccp-amt').addEventListener('input',calcCCP);
     document.getElementById('ccp-prior').addEventListener('input',calcCCP);
     document.getElementById('ccp-copy-eq').addEventListener('click',function(){copyToClipboard(document.getElementById('ccp-eq-text').textContent,this);});
