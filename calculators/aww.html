@@ -4,14 +4,125 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Average Weekly Wage (AWW) Calculator — NYS Workers' Comp | The Comp Desk</title>
-  <meta name="description" content="Free NYS Average Weekly Wage (AWW) calculator. Calculate workers' compensation benefits and rates under WCL §14. Includes overtime, multiple jobs, concurrent employment, and 2/3 benefit rate calculations.">
+  <meta name="description" content="Free NYS Average Weekly Wage (AWW) calculator under WCL §14. Statutory methods: 52-week divisor, 200/260/300 multiplier, straight divisor. Includes overtime, concurrent employment, and compensation rate tables.">
   <meta property="og:title" content="Average Weekly Wage (AWW) Calculator — NYS Workers' Comp">
-  <meta property="og:description" content="Free calculator for NYS Average Weekly Wage benefits under WCL §14. Calculate AWW and 2/3 compensation rates instantly.">
+  <meta property="og:description" content="Free calculator for NYS Average Weekly Wage benefits under WCL §14. Statutory 200/260/300 multipliers, straight divisor, compensation rate tables.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/aww.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-aww.png">
   <link rel="canonical" href="https://thecompdesk.com/calculators/aww.html">
   <link rel="stylesheet" href="../css/app.css">
+  <style>
+    /* Method card selection */
+    .method-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    @media (max-width: 600px) { .method-cards { grid-template-columns: 1fr; } }
+    .method-card {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .method-card:hover { border-color: var(--ac); }
+    .method-card.active {
+      border-color: var(--ac);
+      background: rgba(59,130,246,.06);
+    }
+    .method-card-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--tx);
+      margin-bottom: 3px;
+    }
+    .method-card-desc {
+      font-size: 10px;
+      color: var(--txM);
+      line-height: 1.5;
+    }
+    .method-card.active .method-card-title { color: var(--ac); }
+
+    /* Statutory tag */
+    .stat-tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .4px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(59,130,246,.12);
+      color: var(--ac);
+      margin-bottom: 4px;
+    }
+    .stat-tag.gold { background: rgba(245,158,11,.12); color: var(--gd); }
+
+    /* Days-per-week selector pills */
+    .dpw-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .dpw-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--txD);
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+      min-width: 52px;
+    }
+    .dpw-btn:hover { border-color: var(--ac); color: var(--tx); }
+    .dpw-btn.active {
+      background: rgba(59,130,246,.15);
+      border-color: var(--ac);
+      color: var(--ac);
+    }
+    .dpw-label {
+      font-size: 9px;
+      color: var(--txM);
+      display: block;
+      margin-top: 2px;
+      font-weight: 400;
+    }
+
+    /* Formula display box */
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--tx);
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Result row list */
+    .result-row-list { display: flex; flex-direction: column; gap: 3px; }
+    .result-row-item { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 12px; }
+    .result-row-label { color: var(--txD); }
+    .result-row-val { font-family: var(--mono); color: var(--tx); font-weight: 600; }
+
+    /* Explanation callout */
+    .explain-box {
+      background: rgba(59,130,246,.04);
+      border-left: 3px solid var(--ac);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--txD);
+      line-height: 1.7;
+    }
+    .explain-box strong { color: var(--tx); }
+  </style>
 </head>
 <body>
   <div id="app-nav"></div>
@@ -22,142 +133,223 @@
     </div>
 
     <h1 class="page-title">NYS Average Weekly Wage (AWW) Calculator</h1>
-    <p class="page-subtitle">Calculate Average Weekly Wage and workers' compensation benefits under New York Workers' Compensation Law §14.</p>
+    <p class="page-subtitle">Calculate Average Weekly Wage under Workers' Compensation Law §14. Choose the applicable statutory method based on the claimant's work history.</p>
 
-    <!-- Calculator -->
+    <!-- ═══════════════════════════════════════════
+         GLOBAL INPUTS: DOI + Max Rate
+    ═══════════════════════════════════════════ -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Calculator</span>
+        <span class="calc-header-title">Date of Injury &amp; Max Rate</span>
       </div>
       <div class="calc-body">
-
-        <!-- Date of Injury — drives max rate -->
-        <div class="fields-row" style="margin-bottom:12px;">
+        <div class="fields-row" style="margin-bottom:0;">
           <div class="field-group">
             <label class="field-label" for="doiDate">Date of Injury</label>
             <input type="date" id="doiDate" aria-label="Date of injury">
-            <span class="field-hint">Sets the applicable statutory maximum rate</span>
+            <span class="field-hint">Auto-fills the applicable statutory maximum rate</span>
           </div>
           <div class="field-group">
-            <label class="field-label" for="maxRate">Applicable Maximum Rate</label>
+            <label class="field-label" for="maxRate">Statutory Maximum Rate</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
               <input type="number" id="maxRate" value="1222.42" step="0.01" aria-label="Maximum weekly compensation rate">
             </div>
-            <span class="field-hint" id="maxRateHint">Current max: $1,222.42 (7/1/2025)</span>
+            <span class="field-hint" id="maxRateHint">Current max: $1,222.42 (Jul 1, 2025)</span>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Calculation Method -->
-        <div style="margin-bottom:12px;">
-          <span class="field-label" style="display:block;margin-bottom:6px;">Calculation Method</span>
-          <div class="radio-group" role="radiogroup" aria-label="Calculation method">
-            <label class="radio-option">
-              <input type="radio" name="calcMethod" value="wages" checked> Enter Wages Directly
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="calcMethod" value="salary"> Salary / Days Worked
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="calcMethod" value="hourly"> Hourly Rate
-            </label>
+    <!-- ═══════════════════════════════════════════
+         CALCULATION METHOD SELECTOR
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Calculation Method</span>
+      </div>
+      <div class="calc-body">
+
+        <div class="method-cards" id="methodCards">
+          <div class="method-card active" data-method="statutory" role="button" tabindex="0" aria-pressed="true">
+            <span class="stat-tag">§14 SUBD. 2</span>
+            <div class="method-card-title">Statutory Method (200/260/300)</div>
+            <div class="method-card-desc">Total earnings ÷ days worked × statutory multiplier ÷ 52. For claimants who did NOT work substantially the whole year.</div>
+          </div>
+          <div class="method-card" data-method="52week" role="button" tabindex="0" aria-pressed="false">
+            <span class="stat-tag">§14 SUBD. 1</span>
+            <div class="method-card-title">52-Week Divisor</div>
+            <div class="method-card-desc">Total annual earnings ÷ 52. For claimants who worked substantially the whole year preceding injury.</div>
+          </div>
+          <div class="method-card" data-method="straight" role="button" tabindex="0" aria-pressed="false">
+            <span class="stat-tag gold">BOARD DISCRETION</span>
+            <div class="method-card-title">Straight Divisor</div>
+            <div class="method-card-desc">Total earnings ÷ actual weeks worked. Used when statutory methods don't produce a fair result or for irregular employment.</div>
+          </div>
+          <div class="method-card" data-method="hourly" role="button" tabindex="0" aria-pressed="false">
+            <span class="stat-tag">QUICK CALC</span>
+            <div class="method-card-title">Hourly Rate</div>
+            <div class="method-card-desc">Hourly rate × hours per week. Quick calculation from known hourly wage.</div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Direct Wages Section -->
-        <div id="wagesSection">
+    <!-- ═══════════════════════════════════════════
+         EARNINGS & WORK HISTORY INPUTS
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title" id="inputSectionTitle">Earnings &amp; Work History (§14 Multiplier)</span>
+      </div>
+      <div class="calc-body">
+
+        <!-- ── Statutory Method (§14 Subd. 2): multiplier method ── -->
+        <div id="statutoryInputs">
           <div class="fields-row">
             <div class="field-group">
-              <label class="field-label" for="payPeriod">Pay Period</label>
-              <select id="payPeriod" aria-label="Pay period">
-                <option value="weekly">Weekly</option>
-                <option value="biweekly">Bi-weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="annual">Annual</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="grossWages">Gross Wages</label>
+              <label class="field-label" for="totalEarnings">Total Earnings in Period</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="grossWages" value="1500" step="0.01" aria-label="Gross wages per pay period">
+                <input type="number" id="totalEarnings" value="" step="0.01" placeholder="52000.00"
+                       aria-label="Total gross earnings in the period preceding injury">
               </div>
+              <span class="field-hint">Gross earnings in the year (or period) before accident</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="daysWorked">Total Days Worked in Period</label>
+              <input type="number" id="daysWorked" value="" placeholder="220" min="1"
+                     aria-label="Total number of days actually worked in the earning period">
+              <span class="field-hint">Actual days worked (not calendar days)</span>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <label class="field-label" style="display:block;margin-bottom:8px;">Days Per Week Claimant Worked</label>
+            <div class="dpw-group" id="dpwGroup">
+              <button class="dpw-btn" data-dpw="4" aria-label="4 days per week (200 multiplier)">
+                4<span class="dpw-label">×200</span>
+              </button>
+              <button class="dpw-btn active" data-dpw="5" aria-label="5 days per week (260 multiplier)">
+                5<span class="dpw-label">×260</span>
+              </button>
+              <button class="dpw-btn" data-dpw="6" aria-label="6 days per week (300 multiplier)">
+                6<span class="dpw-label">×300</span>
+              </button>
+              <button class="dpw-btn" data-dpw="7" aria-label="7 days per week (365 multiplier)">
+                7<span class="dpw-label">×365</span>
+              </button>
+            </div>
+            <div class="explain-box" id="multiplierExplain">
+              <strong>§14 Multiplier (5-day worker):</strong> Average daily wage × <span id="multiplierVal">260</span> = average annual earnings, then ÷ 52 = AWW.
+              <br>Daily Wage = Total Earnings ÷ Days Worked. Then: Daily Wage × <span id="multiplierVal2">260</span> ÷ 52 = AWW.
             </div>
           </div>
         </div>
 
-        <!-- Salary Section -->
-        <div id="salarySection" style="display:none;">
+        <!-- ── 52-Week Divisor (§14 Subd. 1) ── -->
+        <div id="weekDivisorInputs" style="display:none;">
           <div class="fields-row">
             <div class="field-group">
-              <label class="field-label" for="daysPerWeek">Days/Week</label>
-              <select id="daysPerWeek" aria-label="Days worked per week">
-                <option value="4">4 days</option>
-                <option value="5" selected>5 days</option>
-                <option value="6">6 days</option>
-                <option value="7">7 days</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="annualSalary">Annual Salary</label>
+              <label class="field-label" for="annualEarnings52">Total Annual Earnings</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="annualSalary" value="" step="0.01" placeholder="78000" aria-label="Annual salary">
+                <input type="number" id="annualEarnings52" value="" step="0.01" placeholder="78000.00"
+                       aria-label="Total gross earnings in the 52 weeks preceding injury">
               </div>
+              <span class="field-hint">Gross earnings in the 52 weeks before accident</span>
             </div>
-            <div class="field-group">
-              <label class="field-label" for="daysPaid">Days Paid in Period</label>
-              <input type="number" id="daysPaid" value="260" aria-label="Days paid in reference period">
-              <span class="field-hint">260 = 5d/wk × 52 wks</span>
-            </div>
+          </div>
+          <div class="explain-box">
+            <strong>§14 Subdivision 1:</strong> When the claimant worked substantially the whole year, AWW = Total Earnings ÷ 52. This is the simplest method and applies to full-year, consistent employment.
           </div>
         </div>
 
-        <!-- Hourly Section -->
-        <div id="hourlySection" style="display:none;">
+        <!-- ── Straight Divisor ── -->
+        <div id="straightInputs" style="display:none;">
+          <div class="fields-row">
+            <div class="field-group">
+              <label class="field-label" for="straightEarnings">Total Earnings in Period</label>
+              <div class="field-wrap">
+                <span class="field-prefix">$</span>
+                <input type="number" id="straightEarnings" value="" step="0.01" placeholder="32000.00"
+                       aria-label="Total gross earnings in the period worked">
+              </div>
+              <span class="field-hint">Total earnings in whatever period was worked</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="weeksWorked">Weeks Actually Worked</label>
+              <input type="number" id="weeksWorked" value="" step="0.01" placeholder="26" min="0.1"
+                     aria-label="Number of weeks actually worked">
+              <span class="field-hint">Can be fractional (e.g. 26.5 weeks)</span>
+            </div>
+          </div>
+          <div class="explain-box">
+            <strong>Straight Divisor:</strong> AWW = Total Earnings ÷ Weeks Worked. Used by the Board when the §14 multiplier methods don't yield a fair result, or for irregular/seasonal workers, new hires, and part-year employment.
+          </div>
+        </div>
+
+        <!-- ── Hourly Rate ── -->
+        <div id="hourlyInputs" style="display:none;">
           <div class="fields-row">
             <div class="field-group">
               <label class="field-label" for="hourlyRate">Hourly Rate</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="hourlyRate" value="" step="0.01" placeholder="25.00" aria-label="Hourly rate">
+                <input type="number" id="hourlyRate" value="" step="0.01" placeholder="25.00"
+                       aria-label="Hourly rate of pay">
               </div>
             </div>
             <div class="field-group">
-              <label class="field-label" for="hoursPerWeek">Hours/Week</label>
-              <input type="number" id="hoursPerWeek" value="40" aria-label="Hours worked per week">
+              <label class="field-label" for="hoursPerWeek">Hours Per Week</label>
+              <input type="number" id="hoursPerWeek" value="40" min="1"
+                     aria-label="Regularly scheduled hours per week">
             </div>
           </div>
+          <div class="explain-box">
+            <strong>Hourly Quick Calc:</strong> AWW = Hourly Rate × Hours/Week. Useful when you know the claimant's hourly rate and regular schedule.
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         ADDITIONAL ADJUSTMENTS
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Adjustments</span>
+      </div>
+      <div class="calc-body">
 
         <!-- Overtime / Tips / Bonuses -->
-        <label class="check-row" style="margin-top:8px;">
+        <label class="check-row">
           <input type="checkbox" id="hasOvertime" aria-label="Include overtime, tips, or bonuses"> Include Overtime / Tips / Bonuses
         </label>
-        <div id="overtimeSection" style="display:none;margin-bottom:12px;">
-          <div class="field-group" style="max-width:260px;">
-            <label class="field-label" for="overtimeAmount">Additional Weekly Overtime / Tips</label>
+        <div id="overtimeSection" style="display:none;margin-bottom:12px;margin-top:6px;">
+          <div class="field-group" style="max-width:280px;">
+            <label class="field-label" for="overtimeAmount">Additional Weekly Amount</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
               <input type="number" id="overtimeAmount" value="0" step="0.01" aria-label="Additional weekly overtime or tips">
             </div>
-            <span class="field-hint">Per week average over 52 weeks</span>
+            <span class="field-hint">Per-week average of OT/tips/bonuses over 52 weeks</span>
           </div>
         </div>
 
         <!-- Concurrent Employment -->
         <label class="check-row">
-          <input type="checkbox" id="hasConcurrent" aria-label="Include concurrent employment"> Concurrent Employment (2nd / Additional Job)
+          <input type="checkbox" id="hasConcurrent" aria-label="Include concurrent employment"> Concurrent Employment (§14 — 2nd / Additional Job)
         </label>
-        <div id="concurrentSection" style="display:none;margin-bottom:12px;padding:10px 12px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.3);border-radius:7px;">
+        <div id="concurrentSection" style="display:none;margin-bottom:12px;margin-top:6px;padding:10px 12px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:7px;">
           <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--ac);margin-bottom:6px;letter-spacing:.5px;">Concurrent Employment</div>
-          <div class="field-group" style="max-width:260px;">
+          <div class="field-group" style="max-width:280px;">
             <label class="field-label" for="concurrentAWW">Concurrent Job AWW</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="concurrentAWW" value="0" step="0.01" aria-label="Average weekly wage from concurrent employment">
+              <input type="number" id="concurrentAWW" value="0" step="0.01" aria-label="AWW from concurrent employment">
             </div>
-            <span class="field-hint">Weekly earnings at 2nd job added to primary AWW</span>
+            <span class="field-hint">Weekly earnings at 2nd job — added to primary AWW</span>
           </div>
         </div>
 
@@ -165,29 +357,38 @@
         <label class="check-row">
           <input type="checkbox" id="hasAmended" aria-label="Apply amended AWW"> Amended AWW (Board Decision / Stipulation)
         </label>
-        <div id="amendedSection" style="display:none;margin-bottom:12px;padding:10px 12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.3);border-radius:7px;">
+        <div id="amendedSection" style="display:none;margin-bottom:12px;margin-top:6px;padding:10px 12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:7px;">
           <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gd);margin-bottom:6px;letter-spacing:.5px;">Amended AWW</div>
           <div class="fields-row">
             <div class="field-group">
               <label class="field-label" for="priorAWW">Prior AWW</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="priorAWW" value="" step="0.01" placeholder="—" aria-label="Prior AWW before amendment">
+                <input type="number" id="priorAWW" value="" step="0.01" placeholder="—" aria-label="Prior AWW">
               </div>
             </div>
             <div class="field-group">
               <label class="field-label" for="newAWW">New / Amended AWW</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="newAWW" value="" step="0.01" placeholder="—" aria-label="New amended AWW from Board decision">
+                <input type="number" id="newAWW" value="" step="0.01" placeholder="—" aria-label="New amended AWW">
               </div>
               <span class="field-hint">Overrides calculated AWW</span>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Results -->
-        <div class="result-box" style="margin-top:16px;">
+    <!-- ═══════════════════════════════════════════
+         RESULTS
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <span class="calc-header-title">Results</span>
+      </div>
+      <div class="calc-body" style="padding-bottom:8px;">
+        <div class="result-box" style="margin-bottom:0;">
           <div class="result-grid">
             <div class="result-item">
               <span class="result-label">Calculated AWW</span>
@@ -198,18 +399,24 @@
               <span class="result-value" id="twoThirdsResult">—</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Applicable Maximum</span>
+              <span class="result-label">Statutory Maximum</span>
               <span class="result-value blue" id="applicableMaxResult">—</span>
             </div>
             <div class="result-item">
-              <span class="result-label">Final Comp Rate</span>
+              <span class="result-label">Final Comp Rate (TT)</span>
               <span class="result-value gold" id="finalRateResult">—</span>
             </div>
           </div>
 
-          <!-- Extended breakdown -->
+          <!-- Statutory formula breakdown -->
+          <div id="formulaBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;">Statutory Calculation</div>
+            <div class="formula-box" id="formulaText"></div>
+          </div>
+
+          <!-- Extended rate table -->
           <div id="extendedBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;">Rate Table</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;">Compensation Rate Table</div>
             <div class="result-row-list" id="rateTableRows"></div>
           </div>
 
@@ -225,23 +432,48 @@
       </div>
     </div>
 
-    <!-- About AWW -->
+    <!-- About AWW — §14 Explanation -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">About Average Weekly Wage (AWW)</span>
+        <span class="calc-header-title">WCL §14 — How AWW Is Calculated</span>
       </div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          Average Weekly Wage (AWW) is the foundation of New York State workers' compensation benefits. Established under Workers' Compensation Law §14, AWW determines the compensation rate an injured worker receives during periods of disability. The compensation rate is calculated as two-thirds (2/3) of the AWW, subject to the statutory maximum rate set annually by the Department of Financial Services.
+          Average Weekly Wage (AWW) is the foundation of all New York workers' compensation benefits. Under <strong style="color:var(--tx);">Workers' Compensation Law §14</strong>, AWW determines the compensation rate — two-thirds (2/3) of AWW, capped at the statutory maximum set annually by DFS.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">How AWW is Calculated:</strong> For most workers, AWW is computed by taking gross earnings during the 52 weeks preceding the injury and dividing by 52. This includes regular wages, overtime, tips, bonuses, and other compensation. For workers who have not worked a full 52 weeks, the law provides methods to calculate AWW based on available earnings history.
+          <strong style="color:var(--ac);">§14(1) — 52-Week Divisor:</strong> For workers employed substantially the whole year, total gross earnings in the 52 weeks preceding the accident are divided by 52. This is the default method for full-time, full-year workers.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">Concurrent Employment:</strong> Under WCL §14, wages from all concurrent employment at the time of injury are combined to calculate AWW. If a worker held two jobs when injured, both sets of wages are included in the AWW calculation — even if only one employer's work caused the injury.
+          <strong style="color:var(--ac);">§14(2) — Day-Based Multiplier:</strong> When the claimant did NOT work substantially the whole year, average annual earnings are computed by multiplying the average daily wage by a statutory multiplier based on the claimant's regular work schedule:
+        </p>
+        <div style="padding:10px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;margin-bottom:12px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
+            <div>
+              <div style="font-size:20px;font-weight:800;color:var(--ac);">200</div>
+              <div style="font-size:10px;color:var(--txM);font-weight:600;">4-Day Worker</div>
+            </div>
+            <div>
+              <div style="font-size:20px;font-weight:800;color:var(--ac);">260</div>
+              <div style="font-size:10px;color:var(--txM);font-weight:600;">5-Day Worker</div>
+            </div>
+            <div>
+              <div style="font-size:20px;font-weight:800;color:var(--ac);">300</div>
+              <div style="font-size:10px;color:var(--txM);font-weight:600;">6-Day Worker</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--txD);">
+            AWW = (Total Earnings ÷ Days Worked) × Multiplier ÷ 52
+          </div>
+        </div>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--gd);">Straight Divisor (Board Discretion):</strong> When the statutory multiplier methods do not yield a fair result — for instance, with seasonal workers, irregular schedules, new hires, or part-year employment — the Board may use a straight divisor: Total Earnings ÷ Actual Weeks Worked. This is the most commonly litigated AWW calculation.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          <strong style="color:var(--tx);">Concurrent Employment:</strong> Under §14, wages from all concurrent employment at the time of injury are combined. If the claimant held two jobs, both sets of wages are included — even if only one employer's work caused the injury.
         </p>
         <p style="color:var(--txD);line-height:1.8;">
-          Accurate calculation of AWW is critical because it directly impacts all benefits the worker receives, including temporary disability benefits, permanent disability benefits, and vocational rehabilitation benefits. Disputes over AWW calculations are common and often require detailed wage history analysis and legal argument before the Workers' Compensation Board.
+          <strong style="color:var(--tx);">Why It Matters:</strong> AWW directly controls the comp rate, which flows into every benefit calculation: temporary total, reduced earnings, SLU awards, CCP awards, and fee applications. Getting the AWW right is the single most important number in the case.
         </p>
       </div>
     </div>
@@ -269,29 +501,44 @@
     import { getOptionalUser, saveCalculation } from '../js/auth.js';
     import { renderPublicNav } from '../js/nav.js';
 
-    // Max rate table (matches app)
+    // ─── Statutory max rate table (matches app) ───
     const MAX_RATES = [
-      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025+",          max: 1222.42 },
-      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025", max: 1171.46 },
-      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024", max: 1145.43 },
-      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023", max: 1125.46 },
-      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022", max: 1063.05 },
-      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021", max: 966.78  },
-      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020", max: 934.11  },
-      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019", max: 904.74  },
-      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018", max: 870.61  },
-      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017", max: 864.32  },
-      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016", max: 844.29  },
-      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015", max: 808.65  },
-      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014", max: 803.21  },
-      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013", max: 792.07  },
-      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012", max: 772.96  },
-      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011", max: 739.83  },
-      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010", max: 600     },
-      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009", max: 550     },
-      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008", max: 500     },
-      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400     },
+      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025+",                  max: 1222.42 },
+      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025",    max: 1171.46 },
+      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024",    max: 1145.43 },
+      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023",    max: 1125.46 },
+      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022",    max: 1063.05 },
+      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021",    max: 966.78  },
+      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020",    max: 934.11  },
+      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019",    max: 904.74  },
+      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018",    max: 870.61  },
+      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017",    max: 864.32  },
+      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016",    max: 844.29  },
+      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015",    max: 808.65  },
+      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014",    max: 803.21  },
+      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013",    max: 792.07  },
+      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012",    max: 772.96  },
+      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011",    max: 739.83  },
+      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010",    max: 600.00  },
+      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009",    max: 550.00  },
+      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008",    max: 500.00  },
+      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007",    max: 400.00  },
     ];
+
+    // ─── Multiplier map: days/week → statutory multiplier ───
+    const MULTIPLIERS = { 4: 200, 5: 260, 6: 300, 7: 365 };
+
+    // ─── State ───
+    let currentMethod = 'statutory';
+    let currentDPW = 5;
+    let currentUser = null;
+    let hasCalculated = false;
+
+    // ─── Helpers ───
+    function pF(v) { return parseFloat(v) || 0; }
+    function fC(v) {
+      return '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
     function getMaxForDate(dateStr) {
       if (!dateStr) return MAX_RATES[0];
@@ -304,148 +551,215 @@
       return MAX_RATES[MAX_RATES.length - 1];
     }
 
-    function formatCurrency(value) {
-      return '$' + parseFloat(value).toLocaleString('en-US', {
-        minimumFractionDigits: 2, maximumFractionDigits: 2
+    // ─── Method switching ───
+    function setMethod(method) {
+      currentMethod = method;
+
+      // Update cards
+      document.querySelectorAll('.method-card').forEach(c => {
+        const isActive = c.dataset.method === method;
+        c.classList.toggle('active', isActive);
+        c.setAttribute('aria-pressed', String(isActive));
       });
+
+      // Show/hide input sections
+      document.getElementById('statutoryInputs').style.display   = method === 'statutory' ? 'block' : 'none';
+      document.getElementById('weekDivisorInputs').style.display = method === '52week'    ? 'block' : 'none';
+      document.getElementById('straightInputs').style.display    = method === 'straight'  ? 'block' : 'none';
+      document.getElementById('hourlyInputs').style.display      = method === 'hourly'    ? 'block' : 'none';
+
+      // Update section title
+      const titles = {
+        statutory: 'Earnings & Work History (§14 Multiplier)',
+        '52week':  'Annual Earnings (52-Week Divisor)',
+        straight:  'Earnings & Weeks Worked (Straight Divisor)',
+        hourly:    'Hourly Rate & Schedule'
+      };
+      document.getElementById('inputSectionTitle').textContent = titles[method];
+
+      calculate();
     }
 
-    function getDayMap() { return { "4": 200, "5": 260, "6": 300, "7": 365 }; }
+    // ─── Days-per-week switching ───
+    function setDPW(dpw) {
+      currentDPW = dpw;
+      document.querySelectorAll('.dpw-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.dpw) === dpw);
+      });
+      const mult = MULTIPLIERS[dpw];
+      document.getElementById('multiplierVal').textContent = mult;
+      document.getElementById('multiplierVal2').textContent = mult;
+      document.getElementById('multiplierExplain').querySelector('strong').textContent =
+        '§14 Multiplier (' + dpw + '-day worker):';
+      calculate();
+    }
 
-    function calculateAWW() {
-      const method      = document.querySelector('input[name="calcMethod"]:checked').value;
+    // ─── Main calculation ───
+    function calculate() {
+      const maxRate     = pF(document.getElementById('maxRate').value) || 1222.42;
       const hasOvertime = document.getElementById('hasOvertime').checked;
       const hasConcur   = document.getElementById('hasConcurrent').checked;
       const hasAmended  = document.getElementById('hasAmended').checked;
-      const doiDate     = document.getElementById('doiDate').value;
-      const maxRate     = parseFloat(document.getElementById('maxRate').value) || 1222.42;
 
       let primaryAWW = 0;
-      if (method === 'wages') {
-        const payPeriod  = document.getElementById('payPeriod').value;
-        const grossWages = parseFloat(document.getElementById('grossWages').value) || 0;
-        switch (payPeriod) {
-          case 'weekly':   primaryAWW = grossWages; break;
-          case 'biweekly': primaryAWW = grossWages / 2; break;
-          case 'monthly':  primaryAWW = (grossWages * 12) / 52; break;
-          case 'annual':   primaryAWW = grossWages / 52; break;
+      let formulaLines = [];
+
+      // ── Compute primary AWW based on selected method ──
+      if (currentMethod === 'statutory') {
+        const totalEarn = pF(document.getElementById('totalEarnings').value);
+        const daysWkd   = pF(document.getElementById('daysWorked').value);
+        const mult      = MULTIPLIERS[currentDPW];
+
+        if (totalEarn > 0 && daysWkd > 0) {
+          const dailyWage    = totalEarn / daysWkd;
+          const annualEarn   = dailyWage * mult;
+          primaryAWW         = annualEarn / 52;
+
+          formulaLines.push('Total Earnings:           ' + fC(totalEarn));
+          formulaLines.push('Days Worked:              ' + daysWkd);
+          formulaLines.push('Average Daily Wage:       ' + fC(totalEarn) + ' ÷ ' + daysWkd + ' = ' + fC(dailyWage));
+          formulaLines.push('');
+          formulaLines.push('Multiplier (' + currentDPW + '-day):       ×' + mult);
+          formulaLines.push('Avg Annual Earnings:      ' + fC(dailyWage) + ' × ' + mult + ' = ' + fC(annualEarn));
+          formulaLines.push('AWW:                      ' + fC(annualEarn) + ' ÷ 52 = ' + fC(primaryAWW));
         }
-      } else if (method === 'salary') {
-        const annualSalary = parseFloat(document.getElementById('annualSalary').value) || 0;
-        const daysPaid     = parseFloat(document.getElementById('daysPaid').value) || 260;
-        const daysPerWeek  = document.getElementById('daysPerWeek').value;
-        const dMap         = getDayMap();
-        primaryAWW = ((annualSalary / daysPaid) * (dMap[daysPerWeek] || 260)) / 52;
-      } else if (method === 'hourly') {
-        const hourlyRate   = parseFloat(document.getElementById('hourlyRate').value) || 0;
-        const hoursPerWeek = parseFloat(document.getElementById('hoursPerWeek').value) || 40;
-        primaryAWW = hourlyRate * hoursPerWeek;
+
+      } else if (currentMethod === '52week') {
+        const annualEarn = pF(document.getElementById('annualEarnings52').value);
+        if (annualEarn > 0) {
+          primaryAWW = annualEarn / 52;
+          formulaLines.push('Total Annual Earnings:    ' + fC(annualEarn));
+          formulaLines.push('AWW:                      ' + fC(annualEarn) + ' ÷ 52 = ' + fC(primaryAWW));
+        }
+
+      } else if (currentMethod === 'straight') {
+        const totalEarn = pF(document.getElementById('straightEarnings').value);
+        const weeksWkd  = pF(document.getElementById('weeksWorked').value);
+        if (totalEarn > 0 && weeksWkd > 0) {
+          primaryAWW = totalEarn / weeksWkd;
+          formulaLines.push('Total Earnings:           ' + fC(totalEarn));
+          formulaLines.push('Weeks Worked:             ' + weeksWkd);
+          formulaLines.push('AWW (straight):           ' + fC(totalEarn) + ' ÷ ' + weeksWkd + ' = ' + fC(primaryAWW));
+        }
+
+      } else if (currentMethod === 'hourly') {
+        const hourly = pF(document.getElementById('hourlyRate').value);
+        const hpw    = pF(document.getElementById('hoursPerWeek').value);
+        if (hourly > 0 && hpw > 0) {
+          primaryAWW = hourly * hpw;
+          formulaLines.push('Hourly Rate:              ' + fC(hourly));
+          formulaLines.push('Hours/Week:               ' + hpw);
+          formulaLines.push('AWW:                      ' + fC(hourly) + ' × ' + hpw + ' = ' + fC(primaryAWW));
+        }
       }
 
-      const overtimeAmt = hasOvertime ? (parseFloat(document.getElementById('overtimeAmount').value) || 0) : 0;
-      primaryAWW += overtimeAmt;
+      // ── Overtime ──
+      const overtimeAmt = hasOvertime ? pF(document.getElementById('overtimeAmount').value) : 0;
+      if (overtimeAmt > 0) {
+        primaryAWW += overtimeAmt;
+        formulaLines.push('');
+        formulaLines.push('+ Overtime/Tips/Bonuses:   ' + fC(overtimeAmt) + '/wk');
+        formulaLines.push('Adjusted AWW:             ' + fC(primaryAWW));
+      }
 
-      const concAWW = hasConcur ? (parseFloat(document.getElementById('concurrentAWW').value) || 0) : 0;
+      // ── Concurrent ──
+      const concAWW = hasConcur ? pF(document.getElementById('concurrentAWW').value) : 0;
       let compositeAWW = primaryAWW + concAWW;
+      if (concAWW > 0) {
+        formulaLines.push('');
+        formulaLines.push('+ Concurrent Employment:   ' + fC(concAWW) + '/wk');
+        formulaLines.push('Composite AWW:            ' + fC(compositeAWW));
+      }
 
-      // Amended AWW overrides composite
+      // ── Amended override ──
       let finalAWW = compositeAWW;
       let amendedAWW = 0;
       if (hasAmended) {
-        amendedAWW = parseFloat(document.getElementById('newAWW').value) || 0;
-        if (amendedAWW > 0) finalAWW = amendedAWW;
+        amendedAWW = pF(document.getElementById('newAWW').value);
+        if (amendedAWW > 0) {
+          finalAWW = amendedAWW;
+          formulaLines.push('');
+          formulaLines.push('⚑ Amended AWW Override:   ' + fC(amendedAWW));
+        }
       }
 
-      const twoThirds   = finalAWW * (2 / 3);
-      const finalRate   = Math.min(twoThirds, maxRate);
+      // ── Compute comp rate ──
+      const twoThirds = finalAWW * (2 / 3);
+      const finalRate = Math.min(twoThirds, maxRate);
 
-      document.getElementById('awwResult').textContent        = formatCurrency(finalAWW);
-      document.getElementById('twoThirdsResult').textContent  = formatCurrency(twoThirds);
-      document.getElementById('applicableMaxResult').textContent = formatCurrency(maxRate);
-      document.getElementById('finalRateResult').textContent  = formatCurrency(finalRate);
+      if (finalAWW > 0) {
+        formulaLines.push('');
+        formulaLines.push('────────────────────────────────────────');
+        formulaLines.push('Final AWW:                ' + fC(finalAWW));
+        formulaLines.push('2/3 Rate:                 ' + fC(finalAWW) + ' × 2/3 = ' + fC(twoThirds));
+        if (twoThirds > maxRate) {
+          formulaLines.push('Capped at Max:            ' + fC(twoThirds) + ' → ' + fC(maxRate));
+        }
+        formulaLines.push('TT Comp Rate:             ' + fC(finalRate) + '/wk');
+      }
 
-      // Concurrent note
+      // ── Render results ──
+      const hasResult = finalAWW > 0;
+      document.getElementById('awwResult').textContent          = hasResult ? fC(finalAWW) : '—';
+      document.getElementById('twoThirdsResult').textContent    = hasResult ? fC(twoThirds) : '—';
+      document.getElementById('applicableMaxResult').textContent = fC(maxRate);
+      document.getElementById('finalRateResult').textContent    = hasResult ? fC(finalRate) : '—';
+
+      // ── Formula breakdown ──
+      const formulaEl = document.getElementById('formulaBreakdown');
+      const formulaText = document.getElementById('formulaText');
+      if (hasResult && formulaLines.length > 0) {
+        formulaText.textContent = formulaLines.join('\n');
+        formulaEl.style.display = 'block';
+      } else {
+        formulaEl.style.display = 'none';
+      }
+
+      // ── Concurrent note ──
       const concNote = document.getElementById('concurrentNote');
       if (hasConcur && concAWW > 0) {
         concNote.style.display = 'block';
-        concNote.textContent = `Concurrent AWW included: Primary ${formatCurrency(primaryAWW - overtimeAmt)} + Overtime ${formatCurrency(overtimeAmt)} + Concurrent ${formatCurrency(concAWW)} = Composite AWW ${formatCurrency(compositeAWW)}`;
+        concNote.textContent = 'Concurrent AWW: Primary ' + fC(primaryAWW) + ' + Concurrent ' + fC(concAWW) + ' = Composite ' + fC(compositeAWW);
       } else {
         concNote.style.display = 'none';
       }
 
-      // Amended note
+      // ── Amended note ──
       const amendNote = document.getElementById('amendedNote');
       if (hasAmended && amendedAWW > 0) {
-        const priorAWW = parseFloat(document.getElementById('priorAWW').value) || 0;
+        const priorV = pF(document.getElementById('priorAWW').value);
         amendNote.style.display = 'block';
-        amendNote.textContent = `Amended AWW applied${priorAWW > 0 ? ' (Prior: ' + formatCurrency(priorAWW) + ' → New: ' + formatCurrency(amendedAWW) + ')' : ''}`;
+        amendNote.textContent = 'Amended AWW applied' + (priorV > 0 ? ' (Prior: ' + fC(priorV) + ' → New: ' + fC(amendedAWW) + ')' : '');
       } else {
         amendNote.style.display = 'none';
       }
 
-      // Rate table breakdown
+      // ── Rate table ──
       const tableEl = document.getElementById('rateTableRows');
       const breakdown = document.getElementById('extendedBreakdown');
-      if (finalAWW > 0) {
+      if (hasResult) {
         breakdown.style.display = 'block';
         const pcts = [1, 0.875, 0.80, 0.75, 0.666, 0.50, 0.45, 0.30, 0.25, 0.10];
         tableEl.innerHTML = pcts.map(p => {
           const label = (p * 100).toFixed(p === 0.666 ? 1 : 0) + '% Disability';
-          const val   = formatCurrency(finalRate * p);
-          return `<div class="result-row-item"><span class="result-row-label">${label}</span><span class="result-row-val mono">${val}</span></div>`;
+          const val   = fC(finalRate * p);
+          return '<div class="result-row-item"><span class="result-row-label">' + label + '</span><span class="result-row-val mono">' + val + '</span></div>';
         }).join('') +
-          `<div class="result-row-item" style="border-top:1px solid var(--bd);padding-top:6px;margin-top:4px;">
-            <span class="result-row-label" style="color:var(--gn);">Atty Fee (1/3 of 2/3)</span>
-            <span class="result-row-val mono" style="color:var(--gn);">${formatCurrency(finalRate / 3)}</span>
-           </div>`;
+          '<div class="result-row-item" style="border-top:1px solid var(--bd);padding-top:6px;margin-top:4px;">' +
+          '<span class="result-row-label" style="color:var(--gn);">Atty Fee (1/3 of 2/3)</span>' +
+          '<span class="result-row-val mono" style="color:var(--gn);">' + fC(finalRate / 3) + '</span></div>';
       } else {
         breakdown.style.display = 'none';
       }
+
+      // ── Save prompt ──
+      if (hasResult && !hasCalculated) {
+        hasCalculated = true;
+        showSavePrompt(currentUser);
+      }
     }
 
-    // Date of injury auto-fills max rate
-    document.getElementById('doiDate').addEventListener('change', () => {
-      const doi = document.getElementById('doiDate').value;
-      const rateObj = getMaxForDate(doi);
-      document.getElementById('maxRate').value = rateObj.max.toFixed(2);
-      document.getElementById('maxRateHint').textContent = `Rate: ${formatCurrency(rateObj.max)} (${rateObj.l})`;
-      calculateAWW();
-    });
-
-    // Calc method toggle
-    document.querySelectorAll('input[name="calcMethod"]').forEach(r => r.addEventListener('change', () => {
-      document.getElementById('wagesSection').style.display   = r.value === 'wages'  ? 'block' : 'none';
-      document.getElementById('salarySection').style.display  = r.value === 'salary' ? 'block' : 'none';
-      document.getElementById('hourlySection').style.display  = r.value === 'hourly' ? 'block' : 'none';
-      calculateAWW();
-    }));
-
-    document.getElementById('hasOvertime').addEventListener('change', e => {
-      document.getElementById('overtimeSection').style.display = e.target.checked ? 'block' : 'none';
-      calculateAWW();
-    });
-
-    document.getElementById('hasConcurrent').addEventListener('change', e => {
-      document.getElementById('concurrentSection').style.display = e.target.checked ? 'block' : 'none';
-      calculateAWW();
-    });
-
-    document.getElementById('hasAmended').addEventListener('change', e => {
-      document.getElementById('amendedSection').style.display = e.target.checked ? 'block' : 'none';
-      calculateAWW();
-    });
-
-    ['payPeriod','grossWages','overtimeAmount','maxRate',
-     'concurrentAWW','priorAWW','newAWW',
-     'annualSalary','daysPaid','daysPerWeek','hourlyRate','hoursPerWeek'
-    ].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('change', calculateAWW);
-        el.addEventListener('input', calculateAWW);
-      }
-    });
-
+    // ─── Save prompt ───
     function showSavePrompt(user) {
       const prompt  = document.getElementById('save-prompt');
       const text    = document.getElementById('save-prompt-text');
@@ -454,12 +768,13 @@
 
       if (!user || !user.session) {
         text.textContent = 'Want to save this calculation?';
-        actions.innerHTML = `<a href="/auth_v2.html?mode=signup">Create free account</a>`;
+        actions.innerHTML = '<a href="/auth_v2.html?mode=signup">Create free account</a>';
       } else {
         text.textContent = 'Save this calculation to your history.';
-        actions.innerHTML = `<button id="sp-save-btn">Save</button>`;
+        actions.innerHTML = '<button id="sp-save-btn">Save</button>';
         document.getElementById('sp-save-btn').addEventListener('click', async () => {
           const ok = await saveCalculation(user.session.user.id, 'aww', {
+            method: currentMethod,
             aww:       document.getElementById('awwResult').textContent,
             finalRate: document.getElementById('finalRateResult').textContent
           });
@@ -469,30 +784,60 @@
       prompt.style.display = 'flex';
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getOptionalUser();
-      renderPublicNav(user);
-      calculateAWW();
+    // ─── Event wiring ───
 
-      let prompted = false;
-      document.querySelectorAll('input, select').forEach(el => {
-        const trigger = () => {
-          if (!prompted && document.getElementById('awwResult').textContent !== '—') {
-            prompted = true;
-            showSavePrompt(user);
-          }
-        };
-        el.addEventListener('change', trigger);
-        el.addEventListener('input', trigger);
-      });
+    // Method cards
+    document.querySelectorAll('.method-card').forEach(card => {
+      card.addEventListener('click', () => setMethod(card.dataset.method));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMethod(card.dataset.method); }});
+    });
+
+    // Days-per-week buttons
+    document.querySelectorAll('.dpw-btn').forEach(btn => {
+      btn.addEventListener('click', () => setDPW(parseInt(btn.dataset.dpw)));
+    });
+
+    // DOI auto-fills max rate
+    document.getElementById('doiDate').addEventListener('change', () => {
+      const doi = document.getElementById('doiDate').value;
+      const rateObj = getMaxForDate(doi);
+      document.getElementById('maxRate').value = rateObj.max.toFixed(2);
+      document.getElementById('maxRateHint').textContent = 'Rate: ' + fC(rateObj.max) + ' (' + rateObj.l + ')';
+      calculate();
+    });
+
+    // Toggle sections
+    document.getElementById('hasOvertime').addEventListener('change', e => {
+      document.getElementById('overtimeSection').style.display = e.target.checked ? 'block' : 'none';
+      calculate();
+    });
+    document.getElementById('hasConcurrent').addEventListener('change', e => {
+      document.getElementById('concurrentSection').style.display = e.target.checked ? 'block' : 'none';
+      calculate();
+    });
+    document.getElementById('hasAmended').addEventListener('change', e => {
+      document.getElementById('amendedSection').style.display = e.target.checked ? 'block' : 'none';
+      calculate();
+    });
+
+    // All numeric/select inputs trigger recalculation
+    ['totalEarnings','daysWorked','annualEarnings52','straightEarnings','weeksWorked',
+     'hourlyRate','hoursPerWeek','overtimeAmount','concurrentAWW','priorAWW','newAWW','maxRate'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', calculate);
+        el.addEventListener('change', calculate);
+      }
+    });
+
+    // ─── Init ───
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = await getOptionalUser();
+      renderPublicNav(currentUser);
+      setDPW(5);
+      calculate();
     });
   </script>
-
-  <style>
-    .result-row-list { display: flex; flex-direction: column; gap: 3px; }
-    .result-row-item { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 12px; }
-    .result-row-label { color: var(--txD); }
-    .result-row-val { font-family: var(--mono); color: var(--tx); font-weight: 600; }
-  </style>
 </body>
 </html>
