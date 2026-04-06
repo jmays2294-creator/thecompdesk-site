@@ -14,6 +14,12 @@
  *
  * Run: `node tests/directory-exclusion.test.js`
  * Exits 0 on pass, 1 on fail. Wired into .github/workflows/directory-neutrality.yml.
+ *
+ * CARVE-OUT (2026-04-06): find-attorney.html is an approved carve-out where
+ * Shulman & Hill PLLC may appear as a participating firm per SILENT_OWNER_POLICY.md.
+ * This test scans ONLY data/attorneys.json (not HTML), so the carve-out does not
+ * affect this test. The personal name "Joel Mays" remains forbidden everywhere,
+ * including find-attorney.html. See SILENT_OWNER_POLICY.md §Permitted carve-outs.
  */
 
 const fs = require('fs');

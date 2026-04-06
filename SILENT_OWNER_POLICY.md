@@ -46,9 +46,18 @@ The "zero hits outside `back-burner/`" rule has the following deliberate excepti
 
 1. **`find-attorney-how-it-works.html`** — the sole permitted *public* disclosure point. This page exists specifically to disclose the conflict of interest, name the operator and the operator's firm, and explain that both are permanently excluded from the Find an Attorney directory. The disclosure is the load-bearing feature of the page; do not scrub it. Any change to this page that *removes* the disclosure must be rejected.
 
-2. **`tests/directory-exclusion.test.js`** — privacy safeguard. The forbidden-string list in this CI test must contain the literal owner-name and firm-name variants in order to do its job: failing the build if any of those strings ever appear in `data/attorneys.json`. Removing the strings would defeat the test. Do not weaken this file. If the project's CI grep needs to ignore it, add the path to the grep allowlist — do not edit the test.
+2. **`find-attorney.html`** — the lead-generation page. This is the **sole page where Shulman & Hill PLLC may be named as a participating firm**. The following strict rules apply inside this carve-out:
+   - The firm name `Shulman & Hill PLLC` may appear on the page and in dynamic firm cards loaded from the `participating_attorneys` Supabase view.
+   - The operator's **personal name** (Joel Mays) must **not** appear anywhere on this page.
+   - The operator's **photograph, voice, or likeness** must **not** appear.
+   - The operator's **personal bio** must **not** appear (firm bio is permissible if it describes the firm generically, not the individual).
+   - The firm appears alongside all other participating attorneys; no preferential placement, styling, or ordering may be applied to Shulman & Hill relative to other listed firms.
+   - Sort order on the map is distance-based only — enforced and unit-tested in `tests/find-attorney-map-sort.test.js`.
+   - The page must display the required disclaimer block: *"The Comp Desk is an information service. Submitting this form is a request to be contacted by a participating New York workers' compensation attorney. It is not legal advice and does not create an attorney-client relationship until a participating attorney accepts your matter in writing."*
 
-3. **`SILENT_OWNER_POLICY.md`** (this file) — the policy itself names the prohibited tokens in its grep example so contributors can run the check. Self-referential and unavoidable.
+3. **`tests/directory-exclusion.test.js`** — privacy safeguard. The forbidden-string list in this CI test must contain the literal owner-name and firm-name variants in order to do its job: failing the build if any of those strings ever appear in `data/attorneys.json`. Removing the strings would defeat the test. Do not weaken this file. If the project's CI grep needs to ignore it, add the path to the grep allowlist — do not edit the test.
+
+4. **`SILENT_OWNER_POLICY.md`** (this file) — the policy itself names the prohibited tokens in its grep example so contributors can run the check. Self-referential and unavoidable.
 
 Everything else must stay clean.
 
@@ -69,6 +78,7 @@ grep -riE "Joel|Mays|Shulman|786-?815-?4612" \
   --exclude-dir=.git --exclude-dir=back-burner --exclude-dir=node_modules \
   --exclude=SILENT_OWNER_POLICY.md \
   --exclude=find-attorney-how-it-works.html \
+  --exclude=find-attorney.html \
   --exclude=directory-exclusion.test.js \
   .
 ```
