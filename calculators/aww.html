@@ -4,145 +4,361 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Average Weekly Wage (AWW) Calculator — NYS Workers' Comp | The Comp Desk</title>
-  <meta name="description" content="Free NYS Average Weekly Wage (AWW) calculator under WCL §14. Statutory methods: 52-week divisor, 200/260/300 multiplier, straight divisor. Includes overtime, concurrent employment, and compensation rate tables.">
-  <meta property="og:title" content="Average Weekly Wage (AWW) Calculator — NYS Workers' Comp">
-  <meta property="og:description" content="Free calculator for NYS Average Weekly Wage benefits under WCL §14. Statutory 200/260/300 multipliers, straight divisor, compensation rate tables.">
+  <meta name="description" content="Free NYS Average Weekly Wage (AWW) calculator under WCL §14. Handles concurrent employment, tips, board/lodging, the 200-multiple rule, and all statutory methods. Shareable results.">
+  <meta property="og:title" content="AWW Calculator — NYS Workers' Comp | The Comp Desk">
+  <meta property="og:description" content="Step-by-step AWW calculator for NYS workers' comp. All §14 methods, adjustments, TPD table, and shareable read-only link.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.thecompdesk.com/calculators/aww.html">
+  <meta property="og:url" content="https://www.thecompdesk.com/calculators/aww">
   <meta property="og:image" content="https://www.thecompdesk.com/images/og-aww.png">
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Average Weekly Wage (AWW) Calculator — NYS Workers' Comp">
-  <meta name="twitter:description" content="Free calculator for NYS Average Weekly Wage benefits under WCL §14. Statutory 200/260/300 multipliers, straight divisor, compensation rate tables.">
+  <meta name="twitter:title" content="AWW Calculator — NYS Workers' Comp">
+  <meta name="twitter:description" content="Step-by-step AWW calculator for NYS workers' comp. All §14 methods, adjustments, TPD table.">
   <meta name="twitter:image" content="https://www.thecompdesk.com/images/og-aww.png">
-
-  <!-- JSON-LD: WebApplication -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "NYS AWW Calculator",
-    "url": "https://www.thecompdesk.com/calculators/aww.html",
-    "description": "Free NYS Average Weekly Wage (AWW) calculator under WCL §14. Statutory methods: 52-week divisor, 200/260/300 multiplier, straight divisor.",
+    "name": "NYS AWW Calculator v2",
+    "url": "https://www.thecompdesk.com/calculators/aww",
+    "description": "Step-by-step Average Weekly Wage calculator for NYS Workers' Compensation Law §14. All statutory methods, concurrent employment, tips, board/lodging, TPD table, and shareable results.",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
-
-  <link rel="canonical" href="https://www.thecompdesk.com/calculators/aww.html">
+  <link rel="canonical" href="https://www.thecompdesk.com/calculators/aww">
   <link rel="stylesheet" href="../css/app.css">
   <style>
-    /* Method card selection */
-    .method-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-    @media (max-width: 600px) { .method-cards { grid-template-columns: 1fr; } }
-    .method-card {
+    /* ── Wizard progress bar ─────────────────────────────── */
+    .wizard-bar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .wz-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--txM);
+      flex: 1;
+      padding: 10px 8px 10px 14px;
       background: var(--bg);
+      border-top: 1px solid var(--bd);
+      border-bottom: 1px solid var(--bd);
+      border-right: 1px solid var(--bd);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      position: relative;
+      white-space: nowrap;
+    }
+    .wz-step:first-child { border-left: 1px solid var(--bd); border-radius: 6px 0 0 6px; }
+    .wz-step:last-child  { border-radius: 0 6px 6px 0; }
+    .wz-step.active { background: rgba(59,130,246,.1); color: var(--ac); border-color: var(--ac); }
+    .wz-step.done   { background: rgba(34,197,94,.07);  color: var(--gn, #22c55e); cursor: pointer; }
+    .wz-num {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--bd);
+      color: var(--txM);
+      font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .wz-step.active .wz-num { background: var(--ac); color: #fff; }
+    .wz-step.done   .wz-num { background: #22c55e; color: #fff; }
+    @media (max-width: 580px) {
+      .wz-label { display: none; }
+      .wz-step  { padding: 10px; flex: 0 0 auto; }
+    }
+
+    /* ── Step panels ─────────────────────────────────────── */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* ── DOI rate preview ────────────────────────────────── */
+    .doi-preview {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .doi-stat { display: flex; flex-direction: column; gap: 2px; }
+    .doi-stat-label { font-size: 10px; color: var(--txM); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+    .doi-stat-val   { font-family: var(--mono); font-size: 18px; font-weight: 800; color: var(--ac); }
+    .doi-stat-sub   { font-size: 10px; color: var(--txD); }
+
+    /* ── Schedule pills ──────────────────────────────────── */
+    .pill-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill-btn {
+      padding: 7px 16px;
+      font-size: 12px; font-weight: 700;
+      border: 1px solid var(--bd);
+      border-radius: 20px;
+      background: var(--bg);
+      color: var(--txD);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .pill-btn:hover { border-color: var(--ac); color: var(--tx); }
+    .pill-btn.active { background: rgba(59,130,246,.15); border-color: var(--ac); color: var(--ac); }
+
+    /* ── Pattern cards ───────────────────────────────────── */
+    .pattern-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 540px) { .pattern-cards { grid-template-columns: 1fr; } }
+    .pattern-card {
       border: 1px solid var(--bd);
       border-radius: 8px;
       padding: 12px 14px;
       cursor: pointer;
       transition: border-color .15s, background .15s;
+      background: var(--bg);
     }
-    .method-card:hover { border-color: var(--ac); }
-    .method-card.active {
-      border-color: var(--ac);
-      background: rgba(59,130,246,.06);
-    }
-    .method-card-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--tx);
-      margin-bottom: 3px;
-    }
-    .method-card-desc {
-      font-size: 10px;
-      color: var(--txM);
-      line-height: 1.5;
-    }
-    .method-card.active .method-card-title { color: var(--ac); }
+    .pattern-card:hover { border-color: var(--ac); }
+    .pattern-card.active { border-color: var(--ac); background: rgba(59,130,246,.07); }
+    .pc-tag { font-size: 9px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--ac); margin-bottom: 4px; }
+    .pc-tag.gold { color: var(--gd); }
+    .pc-title { font-size: 12px; font-weight: 700; color: var(--tx); margin-bottom: 3px; }
+    .pc-desc  { font-size: 10px; color: var(--txM); line-height: 1.5; }
+    .pattern-card.active .pc-title { color: var(--ac); }
 
-    /* Statutory tag */
-    .stat-tag {
-      display: inline-block;
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: .4px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      background: rgba(59,130,246,.12);
-      color: var(--ac);
-      margin-bottom: 4px;
-    }
-    .stat-tag.gold { background: rgba(245,158,11,.12); color: var(--gd); }
-
-    /* Days-per-week selector pills */
-    .dpw-group {
+    /* ── Wizard nav buttons ──────────────────────────────── */
+    .wz-nav {
       display: flex;
-      gap: 6px;
+      gap: 10px;
+      margin-top: 20px;
       flex-wrap: wrap;
     }
-    .dpw-btn {
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      border: 1px solid var(--bd);
-      border-radius: 6px;
+    .wz-nav .btn-back {
       background: var(--bg);
+      border: 1px solid var(--bd);
       color: var(--txD);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all .15s;
-      text-align: center;
-      min-width: 52px;
+      transition: border-color .15s, color .15s;
     }
-    .dpw-btn:hover { border-color: var(--ac); color: var(--tx); }
-    .dpw-btn.active {
-      background: rgba(59,130,246,.15);
-      border-color: var(--ac);
-      color: var(--ac);
+    .wz-nav .btn-back:hover { border-color: var(--ac); color: var(--tx); }
+    .wz-nav .btn-next {
+      background: var(--ac);
+      border: none;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
     }
-    .dpw-label {
-      font-size: 9px;
-      color: var(--txM);
-      display: block;
-      margin-top: 2px;
-      font-weight: 400;
-    }
+    .wz-nav .btn-next:hover { opacity: .88; }
 
-    /* Formula display box */
+    /* ── Info box ────────────────────────────────────────── */
+    .info-callout {
+      background: rgba(59,130,246,.05);
+      border-left: 3px solid var(--ac);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      font-size: 11px;
+      color: var(--txD);
+      line-height: 1.7;
+      margin-top: 10px;
+    }
+    .info-callout strong { color: var(--tx); }
+
+    /* ── Toggle rows ─────────────────────────────────────── */
+    .toggle-section {
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .toggle-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      cursor: pointer;
+      background: var(--bg);
+      transition: background .15s;
+    }
+    .toggle-header:hover { background: rgba(59,130,246,.04); }
+    .toggle-header-left { display: flex; align-items: center; gap: 10px; }
+    .toggle-label { font-size: 13px; font-weight: 600; color: var(--tx); }
+    .toggle-badge { font-size: 10px; color: var(--txM); }
+    .toggle-arrow { color: var(--txM); font-size: 12px; transition: transform .2s; }
+    .toggle-arrow.open { transform: rotate(90deg); }
+    .toggle-body {
+      display: none;
+      padding: 12px 14px;
+      border-top: 1px solid var(--bd);
+      background: var(--cardA, var(--bg));
+    }
+    .toggle-body.open { display: block; }
+
+    /* ── Results screen ──────────────────────────────────── */
+    .results-hero {
+      background: linear-gradient(135deg, rgba(59,130,246,.12) 0%, rgba(59,130,246,.04) 100%);
+      border: 1px solid rgba(59,130,246,.3);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 16px;
+    }
+    .results-hero-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--ac); margin-bottom: 4px; }
+    .results-hero-aww   { font-size: 48px; font-weight: 900; font-family: var(--mono); color: var(--tx); line-height: 1; }
+    .results-hero-sub   { font-size: 12px; color: var(--txD); margin-top: 4px; }
+
+    .rate-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 420px) { .rate-grid { grid-template-columns: 1fr; } }
+    .rate-card {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .rate-card-label { font-size: 10px; color: var(--txM); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+    .rate-card-val   { font-size: 22px; font-weight: 800; font-family: var(--mono); color: var(--tx); }
+    .rate-card-val.gold { color: var(--gd); }
+    .rate-card-val.blue { color: var(--ac); }
+    .rate-card-sub   { font-size: 10px; color: var(--txD); margin-top: 2px; }
+
+    /* TPD table */
+    .tpd-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .tpd-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--txM); padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--bd); }
+    .tpd-table td { padding: 8px 8px; color: var(--txD); border-bottom: 1px solid var(--bd); font-family: var(--mono); }
+    .tpd-table tr:last-child td { border-bottom: none; }
+    .tpd-table td.benefit { color: var(--gd, #22c55e); font-weight: 700; }
+
+    /* Formula box */
     .formula-box {
       background: var(--bg);
       border: 1px solid var(--bd);
       border-radius: 6px;
-      padding: 10px 14px;
-      margin-top: 10px;
+      padding: 12px 14px;
       font-family: var(--mono);
       font-size: 11px;
-      color: var(--tx);
-      line-height: 1.8;
+      color: var(--txD);
+      line-height: 1.9;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    /* Result row list */
-    .result-row-list { display: flex; flex-direction: column; gap: 3px; }
-    .result-row-item { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 12px; }
-    .result-row-label { color: var(--txD); }
-    .result-row-val { font-family: var(--mono); color: var(--tx); font-weight: 600; }
-
-    /* Explanation callout */
-    .explain-box {
-      background: rgba(59,130,246,.04);
-      border-left: 3px solid var(--ac);
-      border-radius: 0 6px 6px 0;
-      padding: 10px 14px;
-      margin-top: 10px;
-      font-size: 11px;
-      color: var(--txD);
-      line-height: 1.7;
+    /* Comp Buddy explainer */
+    .buddy-box {
+      background: rgba(245,158,11,.06);
+      border: 1px solid rgba(245,158,11,.25);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
     }
-    .explain-box strong { color: var(--tx); }
+    .buddy-title { font-size: 13px; font-weight: 800; color: var(--gd); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .buddy-body  { font-size: 12px; color: var(--txD); line-height: 1.8; }
+    .buddy-body strong { color: var(--tx); }
+
+    /* Action bar */
+    .action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .btn-share {
+      background: rgba(59,130,246,.12);
+      border: 1px solid var(--ac);
+      color: var(--ac);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-share:hover { background: rgba(59,130,246,.22); }
+    .btn-print {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      color: var(--txD);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-print:hover { border-color: var(--ac); color: var(--tx); }
+    .btn-restart {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      color: var(--txM);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-restart:hover { border-color: var(--rd, #ef4444); color: var(--rd, #ef4444); }
+
+    /* Share result */
+    .share-result {
+      background: rgba(34,197,94,.07);
+      border: 1px solid #22c55e;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      display: none;
+    }
+    .share-url-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .share-url-row input {
+      flex: 1;
+      font-size: 11px;
+      font-family: var(--mono);
+      padding: 7px 10px;
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      color: var(--txD);
+    }
+    .btn-copy {
+      background: var(--ac);
+      border: none;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ── Print / PDF ─────────────────────────────────────── */
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      #app-nav, .wizard-bar, .action-bar, .step-panel:not(#step-results),
+      .buddy-box, .section-print-hide, .wz-nav { display: none !important; }
+      #step-results { display: block !important; }
+      .results-hero { background: #f0f6ff !important; border: 1px solid #4f8ff7 !important; }
+      .print-disclaimer {
+        margin-top: 20px;
+        border-top: 2px solid #000;
+        padding-top: 12px;
+        font-size: 10px;
+        color: #333;
+        line-height: 1.6;
+      }
+      .print-header { margin-bottom: 16px; }
+      .print-header h2 { font-size: 18px; }
+      .print-header p  { font-size: 11px; color: #555; }
+    }
   </style>
 </head>
 <body>
@@ -154,781 +370,876 @@
     </div>
 
     <h1 class="page-title">NYS Average Weekly Wage (AWW) Calculator</h1>
-    <p class="page-subtitle">Calculate Average Weekly Wage under Workers' Compensation Law §14. Choose the applicable statutory method based on the claimant's work history.</p>
+    <p class="page-subtitle">Step-by-step AWW calculation under Workers' Compensation Law §14. All statutory methods, concurrent employment, tips, board/lodging, and TPD scenarios.</p>
 
-    <!-- ═══════════════════════════════════════════
-         GLOBAL INPUTS: DOI + Max Rate
-    ═══════════════════════════════════════════ -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Date of Injury &amp; Max Rate</span>
+    <!-- ── Wizard progress bar ─────────────────────────────────── -->
+    <div class="wizard-bar" id="wizardBar">
+      <div class="wz-step active" data-step="1" onclick="jumpTo(1)">
+        <span class="wz-num">1</span>
+        <span class="wz-label">Date of Injury</span>
       </div>
-      <div class="calc-body">
-        <div class="fields-row" style="margin-bottom:0;">
-          <div class="field-group">
-            <label class="field-label" for="doiDate">Date of Injury</label>
-            <input type="date" id="doiDate" aria-label="Date of injury">
-            <span class="field-hint">Auto-fills the applicable statutory maximum rate</span>
+      <div class="wz-step" data-step="2" onclick="jumpTo(2)">
+        <span class="wz-num">2</span>
+        <span class="wz-label">Work Pattern</span>
+      </div>
+      <div class="wz-step" data-step="3" onclick="jumpTo(3)">
+        <span class="wz-num">3</span>
+        <span class="wz-label">Earnings</span>
+      </div>
+      <div class="wz-step" data-step="4" onclick="jumpTo(4)">
+        <span class="wz-num">4</span>
+        <span class="wz-label">Extras</span>
+      </div>
+      <div class="wz-step" data-step="5" onclick="jumpTo(5)">
+        <span class="wz-num">5</span>
+        <span class="wz-label">Results</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         STEP 1 — Date of Injury
+    ══════════════════════════════════════════════════════ -->
+    <div id="step-1" class="step-panel active">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Date of Injury</span></div>
+        <div class="calc-body">
+          <div class="field-group" style="max-width:320px;">
+            <label class="field-label" for="doiInput">Date of Injury (DOI)</label>
+            <input type="date" id="doiInput" aria-label="Date of injury">
+            <span class="field-hint">Determines the applicable statutory max and min rates</span>
           </div>
-          <div class="field-group">
-            <label class="field-label" for="maxRate">Statutory Maximum Rate</label>
-            <div class="field-wrap">
-              <span class="field-prefix">$</span>
-              <input type="number" id="maxRate" value="1222.42" step="0.01" aria-label="Maximum weekly compensation rate">
+          <div class="doi-preview" id="doiPreview" style="display:none;">
+            <div class="doi-stat">
+              <span class="doi-stat-label">Statutory Maximum</span>
+              <span class="doi-stat-val" id="prevMax">—</span>
+              <span class="doi-stat-sub" id="prevMaxLabel">—</span>
             </div>
-            <span class="field-hint" id="maxRateHint">Current max: $1,222.42 (Jul 1, 2025)</span>
+            <div class="doi-stat">
+              <span class="doi-stat-label">Min Rate (§204)</span>
+              <span class="doi-stat-val" id="prevMin">—</span>
+              <span class="doi-stat-sub" id="prevMinLabel">—</span>
+            </div>
+          </div>
+          <div class="info-callout" style="margin-top:12px;">
+            <strong>Why DOI matters:</strong> The statutory maximum weekly rate is set annually by the NYS Department of Financial Services (effective July 1). The rate in effect on the date of injury applies for the life of the case.
+          </div>
+          <div class="wz-nav">
+            <button class="btn-next" onclick="goNext(1)">Next: Work Pattern →</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         CALCULATION METHOD SELECTOR
-    ═══════════════════════════════════════════ -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Calculation Method</span>
-      </div>
-      <div class="calc-body">
+    <!-- ══════════════════════════════════════════════════════
+         STEP 2 — Employment Pattern
+    ══════════════════════════════════════════════════════ -->
+    <div id="step-2" class="step-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Work Schedule &amp; History</span></div>
+        <div class="calc-body">
 
-        <div class="method-cards" id="methodCards">
-          <div class="method-card active" data-method="statutory" role="button" tabindex="0" aria-pressed="true">
-            <span class="stat-tag">§14 SUBD. 2</span>
-            <div class="method-card-title">Statutory Method (200/260/300)</div>
-            <div class="method-card-desc">Total earnings ÷ days worked × statutory multiplier ÷ 52. For claimants who did NOT work substantially the whole year.</div>
+          <div class="field-group" style="margin-bottom:18px;">
+            <label class="field-label">Days Per Week Worked</label>
+            <div class="pill-group" id="dpwGroup">
+              <button class="pill-btn" data-dpw="4" onclick="setDPW(4)">4 days<br><small style="font-weight:400;font-size:9px;">×200</small></button>
+              <button class="pill-btn active" data-dpw="5" onclick="setDPW(5)">5 days<br><small style="font-weight:400;font-size:9px;">×260</small></button>
+              <button class="pill-btn" data-dpw="6" onclick="setDPW(6)">6 days<br><small style="font-weight:400;font-size:9px;">×300</small></button>
+              <button class="pill-btn" data-dpw="7" onclick="setDPW(7)">7 days<br><small style="font-weight:400;font-size:9px;">×365</small></button>
+            </div>
+            <span class="field-hint">Used for the statutory §14(2) multiplier. Select the claimant's regular weekly schedule.</span>
           </div>
-          <div class="method-card" data-method="52week" role="button" tabindex="0" aria-pressed="false">
-            <span class="stat-tag">§14 SUBD. 1</span>
-            <div class="method-card-title">52-Week Divisor</div>
-            <div class="method-card-desc">Total annual earnings ÷ 52. For claimants who worked substantially the whole year preceding injury.</div>
-          </div>
-          <div class="method-card" data-method="straight" role="button" tabindex="0" aria-pressed="false">
-            <span class="stat-tag gold">BOARD DISCRETION</span>
-            <div class="method-card-title">Straight Divisor</div>
-            <div class="method-card-desc">Total earnings ÷ actual weeks worked. Used when statutory methods don't produce a fair result or for irregular employment.</div>
-          </div>
-          <div class="method-card" data-method="hourly" role="button" tabindex="0" aria-pressed="false">
-            <span class="stat-tag">QUICK CALC</span>
-            <div class="method-card-title">Hourly Rate</div>
-            <div class="method-card-desc">Hourly rate × hours per week. Quick calculation from known hourly wage.</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ═══════════════════════════════════════════
-         EARNINGS & WORK HISTORY INPUTS
-    ═══════════════════════════════════════════ -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title" id="inputSectionTitle">Earnings &amp; Work History (§14 Multiplier)</span>
-      </div>
-      <div class="calc-body">
-
-        <!-- ── Statutory Method (§14 Subd. 2): multiplier method ── -->
-        <div id="statutoryInputs">
-          <div class="fields-row">
-            <div class="field-group">
-              <label class="field-label" for="totalEarnings">Total Earnings in Period</label>
-              <div class="field-wrap">
-                <span class="field-prefix">$</span>
-                <input type="number" id="totalEarnings" value="" step="0.01" placeholder="52000.00"
-                       aria-label="Total gross earnings in the period preceding injury">
+          <div class="field-group">
+            <label class="field-label">Employment History Before Injury</label>
+            <div class="pattern-cards" id="patternCards">
+              <div class="pattern-card" data-pattern="52week" onclick="setPattern('52week')">
+                <div class="pc-tag">§14 Subd. 1</div>
+                <div class="pc-title">Full Year Worker</div>
+                <div class="pc-desc">Worked substantially the whole year (≥ ~49 weeks). AWW = total annual earnings ÷ 52.</div>
               </div>
-              <span class="field-hint">Gross earnings in the year (or period) before accident</span>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="daysWorked">Total Days Worked in Period</label>
-              <input type="number" id="daysWorked" value="" placeholder="220" min="1"
-                     aria-label="Total number of days actually worked in the earning period">
-              <span class="field-hint">Actual days worked (not calendar days)</span>
+              <div class="pattern-card active" data-pattern="statutory" onclick="setPattern('statutory')">
+                <div class="pc-tag">§14 Subd. 2</div>
+                <div class="pc-title">Partial Year</div>
+                <div class="pc-desc">Did not work substantially the whole year. AWW uses the day-based statutory multiplier (200/260/300/365).</div>
+              </div>
+              <div class="pattern-card" data-pattern="straight" onclick="setPattern('straight')">
+                <div class="pc-tag gold">Board Discretion</div>
+                <div class="pc-title">Irregular / Seasonal</div>
+                <div class="pc-desc">Irregular schedule, seasonal worker, or Board finds multiplier unfair. AWW = total earnings ÷ weeks worked.</div>
+              </div>
+              <div class="pattern-card" data-pattern="similarEmployee" onclick="setPattern('similarEmployee')">
+                <div class="pc-tag">§14 Subd. 3</div>
+                <div class="pc-title">New Hire / Short-Term</div>
+                <div class="pc-desc">Too few weeks to calculate own AWW. Use earnings of a similar employee who worked the full year.</div>
+              </div>
             </div>
           </div>
 
+          <!-- Hourly toggle (shown for any pattern as alternative) -->
           <div style="margin-top:12px;">
-            <label class="field-label" style="display:block;margin-bottom:8px;">Days Per Week Claimant Worked</label>
-            <div class="dpw-group" id="dpwGroup">
-              <button class="dpw-btn" data-dpw="4" aria-label="4 days per week (200 multiplier)">
-                4<span class="dpw-label">×200</span>
-              </button>
-              <button class="dpw-btn active" data-dpw="5" aria-label="5 days per week (260 multiplier)">
-                5<span class="dpw-label">×260</span>
-              </button>
-              <button class="dpw-btn" data-dpw="6" aria-label="6 days per week (300 multiplier)">
-                6<span class="dpw-label">×300</span>
-              </button>
-              <button class="dpw-btn" data-dpw="7" aria-label="7 days per week (365 multiplier)">
-                7<span class="dpw-label">×365</span>
-              </button>
-            </div>
-            <div class="explain-box" id="multiplierExplain">
-              <strong>§14 Multiplier (5-day worker):</strong> Average daily wage × <span id="multiplierVal">260</span> = average annual earnings, then ÷ 52 = AWW.
-              <br>Daily Wage = Total Earnings ÷ Days Worked. Then: Daily Wage × <span id="multiplierVal2">260</span> ÷ 52 = AWW.
-            </div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--txD);">
+              <input type="checkbox" id="useHourlyToggle" onchange="toggleHourly(this.checked)"> Use known hourly rate instead
+            </label>
           </div>
-        </div>
 
-        <!-- ── 52-Week Divisor (§14 Subd. 1) ── -->
-        <div id="weekDivisorInputs" style="display:none;">
-          <div class="fields-row">
-            <div class="field-group">
-              <label class="field-label" for="annualEarnings52">Total Annual Earnings</label>
-              <div class="field-wrap">
-                <span class="field-prefix">$</span>
-                <input type="number" id="annualEarnings52" value="" step="0.01" placeholder="78000.00"
-                       aria-label="Total gross earnings in the 52 weeks preceding injury">
-              </div>
-              <span class="field-hint">Gross earnings in the 52 weeks before accident</span>
-            </div>
-          </div>
-          <div class="explain-box">
-            <strong>§14 Subdivision 1:</strong> When the claimant worked substantially the whole year, AWW = Total Earnings ÷ 52. This is the simplest method and applies to full-year, consistent employment.
-          </div>
-        </div>
-
-        <!-- ── Straight Divisor ── -->
-        <div id="straightInputs" style="display:none;">
-          <div class="fields-row">
-            <div class="field-group">
-              <label class="field-label" for="straightEarnings">Total Earnings in Period</label>
-              <div class="field-wrap">
-                <span class="field-prefix">$</span>
-                <input type="number" id="straightEarnings" value="" step="0.01" placeholder="32000.00"
-                       aria-label="Total gross earnings in the period worked">
-              </div>
-              <span class="field-hint">Total earnings in whatever period was worked</span>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="weeksWorked">Weeks Actually Worked</label>
-              <input type="number" id="weeksWorked" value="" step="0.01" placeholder="26" min="0.1"
-                     aria-label="Number of weeks actually worked">
-              <span class="field-hint">Can be fractional (e.g. 26.5 weeks)</span>
-            </div>
-          </div>
-          <div class="explain-box">
-            <strong>Straight Divisor:</strong> AWW = Total Earnings ÷ Weeks Worked. Used by the Board when the §14 multiplier methods don't yield a fair result, or for irregular/seasonal workers, new hires, and part-year employment.
-          </div>
-        </div>
-
-        <!-- ── Hourly Rate ── -->
-        <div id="hourlyInputs" style="display:none;">
-          <div class="fields-row">
-            <div class="field-group">
-              <label class="field-label" for="hourlyRate">Hourly Rate</label>
-              <div class="field-wrap">
-                <span class="field-prefix">$</span>
-                <input type="number" id="hourlyRate" value="" step="0.01" placeholder="25.00"
-                       aria-label="Hourly rate of pay">
-              </div>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="hoursPerWeek">Hours Per Week</label>
-              <input type="number" id="hoursPerWeek" value="40" min="1"
-                     aria-label="Regularly scheduled hours per week">
-            </div>
-          </div>
-          <div class="explain-box">
-            <strong>Hourly Quick Calc:</strong> AWW = Hourly Rate × Hours/Week. Useful when you know the claimant's hourly rate and regular schedule.
+          <div class="wz-nav">
+            <button class="btn-back" onclick="goBack(2)">← Back</button>
+            <button class="btn-next" onclick="goNext(2)">Next: Earnings →</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         ADDITIONAL ADJUSTMENTS
-    ═══════════════════════════════════════════ -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Adjustments</span>
-      </div>
-      <div class="calc-body">
+    <!-- ══════════════════════════════════════════════════════
+         STEP 3 — Earnings
+    ══════════════════════════════════════════════════════ -->
+    <div id="step-3" class="step-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title" id="earningsTitle">Earnings &amp; Work History</span></div>
+        <div class="calc-body">
 
-        <!-- Overtime / Tips / Bonuses -->
-        <label class="check-row">
-          <input type="checkbox" id="hasOvertime" aria-label="Include overtime, tips, or bonuses"> Include Overtime / Tips / Bonuses
-        </label>
-        <div id="overtimeSection" style="display:none;margin-bottom:12px;margin-top:6px;">
-          <div class="field-group" style="max-width:280px;">
-            <label class="field-label" for="overtimeAmount">Additional Weekly Amount</label>
-            <div class="field-wrap">
-              <span class="field-prefix">$</span>
-              <input type="number" id="overtimeAmount" value="0" step="0.01" aria-label="Additional weekly overtime or tips">
-            </div>
-            <span class="field-hint">Per-week average of OT/tips/bonuses over 52 weeks</span>
-          </div>
-        </div>
-
-        <!-- Concurrent Employment -->
-        <label class="check-row">
-          <input type="checkbox" id="hasConcurrent" aria-label="Include concurrent employment"> Concurrent Employment (§14 — 2nd / Additional Job)
-        </label>
-        <div id="concurrentSection" style="display:none;margin-bottom:12px;margin-top:6px;padding:10px 12px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:7px;">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--ac);margin-bottom:6px;letter-spacing:.5px;">Concurrent Employment</div>
-          <div class="field-group" style="max-width:280px;">
-            <label class="field-label" for="concurrentAWW">Concurrent Job AWW</label>
-            <div class="field-wrap">
-              <span class="field-prefix">$</span>
-              <input type="number" id="concurrentAWW" value="0" step="0.01" aria-label="AWW from concurrent employment">
-            </div>
-            <span class="field-hint">Weekly earnings at 2nd job — added to primary AWW</span>
-          </div>
-        </div>
-
-        <!-- Amended AWW -->
-        <label class="check-row">
-          <input type="checkbox" id="hasAmended" aria-label="Apply amended AWW"> Amended AWW (Board Decision / Stipulation)
-        </label>
-        <div id="amendedSection" style="display:none;margin-bottom:12px;margin-top:6px;padding:10px 12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:7px;">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gd);margin-bottom:6px;letter-spacing:.5px;">Amended AWW</div>
-          <div class="fields-row">
-            <div class="field-group">
-              <label class="field-label" for="priorAWW">Prior AWW</label>
+          <!-- §14(1): 52-week -->
+          <div id="inputs-52week" style="display:none;">
+            <div class="field-group" style="max-width:340px;">
+              <label class="field-label" for="annualEarnings">Total Gross Earnings — 52 Weeks Before Injury</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="priorAWW" value="" step="0.01" placeholder="—" aria-label="Prior AWW">
+                <input type="number" id="annualEarnings" min="0" step="0.01" placeholder="78,000.00">
+              </div>
+              <span class="field-hint">Include all regular wages. Overtime, tips, and board/lodging can be added in the next step.</span>
+            </div>
+            <div class="info-callout">
+              <strong>§14(1) — 52-Week Divisor:</strong> AWW = total annual gross earnings ÷ 52. Used when the claimant worked substantially the whole year before the accident.
+            </div>
+          </div>
+
+          <!-- §14(2): statutory multiplier -->
+          <div id="inputs-statutory">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="totalEarnings">Total Gross Earnings in Period</label>
+                <div class="field-wrap">
+                  <span class="field-prefix">$</span>
+                  <input type="number" id="totalEarnings" min="0" step="0.01" placeholder="45,000.00">
+                </div>
+                <span class="field-hint">Gross earnings during the period before the accident</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="daysWorked">Days Actually Worked in Period</label>
+                <input type="number" id="daysWorked" min="1" step="1" placeholder="200">
+                <span class="field-hint">Calendar days minus weekends, holidays, absences</span>
               </div>
             </div>
-            <div class="field-group">
-              <label class="field-label" for="newAWW">New / Amended AWW</label>
+
+            <!-- 200-multiple rule toggle -->
+            <div class="toggle-section" style="margin-top:12px;">
+              <div class="toggle-header" onclick="toggleSection('toggle200')">
+                <div class="toggle-header-left">
+                  <span class="toggle-label">200-Multiple Rule (§14 Subd. 2)</span>
+                  <span class="toggle-badge">Optional</span>
+                </div>
+                <span class="toggle-arrow" id="toggle200-arrow">▶</span>
+              </div>
+              <div class="toggle-body" id="toggle200-body">
+                <p style="font-size:11px;color:var(--txD);margin-bottom:10px;">
+                  If the claimant's AWW is lower than 200 times the average daily wage of a similar employee in the same district, the Board may substitute the similar employee's rate. Enter the similar employee's daily wage to check.
+                </p>
+                <div class="field-group" style="max-width:280px;">
+                  <label class="field-label" for="similarDailyWage">Similar Employee Average Daily Wage</label>
+                  <div class="field-wrap">
+                    <span class="field-prefix">$</span>
+                    <input type="number" id="similarDailyWage" min="0" step="0.01" placeholder="200.00">
+                  </div>
+                  <span class="field-hint">Average daily wage of a comparable worker in same trade &amp; district</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-callout">
+              <strong>§14(2) — Statutory Multiplier:</strong> AWW = (total earnings ÷ days worked) × multiplier ÷ 52. The multiplier is determined by the claimant's regular schedule (200/260/300/365).
+            </div>
+          </div>
+
+          <!-- Straight divisor -->
+          <div id="inputs-straight" style="display:none;">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="straightEarnings">Total Gross Earnings in Period</label>
+                <div class="field-wrap">
+                  <span class="field-prefix">$</span>
+                  <input type="number" id="straightEarnings" min="0" step="0.01" placeholder="32,000.00">
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="weeksWorked">Weeks Actually Worked</label>
+                <input type="number" id="weeksWorked" min="0.1" step="0.1" placeholder="26">
+                <span class="field-hint">Can be fractional (e.g. 26.5)</span>
+              </div>
+            </div>
+            <div class="info-callout">
+              <strong>Straight Divisor:</strong> AWW = total earnings ÷ weeks worked. Used when the §14 multiplier methods don't yield a fair result — seasonal work, irregular schedules, new hires.
+            </div>
+          </div>
+
+          <!-- §14(3): similar employee -->
+          <div id="inputs-similarEmployee" style="display:none;">
+            <div class="field-group" style="max-width:340px;">
+              <label class="field-label" for="similarAnnualEarnings">Similar Employee Annual Earnings</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="newAWW" value="" step="0.01" placeholder="—" aria-label="New amended AWW">
+                <input type="number" id="similarAnnualEarnings" min="0" step="0.01" placeholder="62,000.00">
               </div>
-              <span class="field-hint">Overrides calculated AWW</span>
+              <span class="field-hint">Full-year gross earnings of a comparable worker in the same trade, grade, and district (WCL §14 Subd. 3)</span>
             </div>
+            <div class="info-callout">
+              <strong>§14(3) — Similar Employee:</strong> AWW = similar employee's annual earnings ÷ 52. Applied when it's impractical to compute the claimant's own AWW due to insufficient work history.
+            </div>
+          </div>
+
+          <!-- Hourly override -->
+          <div id="inputs-hourly" style="display:none;">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label" for="hourlyRate">Hourly Rate</label>
+                <div class="field-wrap">
+                  <span class="field-prefix">$</span>
+                  <input type="number" id="hourlyRate" min="0" step="0.01" placeholder="25.00">
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="hoursPerWeek">Regular Hours Per Week</label>
+                <input type="number" id="hoursPerWeek" min="1" step="0.5" value="40">
+              </div>
+            </div>
+            <div class="info-callout">
+              <strong>Hourly Quick Calc:</strong> AWW = hourly rate × regular hours per week. Tips, overtime, board/lodging, and concurrent wages can be added in the next step.
+            </div>
+          </div>
+
+          <div class="wz-nav">
+            <button class="btn-back" onclick="goBack(3)">← Back</button>
+            <button class="btn-next" onclick="goNext(3)">Next: Extras →</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         RESULTS
-    ═══════════════════════════════════════════ -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Results</span>
-      </div>
-      <div class="calc-body" style="padding-bottom:8px;">
-        <div class="result-box" style="margin-bottom:0;">
-          <div class="result-grid">
-            <div class="result-item">
-              <span class="result-label">Calculated AWW</span>
-              <span class="result-value" id="awwResult">—</span>
+    <!-- ══════════════════════════════════════════════════════
+         STEP 4 — Additional Wages (Tips, Board, Concurrent, OT)
+    ══════════════════════════════════════════════════════ -->
+    <div id="step-4" class="step-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Additional Wages &amp; Concurrent Employment</span></div>
+        <div class="calc-body">
+
+          <!-- Tips / Gratuities -->
+          <div class="toggle-section">
+            <div class="toggle-header" onclick="toggleSection('toggleTips')">
+              <div class="toggle-header-left">
+                <span class="toggle-label">Tips / Gratuities (WCL §14)</span>
+                <span class="toggle-badge">Optional</span>
+              </div>
+              <span class="toggle-arrow" id="toggleTips-arrow">▶</span>
             </div>
-            <div class="result-item">
-              <span class="result-label">2/3 Rate (before cap)</span>
-              <span class="result-value" id="twoThirdsResult">—</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Statutory Maximum</span>
-              <span class="result-value blue" id="applicableMaxResult">—</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Final Comp Rate (TT)</span>
-              <span class="result-value gold" id="finalRateResult">—</span>
+            <div class="toggle-body" id="toggleTips-body">
+              <div class="field-group" style="max-width:280px;">
+                <label class="field-label" for="tipsWeekly">Average Weekly Tips / Gratuities</label>
+                <div class="field-wrap">
+                  <span class="field-prefix">$</span>
+                  <input type="number" id="tipsWeekly" min="0" step="0.01" value="0" placeholder="0.00">
+                </div>
+                <span class="field-hint">Weekly average over the earning period. Reported tips and unreported customary gratuities are both includable.</span>
+              </div>
             </div>
           </div>
 
-          <!-- Statutory formula breakdown -->
-          <div id="formulaBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;">Statutory Calculation</div>
-            <div class="formula-box" id="formulaText"></div>
+          <!-- Board / Lodging -->
+          <div class="toggle-section">
+            <div class="toggle-header" onclick="toggleSection('toggleBoard')">
+              <div class="toggle-header-left">
+                <span class="toggle-label">Board / Lodging (Fair-Market Value)</span>
+                <span class="toggle-badge">Optional</span>
+              </div>
+              <span class="toggle-arrow" id="toggleBoard-arrow">▶</span>
+            </div>
+            <div class="toggle-body" id="toggleBoard-body">
+              <div class="field-group" style="max-width:280px;">
+                <label class="field-label" for="boardLodgingWeekly">Weekly Value of Board / Lodging</label>
+                <div class="field-wrap">
+                  <span class="field-prefix">$</span>
+                  <input type="number" id="boardLodgingWeekly" min="0" step="0.01" value="0" placeholder="0.00">
+                </div>
+                <span class="field-hint">Fair-market rental / meal value provided by the employer as part of compensation.</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Extended rate table -->
-          <div id="extendedBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;">Compensation Rate Table</div>
-            <div class="result-row-list" id="rateTableRows"></div>
+          <!-- Concurrent Employment -->
+          <div class="toggle-section">
+            <div class="toggle-header" onclick="toggleSection('toggleConcurrent')">
+              <div class="toggle-header-left">
+                <span class="toggle-label">Concurrent Employment (2nd Job)</span>
+                <span class="toggle-badge">Optional</span>
+              </div>
+              <span class="toggle-arrow" id="toggleConcurrent-arrow">▶</span>
+            </div>
+            <div class="toggle-body" id="toggleConcurrent-body">
+              <p style="font-size:11px;color:var(--txD);margin-bottom:10px;">
+                Under WCL §14, wages from all concurrent employment at the time of injury are combined — even if only one employer's work caused the injury.
+              </p>
+              <div class="field-group" style="max-width:280px;">
+                <label class="field-label" for="concurrentAWW">Concurrent Employer AWW</label>
+                <div class="field-wrap">
+                  <span class="field-prefix">$</span>
+                  <input type="number" id="concurrentAWW" min="0" step="0.01" value="0" placeholder="0.00">
+                </div>
+                <span class="field-hint">Average weekly earnings at the second (or additional) job.</span>
+              </div>
+            </div>
           </div>
 
-          <div id="concurrentNote" style="display:none;margin-top:8px;font-size:11px;color:var(--ac);"></div>
-          <div id="amendedNote" style="display:none;margin-top:4px;font-size:11px;color:var(--gd);"></div>
+          <div class="info-callout">
+            <strong>What counts as wages?</strong> Tips, gratuities, board, lodging, and concurrent wages are all includable under NYS WCL §14. Overtime earnings are typically already included in your gross pay figure from Step 3. If overtime was excluded, you may add the weekly average here via the tips/extras field.
+          </div>
 
-          <!-- Save prompt -->
-          <div id="save-prompt" class="save-prompt" style="display:none">
-            <p id="save-prompt-text"></p>
-            <div id="save-prompt-actions"></div>
+          <div class="wz-nav">
+            <button class="btn-back" onclick="goBack(4)">← Back</button>
+            <button class="btn-next" onclick="calculate()">Calculate AWW →</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         MINIMUM RATE SCHEDULE (WCL §204)
-    ═══════════════════════════════════════════ -->
-    <div class="calc-section">
-      <div class="calc-header"><span class="calc-header-title">NYS Statutory Minimum Rate Schedule (WCL §204)</span></div>
-      <div class="calc-body">
-        <p style="color:var(--txD);font-size:13px;margin-bottom:10px;">The weekly benefit rate cannot fall below the statutory minimum for the date of injury. This calculator raises 2/3 AWW up to the minimum when applicable — unless the claimant's full AWW is itself lower than the minimum, in which case the rate equals AWW (WCL §204).</p>
-        <div style="margin-bottom:10px;font-size:14px;">
-          <strong>Applicable Min for DOI: </strong><span id="minRateForDOI" style="font-family:var(--mono);color:var(--ac);font-weight:800;">—</span>
-          <span id="minRateForDOIPeriod" style="color:var(--txM);font-size:11px;margin-left:6px;"></span>
+    <!-- ══════════════════════════════════════════════════════
+         STEP 5 — Results
+    ══════════════════════════════════════════════════════ -->
+    <div id="step-results" class="step-panel">
+
+      <!-- Print header (only visible on print) -->
+      <div class="print-header" style="display:none;" id="printHeader">
+        <h2>NYS Workers' Compensation — AWW Calculation</h2>
+        <p id="printDOI"></p>
+      </div>
+
+      <!-- Hero AWW -->
+      <div class="results-hero">
+        <div class="results-hero-label">Average Weekly Wage (AWW)</div>
+        <div class="results-hero-aww" id="heroAWW">—</div>
+        <div class="results-hero-sub" id="heroMethod">—</div>
+      </div>
+
+      <!-- Rate grid -->
+      <div class="rate-grid">
+        <div class="rate-card">
+          <div class="rate-card-label">2/3 Rate (before cap)</div>
+          <div class="rate-card-val" id="cardTwoThirds">—</div>
+          <div class="rate-card-sub">2/3 × AWW</div>
         </div>
-        <div style="overflow-x:auto;">
-          <table class="data-table" style="width:100%;">
-            <thead><tr><th>Period</th><th>Min Weekly Rate</th><th>Notes</th></tr></thead>
-            <tbody id="minRatesTableBody"></tbody>
+        <div class="rate-card">
+          <div class="rate-card-label">Statutory Maximum</div>
+          <div class="rate-card-val blue" id="cardMaxRate">—</div>
+          <div class="rate-card-sub" id="cardMaxRateLabel">—</div>
+        </div>
+        <div class="rate-card">
+          <div class="rate-card-label">Min Rate (§204)</div>
+          <div class="rate-card-val" id="cardMinRate">—</div>
+          <div class="rate-card-sub" id="cardMinRateLabel">—</div>
+        </div>
+        <div class="rate-card" style="border-color:var(--gd);background:rgba(245,158,11,.05);">
+          <div class="rate-card-label">Final TT Comp Rate</div>
+          <div class="rate-card-val gold" id="cardTTRate">—</div>
+          <div class="rate-card-sub" id="cardTTNote">—</div>
+        </div>
+      </div>
+
+      <!-- Statutory formula -->
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Calculation Detail</span></div>
+        <div class="calc-body">
+          <div class="formula-box" id="formulaBox">—</div>
+          <div id="minFloorNote" style="display:none;margin-top:8px;font-size:11px;color:var(--gd);">
+            ⚑ Minimum rate floor applied (WCL §204): 2/3 AWW was below the statutory minimum — rate raised to the minimum (or to full AWW if AWW is below the minimum).
+          </div>
+          <div id="rule200Note" style="display:none;margin-top:8px;font-size:11px;color:var(--ac);">
+            ⚑ 200-multiple rule applied: claimant's AWW was below the §14(2) similar-employee threshold.
+          </div>
+        </div>
+      </div>
+
+      <!-- TPD table -->
+      <div class="calc-section section-print-hide" id="tpdSection">
+        <div class="calc-header"><span class="calc-header-title">TPD Scenarios (§15 Reduced Earnings)</span></div>
+        <div class="calc-body" style="padding:0;">
+          <table class="tpd-table" id="tpdTable">
+            <thead>
+              <tr>
+                <th>Earning Capacity</th>
+                <th>Weekly Earnings</th>
+                <th>§15(6) Benefit</th>
+                <th>Net to Claimant</th>
+              </tr>
+            </thead>
+            <tbody id="tpdBody"></tbody>
           </table>
+          <p style="font-size:10px;color:var(--txM);padding:8px 12px;">
+            Benefit = 2/3 × (AWW − reduced earning capacity), capped at the statutory max. Net = benefit (attorney fees not deducted here).
+          </p>
         </div>
       </div>
-    </div>
 
-    <!-- About AWW — §14 Explanation -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">WCL §14 — How AWW Is Calculated</span>
+      <!-- Comp Buddy explainer -->
+      <div class="buddy-box" id="buddyBox">
+        <div class="buddy-title">&#9733; What This Means</div>
+        <div class="buddy-body" id="buddyText">—</div>
       </div>
+
+      <!-- Disclaimer (always visible on results) -->
+      <div class="disclaimer" id="resultsDisclaimer">
+        <p style="margin:0;"><strong>Disclaimer — Not Legal Advice:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Using this tool does not create an attorney-client relationship. AWW calculations are estimates based on the information entered and applicable New York Workers' Compensation Law §14. Actual AWW in your case may differ based on wage records, employer payroll, Board decisions, and other case-specific factors. Consult a qualified workers' compensation attorney for advice about your specific situation.</p>
+      </div>
+
+      <!-- Action bar -->
+      <div class="action-bar">
+        <button class="btn-share" onclick="doShare()">&#128279; Share with Attorney</button>
+        <button class="btn-print" onclick="doPrint()">&#128424; Print / Save PDF</button>
+        <button class="btn-restart" onclick="restart()">Start Over</button>
+      </div>
+
+      <!-- Share result panel -->
+      <div class="share-result" id="shareResult">
+        <div style="font-size:12px;font-weight:700;color:#22c55e;margin-bottom:6px;">&#10003; Share link created — expires in 30 days</div>
+        <div style="font-size:11px;color:var(--txD);margin-bottom:8px;">Send this read-only link to your attorney. No account required. No personal information is stored beyond this calculation.</div>
+        <div class="share-url-row">
+          <input type="text" id="shareUrlInput" readonly>
+          <button class="btn-copy" onclick="copyShareUrl()">Copy</button>
+        </div>
+      </div>
+      <div id="shareError" style="display:none;margin-top:8px;font-size:11px;color:var(--rd,#ef4444);"></div>
+
+      <!-- Print-only disclaimer -->
+      <div class="print-disclaimer">
+        <strong>Disclaimer — Not Legal Advice:</strong> This AWW calculation is provided for informational purposes only and does not constitute legal advice. It does not create an attorney-client relationship. Results are estimates based on the information entered and applicable New York Workers' Compensation Law §14. Actual AWW may differ based on payroll records, Board decisions, and case-specific factors. Consult a licensed workers' compensation attorney for advice about your specific situation. Generated by The Comp Desk (thecompdesk.com).
+      </div>
+
+    </div><!-- /step-results -->
+
+    <!-- ── About AWW ────────────────────────────────────────────── -->
+    <div class="calc-section" id="aboutSection">
+      <div class="calc-header"><span class="calc-header-title">WCL §14 — How AWW Is Calculated</span></div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          Average Weekly Wage (AWW) is the foundation of all New York workers' compensation benefits. Under <strong style="color:var(--tx);">Workers' Compensation Law §14</strong>, AWW determines the compensation rate — two-thirds (2/3) of AWW, capped at the statutory maximum set annually by DFS.
+          Average Weekly Wage (AWW) is the foundation of every NYS workers' compensation benefit. Under <strong style="color:var(--tx);">Workers' Compensation Law §14</strong>, AWW determines the compensation rate — two-thirds (2/3) of AWW, capped at the statutory maximum for the year of injury and floored by the statutory minimum (WCL §204).
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--ac);">§14(1) — 52-Week Divisor:</strong> For workers employed substantially the whole year, total gross earnings in the 52 weeks preceding the accident are divided by 52. This is the default method for full-time, full-year workers.
+          <strong style="color:var(--ac);">§14(1) — 52-Week Divisor:</strong> For workers employed substantially the whole year, total gross earnings in the 52 weeks preceding the accident are divided by 52. Tips, gratuities, concurrent wages, and board/lodging are all includable.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--ac);">§14(2) — Day-Based Multiplier:</strong> When the claimant did NOT work substantially the whole year, average annual earnings are computed by multiplying the average daily wage by a statutory multiplier based on the claimant's regular work schedule:
-        </p>
-        <div style="padding:10px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;margin-bottom:12px;">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
-            <div>
-              <div style="font-size:20px;font-weight:800;color:var(--ac);">200</div>
-              <div style="font-size:10px;color:var(--txM);font-weight:600;">4-Day Worker</div>
-            </div>
-            <div>
-              <div style="font-size:20px;font-weight:800;color:var(--ac);">260</div>
-              <div style="font-size:10px;color:var(--txM);font-weight:600;">5-Day Worker</div>
-            </div>
-            <div>
-              <div style="font-size:20px;font-weight:800;color:var(--ac);">300</div>
-              <div style="font-size:10px;color:var(--txM);font-weight:600;">6-Day Worker</div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--txD);">
-            AWW = (Total Earnings ÷ Days Worked) × Multiplier ÷ 52
-          </div>
-        </div>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--gd);">Straight Divisor (Board Discretion):</strong> When the statutory multiplier methods do not yield a fair result — for instance, with seasonal workers, irregular schedules, new hires, or part-year employment — the Board may use a straight divisor: Total Earnings ÷ Actual Weeks Worked. This is the most commonly litigated AWW calculation.
-        </p>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">Concurrent Employment:</strong> Under §14, wages from all concurrent employment at the time of injury are combined. If the claimant held two jobs, both sets of wages are included — even if only one employer's work caused the injury.
+          <strong style="color:var(--ac);">§14(2) — Day-Based Multiplier:</strong> When the claimant did not work substantially the whole year, the Board applies a statutory multiplier based on the regular work schedule: ×200 (4 days), ×260 (5 days), ×300 (6 days), ×365 (7 days). The 200-multiple rule can override the calculated AWW if the result is lower than the comparable similar-employee rate.
         </p>
         <p style="color:var(--txD);line-height:1.8;">
-          <strong style="color:var(--tx);">Why It Matters:</strong> AWW directly controls the comp rate, which flows into every benefit calculation: temporary total, reduced earnings, SLU awards, CCP awards, and fee applications. Getting the AWW right is the single most important number in the case.
+          <strong style="color:var(--tx);">§14(3) — Similar Employee:</strong> When the claimant's own work history is too brief to calculate a fair AWW, the Board uses the annual earnings of a similar employee in the same trade and district, divided by 52.
         </p>
       </div>
-    </div>
-
-    <!-- App CTA -->
-    <div class="upgrade-banner">
-      <div class="upgrade-title">Full-Featured Mobile App</div>
-      <div class="upgrade-description">Calculate AWW, manage hearings, and build fee applications on the go.</div>
-      <button class="btn-primary">Download the App</button>
     </div>
 
     <div class="disclaimer">
-      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. AWW calculations are based on current New York State Workers' Compensation Law §14 and Department of Financial Services regulations. The accuracy of results depends on the wages entered. Disputes over AWW may require detailed wage documentation and adjudication by the Workers' Compensation Board. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
+      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Results are estimates only. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
     </div>
-  </div>
+  </div><!-- /container -->
 
   <noscript>
     <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
-      <h2>NYS Average Weekly Wage (AWW) Calculator</h2>
-      <p>This interactive calculator requires JavaScript to calculate Average Weekly Wage and workers' compensation benefits under WCL §14.</p>
+      <h2>NYS AWW Calculator</h2>
+      <p>This interactive calculator requires JavaScript to compute Average Weekly Wage under WCL §14.</p>
     </div>
   </noscript>
 
   <script type="module">
-    import { getOptionalUser, saveCalculation } from '../js/auth.js';
+    import { getOptionalUser } from '../js/auth.js';
     import { renderPublicNav } from '../js/nav.js';
+    import { calculateAWW, getMaxForDate, getMinForDate } from '../js/aww-engine.mjs';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    // ─── Statutory max rate table (matches app) ───
-    const MAX_RATES = [
-      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025+",                  max: 1222.42 },
-      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025",    max: 1171.46 },
-      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024",    max: 1145.43 },
-      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023",    max: 1125.46 },
-      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022",    max: 1063.05 },
-      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021",    max: 966.78  },
-      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020",    max: 934.11  },
-      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019",    max: 904.74  },
-      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018",    max: 870.61  },
-      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017",    max: 864.32  },
-      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016",    max: 844.29  },
-      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015",    max: 808.65  },
-      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014",    max: 803.21  },
-      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013",    max: 792.07  },
-      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012",    max: 772.96  },
-      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011",    max: 739.83  },
-      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010",    max: 600.00  },
-      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009",    max: 550.00  },
-      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008",    max: 500.00  },
-      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007",    max: 400.00  },
-    ];
+    // ── Supabase (share feature) ───────────────────────────────────────────
+    const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+    const supabase = createClient(SUPA_URL, SUPA_KEY);
 
-    // ─── Statutory MIN rates (NYS WCL §204) — mirrors mobile app ───
-    const MIN_RATES = [
-      { s:"2026-07-01", e:"2099-12-31", l:"Jul 1, 2026+",                 min:null, n:"1/5 NYSAWW (indexed)" },
-      { s:"2025-01-01", e:"2026-06-30", l:"Jan 1, 2025 – Jun 30, 2026",   min:325,  n:"" },
-      { s:"2024-01-01", e:"2024-12-31", l:"Jan 1, 2024 – Dec 31, 2024",   min:275,  n:"" },
-      { s:"2013-05-01", e:"2023-12-31", l:"May 1, 2013 – Dec 31, 2023",   min:150,  n:"" },
-      { s:"2007-07-01", e:"2013-04-30", l:"Jul 1, 2007 – Apr 30, 2013",   min:100,  n:"2007 Reform" },
-      { s:"1900-01-01", e:"2007-06-30", l:"Before Jul 1, 2007",           min:40,   n:"Pre-reform" },
-    ];
-    function getMinForDate(dateStr) {
-      if (!dateStr) return MIN_RATES[0];
-      const dt = new Date(dateStr + 'T00:00:00');
-      for (const r of MIN_RATES) {
-        if (dt >= new Date(r.s+'T00:00:00') && dt <= new Date(r.e+'T23:59:59')) return r;
-      }
-      return null;
-    }
-    function applyMinFloor(rate, aww, minR) {
-      if (minR > 0 && rate < minR) return Math.min(minR, aww);
-      return rate;
-    }
+    // ── Nav ───────────────────────────────────────────────────────────────
+    getOptionalUser().then(({ session }) => renderPublicNav('app-nav', session));
 
-    // ─── Multiplier map: days/week → statutory multiplier ───
-    const MULTIPLIERS = { 4: 200, 5: 260, 6: 300, 7: 365 };
-
-    // ─── State ───
+    // ── State ─────────────────────────────────────────────────────────────
+    let currentStep  = 1;
+    let currentDPW   = 5;
     let currentMethod = 'statutory';
-    let currentDPW = 5;
-    let currentUser = null;
-    let hasCalculated = false;
+    let useHourly    = false;
+    let lastResult   = null;
+    let lastInputs   = null;
 
-    // ─── Helpers ───
-    function pF(v) { return parseFloat(v) || 0; }
-    function fC(v) {
-      return '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    // ── Expose globals for inline onclick attrs ───────────────────────────
+    window.goNext      = goNext;
+    window.goBack      = goBack;
+    window.jumpTo      = jumpTo;
+    window.setDPW      = setDPW;
+    window.setPattern  = setPattern;
+    window.toggleHourly = toggleHourly;
+    window.toggleSection = toggleSection;
+    window.calculate   = calculate;
+    window.doShare     = doShare;
+    window.doPrint     = doPrint;
+    window.restart     = restart;
+    window.copyShareUrl = copyShareUrl;
 
-    function getMaxForDate(dateStr) {
-      if (!dateStr) return MAX_RATES[0];
-      const dt = new Date(dateStr + 'T00:00:00');
-      for (const r of MAX_RATES) {
-        const s = new Date(r.s + 'T00:00:00');
-        const e = new Date(r.e + 'T23:59:59');
-        if (dt >= s && dt <= e) return r;
-      }
-      return MAX_RATES[MAX_RATES.length - 1];
-    }
+    // ── Wizard navigation ─────────────────────────────────────────────────
 
-    // ─── Method switching ───
-    function setMethod(method) {
-      currentMethod = method;
+    function showStep(n) {
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      const panel = n === 5
+        ? document.getElementById('step-results')
+        : document.getElementById(`step-${n}`);
+      if (panel) panel.classList.add('active');
 
-      // Update cards
-      document.querySelectorAll('.method-card').forEach(c => {
-        const isActive = c.dataset.method === method;
-        c.classList.toggle('active', isActive);
-        c.setAttribute('aria-pressed', String(isActive));
+      document.querySelectorAll('.wz-step').forEach(s => {
+        const sn = +s.dataset.step;
+        s.classList.toggle('active', sn === n);
+        s.classList.toggle('done',   sn < n);
       });
+      currentStep = n;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-      // Show/hide input sections
-      document.getElementById('statutoryInputs').style.display   = method === 'statutory' ? 'block' : 'none';
-      document.getElementById('weekDivisorInputs').style.display = method === '52week'    ? 'block' : 'none';
-      document.getElementById('straightInputs').style.display    = method === 'straight'  ? 'block' : 'none';
-      document.getElementById('hourlyInputs').style.display      = method === 'hourly'    ? 'block' : 'none';
+    function jumpTo(n) {
+      if (n >= currentStep || n < currentStep) showStep(n);
+    }
 
-      // Update section title
+    function goNext(from) {
+      if (from === 1) {
+        const doi = document.getElementById('doiInput').value;
+        if (!doi) { alert('Please enter the Date of Injury to continue.'); return; }
+      }
+      if (from === 3) {
+        syncEarningsPanel();
+      }
+      showStep(from + 1);
+    }
+
+    function goBack(from) {
+      showStep(from - 1);
+    }
+
+    // ── Step 1: DOI preview ───────────────────────────────────────────────
+
+    document.getElementById('doiInput').addEventListener('input', function () {
+      const doi = this.value;
+      const preview = document.getElementById('doiPreview');
+      if (!doi) { preview.style.display = 'none'; return; }
+
+      const maxR = getMaxForDate(doi);
+      const minR = getMinForDate(doi);
+
+      document.getElementById('prevMax').textContent =
+        maxR ? '$' + maxR.max.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '—';
+      document.getElementById('prevMaxLabel').textContent = maxR ? maxR.l : '—';
+
+      if (minR && minR.min !== null) {
+        document.getElementById('prevMin').textContent =
+          '$' + minR.min.toLocaleString('en-US', { minimumFractionDigits: 2 });
+        document.getElementById('prevMinLabel').textContent = minR.l;
+      } else if (minR) {
+        document.getElementById('prevMin').textContent = 'Indexed';
+        document.getElementById('prevMinLabel').textContent = minR.n || minR.l;
+      } else {
+        document.getElementById('prevMin').textContent = '—';
+        document.getElementById('prevMinLabel').textContent = '—';
+      }
+      preview.style.display = 'flex';
+    });
+
+    // ── Step 2: DPW + Pattern ─────────────────────────────────────────────
+
+    function setDPW(n) {
+      currentDPW = n;
+      document.querySelectorAll('#dpwGroup .pill-btn').forEach(b => {
+        b.classList.toggle('active', +b.dataset.dpw === n);
+      });
+    }
+
+    function setPattern(p) {
+      currentMethod = p;
+      document.querySelectorAll('#patternCards .pattern-card').forEach(c => {
+        c.classList.toggle('active', c.dataset.pattern === p);
+      });
+    }
+
+    function toggleHourly(checked) {
+      useHourly = checked;
+      syncEarningsPanel();
+    }
+
+    function syncEarningsPanel() {
+      const method = useHourly ? 'hourly' : currentMethod;
+      ['52week', 'statutory', 'straight', 'similarEmployee', 'hourly'].forEach(m => {
+        document.getElementById(`inputs-${m}`).style.display = m === method ? '' : 'none';
+      });
       const titles = {
-        statutory: 'Earnings & Work History (§14 Multiplier)',
-        '52week':  'Annual Earnings (52-Week Divisor)',
-        straight:  'Earnings & Weeks Worked (Straight Divisor)',
-        hourly:    'Hourly Rate & Schedule'
+        '52week':         '52-Week Divisor (§14 Subd. 1)',
+        'statutory':      'Statutory Multiplier (§14 Subd. 2)',
+        'straight':       'Straight Divisor',
+        'similarEmployee':'Similar Employee (§14 Subd. 3)',
+        'hourly':         'Hourly Rate (Quick Calc)',
       };
-      document.getElementById('inputSectionTitle').textContent = titles[method];
-
-      calculate();
+      document.getElementById('earningsTitle').textContent = titles[method] || 'Earnings';
     }
 
-    // ─── Days-per-week switching ───
-    function setDPW(dpw) {
-      currentDPW = dpw;
-      document.querySelectorAll('.dpw-btn').forEach(b => {
-        b.classList.toggle('active', parseInt(b.dataset.dpw) === dpw);
-      });
-      const mult = MULTIPLIERS[dpw];
-      document.getElementById('multiplierVal').textContent = mult;
-      document.getElementById('multiplierVal2').textContent = mult;
-      document.getElementById('multiplierExplain').querySelector('strong').textContent =
-        '§14 Multiplier (' + dpw + '-day worker):';
-      calculate();
+    // ── Toggle sections ───────────────────────────────────────────────────
+
+    function toggleSection(id) {
+      const body  = document.getElementById(`${id}-body`);
+      const arrow = document.getElementById(`${id}-arrow`);
+      const open  = body.classList.toggle('open');
+      if (arrow) arrow.classList.toggle('open', open);
     }
 
-    // ─── Main calculation ───
+    // ── Main calculation ──────────────────────────────────────────────────
+
     function calculate() {
-      const maxRate     = pF(document.getElementById('maxRate').value) || 1222.42;
-      const hasOvertime = document.getElementById('hasOvertime').checked;
-      const hasConcur   = document.getElementById('hasConcurrent').checked;
-      const hasAmended  = document.getElementById('hasAmended').checked;
+      const doi    = document.getElementById('doiInput').value;
+      const method = useHourly ? 'hourly' : currentMethod;
 
-      let primaryAWW = 0;
-      let formulaLines = [];
+      const inputs = {
+        doi,
+        method,
+        daysPerWeek:          currentDPW,
+        annualEarnings:       parseNum('annualEarnings'),
+        totalEarnings:        parseNum('totalEarnings'),
+        daysWorked:           parseNum('daysWorked'),
+        straightEarnings:     parseNum('straightEarnings'),
+        weeksWorked:          parseNum('weeksWorked'),
+        hourlyRate:           parseNum('hourlyRate'),
+        hoursPerWeek:         parseNum('hoursPerWeek') || 40,
+        similarAnnualEarnings:parseNum('similarAnnualEarnings'),
+        tipsWeekly:           parseNum('tipsWeekly'),
+        boardLodgingWeekly:   parseNum('boardLodgingWeekly'),
+        concurrentAWW:        parseNum('concurrentAWW'),
+        apply200Rule: !!(document.getElementById('toggle200-body').classList.contains('open') &&
+                         parseNum('similarDailyWage') > 0),
+        similarDailyWage: parseNum('similarDailyWage'),
+      };
 
-      // ── Compute primary AWW based on selected method ──
-      if (currentMethod === 'statutory') {
-        const totalEarn = pF(document.getElementById('totalEarnings').value);
-        const daysWkd   = pF(document.getElementById('daysWorked').value);
-        const mult      = MULTIPLIERS[currentDPW];
+      const result = calculateAWW(inputs);
+      lastResult = result;
+      lastInputs = inputs;
 
-        if (totalEarn > 0 && daysWkd > 0) {
-          const dailyWage    = totalEarn / daysWkd;
-          const annualEarn   = dailyWage * mult;
-          primaryAWW         = annualEarn / 52;
-
-          formulaLines.push('Total Earnings:           ' + fC(totalEarn));
-          formulaLines.push('Days Worked:              ' + daysWkd);
-          formulaLines.push('Average Daily Wage:       ' + fC(totalEarn) + ' ÷ ' + daysWkd + ' = ' + fC(dailyWage));
-          formulaLines.push('');
-          formulaLines.push('Multiplier (' + currentDPW + '-day):       ×' + mult);
-          formulaLines.push('Avg Annual Earnings:      ' + fC(dailyWage) + ' × ' + mult + ' = ' + fC(annualEarn));
-          formulaLines.push('AWW:                      ' + fC(annualEarn) + ' ÷ 52 = ' + fC(primaryAWW));
-        }
-
-      } else if (currentMethod === '52week') {
-        const annualEarn = pF(document.getElementById('annualEarnings52').value);
-        if (annualEarn > 0) {
-          primaryAWW = annualEarn / 52;
-          formulaLines.push('Total Annual Earnings:    ' + fC(annualEarn));
-          formulaLines.push('AWW:                      ' + fC(annualEarn) + ' ÷ 52 = ' + fC(primaryAWW));
-        }
-
-      } else if (currentMethod === 'straight') {
-        const totalEarn = pF(document.getElementById('straightEarnings').value);
-        const weeksWkd  = pF(document.getElementById('weeksWorked').value);
-        if (totalEarn > 0 && weeksWkd > 0) {
-          primaryAWW = totalEarn / weeksWkd;
-          formulaLines.push('Total Earnings:           ' + fC(totalEarn));
-          formulaLines.push('Weeks Worked:             ' + weeksWkd);
-          formulaLines.push('AWW (straight):           ' + fC(totalEarn) + ' ÷ ' + weeksWkd + ' = ' + fC(primaryAWW));
-        }
-
-      } else if (currentMethod === 'hourly') {
-        const hourly = pF(document.getElementById('hourlyRate').value);
-        const hpw    = pF(document.getElementById('hoursPerWeek').value);
-        if (hourly > 0 && hpw > 0) {
-          primaryAWW = hourly * hpw;
-          formulaLines.push('Hourly Rate:              ' + fC(hourly));
-          formulaLines.push('Hours/Week:               ' + hpw);
-          formulaLines.push('AWW:                      ' + fC(hourly) + ' × ' + hpw + ' = ' + fC(primaryAWW));
-        }
-      }
-
-      // ── Overtime ──
-      const overtimeAmt = hasOvertime ? pF(document.getElementById('overtimeAmount').value) : 0;
-      if (overtimeAmt > 0) {
-        primaryAWW += overtimeAmt;
-        formulaLines.push('');
-        formulaLines.push('+ Overtime/Tips/Bonuses:   ' + fC(overtimeAmt) + '/wk');
-        formulaLines.push('Adjusted AWW:             ' + fC(primaryAWW));
-      }
-
-      // ── Concurrent ──
-      const concAWW = hasConcur ? pF(document.getElementById('concurrentAWW').value) : 0;
-      let compositeAWW = primaryAWW + concAWW;
-      if (concAWW > 0) {
-        formulaLines.push('');
-        formulaLines.push('+ Concurrent Employment:   ' + fC(concAWW) + '/wk');
-        formulaLines.push('Composite AWW:            ' + fC(compositeAWW));
-      }
-
-      // ── Amended override ──
-      let finalAWW = compositeAWW;
-      let amendedAWW = 0;
-      if (hasAmended) {
-        amendedAWW = pF(document.getElementById('newAWW').value);
-        if (amendedAWW > 0) {
-          finalAWW = amendedAWW;
-          formulaLines.push('');
-          formulaLines.push('⚑ Amended AWW Override:   ' + fC(amendedAWW));
-        }
-      }
-
-      // ── Compute comp rate ──
-      const twoThirds = finalAWW * (2 / 3);
-      const cappedRate = Math.min(twoThirds, maxRate);
-      const minObj = getMinForDate(document.getElementById('doiDate')?.value || '');
-      const minRate = (minObj && minObj.min) ? minObj.min : 0;
-      const finalRate = applyMinFloor(cappedRate, finalAWW, minRate);
-
-      if (finalAWW > 0) {
-        formulaLines.push('');
-        formulaLines.push('────────────────────────────────────────');
-        formulaLines.push('Final AWW:                ' + fC(finalAWW));
-        formulaLines.push('2/3 Rate:                 ' + fC(finalAWW) + ' × 2/3 = ' + fC(twoThirds));
-        if (twoThirds > maxRate) {
-          formulaLines.push('Capped at Max:            ' + fC(twoThirds) + ' → ' + fC(maxRate));
-        }
-        if (minRate > 0 && cappedRate < minRate) {
-          formulaLines.push('Floored at Min (§204):    ' + fC(cappedRate) + ' → ' + fC(finalRate) + (finalAWW < minRate ? ' (capped at AWW ' + fC(finalAWW) + ')' : ''));
-        }
-        formulaLines.push('TT Comp Rate:             ' + fC(finalRate) + '/wk');
-      }
-
-      // ── Render results ──
-      const hasResult = finalAWW > 0;
-      document.getElementById('awwResult').textContent          = hasResult ? fC(finalAWW) : '—';
-      document.getElementById('twoThirdsResult').textContent    = hasResult ? fC(twoThirds) : '—';
-      document.getElementById('applicableMaxResult').textContent = fC(maxRate);
-      document.getElementById('finalRateResult').textContent    = hasResult ? fC(finalRate) : '—';
-
-      // ── Formula breakdown ──
-      const formulaEl = document.getElementById('formulaBreakdown');
-      const formulaText = document.getElementById('formulaText');
-      if (hasResult && formulaLines.length > 0) {
-        formulaText.textContent = formulaLines.join('\n');
-        formulaEl.style.display = 'block';
-      } else {
-        formulaEl.style.display = 'none';
-      }
-
-      // ── Concurrent note ──
-      const concNote = document.getElementById('concurrentNote');
-      if (hasConcur && concAWW > 0) {
-        concNote.style.display = 'block';
-        concNote.textContent = 'Concurrent AWW: Primary ' + fC(primaryAWW) + ' + Concurrent ' + fC(concAWW) + ' = Composite ' + fC(compositeAWW);
-      } else {
-        concNote.style.display = 'none';
-      }
-
-      // ── Amended note ──
-      const amendNote = document.getElementById('amendedNote');
-      if (hasAmended && amendedAWW > 0) {
-        const priorV = pF(document.getElementById('priorAWW').value);
-        amendNote.style.display = 'block';
-        amendNote.textContent = 'Amended AWW applied' + (priorV > 0 ? ' (Prior: ' + fC(priorV) + ' → New: ' + fC(amendedAWW) + ')' : '');
-      } else {
-        amendNote.style.display = 'none';
-      }
-
-      // ── Rate table ──
-      const tableEl = document.getElementById('rateTableRows');
-      const breakdown = document.getElementById('extendedBreakdown');
-      if (hasResult) {
-        breakdown.style.display = 'block';
-        const pcts = [1, 0.875, 0.80, 0.75, 0.666, 0.50, 0.45, 0.30, 0.25, 0.10];
-        tableEl.innerHTML = pcts.map(p => {
-          const label = (p * 100).toFixed(p === 0.666 ? 1 : 0) + '% Disability';
-          const val   = fC(finalRate * p);
-          return '<div class="result-row-item"><span class="result-row-label">' + label + '</span><span class="result-row-val mono">' + val + '</span></div>';
-        }).join('') +
-          '<div class="result-row-item" style="border-top:1px solid var(--bd);padding-top:6px;margin-top:4px;">' +
-          '<span class="result-row-label" style="color:var(--gn);">Atty Fee (1/3 of 2/3)</span>' +
-          '<span class="result-row-val mono" style="color:var(--gn);">' + fC(finalRate / 3) + '</span></div>';
-      } else {
-        breakdown.style.display = 'none';
-      }
-
-      // ── Save prompt ──
-      if (hasResult && !hasCalculated) {
-        hasCalculated = true;
-        showSavePrompt(currentUser);
-      }
+      renderResults(result, inputs);
+      showStep(5);
     }
 
-    // ─── Save prompt ───
-    function showSavePrompt(user) {
-      const prompt  = document.getElementById('save-prompt');
-      const text    = document.getElementById('save-prompt-text');
-      const actions = document.getElementById('save-prompt-actions');
-      if (!prompt) return;
-
-      if (!user || !user.session) {
-        text.textContent = 'Want to save this calculation?';
-        actions.innerHTML = '<a href="/auth_v2.html?mode=signup">Create free account</a>';
-      } else {
-        text.textContent = 'Save this calculation to your history.';
-        actions.innerHTML = '<button id="sp-save-btn">Save</button>';
-        document.getElementById('sp-save-btn').addEventListener('click', async () => {
-          const ok = await saveCalculation(user.session.user.id, 'aww', {
-            method: currentMethod,
-            aww:       document.getElementById('awwResult').textContent,
-            finalRate: document.getElementById('finalRateResult').textContent
-          });
-          document.getElementById('sp-save-btn').textContent = ok ? 'Saved!' : 'Error';
-        });
-      }
-      prompt.style.display = 'flex';
-    }
-
-    // ─── Event wiring ───
-
-    // Method cards
-    document.querySelectorAll('.method-card').forEach(card => {
-      card.addEventListener('click', () => setMethod(card.dataset.method));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMethod(card.dataset.method); }});
-    });
-
-    // Days-per-week buttons
-    document.querySelectorAll('.dpw-btn').forEach(btn => {
-      btn.addEventListener('click', () => setDPW(parseInt(btn.dataset.dpw)));
-    });
-
-    // DOI auto-fills max rate
-    document.getElementById('doiDate').addEventListener('change', () => {
-      const doi = document.getElementById('doiDate').value;
-      const rateObj = getMaxForDate(doi);
-      document.getElementById('maxRate').value = rateObj.max.toFixed(2);
-      document.getElementById('maxRateHint').textContent = 'Rate: ' + fC(rateObj.max) + ' (' + rateObj.l + ')';
-      updateMinRateForDOI();
-      calculate();
-    });
-
-    function updateMinRateForDOI() {
-      const m = getMinForDate(document.getElementById('doiDate').value);
-      const el = document.getElementById('minRateForDOI');
-      const pe = document.getElementById('minRateForDOIPeriod');
-      if (!el) return;
-      if (!m) { el.textContent='—'; pe.textContent=''; return; }
-      el.textContent = m.min ? fC(m.min)+'/wk' : 'Indexed';
-      pe.textContent = '— ' + m.l + (m.n?' · '+m.n:'');
-    }
-    function buildMinRatesTable() {
-      const tb = document.getElementById('minRatesTableBody');
-      if (!tb) return;
-      MIN_RATES.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.l}</td><td style="font-family:var(--mono);">${r.min?fC(r.min):'Indexed'}</td><td style="color:var(--txM);font-size:11px;">${r.n||''}</td>`;
-        tb.appendChild(tr);
-      });
-    }
-
-    // Toggle sections
-    document.getElementById('hasOvertime').addEventListener('change', e => {
-      document.getElementById('overtimeSection').style.display = e.target.checked ? 'block' : 'none';
-      calculate();
-    });
-    document.getElementById('hasConcurrent').addEventListener('change', e => {
-      document.getElementById('concurrentSection').style.display = e.target.checked ? 'block' : 'none';
-      calculate();
-    });
-    document.getElementById('hasAmended').addEventListener('change', e => {
-      document.getElementById('amendedSection').style.display = e.target.checked ? 'block' : 'none';
-      calculate();
-    });
-
-    // All numeric/select inputs trigger recalculation
-    ['totalEarnings','daysWorked','annualEarnings52','straightEarnings','weeksWorked',
-     'hourlyRate','hoursPerWeek','overtimeAmount','concurrentAWW','priorAWW','newAWW','maxRate'
-    ].forEach(id => {
+    function parseNum(id) {
       const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', calculate);
-        el.addEventListener('change', calculate);
-      }
-    });
+      if (!el) return 0;
+      return parseFloat(el.value) || 0;
+    }
 
-    // ─── Init ───
-    document.addEventListener('DOMContentLoaded', async () => {
-      currentUser = await getOptionalUser();
-      renderPublicNav(currentUser);
+    // ── Render results ────────────────────────────────────────────────────
+
+    function renderResults(r, inputs) {
+      const $c = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+      const fc  = n => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      // Hero
+      $c('heroAWW',    fc(r.aww));
+      $c('heroMethod', r.methodLabel);
+
+      // Rate grid
+      $c('cardTwoThirds',    fc(r.twoThirds));
+      $c('cardMaxRate',      fc(r.maxRate));
+      $c('cardMaxRateLabel', r.maxRateLabel);
+      $c('cardMinRate',      r.minRate !== null ? fc(r.minRate) : (r.minRateLabel || '—'));
+      $c('cardMinRateLabel', r.minRateLabel || '—');
+      $c('cardTTRate',       fc(r.ttRate));
+
+      let ttNote = '';
+      if (r.ttRate >= r.maxRate)      ttNote = 'Capped at statutory maximum';
+      else if (r.minFloorApplied)     ttNote = 'Raised to §204 minimum floor';
+      else                            ttNote = '2/3 × AWW';
+      $c('cardTTNote', ttNote);
+
+      // Formula
+      $c('formulaBox', r.formulaLines.join('\n'));
+
+      // Notes
+      document.getElementById('minFloorNote').style.display = r.minFloorApplied ? '' : 'none';
+      document.getElementById('rule200Note').style.display  = r.multiplier200Applied ? '' : 'none';
+
+      // TPD table
+      const tpdBody = document.getElementById('tpdBody');
+      tpdBody.innerHTML = '';
+      r.tpdScenarios.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${s.pct}% capacity</td>
+          <td>${fc(s.earningCapacity)}/wk</td>
+          <td class="benefit">${fc(s.benefit)}/wk</td>
+          <td>${fc(s.benefit)}/wk</td>`;
+        tpdBody.appendChild(tr);
+      });
+
+      // Comp Buddy explainer
+      const buddyLines = [];
+      buddyLines.push(`Your AWW is <strong>${fc(r.aww)}</strong> per week. This is the base wage figure from which all your workers' comp benefits are calculated.`);
+      buddyLines.push(`Your weekly comp rate for a period of <strong>total disability (TT)</strong> is <strong style="color:var(--gd);">${fc(r.ttRate)}</strong> per week.`);
+      if (r.ttRate >= r.maxRate) {
+        buddyLines.push(`Your 2/3 wage rate (${fc(r.twoThirds)}) exceeds the statutory maximum of ${fc(r.maxRate)}, so your benefit is capped at the maximum.`);
+      } else if (r.minFloorApplied) {
+        buddyLines.push(`Your 2/3 wage rate (${fc(r.twoThirds)}) was below the statutory minimum. Under WCL §204, your rate was raised to ${fc(r.ttRate)}.`);
+      }
+      if (r.concurrentAWW > 0) {
+        buddyLines.push(`Concurrent employment (${fc(r.concurrentAWW)}/wk) was included in your AWW under WCL §14 — both employers' wages are combined.`);
+      }
+      if (r.adjustments.length > 0) {
+        const adjNames = r.adjustments.map(a => a.label).join(', ');
+        buddyLines.push(`Included adjustments: ${adjNames}.`);
+      }
+      if (r.multiplier200Applied) {
+        buddyLines.push(`The 200-multiple rule was applied — your AWW was raised to match the similar-employee benchmark.`);
+      }
+      const tpdAt50 = r.tpdScenarios.find(s => s.pct === 50);
+      if (tpdAt50) {
+        buddyLines.push(`If you return to work earning about 50% of your pre-injury wages, your temporary partial disability (TPD) benefit would be roughly <strong>${fc(tpdAt50.benefit)}/week</strong>.`);
+      }
+
+      document.getElementById('buddyText').innerHTML = buddyLines.join('<br><br>');
+
+      // Print header
+      document.getElementById('printHeader').style.display = 'block';
+      document.getElementById('printDOI').textContent =
+        `Date of Injury: ${inputs.doi || '—'} | Method: ${r.methodLabel}`;
+
+      // Clear any prior share result
+      document.getElementById('shareResult').style.display = 'none';
+      document.getElementById('shareError').style.display  = 'none';
+    }
+
+    // ── Share feature ─────────────────────────────────────────────────────
+
+    async function doShare() {
+      if (!lastResult || !lastInputs) return;
+
+      const btn = document.querySelector('.btn-share');
+      btn.textContent = 'Creating link…';
+      btn.disabled    = true;
+
+      try {
+        const token      = crypto.randomUUID();
+        const expiresAt  = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+        // Payload: calculation inputs and results — no PII stored
+        const payload = {
+          inputs: {
+            doi:            lastInputs.doi,
+            method:         lastInputs.method,
+            daysPerWeek:    lastInputs.daysPerWeek,
+            annualEarnings:        lastInputs.annualEarnings,
+            totalEarnings:         lastInputs.totalEarnings,
+            daysWorked:            lastInputs.daysWorked,
+            straightEarnings:      lastInputs.straightEarnings,
+            weeksWorked:           lastInputs.weeksWorked,
+            hourlyRate:            lastInputs.hourlyRate,
+            hoursPerWeek:          lastInputs.hoursPerWeek,
+            similarAnnualEarnings: lastInputs.similarAnnualEarnings,
+            tipsWeekly:            lastInputs.tipsWeekly,
+            boardLodgingWeekly:    lastInputs.boardLodgingWeekly,
+            concurrentAWW:         lastInputs.concurrentAWW,
+            apply200Rule:          lastInputs.apply200Rule,
+            similarDailyWage:      lastInputs.similarDailyWage,
+          },
+          result: {
+            aww:                  lastResult.aww,
+            baseAWW:              lastResult.baseAWW,
+            method:               lastResult.method,
+            methodLabel:          lastResult.methodLabel,
+            adjustments:          lastResult.adjustments,
+            multiplier200Applied: lastResult.multiplier200Applied,
+            multiplier200AWW:     lastResult.multiplier200AWW,
+            maxRate:              lastResult.maxRate,
+            maxRateLabel:         lastResult.maxRateLabel,
+            minRate:              lastResult.minRate,
+            minRateLabel:         lastResult.minRateLabel,
+            twoThirds:            lastResult.twoThirds,
+            ttRate:               lastResult.ttRate,
+            minFloorApplied:      lastResult.minFloorApplied,
+            tpdScenarios:         lastResult.tpdScenarios,
+            formulaLines:         lastResult.formulaLines,
+            warnings:             lastResult.warnings,
+          },
+          createdAt: new Date().toISOString(),
+        };
+
+        const { error } = await supabase
+          .from('aww_shares')
+          .insert({ token, payload, expires_at: expiresAt });
+
+        if (error) throw error;
+
+        const shareUrl = `${window.location.origin}/calculators/aww-share?token=${token}`;
+        document.getElementById('shareUrlInput').value = shareUrl;
+        document.getElementById('shareResult').style.display = 'block';
+        document.getElementById('shareResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      } catch (err) {
+        console.error('Share error:', err);
+        const errEl = document.getElementById('shareError');
+        errEl.textContent = 'Could not create share link. Please try again or copy the URL from your browser.';
+        errEl.style.display = '';
+      } finally {
+        btn.textContent = '🔗 Share with Attorney';
+        btn.disabled    = false;
+      }
+    }
+
+    async function copyShareUrl() {
+      const input = document.getElementById('shareUrlInput');
+      try {
+        await navigator.clipboard.writeText(input.value);
+        const btn = document.querySelector('.btn-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      } catch {
+        input.select();
+        document.execCommand('copy');
+      }
+    }
+
+    function doPrint() {
+      window.print();
+    }
+
+    function restart() {
+      document.getElementById('doiInput').value       = '';
+      document.getElementById('annualEarnings').value = '';
+      document.getElementById('totalEarnings').value  = '';
+      document.getElementById('daysWorked').value     = '';
+      document.getElementById('straightEarnings').value = '';
+      document.getElementById('weeksWorked').value    = '';
+      document.getElementById('hourlyRate').value     = '';
+      document.getElementById('hoursPerWeek').value   = '40';
+      document.getElementById('similarAnnualEarnings').value = '';
+      document.getElementById('tipsWeekly').value     = '0';
+      document.getElementById('boardLodgingWeekly').value = '0';
+      document.getElementById('concurrentAWW').value  = '0';
+      document.getElementById('similarDailyWage').value = '';
+      document.getElementById('doiPreview').style.display = 'none';
+      document.getElementById('useHourlyToggle').checked = false;
+      useHourly = false;
+      setPattern('statutory');
       setDPW(5);
-      buildMinRatesTable();
-      updateMinRateForDOI();
-      calculate();
-    });
+      syncEarningsPanel();
+      showStep(1);
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    syncEarningsPanel();
+
   </script>
 </body>
 </html>

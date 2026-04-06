@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared AWW Result — NYS Workers' Comp | The Comp Desk</title>
+  <meta name="description" content="A shared Average Weekly Wage calculation result for a NYS workers' compensation claim. View-only, no account required.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://www.thecompdesk.com/calculators/aww-share">
+  <link rel="stylesheet" href="../css/app.css">
+  <style>
+    /* ── Shared-view banner ─────────────────────────────── */
+    .share-banner {
+      background: rgba(59,130,246,.08);
+      border: 1px solid rgba(59,130,246,.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .share-banner-icon { font-size: 22px; flex-shrink: 0; }
+    .share-banner-text { flex: 1; min-width: 0; }
+    .share-banner-title { font-size: 13px; font-weight: 700; color: var(--ac); margin-bottom: 2px; }
+    .share-banner-sub   { font-size: 11px; color: var(--txD); line-height: 1.5; }
+    .share-banner-cta   {
+      background: var(--ac);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .share-banner-cta:hover { opacity: .88; }
+
+    /* ── Results hero ────────────────────────────────────── */
+    .results-hero {
+      background: linear-gradient(135deg, rgba(59,130,246,.12) 0%, rgba(59,130,246,.04) 100%);
+      border: 1px solid rgba(59,130,246,.3);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 16px;
+    }
+    .results-hero-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--ac); margin-bottom: 4px; }
+    .results-hero-aww   { font-size: 48px; font-weight: 900; font-family: var(--mono); color: var(--tx); line-height: 1; }
+    .results-hero-sub   { font-size: 12px; color: var(--txD); margin-top: 4px; }
+
+    /* ── Rate grid ───────────────────────────────────────── */
+    .rate-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 420px) { .rate-grid { grid-template-columns: 1fr; } }
+    .rate-card {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .rate-card-label { font-size: 10px; color: var(--txM); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+    .rate-card-val   { font-size: 22px; font-weight: 800; font-family: var(--mono); color: var(--tx); }
+    .rate-card-val.gold { color: var(--gd); }
+    .rate-card-val.blue { color: var(--ac); }
+    .rate-card-sub   { font-size: 10px; color: var(--txD); margin-top: 2px; }
+
+    /* ── Formula ─────────────────────────────────────────── */
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--txD);
+      line-height: 1.9;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── TPD table ───────────────────────────────────────── */
+    .tpd-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .tpd-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--txM); padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--bd); }
+    .tpd-table td { padding: 8px 8px; color: var(--txD); border-bottom: 1px solid var(--bd); font-family: var(--mono); }
+    .tpd-table tr:last-child td { border-bottom: none; }
+    .tpd-table td.benefit { color: var(--gd, #22c55e); font-weight: 700; }
+
+    /* ── Expired / error states ──────────────────────────── */
+    .state-box {
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      margin: 24px 0;
+    }
+    .state-box-icon  { font-size: 40px; margin-bottom: 12px; }
+    .state-box-title { font-size: 18px; font-weight: 700; color: var(--tx); margin-bottom: 8px; }
+    .state-box-body  { font-size: 13px; color: var(--txD); line-height: 1.7; max-width: 380px; margin: 0 auto; }
+
+    /* ── Print styles ────────────────────────────────────── */
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      #app-nav, .share-banner-cta, .btn-print { display: none !important; }
+      .share-banner { background: #eef4ff !important; border: 1px solid #4f8ff7 !important; }
+      .results-hero { background: #f0f6ff !important; border: 1px solid #4f8ff7 !important; }
+      .print-disclaimer {
+        margin-top: 20px;
+        border-top: 2px solid #000;
+        padding-top: 12px;
+        font-size: 10px;
+        color: #333;
+        line-height: 1.6;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <a href="/calculators/aww">AWW Calculator</a> &gt; <span>Shared Result</span>
+    </div>
+
+    <!-- Loading state -->
+    <div id="stateLoading">
+      <div class="state-box">
+        <div class="state-box-icon">⏳</div>
+        <div class="state-box-title">Loading…</div>
+        <div class="state-box-body">Fetching the shared AWW calculation.</div>
+      </div>
+    </div>
+
+    <!-- Expired state -->
+    <div id="stateExpired" style="display:none;">
+      <div class="state-box">
+        <div class="state-box-icon">🕐</div>
+        <div class="state-box-title">Link Expired</div>
+        <div class="state-box-body">
+          This shared AWW result has expired (links are valid for 30 days). Ask the person who shared it to generate a new link from the AWW Calculator.
+          <br><br>
+          <a href="/calculators/aww" class="share-banner-cta">Open AWW Calculator</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Not found state -->
+    <div id="stateNotFound" style="display:none;">
+      <div class="state-box">
+        <div class="state-box-icon">🔍</div>
+        <div class="state-box-title">Result Not Found</div>
+        <div class="state-box-body">
+          This link doesn't match any saved AWW calculation. It may have been deleted or the URL may be incorrect.
+          <br><br>
+          <a href="/calculators/aww" class="share-banner-cta">Open AWW Calculator</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="stateError" style="display:none;">
+      <div class="state-box">
+        <div class="state-box-icon">⚠️</div>
+        <div class="state-box-title">Unable to Load</div>
+        <div class="state-box-body" id="stateErrorMsg">
+          Something went wrong loading this shared result. Please try refreshing the page.
+        </div>
+      </div>
+    </div>
+
+    <!-- Results (shown when loaded) -->
+    <div id="stateResults" style="display:none;">
+
+      <!-- Shared-view banner -->
+      <div class="share-banner">
+        <span class="share-banner-icon">🔗</span>
+        <div class="share-banner-text">
+          <div class="share-banner-title">Shared AWW Result — Read Only</div>
+          <div class="share-banner-sub">
+            This is a shared view of an Average Weekly Wage calculation.
+            It is provided for informational purposes only.
+            <span id="expiresNote"></span>
+          </div>
+        </div>
+        <a href="/calculators/aww" class="share-banner-cta">Calculate Your Own AWW</a>
+      </div>
+
+      <h1 class="page-title">NYS Average Weekly Wage Calculation</h1>
+      <p class="page-subtitle" id="subDOI">—</p>
+
+      <!-- Disclaimer (always on top in share view) -->
+      <div class="disclaimer" style="margin-bottom:16px;">
+        <p style="margin:0;"><strong>Disclaimer — Not Legal Advice:</strong> This shared AWW calculation is provided for informational purposes only and does not constitute legal advice. Viewing this result does not create an attorney-client relationship. The calculation is an estimate based on information entered by the person who created the share. Actual AWW in any case may differ based on payroll records, Board decisions, and case-specific factors. Consult a qualified workers' compensation attorney for advice about any specific situation.</p>
+      </div>
+
+      <!-- Hero AWW -->
+      <div class="results-hero">
+        <div class="results-hero-label">Average Weekly Wage (AWW)</div>
+        <div class="results-hero-aww" id="heroAWW">—</div>
+        <div class="results-hero-sub" id="heroMethod">—</div>
+      </div>
+
+      <!-- Rate grid -->
+      <div class="rate-grid">
+        <div class="rate-card">
+          <div class="rate-card-label">2/3 Rate (before cap)</div>
+          <div class="rate-card-val" id="cardTwoThirds">—</div>
+          <div class="rate-card-sub">2/3 × AWW</div>
+        </div>
+        <div class="rate-card">
+          <div class="rate-card-label">Statutory Maximum</div>
+          <div class="rate-card-val blue" id="cardMaxRate">—</div>
+          <div class="rate-card-sub" id="cardMaxRateLabel">—</div>
+        </div>
+        <div class="rate-card">
+          <div class="rate-card-label">Min Rate (§204)</div>
+          <div class="rate-card-val" id="cardMinRate">—</div>
+          <div class="rate-card-sub" id="cardMinRateLabel">—</div>
+        </div>
+        <div class="rate-card" style="border-color:var(--gd);background:rgba(245,158,11,.05);">
+          <div class="rate-card-label">Final TT Comp Rate</div>
+          <div class="rate-card-val gold" id="cardTTRate">—</div>
+          <div class="rate-card-sub" id="cardTTNote">—</div>
+        </div>
+      </div>
+
+      <!-- Adjustments included -->
+      <div class="calc-section" id="adjSection" style="display:none;">
+        <div class="calc-header"><span class="calc-header-title">Included Adjustments</span></div>
+        <div class="calc-body">
+          <div id="adjList" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- Statutory formula -->
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Calculation Detail</span></div>
+        <div class="calc-body">
+          <div class="formula-box" id="formulaBox">—</div>
+          <div id="minFloorNote" style="display:none;margin-top:8px;font-size:11px;color:var(--gd);">
+            ⚑ Minimum rate floor applied (WCL §204): 2/3 AWW was below the statutory minimum.
+          </div>
+          <div id="rule200Note" style="display:none;margin-top:8px;font-size:11px;color:var(--ac);">
+            ⚑ 200-multiple rule applied: claimant's AWW was below the §14(2) similar-employee threshold.
+          </div>
+        </div>
+      </div>
+
+      <!-- TPD table -->
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">TPD Scenarios (§15 Reduced Earnings)</span></div>
+        <div class="calc-body" style="padding:0;">
+          <table class="tpd-table" id="tpdTable">
+            <thead>
+              <tr>
+                <th>Earning Capacity</th>
+                <th>Weekly Earnings</th>
+                <th>§15(6) Benefit</th>
+              </tr>
+            </thead>
+            <tbody id="tpdBody"></tbody>
+          </table>
+          <p style="font-size:10px;color:var(--txM);padding:8px 12px;">
+            Benefit = 2/3 × (AWW − reduced earning capacity), capped at the statutory max.
+          </p>
+        </div>
+      </div>
+
+      <!-- Print button -->
+      <div style="margin-top:16px;">
+        <button class="btn-print" onclick="window.print()"
+          style="background:var(--bg);border:1px solid var(--bd);color:var(--txD);padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+          🖨 Print / Save PDF
+        </button>
+      </div>
+
+      <!-- Print-only disclaimer -->
+      <div class="print-disclaimer">
+        <strong>Disclaimer — Not Legal Advice:</strong> This shared AWW calculation is provided for informational purposes only and does not constitute legal advice. It does not create an attorney-client relationship. Results are estimates based on information entered by the person who created the share link. Actual AWW may differ based on payroll records, Board decisions, and case-specific factors. Consult a licensed workers' compensation attorney for advice about any specific situation. Generated by The Comp Desk (thecompdesk.com).
+      </div>
+
+    </div><!-- /stateResults -->
+
+    <!-- Always-visible footer disclaimer -->
+    <div class="disclaimer" id="footerDisclaimer" style="margin-top:24px;">
+      <p style="margin:0;"><strong>Disclaimer:</strong> This tool is provided for informational purposes only and does not constitute legal advice. Use of this tool does not create an attorney-client relationship.</p>
+    </div>
+
+  </div><!-- /container -->
+
+  <script type="module">
+    import { getOptionalUser } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+    const supabase = createClient(SUPA_URL, SUPA_KEY);
+
+    getOptionalUser().then(({ session }) => renderPublicNav('app-nav', session));
+
+    const fc = n => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const $c = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+    function showState(name) {
+      ['stateLoading', 'stateExpired', 'stateNotFound', 'stateError', 'stateResults']
+        .forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = id === name ? '' : 'none';
+        });
+    }
+
+    async function load() {
+      const params = new URLSearchParams(window.location.search);
+      const token  = params.get('token');
+
+      if (!token) {
+        showState('stateNotFound');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('aww_shares')
+          .select('payload, expires_at, created_at')
+          .eq('token', token)
+          .single();
+
+        if (error || !data) {
+          showState('stateNotFound');
+          return;
+        }
+
+        // Check expiry client-side
+        if (new Date(data.expires_at) < new Date()) {
+          showState('stateExpired');
+          return;
+        }
+
+        renderShare(data);
+        showState('stateResults');
+
+      } catch (err) {
+        console.error('Load error:', err);
+        $c('stateErrorMsg', `Unable to load: ${err.message || 'Unknown error'}`);
+        showState('stateError');
+      }
+    }
+
+    function renderShare(data) {
+      const { payload } = data;
+      if (!payload) { showState('stateNotFound'); return; }
+
+      const r      = payload.result  || {};
+      const inputs = payload.inputs  || {};
+
+      // Expires note
+      const expiresAt = new Date(data.expires_at);
+      const daysLeft  = Math.ceil((expiresAt - Date.now()) / (1000 * 60 * 60 * 24));
+      document.getElementById('expiresNote').textContent =
+        ` This link expires in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}.`;
+
+      // Subtitle
+      $c('subDOI', `Date of Injury: ${inputs.doi || '—'} · Method: ${r.methodLabel || '—'}`);
+
+      // Hero
+      $c('heroAWW',    r.aww    != null ? fc(r.aww)    : '—');
+      $c('heroMethod', r.methodLabel || '—');
+
+      // Rate grid
+      $c('cardTwoThirds',    r.twoThirds != null ? fc(r.twoThirds) : '—');
+      $c('cardMaxRate',      r.maxRate   != null ? fc(r.maxRate)   : '—');
+      $c('cardMaxRateLabel', r.maxRateLabel || '—');
+      $c('cardMinRate',      r.minRate   != null ? fc(r.minRate)   : (r.minRateLabel || '—'));
+      $c('cardMinRateLabel', r.minRateLabel || '—');
+      $c('cardTTRate',       r.ttRate    != null ? fc(r.ttRate)    : '—');
+
+      let ttNote = '';
+      if (r.ttRate != null && r.maxRate != null && r.ttRate >= r.maxRate) ttNote = 'Capped at statutory maximum';
+      else if (r.minFloorApplied) ttNote = 'Raised to §204 minimum floor';
+      else ttNote = '2/3 × AWW';
+      $c('cardTTNote', ttNote);
+
+      // Adjustments
+      const adjList = r.adjustments || [];
+      if (adjList.length > 0) {
+        const container = document.getElementById('adjList');
+        container.innerHTML = '';
+        adjList.forEach(a => {
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--bd);';
+          row.innerHTML = `<span style="color:var(--txD);">${a.label}</span><span style="font-family:var(--mono);color:var(--tx);">+ ${fc(a.value)}/wk</span>`;
+          container.appendChild(row);
+        });
+        document.getElementById('adjSection').style.display = '';
+      }
+
+      // Formula
+      $c('formulaBox', (r.formulaLines || []).join('\n') || '—');
+      document.getElementById('minFloorNote').style.display = r.minFloorApplied  ? '' : 'none';
+      document.getElementById('rule200Note').style.display  = r.multiplier200Applied ? '' : 'none';
+
+      // TPD table
+      const tpdBody = document.getElementById('tpdBody');
+      tpdBody.innerHTML = '';
+      (r.tpdScenarios || []).forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${s.pct}% capacity</td>
+          <td>${fc(s.earningCapacity)}/wk</td>
+          <td class="benefit">${fc(s.benefit)}/wk</td>`;
+        tpdBody.appendChild(tr);
+      });
+    }
+
+    load();
+  </script>
+</body>
+</html>
