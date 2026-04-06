@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Share Your Story - The Comp Desk</title>
+<meta name="description" content="Share your workers' compensation story with The Comp Desk. Privacy-first, opt-in only." />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<!--
+  PRIVACY GUARANTEE: This page submits ONLY to the Supabase project
+  ltibymvlytodkemdeeox.supabase.co. No data is shared with any third-party
+  law firm endpoint. Verified by .github/workflows or repo grep.
+-->
+<style>
+  :root{--bg:#06080f;--card:#0e1322;--bd:#1c2d4a;--ac:#4f8ff7;--tx:#dce4f0;--txD:#8899b4;--gn:#2dd4a0;--rd:#ef4444;--wh:#f4f6fa;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;min-height:100vh}
+  .wrap{max-width:720px;margin:0 auto;padding:48px 20px}
+  h1{color:var(--wh);font-size:clamp(28px,5vw,40px);margin-bottom:8px}
+  .sub{color:var(--txD);margin-bottom:24px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:24px;margin-bottom:20px}
+  label{display:block;font-weight:600;color:var(--wh);margin:14px 0 6px;font-size:14px}
+  .hint{color:var(--txD);font-size:12px;margin-top:4px}
+  input[type=text],input[type=email],select,textarea{width:100%;background:#06080f;border:1px solid var(--bd);color:var(--tx);padding:12px;border-radius:8px;font-family:inherit;font-size:15px}
+  textarea{min-height:110px;resize:vertical}
+  input[type=file]{color:var(--txD);font-size:14px}
+  .check{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+  .check input{margin-top:4px}
+  .check label{margin:0;font-weight:500;color:var(--tx);font-size:14px}
+  .radio-group{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .radio-group label{font-weight:500;color:var(--tx);display:flex;gap:10px;align-items:center;margin:0}
+  .disclaimer{background:rgba(79,143,247,0.08);border:1px solid var(--bd);border-radius:10px;padding:14px;font-size:13px;color:var(--txD);margin-bottom:20px}
+  button{background:var(--ac);color:#fff;border:none;padding:14px 22px;border-radius:10px;font-weight:600;font-size:16px;cursor:pointer;width:100%;font-family:inherit}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .ok{background:rgba(45,212,160,.12);border:1px solid var(--gn);color:var(--gn);padding:14px;border-radius:10px;margin-top:14px}
+  .err{background:rgba(239,68,68,.12);border:1px solid var(--rd);color:var(--rd);padding:14px;border-radius:10px;margin-top:14px}
+  a{color:var(--ac)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Share Your Story</h1>
+  <p class="sub">Help other injured workers by telling us what worked — and what didn't.</p>
+
+  <div class="disclaimer">
+    <strong>Disclaimer.</strong> The Comp Desk is an information resource, not a law firm.
+    Submitting your story does not create an attorney–client relationship and is not legal advice.
+    We will only use what you share in the ways you explicitly consent to below. We do
+    <strong>not</strong> sell your information and we do <strong>not</strong> share it with any
+    third-party law firm. You can request permanent deletion at any time using the link in your
+    confirmation email.
+  </div>
+
+  <form id="story-form" class="card" novalidate>
+    <label for="name">Your name <span class="hint">(optional)</span></label>
+    <input id="name" name="name" type="text" autocomplete="name" />
+
+    <label for="state">State</label>
+    <input id="state" name="state" type="text" maxlength="60" />
+
+    <label for="injury_type">Injury type</label>
+    <input id="injury_type" name="injury_type" type="text" placeholder="e.g., back injury, repetitive strain" />
+
+    <label for="what_helped">What helped you?</label>
+    <textarea id="what_helped" name="what_helped"></textarea>
+
+    <label for="what_didnt">What didn't?</label>
+    <textarea id="what_didnt" name="what_didnt"></textarea>
+
+    <label for="photo">Photo <span class="hint">(optional)</span></label>
+    <input id="photo" name="photo" type="file" accept="image/*" />
+
+    <label for="contact_email">Email <span class="hint">(so we can send you the deletion link)</span></label>
+    <input id="contact_email" name="contact_email" type="email" autocomplete="email" />
+
+    <label style="margin-top:22px">How should we identify you?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="consent_display" value="first_name" /> Use my first name only</label>
+      <label><input type="radio" name="consent_display" value="initials" /> Use my initials only</label>
+      <label><input type="radio" name="consent_display" value="anonymous" checked /> Keep me fully anonymous</label>
+    </div>
+
+    <label style="margin-top:18px">Permissions</label>
+    <div class="check">
+      <input type="checkbox" id="consent_photo" name="consent_photo" />
+      <label for="consent_photo">You may use the photo I uploaded.</label>
+    </div>
+    <div class="check">
+      <input type="checkbox" id="consent_quotes" name="consent_quotes" />
+      <label for="consent_quotes">You may quote my words directly.</label>
+    </div>
+
+    <button id="submit-btn" type="submit" style="margin-top:22px">Submit my story</button>
+    <div id="result"></div>
+  </form>
+
+  <p style="text-align:center;color:var(--txD);font-size:13px"><a href="/">← Back to The Comp Desk</a></p>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const SUPABASE_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const form = document.getElementById('story-form');
+const btn = document.getElementById('submit-btn');
+const result = document.getElementById('result');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  result.innerHTML = '';
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    const fd = new FormData(form);
+    let photo_path = null;
+    const file = document.getElementById('photo').files[0];
+    if (file) {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      photo_path = `uploads/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('customer-story-photos').upload(photo_path, file, { contentType: file.type });
+      if (upErr) throw upErr;
+    }
+
+    const payload = {
+      name: fd.get('name') || null,
+      state: fd.get('state') || null,
+      injury_type: fd.get('injury_type') || null,
+      what_helped: fd.get('what_helped') || null,
+      what_didnt: fd.get('what_didnt') || null,
+      contact_email: fd.get('contact_email') || null,
+      consent_display: fd.get('consent_display') || 'anonymous',
+      consent_photo: !!fd.get('consent_photo'),
+      consent_quotes: !!fd.get('consent_quotes'),
+      photo_path,
+    };
+
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/customer-story-submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+    result.innerHTML = `<div class="ok">Thank you. Your story has been submitted for review. ${payload.contact_email ? 'A confirmation email with your deletion link is on its way.' : ''} <br><br>Need to delete it now? <a href="${data.delete_link}">Delete my story</a>.</div>`;
+    form.reset();
+  } catch (err) {
+    result.innerHTML = `<div class="err">${err.message || err}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit my story';
+  }
+});
+</script>
+</body>
+</html>
