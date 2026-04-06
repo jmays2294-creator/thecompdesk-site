@@ -372,6 +372,7 @@
         TT Rate: <strong id="g-tt-rate">$1,000.00/wk</strong>
         <span style="color:var(--txM);margin-left:8px;font-size:10px;">= 2/3 × AWW capped at max</span>
         &nbsp;|&nbsp; SLU Rate: <strong id="g-slu-rate">$1,000.00/wk</strong>
+        &nbsp;|&nbsp; Statutory Min (DOI): <strong id="g-min-rate">—</strong>
       </div>
     </div>
 
@@ -382,6 +383,7 @@
       <button class="pro-tab-btn" role="tab" data-tab="lwec">LWEC</button>
       <button class="pro-tab-btn" role="tab" data-tab="ccp">CCP/Award</button>
       <button class="pro-tab-btn" role="tab" data-tab="rates">Rate Lookup</button>
+      <button class="pro-tab-btn" role="tab" data-tab="minrates">Min Rate</button>
       <button class="pro-tab-btn" role="tab" data-tab="rad">Radiculopathy</button>
       <button class="pro-tab-btn" role="tab" data-tab="spine">Spine/Brain</button>
     </div>
@@ -690,6 +692,37 @@
     </div>
 
     <!-- ════════════════════════════════════
+         TAB: MIN RATE
+    ════════════════════════════════════ -->
+    <div id="tab-minrates" class="pro-tab-panel">
+      <div class="calc-section">
+        <div class="calc-header"><span class="calc-header-title">Statutory Minimum Rate (NYS WCL §204)</span></div>
+        <div class="calc-body">
+          <p style="color:var(--txD);font-size:13px;margin-bottom:14px;">The weekly benefit rate cannot fall below the statutory minimum for the date of injury. If 2/3 AWW is less than the minimum, the rate is raised to the minimum — except that if the claimant's AWW is itself lower than the minimum, the rate equals the full AWW. This calculator applies that floor automatically to all rate computations.</p>
+          <div class="field-group" style="max-width:280px;margin-bottom:14px;">
+            <label class="field-label" for="minrates-doi">Date of Injury / Accident</label>
+            <input type="date" id="minrates-doi">
+            <span class="field-hint">Synced from global DOI</span>
+          </div>
+          <div class="result-box">
+            <div class="result-item" style="margin-bottom:10px;">
+              <span class="result-label">Applicable Minimum Rate</span>
+              <span class="result-value" id="minrates-r-rate" style="font-size:30px;">—</span>
+            </div>
+            <div class="result-meta" id="minrates-r-period">—</div>
+            <div class="result-meta" id="minrates-r-note" style="margin-top:6px;"></div>
+          </div>
+          <div style="margin-top:20px;overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>Period</th><th>Min Weekly Rate</th><th>Notes</th></tr></thead>
+              <tbody id="minrates-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
          TAB: RADICULOPATHY
     ════════════════════════════════════ -->
     <div id="tab-rad" class="pro-tab-panel">
@@ -855,6 +888,15 @@
       {s:"2007-07-01",e:"2008-06-30",l:"Jul 1, 2007 – Jun 30, 2008",max:500},
       {s:"1985-07-01",e:"2007-06-30",l:"Jul 1, 1985 – Jun 30, 2007",max:400},
     ];
+    // ─── Statutory MIN rates — mirrors app MIN_RATES ───
+    const MIN_RATES = [
+      {s:"2026-07-01",e:"2099-12-31",l:"Jul 1, 2026+",                min:null,n:"1/5 NYSAWW (indexed)"},
+      {s:"2025-01-01",e:"2026-06-30",l:"Jan 1, 2025 – Jun 30, 2026",  min:325, n:""},
+      {s:"2024-01-01",e:"2024-12-31",l:"Jan 1, 2024 – Dec 31, 2024",  min:275, n:""},
+      {s:"2013-05-01",e:"2023-12-31",l:"May 1, 2013 – Dec 31, 2023",  min:150, n:""},
+      {s:"2007-07-01",e:"2013-04-30",l:"Jul 1, 2007 – Apr 30, 2013",  min:100, n:"2007 Reform"},
+      {s:"1900-01-01",e:"2007-06-30",l:"Before Jul 1, 2007",          min:40,  n:"Pre-reform"},
+    ];
     const SLU_BP = [
       {n:"Arm",w:312,hp:32},{n:"Hand",w:244,hp:32},{n:"Leg",w:288,hp:40},{n:"Foot",w:205,hp:32},
       {n:"Thumb",w:75,hp:24},{n:"1st Finger (Index)",w:46,hp:18},{n:"2nd Finger (Middle)",w:30,hp:12},
@@ -885,6 +927,25 @@
       }
       return MAX_RATES[MAX_RATES.length-1];
     }
+    function getMinForDate(dateStr) {
+      if (!dateStr) return MIN_RATES[0];
+      const dt = new Date(dateStr+'T00:00:00');
+      for (const r of MIN_RATES) {
+        if (dt >= new Date(r.s+'T00:00:00') && dt <= new Date(r.e+'T23:59:59')) return r;
+      }
+      return null;
+    }
+    function getMinRate() {
+      const doi = document.getElementById('g-doi').value;
+      const r = getMinForDate(doi);
+      return r && r.min ? r.min : 0;
+    }
+    // Apply statutory floor: if 2/3 AWW < minRate, raise to minRate,
+    // but if AWW itself is below minRate, the benefit equals AWW (WCL §204).
+    function applyMinFloor(rate, aww, minR) {
+      if (minR > 0 && rate < minR) return Math.min(minR, aww);
+      return rate;
+    }
     function getBracket(pct) {
       if (pct >= 100) return LWEC_BR[0];
       for (const b of LWEC_BR) { if (b.lo !== undefined && pct >= b.lo && pct <= b.hi) return b; }
@@ -898,16 +959,28 @@
     let currentUser = null;
     function getAWW()     { return pF(document.getElementById('g-aww').value); }
     function getMaxRate() { return pF(document.getElementById('g-maxrate').value); }
-    function getCappedTT(){ const tt=getAWW()*2/3; const mx=getMaxRate(); return mx>0?Math.min(tt,mx):tt; }
+    function getCappedTT(){
+      const aww=getAWW();
+      const tt=aww*2/3;
+      const mx=getMaxRate();
+      const capped = mx>0?Math.min(tt,mx):tt;
+      return applyMinFloor(capped, aww, getMinRate());
+    }
     function getSLURate() { return getCappedTT(); }
     function getCaseName(){ return document.getElementById('g-case-name').value.trim(); }
 
     function updateGlobalDisplay() {
       const tt = getCappedTT();
       const aww = getAWW(); const mx = getMaxRate(); const raw = aww*2/3;
+      const mn = getMinRate();
       document.getElementById('g-tt-rate').textContent = fC(tt)+'/wk';
       document.getElementById('g-slu-rate').textContent = fC(tt)+'/wk';
-      if (mx>0 && raw>mx) document.getElementById('g-tt-rate').title = '2/3 AWW '+fC(raw)+' capped at '+fC(mx);
+      let title = '';
+      if (mx>0 && raw>mx) title = '2/3 AWW '+fC(raw)+' capped at max '+fC(mx);
+      else if (mn>0 && raw<mn) title = '2/3 AWW '+fC(raw)+' raised to min '+fC(mn)+(aww<mn?' (capped at AWW '+fC(aww)+')':'');
+      if (title) document.getElementById('g-tt-rate').title = title;
+      const mnEl = document.getElementById('g-min-rate');
+      if (mnEl) mnEl.textContent = mn>0 ? fC(mn)+'/wk' : '—';
     }
 
     async function doSave(calcType, inputData, resultData, statusEl) {
@@ -1354,11 +1427,26 @@
       document.getElementById('rates-r-rate').textContent = r ? fC(r.max) : '—';
       document.getElementById('rates-r-period').textContent = r ? r.l : '—';
     }
+    function calcMinRates(dateStr) {
+      const r = getMinForDate(dateStr);
+      const rateEl = document.getElementById('minrates-r-rate');
+      const perEl  = document.getElementById('minrates-r-period');
+      const noteEl = document.getElementById('minrates-r-note');
+      if (!r) { rateEl.textContent='—'; perEl.textContent='—'; noteEl.textContent=''; return; }
+      rateEl.textContent = r.min ? fC(r.min) : 'Indexed (1/5 NYSAWW)';
+      perEl.textContent  = r.l;
+      noteEl.textContent = r.n || '';
+    }
     function buildRatesTable() {
       const tbody = document.getElementById('rates-table-body');
       MAX_RATES.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.l}</td><td style="font-family:var(--mono);">${fC(r.max)}</td>`; tbody.appendChild(tr); });
+      const mtbody = document.getElementById('minrates-table-body');
+      if (mtbody) {
+        MIN_RATES.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.l}</td><td style="font-family:var(--mono);">${r.min?fC(r.min):'Indexed'}</td><td style="color:var(--txM);font-size:11px;">${r.n||''}</td>`; mtbody.appendChild(tr); });
+      }
     }
     document.getElementById('rates-doi').addEventListener('change', e=>calcRates(e.target.value));
+    document.getElementById('minrates-doi').addEventListener('change', e=>calcMinRates(e.target.value));
 
     // ══════════════════════════════════════════
     // RADICULOPATHY MODULE
@@ -1473,6 +1561,10 @@
         document.getElementById('rates-doi').value = doi;
         calcRates(doi);
       }
+      if (!document.getElementById('minrates-doi').value) {
+        document.getElementById('minrates-doi').value = doi;
+        calcMinRates(doi);
+      }
     }
 
     document.getElementById('g-aww').addEventListener('input', recalcAll);
@@ -1481,7 +1573,9 @@
       const r=getMaxForDate(e.target.value);
       if(r){ document.getElementById('g-maxrate').value=r.max.toFixed(2); }
       document.getElementById('rates-doi').value=e.target.value;
+      document.getElementById('minrates-doi').value=e.target.value;
       calcRates(e.target.value);
+      calcMinRates(e.target.value);
       recalcAll();
     });
 

@@ -8,9 +8,30 @@
   <meta property="og:title" content="CCP / Award Calculator — Period-Based NYS Workers' Comp | The Comp Desk">
   <meta property="og:description" content="Calculate classified CCP awards period-by-period with automatic rate calculation from AWW. Includes attorney fee breakdown and net to claimant.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://thecompdesk.com/calculators/ccp-award.html">
-  <meta property="og:image" content="https://thecompdesk.com/images/og-award.png">
-  <link rel="canonical" href="https://thecompdesk.com/calculators/ccp-award.html">
+  <meta property="og:url" content="https://www.thecompdesk.com/calculators/ccp-award.html">
+  <meta property="og:image" content="https://www.thecompdesk.com/images/og-award.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CCP / Award Calculator — Period-Based NYS Workers' Comp">
+  <meta name="twitter:description" content="Calculate classified CCP awards period-by-period with automatic rate calculation from AWW. Includes attorney fee breakdown and net to claimant.">
+  <meta name="twitter:image" content="https://www.thecompdesk.com/images/og-award.png">
+
+  <!-- JSON-LD: WebApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "NYS CCP / Award Calculator",
+    "url": "https://www.thecompdesk.com/calculators/ccp-award.html",
+    "description": "Free NYS workers' compensation CCP award calculator. Enter date ranges by period designation to calculate gross award, attorney fee, and net to claimant.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "All",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <link rel="canonical" href="https://www.thecompdesk.com/calculators/ccp-award.html">
   <link rel="stylesheet" href="../css/app.css">
   <style>
     /* Period row layout */
@@ -240,8 +261,34 @@
             </div>
             <span class="field-hint" id="maxRateHint">Current: $1,222.42 (Jul 1, 2025)</span>
           </div>
+          <div class="field-group">
+            <label class="field-label">Statutory Min Rate (DOA)</label>
+            <div class="field-wrap">
+              <span class="field-prefix">$</span>
+              <input type="text" id="minRateDisplay" value="—" readonly
+                     style="background:var(--bgM);color:var(--tx);"
+                     aria-label="Statutory minimum weekly rate for date of accident">
+            </div>
+            <span class="field-hint" id="minRateHint">Floors benefit under WCL §204</span>
+          </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         MINIMUM RATE REFERENCE
+    ═══════════════════════════════════════════ -->
+    <div class="calc-section">
+      <div class="calc-header"><span class="calc-header-title">NYS Statutory Minimum Rate Schedule (WCL §204)</span></div>
+      <div class="calc-body">
+        <p style="color:var(--txD);font-size:13px;margin-bottom:10px;">The weekly benefit rate cannot fall below the statutory minimum for the date of injury. If 2/3 AWW is below the minimum, the rate is raised to the minimum — unless the claimant's AWW is itself lower than the minimum, in which case the rate equals the full AWW. This calculator applies that floor automatically to all TT/RE/TR computations.</p>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Period</th><th>Min Weekly Rate</th><th>Notes</th></tr></thead>
+            <tbody id="minRatesTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -520,6 +567,16 @@
       { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400.00  },
     ];
 
+    // ─── Statutory MIN rates (NYS WCL §204) — mirrors mobile app MIN_RATES ───
+    const MIN_RATES = [
+      { s:"2026-07-01", e:"2099-12-31", l:"Jul 1, 2026+",                 min:null, n:"1/5 NYSAWW (indexed)" },
+      { s:"2025-01-01", e:"2026-06-30", l:"Jan 1, 2025 – Jun 30, 2026",   min:325,  n:"" },
+      { s:"2024-01-01", e:"2024-12-31", l:"Jan 1, 2024 – Dec 31, 2024",   min:275,  n:"" },
+      { s:"2013-05-01", e:"2023-12-31", l:"May 1, 2013 – Dec 31, 2023",   min:150,  n:"" },
+      { s:"2007-07-01", e:"2013-04-30", l:"Jul 1, 2007 – Apr 30, 2013",   min:100,  n:"2007 Reform" },
+      { s:"1900-01-01", e:"2007-06-30", l:"Before Jul 1, 2007",           min:40,   n:"Pre-reform" },
+    ];
+
     const DESIGS = ['TT', 'RE', 'TR', 'TP', 'NCLT', 'NME'];
 
     // ─── State ───
@@ -550,12 +607,36 @@
       return MAX_RATES[MAX_RATES.length - 1];
     }
 
+    function getMinForDate(dateStr) {
+      if (!dateStr) return MIN_RATES[0];
+      const dt = new Date(dateStr + 'T00:00:00');
+      for (const r of MIN_RATES) {
+        const s = new Date(r.s + 'T00:00:00');
+        const e = new Date(r.e + 'T23:59:59');
+        if (dt >= s && dt <= e) return r;
+      }
+      return null;
+    }
+
     function getAWW()     { return pF(document.getElementById('awwInput').value); }
     function getMaxRate() { return pF(document.getElementById('maxRateInput').value); }
+    function getMinRate() {
+      const doa = document.getElementById('doaDate').value;
+      const r = getMinForDate(doa);
+      return r && r.min ? r.min : 0;
+    }
+    // Apply statutory floor (WCL §204): if 2/3 AWW < min, raise to min;
+    // but if AWW < min, benefit equals AWW (can't pay more than earned).
+    function applyMinFloor(rate, aww, minR) {
+      if (minR > 0 && rate < minR) return Math.min(minR, aww);
+      return rate;
+    }
     function getCappedTT() {
-      const tt = getAWW() * 2 / 3;
+      const aww = getAWW();
+      const tt = aww * 2 / 3;
       const mx = getMaxRate();
-      return mx > 0 ? Math.min(tt, mx) : tt;
+      const capped = mx > 0 ? Math.min(tt, mx) : tt;
+      return applyMinFloor(capped, aww, getMinRate());
     }
 
     // ─── Compute rate for a period based on designation ───
@@ -572,10 +653,13 @@
       const cappedTT = getCappedTT();
       const aww = getAWW();
       const mx = getMaxRate();
+      const mn = getMinRate();
       const tt23 = aww * 2 / 3;
       const capped = mx > 0 && tt23 > mx;
+      const floored = mn > 0 && tt23 < mn;
       let text = fC(cappedTT) + '/wk';
       if (capped) text += '  (2/3 AWW ' + fC(tt23) + ' → capped at ' + fC(mx) + ')';
+      else if (floored) text += '  (2/3 AWW ' + fC(tt23) + ' → floored at min ' + fC(mn) + (aww<mn?' · capped at AWW '+fC(aww):'') + ')';
       else text += '  (2/3 × ' + fC(aww) + ' = ' + fC(tt23) + ')';
       document.getElementById('ttRateDisplay').textContent = text;
     }
@@ -1010,8 +1094,27 @@
           'Max for DOA: $' + entry.max.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
           ' (' + entry.l + ')';
       }
+      updateMinRateDisplay();
       renderPeriods(); calculate();
     });
+
+    function updateMinRateDisplay() {
+      const m = getMinForDate(document.getElementById('doaDate').value);
+      const el = document.getElementById('minRateDisplay');
+      const hint = document.getElementById('minRateHint');
+      if (!m) { el.value = '—'; return; }
+      el.value = m.min ? m.min.toFixed(2) : 'Indexed';
+      hint.textContent = (m.min ? '$'+m.min.toFixed(2) : 'Indexed (1/5 NYSAWW)') + ' — ' + m.l + (m.n ? ' · '+m.n : '');
+    }
+    function buildMinRatesTable() {
+      const tbody = document.getElementById('minRatesTableBody');
+      if (!tbody) return;
+      MIN_RATES.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.l}</td><td style="font-family:var(--mono);">${r.min?fC(r.min):'Indexed'}</td><td style="color:var(--txM);font-size:11px;">${r.n||''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
     document.getElementById('ccpAmount').addEventListener('input', calculate);
     document.getElementById('priorPayments').addEventListener('input', calculate);
 
@@ -1033,6 +1136,8 @@
       currentUser = await getOptionalUser();
       renderPublicNav(currentUser);
       initFeeAppPaywall(currentUser);
+      buildMinRatesTable();
+      updateMinRateDisplay();
       renderPeriods();
       calculate();
     });

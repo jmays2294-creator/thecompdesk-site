@@ -8,9 +8,30 @@
   <meta property="og:title" content="NYS Workers' Comp Rate Lookup — 2026 Maximum Rates">
   <meta property="og:description" content="Free lookup of NYS workers' compensation maximum rates by injury date. Historical rates and current statutory maxima.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://thecompdesk.com/calculators/rates.html">
-  <meta property="og:image" content="https://thecompdesk.com/images/og-rates.png">
-  <link rel="canonical" href="https://thecompdesk.com/calculators/rates.html">
+  <meta property="og:url" content="https://www.thecompdesk.com/calculators/rates.html">
+  <meta property="og:image" content="https://www.thecompdesk.com/images/og-rates.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NYS Workers' Comp Rate Lookup — 2026 Maximum Rates">
+  <meta name="twitter:description" content="Free lookup of NYS workers' compensation maximum rates by injury date. Historical rates and current statutory maxima.">
+  <meta name="twitter:image" content="https://www.thecompdesk.com/images/og-rates.png">
+
+  <!-- JSON-LD: WebApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "NYS Workers' Comp Rate Lookup",
+    "url": "https://www.thecompdesk.com/calculators/rates.html",
+    "description": "Free NYS workers' compensation maximum rate lookup. Find the statutory maximum rate for any injury date. Historical rates 1985–present.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "All",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <link rel="canonical" href="https://www.thecompdesk.com/calculators/rates.html">
   <link rel="stylesheet" href="../css/app.css">
 </head>
 <body>
@@ -45,6 +66,11 @@
             <span class="result-value" id="applicableRateResult" style="font-size:30px;">—</span>
           </div>
           <div class="result-meta" id="rateEffectiveDate">—</div>
+          <div class="result-item" style="margin-top:14px;padding-top:10px;border-top:1px solid var(--bd);">
+            <span class="result-label">Applicable Minimum Rate (WCL §204)</span>
+            <span class="result-value" id="applicableMinResult" style="font-size:24px;color:var(--ac);">—</span>
+          </div>
+          <div class="result-meta" id="minEffectiveDate">—</div>
         </div>
 
         <div class="info-note" style="margin-top:14px;">
@@ -91,6 +117,20 @@
         </table>
         <p style="color:var(--txM);font-size:11px;padding:10px 14px;">
           Rates are updated annually by the New York Department of Financial Services. The rate effective on the date of injury applies throughout the case, unless modified by subsequent legislation.
+        </p>
+      </div>
+    </div>
+
+    <!-- Historical Min Rates -->
+    <div class="calc-section">
+      <div class="calc-header"><span class="calc-header-title">Historical Minimum Rates (WCL §204)</span></div>
+      <div class="calc-body" style="padding:0;">
+        <table class="data-table">
+          <thead><tr><th>Effective Period</th><th>Minimum Weekly Rate</th><th>Notes</th></tr></thead>
+          <tbody id="minRatesTableBody"></tbody>
+        </table>
+        <p style="color:var(--txM);font-size:11px;padding:10px 14px;">
+          The weekly benefit cannot fall below the statutory minimum for the date of injury. If 2/3 AWW is below the minimum, the rate is raised to the minimum — unless the claimant's AWW is itself lower than the minimum, in which case the rate equals the full AWW.
         </p>
       </div>
     </div>
@@ -181,6 +221,24 @@
       { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007",     max: 400.00  },
     ];
 
+    // Statutory MIN rates (WCL §204) — matches mobile app MIN_RATES
+    const MIN_RATES = [
+      { s:"2026-07-01", e:"2099-12-31", l:"Jul 1, 2026+",                 min:null, n:"1/5 NYSAWW (indexed)" },
+      { s:"2025-01-01", e:"2026-06-30", l:"Jan 1, 2025 – Jun 30, 2026",   min:325,  n:"" },
+      { s:"2024-01-01", e:"2024-12-31", l:"Jan 1, 2024 – Dec 31, 2024",   min:275,  n:"" },
+      { s:"2013-05-01", e:"2023-12-31", l:"May 1, 2013 – Dec 31, 2023",   min:150,  n:"" },
+      { s:"2007-07-01", e:"2013-04-30", l:"Jul 1, 2007 – Apr 30, 2013",   min:100,  n:"2007 Reform" },
+      { s:"1900-01-01", e:"2007-06-30", l:"Before Jul 1, 2007",           min:40,   n:"Pre-reform" },
+    ];
+    function getMinForDate(dateStr) {
+      if (!dateStr) return null;
+      const dt = new Date(dateStr + 'T00:00:00');
+      for (const r of MIN_RATES) {
+        if (dt >= new Date(r.s+'T00:00:00') && dt <= new Date(r.e+'T23:59:59')) return r;
+      }
+      return null;
+    }
+
     function getMaxForDate(dateStr) {
       if (!dateStr) return null;
       const dt = new Date(dateStr + 'T00:00:00');
@@ -219,10 +277,14 @@
       const doiInput = document.getElementById('doiDate').value;
       const resultEl = document.getElementById('applicableRateResult');
       const dateEl   = document.getElementById('rateEffectiveDate');
+      const minEl    = document.getElementById('applicableMinResult');
+      const minDateEl= document.getElementById('minEffectiveDate');
 
       if (!doiInput) {
         resultEl.textContent = '—';
         dateEl.textContent   = '—';
+        if (minEl) minEl.textContent = '—';
+        if (minDateEl) minDateEl.textContent = '—';
         highlightTableRow(null);
         return;
       }
@@ -237,6 +299,25 @@
         dateEl.textContent   = 'Date out of range — enter a date from 1985 onward';
         highlightTableRow(null);
       }
+
+      const m = getMinForDate(doiInput);
+      if (m && minEl) {
+        minEl.textContent = m.min ? formatCurrency(m.min) : 'Indexed';
+        minDateEl.textContent = `Effective period: ${m.l}` + (m.n ? ' · ' + m.n : '');
+      } else if (minEl) {
+        minEl.textContent = '—';
+        minDateEl.textContent = '—';
+      }
+    }
+
+    function buildMinRatesTable() {
+      const tb = document.getElementById('minRatesTableBody');
+      if (!tb) return;
+      MIN_RATES.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.l}</td><td>${r.min?formatCurrency(r.min):'Indexed'}</td><td style="color:var(--txM);font-size:11px;">${r.n||''}</td>`;
+        tb.appendChild(tr);
+      });
     }
 
     // Default to today
@@ -251,6 +332,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await getOptionalUser();
       renderPublicNav(user);
+      buildMinRatesTable();
       lookupRate();
     });
   </script>
