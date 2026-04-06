@@ -167,6 +167,110 @@ async function saveCalculation(userId, calcType, data) {
 }
 
 /**
+ * Get all distinct case names for the current user with summary stats.
+ * Returns an array of { case_name, calc_count, last_saved, calculators, latest_aww, latest_doa }
+ * sorted by most recently saved first.
+ * @param {string} userId
+ * @returns {Promise<Array>}
+ */
+async function getUserCases(userId) {
+  if (!userId) return [];
+  try {
+    const { data, error } = await supabase
+      .from('calculation_history')
+      .select('id, case_name, calculator_type, input_data, result_data, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error || !data) return [];
+
+    // Group by case_name
+    const caseMap = {};
+    data.forEach(row => {
+      const cn = row.case_name || '(Unsaved)';
+      if (!caseMap[cn]) {
+        caseMap[cn] = {
+          case_name: cn,
+          calc_count: 0,
+          last_saved: row.created_at,
+          calculators: new Set(),
+          calculations: [],
+          latest_aww: null,
+          latest_doa: null
+        };
+      }
+      caseMap[cn].calc_count++;
+      caseMap[cn].calculators.add(row.calculator_type);
+      caseMap[cn].calculations.push(row);
+
+      // Extract AWW and DOA from input_data if available
+      const inp = row.input_data;
+      if (inp) {
+        if (inp.aww && !caseMap[cn].latest_aww) caseMap[cn].latest_aww = inp.aww;
+        if (inp.doa && !caseMap[cn].latest_doa) caseMap[cn].latest_doa = inp.doa;
+        if (inp.doi && !caseMap[cn].latest_doa) caseMap[cn].latest_doa = inp.doi;
+      }
+    });
+
+    // Convert sets to arrays, sort by last_saved
+    return Object.values(caseMap)
+      .map(c => ({ ...c, calculators: Array.from(c.calculators) }))
+      .sort((a, b) => new Date(b.last_saved) - new Date(a.last_saved));
+  } catch (err) {
+    console.error('Failed to fetch user cases:', err);
+    return [];
+  }
+}
+
+/**
+ * Get all calculations for a specific case name.
+ * @param {string} userId
+ * @param {string} caseName
+ * @returns {Promise<Array>}
+ */
+async function getCaseCalculations(userId, caseName) {
+  if (!userId) return [];
+  try {
+    const query = supabase
+      .from('calculation_history')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (caseName && caseName !== '(Unsaved)') {
+      query.eq('case_name', caseName);
+    } else {
+      query.is('case_name', null);
+    }
+
+    const { data, error } = await query;
+    return error ? [] : (data || []);
+  } catch (err) {
+    console.error('Failed to fetch case calculations:', err);
+    return [];
+  }
+}
+
+/**
+ * Delete a single calculation by ID.
+ * @param {string} calcId
+ * @returns {Promise<boolean>}
+ */
+async function deleteCalculation(calcId) {
+  if (!calcId) return false;
+  try {
+    const { error } = await supabase
+      .from('calculation_history')
+      .delete()
+      .eq('id', calcId);
+    return !error;
+  } catch (err) {
+    console.error('Failed to delete calculation:', err);
+    return false;
+  }
+}
+
+/**
  * Sign out user and redirect to home
  */
 async function signOut() {
@@ -188,6 +292,9 @@ export {
   getUser,
   getOptionalUser,
   saveCalculation,
+  getUserCases,
+  getCaseCalculations,
+  deleteCalculation,
   signOut,
   TIERS,
   TIER_LEVEL

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Cases — Pro Attorney Workspace | The Comp Desk</title>
+  <meta name="description" content="Manage your workers' compensation cases. View saved calculations, filter by case name, AWW, DOA, and load into the Pro Calculator Suite for editing or fee application generation.">
+  <link rel="stylesheet" href="../css/app.css">
+  <style>
+    /* ═══════════════════════════════════════
+       LAYOUT: Sidebar + Main Panel
+    ═══════════════════════════════════════ */
+    .cases-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 80px);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      .cases-layout { grid-template-columns: 1fr; }
+      .cases-sidebar { max-height: 50vh; border-right: none; border-bottom: 1px solid var(--bd); }
+    }
+
+    /* ═══ SIDEBAR ═══ */
+    .cases-sidebar {
+      background: var(--card);
+      border-right: 1px solid var(--bd);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-header {
+      padding: 16px 14px 12px;
+      border-bottom: 1px solid var(--bd);
+      flex-shrink: 0;
+    }
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar-title .count-badge {
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--acG);
+      color: var(--ac);
+      border: 1px solid rgba(59,130,246,.2);
+      border-radius: 10px;
+      padding: 1px 8px;
+    }
+
+    /* Search / Filter */
+    .sidebar-search {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 7px 10px 7px 30px;
+      color: var(--tx);
+      font-family: var(--font);
+      font-size: 12px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .sidebar-search:focus { border-color: var(--ac); }
+    .search-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--txM);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    /* Sort controls */
+    .sort-bar {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .sort-btn {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      padding: 3px 8px;
+      border: 1px solid var(--bd);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--txM);
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .sort-btn:hover { border-color: var(--ac); color: var(--txD); }
+    .sort-btn.active { background: rgba(59,130,246,.12); border-color: var(--ac); color: var(--ac); }
+
+    /* Case list */
+    .case-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+    .case-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(30,58,95,.3);
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .case-item:hover { background: rgba(59,130,246,.04); }
+    .case-item.active {
+      background: rgba(59,130,246,.08);
+      border-left: 3px solid var(--ac);
+      padding-left: 11px;
+    }
+    .case-item-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--tx);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .case-item-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .case-meta-item {
+      font-size: 10px;
+      color: var(--txM);
+    }
+    .case-meta-item strong {
+      color: var(--txD);
+      font-weight: 600;
+    }
+    .case-meta-item.aww strong { color: var(--ac); }
+    .case-calc-badges {
+      display: flex;
+      gap: 3px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+    .calc-badge {
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--cardA);
+      border: 1px solid var(--bd);
+      color: var(--txD);
+    }
+    .calc-badge.slu { background: rgba(16,185,129,.1); border-color: rgba(16,185,129,.25); color: var(--gn); }
+    .calc-badge.aww { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.25); color: var(--ac); }
+    .calc-badge.lwec { background: rgba(168,85,247,.1); border-color: rgba(168,85,247,.25); color: #a855f7; }
+    .calc-badge.ccp_award { background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.25); color: var(--gd); }
+    .calc-badge.radiculopathy { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.2); color: var(--rd); }
+    .calc-badge.spine_brain { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.2); color: var(--rd); }
+    .calc-badge.rates { background: rgba(100,116,139,.1); border-color: rgba(100,116,139,.25); color: var(--txD); }
+
+    /* Empty state */
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--txM);
+    }
+    .empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+    .empty-state h3 { font-size: 15px; color: var(--txD); margin-bottom: 6px; }
+    .empty-state p { font-size: 12px; line-height: 1.7; }
+
+    /* ═══ MAIN PANEL ═══ */
+    .cases-main {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .main-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--bd);
+      background: var(--card);
+      flex-shrink: 0;
+    }
+    .main-case-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+    .main-case-subtitle {
+      font-size: 11px;
+      color: var(--txM);
+    }
+    .main-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .main-actions .btn-sm {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 5px;
+      border: 1px solid var(--bd);
+      background: transparent;
+      color: var(--txD);
+      cursor: pointer;
+      transition: all .12s;
+      text-decoration: none;
+    }
+    .main-actions .btn-sm:hover { border-color: var(--ac); color: var(--ac); }
+    .main-actions .btn-sm.primary { background: var(--ac); border-color: var(--ac); color: #fff; }
+    .main-actions .btn-sm.primary:hover { background: var(--acD); }
+
+    /* Calculation timeline */
+    .calc-timeline {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+    .timeline-group {
+      margin-bottom: 20px;
+    }
+    .timeline-date {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--txM);
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(30,58,95,.3);
+    }
+    .calc-card {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: border-color .12s;
+    }
+    .calc-card:hover { border-color: rgba(59,130,246,.3); }
+    .calc-card-header {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .calc-card-type {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .calc-card-time {
+      font-size: 10px;
+      color: var(--txM);
+      margin-left: auto;
+    }
+    .calc-card-summary {
+      font-size: 12px;
+      color: var(--txD);
+      font-weight: 600;
+    }
+    .calc-card-body {
+      display: none;
+      padding: 0 14px 12px;
+      border-top: 1px solid rgba(30,58,95,.3);
+    }
+    .calc-card.expanded .calc-card-body { display: block; }
+    .calc-card.expanded { border-color: var(--ac); }
+
+    /* Data rows inside expanded card */
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 11px;
+    }
+    .data-row-label { color: var(--txM); }
+    .data-row-val { font-family: var(--mono); font-weight: 600; color: var(--tx); font-size: 11px; }
+    .data-row-val.green { color: var(--gn); }
+    .data-row-val.blue { color: var(--ac); }
+    .data-row-val.gold { color: var(--gd); }
+
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(30,58,95,.3);
+    }
+    .card-action-btn {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--bd);
+      background: transparent;
+      color: var(--txD);
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .card-action-btn:hover { border-color: var(--ac); color: var(--ac); }
+    .card-action-btn.load { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.3); color: var(--ac); }
+    .card-action-btn.delete { color: var(--rd); border-color: rgba(239,68,68,.2); }
+    .card-action-btn.delete:hover { background: rgba(239,68,68,.08); }
+
+    /* Welcome / no-selection state */
+    .welcome-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+    }
+    .welcome-state-icon { font-size: 48px; opacity: .3; margin-bottom: 16px; }
+    .welcome-state h2 { font-size: 18px; color: var(--txD); font-weight: 700; margin-bottom: 6px; }
+    .welcome-state p { font-size: 12px; color: var(--txM); line-height: 1.7; max-width: 400px; }
+
+    /* Pro gate for this page */
+    .pro-gate-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pro-gate-box {
+      background: linear-gradient(135deg, #101828 0%, #0d1f3c 100%);
+      border: 1px solid rgba(59,130,246,.3); border-radius: 16px;
+      padding: 36px 32px; max-width: 480px; width: 92%; text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+    .pro-gate-box h2 { color: #fff; font-size: 22px; font-weight: 800; margin: 12px 0 8px; }
+    .pro-gate-box p { color: #999; font-size: 14px; line-height: 1.7; margin: 0 0 20px; }
+  </style>
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <!-- Pro Gate -->
+  <div id="pro-gate-overlay" class="pro-gate-overlay">
+    <div class="pro-gate-box">
+      <div style="font-size:40px;">📁</div>
+      <h2>My Cases — Pro Feature</h2>
+      <p>Manage all your saved calculations organized by case name. Requires a Pro or Firm subscription.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="/subscribe/?tier=pro" class="btn-primary" style="text-decoration:none;display:block;padding:14px;border-radius:10px;font-weight:700;text-align:center;">Upgrade to Pro — $9.99/mo</a>
+        <a href="/auth_v2.html" style="color:var(--txD);font-size:13px;">Already subscribed? Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="cases-layout" id="casesLayout" style="display:none;">
+
+    <!-- ═══ LEFT SIDEBAR: Case List ═══ -->
+    <div class="cases-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          My Cases <span class="count-badge" id="caseCount">0</span>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="sidebar-search" id="caseSearch" placeholder="Search cases..." aria-label="Filter cases by name">
+        </div>
+        <div class="sort-bar">
+          <button class="sort-btn active" data-sort="recent" aria-label="Sort by most recent">Recent</button>
+          <button class="sort-btn" data-sort="name" aria-label="Sort by case name">Name</button>
+          <button class="sort-btn" data-sort="calcs" aria-label="Sort by number of calculations">Most Calcs</button>
+          <button class="sort-btn" data-sort="aww" aria-label="Sort by AWW">AWW</button>
+        </div>
+      </div>
+
+      <div class="case-list" id="caseList">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- ═══ RIGHT PANEL: Case Detail / Calculation Viewer ═══ -->
+    <div class="cases-main" id="casesMain">
+
+      <!-- Welcome state (no case selected) -->
+      <div class="welcome-state" id="welcomeState">
+        <div class="welcome-state-icon">📂</div>
+        <h2>Select a Case</h2>
+        <p>Choose a case from the sidebar to view its saved calculations. You can expand any calculation to see the full input/output, load it into the Pro Suite for editing, or generate a fee application.</p>
+      </div>
+
+      <!-- Case detail view (hidden until case selected) -->
+      <div id="caseDetail" style="display:none;flex:1;display:flex;flex-direction:column;">
+        <div class="main-header">
+          <div class="main-case-title" id="detailCaseName">—</div>
+          <div class="main-case-subtitle" id="detailCaseMeta">—</div>
+          <div class="main-actions">
+            <a id="openInProBtn" href="/calculators/pro.html" class="btn-sm primary">Open in Pro Suite</a>
+            <button class="btn-sm" id="refreshBtn">Refresh</button>
+          </div>
+        </div>
+        <div class="calc-timeline" id="calcTimeline">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getUser, hasAccess, getUserCases, getCaseCalculations, deleteCalculation, TIERS } from '../js/auth.js';
+    import { renderNav } from '../js/nav.js';
+
+    // ─── State ───
+    let allCases = [];
+    let selectedCase = null;
+    let currentSort = 'recent';
+    let currentUser = null;
+
+    // ─── Helpers ───
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    function fmtTime(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+    function fmtRelative(iso) {
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = now - d;
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+      return fmtDate(iso);
+    }
+
+    const CALC_LABELS = {
+      slu: 'SLU', aww: 'AWW', lwec: 'LWEC', ccp_award: 'CCP/Award',
+      radiculopathy: 'Radiculopathy', spine_brain: 'Spine/Brain', rates: 'Rates'
+    };
+
+    // ─── Render case list sidebar ───
+    function renderCaseList(filter = '') {
+      const list = document.getElementById('caseList');
+      let cases = [...allCases];
+
+      // Filter
+      if (filter) {
+        const q = filter.toLowerCase();
+        cases = cases.filter(c => c.case_name.toLowerCase().includes(q));
+      }
+
+      // Sort
+      if (currentSort === 'name') cases.sort((a, b) => a.case_name.localeCompare(b.case_name));
+      else if (currentSort === 'calcs') cases.sort((a, b) => b.calc_count - a.calc_count);
+      else if (currentSort === 'aww') cases.sort((a, b) => {
+        const aV = parseFloat(String(a.latest_aww || '0').replace(/[^0-9.]/g, '')) || 0;
+        const bV = parseFloat(String(b.latest_aww || '0').replace(/[^0-9.]/g, '')) || 0;
+        return bV - aV;
+      });
+      // default: recent (already sorted by last_saved desc)
+
+      document.getElementById('caseCount').textContent = cases.length;
+
+      if (cases.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3>${filter ? 'No matching cases' : 'No cases yet'}</h3>
+            <p>${filter ? 'Try a different search term.' : 'Save calculations from the <a href="/calculators/pro.html" style="color:var(--ac);">Pro Suite</a> with a case name to see them here.'}</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = cases.map(c => {
+        const isActive = selectedCase && selectedCase.case_name === c.case_name;
+        return `
+          <div class="case-item${isActive ? ' active' : ''}" data-case="${encodeURIComponent(c.case_name)}">
+            <div class="case-item-name">${escHTML(c.case_name)}</div>
+            <div class="case-item-meta">
+              <span class="case-meta-item"><strong>${c.calc_count}</strong> calc${c.calc_count !== 1 ? 's' : ''}</span>
+              ${c.latest_aww ? `<span class="case-meta-item aww">AWW <strong>${c.latest_aww}</strong></span>` : ''}
+              <span class="case-meta-item">${fmtRelative(c.last_saved)}</span>
+            </div>
+            <div class="case-calc-badges">
+              ${c.calculators.map(ct => `<span class="calc-badge ${ct}">${CALC_LABELS[ct] || ct}</span>`).join('')}
+            </div>
+          </div>`;
+      }).join('');
+
+      // Wire click handlers
+      list.querySelectorAll('.case-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const cn = decodeURIComponent(el.dataset.case);
+          const c = allCases.find(x => x.case_name === cn);
+          if (c) selectCase(c);
+        });
+      });
+    }
+
+    function escHTML(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    // ─── Select a case and render detail ───
+    async function selectCase(caseObj) {
+      selectedCase = caseObj;
+
+      // Update sidebar active state
+      document.querySelectorAll('.case-item').forEach(el => {
+        const cn = decodeURIComponent(el.dataset.case);
+        el.classList.toggle('active', cn === caseObj.case_name);
+      });
+
+      // Show detail panel, hide welcome
+      document.getElementById('welcomeState').style.display = 'none';
+      const detail = document.getElementById('caseDetail');
+      detail.style.display = 'flex';
+
+      // Set header
+      document.getElementById('detailCaseName').textContent = caseObj.case_name;
+      const metaParts = [];
+      metaParts.push(caseObj.calc_count + ' calculation' + (caseObj.calc_count !== 1 ? 's' : ''));
+      if (caseObj.latest_aww) metaParts.push('AWW: ' + caseObj.latest_aww);
+      if (caseObj.latest_doa) metaParts.push('DOA: ' + caseObj.latest_doa);
+      metaParts.push('Last saved: ' + fmtDate(caseObj.last_saved));
+      document.getElementById('detailCaseMeta').textContent = metaParts.join('  •  ');
+
+      // Set Pro Suite link with case name
+      document.getElementById('openInProBtn').href = '/calculators/pro.html?case=' + encodeURIComponent(caseObj.case_name);
+
+      // Render calculations timeline
+      renderTimeline(caseObj.calculations);
+    }
+
+    // ─── Render calculation timeline ───
+    function renderTimeline(calcs) {
+      const timeline = document.getElementById('calcTimeline');
+
+      if (!calcs || calcs.length === 0) {
+        timeline.innerHTML = '<div class="empty-state"><p>No calculations found for this case.</p></div>';
+        return;
+      }
+
+      // Group by date
+      const groups = {};
+      calcs.forEach(c => {
+        const d = fmtDate(c.created_at);
+        if (!groups[d]) groups[d] = [];
+        groups[d].push(c);
+      });
+
+      timeline.innerHTML = Object.entries(groups).map(([date, items]) => `
+        <div class="timeline-group">
+          <div class="timeline-date">${date}</div>
+          ${items.map(c => renderCalcCard(c)).join('')}
+        </div>
+      `).join('');
+
+      // Wire expand/collapse
+      timeline.querySelectorAll('.calc-card-header').forEach(hdr => {
+        hdr.addEventListener('click', () => {
+          hdr.closest('.calc-card').classList.toggle('expanded');
+        });
+      });
+
+      // Wire load buttons
+      timeline.querySelectorAll('.load-calc-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          const calc = calcs.find(c => String(c.id) === id);
+          if (calc) loadIntoProSuite(calc);
+        });
+      });
+
+      // Wire delete buttons
+      timeline.querySelectorAll('.delete-calc-btn').forEach(btn => {
+        btn.addEventListener('click', async e => {
+          e.stopPropagation();
+          if (!confirm('Delete this calculation? This cannot be undone.')) return;
+          const id = btn.dataset.id;
+          const ok = await deleteCalculation(id);
+          if (ok) {
+            btn.closest('.calc-card').remove();
+            // Refresh case data
+            allCases = await getUserCases(currentUser.session.user.id);
+            const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
+            if (refreshed) {
+              selectedCase = refreshed;
+              renderCaseList(document.getElementById('caseSearch').value);
+            }
+          }
+        });
+      });
+    }
+
+    // ─── Render a single calculation card ───
+    function renderCalcCard(calc) {
+      const type = calc.calculator_type;
+      const label = CALC_LABELS[type] || type;
+      const inp = calc.input_data || {};
+      const res = calc.result_data || {};
+      const time = fmtTime(calc.created_at);
+
+      // Build summary line based on calculator type
+      let summary = '';
+      if (type === 'slu' && res.totalAward) summary = 'Award: ' + res.totalAward;
+      else if (type === 'aww' && res.aww) summary = 'AWW: ' + res.aww;
+      else if (type === 'aww' && res.rate) summary = 'Rate: ' + res.rate;
+      else if (type === 'lwec' && res.classRate) summary = 'Rate: ' + res.classRate;
+      else if (type === 'ccp_award' && res.total) summary = 'Total: ' + res.total;
+      else if (type === 'radiculopathy' && res.sluRange) summary = 'SLU: ' + res.sluRange;
+      else if (type === 'spine_brain' && res.classification) summary = res.classification;
+
+      // Build detail rows
+      let detailHTML = '';
+      if (type === 'slu') {
+        if (inp.aww) detailHTML += dataRow('AWW', inp.aww, 'blue');
+        if (inp.prior) detailHTML += dataRow('Prior SLU', inp.prior);
+        if (res.totalWeeks) detailHTML += dataRow('Total Weeks', res.totalWeeks);
+        if (res.totalAward) detailHTML += dataRow('Total Award', res.totalAward, 'green');
+        if (res.moving) detailHTML += dataRow('Moving Amount', res.moving, 'gold');
+        if (res.fee) detailHTML += dataRow('Attorney Fee', res.fee, 'green');
+        if (res.net) detailHTML += dataRow('Net to Claimant', res.net, 'gold');
+      } else if (type === 'aww') {
+        if (inp.method) detailHTML += dataRow('Method', inp.method);
+        if (res.aww) detailHTML += dataRow('Calculated AWW', res.aww, 'blue');
+        if (res.rate) detailHTML += dataRow('Comp Rate', res.rate, 'gold');
+      } else if (type === 'lwec') {
+        if (inp.lwecPct) detailHTML += dataRow('LWEC %', inp.lwecPct + '%');
+        if (res.classRate) detailHTML += dataRow('Classified Rate', res.classRate, 'blue');
+        if (res.bracket) detailHTML += dataRow('Bracket', res.bracket);
+        if (res.maxWeeks) detailHTML += dataRow('Max Weeks', res.maxWeeks);
+      } else if (type === 'ccp_award') {
+        if (inp.aww) detailHTML += dataRow('AWW', typeof inp.aww === 'number' ? '$' + inp.aww.toFixed(2) : inp.aww, 'blue');
+        if (res.total) detailHTML += dataRow('Total Award', res.total, 'green');
+        if (res.fee) detailHTML += dataRow('Attorney Fee', res.fee, 'green');
+        if (res.net) detailHTML += dataRow('Net to Claimant', res.net, 'gold');
+      } else if (type === 'radiculopathy') {
+        if (inp.region) detailHTML += dataRow('Region', inp.region);
+        if (inp.nerve) detailHTML += dataRow('Nerve', inp.nerve);
+        if (res.sluRange) detailHTML += dataRow('SLU Range', res.sluRange, 'blue');
+        if (res.weeksRange) detailHTML += dataRow('Weeks', res.weeksRange);
+        if (res.awardRange) detailHTML += dataRow('Award Range', res.awardRange, 'green');
+      } else {
+        // Generic: show all result fields
+        Object.entries(res).forEach(([k, v]) => {
+          if (v) detailHTML += dataRow(k, String(v));
+        });
+      }
+
+      // Also show raw input summary for any type
+      let inputSummary = '';
+      if (inp.entries && Array.isArray(inp.entries)) {
+        inputSummary = inp.entries.map(e => e.part + ': ' + (e.pct || '—') + '%').join(', ');
+      }
+      if (inp.periods && Array.isArray(inp.periods)) {
+        inputSummary = inp.periods.filter(p => p.start && p.end).map(p => p.desig + ' ' + p.start + '→' + p.end).join(', ');
+      }
+
+      return `
+        <div class="calc-card" data-id="${calc.id}">
+          <div class="calc-card-header">
+            <span class="calc-card-type calc-badge ${type}">${label}</span>
+            <span class="calc-card-summary">${escHTML(summary)}</span>
+            <span class="calc-card-time">${time}</span>
+          </div>
+          <div class="calc-card-body">
+            ${detailHTML}
+            ${inputSummary ? `<div style="margin-top:6px;font-size:10px;color:var(--txM);line-height:1.6;"><strong>Inputs:</strong> ${escHTML(inputSummary)}</div>` : ''}
+            <div class="card-actions">
+              <button class="card-action-btn load load-calc-btn" data-id="${calc.id}">Load in Pro Suite</button>
+              <button class="card-action-btn delete delete-calc-btn" data-id="${calc.id}">Delete</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function dataRow(label, value, color) {
+      return `<div class="data-row"><span class="data-row-label">${escHTML(label)}</span><span class="data-row-val${color ? ' ' + color : ''}">${escHTML(String(value))}</span></div>`;
+    }
+
+    // ─── Load calculation into Pro Suite ───
+    function loadIntoProSuite(calc) {
+      // Store in sessionStorage so Pro Suite can pick it up
+      sessionStorage.setItem('loadCalc', JSON.stringify(calc));
+      window.location.href = '/calculators/pro.html?case=' + encodeURIComponent(selectedCase?.case_name || '') + '&load=' + calc.id;
+    }
+
+    // ─── Init ───
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await getUser();
+      if (!user) return;
+
+      currentUser = user;
+      renderNav(user.session, user.tier);
+
+      // Check Pro access
+      if (!hasAccess(user.tier, ['pro', 'firm'])) {
+        return; // Gate stays visible
+      }
+
+      // Hide gate, show layout
+      document.getElementById('pro-gate-overlay').style.display = 'none';
+      document.getElementById('casesLayout').style.display = 'grid';
+
+      // Load cases
+      allCases = await getUserCases(user.session.user.id);
+      renderCaseList();
+
+      // Search
+      document.getElementById('caseSearch').addEventListener('input', e => {
+        renderCaseList(e.target.value);
+      });
+
+      // Sort buttons
+      document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentSort = btn.dataset.sort;
+          document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+          renderCaseList(document.getElementById('caseSearch').value);
+        });
+      });
+
+      // Refresh button
+      document.getElementById('refreshBtn').addEventListener('click', async () => {
+        allCases = await getUserCases(user.session.user.id);
+        if (selectedCase) {
+          const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
+          if (refreshed) selectCase(refreshed);
+        }
+        renderCaseList(document.getElementById('caseSearch').value);
+      });
+
+      // Auto-select case from URL param
+      const params = new URLSearchParams(window.location.search);
+      const caseName = params.get('case');
+      if (caseName) {
+        const c = allCases.find(x => x.case_name === caseName);
+        if (c) selectCase(c);
+      }
+    });
+  </script>
+</body>
+</html>
