@@ -3,9 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" as="image" href="assets/hero/comp-buddy.png" fetchpriority="high">
 <title>The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker</title>
 <meta name="description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers. Built by a practicing WC attorney.">
 <meta name="keywords" content="workers compensation calculator, NYS, New York, schedule loss of use, SLU, AWW, LWEC, permanency guidelines, work injury, comp benefits">
+
+<!-- Open Graph -->
+<meta property="og:title" content="The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker">
+<meta property="og:description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers.">
+<meta property="og:image" content="https://www.thecompdesk.com/images/og-home.png">
+<meta property="og:url" content="https://www.thecompdesk.com/">
+<meta property="og:type" content="website">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker">
+<meta name="twitter:description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers.">
+<meta name="twitter:image" content="https://www.thecompdesk.com/images/og-home.png">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://www.thecompdesk.com/">
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "The Comp Desk",
+  "url": "https://www.thecompdesk.com/",
+  "description": "The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://www.thecompdesk.com/calculators/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#3b82f6;--acG:rgba(59,130,246,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;}
@@ -40,6 +74,16 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .hero .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 .hero .attr{margin-top:32px;font-size:13px;color:var(--txM);}
 .hero .attr strong{color:var(--txD);}
+.hero .mascot-stage{position:relative;width:min(420px,82vw);aspect-ratio:1/1;margin:0 auto 28px;}
+.hero .mascot-stage img,.hero .mascot-stage .lottie,.hero .mascot-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
+.hero .mascot-stage .lottie{opacity:0;transition:opacity .4s ease;}
+.hero .mascot-stage.is-playing .lottie{opacity:1;}
+.hero .mascot-stage.is-playing img.fallback{opacity:0;}
+.hero .mascot-stage img.fallback{transition:opacity .4s ease;}
+@media (prefers-reduced-motion: reduce){
+  .hero .mascot-stage .lottie,.hero .mascot-stage video{display:none!important;}
+  .hero .mascot-stage img.fallback{opacity:1!important;}
+}
 
 /* STATS */
 .stats{padding:40px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
@@ -120,14 +164,16 @@ footer a{color:var(--txD);}
 <section class="hero">
   <div class="wrap">
     <div class="badge">NYS Workers' Compensation</div>
+    <div class="mascot-stage" id="mascotStage" aria-label="Comp Buddy and the Comp Desk calculator mascot">
+      <img class="fallback" src="assets/hero/comp-buddy.png" alt="Comp Buddy mascot" width="420" height="420" fetchpriority="high" decoding="async">
+      <div class="lottie" id="mascotLottie" role="img" aria-hidden="true"></div>
+    </div>
     <h1>Know your comp.<br>Fight for your <span>rights.</span></h1>
     <p class="sub">The most comprehensive NYS Workers' Compensation calculator ever built. Calculate awards, verify benefits, check permanency — all in one app. Free for injured workers.</p>
     <div class="ctas">
-      <a href="https://apps.apple.com/app/the-comp-desk/id6761267639" class="cta-btn">Download for iPhone</a>
-      <a href="#download" class="cta-btn outline">Android (Coming Soon)</a>
-      <a href="#download" class="cta-btn gold">Desktop (Coming Soon)</a>
+      <a href="calculators/" class="cta-btn">Calculate your AWW</a>
+      <a href="#meet-comp-buddy" class="cta-btn outline">Meet Comp Buddy</a>
     </div>
-    <p class="attr">Created by <strong>Joel Mays, Esq.</strong> — practicing NYS Workers' Compensation attorney</p>
   </div>
 </section>
 
@@ -238,13 +284,12 @@ footer a{color:var(--txD);}
 
 <section class="about" id="about">
   <div class="wrap">
-    <h2>Built by an attorney, for everyone.</h2>
-    <p>The Comp Desk was born in hearings. As a practicing NYS Workers' Compensation attorney, I found myself doing the same calculations by hand, over and over — AWW, SLU percentages, fee applications, LWEC brackets. Every other attorney in the room was doing the same thing on scraps of paper or clunky spreadsheets.</p>
-    <p>So I built the tool I wished existed. One app that does everything: calculates awards on the fly, checks a doctor's ROM finding against the Permanency Guidelines, generates the fee app equation ready to copy, and looks up any statutory rate back to 1985.</p>
+    <h2>Built for the hearing room. Free for the worker.</h2>
+    <p>The Comp Desk was born in hearings — where the same NYS Workers' Compensation calculations get done by hand, over and over again. AWW, SLU percentages, fee applications, LWEC brackets, statutory rates back to 1985. Scraps of paper and clunky spreadsheets, day after day.</p>
+    <p>So we built the tool the room was missing. One app that does everything: calculates awards on the fly, checks a doctor's ROM finding against the Permanency Guidelines, generates the fee app equation ready to copy, and looks up any statutory rate in seconds.</p>
     <p>But this isn't just for attorneys. Every injured worker in New York State deserves to understand their benefits. The free tier of The Comp Desk puts the same calculation power in your hands — so you can verify your award, understand your rights, and make informed decisions about your case.</p>
     <p>Know your comp. Fight for your rights.</p>
-    <div class="sig">Joel Mays, Esq.</div>
-    <div class="sig-title">Creator, The Comp Desk</div>
+    <div class="sig">— The Comp Desk Team</div>
   </div>
 </section>
 
@@ -376,6 +421,42 @@ sb.auth.onAuthStateChange((event, session) => {
 });
 
 initAuth();
+</script>
+<script>
+/* Mascot hero loader: lazy-load lottie-web after page load, respect reduced-motion.
+   Asset slot: assets/hero/mascot-hero.json (placeholder; vendor will replace).
+   To swap to MP4/WebM, set data-video on #mascotStage and this loader will use it. */
+(function(){
+  var stage=document.getElementById('mascotStage');
+  if(!stage) return;
+  var prefersReduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(prefersReduced) return;
+  function start(){
+    var videoSrc=stage.getAttribute('data-video');
+    if(videoSrc){
+      var v=document.createElement('video');
+      v.src=videoSrc;v.autoplay=true;v.loop=true;v.muted=true;v.playsInline=true;
+      v.setAttribute('aria-hidden','true');
+      stage.appendChild(v);stage.classList.add('is-playing');return;
+    }
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js';
+    s.async=true;
+    s.onload=function(){
+      try{
+        window.lottie.loadAnimation({
+          container:document.getElementById('mascotLottie'),
+          renderer:'svg',loop:true,autoplay:true,
+          path:'assets/hero/mascot-hero.json'
+        });
+        stage.classList.add('is-playing');
+      }catch(e){}
+    };
+    document.head.appendChild(s);
+  }
+  if(document.readyState==='complete') setTimeout(start,200);
+  else window.addEventListener('load',function(){setTimeout(start,200);});
+})();
 </script>
 </body>
 </html>
