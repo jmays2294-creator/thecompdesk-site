@@ -1,5 +1,46 @@
 # robots.txt for thecompdesk.com
+# Last updated: 2026-04-05
+# Maintained by: Website Team
+
+# Allow all well-behaved crawlers
 User-agent: *
 Allow: /
 
-Sitemap: https://thecompdesk.com/sitemap.xml
+# Auth and account pages — no indexing value
+Disallow: /auth
+Disallow: /auth.html
+Disallow: /auth_v2
+Disallow: /auth_v2.html
+Disallow: /account
+Disallow: /account.html
+
+# Auth-gated tools (redirect to login anyway)
+Disallow: /tools/find-doctor
+Disallow: /tools/settlement
+
+# Subscription page (currently 404)
+Disallow: /subscription/
+
+# API and Supabase endpoints
+Disallow: /api/
+Disallow: /_next/
+Disallow: /.well-known/
+
+# Block AI training crawlers (optional — remove if you want AI visibility)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+# Sitemap location
+Sitemap: https://www.thecompdesk.com/sitemap.xml
