@@ -1,0 +1,14 @@
+{
+  "$schema_doc": "Neutral attorney directory data for /find-attorney.html. See find-attorney-how-it-works.html for the public explanation of how this directory works. EXCLUSIONS: The site owner's firm (Shulman and Hill PLLC, including the variant 'Shulman & Hill') and the site owner personally (Joel Mays / Joel Mays Esq) are PERMANENTLY EXCLUDED from this directory. A CI test (tests/directory-exclusion.test.js) fails the build if any forbidden string appears in this file. Do not add the owner or his firm under any circumstance. Sort policy: results are filtered by user-supplied geographic match (county or region), then RANDOMIZED PER SESSION using a Fisher-Yates shuffle seeded only at page load. There is no weighting, no paid placement, no referral tracking, no analytics attribution per firm, and no referral parameters appended to outbound links.",
+  "regions": [
+    "NYC",
+    "Long Island",
+    "Hudson Valley",
+    "Capital Region",
+    "Western NY",
+    "Central NY",
+    "Southern Tier",
+    "North Country"
+  ],
+  "attorneys": []
+}

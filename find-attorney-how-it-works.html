@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How the Find an Attorney Directory Works — The Comp Desk</title>
+<meta name="description" content="The neutrality, sort, and exclusion policy for The Comp Desk's Find a Workers' Compensation Attorney directory.">
+<link rel="canonical" href="https://www.thecompdesk.com/find-attorney-how-it-works.html">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080f;--card:#0e1322;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.12);--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--warn:#f0a030;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased;}
+a{color:var(--ac);}
+.wrap{max-width:780px;margin:0 auto;padding:0 24px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,8,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);}
+nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+nav .logo{font-size:18px;font-weight:800;color:var(--wh);}
+nav .logo span{color:var(--ac);}
+nav .links a{color:var(--txD);font-size:14px;font-weight:600;margin-left:24px;text-decoration:none;}
+.page{padding:130px 0 80px;}
+h1{font-size:clamp(28px,4.5vw,40px);font-weight:900;color:var(--wh);letter-spacing:-1px;line-height:1.15;margin-bottom:8px;}
+.lede{color:var(--txD);font-size:16px;margin-bottom:32px;}
+h2{font-size:20px;font-weight:800;color:var(--wh);margin:36px 0 10px;}
+p{margin-bottom:14px;font-size:15px;}
+.callout{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--warn);border-radius:8px;padding:18px 22px;margin:20px 0;}
+.callout strong{color:var(--wh);}
+code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#0a1020;border:1px solid var(--bd);padding:1px 6px;border-radius:4px;color:var(--wh);}
+footer{padding:30px 0;border-top:1px solid var(--bd);text-align:center;font-size:12px;color:var(--txM);}
+footer a{color:var(--txD);}
+</style>
+</head>
+<body>
+<nav>
+  <div class="inner">
+    <a href="/" class="logo" style="text-decoration:none;">The <span>Comp</span> Desk</a>
+    <div class="links"><a href="/find-attorney.html">← Back to directory</a></div>
+  </div>
+</nav>
+
+<section class="page">
+<div class="wrap">
+<h1>How the Find an Attorney directory works</h1>
+<p class="lede">A plain-English description of every editorial, technical, and ethical rule that governs the Find an Attorney directory at <a href="/find-attorney.html">/find-attorney.html</a>. If you spot a violation of any rule on this page, please email <a href="mailto:joel@thecompdesk.com">joel@thecompdesk.com</a>.</p>
+
+<div class="callout">
+<strong>Operator disclosure.</strong> The Comp Desk is built and operated by Joel Mays, a practicing New York State Workers' Compensation attorney. Because of that obvious conflict of interest, his firm — <em>Shulman and Hill PLLC</em> (also written <em>Shulman &amp; Hill</em>) — and Joel Mays personally are <strong>permanently excluded</strong> from this directory. A continuous-integration test fails the build if either name (or any associated firm domain) appears anywhere in the directory data file. The exclusion is enforced in code, not just in policy.
+</div>
+
+<h2>1. Listing is not endorsement</h2>
+<p>Inclusion of an attorney in this directory is not a recommendation, certification, vetting, ranking, rating, or endorsement of that attorney by The Comp Desk or its operators. The directory is informational only. Choosing an attorney is your decision; we encourage you to interview more than one.</p>
+
+<h2>2. How results are ordered</h2>
+<p>You select a region (e.g. NYC, Long Island, Hudson Valley). The directory then:</p>
+<p>(a) Filters the full attorney list down to attorneys whose listed region matches your selection. (b) Randomizes that filtered list using a Fisher-Yates shuffle reseeded on every page load and every region change. The randomization seed comes only from the browser's <code>Math.random()</code> at page-load time — there is no input from your identity, IP, prior visits, or any server-side ranking.</p>
+<p>That means: every visitor sees a different order, the same visitor sees a different order on reload, and there is no "first slot" that any firm can earn, buy, or be assigned. There is no secondary sort. There is no tiebreaker that could be gamed. The sort logic is documented in code in <code>find-attorney.html</code> and is the only sort logic the page contains.</p>
+
+<h2>3. No paid placement, no referral fees, no kickbacks</h2>
+<p>No attorney pays to be listed. No attorney pays to appear higher. The Comp Desk does not accept referral fees, revenue shares, lead-purchase agreements, or any other compensation tied to whether or which attorney a visitor contacts. Outbound links to attorney websites contain no <code>utm_*</code> parameters, no <code>ref=</code> parameters, and no other tracking identifiers — we link to the bare URL the firm provides.</p>
+
+<h2>4. No per-firm analytics or attribution</h2>
+<p>The Comp Desk does not record which attorney card a visitor clicked, does not associate visitors with firms, and does not report click-through data to listed firms. Outbound links use <code>rel="noopener noreferrer nofollow"</code> so that the destination site does not receive a Referer header identifying The Comp Desk as the source.</p>
+
+<h2>5. The owner's firm is hard-excluded</h2>
+<p>The owner's firm (Shulman and Hill PLLC, including the variant "Shulman &amp; Hill") and the owner personally (Joel Mays / Joel Mays Esq) are excluded from this directory by policy and by code. The data file (<code>data/attorneys.json</code>) is checked on every commit by an automated test (<code>tests/directory-exclusion.test.js</code>) that fails the build if any forbidden string is present anywhere in the file. The forbidden-string list is intentionally over-broad to catch typos and variants.</p>
+
+<h2>6. How to be added or removed</h2>
+<p>To request inclusion, correction, or removal, email <a href="mailto:joel@thecompdesk.com">joel@thecompdesk.com</a>. Removal requests from a listed attorney are honored within one business day, no questions asked. There is no application fee, no review fee, and no charge of any kind.</p>
+
+<h2>7. Source and audit</h2>
+<p>The directory data file lives in this site's public source repository at <code>data/attorneys.json</code> and the rendering logic lives in <code>find-attorney.html</code>. Both are auditable. The CI exclusion test lives at <code>tests/directory-exclusion.test.js</code> and runs on every push.</p>
+
+</div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. Informational only; not legal advice.</p>
+    <p style="margin-top:6px;"><a href="/find-attorney.html">Back to directory</a> &middot; <a href="/privacy.html">Privacy</a> &middot; <a href="/">Home</a></p>
+  </div>
+</footer>
+</body>
+</html>
