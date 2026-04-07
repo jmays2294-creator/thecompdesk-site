@@ -239,4 +239,132 @@
     <priority>0.3</priority>
   </url>
 
+  <!-- Learn Hub -->
+  <url>
+    <loc>https://thecompdesk.com/learn/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Learn RSS Feed -->
+  <url>
+    <loc>https://thecompdesk.com/learn/feed.xml</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Learn Category: Benefits -->
+  <url>
+    <loc>https://thecompdesk.com/learn/benefits/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Learn Category: Process -->
+  <url>
+    <loc>https://thecompdesk.com/learn/process/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Learn Category: Injuries -->
+  <url>
+    <loc>https://thecompdesk.com/learn/injuries/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Learn Category: Your Rights -->
+  <url>
+    <loc>https://thecompdesk.com/learn/your-rights/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Learn Articles: Benefits -->
+  <url>
+    <loc>https://thecompdesk.com/learn/benefits/average-weekly-wage/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/benefits/temporary-total-vs-partial-disability/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/benefits/schedule-loss-of-use/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Learn Articles: Process -->
+  <url>
+    <loc>https://thecompdesk.com/learn/process/how-to-file-c3-form-new-york/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/process/surviving-independent-medical-exam/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/process/section-32-settlements/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/process/what-happens-workers-comp-hearing/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Learn Articles: Injuries -->
+  <url>
+    <loc>https://thecompdesk.com/learn/injuries/back-injuries-workers-comp/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/injuries/knee-injuries-workers-comp/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Learn Articles: Your Rights -->
+  <url>
+    <loc>https://thecompdesk.com/learn/your-rights/can-employer-fire-me-filing-comp-claim/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/your-rights/how-long-to-file-workers-comp-claim-ny/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thecompdesk.com/learn/your-rights/how-to-choose-ny-workers-comp-attorney/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
 </urlset>

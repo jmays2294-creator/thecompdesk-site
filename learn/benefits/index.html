@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workers' Comp Benefits Explained — The Comp Desk</title>
+  <meta name="description" content="Plain-language guides to New York workers' comp benefits: Average Weekly Wage, Temporary Total and Partial Disability, Schedule Loss of Use, and more.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://thecompdesk.com/learn/benefits/">
+  <meta property="og:title" content="Workers' Comp Benefits Explained — The Comp Desk">
+  <meta property="og:description" content="Plain-language guides to AWW, TT/TPD, SLU, and other NY workers' comp benefits.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thecompdesk.com/learn/benefits/">
+  <link rel="stylesheet" href="../../css/app.css">
+  <style>
+    .cat-hero { padding: 36px 0 24px; }
+    .cat-hero .icon { font-size: 36px; margin-bottom: 10px; }
+    .article-card {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-decoration: none;
+      display: block;
+      transition: border-color 0.15s ease;
+      margin-bottom: 12px;
+    }
+    .article-card:hover { border-color: var(--ac); }
+    .article-card h2 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.4; }
+    .article-card p { font-size: 13px; color: var(--txD); line-height: 1.65; margin: 0 0 10px; }
+    .card-meta { font-size: 11px; color: var(--txM); }
+  </style>
+</head>
+<body>
+  <div id="app-nav"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a> › <a href="/learn/">Learn</a> › <span>Benefits</span></div>
+    <div class="cat-hero">
+      <div class="icon">💰</div>
+      <h1 class="page-title">Workers' Comp Benefits</h1>
+      <p class="page-subtitle">Understanding what you're owed is the first step. These guides explain every type of New York workers' comp benefit in plain language.</p>
+    </div>
+
+    <a href="/learn/benefits/average-weekly-wage/" class="article-card">
+      <h2>What is your Average Weekly Wage and why does it matter?</h2>
+      <p>Your AWW is the starting point for every benefit calculation — weekly disability checks, SLU awards, all of it. An error in the AWW calculation can cost you thousands. Learn how it's computed, where mistakes happen, and how to use our free AWW Calculator.</p>
+      <div class="card-meta">7 min read · Benefits</div>
+    </a>
+
+    <a href="/learn/benefits/temporary-total-vs-partial-disability/" class="article-card">
+      <h2>Temporary Total vs. Temporary Partial Disability: what's the difference?</h2>
+      <p>TT and TPD are the two types of ongoing weekly disability benefits. They pay different rates and have different rules — knowing the difference determines how much money you receive while you're out of work or on light duty.</p>
+      <div class="card-meta">6 min read · Benefits</div>
+    </a>
+
+    <a href="/learn/benefits/schedule-loss-of-use/" class="article-card">
+      <h2>Schedule Loss of Use awards explained</h2>
+      <p>An SLU award is a lump sum payment for the permanent partial loss of function of a scheduled body part — arm, leg, hand, foot, and others. Learn how SLU percentages are assigned, how the math works, and how to use the free SLU Calculator.</p>
+      <div class="card-meta">7 min read · Benefits</div>
+    </a>
+
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--bd);text-align:center;">
+      <p style="color:var(--txD);font-size:13px;margin-bottom:16px;">Not sure what benefits apply to your situation? A workers' comp attorney can review your case for free.</p>
+      <a href="/find-attorney.html?utm_source=learn&utm_content=benefits-category" class="btn-primary" style="display:inline-block;text-decoration:none;">Find an Attorney →</a>
+    </div>
+  </div>
+  <script type="module">
+    import { getOptionalUser } from '../../js/auth.js';
+    import { renderPublicNav } from '../../js/nav.js';
+    const user = await getOptionalUser();
+    renderPublicNav(user);
+  </script>
+</body>
+</html>

@@ -324,6 +324,7 @@ function renderNav(session, tier) {
         <li><a href="/dashboard/" class="nav-link">Dashboard</a></li>
         <li><a href="/calculators/" class="nav-link">Calculators</a></li>
         <li><a href="/calculators/pro.html" class="nav-link" style="color:#f59e0b;">Pro Suite</a></li>
+        <li><a href="/learn/" class="nav-link">Learn</a></li>
         <li><a href="/dashboard/my-cases.html" class="nav-link" style="color:#3b82f6;">My Cases</a></li>
         <li class="nav-dropdown">
           <button class="nav-dropdown-toggle">Tools <span>▼</span></button>
@@ -609,6 +610,7 @@ function renderPublicNav(userState) {
       <ul class="nav-menu" id="nav-menu">
         <li><a href="/calculators/" class="nav-link">Calculators</a></li>
         <li><a href="/calculators/pro.html" class="nav-link" style="color:#f59e0b;">Pro Suite</a></li>
+        <li><a href="/learn/" class="nav-link">Learn</a></li>
         <li class="nav-dropdown">
           <button class="nav-dropdown-toggle">Tools <span>▼</span></button>
           <div class="nav-dropdown-menu">

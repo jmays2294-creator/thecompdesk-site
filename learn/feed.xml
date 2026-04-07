@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The Comp Desk — Learn</title>
+    <link>https://thecompdesk.com/learn/</link>
+    <description>Plain-language guides to New York workers' compensation — benefits, process, injuries, and your rights. By The Comp Desk Editorial Team.</description>
+    <language>en-us</language>
+    <copyright>The Comp Desk LLC</copyright>
+    <managingEditor>editorial@thecompdesk.com (The Comp Desk Editorial Team)</managingEditor>
+    <webMaster>tech@thecompdesk.com (The Comp Desk)</webMaster>
+    <lastBuildDate>Mon, 07 Apr 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://thecompdesk.com/learn/feed.xml" rel="self" type="application/rss+xml"/>
+    <image>
+      <url>https://thecompdesk.com/images/og-default.png</url>
+      <title>The Comp Desk — Learn</title>
+      <link>https://thecompdesk.com/learn/</link>
+    </image>
+
+    <item>
+      <title>How to Choose a NY Workers' Comp Attorney</title>
+      <link>https://thecompdesk.com/learn/your-rights/how-to-choose-ny-workers-comp-attorney/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/your-rights/how-to-choose-ny-workers-comp-attorney/</guid>
+      <description>The right workers' comp attorney can mean tens of thousands of dollars more in benefits. Learn what credentials matter, what questions to ask, and what red flags to avoid when choosing a New York workers' comp lawyer.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Your Rights</category>
+    </item>
+
+    <item>
+      <title>How Long Do I Have to File a Workers' Comp Claim in New York?</title>
+      <link>https://thecompdesk.com/learn/your-rights/how-long-to-file-workers-comp-claim-ny/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/your-rights/how-long-to-file-workers-comp-claim-ny/</guid>
+      <description>New York has a two-year statute of limitations for workers' comp claims, with different rules for occupational disease and gradually-developing injuries. Learn the deadlines before it's too late.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Your Rights</category>
+    </item>
+
+    <item>
+      <title>Can My Employer Fire Me for Filing a Workers' Comp Claim?</title>
+      <link>https://thecompdesk.com/learn/your-rights/can-employer-fire-me-filing-comp-claim/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/your-rights/can-employer-fire-me-filing-comp-claim/</guid>
+      <description>New York WCL §120 prohibits retaliation for filing a workers' comp claim. Learn what counts as retaliation, how to prove it, and what to do if your employer retaliates against you.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Your Rights</category>
+    </item>
+
+    <item>
+      <title>Knee Injuries and Workers' Comp</title>
+      <link>https://thecompdesk.com/learn/injuries/knee-injuries-workers-comp/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/injuries/knee-injuries-workers-comp/</guid>
+      <description>Knee injuries — torn meniscus, ACL tears, knee replacements — result in Schedule Loss of Use awards in New York workers' comp. Learn how the knee is evaluated and what affects your SLU percentage.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Injuries</category>
+    </item>
+
+    <item>
+      <title>Back Injuries and Workers' Comp</title>
+      <link>https://thecompdesk.com/learn/injuries/back-injuries-workers-comp/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/injuries/back-injuries-workers-comp/</guid>
+      <description>Back injuries are the #1 workers' comp claim in New York. Learn how herniated discs, radiculopathy, and spinal injuries are handled in the workers' comp system — benefits, permanency, and what to watch for.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Injuries</category>
+    </item>
+
+    <item>
+      <title>What Happens at a Workers' Comp Hearing?</title>
+      <link>https://thecompdesk.com/learn/process/what-happens-workers-comp-hearing/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/process/what-happens-workers-comp-hearing/</guid>
+      <description>Workers' comp hearings happen before a Workers' Compensation Law Judge at a Board district office. Learn who is in the room, the types of hearings, how they proceed, and what outcomes are possible.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Process</category>
+    </item>
+
+    <item>
+      <title>Section 32 Settlements: What to Know Before You Sign</title>
+      <link>https://thecompdesk.com/learn/process/section-32-settlements/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/process/section-32-settlements/</guid>
+      <description>A Section 32 Waiver Agreement permanently closes your workers' comp case. Before you accept any offer, understand what you are giving up, how the math works, and when settlement makes sense.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Process</category>
+    </item>
+
+    <item>
+      <title>Surviving an Independent Medical Exam</title>
+      <link>https://thecompdesk.com/learn/process/surviving-independent-medical-exam/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/process/surviving-independent-medical-exam/</guid>
+      <description>The IME doctor is hired and paid by the insurance carrier. Learn how to prepare for your Independent Medical Exam, what to say, and how to fight back against an unfavorable report.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Process</category>
+    </item>
+
+    <item>
+      <title>How to File a C-3 Form in New York</title>
+      <link>https://thecompdesk.com/learn/process/how-to-file-c3-form-new-york/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/process/how-to-file-c3-form-new-york/</guid>
+      <description>The C-3 Employee Claim form starts your workers' comp case at the Board. Learn how to file it correctly, avoid common mistakes, and meet the two-year deadline.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Process</category>
+    </item>
+
+    <item>
+      <title>Schedule Loss of Use Awards Explained</title>
+      <link>https://thecompdesk.com/learn/benefits/schedule-loss-of-use/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/benefits/schedule-loss-of-use/</guid>
+      <description>A Schedule Loss of Use award compensates for permanent partial loss of function of a scheduled body part. Learn how SLU percentages are assigned and how to calculate your award in New York workers' comp.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Benefits</category>
+    </item>
+
+    <item>
+      <title>Temporary Total vs. Temporary Partial Disability: What's the Difference?</title>
+      <link>https://thecompdesk.com/learn/benefits/temporary-total-vs-partial-disability/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/benefits/temporary-total-vs-partial-disability/</guid>
+      <description>TT and TPD are the two types of weekly disability benefits in New York workers' comp. Learn the difference, how each is calculated, and what changes when you return to light duty.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Benefits</category>
+    </item>
+
+    <item>
+      <title>What Is Your Average Weekly Wage and Why Does It Matter?</title>
+      <link>https://thecompdesk.com/learn/benefits/average-weekly-wage/</link>
+      <guid isPermaLink="true">https://thecompdesk.com/learn/benefits/average-weekly-wage/</guid>
+      <description>Your Average Weekly Wage is the foundation of every New York workers' comp benefit calculation. Learn how it's computed, where mistakes happen, and how to verify yours is correct.</description>
+      <pubDate>Mon, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <dc:creator>The Comp Desk Editorial Team</dc:creator>
+      <category>Benefits</category>
+    </item>
+
+  </channel>
+</rss>
