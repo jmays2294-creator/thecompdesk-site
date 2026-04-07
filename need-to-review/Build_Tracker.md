@@ -14,7 +14,7 @@ When Joel asks "what's in flight", pull from this file.
 |---|---|---|---|---|---|---|
 | 1 | Benefit Rate Lookup Tool | Dev (primary) + Website (copy/SEO) | 2026-04-07 AM | DONE | 5f431b3 | None |
 | 2 | Learn Hub + 12 Articles | Website | 2026-04-07 AM | DONE | d0dd87e | None |
-| 3 | Pro Tier Paywall Scaffolding | Dev | 2026-04-07 AM | RUNNING — session `local_9456205d-d3bb-4b2d-8253-09ad74c460d1` | — | Stripe keys wired by Joel tonight; scaffolding ships dark |
+| 3 | Pro Tier Paywall Scaffolding | Dev | 2026-04-07 AM | DONE | 49cc3f7 | Stripe keys + migration apply tonight (see PRO_TIER_SECRETS_CHECKLIST.md) |
 | 5 | Case Document Vault (Pro feature #1) | Dev | staged | QUEUED — fires after #3 lands | — | Depends on #3 entitlement helper |
 | 6 | Comp Buddy Q&A Chatbot | Dev | staged | QUEUED — fires after #2 + #3 land | — | Depends on #2 (Learn corpus) + #3 (gating) |
 | 8 | Public API + Embeddable Widget | Dev (primary) + Website (partner page) | staged | QUEUED — fires after #1 lands | — | Depends on #1 (and eventually SLU) |
