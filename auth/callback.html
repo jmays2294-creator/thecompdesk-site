@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signing in… — The Comp Desk</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#06080f;--card:#0e1322;--bd:#1c2d4a;--ac:#4f8ff7;--gn:#2dd4a0;--rd:#ef4444;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--font:'DM Sans',system-ui,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.wrap{max-width:380px;width:100%;text-align:center;}
+.spinner{width:40px;height:40px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+h2{font-size:20px;font-weight:700;color:var(--wh);margin-bottom:8px;}
+p{font-size:14px;color:var(--txD);line-height:1.5;}
+.error-box{background:#1a0a0a;border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:20px;margin-top:16px;display:none;}
+.error-box .err-title{font-size:16px;font-weight:700;color:var(--rd);margin-bottom:8px;}
+.error-box .err-msg{font-size:13px;color:var(--txD);margin-bottom:16px;}
+.btn{display:inline-block;padding:11px 24px;background:var(--ac);color:var(--wh);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="spinner" id="spinner"></div>
+  <h2 id="title">Signing you in…</h2>
+  <p id="subtitle">Just a moment while we verify your link.</p>
+
+  <div class="error-box" id="error-box">
+    <div class="err-title">Sign-in failed</div>
+    <div class="err-msg" id="error-msg">The link may have expired or already been used.</div>
+    <a href="/auth/login" class="btn">Try again</a>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const params  = new URLSearchParams(window.location.search);
+const nextUrl = params.get('next') || '/account';
+
+function showError(msg) {
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('title').textContent = 'Something went wrong';
+  document.getElementById('subtitle').style.display = 'none';
+  const box = document.getElementById('error-box');
+  box.style.display = 'block';
+  if (msg) document.getElementById('error-msg').textContent = msg;
+}
+
+// Supabase sends the session tokens as a URL fragment (#access_token=...&refresh_token=...)
+// after magic-link click. The JS client detects and exchanges them automatically.
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    // Small delay so the "Signing you in…" message is briefly visible
+    setTimeout(() => { window.location.href = nextUrl; }, 600);
+  }
+});
+
+// Fallback: check for an existing session (handles page reload after fragment consumed)
+(async () => {
+  const { data: { session }, error } = await sb.auth.getSession();
+  if (error) {
+    showError(error.message);
+    return;
+  }
+  if (session) {
+    window.location.href = nextUrl;
+    return;
+  }
+
+  // Check for explicit error in fragment/query
+  const hash   = new URLSearchParams(window.location.hash.slice(1));
+  const errDesc = hash.get('error_description') || params.get('error_description');
+  if (errDesc) {
+    showError(decodeURIComponent(errDesc));
+    return;
+  }
+
+  // If no session and no error after 5s, assume the link was bad
+  setTimeout(() => {
+    const box = document.getElementById('error-box');
+    if (box.style.display === 'none' || !box.style.display) {
+      showError('The sign-in link may have expired. Please request a new one.');
+    }
+  }, 5000);
+})();
+</script>
+</body>
+</html>

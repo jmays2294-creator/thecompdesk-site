@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — The Comp Desk</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acD:#1d4ed8;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gdG:rgba(240,160,48,0.12);--gn:#2dd4a0;--gnG:rgba(45,212,160,0.1);--rd:#ef4444;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--font:'DM Sans',system-ui,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100vh;}
+nav{background:var(--card);border-bottom:1px solid var(--bd);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;}
+.nav-brand{font-size:15px;font-weight:800;color:var(--wh);text-decoration:none;}
+.nav-brand span{color:var(--ac);}
+.nav-right{display:flex;gap:12px;align-items:center;}
+.nav-link{font-size:13px;color:var(--txD);text-decoration:none;transition:color 0.2s;}
+.nav-link:hover{color:var(--ac);}
+.nav-link.active{color:var(--ac);}
+.signout-btn{font-size:13px;color:var(--txM);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;}
+.signout-btn:hover{color:var(--rd);}
+.container{max-width:700px;margin:0 auto;padding:32px 20px;}
+.page-title{font-size:22px;font-weight:800;color:var(--wh);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--txD);margin-bottom:28px;}
+.section{margin-bottom:24px;}
+.section-label{font-size:11px;font-weight:700;color:var(--txM);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;}
+/* Tier badge */
+.tier-row{display:flex;align-items:center;gap:14px;}
+.tier-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;}
+.tier-badge.free{background:var(--cardA);border:1px solid var(--bd);color:var(--txD);}
+.tier-badge.pro{background:var(--gdG);border:1px solid rgba(240,160,48,0.35);color:var(--gd);}
+.tier-info{flex:1;}
+.tier-name{font-size:16px;font-weight:700;color:var(--wh);}
+.tier-desc{font-size:12px;color:var(--txD);margin-top:2px;}
+/* Billing */
+.billing-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd);}
+.billing-row:last-child{border-bottom:none;padding-bottom:0;}
+.billing-label{font-size:13px;color:var(--txD);}
+.billing-value{font-size:13px;font-weight:600;color:var(--wh);}
+.billing-value.ok{color:var(--gn);}
+.billing-value.warn{color:var(--gd);}
+.billing-value.muted{color:var(--txM);}
+/* CTA */
+.cta-btn{display:inline-flex;align-items:center;gap:6px;padding:11px 20px;background:var(--gd);color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);text-decoration:none;transition:opacity 0.2s;}
+.cta-btn:hover{opacity:0.85;}
+.cta-btn.secondary{background:transparent;border:1.5px solid var(--bd);color:var(--txD);padding:10px 18px;}
+.cta-btn.secondary:hover{border-color:var(--ac);color:var(--ac);}
+.cta-btn:disabled{opacity:0.4;cursor:not-allowed;}
+/* Feature list */
+.feature-list{list-style:none;padding:0;}
+.feature-list li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd);font-size:13px;color:var(--txD);}
+.feature-list li:last-child{border-bottom:none;}
+.feature-list li .check{color:var(--gn);font-size:15px;flex-shrink:0;}
+.feature-list li .lock{color:var(--txM);font-size:13px;flex-shrink:0;}
+.feature-list li strong{color:var(--wh);}
+/* Pro upgrade card */
+.upgrade-card{background:linear-gradient(135deg,rgba(240,160,48,0.08),rgba(79,143,247,0.06));border:1px solid rgba(240,160,48,0.25);border-radius:14px;padding:20px;}
+.upgrade-title{font-size:16px;font-weight:700;color:var(--wh);margin-bottom:6px;}
+.upgrade-sub{font-size:13px;color:var(--txD);margin-bottom:16px;line-height:1.5;}
+.upgrade-price{font-size:22px;font-weight:800;color:var(--gd);margin-bottom:4px;}
+.upgrade-price span{font-size:14px;font-weight:400;color:var(--txM);}
+/* Coming soon badge */
+.coming-soon{display:inline-block;padding:2px 8px;background:rgba(79,143,247,0.15);border:1px solid rgba(79,143,247,0.3);border-radius:4px;font-size:10px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:0.5px;margin-left:6px;}
+/* Skeleton */
+.skeleton{background:var(--bd);border-radius:6px;animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-brand">The Comp <span>Desk</span></a>
+  <div class="nav-right">
+    <a href="/dashboard" class="nav-link">My Cases</a>
+    <a href="/account" class="nav-link active">Account</a>
+    <button class="signout-btn" onclick="handleSignOut()">Sign out</button>
+  </div>
+</nav>
+
+<div class="container" id="app">
+  <!-- Loading skeleton -->
+  <div id="loading">
+    <div style="height:28px;width:160px;margin-bottom:8px;" class="skeleton"></div>
+    <div style="height:16px;width:220px;margin-bottom:28px;" class="skeleton"></div>
+    <div style="height:120px;border-radius:14px;margin-bottom:20px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+  </div>
+</div>
+
+<script type="module">
+import { PRO_ENABLED } from '/js/featureFlags.js';
+
+const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+window.handleSignOut = async function() {
+  await sb.auth.signOut();
+  window.location.href = '/';
+};
+
+async function loadAccount() {
+  const { data: { session }, error: sessionErr } = await sb.auth.getSession();
+  if (sessionErr || !session) {
+    window.location.href = '/auth/login?next=/account';
+    return;
+  }
+
+  const user = session.user;
+
+  // Fetch entitlement
+  const { data: ent } = await sb.from('entitlements')
+    .select('tier, features, updated_at')
+    .eq('user_id', user.id)
+    .single();
+
+  const tier = ent?.tier || 'free';
+  const isPro = tier === 'pro';
+
+  // Fetch subscription row (if any)
+  const { data: sub } = await sb.from('subscriptions')
+    .select('status, current_period_end, stripe_subscription_id')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  render(user, tier, isPro, sub);
+}
+
+function fmt(email) {
+  // Truncate long emails for display
+  if (email.length <= 28) return email;
+  const [u, d] = email.split('@');
+  return u.slice(0, 10) + '…@' + d;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function statusLabel(status) {
+  const map = { active: '✓ Active', trialing: '⏳ Trial', past_due: '⚠ Past due', canceled: 'Canceled', incomplete: 'Incomplete' };
+  return map[status] || status;
+}
+function statusClass(status) {
+  if (status === 'active' || status === 'trialing') return 'ok';
+  if (status === 'past_due') return 'warn';
+  return 'muted';
+}
+
+function render(user, tier, isPro, sub) {
+  const app = document.getElementById('app');
+
+  const billingSection = isPro && sub ? `
+    <div class="section">
+      <div class="section-label">Billing</div>
+      <div class="card">
+        <div class="billing-row">
+          <span class="billing-label">Subscription status</span>
+          <span class="billing-value ${statusClass(sub.status)}">${statusLabel(sub.status)}</span>
+        </div>
+        <div class="billing-row">
+          <span class="billing-label">Current period ends</span>
+          <span class="billing-value">${fmtDate(sub.current_period_end)}</span>
+        </div>
+        <div class="billing-row">
+          <span class="billing-label">Manage subscription</span>
+          <span class="billing-value">
+            ${PRO_ENABLED
+              ? `<a href="#" class="cta-btn secondary" style="padding:7px 14px;font-size:12px;" onclick="openPortal();return false;">Billing portal →</a>`
+              : `<span class="muted">Available at launch</span>`
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  const upgradeSection = !isPro ? `
+    <div class="section">
+      <div class="upgrade-card">
+        <div class="upgrade-title">Upgrade to Pro</div>
+        <div class="upgrade-sub">Unlock Comp Buddy chat, document vault, claim timeline, and priority support.</div>
+        <div class="upgrade-price">$19<span>/mo</span></div>
+        ${PRO_ENABLED
+          ? `<a href="/auth/signup?next=/account/upgrade" class="cta-btn" style="margin-top:14px;display:inline-flex;">Start 14-day free trial →</a>`
+          : `<button class="cta-btn" disabled style="margin-top:14px;">Coming soon <span class="coming-soon">Soon</span></button>`
+        }
+      </div>
+    </div>
+  ` : '';
+
+  app.innerHTML = `
+    <div class="page-title">My Account</div>
+    <div class="page-sub">${fmt(user.email)}</div>
+
+    <div class="section">
+      <div class="section-label">Plan</div>
+      <div class="card">
+        <div class="tier-row">
+          <div class="tier-info">
+            <div class="tier-name">${isPro ? 'Pro' : 'Free'} Plan</div>
+            <div class="tier-desc">${isPro ? 'Full access to all Pro features.' : 'Calculators, 12 Learn articles, and Find Attorney.'}</div>
+          </div>
+          <div class="tier-badge ${isPro ? 'pro' : 'free'}">${isPro ? '⚡ Pro' : 'Free'}</div>
+        </div>
+      </div>
+    </div>
+
+    ${billingSection}
+
+    <div class="section">
+      <div class="section-label">What's included</div>
+      <div class="card">
+        <ul class="feature-list">
+          <li><span class="check">✓</span> <span><strong>AWW, Benefit Rate & SLU calculators</strong></span></li>
+          <li><span class="check">✓</span> <span><strong>12 Learn articles</strong></span></li>
+          <li><span class="check">✓</span> <span><strong>Find Attorney directory</strong></span></li>
+          <li><span class="${isPro ? 'check' : 'lock'}">${isPro ? '✓' : '🔒'}</span> <span><strong>Comp Buddy chat</strong> — unlimited${!isPro ? '<span class="coming-soon">Pro</span>' : ''}</span></li>
+          <li><span class="${isPro ? 'check' : 'lock'}">${isPro ? '✓' : '🔒'}</span> <span><strong>Document vault</strong>${!isPro ? '<span class="coming-soon">Pro</span>' : ''}</span></li>
+          <li><span class="${isPro ? 'check' : 'lock'}">${isPro ? '✓' : '🔒'}</span> <span><strong>Claim timeline</strong>${!isPro ? '<span class="coming-soon">Pro</span>' : ''}</span></li>
+          <li><span class="${isPro ? 'check' : 'lock'}">${isPro ? '✓' : '🔒'}</span> <span><strong>Priority support</strong>${!isPro ? '<span class="coming-soon">Pro</span>' : ''}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    ${upgradeSection}
+
+    <div class="section">
+      <div class="section-label">Account</div>
+      <div class="card">
+        <div class="billing-row">
+          <span class="billing-label">Email</span>
+          <span class="billing-value">${user.email}</span>
+        </div>
+        <div class="billing-row">
+          <span class="billing-label">Member since</span>
+          <span class="billing-value">${fmtDate(user.created_at)}</span>
+        </div>
+        <div class="billing-row" style="border-bottom:none;">
+          <span class="billing-label"></span>
+          <span class="billing-value">
+            <button class="signout-btn" onclick="handleSignOut()" style="font-size:13px;color:var(--rd);">Sign out</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+window.openPortal = async function() {
+  // Stripe Customer Portal — placeholder until PRO_ENABLED + keys are live
+  if (!PRO_ENABLED) return;
+  alert('Billing portal will open after Pro launch. Check back tonight.');
+};
+
+loadAccount();
+</script>
+<script src="/js/disclaimer.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — The Comp Desk</title>
+<meta name="description" content="Create a free account to save your calculations and access Pro features.">
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#06080f;--card:#0e1322;--bd:#1c2d4a;--ac:#4f8ff7;--acD:#1d4ed8;--acG:rgba(79,143,247,0.12);--gn:#2dd4a0;--rd:#ef4444;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--font:'DM Sans',system-ui,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.wrap{max-width:420px;width:100%;}
+.logo{text-align:center;margin-bottom:28px;}
+.logo .brand{font-size:11px;color:var(--ac);font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.logo h1{font-size:26px;font-weight:800;color:var(--wh);margin-top:4px;}
+.logo .sub{font-size:13px;color:var(--txM);margin-top:6px;}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:28px 24px;}
+.card-title{font-size:18px;font-weight:700;color:var(--wh);margin-bottom:6px;}
+.card-sub{font-size:13px;color:var(--txD);margin-bottom:22px;line-height:1.5;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:11px;color:var(--txD);font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;font-family:var(--font);outline:none;transition:border-color 0.2s;}
+.form-group input:focus{border-color:var(--ac);}
+.btn{width:100%;padding:13px;background:var(--ac);color:var(--wh);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:4px;transition:background 0.2s;}
+.btn:hover{background:var(--acD);}
+.btn:disabled{opacity:0.6;cursor:not-allowed;}
+.msg{font-size:13px;margin-bottom:14px;min-height:20px;text-align:center;line-height:1.5;}
+.msg.error{color:var(--rd);}
+.msg.success{color:var(--gn);}
+.divider{text-align:center;color:var(--txM);font-size:12px;margin:18px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--bd);}
+.divider::before{left:0;}.divider::after{right:0;}
+.footer-links{text-align:center;margin-top:18px;font-size:13px;color:var(--txD);}
+.footer-links a{color:var(--ac);text-decoration:none;}
+.footer-links a:hover{text-decoration:underline;}
+.magic-info{background:var(--acG);border:1px solid rgba(79,143,247,0.2);border-radius:10px;padding:14px;margin-bottom:18px;font-size:12px;color:var(--txD);line-height:1.6;}
+.magic-info strong{color:var(--wh);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="brand">NYS Workers' Compensation</div>
+    <h1>The Comp Desk</h1>
+    <div class="sub">Calculate. Verify. Know your rights.</div>
+  </div>
+
+  <div class="card" id="main-card">
+    <div class="card-title">Create your free account</div>
+    <div class="card-sub">Save calculations, track your case, and access Pro tools.</div>
+
+    <div class="magic-info">
+      <strong>No password needed.</strong> We'll send a secure sign-in link to your email — just click it to get in.
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="form-group">
+      <label>Email address</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email" autofocus>
+    </div>
+
+    <button class="btn" id="submit-btn" onclick="handleSignup()">Send sign-in link</button>
+
+    <div class="divider">already have an account?</div>
+
+    <button class="btn" style="background:transparent;border:1.5px solid var(--bd);color:var(--txD);" onclick="window.location.href='/auth/login'">Sign in</button>
+  </div>
+
+  <div class="footer-links">
+    <a href="/">← Back to The Comp Desk</a>
+    &nbsp;·&nbsp;
+    <a href="/privacy">Privacy</a>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const params = new URLSearchParams(window.location.search);
+const nextUrl = params.get('next') || '/account';
+
+// Already logged in → redirect
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) window.location.href = nextUrl;
+})();
+
+async function handleSignup() {
+  const email = document.getElementById('email').value.trim();
+  const msg   = document.getElementById('msg');
+  const btn   = document.getElementById('submit-btn');
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.className = 'msg error';
+    msg.textContent = 'Please enter a valid email address.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  msg.className = 'msg';
+  msg.textContent = '';
+
+  const redirectTo = window.location.origin + '/auth/callback?next=' + encodeURIComponent(nextUrl);
+
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: redirectTo,
+      shouldCreateUser: true,
+    },
+  });
+
+  if (error) {
+    msg.className = 'msg error';
+    msg.textContent = error.message;
+    btn.disabled = false;
+    btn.textContent = 'Send sign-in link';
+    return;
+  }
+
+  // Success — swap card content
+  document.getElementById('main-card').innerHTML = `
+    <div style="text-align:center;padding:16px 0;">
+      <div style="font-size:40px;margin-bottom:16px;">📬</div>
+      <div style="font-size:18px;font-weight:700;color:var(--wh);margin-bottom:10px;">Check your inbox</div>
+      <div style="font-size:13px;color:var(--txD);line-height:1.6;">
+        We sent a sign-in link to <strong style="color:var(--wh);">${email}</strong>.<br>
+        Click the link in the email to continue.<br>
+        <span style="font-size:11px;color:var(--txM);margin-top:8px;display:block;">Link expires in 1 hour. Check your spam folder if you don't see it.</span>
+      </div>
+      <button class="btn" style="margin-top:22px;max-width:240px;margin-left:auto;margin-right:auto;" onclick="location.reload()">Use a different email</button>
+    </div>
+  `;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSignup();
+});
+</script>
+<script src="/js/disclaimer.js" defer></script>
+</body>
+</html>
