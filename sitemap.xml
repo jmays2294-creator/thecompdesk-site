@@ -44,7 +44,15 @@
   <!-- AWW Calculator -->
   <url>
     <loc>https://thecompdesk.com/calculators/aww.html</loc>
-    <lastmod>2026-04-05</lastmod>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Benefit Rate Lookup -->
+  <url>
+    <loc>https://thecompdesk.com/calculators/benefit-rate</loc>
+    <lastmod>2026-04-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

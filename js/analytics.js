@@ -39,6 +39,10 @@ const TAXONOMY = new Set([
   'share_link_generated',
   'email_signup',
   'story_submitted',
+  // Benefit Rate Lookup tool
+  'benefit_rate_started',
+  'benefit_rate_completed',
+  'benefit_rate_to_find_attorney_click',
 ]);
 
 // Regions that legally require opt-in for non-essential tracking.

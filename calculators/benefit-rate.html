@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NY Workers' Comp Benefit Rate Lookup | The Comp Desk</title>
+  <meta name="description" content="Look up the statutory maximum and minimum weekly workers' compensation benefit rates for any NY date of injury. Instant results under WCL §25(3) — free tool by The Comp Desk.">
+  <meta property="og:title" content="NY Workers' Comp Benefit Rate Lookup | The Comp Desk">
+  <meta property="og:description" content="Enter your NY workers' comp date of injury and instantly see the statutory weekly maximum and minimum benefit rates that apply to your case.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.thecompdesk.com/calculators/benefit-rate">
+  <meta property="og:image" content="https://www.thecompdesk.com/images/og-benefit-rate.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NY Workers' Comp Benefit Rate Lookup">
+  <meta name="twitter:description" content="Look up the statutory max/min weekly benefit rates for any NY workers' comp date of injury.">
+  <meta name="twitter:image" content="https://www.thecompdesk.com/images/og-benefit-rate.png">
+  <link rel="canonical" href="https://www.thecompdesk.com/calculators/benefit-rate">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Look Up NY Workers' Comp Benefit Rates",
+    "description": "Use this free tool to find the statutory maximum and minimum weekly compensation rates that apply to a New York workers' compensation case based on the date of injury.",
+    "tool": [{ "@type": "HowToTool", "name": "NY Benefit Rate Lookup — The Comp Desk" }],
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Enter your date of injury",
+        "text": "Type or select the date you were injured at work. The tool accepts any date from 1985 to today."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Click Look Up Rates",
+        "text": "Press the Look Up Rates button. The tool instantly returns the applicable statutory weekly maximum and minimum benefit rates under WCL §25(3)."
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Review your results",
+        "text": "See the weekly maximum (no one can be paid more) and weekly minimum (no one can be paid less) rates locked to your date of injury. These rates are set each year based on the New York State Average Weekly Wage (NYSAWW)."
+      }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="../css/app.css">
+  <style>
+    /* ── Result card ──────────────────────────────────────── */
+    .rate-result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 480px) {
+      .rate-result-grid { grid-template-columns: 1fr; }
+    }
+    .rate-card {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 18px 16px;
+      text-align: center;
+    }
+    .rate-card.max { border-color: var(--ac); }
+    .rate-card.min { border-color: #22c55e; }
+    .rate-card .rc-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--txM);
+      margin-bottom: 6px;
+    }
+    .rate-card .rc-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.01em;
+    }
+    .rate-card.max .rc-value { color: var(--ac); }
+    .rate-card.min .rc-value { color: #22c55e; }
+    .rate-card .rc-period {
+      font-size: 11px;
+      color: var(--txM);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    /* ── Comp Buddy explainer ─────────────────────────────── */
+    .comp-buddy-block {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: rgba(59,130,246,.06);
+      border: 1px solid rgba(59,130,246,.2);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .comp-buddy-block img {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+    .comp-buddy-block .cb-text {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--txD);
+    }
+    .comp-buddy-block .cb-text strong { color: #fff; }
+    /* ── Citation pill ────────────────────────────────────── */
+    .citation-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--bd);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--txM);
+      margin-bottom: 20px;
+    }
+    /* ── CTA block ────────────────────────────────────────── */
+    .find-atty-cta {
+      background: linear-gradient(135deg, rgba(59,130,246,.12) 0%, rgba(139,92,246,.08) 100%);
+      border: 1px solid rgba(59,130,246,.25);
+      border-radius: 12px;
+      padding: 22px 20px;
+      text-align: center;
+      margin-top: 24px;
+    }
+    .find-atty-cta .cta-heading {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .find-atty-cta .cta-body {
+      font-size: 13px;
+      color: var(--txM);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    /* ── Warning banner ───────────────────────────────────── */
+    .warn-banner {
+      background: rgba(245,158,11,.08);
+      border: 1px solid rgba(245,158,11,.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #f59e0b;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    /* ── Error banner ─────────────────────────────────────── */
+    .error-banner {
+      background: rgba(239,68,68,.08);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #f87171;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/calculators/">Calculators</a> &gt; <span>Benefit Rate Lookup</span>
+    </div>
+
+    <h1 class="page-title">NY Workers' Comp Benefit Rate Lookup</h1>
+    <p class="page-subtitle">Enter a date of injury to see the statutory weekly maximum and minimum compensation rates under New York Workers' Compensation Law.</p>
+
+    <!-- Input card -->
+    <div class="calc-section">
+      <div class="calc-header">Date of Injury</div>
+      <div class="calc-body">
+        <div style="margin-bottom:16px;">
+          <label class="field-label" for="doi-input">Date of Injury (DOI)</label>
+          <input
+            type="date"
+            id="doi-input"
+            class="field-input"
+            max=""
+            autocomplete="off"
+            aria-describedby="doi-hint"
+          >
+          <div id="doi-hint" style="font-size:11px;color:var(--txM);margin-top:4px;">
+            Enter the date you were injured at work.
+          </div>
+        </div>
+
+        <button class="btn-primary" id="lookup-btn" type="button" style="width:100%;">
+          Look Up Rates
+        </button>
+      </div>
+    </div>
+
+    <!-- Results section (hidden until lookup) -->
+    <div id="results-section" style="display:none;margin-top:16px;">
+
+      <!-- Warnings -->
+      <div id="warnings-area"></div>
+
+      <!-- Rate cards -->
+      <div class="rate-result-grid">
+        <div class="rate-card max">
+          <div class="rc-label">Weekly Maximum</div>
+          <div class="rc-value" id="max-rate-val">—</div>
+          <div class="rc-period" id="max-rate-period"></div>
+        </div>
+        <div class="rate-card min">
+          <div class="rc-label">Weekly Minimum</div>
+          <div class="rc-value" id="min-rate-val">—</div>
+          <div class="rc-period" id="min-rate-period"></div>
+        </div>
+      </div>
+
+      <!-- Citation -->
+      <div>
+        <span class="citation-pill">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          WCL §25(3) — rates set annually by the NYS Workers' Compensation Board
+        </span>
+      </div>
+
+      <!-- Comp Buddy explainer -->
+      <div class="comp-buddy-block">
+        <img src="/assets/hero/comp-buddy.png" alt="Comp Buddy mascot" width="52" height="52">
+        <div class="cb-text" id="buddy-explainer"></div>
+      </div>
+
+      <!-- CTA -->
+      <div class="find-atty-cta">
+        <div class="cta-heading">Want to know what your specific case might be worth?</div>
+        <div class="cta-body">Talk to a NY workers' comp attorney. Many offer free consultations and work on contingency — you pay nothing unless you win.</div>
+        <a
+          id="find-atty-btn"
+          href="/find-attorney?utm_source=benefit-rate&amp;utm_medium=tool_cta"
+          class="btn-primary"
+          style="display:inline-block;text-decoration:none;"
+        >Find a NY Workers' Comp Attorney</a>
+      </div>
+
+      <!-- Cross-tool link -->
+      <div style="margin-top:16px;padding:14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;font-size:13px;color:var(--txM);">
+        <strong style="color:#fff;">Also useful:</strong>
+        Once you know your rate cap, use the <a href="/calculators/aww.html" style="color:var(--ac);">AWW Calculator</a> to figure out your Average Weekly Wage and your actual weekly comp benefit.
+      </div>
+
+    </div><!-- /results-section -->
+
+  </div><!-- /container -->
+
+  <noscript>
+    <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
+      <strong>JavaScript Required:</strong> This interactive tool requires JavaScript. Please enable JavaScript to look up NY workers' comp benefit rates.
+    </div>
+  </noscript>
+
+  <script type="module">
+    import { getOptionalUser } from '../js/auth.js';
+    import { renderPublicNav } from '../js/nav.js';
+    import { getRatesForDOI } from '../js/benefit-rate-engine.mjs';
+
+    // ── Nav ─────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await getOptionalUser();
+      renderPublicNav(user);
+    });
+
+    // ── Cap date input at today ──────────────────────────────
+    const doiInput = document.getElementById('doi-input');
+    doiInput.max = new Date().toISOString().split('T')[0];
+
+    // ── Analytics helpers ────────────────────────────────────
+    function track(event, props) {
+      window.CDAnalytics?.track(event, props ?? {});
+    }
+
+    let _started = false;
+    doiInput.addEventListener('input', () => {
+      if (!_started) { _started = true; track('benefit_rate_started'); }
+    }, { once: false });
+
+    document.getElementById('find-atty-btn').addEventListener('click', () => {
+      track('benefit_rate_to_find_attorney_click');
+    });
+
+    // ── Format helpers ───────────────────────────────────────
+    function fmt(n) {
+      return n == null ? 'N/A' : Number(n).toLocaleString('en-US', {
+        style: 'currency', currency: 'USD', minimumFractionDigits: 2,
+      });
+    }
+
+    // ── Build Comp Buddy explainer ───────────────────────────
+    function buildExplainer(maxRate, minRate, maxLabel, minLabel, isIndexedMin, doiStr) {
+      const doiYear = doiStr.slice(0, 4);
+      const maxFmt  = fmt(maxRate);
+      const minFmt  = isIndexedMin
+        ? '1/5 of the New York State Average Weekly Wage (indexed annually)'
+        : fmt(minRate);
+
+      return `
+        <strong>Here's what these numbers mean for your case</strong><br><br>
+        Your date of injury falls in the <strong>${maxLabel}</strong> rate period.
+        Under <strong>WCL §25(3)</strong>, your weekly workers' comp benefit is calculated
+        as 2/3 of your Average Weekly Wage (AWW) — but it's always capped between a floor and a ceiling
+        set by the state for your date of injury year.<br><br>
+        <strong>Weekly maximum (${maxFmt}):</strong>
+        No matter how high your AWW is, your weekly benefit can't exceed this amount for a
+        ${doiYear} date of injury.<br><br>
+        <strong>Weekly minimum (${minFmt}):</strong>
+        If 2/3 of your AWW falls below this amount, you're still entitled to the minimum rate
+        (as long as your AWW itself is at least that high).<br><br>
+        These rates are set every July 1st by the NYS Workers' Compensation Board based on
+        the statewide average weekly wage. The rate that applies is locked to your
+        <em>date of injury</em> — not when your case is decided or settled.
+      `.trim();
+    }
+
+    // ── Lookup ──────────────────────────────────────────────
+    document.getElementById('lookup-btn').addEventListener('click', () => {
+      const doi = doiInput.value.trim();
+      const resultsSection  = document.getElementById('results-section');
+      const warningsArea    = document.getElementById('warnings-area');
+      const maxRateVal      = document.getElementById('max-rate-val');
+      const maxRatePeriod   = document.getElementById('max-rate-period');
+      const minRateVal      = document.getElementById('min-rate-val');
+      const minRatePeriod   = document.getElementById('min-rate-period');
+      const buddyExplainer  = document.getElementById('buddy-explainer');
+
+      warningsArea.innerHTML = '';
+
+      if (!doi) {
+        warningsArea.innerHTML = '<div class="error-banner">Please enter a date of injury.</div>';
+        resultsSection.style.display = 'block';
+        maxRateVal.textContent = '—';
+        minRateVal.textContent = '—';
+        buddyExplainer.innerHTML = '';
+        return;
+      }
+
+      const result = getRatesForDOI(doi);
+
+      // Render warnings / errors
+      if (result.warnings.length) {
+        const isFatal = result.maxRate === null;
+        const cls = isFatal ? 'error-banner' : 'warn-banner';
+        warningsArea.innerHTML = result.warnings
+          .map(w => `<div class="${cls}">${w}</div>`)
+          .join('');
+        if (isFatal) {
+          resultsSection.style.display = 'block';
+          maxRateVal.textContent = '—';
+          minRateVal.textContent = '—';
+          buddyExplainer.innerHTML = '';
+          return;
+        }
+      }
+
+      // Populate rate cards
+      maxRateVal.textContent    = fmt(result.maxRate);
+      maxRatePeriod.textContent = result.maxRateLabel;
+      minRateVal.textContent    = result.isIndexedMin
+        ? 'Indexed'
+        : fmt(result.minRate);
+      minRatePeriod.textContent = result.isIndexedMin
+        ? '1/5 NYSAWW (set annually)' : result.minRateLabel;
+
+      // Comp Buddy explainer
+      buddyExplainer.innerHTML = buildExplainer(
+        result.maxRate, result.minRate,
+        result.maxRateLabel, result.minRateLabel,
+        result.isIndexedMin, doi
+      );
+
+      resultsSection.style.display = 'block';
+
+      // Analytics
+      const doiYear = doi.slice(0, 4);
+      track('benefit_rate_completed', { doi_year: doiYear });
+
+      // Scroll results into view on mobile
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    // Allow Enter key on date input
+    doiInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('lookup-btn').click();
+    });
+  </script>
+
+  <script src="/js/analytics.js" defer></script>
+  <script src="/js/disclaimer.js" defer></script>
+</body>
+</html>
