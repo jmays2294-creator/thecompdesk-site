@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYS Workers' Comp Settlement Calculator — Estimate Your Case Value | The Comp Desk</title>
+  <meta name="description" content="Free settlement comparison tool for NYS workers' compensation cases. Estimate SLU values by body part, compare settlement scenarios, and understand your options under WCL §15(3).">
+  <meta name="keywords" content="workers comp settlement calculator NY, SLU calculator New York, workers compensation settlement estimate, Section 32 settlement calculator, how much is my workers comp case worth, WC settlement estimator New York, schedule loss of use calculator">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="NYS Workers' Comp Settlement Calculator — Estimate Your Case Value">
+  <meta property="og:description" content="Free settlement comparison tool for NYS workers' compensation. Estimate SLU values by body part and compare scenarios.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thecompdesk.com/settlement-calculator">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NYS Workers' Comp Settlement Calculator — Estimate Your Case Value">
+  <meta name="twitter:description" content="Free settlement comparison tool for NYS workers' compensation. Estimate SLU values by body part and compare scenarios.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- JSON-LD: WebApplication + FAQPage -->
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "NYS Workers' Comp Settlement Calculator",
+      "url": "https://thecompdesk.com/settlement-calculator",
+      "description": "Free settlement comparison tool for NYS workers' compensation cases. Estimate SLU values by body part, compare settlement scenarios, and understand your options.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "creator": {
+        "@type": "Organization",
+        "name": "The Comp Desk",
+        "url": "https://thecompdesk.com"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How are workers' comp settlements calculated in New York?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "In New York, workers' compensation settlements are calculated based on the type of case. For Schedule Loss of Use (SLU) awards under WCL §15(3), the value equals the percentage of loss times the number of weeks assigned to that body part, multiplied by the claimant's compensation rate (2/3 of average weekly wage, capped at the statutory maximum). Section 32 settlements involve a lump-sum payment that closes the case entirely and are negotiated based on the present value of future benefits."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is a Section 32 agreement in NYS workers' compensation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A Section 32 agreement is a voluntary settlement under Workers' Compensation Law §32 that allows the claimant and carrier to resolve the entire case with a lump-sum payment. Once approved by the Workers' Compensation Board, it closes the case permanently — including future medical benefits unless specifically excluded. Both parties must consent, and the Board reviews the agreement to ensure it is in the claimant's best interest."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I settle my workers' comp case in New York?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Whether to settle depends on several factors: the severity and permanency of your injury, your current and future medical needs, your age and work capacity, and the strength of your legal position. A settlement provides a lump sum but closes your case permanently. An attorney can help you evaluate whether a settlement offer fairly compensates your injuries or whether continuing to receive weekly benefits and medical coverage is more advantageous."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much is my workers' comp case worth in New York?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The value of a NYS workers' compensation case depends on your average weekly wage, the body parts injured, the percentage of permanent impairment, your date of injury (which determines the maximum rate), and whether you have a Schedule Loss of Use (extremity) or classification (non-schedule) case. Use our free calculator to estimate SLU values, or consult with an attorney for a comprehensive case valuation including Section 32 settlement potential."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+
+  <link rel="canonical" href="https://thecompdesk.com/settlement-calculator">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--navy:#1B2A4A;--mono:'JetBrains Mono',monospace;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--navy);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+    a{color:var(--ac);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+    /* Nav */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,42,74,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(79,143,247,0.15);}
+    nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+    nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;text-decoration:none;}
+    nav .logo span{color:var(--ac);}
+    nav .links{display:flex;gap:24px;align-items:center;}
+    nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
+    nav .links a:hover{color:var(--wh);text-decoration:none;}
+
+    /* CTA Buttons */
+    .cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;text-decoration:none;}
+    .cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,143,247,0.3);text-decoration:none;}
+    .cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
+    .cta-btn.outline:hover{background:var(--acG);}
+    .cta-btn.gold{background:var(--gd);color:#1a1200;}
+    .cta-btn.green{background:var(--gn);color:#0a1a14;}
+
+    /* Hero */
+    .hero{padding:140px 0 60px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(79,143,247,0.1) 0%,rgba(45,212,160,0.04) 40%,transparent 70%);pointer-events:none;}
+    .hero .badge{display:inline-block;background:rgba(45,212,160,0.12);border:1px solid rgba(45,212,160,0.3);color:var(--gn);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
+    .hero h1{font-size:clamp(32px,6vw,52px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
+    .hero h1 span{background:linear-gradient(135deg,var(--ac),var(--gn));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero .sub{font-size:clamp(16px,2.5vw,20px);color:var(--txD);max-width:680px;margin:0 auto 32px;line-height:1.6;}
+    .hero .cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+    /* Sections */
+    section{padding:60px 0;}
+    section h2{font-size:clamp(22px,4vw,32px);font-weight:800;color:var(--wh);margin-bottom:12px;text-align:center;}
+    section .section-sub{text-align:center;color:var(--txD);font-size:15px;margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto;}
+
+    /* How It Works */
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:40px;}
+    @media(max-width:768px){.steps-grid{grid-template-columns:1fr;}}
+    .step-card{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;text-align:center;position:relative;}
+    .step-card .step-num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--acG);color:var(--ac);font-weight:800;font-size:18px;margin-bottom:16px;}
+    .step-card h3{font-size:17px;font-weight:700;color:var(--wh);margin-bottom:8px;}
+    .step-card p{font-size:14px;color:var(--txD);line-height:1.65;}
+
+    /* Calculator Preview */
+    .calc-preview{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:32px;max-width:700px;margin:0 auto;}
+    .calc-preview h3{font-size:18px;font-weight:700;color:var(--wh);margin-bottom:20px;text-align:center;}
+    .calc-form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+    @media(max-width:600px){.calc-form-row{grid-template-columns:1fr;}}
+    .calc-field label{display:block;font-size:12px;font-weight:700;color:var(--txD);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+    .calc-field select,.calc-field input{width:100%;background:rgba(255,255,255,0.08);color:var(--tx);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:12px 14px;font-family:inherit;font-size:14px;transition:border-color 0.3s;}
+    .calc-field select:focus,.calc-field input:focus{outline:none;border-color:var(--ac);background:rgba(79,143,247,0.08);}
+    .calc-result{margin-top:20px;padding:20px;background:rgba(79,143,247,0.06);border:1px solid rgba(79,143,247,0.2);border-radius:10px;text-align:center;}
+    .calc-result .label{font-size:12px;font-weight:700;color:var(--txD);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+    .calc-result .value{font-size:32px;font-weight:900;color:var(--gn);font-family:var(--mono);}
+    .calc-result .note{font-size:12px;color:var(--txM);margin-top:8px;}
+
+    /* Comparison Section */
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:800px;margin:0 auto 40px;}
+    @media(max-width:768px){.compare-grid{grid-template-columns:1fr;}}
+    .compare-card{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;}
+    .compare-card h3{font-size:17px;font-weight:700;margin-bottom:12px;}
+    .compare-card.slu h3{color:var(--ac);}
+    .compare-card.s32 h3{color:var(--gd);}
+    .compare-card ul{list-style:none;padding:0;}
+    .compare-card li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;color:var(--txD);display:flex;align-items:flex-start;gap:10px;}
+    .compare-card li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;margin-top:8px;flex-shrink:0;}
+    .compare-card.slu li::before{background:var(--ac);}
+    .compare-card.s32 li::before{background:var(--gd);}
+
+    /* FAQ */
+    .faq-list{max-width:740px;margin:0 auto;}
+    .faq-item{border-bottom:1px solid var(--bd);padding:20px 0;}
+    .faq-q{font-size:16px;font-weight:700;color:var(--wh);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+    .faq-q::after{content:'+';font-size:20px;color:var(--ac);font-weight:700;flex-shrink:0;transition:transform 0.2s;}
+    .faq-item.open .faq-q::after{transform:rotate(45deg);}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s ease;font-size:14px;color:var(--txD);line-height:1.7;}
+    .faq-item.open .faq-a{max-height:400px;padding-top:12px;}
+
+    /* Attorney CTA Section */
+    .attorney-cta{text-align:center;padding:60px 0 80px;}
+    .attorney-cta .cta-card{background:linear-gradient(135deg,rgba(79,143,247,0.08),rgba(45,212,160,0.05));border:1px solid rgba(79,143,247,0.2);border-radius:16px;padding:48px 32px;max-width:700px;margin:0 auto;}
+    .attorney-cta h2{margin-bottom:12px;}
+    .attorney-cta p{color:var(--txD);font-size:16px;margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto;}
+
+    /* Footer CTA */
+    .footer-cta{text-align:center;padding:60px 0;border-top:1px solid var(--bd);}
+    .footer-cta h2{margin-bottom:8px;}
+    .footer-cta p{color:var(--txD);font-size:15px;margin-bottom:24px;}
+
+    /* Footer */
+    footer{text-align:center;padding:24px;border-top:1px solid var(--bd);font-size:12px;color:var(--txM);}
+    footer a{color:var(--txD);}
+
+    /* Breadcrumb */
+    .breadcrumb{font-size:13px;color:var(--txM);padding:100px 24px 0;max-width:1080px;margin:0 auto;}
+    .breadcrumb a{color:var(--txD);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--wh);}
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="inner">
+      <a href="/" class="logo">The Comp <span>Desk</span></a>
+      <div class="links">
+        <a href="/calculators/">Calculators</a>
+        <a href="/tools/learning/">Learn</a>
+        <a href="/find-attorney.html">Find Attorney</a>
+        <a href="/auth_v2.html" class="cta-btn" style="padding:8px 18px;font-size:13px;">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="/">Home</a> &gt; <span>Settlement Calculator</span>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" style="padding-top:40px;">
+    <div class="wrap">
+      <div class="badge">Free Tool</div>
+      <h1>What's Your <span>Case Worth?</span></h1>
+      <p class="sub">Estimate the value of your NYS workers' compensation settlement. Calculate Schedule Loss of Use (SLU) awards by body part under WCL §15(3) and explore whether a Section 32 settlement makes sense for your case.</p>
+      <div class="cta-row">
+        <a href="#calculator" class="cta-btn">Try the Calculator</a>
+        <a href="/find-attorney.html" class="cta-btn outline">Talk to an Attorney</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section>
+    <div class="wrap">
+      <h2>How It Works</h2>
+      <p class="section-sub">Three steps to estimate the value of your workers' compensation settlement in New York.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Select Your Body Part</h3>
+          <p>Choose the injured body part from the WCL §15(3) schedule — arm, leg, hand, foot, finger, toe, eye, or ear.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Enter Your % Loss</h3>
+          <p>Enter the percentage of permanent loss of use as determined by your treating physician or IME doctor.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>See Your Estimate</h3>
+          <p>Get an instant SLU award estimate at the current maximum rate, plus attorney fee and net to claimant breakdowns.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Calculator Preview -->
+  <section id="calculator" style="padding-top:20px;">
+    <div class="wrap">
+      <div class="calc-preview">
+        <h3>Quick SLU Estimate</h3>
+        <div class="calc-form-row">
+          <div class="calc-field">
+            <label for="bodyPart">Body Part</label>
+            <select id="bodyPart">
+              <option value="">Select body part...</option>
+              <option value="312" data-name="Arm">Arm (312 weeks)</option>
+              <option value="288" data-name="Leg">Leg (288 weeks)</option>
+              <option value="244" data-name="Hand">Hand (244 weeks)</option>
+              <option value="205" data-name="Foot">Foot (205 weeks)</option>
+              <option value="160" data-name="Eye">Eye (160 weeks)</option>
+              <option value="150" data-name="Ear (hearing)">Ear / Hearing (150 weeks)</option>
+              <option value="46" data-name="Thumb">Thumb (46 weeks)</option>
+              <option value="36" data-name="1st Finger">1st Finger (36 weeks)</option>
+              <option value="30" data-name="2nd Finger">2nd Finger (30 weeks)</option>
+              <option value="25" data-name="3rd Finger">3rd Finger (25 weeks)</option>
+              <option value="15" data-name="4th Finger">4th Finger (15 weeks)</option>
+              <option value="38" data-name="Great Toe">Great Toe (38 weeks)</option>
+              <option value="16" data-name="Other Toe">Other Toe (16 weeks)</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label for="pctLoss">% Loss of Use</label>
+            <input type="number" id="pctLoss" min="0" max="100" step="0.5" placeholder="e.g. 25">
+          </div>
+        </div>
+        <div class="calc-form-row">
+          <div class="calc-field">
+            <label for="compRate">Compensation Rate ($/wk)</label>
+            <input type="number" id="compRate" value="1222.42" step="0.01" placeholder="Current max: $1,222.42">
+          </div>
+          <div class="calc-field" style="display:flex;align-items:flex-end;">
+            <button onclick="calcSLU()" class="cta-btn green" style="width:100%;justify-content:center;">Calculate</button>
+          </div>
+        </div>
+        <div class="calc-result" id="resultBox" style="display:none;">
+          <div class="label">Estimated SLU Award</div>
+          <div class="value" id="sluValue">—</div>
+          <div class="note" id="sluNote"></div>
+        </div>
+      </div>
+      <p style="text-align:center;margin-top:16px;font-size:13px;color:var(--txM);">For the full calculator with prior award deductions, multiple body parts, and attorney fee breakdowns — <a href="/calculators/slu.html">use our SLU Calculator</a>.</p>
+    </div>
+  </section>
+
+  <!-- Settlement vs Continued Benefits -->
+  <section>
+    <div class="wrap">
+      <h2>Settlement vs. Continued Benefits</h2>
+      <p class="section-sub">Understanding your options under New York Workers' Compensation Law.</p>
+      <div class="compare-grid">
+        <div class="compare-card slu">
+          <h3>SLU Award (§15(3))</h3>
+          <ul>
+            <li>Lump-sum payment for permanent loss of use of a scheduled body part</li>
+            <li>Amount fixed by statute — percentage of loss × weeks × comp rate</li>
+            <li>Does <strong>not</strong> close your case for future medical treatment</li>
+            <li>No negotiation required — calculated per the Board's guidelines</li>
+            <li>Available for extremities: arms, legs, hands, feet, fingers, toes, eyes, ears</li>
+          </ul>
+        </div>
+        <div class="compare-card s32">
+          <h3>Section 32 Settlement</h3>
+          <ul>
+            <li>Voluntary lump-sum agreement that closes the entire case</li>
+            <li>Amount negotiated between claimant's attorney and the carrier</li>
+            <li>Typically closes medical benefits (unless carved out)</li>
+            <li>Must be approved by the Workers' Compensation Board</li>
+            <li>Available for all case types — schedule, classification, and occupational disease</li>
+          </ul>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:14px;color:var(--txD);max-width:600px;margin:0 auto;">Not sure which path is right for you? An experienced workers' compensation attorney can evaluate your specific situation and advise on the best strategy.</p>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section>
+    <div class="wrap">
+      <h2>Frequently Asked Questions</h2>
+      <p class="section-sub">Common questions about NYS workers' compensation settlements.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How are workers' comp settlements calculated in New York?</div>
+          <div class="faq-a">In New York, workers' compensation settlements are calculated based on the type of case. For Schedule Loss of Use (SLU) awards under WCL §15(3), the value equals the percentage of loss times the number of weeks assigned to that body part, multiplied by the claimant's compensation rate (2/3 of average weekly wage, capped at the statutory maximum). Section 32 settlements involve a lump-sum payment that closes the case entirely and are negotiated based on the present value of future benefits.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is a Section 32 agreement?</div>
+          <div class="faq-a">A Section 32 agreement is a voluntary settlement under Workers' Compensation Law §32 that allows the claimant and carrier to resolve the entire case with a lump-sum payment. Once approved by the Workers' Compensation Board, it closes the case permanently — including future medical benefits unless specifically excluded. Both parties must consent, and the Board reviews the agreement to ensure it is in the claimant's best interest.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Should I settle my workers' comp case?</div>
+          <div class="faq-a">Whether to settle depends on several factors: the severity and permanency of your injury, your current and future medical needs, your age and work capacity, and the strength of your legal position. A settlement provides a lump sum but closes your case permanently. An attorney can help you evaluate whether a settlement offer fairly compensates your injuries or whether continuing to receive weekly benefits and medical coverage is more advantageous.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How much is my workers' comp case worth in New York?</div>
+          <div class="faq-a">The value of a NYS workers' compensation case depends on your average weekly wage, the body parts injured, the percentage of permanent impairment, your date of injury (which determines the maximum rate), and whether you have a Schedule Loss of Use (extremity) or classification (non-schedule) case. Use our free calculator above to estimate SLU values, or consult with an attorney for a comprehensive case valuation including Section 32 settlement potential.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Attorney CTA -->
+  <section class="attorney-cta">
+    <div class="wrap">
+      <div class="cta-card">
+        <h2>Talk to a Workers' Comp Attorney</h2>
+        <p>Not sure about your case value? Get a free consultation with an experienced NYS workers' compensation attorney who can evaluate your specific situation.</p>
+        <a href="/find-attorney.html" class="cta-btn" style="font-size:16px;padding:14px 32px;">Get a Free Consultation</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer CTA -->
+  <section class="footer-cta">
+    <div class="wrap">
+      <h2>Get the Full Calculator in the App</h2>
+      <p>The Comp Desk app includes all 7 NYS workers' comp calculators — SLU, AWW, LWEC, Awards, Rates, Radiculopathy, and Spine & Brain — plus case management, settlement comparison, and more.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="https://compbuddy.app" class="cta-btn">Download the App</a>
+        <a href="/calculators/" class="cta-btn outline">Explore All Calculators</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="wrap">
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved. | <a href="/privacy.html">Privacy Policy</a></p>
+      <p style="margin-top:8px;font-size:11px;color:var(--txM);">This tool provides estimates only and does not constitute legal advice. Consult a licensed attorney for advice specific to your case.</p>
+    </div>
+  </footer>
+
+  <!-- Calculator Script -->
+  <script>
+    function calcSLU() {
+      const sel = document.getElementById('bodyPart');
+      const weeks = parseFloat(sel.value);
+      const pct = parseFloat(document.getElementById('pctLoss').value);
+      const rate = parseFloat(document.getElementById('compRate').value);
+      const box = document.getElementById('resultBox');
+      const valEl = document.getElementById('sluValue');
+      const noteEl = document.getElementById('sluNote');
+
+      if (!weeks || isNaN(pct) || isNaN(rate) || pct <= 0) {
+        box.style.display = 'none';
+        return;
+      }
+
+      const sluWeeks = (pct / 100) * weeks;
+      const award = sluWeeks * rate;
+      const attyFee = award * 0.15;
+      const net = award - attyFee;
+      const partName = sel.options[sel.selectedIndex].dataset.name || 'body part';
+
+      valEl.textContent = '$' + award.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      noteEl.innerHTML = pct + '% loss of ' + partName + ' = ' + sluWeeks.toFixed(1) + ' weeks &times; $' + rate.toFixed(2) + '/wk<br>Attorney fee (15%): $' + attyFee.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' &bull; Net to claimant: $' + net.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      box.style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
