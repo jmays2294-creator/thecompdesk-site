@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preload" as="image" href="assets/hero/comp-buddy.png" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hero/comp-desk.png" fetchpriority="high">
 <title>The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker</title>
 <meta name="description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers. Built by a practicing WC attorney.">
 <meta name="keywords" content="workers compensation calculator, NYS, New York, schedule loss of use, SLU, AWW, LWEC, permanency guidelines, work injury, comp benefits">
@@ -66,7 +66,7 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 
 /* HERO */
 .hero{padding:140px 0 80px;text-align:center;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,0.10) 0%,rgba(45,212,160,0.06) 40%,rgba(240,160,48,0.04) 65%,transparent 80%);pointer-events:none;}
 .hero .badge{display:inline-block;background:var(--acG);border:1px solid rgba(59,130,246,0.25);color:var(--ac);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
 .hero h1{font-size:clamp(36px,6vw,56px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
 .hero h1 span{color:var(--ac);}
@@ -74,15 +74,14 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .hero .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 .hero .attr{margin-top:32px;font-size:13px;color:var(--txM);}
 .hero .attr strong{color:var(--txD);}
-.hero .mascot-stage{position:relative;width:min(420px,82vw);aspect-ratio:1/1;margin:0 auto 28px;}
-.hero .mascot-stage img,.hero .mascot-stage .lottie,.hero .mascot-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
-.hero .mascot-stage .lottie{opacity:0;transition:opacity .4s ease;}
-.hero .mascot-stage.is-playing .lottie{opacity:1;}
-.hero .mascot-stage.is-playing img.fallback{opacity:0;}
-.hero .mascot-stage img.fallback{transition:opacity .4s ease;}
+.hero .logo-anim{position:relative;width:min(280px,65vw);margin:0 auto 32px;}
+.hero .logo-anim img{width:100%;height:auto;display:block;animation:logoFadeIn 1.2s ease-out both;}
+.hero .logo-anim::after{content:'';position:absolute;inset:-12%;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.18) 0%,rgba(45,212,160,0.08) 50%,transparent 72%);animation:logoPulse 3s ease-in-out infinite;pointer-events:none;z-index:-1;}
+@keyframes logoFadeIn{0%{opacity:0;transform:scale(0.92) translateY(12px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes logoPulse{0%,100%{opacity:0.6;transform:scale(1);}50%{opacity:1;transform:scale(1.06);}}
 @media (prefers-reduced-motion: reduce){
-  .hero .mascot-stage .lottie,.hero .mascot-stage video{display:none!important;}
-  .hero .mascot-stage img.fallback{opacity:1!important;}
+  .hero .logo-anim img{animation:none;}
+  .hero .logo-anim::after{animation:none;}
 }
 
 /* STATS */
@@ -151,29 +150,26 @@ footer a{color:var(--txD);}
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
       <a href="#about">About</a>
-      <a href="/find-attorney">Find Attorney</a>
-      <a href="/coming-soon" style="color:#2dd4a0;">Coming Soon</a>
-      <a href="/auth_v2.html" class="cta-btn">Sign In</a>
-      <a href="#download" class="cta-btn" id="nav-cta">Download Free</a>
-      <a href="/auth_v2.html" class="cta-btn outline" id="nav-auth" style="display:none;">Login</a>
-      <a href="/account.html" class="cta-btn outline" id="nav-account" style="display:none;">My Account</a>
+      <a href="/connect-with-attorney.html">Find Attorney</a>
+      <a href="/auth_v2.html" class="cta-btn" id="nav-auth">Sign In</a>
+      <a href="/account.html" class="cta-btn" id="nav-account" style="display:none;">My Account</a>
     </div>
   </div>
 </nav>
 
 <section class="hero">
   <div class="wrap">
-    <div class="badge">NYS Workers' Compensation</div>
-    <div class="mascot-stage" id="mascotStage" aria-label="Comp Buddy and the Comp Desk calculator mascot">
-      <img class="fallback" src="assets/hero/comp-buddy.png" alt="Comp Buddy mascot" width="420" height="420" fetchpriority="high" decoding="async">
-      <div class="lottie" id="mascotLottie" role="img" aria-hidden="true"></div>
+    <div class="badge">Free for injured workers</div>
+    <div class="logo-anim" aria-label="The Comp Desk logo">
+      <img src="assets/hero/comp-desk.png" alt="The Comp Desk" width="420" height="420" fetchpriority="high" decoding="async">
     </div>
-    <h1>Know your comp.<br>Fight for your <span>rights.</span></h1>
-    <p class="sub">The most comprehensive NYS Workers' Compensation calculator ever built. Calculate awards, verify benefits, check permanency — all in one app. Free for injured workers.</p>
+    <h1>Injured at work?<br>You're <span>not alone.</span></h1>
+    <p class="sub">The Comp Desk helps you understand your benefits, track your case, and connect with an attorney — all in one free app. Know your comp. Fight for your rights.</p>
     <div class="ctas">
-      <a href="calculators/" class="cta-btn">Calculate your AWW</a>
-      <a href="#meet-comp-buddy" class="cta-btn outline">Meet Comp Buddy</a>
+      <a href="calculators/" class="cta-btn">Explore Free Calculators</a>
+      <a href="/connect-with-attorney.html" class="cta-btn outline">Find an Attorney</a>
     </div>
+    <p class="attr">Built by a practicing NYS Workers' Compensation attorney. <strong>Always free for injured workers.</strong></p>
   </div>
 </section>
 
@@ -284,11 +280,12 @@ footer a{color:var(--txD);}
 
 <section class="about" id="about">
   <div class="wrap">
-    <h2>Built for the hearing room. Free for the worker.</h2>
-    <p>The Comp Desk was born in hearings — where the same NYS Workers' Compensation calculations get done by hand, over and over again. AWW, SLU percentages, fee applications, LWEC brackets, statutory rates back to 1985. Scraps of paper and clunky spreadsheets, day after day.</p>
-    <p>So we built the tool the room was missing. One app that does everything: calculates awards on the fly, checks a doctor's ROM finding against the Permanency Guidelines, generates the fee app equation ready to copy, and looks up any statutory rate in seconds.</p>
-    <p>But this isn't just for attorneys. Every injured worker in New York State deserves to understand their benefits. The free tier of The Comp Desk puts the same calculation power in your hands — so you can verify your award, understand your rights, and make informed decisions about your case.</p>
-    <p>Know your comp. Fight for your rights.</p>
+    <h2>Built for the hearing room. Growing into your companion.</h2>
+    <p>The Comp Desk started where the need was most obvious — in the hearing room. AWW calculations done on scrap paper, SLU percentages pulled from memory, fee application equations scribbled by hand. We built the calculator that the room was missing, and attorneys started using it every day.</p>
+    <p>But a calculator was never the finish line. When you're injured at work, the confusion doesn't start at the hearing — it starts the moment you get hurt. What do I file? Where do I go for treatment? What's an IME, and how do I prepare? What am I actually entitled to? The system is complicated, and nobody hands you a guidebook.</p>
+    <p>That's why The Comp Desk is growing into something bigger. We call the injured worker experience <strong style="color:var(--wh);">Comp Buddy</strong> — a free companion that walks with you from the moment of injury through treatment, hearings, and settlement. We're building a Find a Doctor tool to connect you with authorized providers, IME reminders so you never miss an appointment, a learning portal that explains your rights in plain language, and a direct connection to experienced workers' compensation attorneys who can fight for you.</p>
+    <p>The calculators are just the beginning. The mission is making sure every injured worker in New York State has the information, the tools, and the support they deserve — without paying a dime.</p>
+    <p><strong style="color:var(--wh);">Know your comp. Fight for your rights.</strong></p>
     <div class="sig">— The Comp Desk Team</div>
   </div>
 </section>
@@ -309,7 +306,7 @@ footer a{color:var(--txD);}
   <div class="wrap">
     <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
     <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
-    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> · <a href="/find-attorney">Find Attorney</a> · <a href="/auth_v2.html">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
+    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> · <a href="/connect-with-attorney.html">Find Attorney</a> · <a href="/auth_v2.html">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
   </div>
 </footer>
 
@@ -356,11 +353,11 @@ function updateNav(loggedIn) {
   const navAuth = document.getElementById('nav-auth');
   const navAccount = document.getElementById('nav-account');
   if (loggedIn) {
-    navAuth.style.display = 'none';
-    navAccount.style.display = 'inline-flex';
+    if (navAuth) navAuth.style.display = 'none';
+    if (navAccount) navAccount.style.display = 'inline-flex';
   } else {
-    navAuth.style.display = 'inline-flex';
-    navAccount.style.display = 'none';
+    if (navAuth) navAuth.style.display = 'inline-flex';
+    if (navAccount) navAccount.style.display = 'none';
   }
 }
 
@@ -422,42 +419,7 @@ sb.auth.onAuthStateChange((event, session) => {
 
 initAuth();
 </script>
-<script>
-/* Mascot hero loader: lazy-load lottie-web after page load, respect reduced-motion.
-   Asset slot: assets/hero/mascot-hero.json (placeholder; vendor will replace).
-   To swap to MP4/WebM, set data-video on #mascotStage and this loader will use it. */
-(function(){
-  var stage=document.getElementById('mascotStage');
-  if(!stage) return;
-  var prefersReduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(prefersReduced) return;
-  function start(){
-    var videoSrc=stage.getAttribute('data-video');
-    if(videoSrc){
-      var v=document.createElement('video');
-      v.src=videoSrc;v.autoplay=true;v.loop=true;v.muted=true;v.playsInline=true;
-      v.setAttribute('aria-hidden','true');
-      stage.appendChild(v);stage.classList.add('is-playing');return;
-    }
-    var s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js';
-    s.async=true;
-    s.onload=function(){
-      try{
-        window.lottie.loadAnimation({
-          container:document.getElementById('mascotLottie'),
-          renderer:'svg',loop:true,autoplay:true,
-          path:'assets/hero/mascot-hero.json'
-        });
-        stage.classList.add('is-playing');
-      }catch(e){}
-    };
-    document.head.appendChild(s);
-  }
-  if(document.readyState==='complete') setTimeout(start,200);
-  else window.addEventListener('load',function(){setTimeout(start,200);});
-})();
-</script>
+<!-- Hero animation: CSS-only logo pulse. Replace with Lottie/video when app animation is exported. -->
 <script src="/js/disclaimer.js" defer></script>
 </body>
 </html>
