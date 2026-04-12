@@ -4,45 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Radiculopathy Calculator — NYS Workers' Comp Nerve Injury | The Comp Desk</title>
-  <meta name="description" content="Free NYS radiculopathy calculator using the 2012 Impairment Guidelines point system (S11.4–S11.7). Calculate SLU benefits for cervical and lumbar nerve root injuries.">
+  <meta name="description" content="Free NYS radiculopathy calculator using the 2012 Impairment Guidelines point system (Tables S11.4–S11.7). Score imaging, EMG, motor, sensory, reflex, and tension sign findings to determine severity ranking.">
   <meta property="og:title" content="Radiculopathy Calculator — NYS Workers' Comp Nerve Injury">
-  <meta property="og:description" content="Free calculator for radiculopathy SLU benefits using the 2012 Impairment Guidelines point system. Cervical and lumbar nerve injury analysis.">
+  <meta property="og:description" content="Free radiculopathy severity calculator using the 2012 NYS Impairment Guidelines (Tables S11.4–S11.7). Cervical and lumbar nerve root scoring.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/radiculopathy.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-radiculopathy.png">
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Radiculopathy Calculator — NYS Workers' Comp Nerve Injury">
-  <meta name="twitter:description" content="Free calculator for radiculopathy SLU benefits using the 2012 Impairment Guidelines point system.">
+  <meta name="twitter:description" content="Free radiculopathy severity calculator using the 2012 NYS Impairment Guidelines (Tables S11.4–S11.7).">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-radiculopathy.png">
-
-  <!-- JSON-LD: WebApplication -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "NYS Radiculopathy Calculator",
     "url": "https://thecompdesk.com/calculators/radiculopathy.html",
-    "description": "Free NYS radiculopathy calculator using the 2012 Impairment Guidelines point system (S11.4–S11.7). SLU benefits for cervical and lumbar nerve root injuries.",
+    "description": "Free NYS radiculopathy calculator using the 2012 Impairment Guidelines point system (Tables S11.4–S11.7).",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
-
   <link rel="canonical" href="https://thecompdesk.com/calculators/radiculopathy.html">
   <link rel="stylesheet" href="../css/app.css">
   <style>
-    :root{--bg:#1a1a2e;--card:rgba(255,255,255,0.08);--cardA:rgba(255,255,255,0.05);--bd:rgba(255,255,255,0.12);--ac:#4CAF50;--acG:rgba(76,175,80,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#e0e0e0;--txD:#b0b0b0;--txM:#888;--wh:#fff;--mono:'JetBrains Mono',monospace;}
+    :root{--bg:#1a1a2e;--card:rgba(255,255,255,0.08);--cardA:rgba(255,255,255,0.05);--bd:rgba(255,255,255,0.12);--ac:#4CAF50;--acG:rgba(76,175,80,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#e0e0e0;--txD:#b0b0b0;--txM:#888;--wh:#fff;--mono:'JetBrains Mono',monospace;--red:#ef4444;}
 
-    /* Calc Sections */
     .calc-section{background:linear-gradient(135deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%);border:1px solid var(--bd);border-radius:12px;margin-bottom:16px;overflow:hidden;}
-    .calc-header{background:rgba(0,0,0,0.25);padding:12px 18px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;}
+    .calc-header{background:rgba(0,0,0,0.25);padding:12px 18px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
     .calc-header-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--txD);}
     .calc-body{padding:18px;}
 
-    /* Fields */
     .fields-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
     .field-group{flex:1;min-width:200px;}
     .field-group select,.field-group input[type="number"],.field-group input[type="text"],.field-group input[type="date"]{width:100%;}
@@ -54,10 +47,8 @@
     .field-wrap .field-prefix+input{border-radius:0 8px 8px 0!important;}
     .field-hint{display:block;font-size:11px;color:var(--txM);margin-top:4px;}
 
-    /* Results */
     .result-box{background:rgba(0,0,0,0.2);border:1px solid var(--bd);border-radius:10px;padding:20px;margin-top:16px;}
     .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-    .result-grid.cols-4{grid-template-columns:repeat(4,1fr);}
     .result-item{text-align:center;}
     .result-label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--txM);margin-bottom:4px;}
     .result-value{display:block;font-size:22px;font-weight:800;color:var(--wh);font-family:var(--mono);}
@@ -67,51 +58,64 @@
     .result-meta{font-size:11px;color:var(--txM);margin-top:12px;padding-top:10px;border-top:1px solid var(--bd);text-align:center;}
     .mono{font-family:var(--mono);font-weight:600;}
 
-    /* Point Scoring */
-    .scoring-category{margin-bottom:18px;padding:14px;background:rgba(0,0,0,0.15);border:1px solid var(--bd);border-radius:8px;}
-    .scoring-category:last-child{margin-bottom:0;}
-    .scoring-cat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-    .scoring-cat-title{font-size:13px;font-weight:700;color:var(--wh);}
-    .scoring-cat-ref{font-size:10px;color:var(--txM);font-family:var(--mono);}
-    .scoring-cat-points{font-size:13px;font-weight:800;color:var(--gd);font-family:var(--mono);}
-    .scoring-option{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s;}
-    .scoring-option:hover{background:rgba(255,255,255,0.04);}
-    .scoring-option input[type="radio"]{margin-top:3px;accent-color:var(--ac);}
-    .scoring-option-label{font-size:13px;color:var(--tx);line-height:1.5;}
-    .scoring-option-label .pts{font-weight:700;color:var(--gd);font-family:var(--mono);font-size:12px;}
-    .scoring-option-label .desc{color:var(--txD);font-size:12px;}
+    /* Scoring rows */
+    .scoring-row{display:flex;align-items:flex-start;gap:14px;padding:12px 14px;background:rgba(0,0,0,0.12);border:1px solid var(--bd);border-radius:8px;margin-bottom:10px;flex-wrap:wrap;}
+    .scoring-row:last-child{margin-bottom:0;}
+    .scoring-row-info{flex:1;min-width:200px;}
+    .scoring-row-title{font-size:13px;font-weight:700;color:var(--wh);margin-bottom:2px;}
+    .scoring-row-ref{font-size:10px;color:var(--txM);font-family:var(--mono);}
+    .scoring-row-desc{font-size:12px;color:var(--txD);line-height:1.5;margin-top:4px;}
+    .scoring-row-input{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .scoring-row-input select{min-width:220px;}
+    .scoring-row-pts{font-size:16px;font-weight:800;color:var(--gd);font-family:var(--mono);min-width:50px;text-align:right;}
 
-    /* Point Total */
-    .point-total-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.25);border-radius:8px;margin-top:14px;}
-    .point-total-label{font-size:13px;font-weight:700;color:var(--tx);}
-    .point-total-value{font-size:22px;font-weight:900;color:var(--ac);font-family:var(--mono);}
+    /* Sub-table for motor/sensory detail */
+    .sub-detail{margin-top:8px;padding:8px 10px;background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:11px;color:var(--txD);line-height:1.6;}
+    .sub-detail strong{color:var(--tx);}
 
-    /* Info */
+    /* Point total */
+    .point-total-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.25);border-radius:8px;margin-top:14px;}
+    .point-total-label{font-size:14px;font-weight:700;color:var(--tx);}
+    .point-total-value{font-size:26px;font-weight:900;color:var(--ac);font-family:var(--mono);}
+
+    /* Severity result */
+    .severity-result{display:flex;align-items:center;justify-content:center;gap:16px;padding:16px;background:rgba(240,160,48,0.08);border:1px solid rgba(240,160,48,0.25);border-radius:8px;margin-top:10px;text-align:center;}
+    .severity-letter{font-size:48px;font-weight:900;color:var(--gd);font-family:var(--mono);line-height:1;}
+    .severity-info{text-align:left;}
+    .severity-info .label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--txM);}
+    .severity-info .range{font-size:14px;color:var(--tx);font-family:var(--mono);font-weight:700;}
+    .severity-info .note{font-size:11px;color:var(--txD);margin-top:2px;}
+
+    /* Nerve root cap table */
+    .cap-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+    .cap-table th{background:rgba(0,0,0,0.3);color:var(--txD);text-transform:uppercase;font-size:10px;font-weight:700;padding:6px 10px;text-align:center;border-bottom:1px solid var(--bd);}
+    .cap-table td{padding:5px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--tx);}
+    .cap-table tr.active td{background:rgba(76,175,80,0.15);font-weight:700;color:var(--ac);}
+
+    /* Severity ranking table */
+    .sev-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+    .sev-table th{background:rgba(0,0,0,0.3);color:var(--txD);text-transform:uppercase;font-size:10px;font-weight:700;padding:6px 10px;text-align:center;border-bottom:1px solid var(--bd);}
+    .sev-table td{padding:5px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--tx);}
+    .sev-table tr.active td{background:rgba(240,160,48,0.15);font-weight:700;color:var(--gd);}
+
     .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0;}
     .info-card{background:rgba(0,0,0,0.15);border:1px solid var(--bd);border-radius:8px;padding:14px;}
     .info-card h4{font-size:13px;font-weight:700;color:var(--wh);margin-bottom:6px;}
     .info-card p{font-size:12px;color:var(--txD);line-height:1.6;}
 
-    /* Verify banner */
     .verify-banner{background:rgba(240,160,48,0.12);border:1px solid rgba(240,160,48,0.3);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gd);line-height:1.6;margin-bottom:14px;}
     .verify-banner strong{color:#fbbf24;}
 
-    /* Save prompt */
     .save-prompt{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 14px;background:rgba(76,175,80,0.08);border:1px solid rgba(76,175,80,0.2);border-radius:6px;font-size:12px;color:var(--txD);}
     .save-prompt a,.save-prompt button{background:var(--ac);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;}
-
-    /* Conversion table */
-    .conversion-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;}
-    .conversion-table th{background:rgba(0,0,0,0.3);color:var(--txD);text-transform:uppercase;font-size:10px;font-weight:700;padding:8px 10px;text-align:center;border-bottom:1px solid var(--bd);}
-    .conversion-table td{padding:6px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--tx);}
-    .conversion-table tr:hover{background:rgba(255,255,255,0.03);}
-    .conversion-table td.active{background:rgba(76,175,80,0.15);font-weight:700;color:var(--ac);}
 
     @media(max-width:640px){
       .fields-row{flex-direction:column;}
       .field-group{min-width:100%;}
       .result-grid{grid-template-columns:1fr 1fr;}
-      .result-grid.cols-4{grid-template-columns:1fr 1fr;}
+      .scoring-row{flex-direction:column;}
+      .scoring-row-input{width:100%;}
+      .scoring-row-input select{width:100%;}
     }
   </style>
 </head>
@@ -124,263 +128,246 @@
     </div>
 
     <h1 class="page-title">NYS Radiculopathy Calculator</h1>
-    <p class="page-subtitle">Calculate Schedule Loss of Use benefits for cervical and lumbar radiculopathy using the 2012 NYS Impairment Guidelines point system (Sections S11.4–S11.7).</p>
+    <p class="page-subtitle">Score radiculopathy findings using the 2012 NYS Impairment Guidelines (Tables S11.4, S11.4(a), S11.4(b), S11.5, S11.6, S11.7) to determine the severity ranking for spine impairment classification.</p>
 
     <div class="verify-banner">
-      <strong>Under Construction:</strong> This calculator is being verified against the 2012 NYS Impairment Guidelines. Point-to-SLU conversion values are preliminary — verify against your copy of the Guidelines before relying on results.
+      <strong>Under Construction:</strong> This calculator implements the point system from Tables S11.4 through S11.7 of the 2012 NYS Impairment Guidelines. The severity ranking letter output is used with Tables 11.1 (Non-Surgical) or 11.2 (Surgical) to determine the final impairment class. Please verify against your copy of the Guidelines.
     </div>
 
-    <!-- AWW & Rate -->
+    <!-- Step 1: Spine Region & Nerve Root -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Compensation Rate</span>
-      </div>
-      <div class="calc-body">
-        <div class="fields-row" style="margin-bottom:12px;">
-          <div class="field-group">
-            <label class="field-label" for="awwInput">Average Weekly Wage (AWW)</label>
-            <div class="field-wrap">
-              <span class="field-prefix">$</span>
-              <input type="number" id="awwInput" value="1833.63" step="0.01" aria-label="Average weekly wage">
-            </div>
-            <span class="field-hint">2/3 AWW = comp rate (auto-calculated)</span>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="maxRateInput">Maximum Rate</label>
-            <div class="field-wrap">
-              <span class="field-prefix">$</span>
-              <input type="number" id="maxRateInput" value="1222.42" step="0.01" aria-label="Statutory maximum weekly rate">
-            </div>
-            <span class="field-hint" id="maxRateHint">Current max: $1,222.42 (7/1/2025)</span>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="doiDate">Date of Injury</label>
-            <input type="date" id="doiDate" aria-label="Date of injury — auto-fills max rate">
-            <span class="field-hint">Auto-fills max rate</span>
-          </div>
-        </div>
-        <div style="padding:8px 12px;background:var(--cardA);border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--txD);">
-          Comp Rate (2/3 AWW, capped): <span id="compRateDisplay" style="color:var(--gd);font-weight:800;font-family:var(--mono);">—</span>
-        </div>
-        <input type="hidden" id="compRate" value="1222.42">
-      </div>
-    </div>
-
-    <!-- Spine Region & Nerve Root -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Injury Location</span>
+        <span class="calc-header-title">Step 1: Injury Location</span>
       </div>
       <div class="calc-body">
         <div class="fields-row">
           <div class="field-group">
             <label class="field-label" for="spineRegion">Spine Region</label>
-            <select id="spineRegion" aria-label="Spine region">
+            <select id="spineRegion">
               <option value="">Select region...</option>
-              <option value="cervical">Cervical (Neck — affects arm/hand)</option>
-              <option value="lumbar">Lumbar / Sacral (Low back — affects leg/foot)</option>
+              <option value="cervical">Cervical</option>
+              <option value="lumbar">Lumbar</option>
             </select>
           </div>
           <div class="field-group">
-            <label class="field-label" for="nerveLevel">Nerve Root Level</label>
-            <select id="nerveLevel" aria-label="Nerve root level">
+            <label class="field-label" for="nerveLevel">Primary Nerve Root</label>
+            <select id="nerveLevel">
               <option value="">Select region first...</option>
             </select>
+            <span class="field-hint">Determines max sensory/motor values per Tables S11.5 &amp; S11.6</span>
           </div>
-          <div class="field-group">
-            <label class="field-label" for="affectedExtremity">Affected Extremity</label>
-            <input type="text" id="affectedExtremity" readonly value="—" style="color:var(--txM);cursor:default;" aria-label="Affected extremity (auto-populated)">
-            <span class="field-hint">Auto-populated from spine region</span>
-          </div>
+        </div>
+
+        <!-- Nerve root cap reference -->
+        <div id="capTableWrap" style="display:none;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--txM);margin-bottom:6px;" id="capTableTitle"></div>
+          <table class="cap-table" id="capTable">
+            <thead><tr><th>Nerve Root</th><th>Max Sensory Deficit</th><th>Max Weakness</th></tr></thead>
+            <tbody id="capTableBody"></tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- Point Scoring: S11.4–S11.7 -->
+    <!-- Step 2: Table S11.4 Scoring -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Clinical Findings — Point Scoring</span>
-        <span class="calc-header-title" style="color:var(--txM);font-size:10px;">2012 Impairment Guidelines §S11.4–S11.7</span>
+        <span class="calc-header-title">Step 2: Score Findings (Table S11.4)</span>
+        <span class="calc-header-title" style="color:var(--txM);font-size:10px;">2012 Impairment Guidelines</span>
       </div>
       <div class="calc-body">
 
-        <!-- S11.4 Sensory Loss / Pain -->
-        <div class="scoring-category" id="cat-sensory">
-          <div class="scoring-cat-header">
-            <div>
-              <span class="scoring-cat-title">Sensory Loss / Pain</span>
-              <span class="scoring-cat-ref">§S11.4</span>
-            </div>
-            <span class="scoring-cat-points" id="sensory-pts">0 pts</span>
+        <!-- 1. Imaging -->
+        <div class="scoring-row">
+          <div class="scoring-row-info">
+            <div class="scoring-row-title">Imaging</div>
+            <div class="scoring-row-desc">Significant disc abnormalities displacing nerve tissue and/or bony/mechanical nerve root encroachment on imaging, correlating with the clinical picture.</div>
           </div>
-          <label class="scoring-option">
-            <input type="radio" name="sensory" value="0" checked>
-            <span class="scoring-option-label"><span class="pts">0 pts</span> — <span class="desc">No sensory deficit or pain in dermatomal distribution</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="sensory" value="1">
-            <span class="scoring-option-label"><span class="pts">1 pt</span> — <span class="desc">Intermittent paresthesias or mild pain in dermatomal pattern</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="sensory" value="2">
-            <span class="scoring-option-label"><span class="pts">2 pts</span> — <span class="desc">Decreased sensation (measurable dermatomal loss on exam)</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="sensory" value="3">
-            <span class="scoring-option-label"><span class="pts">3 pts</span> — <span class="desc">Severe sensory loss or constant dysesthesias in dermatomal distribution</span></span>
-          </label>
+          <div class="scoring-row-input">
+            <select id="score_imaging">
+              <option value="0">No (0 pts)</option>
+              <option value="16">Yes (16 pts)</option>
+            </select>
+            <span class="scoring-row-pts" id="pts_imaging">0</span>
+          </div>
         </div>
 
-        <!-- S11.5 Motor Deficit -->
-        <div class="scoring-category" id="cat-motor">
-          <div class="scoring-cat-header">
-            <div>
-              <span class="scoring-cat-title">Loss of Power (Motor Deficit)</span>
-              <span class="scoring-cat-ref">§S11.5</span>
-            </div>
-            <span class="scoring-cat-points" id="motor-pts">0 pts</span>
+        <!-- 2. EMG -->
+        <div class="scoring-row">
+          <div class="scoring-row-info">
+            <div class="scoring-row-title">EMG Abnormalities</div>
+            <div class="scoring-row-desc">Fibrillation potentials and/or positive sharp waves in at least 2 muscles in the distribution of the involved nerve root(s).</div>
           </div>
-          <label class="scoring-option">
-            <input type="radio" name="motor" value="0" checked>
-            <span class="scoring-option-label"><span class="pts">0 pts</span> — <span class="desc">Normal strength (5/5) in myotomal distribution</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="motor" value="1">
-            <span class="scoring-option-label"><span class="pts">1 pt</span> — <span class="desc">Mild weakness (4/5) — full ROM against gravity with reduced resistance</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="motor" value="2">
-            <span class="scoring-option-label"><span class="pts">2 pts</span> — <span class="desc">Moderate weakness (3/5) — full ROM against gravity, cannot resist</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="motor" value="3">
-            <span class="scoring-option-label"><span class="pts">3 pts</span> — <span class="desc">Severe weakness (2/5 or less) — cannot overcome gravity or no contraction</span></span>
-          </label>
+          <div class="scoring-row-input">
+            <select id="score_emg">
+              <option value="0">No (0 pts)</option>
+              <option value="6">Yes (6 pts)</option>
+            </select>
+            <span class="scoring-row-pts" id="pts_emg">0</span>
+          </div>
         </div>
 
-        <!-- S11.6 Loss of Reflexes -->
-        <div class="scoring-category" id="cat-reflex">
-          <div class="scoring-cat-header">
-            <div>
-              <span class="scoring-cat-title">Loss of Reflexes</span>
-              <span class="scoring-cat-ref">§S11.6</span>
+        <!-- 3. Muscle Involvement — Weakness (Table S11.4(a)) -->
+        <div class="scoring-row">
+          <div class="scoring-row-info">
+            <div class="scoring-row-title">Muscle Weakness</div>
+            <div class="scoring-row-ref">Table S11.4(a)</div>
+            <div class="scoring-row-desc">Objective muscle weakness scored by motor grade. Value from Table S11.4(a), capped by nerve root max from Table S11.5 or S11.6.</div>
+            <div class="sub-detail">
+              <strong>Grade 0</strong> (no contraction) = 20 &nbsp;|&nbsp;
+              <strong>Grade 1</strong> (slight contraction, no movement) = 20 &nbsp;|&nbsp;
+              <strong>Grade 2</strong> (movement, gravity eliminated) = 18 &nbsp;|&nbsp;
+              <strong>Grade 3</strong> (against gravity, no resistance) = 6 &nbsp;|&nbsp;
+              <strong>Grade 4–5</strong> (against resistance / normal) = 0
             </div>
-            <span class="scoring-cat-points" id="reflex-pts">0 pts</span>
           </div>
-          <label class="scoring-option">
-            <input type="radio" name="reflex" value="0" checked>
-            <span class="scoring-option-label"><span class="pts">0 pts</span> — <span class="desc">Normal reflexes (2+) at the affected level</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="reflex" value="1">
-            <span class="scoring-option-label"><span class="pts">1 pt</span> — <span class="desc">Diminished reflexes (1+ or trace) at the affected level</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="reflex" value="2">
-            <span class="scoring-option-label"><span class="pts">2 pts</span> — <span class="desc">Absent reflexes (0) at the affected level</span></span>
-          </label>
+          <div class="scoring-row-input">
+            <select id="score_motor">
+              <option value="0">Grade 5 — Normal (0 pts)</option>
+              <option value="0">Grade 4 — Against gravity w/ some resistance (0 pts)</option>
+              <option value="6">Grade 3 — Against gravity, no resistance (6 pts)</option>
+              <option value="18">Grade 2 — Gravity eliminated (18 pts)</option>
+              <option value="20">Grade 1 — Slight contraction, no movement (20 pts)</option>
+              <option value="20">Grade 0 — No contraction (20 pts)</option>
+            </select>
+            <span class="scoring-row-pts" id="pts_motor">0</span>
+          </div>
         </div>
 
-        <!-- S11.7 Electrodiagnostic Findings -->
-        <div class="scoring-category" id="cat-emg">
-          <div class="scoring-cat-header">
-            <div>
-              <span class="scoring-cat-title">Electrodiagnostic Findings (EMG/NCV)</span>
-              <span class="scoring-cat-ref">§S11.7</span>
-            </div>
-            <span class="scoring-cat-points" id="emg-pts">0 pts</span>
+        <!-- 4. Muscle Atrophy -->
+        <div class="scoring-row">
+          <div class="scoring-row-info">
+            <div class="scoring-row-title">Muscle Atrophy</div>
+            <div class="scoring-row-desc">Unilateral muscle atrophy shown by bilateral circumferential measurements (calf, thigh, arm, or forearm) or inspection of hand/foot muscles. Difference &ge;2 cm at matched bony landmarks is significant.</div>
           </div>
-          <label class="scoring-option">
-            <input type="radio" name="emg" value="0" checked>
-            <span class="scoring-option-label"><span class="pts">0 pts</span> — <span class="desc">Normal EMG/NCV or not performed</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="emg" value="1">
-            <span class="scoring-option-label"><span class="pts">1 pt</span> — <span class="desc">Mild abnormality — fibrillations or positive sharp waves in 1–2 muscles of the affected myotome</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="emg" value="2">
-            <span class="scoring-option-label"><span class="pts">2 pts</span> — <span class="desc">Moderate abnormality — denervation in multiple muscles, reduced recruitment pattern</span></span>
-          </label>
-          <label class="scoring-option">
-            <input type="radio" name="emg" value="3">
-            <span class="scoring-option-label"><span class="pts">3 pts</span> — <span class="desc">Severe abnormality — widespread denervation, absent motor units, or significant conduction block</span></span>
-          </label>
+          <div class="scoring-row-input">
+            <select id="score_atrophy">
+              <option value="0">No (0 pts)</option>
+              <option value="6">Yes (6 pts)</option>
+            </select>
+            <span class="scoring-row-pts" id="pts_atrophy">0</span>
+          </div>
         </div>
+
+        <!-- 5. Sensory Involvement (Table S11.4(b)) -->
+        <div class="scoring-row">
+          <div class="scoring-row-info">
+            <div class="scoring-row-title">Sensory Involvement</div>
+            <div class="scoring-row-ref">Table S11.4(b)</div>
+            <div class="scoring-row-desc">Reproducible alteration of sensation (sharp/dull, light touch) consistent with specific dermatomal distribution. Capped by nerve root max from Table S11.5 or S11.6.</div>
+            <div class="sub-detail">
+              <strong>Anesthesia</strong> (total sensory loss) = 6 &nbsp;|&nbsp;
+              <strong>Compromised</strong> (diminished or altered sensation) = 4 &nbsp;|&nbsp;
+              <strong>Normal</strong> = 0
+            </div>
+          </div>
+          <div class="scoring-row-input">
+            <select id="score_sensory">
+              <option value="0">Normal — no loss (0 pts)</option>
+              <option value="4">Compromised — diminished/altered (4 pts)</option>
+              <option value="6">Anesthesia — total sensory loss (6 pts)</option>
+            </select>
+            <span class="scoring-row-pts" id="pts_sensory">0</span>
+          </div>
+        </div>
+
+        <!-- 6. Reflex Changes -->
+        <div class="scoring-row">
+          <div class="scoring-row-info">
+            <div class="scoring-row-title">Reflex Changes</div>
+            <div class="scoring-row-desc">Deep tendon reflexes (biceps, triceps, brachioradialis, patellar, ankle jerk) compared to the non-affected side. A difference of &ge;1 grade is significant.</div>
+            <div class="sub-detail">
+              <strong>0 (Absent)</strong> = 6 pts &nbsp;|&nbsp;
+              <strong>+ (Present but diminished)</strong> = 4 pts &nbsp;|&nbsp;
+              <strong>++ or +++ (Normal/Increased)</strong> = 0 pts
+            </div>
+          </div>
+          <div class="scoring-row-input">
+            <select id="score_reflex">
+              <option value="0">Normal / Increased — ++, +++ (0 pts)</option>
+              <option value="4">Present but diminished — + (4 pts)</option>
+              <option value="6">Absent — 0 (6 pts)</option>
+            </select>
+            <span class="scoring-row-pts" id="pts_reflex">0</span>
+          </div>
+        </div>
+
+        <!-- 7. Tension/Compression Signs -->
+        <div class="scoring-row">
+          <div class="scoring-row-info">
+            <div class="scoring-row-title">Tension / Compression Signs</div>
+            <div class="scoring-row-desc">Spurling's Sign (cervical), Straight Leg Raise (L5/S1), or Femoral Stretch (L2–L4).</div>
+          </div>
+          <div class="scoring-row-input">
+            <select id="score_tension">
+              <option value="0">No (0 pts)</option>
+              <option value="4">Yes (4 pts)</option>
+            </select>
+            <span class="scoring-row-pts" id="pts_tension">0</span>
+          </div>
+        </div>
+
+        <!-- Nerve root cap notice -->
+        <div id="capNotice" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;font-size:11px;color:var(--red);line-height:1.5;"></div>
 
         <!-- Point Total -->
         <div class="point-total-bar">
-          <span class="point-total-label">Total Points (0–11 max)</span>
+          <span class="point-total-label">Total Points</span>
           <span class="point-total-value" id="totalPoints">0</span>
         </div>
-      </div>
-    </div>
 
-    <!-- Results -->
-    <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">SLU Calculation</span>
-      </div>
-      <div class="calc-body">
-        <div class="result-box">
-          <div class="result-grid cols-4">
-            <div class="result-item">
-              <span class="result-label">Total Points</span>
-              <span class="result-value green" id="resultPoints">—</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">SLU %</span>
-              <span class="result-value" id="sluPercent">—</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Weeks of SLU</span>
-              <span class="result-value blue" id="weeksResult">—</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Award</span>
-              <span class="result-value gold" id="awardResult">—</span>
-            </div>
-          </div>
-          <div class="result-meta">
-            Body Part: <span id="bodyPartLabel" class="mono">—</span>
-            &nbsp;·&nbsp;
-            Max Weeks: <span id="maxWeeksLabel" class="mono">—</span>
-            &nbsp;·&nbsp;
-            Rate: <span id="rateLabel" class="mono">—</span>
-          </div>
-
-          <!-- Save prompt -->
-          <div id="save-prompt" class="save-prompt" style="display:none">
-            <p id="save-prompt-text"></p>
-            <div id="save-prompt-actions"></div>
+        <!-- Severity Ranking Result -->
+        <div class="severity-result" id="severityResult" style="display:none;">
+          <div class="severity-letter" id="severityLetter"></div>
+          <div class="severity-info">
+            <div class="label">Severity Ranking</div>
+            <div class="range" id="severityRange"></div>
+            <div class="note" id="severityNote"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Point-to-SLU Conversion Reference -->
+    <!-- Step 3: Severity Ranking Reference -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Point-to-SLU Conversion Table</span>
-        <span class="calc-header-title" style="color:var(--gd);font-size:10px;">VERIFY AGAINST GUIDELINES</span>
+        <span class="calc-header-title">Severity Ranking Reference (Tables S11.7(a) &amp; S11.7(b))</span>
       </div>
       <div class="calc-body">
-        <div class="verify-banner" style="margin-bottom:10px;">
-          <strong>Note:</strong> The conversion values below are preliminary. Cross-reference with your copy of the 2012 NYS Impairment Guidelines before relying on these percentages. The table will be updated once verified.
+        <div class="fields-row" style="margin-bottom:0;">
+          <div class="field-group" style="min-width:280px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--txM);margin-bottom:6px;">Table S11.7(a): Cervical &amp; Thoracic</div>
+            <table class="sev-table" id="sevTableCervical">
+              <thead><tr><th>Ranking</th><th>Cervical Pts</th><th>Thoracic Pts</th></tr></thead>
+              <tbody>
+                <tr data-lo="0" data-hi="0"><td>C</td><td>0</td><td>0</td></tr>
+                <tr data-lo="4" data-hi="16"><td>D</td><td>4–16</td><td>4–16</td></tr>
+                <tr data-lo="17" data-hi="32"><td>E</td><td>17–32</td><td>17–32</td></tr>
+                <tr data-lo="33" data-hi="48"><td>F</td><td>33–48</td><td>33–48</td></tr>
+                <tr data-lo="49" data-hi="64"><td>G</td><td>49–64</td><td>49–64</td></tr>
+                <tr data-lo="65" data-hi="80"><td>H</td><td>65–80</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="field-group" style="min-width:200px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--txM);margin-bottom:6px;">Table S11.7(b): Lumbar</div>
+            <table class="sev-table" id="sevTableLumbar">
+              <thead><tr><th>Ranking</th><th>Lumbar Pts</th></tr></thead>
+              <tbody>
+                <tr data-lo="0" data-hi="0"><td>D</td><td>0</td></tr>
+                <tr data-lo="4" data-hi="16"><td>E</td><td>4–16</td></tr>
+                <tr data-lo="17" data-hi="32"><td>F</td><td>17–32</td></tr>
+                <tr data-lo="33" data-hi="48"><td>G</td><td>33–48</td></tr>
+                <tr data-lo="49" data-hi="64"><td>H</td><td>49–64</td></tr>
+                <tr data-lo="65" data-hi="80"><td>I</td><td>65–80</td></tr>
+                <tr data-lo="81" data-hi="92"><td>J</td><td>81–92</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <table class="conversion-table" id="conversionTable">
-          <thead>
-            <tr>
-              <th>Points</th>
-              <th>SLU % of Extremity</th>
-              <th>Arm (312 wks)</th>
-              <th>Leg (288 wks)</th>
-            </tr>
-          </thead>
-          <tbody id="conversionBody">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
+        <p style="font-size:11px;color:var(--txM);margin-top:10px;line-height:1.6;">
+          The severity ranking letter is used with Table 11.1 (Non-Surgically Treated Soft Tissue Conditions) or Table 11.2 (Surgically Treated Spine Conditions) to place the claimant within the appropriate Medical Impairment Class. Per Table S11.4(b), for each additional root in the same spinal region, the severity ranking increases by one letter per level (max 3 letters).
+        </p>
       </div>
     </div>
 
@@ -391,36 +378,29 @@
       </div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
-          Under the 2012 NYS Impairment Guidelines, radiculopathy — nerve root compression causing radiating pain, sensory loss, or motor deficits — is evaluated using a point-based scoring system across four clinical categories defined in Sections S11.4 through S11.7. The total points determine the Schedule Loss of Use (SLU) percentage assigned to the affected extremity.
+          Under the 2012 NYS Impairment Guidelines, radiculopathy is scored using a point system defined in Table S11.4. Points are accumulated across six categories of objective clinical findings: imaging, EMG, muscle weakness, muscle atrophy, sensory involvement, reflex changes, and tension/compression signs. The total determines a severity ranking letter via Tables S11.7(a) or S11.7(b).
         </p>
         <div class="info-grid">
           <div class="info-card">
-            <h4>§S11.4 — Sensory Loss / Pain (0–3 pts)</h4>
-            <p>Scores the degree of sensory deficit in the affected dermatomal distribution, from no loss to severe/constant dysesthesias.</p>
+            <h4>Table S11.4 — Main Scoring</h4>
+            <p>Six categories of objective findings, each scored Yes/No or by grade. Imaging (0 or 16), EMG (0 or 6), Muscle Weakness (0–20 per S11.4(a)), Atrophy (0 or 6), Sensory (0–6 per S11.4(b)), Reflexes (0–6), Tension Signs (0 or 4).</p>
           </div>
           <div class="info-card">
-            <h4>§S11.5 — Loss of Power (0–3 pts)</h4>
-            <p>Scores motor deficit by manual muscle testing grade in the affected myotome. 5/5 = 0 pts, down to 2/5 or less = 3 pts.</p>
+            <h4>Tables S11.5 &amp; S11.6 — Nerve Root Caps</h4>
+            <p>Maximum point values for sensory deficit and weakness by specific nerve root. E.g., C5 allows max 0 sensory / 10 weakness; L4 allows max 4 sensory / 24 weakness. These cap the S11.4 scores.</p>
           </div>
           <div class="info-card">
-            <h4>§S11.6 — Loss of Reflexes (0–2 pts)</h4>
-            <p>Scores deep tendon reflex changes at the affected level. Normal = 0 pts, diminished = 1 pt, absent = 2 pts.</p>
+            <h4>Tables S11.7(a) &amp; S11.7(b) — Severity Ranking</h4>
+            <p>Total points map to a letter (C through H for cervical, D through J for lumbar). This letter determines placement within the Medical Impairment Class from Tables 11.1 or 11.2.</p>
           </div>
           <div class="info-card">
-            <h4>§S11.7 — Electrodiagnostic (0–3 pts)</h4>
-            <p>Scores EMG/NCV findings from normal to severe denervation with absent motor units or significant conduction block.</p>
+            <h4>Multi-Level Radiculopathy</h4>
+            <p>Per Table S11.4(b) note: for each additional nerve root in the same spinal region, the severity ranking is increased by one letter per level, up to a maximum of 3 letters.</p>
           </div>
         </div>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
-          The affected nerve root determines which extremity is evaluated: cervical roots (C4–C8) are assessed as loss of use of the arm (312 weeks maximum under WCL §15(3)), while lumbar/sacral roots (L3–S1) are assessed as loss of use of the leg (288 weeks maximum).
-        </p>
-        <p style="color:var(--txD);line-height:1.8;">
-          Actual SLU awards depend on the totality of medical evidence, the treating physician's and IME physician's opinions, and the Workers' Compensation Board judge's determination. The point system provides a structured framework for evaluating impairment, but the Board retains discretion in all findings.
-        </p>
       </div>
     </div>
 
-    <!-- App CTA -->
     <div class="upgrade-banner">
       <div class="upgrade-title">Full-Featured Mobile App</div>
       <div class="upgrade-description">Calculate SLU awards, manage hearings, and generate fee applications on the go.</div>
@@ -428,14 +408,14 @@
     </div>
 
     <div class="disclaimer" style="margin-top:12px;">
-      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. Point-to-SLU conversion values are preliminary and must be verified against the 2012 NYS Impairment Guidelines. Actual SLU awards are determined by the Workers' Compensation Board based on all medical and vocational evidence. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
+      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. It implements the point system from the 2012 NYS Impairment Guidelines (Tables S11.4–S11.7). The severity ranking output must be used with Tables 11.1 or 11.2 to determine the final Medical Impairment Class. Actual findings are determined by the Workers' Compensation Board based on all medical evidence. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
     </div>
   </div>
 
   <noscript>
     <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
       <h2>NYS Radiculopathy Calculator</h2>
-      <p>This interactive calculator requires JavaScript. Please enable JavaScript to use the 2012 Impairment Guidelines point system for radiculopathy SLU calculations.</p>
+      <p>This interactive calculator requires JavaScript. Please enable JavaScript to use the 2012 Impairment Guidelines radiculopathy point system (Tables S11.4–S11.7).</p>
     </div>
   </noscript>
 
@@ -444,256 +424,222 @@
     import { renderPublicNav } from '../js/nav.js';
 
     /* ==============================
-       DATA TABLES
+       DATA: Tables S11.5, S11.6
+       Max sensory/motor values per nerve root
        ============================== */
 
     const nerveLevels = {
       cervical: [
-        { value: 'C4', label: 'C4 — shoulder / neck' },
-        { value: 'C5', label: 'C5 — shoulder / upper arm (deltoid, biceps)' },
-        { value: 'C6', label: 'C6 — thumb / index finger (wrist extensors)' },
-        { value: 'C7', label: 'C7 — middle finger / triceps' },
-        { value: 'C8', label: 'C8 — ring / little finger (hand intrinsics)' },
+        { value: 'C5', label: 'C5 — shoulder / upper arm', maxSensory: 0,  maxMotor: 10 },
+        { value: 'C6', label: 'C6 — thumb / wrist extensors', maxSensory: 6,  maxMotor: 10 },
+        { value: 'C7', label: 'C7 — middle finger / triceps', maxSensory: 6,  maxMotor: 10 },
+        { value: 'C8', label: 'C8 — ring & small finger / hand intrinsics', maxSensory: 4,  maxMotor: 12 },
+        { value: 'T1', label: 'T1 — hand intrinsics', maxSensory: 0,  maxMotor: 12 },
       ],
       lumbar: [
-        { value: 'L3', label: 'L3 — anterior thigh (quadriceps)' },
-        { value: 'L4', label: 'L4 — anterior leg / knee (tibialis anterior)' },
-        { value: 'L5', label: 'L5 — lateral leg / dorsum foot (EHL, peroneals)' },
-        { value: 'S1', label: 'S1 — posterior leg / plantar foot (gastrocnemius)' },
+        { value: 'L3', label: 'L3 — anterior thigh / quadriceps', maxSensory: 0,  maxMotor: 12 },
+        { value: 'L4', label: 'L4 — anterior leg / tibialis anterior', maxSensory: 4,  maxMotor: 24 },
+        { value: 'L5', label: 'L5 — dorsum foot / peroneals, EHL', maxSensory: 4,  maxMotor: 16 },
+        { value: 'S1', label: 'S1 — plantar foot / gastrocnemius', maxSensory: 6,  maxMotor: 18 },
       ]
     };
 
-    const extremityMap = {
-      cervical: { label: 'Arm', maxWeeks: 312 },
-      lumbar:   { label: 'Leg', maxWeeks: 288 }
-    };
+    /* Table S11.7(a): Cervical severity rankings */
+    const cervicalRanks = [
+      { letter: 'C', lo: 0,  hi: 0  },
+      { letter: 'D', lo: 4,  hi: 16 },
+      { letter: 'E', lo: 17, hi: 32 },
+      { letter: 'F', lo: 33, hi: 48 },
+      { letter: 'G', lo: 49, hi: 64 },
+      { letter: 'H', lo: 65, hi: 80 },
+    ];
 
-    /*  POINT-TO-SLU CONVERSION TABLE
-        ──────────────────────────────
-        These values are PRELIMINARY. Joel: verify each row against
-        your copy of the 2012 NYS Impairment Guidelines.
-        Format: points → SLU % of affected extremity.            */
-    const pointToSLU = {
-      0:  0,
-      1:  5,
-      2:  7.5,
-      3:  10,
-      4:  15,
-      5:  20,
-      6:  25,
-      7:  30,
-      8:  35,
-      9:  40,
-      10: 45,
-      11: 50
-    };
-
-    const MAX_RATES = [
-      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025+",               max: 1222.42 },
-      { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025", max: 1171.46 },
-      { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024", max: 1145.43 },
-      { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023", max: 1125.46 },
-      { s: "2021-07-01", e: "2022-06-30", l: "Jul 1, 2021 – Jun 30, 2022", max: 1063.05 },
-      { s: "2020-07-01", e: "2021-06-30", l: "Jul 1, 2020 – Jun 30, 2021", max: 966.78  },
-      { s: "2019-07-01", e: "2020-06-30", l: "Jul 1, 2019 – Jun 30, 2020", max: 934.11  },
-      { s: "2018-07-01", e: "2019-06-30", l: "Jul 1, 2018 – Jun 30, 2019", max: 904.74  },
-      { s: "2017-07-01", e: "2018-06-30", l: "Jul 1, 2017 – Jun 30, 2018", max: 870.61  },
-      { s: "2016-07-01", e: "2017-06-30", l: "Jul 1, 2016 – Jun 30, 2017", max: 864.32  },
-      { s: "2015-07-01", e: "2016-06-30", l: "Jul 1, 2015 – Jun 30, 2016", max: 844.29  },
-      { s: "2014-07-01", e: "2015-06-30", l: "Jul 1, 2014 – Jun 30, 2015", max: 808.65  },
-      { s: "2013-07-01", e: "2014-06-30", l: "Jul 1, 2013 – Jun 30, 2014", max: 803.21  },
-      { s: "2012-07-01", e: "2013-06-30", l: "Jul 1, 2012 – Jun 30, 2013", max: 792.07  },
-      { s: "2011-07-01", e: "2012-06-30", l: "Jul 1, 2011 – Jun 30, 2012", max: 772.96  },
-      { s: "2010-07-01", e: "2011-06-30", l: "Jul 1, 2010 – Jun 30, 2011", max: 739.83  },
-      { s: "2009-07-01", e: "2010-06-30", l: "Jul 1, 2009 – Jun 30, 2010", max: 600.00  },
-      { s: "2008-07-01", e: "2009-06-30", l: "Jul 1, 2008 – Jun 30, 2009", max: 550.00  },
-      { s: "2007-07-01", e: "2008-06-30", l: "Jul 1, 2007 – Jun 30, 2008", max: 500.00  },
-      { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400.00  },
+    /* Table S11.7(b): Lumbar severity rankings */
+    const lumbarRanks = [
+      { letter: 'D', lo: 0,  hi: 0  },
+      { letter: 'E', lo: 4,  hi: 16 },
+      { letter: 'F', lo: 17, hi: 32 },
+      { letter: 'G', lo: 33, hi: 48 },
+      { letter: 'H', lo: 49, hi: 64 },
+      { letter: 'I', lo: 65, hi: 80 },
+      { letter: 'J', lo: 81, hi: 92 },
     ];
 
     /* ==============================
-       UTILITY FUNCTIONS
-       ============================== */
-
-    function getMaxForDate(dateStr) {
-      if (!dateStr) return MAX_RATES[0];
-      const dt = new Date(dateStr + 'T00:00:00');
-      for (const r of MAX_RATES) {
-        if (dt >= new Date(r.s + 'T00:00:00') && dt <= new Date(r.e + 'T23:59:59')) return r;
-      }
-      return MAX_RATES[MAX_RATES.length - 1];
-    }
-
-    function formatCurrency(v) {
-      return '$' + parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function getRadioValue(name) {
-      const el = document.querySelector(`input[name="${name}"]:checked`);
-      return el ? parseInt(el.value) : 0;
-    }
-
-    /* ==============================
-       COMP RATE
-       ============================== */
-
-    function updateCompRate() {
-      const aww     = parseFloat(document.getElementById('awwInput').value) || 0;
-      const maxRate = parseFloat(document.getElementById('maxRateInput').value) || 1222.42;
-      const cr      = Math.min(aww * (2 / 3), maxRate);
-      document.getElementById('compRate').value = cr.toFixed(2);
-      document.getElementById('compRateDisplay').textContent = aww > 0 ? formatCurrency(cr) : '—';
-      calculate();
-    }
-
-    /* ==============================
-       NERVE LEVEL POPULATION
+       POPULATE NERVE LEVELS
        ============================== */
 
     function populateNerveLevels() {
       const region = document.getElementById('spineRegion').value;
       const select = document.getElementById('nerveLevel');
       select.innerHTML = '<option value="">Select nerve root...</option>';
+
+      const capWrap = document.getElementById('capTableWrap');
+      const capTitle = document.getElementById('capTableTitle');
+      const capBody = document.getElementById('capTableBody');
+
       if (!region) {
         select.innerHTML = '<option value="">Select region first...</option>';
-        document.getElementById('affectedExtremity').value = '—';
+        capWrap.style.display = 'none';
         return;
       }
-      nerveLevels[region].forEach(n => {
+
+      const levels = nerveLevels[region];
+      levels.forEach(n => {
         const opt = document.createElement('option');
         opt.value = n.value;
         opt.textContent = n.label;
         select.appendChild(opt);
       });
-      const ext = extremityMap[region];
-      document.getElementById('affectedExtremity').value = `${ext.label} (${ext.maxWeeks} weeks max)`;
-      calculate();
+
+      // Show nerve root cap table
+      const tableNum = region === 'cervical' ? 'S11.5' : 'S11.6';
+      const ext = region === 'cervical' ? 'Upper Extremity' : 'Lower Extremity';
+      capTitle.textContent = `Table ${tableNum}: Spinal Nerve Root Impairment — ${ext}`;
+      capBody.innerHTML = '';
+      levels.forEach(n => {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-root', n.value);
+        tr.innerHTML = `<td>${n.value}</td><td>${n.maxSensory}</td><td>${n.maxMotor}</td>`;
+        capBody.appendChild(tr);
+      });
+      capWrap.style.display = 'block';
+
+      recalculate();
     }
 
     /* ==============================
-       POINT SCORING & CALCULATION
+       RECALCULATE
        ============================== */
 
-    let currentUser = null;
-    let hasCalculated = false;
-
-    function updatePointDisplays() {
-      const sensory = getRadioValue('sensory');
-      const motor   = getRadioValue('motor');
-      const reflex  = getRadioValue('reflex');
-      const emg     = getRadioValue('emg');
-      const total   = sensory + motor + reflex + emg;
-
-      document.getElementById('sensory-pts').textContent = sensory + ' pt' + (sensory !== 1 ? 's' : '');
-      document.getElementById('motor-pts').textContent   = motor   + ' pt' + (motor   !== 1 ? 's' : '');
-      document.getElementById('reflex-pts').textContent  = reflex  + ' pt' + (reflex  !== 1 ? 's' : '');
-      document.getElementById('emg-pts').textContent     = emg     + ' pt' + (emg     !== 1 ? 's' : '');
-      document.getElementById('totalPoints').textContent  = total;
-
-      highlightConversionRow(total);
-      calculate();
+    function getSelectedNerve() {
+      const region = document.getElementById('spineRegion').value;
+      const root = document.getElementById('nerveLevel').value;
+      if (!region || !root) return null;
+      return nerveLevels[region].find(n => n.value === root) || null;
     }
 
-    function calculate() {
-      const region   = document.getElementById('spineRegion').value;
-      const compRate = parseFloat(document.getElementById('compRate').value) || 0;
+    function recalculate() {
+      const region = document.getElementById('spineRegion').value;
+      const nerve = getSelectedNerve();
 
-      const total = getRadioValue('sensory') + getRadioValue('motor') + getRadioValue('reflex') + getRadioValue('emg');
+      // Raw scores
+      const rawImaging  = parseInt(document.getElementById('score_imaging').value) || 0;
+      const rawEmg      = parseInt(document.getElementById('score_emg').value) || 0;
+      let   rawMotor    = parseInt(document.getElementById('score_motor').value) || 0;
+      const rawAtrophy  = parseInt(document.getElementById('score_atrophy').value) || 0;
+      let   rawSensory  = parseInt(document.getElementById('score_sensory').value) || 0;
+      const rawReflex   = parseInt(document.getElementById('score_reflex').value) || 0;
+      const rawTension  = parseInt(document.getElementById('score_tension').value) || 0;
 
-      const resultPts = document.getElementById('resultPoints');
-      const sluEl     = document.getElementById('sluPercent');
-      const weeksEl   = document.getElementById('weeksResult');
-      const awardEl   = document.getElementById('awardResult');
-      const bpLabel   = document.getElementById('bodyPartLabel');
-      const mwLabel   = document.getElementById('maxWeeksLabel');
-      const rLabel    = document.getElementById('rateLabel');
+      // Apply nerve root caps from S11.5/S11.6
+      let cappedMotor = rawMotor;
+      let cappedSensory = rawSensory;
+      let capMessages = [];
 
-      if (!region || compRate <= 0) {
-        resultPts.textContent = sluEl.textContent = weeksEl.textContent = awardEl.textContent = '—';
-        bpLabel.textContent = mwLabel.textContent = rLabel.textContent = '—';
+      if (nerve) {
+        if (rawMotor > nerve.maxMotor) {
+          cappedMotor = nerve.maxMotor;
+          capMessages.push(`Motor capped: ${rawMotor} → ${nerve.maxMotor} (${nerve.value} max weakness per Table ${region === 'cervical' ? 'S11.5' : 'S11.6'})`);
+        }
+        if (rawSensory > nerve.maxSensory) {
+          cappedSensory = nerve.maxSensory;
+          capMessages.push(`Sensory capped: ${rawSensory} → ${nerve.maxSensory} (${nerve.value} max sensory deficit per Table ${region === 'cervical' ? 'S11.5' : 'S11.6'})`);
+        }
+      }
+
+      // Display individual point values
+      document.getElementById('pts_imaging').textContent = rawImaging;
+      document.getElementById('pts_emg').textContent = rawEmg;
+      document.getElementById('pts_motor').textContent = nerve ? cappedMotor : rawMotor;
+      document.getElementById('pts_atrophy').textContent = rawAtrophy;
+      document.getElementById('pts_sensory').textContent = nerve ? cappedSensory : rawSensory;
+      document.getElementById('pts_reflex').textContent = rawReflex;
+      document.getElementById('pts_tension').textContent = rawTension;
+
+      // Total
+      const total = rawImaging + rawEmg + (nerve ? cappedMotor : rawMotor) + rawAtrophy + (nerve ? cappedSensory : rawSensory) + rawReflex + rawTension;
+      document.getElementById('totalPoints').textContent = total;
+
+      // Cap notice
+      const capNotice = document.getElementById('capNotice');
+      if (capMessages.length > 0) {
+        capNotice.innerHTML = capMessages.join('<br>');
+        capNotice.style.display = 'block';
+      } else {
+        capNotice.style.display = 'none';
+      }
+
+      // Highlight active row in nerve root cap table
+      document.querySelectorAll('#capTableBody tr').forEach(tr => {
+        tr.classList.toggle('active', nerve && tr.getAttribute('data-root') === nerve.value);
+      });
+
+      // Determine severity ranking
+      const sevResult = document.getElementById('severityResult');
+      const ranks = region === 'cervical' ? cervicalRanks : region === 'lumbar' ? lumbarRanks : null;
+
+      // Clear both severity table highlights
+      document.querySelectorAll('#sevTableCervical tbody tr, #sevTableLumbar tbody tr').forEach(tr => tr.classList.remove('active'));
+
+      if (!region || total === 0) {
+        sevResult.style.display = 'none';
+        // If region selected and total is 0, show the baseline rank
+        if (region && total === 0) {
+          sevResult.style.display = 'flex';
+          const baseRank = ranks[0];
+          document.getElementById('severityLetter').textContent = baseRank.letter;
+          document.getElementById('severityRange').textContent = '0 points';
+          document.getElementById('severityNote').textContent = `Use ranking "${baseRank.letter}" with Table 11.1 or 11.2`;
+          highlightSevRow(region, 0);
+        }
         return;
       }
 
-      const ext    = extremityMap[region];
-      const sluPct = pointToSLU[total] || 0;
-      const weeks  = (sluPct / 100) * ext.maxWeeks;
-      const award  = weeks * compRate;
-
-      resultPts.textContent = total + ' / 11';
-      sluEl.textContent     = sluPct + '%';
-      weeksEl.textContent   = weeks.toFixed(1);
-      awardEl.textContent   = formatCurrency(award);
-      bpLabel.textContent   = ext.label;
-      mwLabel.textContent   = ext.maxWeeks + ' wks';
-      rLabel.textContent    = formatCurrency(compRate);
-
-      if (!hasCalculated && total > 0) {
-        hasCalculated = true;
-        showSavePrompt();
-      }
-    }
-
-    /* ==============================
-       CONVERSION TABLE
-       ============================== */
-
-    function buildConversionTable() {
-      const tbody = document.getElementById('conversionBody');
-      tbody.innerHTML = '';
-      for (let pts = 0; pts <= 11; pts++) {
-        const pct      = pointToSLU[pts];
-        const armWeeks = ((pct / 100) * 312).toFixed(1);
-        const legWeeks = ((pct / 100) * 288).toFixed(1);
-        const tr = document.createElement('tr');
-        tr.setAttribute('data-pts', pts);
-        tr.innerHTML = `<td>${pts}</td><td>${pct}%</td><td>${armWeeks} wks</td><td>${legWeeks} wks</td>`;
-        tbody.appendChild(tr);
-      }
-    }
-
-    function highlightConversionRow(activePts) {
-      document.querySelectorAll('#conversionBody tr').forEach(tr => {
-        tr.querySelectorAll('td').forEach(td => td.classList.remove('active'));
-        if (parseInt(tr.getAttribute('data-pts')) === activePts) {
-          tr.querySelectorAll('td').forEach(td => td.classList.add('active'));
+      if (ranks) {
+        let found = null;
+        for (const r of ranks) {
+          if (total >= r.lo && total <= r.hi) { found = r; break; }
+          // Handle gaps (points 1-3 fall between C/D=0 and D/E=4-16)
+          if (total < r.lo && !found) { found = r; break; }
         }
-      });
+        if (!found) found = ranks[ranks.length - 1]; // max
+
+        sevResult.style.display = 'flex';
+        document.getElementById('severityLetter').textContent = found.letter;
+        document.getElementById('severityRange').textContent = found.lo === found.hi ? `${found.lo} points` : `${found.lo}–${found.hi} points`;
+        document.getElementById('severityNote').textContent = `Use ranking "${found.letter}" with Table 11.1 or 11.2`;
+        highlightSevRow(region, total);
+      }
     }
 
-    /* ==============================
-       SAVE PROMPT
-       ============================== */
-
-    function showSavePrompt() {
-      const prompt  = document.getElementById('save-prompt');
-      const text    = document.getElementById('save-prompt-text');
-      const actions = document.getElementById('save-prompt-actions');
-      if (!prompt) return;
-
-      if (!currentUser || !currentUser.session) {
-        text.textContent = 'Want to save this calculation?';
-        actions.innerHTML = `<a href="/auth_v2.html?mode=signup">Create free account</a>`;
-      } else {
-        text.textContent = 'Save this calculation to your history.';
-        actions.innerHTML = `<button id="sp-btn">Save</button>`;
-        document.getElementById('sp-btn').addEventListener('click', async () => {
-          const ok = await saveCalculation(currentUser.session.user.id, 'radiculopathy', {
-            region: document.getElementById('spineRegion').value,
-            nerveLevel: document.getElementById('nerveLevel').value,
-            sensory: getRadioValue('sensory'),
-            motor: getRadioValue('motor'),
-            reflex: getRadioValue('reflex'),
-            emg: getRadioValue('emg'),
-            totalPoints: getRadioValue('sensory') + getRadioValue('motor') + getRadioValue('reflex') + getRadioValue('emg'),
-            compRate: document.getElementById('compRate').value,
-            sluPercent: document.getElementById('sluPercent').textContent,
-            weeks: document.getElementById('weeksResult').textContent,
-            award: document.getElementById('awardResult').textContent
-          });
-          document.getElementById('sp-btn').textContent = ok ? 'Saved!' : 'Error';
-        });
+    function highlightSevRow(region, total) {
+      const tableId = region === 'cervical' ? 'sevTableCervical' : 'sevTableLumbar';
+      document.querySelectorAll(`#${tableId} tbody tr`).forEach(tr => {
+        const lo = parseInt(tr.getAttribute('data-lo'));
+        const hi = parseInt(tr.getAttribute('data-hi'));
+        const match = (total >= lo && total <= hi) || (total > 0 && total < lo && lo === parseInt(tr.getAttribute('data-lo')));
+        // More precise: find which bracket the total falls into
+        tr.classList.remove('active');
+      });
+      // Re-do with proper logic
+      const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+      let matched = false;
+      for (const tr of rows) {
+        const lo = parseInt(tr.getAttribute('data-lo'));
+        const hi = parseInt(tr.getAttribute('data-hi'));
+        if (!matched && total >= lo && total <= hi) {
+          tr.classList.add('active');
+          matched = true;
+        } else if (!matched && total < lo) {
+          // Falls in gap — highlight this bracket
+          tr.classList.add('active');
+          matched = true;
+        }
       }
-      prompt.style.display = 'flex';
+      if (!matched && rows.length > 0) {
+        rows[rows.length - 1].classList.add('active');
+      }
     }
 
     /* ==============================
@@ -701,24 +647,10 @@
        ============================== */
 
     document.getElementById('spineRegion').addEventListener('change', populateNerveLevels);
-    document.getElementById('nerveLevel').addEventListener('change', calculate);
+    document.getElementById('nerveLevel').addEventListener('change', recalculate);
 
-    // Point scoring radios
-    ['sensory', 'motor', 'reflex', 'emg'].forEach(name => {
-      document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
-        radio.addEventListener('change', updatePointDisplays);
-      });
-    });
-
-    document.getElementById('awwInput').addEventListener('input', updateCompRate);
-    document.getElementById('maxRateInput').addEventListener('input', updateCompRate);
-
-    document.getElementById('doiDate').addEventListener('change', () => {
-      const doi     = document.getElementById('doiDate').value;
-      const rateObj = getMaxForDate(doi);
-      document.getElementById('maxRateInput').value = rateObj.max.toFixed(2);
-      document.getElementById('maxRateHint').textContent = `Rate: ${formatCurrency(rateObj.max)} (${rateObj.l})`;
-      updateCompRate();
+    ['score_imaging', 'score_emg', 'score_motor', 'score_atrophy', 'score_sensory', 'score_reflex', 'score_tension'].forEach(id => {
+      document.getElementById(id).addEventListener('change', recalculate);
     });
 
     /* ==============================
@@ -726,10 +658,9 @@
        ============================== */
 
     document.addEventListener('DOMContentLoaded', async () => {
-      currentUser = await getOptionalUser();
+      const currentUser = await getOptionalUser();
       renderPublicNav(currentUser);
-      buildConversionTable();
-      updateCompRate();
+      recalculate();
     });
   </script>
 </body>
