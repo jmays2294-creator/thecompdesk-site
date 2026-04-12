@@ -10,8 +10,36 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://thecompdesk.com/calculators/">
   <meta property="og:image" content="https://thecompdesk.com/images/og-calculators.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NYS Workers' Compensation Calculators — Free Online Tools">
+  <meta name="twitter:description" content="Free NYS workers' compensation calculators for SLU, AWW, LWEC, awards, and rate lookups.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-calculators.png">
+
+  <!-- JSON-LD: WebApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "NYS Workers' Compensation Calculators",
+    "url": "https://thecompdesk.com/calculators/",
+    "description": "Free NYS workers' compensation calculators: SLU, AWW, LWEC, Award, Rates, and advanced tools.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "All",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
   <link rel="canonical" href="https://thecompdesk.com/calculators/">
   <link rel="stylesheet" href="../css/app.css">
+  <style>
+    .card-wrap{position:relative;display:block;}
+    .card-wrap .construction-banner{position:absolute;top:0;left:0;right:0;z-index:2;background:rgba(240,160,48,0.92);color:#1a1200;text-align:center;padding:5px 10px;border-radius:12px 12px 0 0;font-size:11px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;}
+    .card-wrap .construction-banner span{font-weight:600;text-transform:none;letter-spacing:0;opacity:0.8;}
+    .card-wrap.under-construction .card{border-color:rgba(240,160,48,0.4);opacity:0.85;}
+    .card-wrap.under-construction .card:hover{opacity:1;border-color:rgba(240,160,48,0.7);}
+  </style>
 </head>
 <body>
   <div id="app-nav"></div>
@@ -94,18 +122,8 @@
         </div>
       </a>
 
-      <a href="benefit-rate.html" style="text-decoration:none;color:inherit;">
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-            <div style="font-size:20px;">📊</div>
-            <span class="tier-badge free">Free</span>
-          </div>
-          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:5px;">Benefit Rate Lookup</div>
-          <div style="font-size:12px;color:var(--txM);line-height:1.5;">Weekly max &amp; min benefit rates for your DOI year — with a plain-English explainer.</div>
-        </div>
-      </a>
-
-      <a href="radiculopathy.html" style="text-decoration:none;color:inherit;">
+      <a href="radiculopathy.html" class="card-wrap under-construction" style="text-decoration:none;color:inherit;">
+        <div class="construction-banner">Under Construction <span>— verifying against guidelines</span></div>
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
             <div style="font-size:20px;">🧠</div>
@@ -116,7 +134,8 @@
         </div>
       </a>
 
-      <a href="spine-brain.html" style="text-decoration:none;color:inherit;">
+      <a href="spine-brain.html" class="card-wrap under-construction" style="text-decoration:none;color:inherit;">
+        <div class="construction-banner">Under Construction <span>— verifying against guidelines</span></div>
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
             <div style="font-size:20px;">🏥</div>
@@ -166,6 +185,5 @@
       renderPublicNav(user);
     });
   </script>
-<script src="/js/disclaimer.js" defer></script>
 </body>
 </html>
