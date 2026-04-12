@@ -102,12 +102,7 @@
     <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>https://thecompdesk.com/calculators/spine-brain.html</loc>
-    <lastmod>2026-04-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <!-- spine-brain.html removed 2026-04-12 — calculator retired -->
 
   <!-- ==================== LANDING PAGES ==================== -->
 
