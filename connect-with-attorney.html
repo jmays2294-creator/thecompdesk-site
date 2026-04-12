@@ -184,11 +184,93 @@
     .breadcrumb a{color:var(--txD);text-decoration:none;}
     .breadcrumb a:hover{color:var(--wh);}
 
+    /* Inline Intake CTA */
+    .intake-inline{text-align:center;margin-top:24px;}
+
+    /* Modal Overlay */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);justify-content:center;align-items:center;padding:20px;}
+    .modal-overlay.active{display:flex;}
+
+    /* Modal */
+    .modal{background:var(--card);border:1px solid var(--bd);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;animation:modalIn 0.25s ease;}
+    @keyframes modalIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--txM);font-size:24px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background 0.15s;}
+    .modal-close:hover{background:rgba(255,255,255,0.08);color:var(--wh);}
+    .modal-header{padding:32px 32px 0;text-align:center;}
+    .modal-header h3{font-size:22px;font-weight:800;color:var(--wh);margin-bottom:4px;}
+    .modal-header p{font-size:14px;color:var(--txD);}
+
+    /* Progress Steps */
+    .wiz-progress{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 32px 8px;}
+    .wiz-dot{width:10px;height:10px;border-radius:50%;background:var(--bd);transition:background 0.2s,transform 0.2s;}
+    .wiz-dot.active{background:var(--ac);transform:scale(1.3);}
+    .wiz-dot.done{background:var(--gn);}
+    .wiz-line{width:32px;height:2px;background:var(--bd);border-radius:2px;}
+    .wiz-line.done{background:var(--gn);}
+
+    /* Form */
+    .modal-body{padding:16px 32px 32px;}
+    .wiz-step{display:none;}
+    .wiz-step.active{display:block;}
+    .field{margin-bottom:16px;}
+    .field label{display:block;font-size:13px;font-weight:600;color:var(--txD);margin-bottom:6px;}
+    .field label .req{color:#ef4444;}
+    .field input,.field select,.field textarea{width:100%;background:rgba(6,8,15,0.6);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--wh);font-family:inherit;font-size:14px;outline:none;transition:border-color 0.15s;}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ac);}
+    .field input::placeholder,.field textarea::placeholder{color:var(--txM);}
+    .field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238899b4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+    .field select option{background:var(--card);color:var(--wh);}
+    .field textarea{resize:vertical;min-height:72px;}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media(max-width:480px){.field-row{grid-template-columns:1fr;}}
+    .field .hint{font-size:11px;color:var(--txM);margin-top:4px;}
+    .field .error-msg{font-size:12px;color:#ef4444;margin-top:4px;display:none;}
+    .field.has-error input,.field.has-error select,.field.has-error textarea{border-color:#ef4444;}
+    .field.has-error .error-msg{display:block;}
+
+    /* Consent checkboxes */
+    .consent{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;cursor:pointer;}
+    .consent input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--ac);flex-shrink:0;cursor:pointer;}
+    .consent span{font-size:12px;color:var(--txD);line-height:1.5;}
+
+    /* Honeypot */
+    .hp-field{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden;pointer-events:none;}
+
+    /* Buttons */
+    .wiz-btns{display:flex;gap:12px;margin-top:24px;}
+    .wiz-btns .btn-back{background:transparent;border:1px solid var(--bd);color:var(--txD);padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;transition:border-color 0.15s;}
+    .wiz-btns .btn-back:hover{border-color:var(--txD);}
+    .wiz-btns .btn-next{flex:1;background:var(--ac);color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+    .wiz-btns .btn-next:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,143,247,0.3);}
+    .wiz-btns .btn-next:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+    .btn-submit{width:100%;background:var(--gn);color:#0a1a14;padding:12px 24px;border-radius:8px;font-weight:800;font-size:15px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+    .btn-submit:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(45,212,160,0.3);}
+    .btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+    /* Confirmation */
+    .confirm-screen{text-align:center;padding:40px 32px;}
+    .confirm-screen .check{width:64px;height:64px;border-radius:50%;background:rgba(45,212,160,0.15);color:var(--gn);display:inline-flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px;}
+    .confirm-screen h3{font-size:22px;font-weight:800;color:var(--wh);margin-bottom:8px;}
+    .confirm-screen p{font-size:14px;color:var(--txD);line-height:1.7;max-width:400px;margin:0 auto;}
+    .confirm-screen .ref{font-family:var(--mono);font-size:13px;color:var(--ac);background:var(--acG);padding:4px 12px;border-radius:6px;display:inline-block;margin-top:16px;}
+
+    /* Spinner */
+    .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* Error banner */
+    .form-error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;}
+    .form-error.visible{display:block;}
+
     /* Responsive */
     @media(max-width:600px){
       nav .links a:not(.cta-btn){display:none;}
       .hero .cta-row{gap:12px;}
       .cta-btn{padding:8px 16px;font-size:13px;}
+      .modal{border-radius:12px;}
+      .modal-header{padding:24px 20px 0;}
+      .modal-body{padding:12px 20px 24px;}
+      .confirm-screen{padding:32px 20px;}
     }
   </style>
 </head>
@@ -219,8 +301,8 @@
       <h1>Connect with the Right <span>Attorney.</span> No Games.</h1>
       <p class="sub">A transparent, neutral attorney connection service for New York workers' compensation. Attorneys are assigned by neutral rotation. No paid placement. No referral fees. No endorsements. Just real representation.</p>
       <div class="cta-row">
-        <a href="#how-it-works" class="cta-btn">How It Works</a>
-        <a href="#for-attorneys" class="cta-btn outline">For Attorneys</a>
+        <button onclick="openWizard()" class="cta-btn" style="font-size:16px;padding:12px 28px;">Get Connected — Free</button>
+        <a href="#how-it-works" class="cta-btn outline">How It Works</a>
       </div>
     </div>
   </section>
@@ -246,6 +328,10 @@
           <h3>The Attorney Contacts You</h3>
           <p>A licensed NYS workers' compensation attorney will reach out within 48 hours. If they don't, we automatically connect you with another attorney.</p>
         </div>
+      </div>
+      <div class="intake-inline">
+        <button onclick="openWizard()" class="cta-btn green" style="font-size:16px;padding:14px 32px;">Start Your Case — It's Free</button>
+        <p style="color:var(--txM);font-size:12px;margin-top:10px;">No account needed. Takes about 2 minutes.</p>
       </div>
     </div>
   </section>
@@ -379,7 +465,7 @@
     <div class="wrap">
       <h2>Injured at Work?</h2>
       <p>Submit your case details and we'll connect you with a licensed NYS workers' compensation attorney. It's free, simple, and transparent.</p>
-      <a href="#how-it-works" class="cta-btn" style="font-size:16px;padding:14px 32px;">Get Connected</a>
+      <button onclick="openWizard()" class="cta-btn" style="font-size:16px;padding:14px 32px;">Get Connected — Free</button>
     </div>
   </section>
 
@@ -391,9 +477,545 @@
     </div>
   </footer>
 
-  <!-- FAQ Toggle Script -->
+  <!-- Intake Wizard Modal -->
+  <div class="modal-overlay" id="wizModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeWizard()" aria-label="Close">&times;</button>
+
+      <!-- Progress -->
+      <div class="wiz-progress" id="wizProgress">
+        <div class="wiz-dot active" data-step="1"></div>
+        <div class="wiz-line"></div>
+        <div class="wiz-dot" data-step="2"></div>
+        <div class="wiz-line"></div>
+        <div class="wiz-dot" data-step="3"></div>
+      </div>
+
+      <form id="wizForm" novalidate autocomplete="on">
+        <!-- Honeypot -->
+        <div class="hp-field" aria-hidden="true">
+          <input type="text" name="_hp" tabindex="-1" autocomplete="off">
+        </div>
+
+        <!-- STEP 1: Case Info -->
+        <div class="wiz-step active" data-step="1">
+          <div class="modal-header">
+            <h3>Tell Us About Your Case</h3>
+            <p>We'll match you with an attorney in your area.</p>
+          </div>
+          <div class="modal-body">
+            <div class="form-error" id="err1"></div>
+
+            <div class="field">
+              <label>County <span class="req">*</span></label>
+              <select name="county" required>
+                <option value="">Select your county...</option>
+                <option value="Albany">Albany</option>
+                <option value="Allegany">Allegany</option>
+                <option value="Bronx">Bronx</option>
+                <option value="Broome">Broome</option>
+                <option value="Cattaraugus">Cattaraugus</option>
+                <option value="Cayuga">Cayuga</option>
+                <option value="Chautauqua">Chautauqua</option>
+                <option value="Chemung">Chemung</option>
+                <option value="Chenango">Chenango</option>
+                <option value="Clinton">Clinton</option>
+                <option value="Columbia">Columbia</option>
+                <option value="Cortland">Cortland</option>
+                <option value="Delaware">Delaware</option>
+                <option value="Dutchess">Dutchess</option>
+                <option value="Erie">Erie</option>
+                <option value="Essex">Essex</option>
+                <option value="Franklin">Franklin</option>
+                <option value="Fulton">Fulton</option>
+                <option value="Genesee">Genesee</option>
+                <option value="Greene">Greene</option>
+                <option value="Hamilton">Hamilton</option>
+                <option value="Herkimer">Herkimer</option>
+                <option value="Jefferson">Jefferson</option>
+                <option value="Kings (Brooklyn)">Kings (Brooklyn)</option>
+                <option value="Lewis">Lewis</option>
+                <option value="Livingston">Livingston</option>
+                <option value="Madison">Madison</option>
+                <option value="Monroe">Monroe</option>
+                <option value="Montgomery">Montgomery</option>
+                <option value="Nassau">Nassau</option>
+                <option value="New York (Manhattan)">New York (Manhattan)</option>
+                <option value="Niagara">Niagara</option>
+                <option value="Oneida">Oneida</option>
+                <option value="Onondaga">Onondaga</option>
+                <option value="Ontario">Ontario</option>
+                <option value="Orange">Orange</option>
+                <option value="Orleans">Orleans</option>
+                <option value="Oswego">Oswego</option>
+                <option value="Otsego">Otsego</option>
+                <option value="Putnam">Putnam</option>
+                <option value="Queens">Queens</option>
+                <option value="Rensselaer">Rensselaer</option>
+                <option value="Richmond (Staten Island)">Richmond (Staten Island)</option>
+                <option value="Rockland">Rockland</option>
+                <option value="Saratoga">Saratoga</option>
+                <option value="Schenectady">Schenectady</option>
+                <option value="Schoharie">Schoharie</option>
+                <option value="Schuyler">Schuyler</option>
+                <option value="Seneca">Seneca</option>
+                <option value="St. Lawrence">St. Lawrence</option>
+                <option value="Steuben">Steuben</option>
+                <option value="Suffolk">Suffolk</option>
+                <option value="Sullivan">Sullivan</option>
+                <option value="Tioga">Tioga</option>
+                <option value="Tompkins">Tompkins</option>
+                <option value="Ulster">Ulster</option>
+                <option value="Warren">Warren</option>
+                <option value="Washington">Washington</option>
+                <option value="Wayne">Wayne</option>
+                <option value="Westchester">Westchester</option>
+                <option value="Wyoming">Wyoming</option>
+                <option value="Yates">Yates</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Injury Type <span class="req">*</span></label>
+              <select name="injury_type" required>
+                <option value="">Select injury type...</option>
+                <option value="Back / Spine">Back / Spine</option>
+                <option value="Neck / Cervical">Neck / Cervical</option>
+                <option value="Knee">Knee</option>
+                <option value="Shoulder">Shoulder</option>
+                <option value="Hip">Hip</option>
+                <option value="Ankle / Foot">Ankle / Foot</option>
+                <option value="Wrist / Hand">Wrist / Hand</option>
+                <option value="Head / Brain (TBI)">Head / Brain (TBI)</option>
+                <option value="Repetitive Stress / Carpal Tunnel">Repetitive Stress / Carpal Tunnel</option>
+                <option value="Occupational Disease">Occupational Disease</option>
+                <option value="Multiple Body Parts">Multiple Body Parts</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Case Stage <span class="req">*</span></label>
+              <select name="case_stage" required>
+                <option value="">Where are you in the process?</option>
+                <option value="New Injury — Not Filed">New Injury — Haven't Filed a Claim Yet</option>
+                <option value="Claim Filed — Waiting">Claim Filed — Waiting for Hearing</option>
+                <option value="Open Case — Have Attorney">Open Case — Looking to Switch Attorneys</option>
+                <option value="Claim Denied">My Claim Was Denied</option>
+                <option value="Settled / Closed — Reopening">Previously Settled — Want to Reopen</option>
+                <option value="Not Sure">Not Sure / Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Date of Injury <span class="req">*</span></label>
+              <input type="date" name="date_of_accident" required max="">
+              <div class="hint">Approximate date is fine.</div>
+            </div>
+
+            <div class="wiz-btns">
+              <button type="button" class="btn-next" onclick="wizNext(1)">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Injury Details -->
+        <div class="wiz-step" data-step="2">
+          <div class="modal-header">
+            <h3>A Few More Details</h3>
+            <p>Help the attorney understand your situation.</p>
+          </div>
+          <div class="modal-body">
+            <div class="form-error" id="err2"></div>
+
+            <div class="field">
+              <label>Employer Name <span class="req">*</span></label>
+              <input type="text" name="employer_name" placeholder="Company you were working for" required autocomplete="organization">
+            </div>
+
+            <div class="field">
+              <label>What Happened? <span class="req">*</span></label>
+              <textarea name="accident_description" placeholder="Briefly describe how the injury occurred (e.g., 'Fell from scaffold at construction site')" required minlength="20" maxlength="1500"></textarea>
+              <div class="hint">At least a couple of sentences.</div>
+            </div>
+
+            <div class="field">
+              <label>Body Parts Injured <span class="req">*</span></label>
+              <textarea name="injuries" placeholder="List all injured body parts (e.g., 'Lower back, left knee, right shoulder')" required minlength="5" maxlength="1000" style="min-height:56px;"></textarea>
+            </div>
+
+            <div class="wiz-btns">
+              <button type="button" class="btn-back" onclick="wizBack(2)">Back</button>
+              <button type="button" class="btn-next" onclick="wizNext(2)">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: Contact Info + Consent -->
+        <div class="wiz-step" data-step="3">
+          <div class="modal-header">
+            <h3>How Should We Reach You?</h3>
+            <p>An attorney will contact you within 48 hours.</p>
+          </div>
+          <div class="modal-body">
+            <div class="form-error" id="err3"></div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>First Name <span class="req">*</span></label>
+                <input type="text" name="first_name" placeholder="First name" required autocomplete="given-name">
+              </div>
+              <div class="field">
+                <label>Last Name <span class="req">*</span></label>
+                <input type="text" name="last_name" placeholder="Last name" required autocomplete="family-name">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Phone <span class="req">*</span></label>
+                <input type="tel" name="phone" placeholder="(555) 123-4567" required autocomplete="tel">
+              </div>
+              <div class="field">
+                <label>Email <span class="req">*</span></label>
+                <input type="email" name="email" placeholder="you@email.com" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Best Way to Reach You</label>
+              <select name="preferred_contact">
+                <option value="either">Phone or Email — Either is Fine</option>
+                <option value="phone">Phone Call Preferred</option>
+                <option value="email">Email Preferred</option>
+              </select>
+            </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bd);">
+              <label class="consent">
+                <input type="checkbox" name="tcpa_consent" required>
+                <span>I agree to be contacted by a participating attorney by phone, text, or email regarding my workers' compensation case. I understand this is a free service and I am not obligated to retain any attorney. <span class="req">*</span></span>
+              </label>
+
+              <label class="consent">
+                <input type="checkbox" name="disclaimer_ack" required>
+                <span>I understand that The Comp Desk does not endorse or recommend any attorney. Assignment is mechanical and neutral. No attorney-client relationship is created until I choose to retain an attorney. <span class="req">*</span></span>
+              </label>
+            </div>
+
+            <!-- Cloudflare Turnstile widget -->
+            <div id="turnstile-container" style="margin-top:16px;display:flex;justify-content:center;"></div>
+
+            <div class="wiz-btns" style="margin-top:20px;">
+              <button type="button" class="btn-back" onclick="wizBack(3)">Back</button>
+              <button type="submit" class="btn-submit" id="submitBtn">Submit My Case</button>
+            </div>
+
+            <p style="font-size:11px;color:var(--txM);text-align:center;margin-top:12px;">Your information is encrypted and only shared with one attorney at a time.</p>
+          </div>
+        </div>
+      </form>
+
+      <!-- Confirmation Screen -->
+      <div class="wiz-step" data-step="confirm" id="confirmScreen" style="display:none;">
+        <div class="confirm-screen">
+          <div class="check">&#10003;</div>
+          <h3>You're All Set</h3>
+          <p>Your case details have been submitted. A licensed NYS workers' compensation attorney will contact you within <strong style="color:var(--wh);">48 hours</strong>.</p>
+          <p style="margin-top:12px;">If the attorney doesn't reach out in time, we'll automatically connect you with the next available attorney in your area.</p>
+          <div class="ref" id="confirmRef"></div>
+          <button onclick="closeWizard()" class="cta-btn" style="margin-top:24px;">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+
   <script>
-    // Smooth scroll for anchor links
+    // ── Config ──────────────────────────────────────────────────
+    const SUPABASE_URL  = 'https://ltibymvlytodkemdeeox.supabase.co';
+    const EDGE_FN_URL   = SUPABASE_URL + '/functions/v1/submit-attorney-lead';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+    // Turnstile: use test key in dev, replace with real key in production
+    const TURNSTILE_SITE_KEY = '0x4AAAAAABcKJ1234567890A'; // Replace with real Cloudflare Turnstile site key
+
+    let currentStep = 1;
+    let turnstileWidgetId = null;
+    let turnstileToken = '';
+
+    // ── Set max date on DOA field ───────────────────────────────
+    const doaField = document.querySelector('input[name="date_of_accident"]');
+    if (doaField) doaField.max = new Date().toISOString().split('T')[0];
+
+    // ── Modal open/close ────────────────────────────────────────
+    function openWizard() {
+      document.getElementById('wizModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      // Render Turnstile when modal opens (only once)
+      if (turnstileWidgetId === null && window.turnstile) {
+        renderTurnstile();
+      }
+    }
+
+    function closeWizard() {
+      document.getElementById('wizModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Close on overlay click
+    document.getElementById('wizModal').addEventListener('click', function(e) {
+      if (e.target === this) closeWizard();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeWizard();
+    });
+
+    // ── Turnstile ───────────────────────────────────────────────
+    function renderTurnstile() {
+      try {
+        turnstileWidgetId = turnstile.render('#turnstile-container', {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: 'dark',
+          callback: function(token) { turnstileToken = token; },
+          'expired-callback': function() { turnstileToken = ''; },
+          'error-callback': function() { turnstileToken = ''; },
+        });
+      } catch(e) {
+        console.warn('Turnstile render skipped:', e);
+      }
+    }
+
+    // Retry Turnstile render if script loads after modal opens
+    window.addEventListener('load', function() {
+      if (document.getElementById('wizModal').classList.contains('active') && turnstileWidgetId === null && window.turnstile) {
+        renderTurnstile();
+      }
+    });
+
+    // ── Step Navigation ─────────────────────────────────────────
+    function showStep(step) {
+      document.querySelectorAll('.wiz-step').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+      });
+      const target = document.querySelector(`.wiz-step[data-step="${step}"]`);
+      if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
+      }
+
+      // Update progress dots
+      document.querySelectorAll('.wiz-dot').forEach(dot => {
+        const s = parseInt(dot.dataset.step);
+        dot.classList.remove('active', 'done');
+        if (s === step) dot.classList.add('active');
+        else if (s < step) dot.classList.add('done');
+      });
+      document.querySelectorAll('.wiz-line').forEach((line, i) => {
+        line.classList.toggle('done', i + 1 < step);
+      });
+
+      currentStep = step;
+    }
+
+    function wizNext(fromStep) {
+      if (!validateStep(fromStep)) return;
+      showStep(fromStep + 1);
+      // If moving to step 3, try to render Turnstile
+      if (fromStep + 1 === 3 && turnstileWidgetId === null && window.turnstile) {
+        renderTurnstile();
+      }
+    }
+
+    function wizBack(fromStep) {
+      showStep(fromStep - 1);
+    }
+
+    // ── Validation ──────────────────────────────────────────────
+    function validateStep(step) {
+      const stepEl = document.querySelector(`.wiz-step[data-step="${step}"]`);
+      const errEl = document.getElementById('err' + step);
+      const fields = stepEl.querySelectorAll('[required]');
+      let errors = [];
+
+      // Clear previous errors
+      stepEl.querySelectorAll('.field').forEach(f => f.classList.remove('has-error'));
+      if (errEl) { errEl.textContent = ''; errEl.classList.remove('visible'); }
+
+      fields.forEach(field => {
+        if (field.type === 'checkbox') {
+          if (!field.checked) {
+            const parent = field.closest('.field') || field.closest('.consent');
+            if (parent) parent.classList.add('has-error');
+            errors.push('Please check all required consent boxes.');
+          }
+          return;
+        }
+
+        const val = field.value.trim();
+        const parent = field.closest('.field');
+
+        if (!val) {
+          if (parent) parent.classList.add('has-error');
+          const label = parent?.querySelector('label')?.textContent?.replace('*','').trim() || 'Field';
+          errors.push(label + ' is required.');
+          return;
+        }
+
+        // Specific validations
+        if (field.name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+          if (parent) parent.classList.add('has-error');
+          errors.push('Please enter a valid email address.');
+        }
+        if (field.name === 'phone') {
+          const digits = val.replace(/\D/g, '');
+          if (digits.length < 10) {
+            if (parent) parent.classList.add('has-error');
+            errors.push('Please enter a valid 10-digit phone number.');
+          }
+        }
+        if (field.name === 'accident_description' && val.length < 20) {
+          if (parent) parent.classList.add('has-error');
+          errors.push('Please describe the accident in at least a couple of sentences.');
+        }
+        if (field.name === 'injuries' && val.length < 5) {
+          if (parent) parent.classList.add('has-error');
+          errors.push('Please list the injured body parts.');
+        }
+        if (field.name === 'date_of_accident') {
+          const d = new Date(val);
+          if (isNaN(d.getTime()) || d > new Date()) {
+            if (parent) parent.classList.add('has-error');
+            errors.push('Please enter a valid date of injury (not in the future).');
+          }
+        }
+      });
+
+      // De-duplicate
+      errors = [...new Set(errors)];
+
+      if (errors.length && errEl) {
+        errEl.textContent = errors[0];
+        errEl.classList.add('visible');
+        // Scroll to error
+        errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      return errors.length === 0;
+    }
+
+    // ── Form Submission ─────────────────────────────────────────
+    document.getElementById('wizForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      if (!validateStep(3)) return;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+      const form = this;
+      const fd = new FormData(form);
+
+      // Build UTM from URL params
+      const params = new URLSearchParams(window.location.search);
+      const utm = {};
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k => {
+        if (params.get(k)) utm[k] = params.get(k);
+      });
+
+      const payload = {
+        first_name:           fd.get('first_name')?.trim(),
+        last_name:            fd.get('last_name')?.trim(),
+        phone:                fd.get('phone')?.trim(),
+        email:                fd.get('email')?.trim().toLowerCase(),
+        date_of_accident:     fd.get('date_of_accident'),
+        employer_name:        fd.get('employer_name')?.trim(),
+        accident_description: fd.get('accident_description')?.trim(),
+        injuries:             fd.get('injuries')?.trim(),
+        preferred_contact:    fd.get('preferred_contact') || 'either',
+        best_time:            null,
+        geo_lat:              null,
+        geo_lng:              null,
+        geo_zip:              null,
+        geo_consent:          false,
+        tcpa_consent:         fd.get('tcpa_consent') === 'on',
+        disclaimer_ack:       fd.get('disclaimer_ack') === 'on',
+        cf_turnstile_response: turnstileToken,
+        _hp:                  fd.get('_hp') || '',
+        utm:                  Object.keys(utm).length ? utm : null,
+        // Additional fields for the new flow
+        county:               fd.get('county'),
+        injury_type:          fd.get('injury_type'),
+        case_stage:           fd.get('case_stage'),
+      };
+
+      const errEl = document.getElementById('err3');
+
+      try {
+        const res = await fetch(EDGE_FN_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON,
+            'Authorization': 'Bearer ' + SUPABASE_ANON,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          // Show confirmation
+          document.getElementById('wizProgress').style.display = 'none';
+          document.querySelectorAll('.wiz-step').forEach(el => {
+            el.classList.remove('active');
+            el.style.display = 'none';
+          });
+          const confirm = document.getElementById('confirmScreen');
+          confirm.style.display = 'block';
+          if (data.id) {
+            document.getElementById('confirmRef').textContent = 'Ref: ' + data.id.substring(0, 8).toUpperCase();
+          }
+        } else {
+          throw new Error(data.error || 'Submission failed. Please try again.');
+        }
+      } catch (err) {
+        if (errEl) {
+          errEl.textContent = err.message || 'Something went wrong. Please try again.';
+          errEl.classList.add('visible');
+        }
+        btn.disabled = false;
+        btn.innerHTML = 'Submit My Case';
+        // Reset Turnstile for retry
+        if (turnstileWidgetId !== null && window.turnstile) {
+          turnstile.reset(turnstileWidgetId);
+          turnstileToken = '';
+        }
+      }
+    });
+
+    // ── Phone formatting ────────────────────────────────────────
+    const phoneInput = document.querySelector('input[name="phone"]');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', function() {
+        let digits = this.value.replace(/\D/g, '');
+        if (digits.length > 10) digits = digits.substring(0, 10);
+        if (digits.length >= 7) {
+          this.value = '(' + digits.substring(0,3) + ') ' + digits.substring(3,6) + '-' + digits.substring(6);
+        } else if (digits.length >= 4) {
+          this.value = '(' + digits.substring(0,3) + ') ' + digits.substring(3);
+        } else if (digits.length > 0) {
+          this.value = '(' + digits;
+        }
+      });
+    }
+
+    // ── Smooth scroll for anchor links ──────────────────────────
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
