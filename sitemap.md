@@ -1,7 +1,7 @@
 # The Comp Desk — Sitemap
 
 **Domain**: https://thecompdesk.com
-**Last updated**: 2026-04-10 (Phase B: Settlement Calculator SEO landing page deployed)
+**Last updated**: 2026-04-12 (Connect with Attorney page overhaul — credits model + intake wizard)
 
 ---
 
@@ -28,8 +28,8 @@
 | Award Calculator | `/calculators/ccp-award.html` | Free | LIVE |
 | Rate Lookup | `/calculators/rates.html` | Free | LIVE |
 | Benefit Rate Lookup | `/calculators/benefit-rate` | Free | LIVE |
-| Radiculopathy Calculator | `/calculators/radiculopathy.html` | Free | LIVE |
-| Spine & Brain Calculator | `/calculators/spine-brain.html` | Free | LIVE |
+| Radiculopathy Calculator | `/calculators/radiculopathy.html` | Free | LIVE (rebuilt 2026-04-12, S11.4–S11.7 point system) |
+| ~~Spine & Brain Calculator~~ | ~~`/calculators/spine-brain.html`~~ | — | RETIRED 2026-04-12 |
 | Pro Calculator Suite | `/calculators/pro.html` | Pro | LIVE (noindex) |
 
 ## Phase B SEO Landing Pages
@@ -38,7 +38,7 @@
 |------|-----|--------|--------|
 | Settlement Calculator | `/settlement-calculator.html` | Free | LIVE (deployed 2026-04-10) |
 | Learn Hub | `/learn/` | Free | LIVE (12 articles, 4 categories, RSS feed) |
-| Connect with Attorney | `/connect-with-attorney` | Free | PLANNED — spec in site_health_report_2026-04-09.md |
+| Connect with Attorney | `/connect-with-attorney.html` | Free | LIVE (deployed 2026-04-12 — credits model, intake wizard, replaces hire-attorney.html) |
 
 ## Auth & Account Pages (All Live, noindex)
 
@@ -74,13 +74,12 @@
 
 - `/404.html` — Custom error page
 - `/blog/` — Blog/resources section (coordinate with Marketing)
-- `/connect-with-attorney` — Phase B attorney referral SEO landing page
 
 ---
 
 ## SEO Notes
 
-- **Google indexing**: Sitemap re-submitted 2026-04-11 (22 pages discovered, Success). As of 2026-04-11: homepage, find-attorney, and privacy are indexed. Auth.html and /subscribe/ submitted for indexing via URL Inspection. 23 total indexed pages per GSC Overview.
+- **Google indexing**: Sitemap re-submitted 2026-04-11 (22 pages discovered, Success). As of 2026-04-12: homepage, connect-with-attorney (formerly find-attorney), and privacy are indexed. `/connect-with-attorney.html` needs GSC URL Inspection submission (new URL). Old `/hire-attorney.html` deleted — needs 301 redirect in vercel.json. 23 total indexed pages per GSC Overview.
 - **Calculator SEO**: Full keyword mapping in `keyword_mapping.md`. 18+ target keywords across 9 calculator pages + glossary.
 - **Structured data**: JSON-LD deployed on all calculator pages (WebApplication) + settlement-calculator (WebApplication + FAQPage). Templates in `json_ld_templates.md`.
 - **Meta descriptions**: Defined per page. All public pages have full OG + Twitter Card tags as of April 6 SEO overhaul.

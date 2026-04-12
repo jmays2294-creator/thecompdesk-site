@@ -5,6 +5,30 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-04-12
+
+### Homepage Redesign (`index.html`)
+- **Hero section rewritten** — empathy-first messaging ("Injured at work? You're not alone.") replacing cold calculator pitch. Warmer gradient (blue → green → amber). Tagline "Know your comp. Fight for your rights." retained.
+- **Hero animation** — replaced broken mascot Lottie loader with CSS logo fade-in + pulse animation using `comp-desk.png`.
+- **Nav bar cleaned up** — removed duplicate Sign In / Login buttons. Single auth button: "Sign In" for logged-out, "My Account" for logged-in. Added "Find Attorney" link to `/connect-with-attorney.html`. Removed "Coming Soon" from nav (moved to footer).
+- **About section expanded** — now reflects full Comp Buddy vision: Find a Doctor, IME reminders, learning portal, attorney connection. Mentions Comp Buddy by name.
+- **Stats** — calculator count updated 6 → 5 (Spine & Brain retired).
+- **Pro tier** — removed Spine & Brain from feature list, updated Radiculopathy description.
+
+### Radiculopathy Calculator — Complete Rebuild (`calculators/radiculopathy.html`)
+- **Rebuilt from scratch** using the actual 2012 NYS Impairment Guidelines point system.
+- **Table S11.4** — seven scoring categories: Imaging (0/16), EMG (0/6), Muscle Weakness per S11.4(a) (0/6/18/20), Atrophy (0/6), Sensory per S11.4(b) (0/4/6), Reflexes (0/4/6), Tension/Compression Signs (0/4).
+- **Tables S11.5 & S11.6** — nerve root caps enforced automatically per nerve root.
+- **Tables S11.7(a) & S11.7(b)** — total points map to severity ranking letter (Cervical C–H, Lumbar D–J).
+- **Output** — severity ranking letter for use with Table 11.1 or 11.2 to determine final impairment class.
+- **Verified** against 2012 Guidelines by Joel Mays, Esq.
+
+### Spine & Brain Calculator — Retired
+- `calculators/spine-brain.html` deleted. Removed from index, homepage, Pro tier list, sitemap.
+- Reason: SCI/TBI tables were not sourced from official Guidelines.
+
+---
+
 ## [1.0.0] — Initial Launch (Pre-April 2026)
 
 ### Landing Page (`index.html`)
@@ -150,6 +174,73 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## [3.0.0] — Connect with Attorney Page Overhaul + Credits Model + Intake Wizard (2026-04-12)
+
+### Rename: `hire-attorney.html` → `connect-with-attorney.html` — BREAKING
+- **Deployed**: 2026-04-12 (3 commits to main, Vercel auto-deploy)
+- Renamed from `hire-attorney.html` to `connect-with-attorney.html` — ethics compliance sweep flagged "Hire" as implying endorsement
+- Old URL `/hire-attorney.html` deleted from repo (returns 404 — consider adding redirect)
+- Updated all internal links across 28 files: settlement-calculator.html, learn.html, coming-soon.html, tools/settlement.html, tools/learning/index.html, calculators/benefit-rate.html, all 15 learn/ article CTAs, both XML sitemaps
+- Canonical URL, OG tags, Twitter Cards all updated to new path
+
+### New Page Title
+- Changed from "Find a Workers' Comp Attorney" to "Connect with a Workers' Compensation Attorney — The Comp Desk"
+
+### Injured Worker Section — Updated 3-Step Flow
+- Step 1: "Tell Us About Your Case" — Submit county, injury type, case stage. No account needed.
+- Step 2: "We Connect You" — Neutral, mechanical assignment. No recommendation or endorsement.
+- Step 3: "The Attorney Contacts You" — 48-hour contact guarantee. Auto-rotate to next attorney if no response.
+
+### Transparency Promise — Updated Cards
+- "No Referral Fees" → "Flat Lead Fee Only" — Attorneys pay flat per-lead fee. No referral fees, no percentage, no kickbacks.
+- "No Paid Placement" → Clarified: Assignment is by neutral round-robin rotation, not bidding or rankings.
+- "Owner Excluded" → Fixed: Joel Mays is "an attorney at Shulman & Hill" (not "a partner at")
+- Random Order, No Endorsements, No Tracking cards retained as-is
+
+### Attorney Section — Credits-Based Lead Model (replaces $5.99/mo directory)
+- Headline: "Join the Network — Pay Only for Leads You Accept"
+- 4 pricing tiers: Single Lead ($99/1 credit), Starter ($249/3 credits, Most Popular), Standard ($449/5 credits), Volume ($799/10 credits)
+- How-it-works explainer: purchase credits → get notified → accept lead (1 credit deducted) or decline (no credit used, auto-rotates after 48h)
+- CTA: "Apply to Join" (mailto: joel@thecompdesk.com)
+
+### FAQ Section — Rewritten
+- Rewrote "How much does it cost" answer for credits model (removed all $5.99/mo references)
+- Added new FAQ: "What if I accept a lead but can't reach the worker?" → 3 attempts over 5 business days = full credit refund
+- Updated all FAQs to reference "network" instead of "directory" where appropriate
+- JSON-LD FAQPage schema updated with all 6 FAQs
+
+### Footer Disclaimer — Updated
+- Added: "Attorney assignment is mechanical and does not constitute a recommendation or endorsement by The Comp Desk."
+
+### Intake Wizard Modal — NEW
+- **Deployed**: 2026-04-12 (second push)
+- 3-step modal wizard triggered from hero CTA, inline CTA, and footer CTA
+- Step 1: County (all 62 NY counties), Injury Type (12 categories), Case Stage (6 options), Date of Injury
+- Step 2: Employer name, accident description (min 20 chars), body parts injured
+- Step 3: First/last name, phone (auto-format), email, preferred contact, TCPA consent, disclaimer acknowledgment
+- Cloudflare Turnstile CAPTCHA integration (site key is placeholder — needs real key before live submissions)
+- Honeypot field for bot protection
+- Submits to existing `submit-attorney-lead` Supabase edge function
+- Animated progress dots, per-step validation, error banners, loading spinner
+- Confirmation screen with reference ID and 48-hour promise
+- ESC key and overlay click to close
+- Fully responsive down to 320px
+
+### Sitemaps — Updated
+- Root `sitemap.xml`: `/find-attorney.html` → `/connect-with-attorney.html`, lastmod 2026-04-12
+- SEO `seo/sitemap.xml`: same update (workspace-only, not in repo)
+
+### Cross-Site Link Cleanup (28 files)
+- settlement-calculator.html: 4 links updated
+- learn.html: 1 link updated
+- coming-soon.html: 2 links updated
+- tools/settlement.html: 1 link updated (also changed CTA text "Hire an Attorney" → "Connect with an Attorney")
+- tools/learning/index.html: 1 link updated
+- calculators/benefit-rate.html: 1 link updated
+- learn/ articles (15 files): all CTA links updated from /find-attorney.html to /connect-with-attorney.html
+
+---
+
 ## Pending / Not Yet Deployed
 
 - [x] ~~Confirm `auth_v2.html` is live on Vercel~~ (confirmed live)
@@ -158,7 +249,11 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 - [x] ~~Check Google Search Console for first indexed pages~~ (confirmed 2026-04-11: 23 indexed, 3 not indexed)
 - [x] ~~Submit priority URLs to GSC via URL Inspection~~ (5 URLs submitted 2026-04-11)
 - [x] ~~Fix sitemap /subscription/ → /subscribe/ 404~~ (fixed and deployed 2026-04-11)
+- [x] ~~Draft `/connect-with-attorney` Phase B landing page~~ (deployed 2026-04-12 with credits model + intake wizard)
 - [ ] Configure custom 404 page
 - [ ] Add `thecompdesk.com` to Cowork network allowlist for automated uptime monitoring
 - [ ] Submit `/settlement-calculator` to GSC via URL Inspection → Request Indexing
-- [ ] Draft `/connect-with-attorney` Phase B landing page (spec in site_health_report_2026-04-09.md)
+- [ ] Submit `/connect-with-attorney.html` to GSC via URL Inspection → Request Indexing (new URL, old was indexed as find-attorney)
+- [ ] Add 301 redirect: `/hire-attorney.html` → `/connect-with-attorney.html` (in vercel.json)
+- [ ] Replace Turnstile placeholder site key with real Cloudflare key for live intake submissions
+- [ ] Build Supabase database migration for new fields (county, injury_type, case_stage) in attorney_leads table
