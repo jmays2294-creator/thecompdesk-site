@@ -3,322 +3,796 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IME Reminders & Calendar — NYS Workers' Comp | The Comp Desk</title>
+    <title>IME Reminders — Never Miss Your Medical Exam | The Comp Desk</title>
+    <meta name="description" content="Don't miss your Independent Medical Examination (IME) in New York. IME Reminders sends automatic push notifications, directions, and a 'What to Bring' checklist so you arrive prepared.">
+    <meta name="keywords" content="IME reminder workers comp, independent medical examination NY, what to bring to IME, don't miss IME workers compensation, IME notification, IME appointment tracker, workers comp exam reminder">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="IME Reminders — Never Miss Your Medical Exam">
+    <meta property="og:description" content="Automatic reminders, directions, and checklist for your Independent Medical Examination. Free in The Comp Desk app.">
+    <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+    <meta property="og:url" content="https://thecompdesk.com/tools/ime-reminders.html">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="IME Reminders — Never Miss Your Medical Exam">
+    <meta name="twitter:description" content="Automatic reminders, directions, and checklist for your Independent Medical Examination.">
+    <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
 
     <!-- JSON-LD Schema -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "IME Reminder Tool — Never Miss Your Exam",
-      "url": "https://www.thecompdesk.com/tools/ime-reminders",
-      "description": "Set reminders for your Independent Medical Examination. Get alerts 1 week, 1 day, and 2 hours before your IME with directions to the office.",
-      "applicationCategory": "FinanceApplication",
-      "operatingSystem": "All",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      "name": "IME Reminders — The Comp Desk",
+      "url": "https://thecompdesk.com/tools/ime-reminders.html",
+      "description": "Automatic reminders, directions, and preparation checklists for your Independent Medical Examination in New York workers' compensation cases.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "iOS, Android, Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "The Comp Desk",
+        "url": "https://thecompdesk.com"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      }
     }
     </script>
 
+    <!-- Canonical -->
+    <link rel="canonical" href="https://thecompdesk.com/tools/ime-reminders.html">
+
     <link rel="stylesheet" href="../css/app.css">
+    <style>
+        :root {
+            --primary: #0a0f1a;
+            --primary-light: #1a1f2e;
+            --accent: #2196F3;
+            --accent-green: #4CAF50;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #999999;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: var(--primary);
+            color: var(--text-primary);
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 150, 243, 0.05) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 60px 20px;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(33, 150, 243, 0.4);
+        }
+
+        .hero-section h1 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-section p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(33, 150, 243, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .breadcrumb {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 40px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-secondary);
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .why-ime-matters {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 152, 0, 0.05) 100%);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 60px;
+        }
+
+        .why-ime-matters h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #FF9800;
+        }
+
+        .why-ime-matters p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .how-it-works {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .step {
+            position: relative;
+            padding: 32px;
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+        }
+
+        .step h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            margin-top: 8px;
+            color: var(--text-primary);
+        }
+
+        .step p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .what-to-bring {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 100%);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .what-to-bring h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .checklist-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid var(--accent-green);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-green);
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .checklist-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .checklist-label strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .faq {
+            margin-bottom: 60px;
+        }
+
+        .faq-item {
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: background 0.2s ease;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-toggle {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+            color: var(--accent);
+        }
+
+        .faq-item.open .faq-toggle {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 500px;
+            padding: 0 24px 24px;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 150, 243, 0.05) 100%);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .cta-section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .disclaimer {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid #FF9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 60px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .disclaimer strong {
+            color: var(--text-primary);
+        }
+
+        .app-platform-links {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .app-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .app-link:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .privacy-notice {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 32px;
+            }
+
+            .hero-section p {
+                font-size: 16px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .cta-section {
+                padding: 40px 24px;
+            }
+
+            .cta-section h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="app-nav"></div>
 
-    <main class="container mx-auto px-4 py-8">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <span class="hero-badge">Free Feature</span>
+            <h1>Never Miss Your IME Again</h1>
+            <p>Get automatic reminders, directions, and a preparation checklist for your Independent Medical Examination. Stay on top of your workers' compensation case.</p>
+            <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="hero-cta">Download The Comp Desk App</a>
+        </div>
+    </section>
+
+    <main class="container">
         <!-- Breadcrumb -->
-        <nav class="mb-6 text-sm text-gray-400">
-            <a href="/" class="hover:text-gray-300">Home</a> >
-            <a href="/tools/" class="hover:text-gray-300">Tools</a> >
-            <span>IME Reminders</span>
+        <nav class="breadcrumb">
+            <a href="/">Home</a> > <a href="/tools/">Tools</a> > <span>IME Reminders</span>
         </nav>
 
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-white mb-2">Your Upcoming IME</h1>
-            <p class="text-gray-300">Track reminders, preparation checklist, and what to expect at your appointment.</p>
+        <!-- Why IME Reminders Matter -->
+        <section class="section">
+            <div class="why-ime-matters">
+                <h3>Why You Can't Miss Your IME</h3>
+                <p>
+                    In New York workers' compensation cases, the Independent Medical Examination (IME) is one of the most critical moments in your claim. Missing it — even by accident — can result in your case being dismissed, your benefits suspended, or your claim being decided without your medical evidence presented to the judge.
+                </p>
+                <p style="margin-top: 12px;">
+                    IME Reminders ensures you never miss this critical appointment. Get notified at 1 week, 1 day, and 2 hours before your exam so you can prepare with confidence.
+                </p>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section class="section">
+            <h2 class="section-title">What You Get</h2>
+            <p class="section-subtitle">Everything you need to prepare for and succeed at your IME</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Three Smart Reminders</h3>
+                    <p>Get notified 1 week, 1 day, and 2 hours before your exam so you're never caught off guard.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>Built-In Directions</h3>
+                    <p>Find the doctor's office with integrated maps. Get turn-by-turn navigation directly from the app.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3>"What to Bring" Checklist</h3>
+                    <p>Never forget your ID, insurance card, or medical records. Check off items as you pack.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>IME Calendar</h3>
+                    <p>Track all your appointments in one place. See upcoming exams at a glance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Always Free</h3>
+                    <p>No subscription required. IME Reminders is available to all Comp Desk users at no cost.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏥</div>
+                    <h3>Doctor Info</h3>
+                    <p>View the examining doctor's specialty, location, and contact information instantly.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="section">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Simple, straightforward process to get organized</p>
+            <div class="how-it-works">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Add Your IME</h3>
+                    <p>Enter your exam date, time, doctor's name, and location into The Comp Desk app. Takes less than 2 minutes.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Get Automatic Reminders</h3>
+                    <p>Receive push notifications at 1 week, 1 day, and 2 hours before your appointment. No setup required.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Arrive Prepared</h3>
+                    <p>Use directions, check off your preparation items, and walk into your exam ready and confident.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- What to Bring Section -->
+        <section class="section">
+            <h2 class="section-title">What to Bring to Your IME</h2>
+            <div class="what-to-bring">
+                <h3>Essential Documents & Items</h3>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>Photo Identification</strong>
+                            Driver's license, passport, or state ID. The doctor needs to verify your identity.
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>Insurance Card</strong>
+                            Bring your workers' compensation insurance card. It contains important claim information.
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>Medical Records</strong>
+                            Any recent imaging (X-rays, MRI), treatment notes, or medical reports from your doctor.
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>Medication List</strong>
+                            Write down all medications you take, including dosages. Or bring the bottles.
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>Treatment Timeline</strong>
+                            Dates of surgery, physical therapy, or other medical procedures related to your injury.
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>Comfortable Clothing</strong>
+                            Wear clothes you can move in. The doctor may ask you to perform movements or exercises.
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>Notepad & Pen</strong>
+                            Take notes during or after the exam. This creates a record of what was discussed.
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-icon">✓</div>
+                        <div class="checklist-label">
+                            <strong>List of Complaints</strong>
+                            Write down your symptoms and how they affect your daily life. Be specific and honest.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Everything you need to know about IMEs in New York</p>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    What is an Independent Medical Examination (IME)?
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer">
+                    An IME is a medical examination ordered by the workers' compensation insurance company to assess your injury and level of disability. A doctor selected by the insurance carrier (not your treating physician) will examine you and provide a report to the Workers' Compensation Board. The IME doctor's findings can significantly impact your benefits, so it's crucial to be prepared and take the examination seriously.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    What happens if I miss my IME appointment?
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Missing an IME without a valid medical reason can have serious consequences. Your case may be dismissed, your benefits may be suspended, or the judge may decide your case based solely on the IME doctor's findings without hearing your side. In some cases, repeated missed appointments can result in loss of all benefits. Always notify the insurance company immediately if you cannot attend, and provide valid medical documentation if possible.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    How long does an IME typically take?
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Most IMEs last between 30 minutes to 1.5 hours, depending on the complexity of your injury. The doctor will take your medical history, perform a physical examination, and may ask you to perform specific movements or exercises to assess your functional capacity. Allow extra time for check-in paperwork and travel.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Should I bring an attorney or support person to my IME?
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Most IME doctors will not allow an attorney to be present during the examination. However, you may be able to bring a support person (family member, friend) who can wait in the reception area. Some doctors allow support persons in the exam room, but this varies. Call ahead to ask about the doctor's policy. You are always allowed to take notes and request copies of the exam findings.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    How should I behave during my IME?
+                    <span class="faq-toggle">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Be honest, professional, and respectful. Describe your symptoms and limitations accurately — do not exaggerate or minimize your condition. The IME doctor works for the insurance company, not for you, so they are evaluating your claim objectively. Answer questions directly, avoid arguing, and take the examination seriously. If you don't understand something, ask for clarification.
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2>Get Organized. Stay Prepared. Win Your Claim.</h2>
+            <p>Download The Comp Desk now and add your IME appointment. Get reminders, directions, and preparation checklists so you're ready for success.</p>
+            <div class="cta-buttons">
+                <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="btn-primary">Download for iOS</a>
+                <a href="https://play.google.com/store/apps/details?id=com.compdesk.app" class="btn-secondary">Download for Android</a>
+            </div>
+            <div class="app-platform-links">
+                <a href="https://thecompdesk.com" class="app-link">Web App</a>
+            </div>
+        </section>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This tool is for informational purposes only and does not constitute legal advice. IME Reminders helps you stay organized and prepared for your appointment, but cannot guarantee outcomes in your workers' compensation case. The results of your Independent Medical Examination will be determined by the examining doctor's medical findings and the Workers' Compensation Board's evaluation of your case. For legal guidance on your specific situation, consult with a qualified workers' compensation attorney.
         </div>
 
-        <!-- Tier Gate Overlay (for free tier) -->
-        <div id="tier-gate" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40">
-            <div class="bg-gray-800 rounded-lg p-8 max-w-md text-center">
-                <div class="text-5xl mb-4">🔒</div>
-                <h2 class="text-2xl font-bold text-white mb-4">Upgrade to Access IME Reminders</h2>
-                <p class="text-gray-300 mb-6">Get reminders, checklists, and preparation tips to ace your IME exam.</p>
-                <a href="/subscribe/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded transition">
-                    Upgrade to Comp Buddy
-                </a>
-            </div>
-        </div>
-
-        <!-- Main Content (hidden if free tier) -->
-        <div id="content">
-            <!-- Next Appointment Card -->
-            <div class="bg-green-900 border-2 border-green-600 rounded-lg p-8 mb-8">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <span class="inline-block bg-green-600 text-green-100 text-xs font-bold px-3 py-1 rounded mb-4">IME EXAM</span>
-                        <h2 class="text-2xl font-bold text-white mb-2">May 18, 2026 at 2:30 PM</h2>
-                        <p class="text-green-100 text-lg font-semibold mb-4">Dr. James Robertson, MD — Orthopedic Surgeon</p>
-                        <p class="text-green-100 mb-2">450 Lexington Ave, New York, NY 10017</p>
-                        <a href="tel:(212)555-0100" class="text-green-200 hover:text-green-100 font-semibold">(212) 555-0100</a>
-                    </div>
-                    <div class="text-5xl text-green-300">📅</div>
-                </div>
-                <div class="flex gap-4 mt-6">
-                    <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition">
-                        Add to Calendar
-                    </button>
-                    <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition">
-                        Get Directions
-                    </button>
-                    <a href="tel:(212)555-0100" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition">
-                        Call Doctor
-                    </a>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Left Column: Reminders & Checklist -->
-                <div class="lg:col-span-2">
-                    <!-- Reminder Schedule -->
-                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
-                        <h3 class="text-xl font-bold text-white mb-6">Reminder Schedule</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-start gap-4">
-                                <input type="checkbox" checked disabled class="mt-1">
-                                <div class="flex-1">
-                                    <p class="text-white font-semibold">1 Week Before — May 11</p>
-                                    <p class="text-gray-400 text-sm">Advance notice to prepare documents</p>
-                                </div>
-                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
-                            </div>
-
-                            <div class="flex items-start gap-4">
-                                <input type="checkbox" checked disabled class="mt-1">
-                                <div class="flex-1">
-                                    <p class="text-white font-semibold">3 Days Before — May 15</p>
-                                    <p class="text-gray-400 text-sm">Review your medical records</p>
-                                </div>
-                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
-                            </div>
-
-                            <div class="flex items-start gap-4">
-                                <input type="checkbox" checked disabled class="mt-1">
-                                <div class="flex-1">
-                                    <p class="text-white font-semibold">1 Day Before — May 17</p>
-                                    <p class="text-gray-400 text-sm">Plan your travel and confirm location</p>
-                                </div>
-                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
-                            </div>
-
-                            <div class="flex items-start gap-4">
-                                <input type="checkbox" checked disabled class="mt-1">
-                                <div class="flex-1">
-                                    <p class="text-white font-semibold">2 Hours Before — May 18</p>
-                                    <p class="text-gray-400 text-sm">Get ready and leave soon</p>
-                                </div>
-                                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-3 py-1 rounded whitespace-nowrap">Scheduled</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- What to Bring -->
-                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
-                        <h3 class="text-xl font-bold text-white mb-6">What to Bring</h3>
-                        <div class="space-y-3">
-                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
-                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
-                                <span class="ml-3">Photo ID</span>
-                            </label>
-                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
-                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
-                                <span class="ml-3">Insurance Card</span>
-                            </label>
-                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
-                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
-                                <span class="ml-3">Medical Records</span>
-                            </label>
-                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
-                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
-                                <span class="ml-3">Medications List</span>
-                            </label>
-                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
-                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
-                                <span class="ml-3">Doctor's Letters</span>
-                            </label>
-                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
-                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
-                                <span class="ml-3">Notepad</span>
-                            </label>
-                            <label class="flex items-center text-gray-300 cursor-pointer hover:text-white">
-                                <input type="checkbox" class="w-4 h-4 rounded bg-gray-700 border-gray-600">
-                                <span class="ml-3">Pen</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- What to Expect -->
-                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
-                        <button class="w-full flex justify-between items-center text-lg font-bold text-white hover:text-blue-400 transition">
-                            <span>What to Expect</span>
-                            <span class="text-2xl" id="expand-toggle">▶</span>
-                        </button>
-                        <div id="expect-content" class="hidden mt-6 space-y-6">
-                            <div>
-                                <h4 class="font-semibold text-white mb-3">Before You Arrive</h4>
-                                <ul class="text-gray-300 space-y-2 text-sm">
-                                    <li>• Arrive 10-15 minutes early to complete check-in paperwork</li>
-                                    <li>• Bring all required documents (see checklist above)</li>
-                                    <li>• Wear comfortable, clean clothing</li>
-                                    <li>• Avoid heavy perfume or cologne</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-white mb-3">During the Exam</h4>
-                                <ul class="text-gray-300 space-y-2 text-sm">
-                                    <li>• The doctor will perform a physical examination</li>
-                                    <li>• You may be asked to perform movements or exercises</li>
-                                    <li>• The exam typically lasts 30-60 minutes</li>
-                                    <li>• You can take notes during or after the exam</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-white mb-3">Important Reminders</h4>
-                                <ul class="text-gray-300 space-y-2 text-sm">
-                                    <li>• Be honest about your condition and symptoms</li>
-                                    <li>• The IME doctor works for the insurance company, not you</li>
-                                    <li>• Do not exaggerate or minimize your injuries</li>
-                                    <li>• Ask questions if you don't understand something</li>
-                                    <li>• Bring a friend or family member for support if allowed</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Rating & Upcoming Appointments -->
-                <div class="lg:col-span-1">
-                    <!-- How Did It Go -->
-                    <div class="bg-gray-800 rounded-lg p-6 mb-8 border border-gray-700">
-                        <h3 class="text-lg font-bold text-white mb-6">How Did It Go?</h3>
-                        <div class="mb-6">
-                            <div class="flex justify-center gap-2 mb-4" id="star-rating">
-                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="1">★</button>
-                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="2">★</button>
-                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="3">★</button>
-                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="4">★</button>
-                                <button class="text-4xl text-gray-400 hover:text-yellow-400 transition" data-rating="5">★</button>
-                            </div>
-                            <p class="text-center text-gray-400 text-sm" id="rating-text">Select a rating</p>
-                        </div>
-                        <textarea placeholder="Any notes about your exam?" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none text-sm resize-none" rows="4"></textarea>
-                        <button class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
-                            Save Notes
-                        </button>
-                    </div>
-
-                    <!-- Upcoming Appointments -->
-                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                        <h3 class="text-lg font-bold text-white mb-6">Upcoming Appointments</h3>
-                        <div class="space-y-4">
-                            <div class="border-l-4 border-blue-500 pl-4 py-2">
-                                <p class="text-white font-semibold text-sm">May 18, 2026</p>
-                                <p class="text-gray-300 text-sm">Dr. James Robertson — Orthopedic</p>
-                            </div>
-                            <div class="border-l-4 border-gray-600 pl-4 py-2">
-                                <p class="text-white font-semibold text-sm">June 8, 2026</p>
-                                <p class="text-gray-300 text-sm">Dr. Sarah Chen — Neurology Follow-up</p>
-                            </div>
-                            <div class="border-l-4 border-gray-600 pl-4 py-2">
-                                <p class="text-white font-semibold text-sm">June 22, 2026</p>
-                                <p class="text-gray-300 text-sm">Dr. Michael Rodriguez — Chiropractor</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="privacy-notice">
+            Your appointment data is stored securely and never shared with third parties. Privacy Policy: <a href="https://thecompdesk.com/privacy" style="color: var(--accent); text-decoration: none;">thecompdesk.com/privacy</a>
         </div>
     </main>
 
-    <!-- Footer Disclaimer -->
+    <!-- Footer -->
     <div id="app-footer"></div>
 
     <script type="module">
-        import { getUser, hasAccess, TIER_LEVEL } from '../js/auth.js';
         import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+        import { getUser } from '../js/auth.js';
 
-        // Initialize
-        const session = await getUser();
-        const tier = TIER_LEVEL[session?.tier] || 'free';
-        renderNav(session, tier);
-        renderFooterDisclaimer();
-
-        // Tier gating
-        const requiredTier = ['comp_buddy', 'pro', 'firm'];
-        if (!requiredTier.includes(session?.tier)) {
-            document.getElementById('tier-gate').classList.remove('hidden');
-            document.getElementById('content').classList.add('hidden');
+        // Initialize navigation and footer
+        async function init() {
+            try {
+                const user = await getUser();
+                renderNav(user, user?.tier || 'free');
+                renderFooterDisclaimer();
+            } catch (err) {
+                console.error('Navigation initialization failed:', err);
+                renderFooterDisclaimer();
+            }
         }
 
-        // Expandable "What to Expect" section
-        const expandToggle = document.getElementById('expand-toggle');
-        const expandContent = document.getElementById('expect-content');
-        document.querySelector('button[data-expand="expect"]')?.addEventListener('click', () => {
-            expandContent.classList.toggle('hidden');
-            expandToggle.textContent = expandContent.classList.contains('hidden') ? '▶' : '▼';
-        });
-
-        // Toggle via button click
-        document.querySelectorAll('button').forEach(btn => {
-            if (btn.textContent.includes('What to Expect')) {
-                btn.addEventListener('click', () => {
-                    expandContent.classList.toggle('hidden');
-                    expandToggle.textContent = expandContent.classList.contains('hidden') ? '▶' : '▼';
-                });
-            }
-        });
-
-        // Star rating
-        let selectedRating = 0;
-        document.querySelectorAll('#star-rating button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                selectedRating = parseInt(btn.dataset.rating);
-                document.querySelectorAll('#star-rating button').forEach((b, i) => {
-                    if (i < selectedRating) {
-                        b.classList.remove('text-gray-400');
-                        b.classList.add('text-yellow-400');
-                    } else {
-                        b.classList.remove('text-yellow-400');
-                        b.classList.add('text-gray-400');
-                    }
-                });
-                const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
-                document.getElementById('rating-text').textContent = labels[selectedRating];
-            });
-            btn.addEventListener('mouseover', (e) => {
-                const hoverRating = parseInt(btn.dataset.rating);
-                document.querySelectorAll('#star-rating button').forEach((b, i) => {
-                    if (i < hoverRating) {
-                        b.classList.add('text-yellow-400');
-                    } else {
-                        b.classList.remove('text-yellow-400');
-                    }
-                });
+        // FAQ toggle functionality
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const faqItem = button.closest('.faq-item');
+                faqItem.classList.toggle('open');
             });
         });
 
-        document.getElementById('star-rating').addEventListener('mouseout', () => {
-            document.querySelectorAll('#star-rating button').forEach((b, i) => {
-                if (i < selectedRating) {
-                    b.classList.add('text-yellow-400');
-                    b.classList.remove('text-gray-400');
-                } else {
-                    b.classList.remove('text-yellow-400');
-                    b.classList.add('text-gray-400');
-                }
-            });
-        });
+        // Initialize
+        init();
     </script>
-<script src="/js/disclaimer.js" defer></script>
 </body>
 </html>

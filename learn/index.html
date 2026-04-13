@@ -3,251 +3,411 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Learn — New York Workers' Comp Guide | The Comp Desk</title>
-  <meta name="description" content="Plain-language guides to New York workers' compensation benefits, the claims process, common injuries, and your rights. Written by The Comp Desk Editorial Team.">
-  <meta name="robots" content="index,follow">
-  <link rel="canonical" href="https://thecompdesk.com/learn/">
+  <title>Learn About NYS Workers' Compensation — Free Guides & Videos | The Comp Desk</title>
+  <meta name="description" content="Free educational resources about NYS workers' compensation. Video tutorials, step-by-step guides, and a glossary of WCB terms — built by a practicing WC attorney for injured workers.">
+  <meta name="keywords" content="NYS workers compensation guide, workers comp education, understanding workers comp NY, workers comp glossary, WCB process explained, workers compensation help New York, how does workers comp work in NY">
 
-  <meta property="og:title" content="Learn — NY Workers' Comp Guide | The Comp Desk">
-  <meta property="og:description" content="Plain-language guides to New York workers' compensation — benefits, process, injuries, and your rights.">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Learn About NYS Workers' Compensation — Free Guides & Videos">
+  <meta property="og:description" content="Free educational resources about NYS workers' compensation. Video tutorials, step-by-step guides, and a WCB glossary.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://thecompdesk.com/learn/">
+  <meta property="og:url" content="https://thecompdesk.com/learn">
   <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Learn — NY Workers' Comp Guide | The Comp Desk">
-  <meta name="twitter:description" content="Plain-language guides to New York workers' compensation — benefits, process, injuries, and your rights.">
+  <meta name="twitter:title" content="Learn About NYS Workers' Compensation — Free Guides & Videos">
+  <meta name="twitter:description" content="Free educational resources about NYS workers' compensation. Video tutorials, step-by-step guides, and a WCB glossary.">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
 
-  <link rel="alternate" type="application/rss+xml" title="The Comp Desk Learn Feed" href="/learn/feed.xml">
-  <link rel="stylesheet" href="../css/app.css">
-
+  <!-- JSON-LD: EducationalOrganization + ItemList -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Learn — New York Workers' Comp Guide",
-    "description": "Plain-language guides to New York workers' compensation benefits, process, injuries, and your rights.",
-    "url": "https://thecompdesk.com/learn/",
-    "publisher": {
-      "@type": "Organization",
-      "name": "The Comp Desk",
-      "url": "https://thecompdesk.com"
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Learn About NYS Workers' Compensation",
+      "url": "https://thecompdesk.com/learn",
+      "description": "Free educational resources about NYS workers' compensation. Video tutorials, step-by-step guides, and a glossary of WCB terms.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "The Comp Desk",
+        "url": "https://thecompdesk.com"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "NYS Workers' Compensation Guides",
+      "description": "Step-by-step guides to understanding your workers' compensation case in New York State.",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Filing Your Workers' Comp Claim",
+          "url": "https://thecompdesk.com/learn#filing"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Understanding Your Benefits",
+          "url": "https://thecompdesk.com/learn#benefits"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "IMEs & Medical Evidence",
+          "url": "https://thecompdesk.com/learn#medical"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Permanency & SLU Awards",
+          "url": "https://thecompdesk.com/learn#permanency"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Settlements & Closing Your Case",
+          "url": "https://thecompdesk.com/learn#settlements"
+        }
+      ]
     }
-  }
+  ]
   </script>
 
+  <link rel="canonical" href="https://thecompdesk.com/learn">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    .learn-hero {
-      text-align: center;
-      padding: 48px 20px 32px;
-    }
-    .learn-hero .mascot { font-size: 48px; margin-bottom: 16px; }
-    .learn-hero h1 {
-      font-size: 32px;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 12px;
-      letter-spacing: -0.5px;
-    }
-    .learn-hero p {
-      font-size: 16px;
-      color: var(--txD);
-      max-width: 560px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-    .category-section { margin-bottom: 40px; }
-    .category-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--bd);
-    }
-    .category-header h2 {
-      font-size: 18px;
-      font-weight: 800;
-      color: #fff;
-    }
-    .category-header a {
-      font-size: 12px;
-      color: var(--ac);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .category-header a:hover { text-decoration: underline; }
-    .article-card {
-      background: var(--card);
-      border: 1px solid var(--bd);
-      border-radius: 10px;
-      padding: 16px 18px;
-      text-decoration: none;
-      display: block;
-      transition: border-color 0.15s ease, transform 0.15s ease;
-    }
-    .article-card:hover {
-      border-color: var(--ac);
-      transform: translateY(-1px);
-    }
-    .article-card h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-    .article-card p {
-      font-size: 13px;
-      color: var(--txD);
-      line-height: 1.6;
-      margin: 0;
-    }
-    .article-card .card-meta {
-      font-size: 11px;
-      color: var(--txM);
-      margin-top: 10px;
-    }
-    .learn-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 12px;
-    }
-    .rss-link {
-      text-align: center;
-      padding: 20px 0 8px;
-      font-size: 12px;
-      color: var(--txM);
-    }
-    .rss-link a { color: var(--ac); }
-    @media (max-width: 600px) {
-      .learn-grid { grid-template-columns: 1fr; }
-      .learn-hero h1 { font-size: 24px; }
-    }
+    :root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--navy:#1B2A4A;--mono:'JetBrains Mono',monospace;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--navy);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+    a{color:var(--ac);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+    /* Nav */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,42,74,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(79,143,247,0.15);}
+    nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+    nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;text-decoration:none;}
+    nav .logo span{color:var(--ac);}
+    nav .links{display:flex;gap:24px;align-items:center;}
+    nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
+    nav .links a:hover{color:var(--wh);text-decoration:none;}
+
+    /* CTA Buttons */
+    .cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;text-decoration:none;}
+    .cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,143,247,0.3);text-decoration:none;}
+    .cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
+    .cta-btn.outline:hover{background:var(--acG);}
+    .cta-btn.gold{background:var(--gd);color:#1a1200;}
+    .cta-btn.green{background:var(--gn);color:#0a1a14;}
+
+    /* Hero */
+    .hero{padding:140px 0 60px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(79,143,247,0.1) 0%,rgba(45,212,160,0.04) 40%,transparent 70%);pointer-events:none;}
+    .hero .badge{display:inline-block;background:rgba(45,212,160,0.12);border:1px solid rgba(45,212,160,0.3);color:var(--gn);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
+    .hero h1{font-size:clamp(32px,6vw,52px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
+    .hero h1 span{background:linear-gradient(135deg,var(--ac),var(--gn));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero .sub{font-size:clamp(16px,2.5vw,20px);color:var(--txD);max-width:680px;margin:0 auto 32px;line-height:1.6;}
+    .hero .cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+    /* Sections */
+    section{padding:60px 0;}
+    section h2{font-size:clamp(22px,4vw,32px);font-weight:800;color:var(--wh);margin-bottom:12px;text-align:center;}
+    section .section-sub{text-align:center;color:var(--txD);font-size:15px;margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto;}
+
+    /* Journey Steps */
+    .journey-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:40px;position:relative;}
+    @media(max-width:900px){.journey-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:600px){.journey-grid{grid-template-columns:1fr 1fr;}}
+    .journey-card{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:24px 16px;text-align:center;transition:border-color 0.3s,transform 0.3s;}
+    .journey-card:hover{border-color:var(--ac);transform:translateY(-4px);}
+    .journey-card .step-num{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--acG);color:var(--ac);font-weight:800;font-size:16px;margin-bottom:12px;}
+    .journey-card h3{font-size:14px;font-weight:700;color:var(--wh);margin-bottom:6px;}
+    .journey-card p{font-size:12px;color:var(--txD);line-height:1.6;}
+
+    /* Topic Cards */
+    .topics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+    .topic-card{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s;position:relative;overflow:hidden;}
+    .topic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--ac),var(--gn));opacity:0;transition:opacity 0.3s;}
+    .topic-card:hover{border-color:var(--ac);transform:translateY(-4px);box-shadow:0 8px 32px rgba(79,143,247,0.12);}
+    .topic-card:hover::before{opacity:1;}
+    .topic-card .icon{font-size:32px;margin-bottom:12px;display:block;}
+    .topic-card h3{font-size:17px;font-weight:700;color:var(--wh);margin-bottom:8px;}
+    .topic-card p{font-size:14px;color:var(--txD);line-height:1.65;margin-bottom:14px;}
+    .topic-card .tag{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+    .tag-beginner{background:rgba(45,212,160,0.12);color:var(--gn);}
+    .tag-intermediate{background:rgba(79,143,247,0.12);color:var(--ac);}
+    .tag-advanced{background:rgba(240,160,48,0.12);color:var(--gd);}
+
+    /* Glossary Preview */
+    .glossary-section{background:rgba(14,19,34,0.5);border-radius:16px;padding:40px 32px;max-width:800px;margin:0 auto;}
+    .glossary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+    .glossary-item{padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;transition:border-color 0.2s;}
+    .glossary-item:hover{border-color:var(--ac);}
+    .glossary-item .term{font-size:14px;font-weight:700;color:var(--wh);margin-bottom:2px;}
+    .glossary-item .def{font-size:12px;color:var(--txM);line-height:1.5;}
+
+    /* Video Cards */
+    .video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:32px;}
+    .video-card{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;overflow:hidden;transition:border-color 0.3s,transform 0.3s;}
+    .video-card:hover{border-color:var(--ac);transform:translateY(-4px);}
+    .video-thumb{width:100%;height:160px;background:linear-gradient(135deg,rgba(79,143,247,0.15),rgba(45,212,160,0.08));display:flex;align-items:center;justify-content:center;font-size:48px;}
+    .video-card .video-info{padding:16px 20px;}
+    .video-card h3{font-size:15px;font-weight:700;color:var(--wh);margin-bottom:6px;}
+    .video-card p{font-size:13px;color:var(--txD);line-height:1.5;}
+
+    /* Footer CTA */
+    .footer-cta{text-align:center;padding:60px 0;border-top:1px solid var(--bd);}
+    .footer-cta h2{margin-bottom:8px;}
+    .footer-cta p{color:var(--txD);font-size:15px;margin-bottom:24px;}
+
+    /* Footer */
+    footer{text-align:center;padding:24px;border-top:1px solid var(--bd);font-size:12px;color:var(--txM);}
+    footer a{color:var(--txD);}
+
+    /* Breadcrumb */
+    .breadcrumb{font-size:13px;color:var(--txM);padding:100px 24px 0;max-width:1080px;margin:0 auto;}
+    .breadcrumb a{color:var(--txD);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--wh);}
   </style>
 </head>
 <body>
-  <div id="app-nav"></div>
 
-  <div class="container" style="max-width:960px;">
-    <div class="learn-hero">
-      <div class="mascot">🤖</div>
-      <h1>New York Workers' Comp — Plain Language</h1>
-      <p>Comp Buddy explains your benefits, the claims process, common injuries, and your rights — in plain English, no legalese required.</p>
-    </div>
-
-    <!-- BENEFITS -->
-    <div class="category-section">
-      <div class="category-header">
-        <h2>💰 Benefits</h2>
-        <a href="/learn/benefits/">All Benefits articles →</a>
-      </div>
-      <div class="learn-grid">
-        <a href="/learn/benefits/average-weekly-wage/" class="article-card">
-          <h3>What is your Average Weekly Wage and why does it matter?</h3>
-          <p>Your AWW is the foundation of every benefit calculation. Learn how it's computed and how to spot mistakes.</p>
-          <div class="card-meta">7 min read</div>
-        </a>
-        <a href="/learn/benefits/temporary-total-vs-partial-disability/" class="article-card">
-          <h3>Temporary Total vs. Temporary Partial Disability: what's the difference?</h3>
-          <p>TT and TPD pay different rates and have different rules. Here's what each means for your weekly checks.</p>
-          <div class="card-meta">6 min read</div>
-        </a>
-        <a href="/learn/benefits/schedule-loss-of-use/" class="article-card">
-          <h3>Schedule Loss of Use awards explained</h3>
-          <p>SLU awards compensate for permanent loss of function. Learn how percentages translate into dollars.</p>
-          <div class="card-meta">7 min read</div>
-        </a>
+  <!-- Navigation -->
+  <nav>
+    <div class="inner">
+      <a href="/" class="logo">The Comp <span>Desk</span></a>
+      <div class="links">
+        <a href="/calculators/">Calculators</a>
+        <a href="/settlement-calculator">Settlement</a>
+        <a href="/connect-with-attorney.html">Find Attorney</a>
+        <a href="/auth_v2.html" class="cta-btn" style="padding:8px 18px;font-size:13px;">Sign In</a>
       </div>
     </div>
+  </nav>
 
-    <!-- PROCESS -->
-    <div class="category-section">
-      <div class="category-header">
-        <h2>📋 Process</h2>
-        <a href="/learn/process/">All Process articles →</a>
-      </div>
-      <div class="learn-grid">
-        <a href="/learn/process/how-to-file-c3-form-new-york/" class="article-card">
-          <h3>How to file a C-3 form in New York</h3>
-          <p>The C-3 is your formal claim. Miss a deadline or fill it out wrong and you could lose benefits. Step-by-step guide.</p>
-          <div class="card-meta">6 min read</div>
-        </a>
-        <a href="/learn/process/surviving-independent-medical-exam/" class="article-card">
-          <h3>Surviving an Independent Medical Exam</h3>
-          <p>The IME doctor works for the insurance carrier. Learn how to protect yourself during this critical appointment.</p>
-          <div class="card-meta">7 min read</div>
-        </a>
-        <a href="/learn/process/section-32-settlements/" class="article-card">
-          <h3>Section 32 settlements: what to know before you sign</h3>
-          <p>A Section 32 closes your case forever. Before you accept any offer, make sure you understand what you're giving up.</p>
-          <div class="card-meta">7 min read</div>
-        </a>
-        <a href="/learn/process/what-happens-workers-comp-hearing/" class="article-card">
-          <h3>What happens at a workers' comp hearing?</h3>
-          <p>Hearings can be intimidating. We walk you through every step so you know exactly what to expect when you walk in.</p>
-          <div class="card-meta">6 min read</div>
-        </a>
-      </div>
-    </div>
-
-    <!-- INJURIES -->
-    <div class="category-section">
-      <div class="category-header">
-        <h2>🩺 Injuries</h2>
-        <a href="/learn/injuries/">All Injuries articles →</a>
-      </div>
-      <div class="learn-grid">
-        <a href="/learn/injuries/back-injuries-workers-comp/" class="article-card">
-          <h3>Back injuries and workers' comp</h3>
-          <p>Back injuries are the #1 workers' comp claim in New York. Learn what diagnoses qualify, how they're valued, and what to watch for.</p>
-          <div class="card-meta">7 min read</div>
-        </a>
-        <a href="/learn/injuries/knee-injuries-workers-comp/" class="article-card">
-          <h3>Knee injuries and workers' comp</h3>
-          <p>From torn meniscus to ACL tears, knee injuries can earn Schedule Loss of Use awards. Here's how they're evaluated.</p>
-          <div class="card-meta">6 min read</div>
-        </a>
-      </div>
-    </div>
-
-    <!-- YOUR RIGHTS -->
-    <div class="category-section">
-      <div class="category-header">
-        <h2>⚖️ Your Rights</h2>
-        <a href="/learn/your-rights/">All Your Rights articles →</a>
-      </div>
-      <div class="learn-grid">
-        <a href="/learn/your-rights/can-employer-fire-me-filing-comp-claim/" class="article-card">
-          <h3>Can my employer fire me for filing a comp claim?</h3>
-          <p>Retaliation is illegal in New York — but it still happens. Know your rights and what to do if your employer retaliates.</p>
-          <div class="card-meta">6 min read</div>
-        </a>
-        <a href="/learn/your-rights/how-long-to-file-workers-comp-claim-ny/" class="article-card">
-          <h3>How long do I have to file a workers' comp claim in NY?</h3>
-          <p>The statute of limitations can kill an otherwise valid claim. Learn the deadlines before it's too late.</p>
-          <div class="card-meta">6 min read</div>
-        </a>
-        <a href="/learn/your-rights/how-to-choose-ny-workers-comp-attorney/" class="article-card">
-          <h3>How to choose a NY workers' comp attorney</h3>
-          <p>The right attorney can mean tens of thousands of dollars more. Here's what to look for — and what red flags to avoid.</p>
-          <div class="card-meta">7 min read</div>
-        </a>
-      </div>
-    </div>
-
-    <div class="rss-link">
-      <a href="/learn/feed.xml">RSS Feed</a> · Updated regularly
-    </div>
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="/">Home</a> &gt; <span>Learn</span>
   </div>
 
-  <script type="module">
-    import { getOptionalUser } from '../js/auth.js';
-    import { renderPublicNav } from '../js/nav.js';
-    const user = await getOptionalUser();
-    renderPublicNav(user);
-  </script>
+  <!-- Hero -->
+  <section class="hero" style="padding-top:40px;">
+    <div class="wrap">
+      <div class="badge">Free Resources</div>
+      <h1>Understand Your <span>Workers' Comp Case</span></h1>
+      <p class="sub">Free educational resources about NYS workers' compensation — built by a practicing WC attorney. Step-by-step guides, video tutorials, and a glossary of every WCB term you need to know.</p>
+      <div class="cta-row">
+        <a href="#guides" class="cta-btn">Explore Guides</a>
+        <a href="#glossary" class="cta-btn outline">Browse Glossary</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Your Comp Journey -->
+  <section id="journey">
+    <div class="wrap">
+      <h2>Your Comp Journey</h2>
+      <p class="section-sub">Every workers' compensation case in New York follows these five stages. Understanding where you are helps you know what comes next.</p>
+      <div class="journey-grid">
+        <div class="journey-card" id="filing">
+          <div class="step-num">1</div>
+          <h3>File Your Claim</h3>
+          <p>Report your injury, file the C-3 form, and open your WCB case.</p>
+        </div>
+        <div class="journey-card" id="benefits">
+          <div class="step-num">2</div>
+          <h3>Get Your Benefits</h3>
+          <p>Understand your AWW, comp rate, and weekly benefit payments.</p>
+        </div>
+        <div class="journey-card" id="medical">
+          <div class="step-num">3</div>
+          <h3>Medical Evidence</h3>
+          <p>Navigate IMEs, treating physician reports, and medical disputes.</p>
+        </div>
+        <div class="journey-card" id="permanency">
+          <div class="step-num">4</div>
+          <h3>Permanency</h3>
+          <p>SLU awards, LWEC classification, and permanent impairment.</p>
+        </div>
+        <div class="journey-card" id="settlements">
+          <div class="step-num">5</div>
+          <h3>Settlement</h3>
+          <p>Section 32 settlements, closing your case, and next steps.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Dive Guides -->
+  <section id="guides">
+    <div class="wrap">
+      <h2>Deep Dive Guides</h2>
+      <p class="section-sub">In-depth guides covering every aspect of NYS workers' compensation — from your first hearing to final settlement.</p>
+      <div class="topics-grid">
+        <div class="topic-card">
+          <span class="icon">&#128221;</span>
+          <h3>Filing a Workers' Comp Claim in NY</h3>
+          <p>How to report your injury, file the C-3 form with the WCB, and what to expect in the first 30 days of your case. Includes employer notice requirements and deadlines.</p>
+          <span class="tag tag-beginner">Beginner</span>
+        </div>
+        <div class="topic-card">
+          <span class="icon">&#128176;</span>
+          <h3>Understanding Your Weekly Benefits</h3>
+          <p>How your Average Weekly Wage (AWW) is calculated under WCL §14, what your compensation rate means, and the different benefit categories — temporary total, temporary partial, and permanent.</p>
+          <span class="tag tag-beginner">Beginner</span>
+        </div>
+        <a href="/learn/find-workers-comp-doctor-ny.html" class="topic-card" style="text-decoration:none;">
+          <span class="icon">&#128170;</span>
+          <h3>How to Find a Workers' Comp Doctor in NY</h3>
+          <p>How to find a WC-authorized provider in your area, understand what "WC-coded" means, search by specialty and injury type, and verify your doctor accepts workers' comp claims.</p>
+          <span class="tag tag-beginner">Beginner</span>
+        </a>
+        <a href="/learn/what-to-expect-ime.html" class="topic-card" style="text-decoration:none;">
+          <span class="icon">&#129657;</span>
+          <h3>What to Expect at an Independent Medical Examination (IME)</h3>
+          <p>What happens during an IME, how to prepare, what to bring, how to present yourself honestly, and why missing an IME can suspend your benefits. Critical guide for protecting your case.</p>
+          <span class="tag tag-intermediate">Intermediate</span>
+        </a>
+        <div class="topic-card">
+          <span class="icon">&#128200;</span>
+          <h3>Schedule Loss of Use (SLU) Awards</h3>
+          <p>How SLU awards work under WCL §15(3), which body parts qualify, how the percentage of loss is determined, and how to calculate your potential award. Includes the 2024 Permanency Guidelines update.</p>
+          <span class="tag tag-intermediate">Intermediate</span>
+        </div>
+        <div class="topic-card">
+          <span class="icon">&#128202;</span>
+          <h3>LWEC Classification & Permanency</h3>
+          <p>The Loss of Wage Earning Capacity (LWEC) system for non-schedule injuries (spine, brain, heart, lungs). How classification percentages are determined and what they mean for your long-term benefits.</p>
+          <span class="tag tag-advanced">Advanced</span>
+        </div>
+        <div class="topic-card">
+          <span class="icon">&#129309;</span>
+          <h3>Section 32 Settlements</h3>
+          <p>Everything you need to know about settling your workers' comp case. How Section 32 agreements work, when settling makes sense, what to negotiate, and how the Board reviews your agreement.</p>
+          <span class="tag tag-advanced">Advanced</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Library -->
+  <section>
+    <div class="wrap">
+      <h2>Video Library</h2>
+      <p class="section-sub">Short, clear video tutorials that walk you through the most important concepts in NYS workers' compensation.</p>
+      <div class="video-grid">
+        <div class="video-card">
+          <div class="video-thumb">&#127909;</div>
+          <div class="video-info">
+            <h3>What Is Schedule Loss of Use?</h3>
+            <p>A 5-minute overview of how SLU works, which body parts qualify, and what determines your award amount.</p>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb">&#127909;</div>
+          <div class="video-info">
+            <h3>How Your AWW Is Calculated</h3>
+            <p>Understanding the four statutory methods for calculating your Average Weekly Wage under WCL §14.</p>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb">&#127909;</div>
+          <div class="video-info">
+            <h3>Preparing for Your IME</h3>
+            <p>What to expect at an Independent Medical Examination and how to protect your rights during the process.</p>
+          </div>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:14px;color:var(--txD);">More videos coming soon. <a href="https://compbuddy.app">Get the app</a> for the full video library.</p>
+    </div>
+  </section>
+
+  <!-- Glossary Preview -->
+  <section id="glossary">
+    <div class="wrap">
+      <h2>WCB Glossary</h2>
+      <p class="section-sub">Key workers' compensation terms every injured worker and attorney should know.</p>
+      <div class="glossary-section">
+        <div class="glossary-grid">
+          <a href="/calculators/slu.html" class="glossary-item" style="text-decoration:none;">
+            <div class="term">Schedule Loss of Use (SLU)</div>
+            <div class="def">Permanent impairment award for extremity injuries under WCL §15(3).</div>
+          </a>
+          <a href="/calculators/aww.html" class="glossary-item" style="text-decoration:none;">
+            <div class="term">Average Weekly Wage (AWW)</div>
+            <div class="def">The wage basis for calculating your weekly compensation rate.</div>
+          </a>
+          <a href="/calculators/lwec.html" class="glossary-item" style="text-decoration:none;">
+            <div class="term">LWEC</div>
+            <div class="def">Loss of Wage Earning Capacity — classification for non-schedule injuries.</div>
+          </a>
+          <div class="glossary-item">
+            <div class="term">IME</div>
+            <div class="def">Independent Medical Examination — exam by the carrier's doctor.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="term">Section 32</div>
+            <div class="def">Voluntary lump-sum settlement that closes the entire WC case.</div>
+          </div>
+          <a href="/calculators/rates.html" class="glossary-item" style="text-decoration:none;">
+            <div class="term">Compensation Rate</div>
+            <div class="def">Your weekly benefit amount — 2/3 of AWW, capped at the statutory max.</div>
+          </a>
+          <div class="glossary-item">
+            <div class="term">Maximum Medical Improvement (MMI)</div>
+            <div class="def">The point at which your condition has stabilized and further improvement is unlikely.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="term">C-3 Form</div>
+            <div class="def">Employee Claim form filed with the WCB to initiate a workers' comp case.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="term">PPD</div>
+            <div class="def">Permanent Partial Disability — ongoing benefits for partial permanent impairment.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="term">WCLJ</div>
+            <div class="def">Workers' Compensation Law Judge — presides over WCB hearings.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="term">Causal Relationship</div>
+            <div class="def">The medical connection between your work accident and your diagnosed injury.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="term">Date of Disablement</div>
+            <div class="def">The date you first lost time from work due to your occupational injury or disease.</div>
+          </div>
+        </div>
+      </div>
+      <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--txD);">The full interactive glossary is available in the <a href="https://compbuddy.app">Comp Desk app</a>.</p>
+    </div>
+  </section>
+
+  <!-- Footer CTA -->
+  <section class="footer-cta">
+    <div class="wrap">
+      <h2>Get the Full Learning Experience</h2>
+      <p>The Comp Desk app includes the complete video library, interactive guides, a searchable glossary, and 7 free calculators — everything you need to understand your workers' comp case.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="https://compbuddy.app" class="cta-btn">Download the App</a>
+        <a href="/calculators/" class="cta-btn outline">Explore Calculators</a>
+        <a href="/settlement-calculator" class="cta-btn outline">Settlement Calculator</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="wrap">
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved. | <a href="/privacy.html">Privacy Policy</a></p>
+      <p style="margin-top:8px;font-size:11px;color:var(--txM);">Educational content only — not legal advice. Consult a licensed attorney for advice specific to your case.</p>
+    </div>
+  </footer>
+
 </body>
 </html>

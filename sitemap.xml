@@ -115,7 +115,7 @@
 
   <url>
     <loc>https://thecompdesk.com/learn</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -137,10 +137,17 @@
   </url>
 
   <url>
-    <loc>https://thecompdesk.com/tools/ime-reminders.html</loc>
-    <lastmod>2026-04-10</lastmod>
+    <loc>https://thecompdesk.com/tools/find-doctor.html</loc>
+    <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://thecompdesk.com/tools/ime-reminders.html</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 
   <url>
@@ -164,12 +171,27 @@
     <priority>0.5</priority>
   </url>
 
+  <!-- ==================== LEARN ARTICLES ==================== -->
+
+  <url>
+    <loc>https://thecompdesk.com/learn/find-workers-comp-doctor-ny.html</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://thecompdesk.com/learn/what-to-expect-ime.html</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
   <!-- ==========================================================
        EXCLUDED (noindex / auth-gated):
        /account.html, /auth.html, /auth_v2.html, /dashboard/,
        /dashboard/my-cases.html, /delete-account.html, /workspace.html,
-       /calculators/pro.html, /tools/find-doctor.html,
-       /tools/settlement.html
+       /calculators/pro.html, /tools/settlement.html
        ========================================================== -->
 
 </urlset>
