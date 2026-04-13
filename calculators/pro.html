@@ -3,23 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pro Attorney Calculator Suite — All 7 Calculators | The Comp Desk</title>
-  <meta name="description" content="Pro-tier unified NYS workers' compensation calculator suite. SLU, AWW, LWEC, CCP/Award, Rate Lookup, Radiculopathy, and Spine/Brain — all in one workspace.">
+  <title>Pro Attorney Calculator Suite — All 6 Calculators | The Comp Desk</title>
+<meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Pro-tier unified NYS workers' compensation calculator suite. SLU, AWW, LWEC, CCP/Award, Rate Lookup, and Radiculopathy — all in one workspace.">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Pro Attorney Calculator Suite — All 7 Calculators | The Comp Desk">
-  <meta property="og:description" content="Pro-tier unified NYS workers' compensation calculator suite. SLU, AWW, LWEC, CCP/Award, Rate Lookup, Radiculopathy, and Spine/Brain — all in one workspace.">
-  <meta property="og:image" content="https://www.thecompdesk.com/images/og-calculators.png">
-  <meta property="og:url" content="https://www.thecompdesk.com/calculators/pro.html">
+  <meta property="og:title" content="Pro Attorney Calculator Suite — All 6 Calculators | The Comp Desk">
+  <meta property="og:description" content="Pro-tier unified NYS workers' compensation calculator suite. SLU, AWW, LWEC, CCP/Award, Rate Lookup, and Radiculopathy — all in one workspace.">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-calculators.png">
+  <meta property="og:url" content="https://thecompdesk.com/calculators/pro.html">
   <meta property="og:type" content="website">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Pro Attorney Calculator Suite — All 7 Calculators | The Comp Desk">
-  <meta name="twitter:description" content="Pro-tier unified NYS workers' compensation calculator suite. SLU, AWW, LWEC, CCP/Award, Rate Lookup, Radiculopathy, and Spine/Brain.">
-  <meta name="twitter:image" content="https://www.thecompdesk.com/images/og-calculators.png">
+  <meta name="twitter:title" content="Pro Attorney Calculator Suite — All 6 Calculators | The Comp Desk">
+  <meta name="twitter:description" content="Pro-tier unified NYS workers' compensation calculator suite. SLU, AWW, LWEC, CCP/Award, Rate Lookup, and Radiculopathy.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-calculators.png">
 
-  <link rel="canonical" href="https://www.thecompdesk.com/calculators/pro.html">
+  <link rel="canonical" href="https://thecompdesk.com/calculators/pro.html">
   <link rel="stylesheet" href="../css/app.css">
   <style>
     /* ── Tab bar ── */
@@ -309,13 +310,12 @@
     <div class="pro-gate-box">
       <div class="pro-gate-icon">⚖️</div>
       <h2>Pro Attorney Calculator</h2>
-      <p>All 7 NYS workers' comp calculators unified in one workspace — SLU, AWW, LWEC, CCP/Award, Rate Lookup, Radiculopathy, and Spine/Brain.</p>
+      <p>All 6 NYS workers' comp calculators unified in one workspace — SLU, AWW, LWEC, CCP/Award, Rate Lookup, and Radiculopathy.</p>
       <ul class="pro-gate-features">
         <li>Full period-by-period CCP / Award builder</li>
         <li>Multi-body-part SLU with attorney fee breakdown</li>
         <li>LWEC bracket classification &amp; net to claimant</li>
         <li>Radiculopathy SLU range calculator</li>
-        <li>SCI / TBI benefit &amp; lifetime projection</li>
         <li>Calculations sync to the app via shared history</li>
       </ul>
       <div class="pro-gate-btns">
@@ -372,7 +372,6 @@
         TT Rate: <strong id="g-tt-rate">$1,000.00/wk</strong>
         <span style="color:var(--txM);margin-left:8px;font-size:10px;">= 2/3 × AWW capped at max</span>
         &nbsp;|&nbsp; SLU Rate: <strong id="g-slu-rate">$1,000.00/wk</strong>
-        &nbsp;|&nbsp; Statutory Min (DOI): <strong id="g-min-rate">—</strong>
       </div>
     </div>
 
@@ -383,9 +382,7 @@
       <button class="pro-tab-btn" role="tab" data-tab="lwec">LWEC</button>
       <button class="pro-tab-btn" role="tab" data-tab="ccp">CCP/Award</button>
       <button class="pro-tab-btn" role="tab" data-tab="rates">Rate Lookup</button>
-      <button class="pro-tab-btn" role="tab" data-tab="minrates">Min Rate</button>
       <button class="pro-tab-btn" role="tab" data-tab="rad">Radiculopathy</button>
-      <button class="pro-tab-btn" role="tab" data-tab="spine">Spine/Brain</button>
     </div>
 
     <!-- ════════════════════════════════════
@@ -692,37 +689,6 @@
     </div>
 
     <!-- ════════════════════════════════════
-         TAB: MIN RATE
-    ════════════════════════════════════ -->
-    <div id="tab-minrates" class="pro-tab-panel">
-      <div class="calc-section">
-        <div class="calc-header"><span class="calc-header-title">Statutory Minimum Rate (NYS WCL §204)</span></div>
-        <div class="calc-body">
-          <p style="color:var(--txD);font-size:13px;margin-bottom:14px;">The weekly benefit rate cannot fall below the statutory minimum for the date of injury. If 2/3 AWW is less than the minimum, the rate is raised to the minimum — except that if the claimant's AWW is itself lower than the minimum, the rate equals the full AWW. This calculator applies that floor automatically to all rate computations.</p>
-          <div class="field-group" style="max-width:280px;margin-bottom:14px;">
-            <label class="field-label" for="minrates-doi">Date of Injury / Accident</label>
-            <input type="date" id="minrates-doi">
-            <span class="field-hint">Synced from global DOI</span>
-          </div>
-          <div class="result-box">
-            <div class="result-item" style="margin-bottom:10px;">
-              <span class="result-label">Applicable Minimum Rate</span>
-              <span class="result-value" id="minrates-r-rate" style="font-size:30px;">—</span>
-            </div>
-            <div class="result-meta" id="minrates-r-period">—</div>
-            <div class="result-meta" id="minrates-r-note" style="margin-top:6px;"></div>
-          </div>
-          <div style="margin-top:20px;overflow-x:auto;">
-            <table class="data-table">
-              <thead><tr><th>Period</th><th>Min Weekly Rate</th><th>Notes</th></tr></thead>
-              <tbody id="minrates-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════════════════════
          TAB: RADICULOPATHY
     ════════════════════════════════════ -->
     <div id="tab-rad" class="pro-tab-panel">
@@ -765,94 +731,6 @@
       </div>
     </div>
 
-    <!-- ════════════════════════════════════
-         TAB: SPINE / BRAIN
-    ════════════════════════════════════ -->
-    <div id="tab-spine" class="pro-tab-panel">
-      <div class="calc-section">
-        <div class="calc-header"><span class="calc-header-title">Spine / Brain Injury Benefits</span></div>
-        <div class="calc-body">
-          <div class="radio-group" role="radiogroup" style="margin-bottom:14px;">
-            <label class="radio-option"><input type="radio" name="spine-type" value="sci" checked> Spinal Cord Injury (SCI)</label>
-            <label class="radio-option"><input type="radio" name="spine-type" value="tbi"> Traumatic Brain Injury (TBI)</label>
-          </div>
-          <div id="spine-sci-inputs">
-            <div class="fields-row">
-              <div class="field-group">
-                <label class="field-label" for="spine-sci-level">SCI Level</label>
-                <select id="spine-sci-level">
-                  <option value="">Select level...</option>
-                  <option value="C1-C4">C1–C4 (High cervical)</option><option value="C5">C5</option><option value="C6">C6</option><option value="C7">C7</option><option value="C8-T1">C8–T1</option>
-                  <option value="T1-T6">T1–T6 (High thoracic)</option><option value="T7-T12">T7–T12</option>
-                  <option value="L1-L2">L1–L2</option><option value="L3-L4">L3–L4</option><option value="L5-S1">L5–S1</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="spine-asia">ASIA Classification</label>
-                <select id="spine-asia">
-                  <option value="">Select ASIA...</option>
-                  <option value="A">A — Complete (no motor/sensory below)</option>
-                  <option value="B">B — Motor complete, some sensory</option>
-                  <option value="C">C — Motor incomplete (&lt;50% key muscles)</option>
-                  <option value="D">D — Motor incomplete (≥50% key muscles)</option>
-                  <option value="E">E — Normal motor &amp; sensory</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div id="spine-tbi-inputs" style="display:none">
-            <div class="fields-row">
-              <div class="field-group">
-                <label class="field-label" for="spine-tbi-sev">TBI Severity</label>
-                <select id="spine-tbi-sev">
-                  <option value="">Select severity...</option>
-                  <option value="mild">Mild — GCS 13–15, LOC &lt;30 min</option>
-                  <option value="moderate">Moderate — GCS 9–12, LOC 30 min–24 hrs</option>
-                  <option value="severe">Severe — GCS ≤8 or PTD-level deficits</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="spine-tbi-cog">Cognitive Impairment</label>
-                <select id="spine-tbi-cog">
-                  <option value="">Select impairment...</option>
-                  <option value="minimal">Minimal — mild memory issues, working w/ accommodations</option>
-                  <option value="moderate">Moderate — executive dysfunction, reduced work capacity</option>
-                  <option value="severe">Severe — unable to sustain competitive employment</option>
-                  <option value="total">Total — requires supervision/care, no work capacity</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="fields-row" style="margin-top:10px;">
-            <div class="field-group">
-              <label class="field-label" for="spine-age">Claimant Age</label>
-              <div class="field-wrap"><input type="number" id="spine-age" min="16" max="80" value="40"><span class="field-suffix">yrs</span></div>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="spine-le">Life Expectancy</label>
-              <div class="field-wrap"><input type="number" id="spine-le" min="16" max="100" value="80"><span class="field-suffix">yrs</span></div>
-              <span class="field-hint">Default: 80 (US average)</span>
-            </div>
-          </div>
-          <div class="result-box" style="margin-top:14px;">
-            <div style="margin-bottom:10px;"><span id="spine-r-badge" style="display:inline-block;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:rgba(255,255,255,.06);color:var(--txM);">Select inputs above</span></div>
-            <div class="result-grid">
-              <div class="result-item"><span class="result-label">LWEC / PTD %</span><span class="result-value" id="spine-r-lwec">—</span></div>
-              <div class="result-item"><span class="result-label">Weekly Benefit</span><span class="result-value blue" id="spine-r-weekly">—</span></div>
-              <div class="result-item"><span class="result-label">LWEC Bracket</span><span class="result-value" id="spine-r-bracket">—</span></div>
-              <div class="result-item"><span class="result-label">Max Benefit Weeks</span><span class="result-value" id="spine-r-maxwk">—</span></div>
-              <div class="result-item"><span class="result-label">Effective Weeks</span><span class="result-value" id="spine-r-effwk">—</span></div>
-              <div class="result-item"><span class="result-label">Lifetime Projection</span><span class="result-value gold" id="spine-r-lifetime">—</span></div>
-            </div>
-            <div class="result-meta" id="spine-r-note"></div>
-            <div class="save-bar">
-              <span class="save-bar-status" id="spine-save-status"></span>
-              <button class="btn-save" id="spine-save-btn">Save Calculation</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="disclaimer" style="margin-top:24px;">
       <p style="margin:0;"><strong>Disclaimer:</strong> This tool is for informational purposes only and does not constitute legal advice. All calculations are based on current NYS Workers' Compensation Law. Actual awards are determined by the Workers' Compensation Board. Comp Buddy is a document preparation service operated by NJJ Document Services, Inc.</p>
@@ -888,15 +766,6 @@
       {s:"2007-07-01",e:"2008-06-30",l:"Jul 1, 2007 – Jun 30, 2008",max:500},
       {s:"1985-07-01",e:"2007-06-30",l:"Jul 1, 1985 – Jun 30, 2007",max:400},
     ];
-    // ─── Statutory MIN rates — mirrors app MIN_RATES ───
-    const MIN_RATES = [
-      {s:"2026-07-01",e:"2099-12-31",l:"Jul 1, 2026+",                min:null,n:"1/5 NYSAWW (indexed)"},
-      {s:"2025-01-01",e:"2026-06-30",l:"Jan 1, 2025 – Jun 30, 2026",  min:325, n:""},
-      {s:"2024-01-01",e:"2024-12-31",l:"Jan 1, 2024 – Dec 31, 2024",  min:275, n:""},
-      {s:"2013-05-01",e:"2023-12-31",l:"May 1, 2013 – Dec 31, 2023",  min:150, n:""},
-      {s:"2007-07-01",e:"2013-04-30",l:"Jul 1, 2007 – Apr 30, 2013",  min:100, n:"2007 Reform"},
-      {s:"1900-01-01",e:"2007-06-30",l:"Before Jul 1, 2007",          min:40,  n:"Pre-reform"},
-    ];
     const SLU_BP = [
       {n:"Arm",w:312,hp:32},{n:"Hand",w:244,hp:32},{n:"Leg",w:288,hp:40},{n:"Foot",w:205,hp:32},
       {n:"Thumb",w:75,hp:24},{n:"1st Finger (Index)",w:46,hp:18},{n:"2nd Finger (Middle)",w:30,hp:12},
@@ -927,25 +796,6 @@
       }
       return MAX_RATES[MAX_RATES.length-1];
     }
-    function getMinForDate(dateStr) {
-      if (!dateStr) return MIN_RATES[0];
-      const dt = new Date(dateStr+'T00:00:00');
-      for (const r of MIN_RATES) {
-        if (dt >= new Date(r.s+'T00:00:00') && dt <= new Date(r.e+'T23:59:59')) return r;
-      }
-      return null;
-    }
-    function getMinRate() {
-      const doi = document.getElementById('g-doi').value;
-      const r = getMinForDate(doi);
-      return r && r.min ? r.min : 0;
-    }
-    // Apply statutory floor: if 2/3 AWW < minRate, raise to minRate,
-    // but if AWW itself is below minRate, the benefit equals AWW (WCL §204).
-    function applyMinFloor(rate, aww, minR) {
-      if (minR > 0 && rate < minR) return Math.min(minR, aww);
-      return rate;
-    }
     function getBracket(pct) {
       if (pct >= 100) return LWEC_BR[0];
       for (const b of LWEC_BR) { if (b.lo !== undefined && pct >= b.lo && pct <= b.hi) return b; }
@@ -959,28 +809,16 @@
     let currentUser = null;
     function getAWW()     { return pF(document.getElementById('g-aww').value); }
     function getMaxRate() { return pF(document.getElementById('g-maxrate').value); }
-    function getCappedTT(){
-      const aww=getAWW();
-      const tt=aww*2/3;
-      const mx=getMaxRate();
-      const capped = mx>0?Math.min(tt,mx):tt;
-      return applyMinFloor(capped, aww, getMinRate());
-    }
+    function getCappedTT(){ const tt=getAWW()*2/3; const mx=getMaxRate(); return mx>0?Math.min(tt,mx):tt; }
     function getSLURate() { return getCappedTT(); }
     function getCaseName(){ return document.getElementById('g-case-name').value.trim(); }
 
     function updateGlobalDisplay() {
       const tt = getCappedTT();
       const aww = getAWW(); const mx = getMaxRate(); const raw = aww*2/3;
-      const mn = getMinRate();
       document.getElementById('g-tt-rate').textContent = fC(tt)+'/wk';
       document.getElementById('g-slu-rate').textContent = fC(tt)+'/wk';
-      let title = '';
-      if (mx>0 && raw>mx) title = '2/3 AWW '+fC(raw)+' capped at max '+fC(mx);
-      else if (mn>0 && raw<mn) title = '2/3 AWW '+fC(raw)+' raised to min '+fC(mn)+(aww<mn?' (capped at AWW '+fC(aww)+')':'');
-      if (title) document.getElementById('g-tt-rate').title = title;
-      const mnEl = document.getElementById('g-min-rate');
-      if (mnEl) mnEl.textContent = mn>0 ? fC(mn)+'/wk' : '—';
+      if (mx>0 && raw>mx) document.getElementById('g-tt-rate').title = '2/3 AWW '+fC(raw)+' capped at '+fC(mx);
     }
 
     async function doSave(calcType, inputData, resultData, statusEl) {
@@ -1247,44 +1085,8 @@
       const fg = document.createElement('div'); fg.className='field-group';
       const lbl = document.createElement('label'); lbl.className='field-label'; lbl.htmlFor=id; lbl.textContent=label;
       const inp = document.createElement('input'); inp.type='date'; inp.id=id; inp.value=value;
-      // NOTE: intentionally no min/max attributes — the native date input
-      // rejects partially-typed years when min is set (user can't type the
-      // 4-digit year). Validation happens on blur instead.
-      inp.addEventListener('change', e=>{ onChange(e.target.value); });
-      inp.addEventListener('blur', e=>{
-        const v=e.target.value;
-        if(!v){ onChange(''); return; }
-        const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
-        if(!m){ return; }
-        const yr=parseInt(m[1],10);
-        if(yr<2000 || yr>2099){ e.target.value=''; onChange(''); return; }
-        onChange(v);
-      });
-      // Enter on a date field commits the row (if it's the last row)
-      inp.addEventListener('keydown',e=>{
-        if(e.key==='Enter'){
-          e.preventDefault();
-          // Flush any pending value first
-          onChange(e.target.value);
-          const idx=parseInt((id.match(/-(\d+)$/)||[])[1],10);
-          if(!isNaN(idx)) commitCCPRowIfLast(idx);
-        }
-      });
+      inp.addEventListener('change', e=>onChange(e.target.value));
       fg.appendChild(lbl); fg.appendChild(inp); return fg;
-    }
-
-    function getDOI(){ return document.getElementById('g-doi').value || ''; }
-    function blankCCPPeriod(){ return {start:getDOI(),end:'',desig:'TT',rate:'',ratePct:'',curEarn:''}; }
-    function commitCCPRowIfLast(i){
-      if(i!==ccpPeriods.length-1) return;
-      const p=ccpPeriods[i];
-      if(!p.start) return; // need at least a start date to commit
-      ccpPeriods.push(blankCCPPeriod());
-      renderCCPPeriods();
-      calcCCP();
-      const ni=ccpPeriods.length-1;
-      const first=document.getElementById('ccp-s-'+ni);
-      if(first) first.focus();
     }
 
     function renderCCPPeriods() {
@@ -1296,8 +1098,8 @@
         const div=document.createElement('div'); div.className='period-row'; div.setAttribute('role','listitem');
         const fields=document.createElement('div'); fields.className='period-fields';
 
-        fields.appendChild(makeCCPDateFG('Start Date',p.start,'ccp-s-'+i,v=>{ccpPeriods[i].start=v;calcCCP();}));
-        fields.appendChild(makeCCPDateFG('End Date',p.end,'ccp-e-'+i,v=>{ccpPeriods[i].end=v;calcCCP();}));
+        fields.appendChild(makeCCPDateFG('Start Date',p.start,'ccp-s-'+i,v=>{ccpPeriods[i].start=v;renderCCPPeriods();calcCCP();}));
+        fields.appendChild(makeCCPDateFG('End Date',p.end,'ccp-e-'+i,v=>{ccpPeriods[i].end=v;renderCCPPeriods();calcCCP();}));
 
         const rateRO = p.desig==='TT'||p.desig==='RE';
         const effRate = p.desig==='TT'?cappedTT:p.desig==='RE'?(2/3)*(aww-pF(p.curEarn)):p.desig==='TR'&&p.ratePct?(pF(p.ratePct)/100)*cappedTT:pF(p.rate);
@@ -1308,7 +1110,6 @@
         const rInp=document.createElement('input'); rInp.type='number'; rInp.step='0.01'; rInp.min='0';
         if(rateRO){rInp.value=effRate.toFixed(2);rInp.readOnly=true;rInp.style.color='var(--txM)';}
         else{rInp.value=p.rate;rInp.addEventListener('input',e=>{ccpPeriods[i].rate=e.target.value;calcCCP();});}
-        rInp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commitCCPRowIfLast(i);}});
         rateWrap.appendChild(rPfx);rateWrap.appendChild(rInp);rateFG.appendChild(rateLbl);rateFG.appendChild(rateWrap);fields.appendChild(rateFG);
 
         const pctFG=document.createElement('div'); pctFG.className='field-group';
@@ -1318,7 +1119,6 @@
         if(p.desig==='TT'){pInp.value='100';pInp.readOnly=true;pInp.style.color='var(--txM)';}
         else if(p.desig==='TR'){pInp.value=p.ratePct;pInp.addEventListener('input',e=>{ccpPeriods[i].ratePct=e.target.value;if(e.target.value&&cappedTT>0)ccpPeriods[i].rate=(pF(e.target.value)/100*cappedTT).toFixed(2);renderCCPPeriods();calcCCP();});}
         else{pInp.value=cappedTT>0?(effRate/cappedTT*100).toFixed(1):'';pInp.readOnly=true;pInp.style.color='var(--txM)';}
-        pInp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commitCCPRowIfLast(i);}});
         const pSfx=document.createElement('span'); pSfx.className='field-suffix'; pSfx.textContent='%';
         pctWrap.appendChild(pInp);pctWrap.appendChild(pSfx);pctFG.appendChild(pctLbl);pctFG.appendChild(pctWrap);fields.appendChild(pctFG);
 
@@ -1403,15 +1203,8 @@
       }
     }
 
-    document.getElementById('ccp-add').addEventListener('click',()=>{ccpPeriods.push(blankCCPPeriod());renderCCPPeriods();calcCCP();const ni=ccpPeriods.length-1;const f=document.getElementById('ccp-s-'+ni);if(f)f.focus();});
-    document.getElementById('ccp-reset').addEventListener('click',()=>{if(!confirm('Reset all CCP periods?'))return;ccpPeriods=[blankCCPPeriod()];document.getElementById('ccp-amt').value='0';document.getElementById('ccp-prior').value='0';renderCCPPeriods();calcCCP();});
-    // Auto-fill DOI into any CCP period whose start is blank whenever the global DOI changes
-    document.getElementById('g-doi').addEventListener('change',()=>{
-      const doi=getDOI(); if(!doi) return;
-      let changed=false;
-      ccpPeriods.forEach(p=>{ if(!p.start){ p.start=doi; changed=true; }});
-      if(changed){ renderCCPPeriods(); calcCCP(); }
-    });
+    document.getElementById('ccp-add').addEventListener('click',()=>{ccpPeriods.push({start:'',end:'',desig:'TT',rate:'',ratePct:'',curEarn:''});renderCCPPeriods();calcCCP();});
+    document.getElementById('ccp-reset').addEventListener('click',()=>{if(!confirm('Reset all CCP periods?'))return;ccpPeriods=[{start:'',end:'',desig:'TT',rate:'',ratePct:'',curEarn:''}];document.getElementById('ccp-amt').value='0';document.getElementById('ccp-prior').value='0';renderCCPPeriods();calcCCP();});
     document.getElementById('ccp-amt').addEventListener('input',calcCCP);
     document.getElementById('ccp-prior').addEventListener('input',calcCCP);
     document.getElementById('ccp-copy-eq').addEventListener('click',function(){copyToClipboard(document.getElementById('ccp-eq-text').textContent,this);});
@@ -1427,26 +1220,11 @@
       document.getElementById('rates-r-rate').textContent = r ? fC(r.max) : '—';
       document.getElementById('rates-r-period').textContent = r ? r.l : '—';
     }
-    function calcMinRates(dateStr) {
-      const r = getMinForDate(dateStr);
-      const rateEl = document.getElementById('minrates-r-rate');
-      const perEl  = document.getElementById('minrates-r-period');
-      const noteEl = document.getElementById('minrates-r-note');
-      if (!r) { rateEl.textContent='—'; perEl.textContent='—'; noteEl.textContent=''; return; }
-      rateEl.textContent = r.min ? fC(r.min) : 'Indexed (1/5 NYSAWW)';
-      perEl.textContent  = r.l;
-      noteEl.textContent = r.n || '';
-    }
     function buildRatesTable() {
       const tbody = document.getElementById('rates-table-body');
       MAX_RATES.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.l}</td><td style="font-family:var(--mono);">${fC(r.max)}</td>`; tbody.appendChild(tr); });
-      const mtbody = document.getElementById('minrates-table-body');
-      if (mtbody) {
-        MIN_RATES.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.l}</td><td style="font-family:var(--mono);">${r.min?fC(r.min):'Indexed'}</td><td style="color:var(--txM);font-size:11px;">${r.n||''}</td>`; mtbody.appendChild(tr); });
-      }
     }
     document.getElementById('rates-doi').addEventListener('change', e=>calcRates(e.target.value));
-    document.getElementById('minrates-doi').addEventListener('change', e=>calcMinRates(e.target.value));
 
     // ══════════════════════════════════════════
     // RADICULOPATHY MODULE
@@ -1491,79 +1269,18 @@
       doSave('radiculopathy',{region:document.getElementById('rad-region').value,nerve:document.getElementById('rad-nerve').value,severity:document.getElementById('rad-severity').value,levels:document.getElementById('rad-levels').value,aww:getAWW(),maxRate:getMaxRate()},{sluRange:document.getElementById('rad-r-pct').textContent,weeksRange:document.getElementById('rad-r-weeks').textContent,awardRange:document.getElementById('rad-r-award').textContent},document.getElementById('rad-save-status'));
     });
 
-    // ══════════════════════════════════════════
-    // SPINE/BRAIN MODULE
-    // ══════════════════════════════════════════
-    const SCI_LWEC = {A:100,B:100,C:75,D:45,E:10};
-    const SCI_MOD = {'C1-C4':1.15,'C5':1.10,'C6':1.05,'C7':1.0,'C8-T1':0.95,'T1-T6':1.05,'T7-T12':1.0,'L1-L2':0.85,'L3-L4':0.75,'L5-S1':0.60};
-    const TBI_LWEC = {minimal:{mild:15,moderate:25,severe:40},moderate:{mild:30,moderate:50,severe:70},severe:{mild:60,moderate:80,severe:100},total:{mild:90,moderate:100,severe:100}};
-
-    document.querySelectorAll('input[name="spine-type"]').forEach(r=>r.addEventListener('change',()=>{
-      const isSCI=r.value==='sci'&&r.checked;
-      document.getElementById('spine-sci-inputs').style.display=isSCI?'block':'none';
-      document.getElementById('spine-tbi-inputs').style.display=isSCI?'none':'block';
-      calcSpine();
-    }));
-    ['spine-sci-level','spine-asia','spine-tbi-sev','spine-tbi-cog','spine-age','spine-le'].forEach(id=>document.getElementById(id).addEventListener('change',calcSpine));
-
-    function calcSpine() {
-      const type=document.querySelector('input[name="spine-type"]:checked').value;
-      const rate=getCappedTT();
-      const age=parseInt(document.getElementById('spine-age').value)||40;
-      const le=parseInt(document.getElementById('spine-le').value)||80;
-      let lwecPct=null;
-      if(type==='sci'){
-        const level=document.getElementById('spine-sci-level').value;
-        const asia=document.getElementById('spine-asia').value;
-        if(!level||!asia||rate<=0){['spine-r-lwec','spine-r-weekly','spine-r-bracket','spine-r-maxwk','spine-r-effwk','spine-r-lifetime'].forEach(id=>document.getElementById(id).textContent='—');return;}
-        const base=SCI_LWEC[asia];
-        const mod=SCI_MOD[level]||1.0;
-        lwecPct=Math.min(100,Math.round(base*(asia==='A'||asia==='B'?1.0:mod)));
-      } else {
-        const sev=document.getElementById('spine-tbi-sev').value;
-        const cog=document.getElementById('spine-tbi-cog').value;
-        if(!sev||!cog||rate<=0){['spine-r-lwec','spine-r-weekly','spine-r-bracket','spine-r-maxwk','spine-r-effwk','spine-r-lifetime'].forEach(id=>document.getElementById(id).textContent='—');return;}
-        lwecPct=TBI_LWEC[cog][sev];
-      }
-      const isPTD=lwecPct>=100;
-      const weeklyBen=isPTD?rate:(lwecPct/100)*rate;
-      const yearsLeft=Math.max(0,le-age);
-      const lifeWeeks=yearsLeft*52;
-      const bracket=getBracket(lwecPct);
-      const bracketMW=isPTD?null:bracket.mw;
-      const effWeeks=isPTD?lifeWeeks:Math.min(bracketMW,lifeWeeks);
-      const lifetime=weeklyBen*effWeeks;
-      document.getElementById('spine-r-badge').textContent=isPTD?'PTD — Lifetime Benefits':'LWEC Classification';
-      document.getElementById('spine-r-badge').style.background=isPTD?'rgba(239,68,68,.12)':'rgba(59,130,246,.12)';
-      document.getElementById('spine-r-badge').style.color=isPTD?'var(--rd)':'var(--ac)';
-      document.getElementById('spine-r-lwec').textContent=isPTD?'PTD (100%)':lwecPct+'%';
-      document.getElementById('spine-r-weekly').textContent=fC(weeklyBen);
-      document.getElementById('spine-r-bracket').textContent=isPTD?'PTD — Lifetime':bracket.l;
-      document.getElementById('spine-r-maxwk').textContent=isPTD?'Lifetime':bracketMW+' wks';
-      document.getElementById('spine-r-effwk').textContent=effWeeks.toLocaleString()+' wks'+((!isPTD&&lifeWeeks<bracketMW)?' (life expectancy limits)':'');
-      document.getElementById('spine-r-lifetime').textContent=fLarge(lifetime)+(isPTD?' (nominal, non-discounted)':'');
-      document.getElementById('spine-r-note').textContent=isPTD?'PTD provides weekly benefits for life. Settlement requires Board approval and present-value discounting.':'';
-    }
-    document.getElementById('spine-save-btn').addEventListener('click',()=>{
-      const type=document.querySelector('input[name="spine-type"]:checked').value;
-      doSave('spine_brain',{type,sciLevel:document.getElementById('spine-sci-level').value,asia:document.getElementById('spine-asia').value,tbiSev:document.getElementById('spine-tbi-sev').value,tbiCog:document.getElementById('spine-tbi-cog').value,age:document.getElementById('spine-age').value,le:document.getElementById('spine-le').value,aww:getAWW(),maxRate:getMaxRate()},{lwec:document.getElementById('spine-r-lwec').textContent,weekly:document.getElementById('spine-r-weekly').textContent,bracket:document.getElementById('spine-r-bracket').textContent,lifetime:document.getElementById('spine-r-lifetime').textContent},document.getElementById('spine-save-status'));
-    });
 
     // ══════════════════════════════════════════
     // GLOBAL INPUTS → recalc all
     // ══════════════════════════════════════════
     function recalcAll() {
       updateGlobalDisplay();
-      calcSLU(); calcLWEC(); calcCCP(); calcRad(); calcSpine();
+      calcSLU(); calcLWEC(); calcCCP(); calcRad();
       // sync rates tab DOI
       const doi = document.getElementById('g-doi').value;
       if (!document.getElementById('rates-doi').value) {
         document.getElementById('rates-doi').value = doi;
         calcRates(doi);
-      }
-      if (!document.getElementById('minrates-doi').value) {
-        document.getElementById('minrates-doi').value = doi;
-        calcMinRates(doi);
       }
     }
 
@@ -1573,9 +1290,7 @@
       const r=getMaxForDate(e.target.value);
       if(r){ document.getElementById('g-maxrate').value=r.max.toFixed(2); }
       document.getElementById('rates-doi').value=e.target.value;
-      document.getElementById('minrates-doi').value=e.target.value;
       calcRates(e.target.value);
-      calcMinRates(e.target.value);
       recalcAll();
     });
 
@@ -1633,6 +1348,5 @@
       recalcAll();
     });
   </script>
-<script src="/js/disclaimer.js" defer></script>
 </body>
 </html>
