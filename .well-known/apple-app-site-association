@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "RKX5F9GTN2.com.njjdocservices.thecompdesk",
+        "paths": [
+          "/set-password",
+          "/set-password/*",
+          "/auth/callback",
+          "/auth/callback/*"
+        ]
+      }
+    ]
+  }
+}

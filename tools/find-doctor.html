@@ -1,379 +1,416 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find a WCB-Authorized Doctor — NYS Workers' Comp | The Comp Desk</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find WCB-Authorized Doctors & Medical Providers | NYS Workers' Comp | The Comp Desk</title>
+  <meta name="description" content="Find WCB-authorized doctors, specialists, and medical providers near you in New York. Search by location, body part, and specialty. Free for injured workers in the Comp Desk app.">
+  <meta name="keywords" content="find workers comp doctor NYC, WCB authorized providers New York, workers comp doctor near me, workers compensation specialist, NY medical providers, orthopedic doctor workers comp, pain management specialist, WCB doctor finder">
 
-    <!-- JSON-LD Schema -->
-    <script type="application/ld+json">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Find WCB-Authorized Doctors — NYS Workers' Compensation | The Comp Desk">
+  <meta property="og:description" content="Search WCB-authorized medical providers in New York by location, specialty, and body part. Free doctor finder in the Comp Desk app.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thecompdesk.com/tools/find-doctor.html">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Find WCB-Authorized Doctors — NYS Workers' Comp | The Comp Desk">
+  <meta name="twitter:description" content="Search WCB-authorized medical providers in New York. Free doctor finder for injured workers in the Comp Desk app.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- JSON-LD: WebApplication + FAQPage -->
+  <script type="application/ld+json">
+  [
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Find a Workers' Comp Doctor — NYS Provider Search",
-      "url": "https://www.thecompdesk.com/tools/find-doctor",
-      "description": "Search for WCB-authorized doctors near you using the NPI registry. Filter by specialty, location, and workers' compensation coding.",
-      "applicationCategory": "FinanceApplication",
+      "name": "Find a WCB-Authorized Doctor",
+      "url": "https://thecompdesk.com/tools/find-doctor.html",
+      "description": "Free doctor finder for injured workers in New York. Search WCB-authorized medical providers by location, body part, and specialty. Available in the Comp Desk mobile app.",
+      "applicationCategory": "MedicalApplication",
       "operatingSystem": "All",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "creator": {
+        "@type": "Organization",
+        "name": "The Comp Desk",
+        "url": "https://thecompdesk.com"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I find a WCB-authorized doctor in New York?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use the Find a Doctor tool in the Comp Desk app to search for WCB-authorized providers. Enter your zip code, select the body part you injured, and choose a search radius. The app displays nearby doctors on an interactive map and in a searchable list view. You can filter by specialty, language, and distance."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I choose my own doctor in New York workers' compensation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "In New York workers' compensation, the employer or carrier typically selects the initial treating physician. However, you have the right to change doctors and request a physician of your choice under certain conditions. An experienced workers' compensation attorney can help you navigate doctor selection and disputes with the insurance carrier."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What specialties are available in the WCB doctor finder?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Find a Doctor tool covers 13 body parts and related medical specialties, including orthopedics, neurology, pain management, physical therapy, chiropractic care, hand surgery, cardiac rehabilitation, and pulmonology. Search by your injured body part and the app will recommend qualified specialists."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the doctor finder free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the Find a Doctor feature is free for all users of the Comp Desk app. Download the app to your phone or visit the web version to search for WCB-authorized providers near you in New York at no cost."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I find a doctor outside of New York City?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Find a Doctor tool works throughout New York State. Enter your zip code and select your preferred search radius (1-25 miles). The app queries the NPI Registry to find all WCB-authorized providers in that geographic area, regardless of whether you're in NYC, Buffalo, Rochester, or elsewhere in NY."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I save my favorite doctors?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. In the Comp Desk app, you can save doctors to your personal profile. Your saved providers are stored locally on your device so you can quickly call or reference them later when scheduling appointments or seeking follow-up treatment."
+          }
+        }
+      ]
     }
-    </script>
+  ]
+  </script>
 
-    <link rel="stylesheet" href="../css/app.css">
+  <!-- Canonical -->
+  <link rel="canonical" href="https://thecompdesk.com/tools/find-doctor.html">
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--navy:#1B2A4A;--mono:'JetBrains Mono',monospace;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--navy);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+    a{color:var(--ac);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+    /* Nav */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,42,74,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(79,143,247,0.15);}
+    nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+    nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;text-decoration:none;}
+    nav .logo span{color:var(--ac);}
+    nav .links{display:flex;gap:24px;align-items:center;}
+    nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
+    nav .links a:hover{color:var(--wh);text-decoration:none;}
+
+    /* CTA Buttons */
+    .cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;text-decoration:none;}
+    .cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,143,247,0.3);text-decoration:none;}
+    .cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
+    .cta-btn.outline:hover{background:var(--acG);}
+    .cta-btn.gold{background:var(--gd);color:#1a1200;}
+    .cta-btn.green{background:var(--gn);color:#0a1a14;}
+
+    /* Hero */
+    .hero{padding:140px 0 60px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(79,143,247,0.1) 0%,rgba(45,212,160,0.04) 40%,transparent 70%);pointer-events:none;}
+    .hero .badge{display:inline-block;background:rgba(45,212,160,0.12);border:1px solid rgba(45,212,160,0.3);color:var(--gn);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
+    .hero h1{font-size:clamp(32px,6vw,52px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
+    .hero h1 span{background:linear-gradient(135deg,var(--ac),var(--gn));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero .sub{font-size:clamp(16px,2.5vw,20px);color:var(--txD);max-width:680px;margin:0 auto 32px;line-height:1.6;}
+    .hero .cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+    /* Sections */
+    section{padding:60px 0;}
+    section h2{font-size:clamp(22px,4vw,32px);font-weight:800;color:var(--wh);margin-bottom:12px;text-align:center;}
+    section .section-sub{text-align:center;color:var(--txD);font-size:15px;margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto;}
+
+    /* How It Works */
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:40px;}
+    @media(max-width:768px){.steps-grid{grid-template-columns:1fr;}}
+    .step-card{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;text-align:center;position:relative;}
+    .step-card .step-num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--acG);color:var(--ac);font-weight:800;font-size:18px;margin-bottom:16px;}
+    .step-card h3{font-size:17px;font-weight:700;color:var(--wh);margin-bottom:8px;}
+    .step-card p{font-size:14px;color:var(--txD);line-height:1.65;}
+
+    /* Benefits Grid */
+    .benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-bottom:40px;}
+    .benefit-card{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;position:relative;}
+    .benefit-card h3{font-size:16px;font-weight:700;color:var(--wh);margin-bottom:8px;}
+    .benefit-card p{font-size:14px;color:var(--txD);line-height:1.65;}
+
+    /* Body Parts Grid */
+    .body-parts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:40px;}
+    .body-part-item{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center;}
+    .body-part-item h4{font-size:14px;font-weight:700;color:var(--wh);margin-bottom:4px;}
+    .body-part-item p{font-size:12px;color:var(--txD);}
+
+    /* FAQ Section */
+    .faq-container{max-width:700px;margin:0 auto;}
+    .faq-item{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;margin-bottom:16px;overflow:hidden;}
+    .faq-item .faq-question{width:100%;text-align:left;padding:20px;background:transparent;border:none;cursor:pointer;color:var(--wh);font-weight:700;font-size:15px;display:flex;justify-content:space-between;align-items:center;transition:color 0.2s;}
+    .faq-item .faq-question:hover{color:var(--ac);}
+    .faq-item .faq-toggle{color:var(--txD);transition:transform 0.2s;}
+    .faq-item.open .faq-toggle{transform:rotate(180deg);}
+    .faq-item .faq-answer{max-height:0;overflow:hidden;transition:max-height 0.3s ease-out;padding:0 20px;color:var(--txD);font-size:14px;line-height:1.7;}
+    .faq-item.open .faq-answer{max-height:500px;padding:0 20px 20px;}
+
+    /* Disclaimer */
+    .disclaimer{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:14px;padding:24px;margin:60px 0;text-align:center;}
+    .disclaimer p{font-size:13px;color:var(--txD);line-height:1.7;}
+
+    /* Footer */
+    footer{border-top:1px solid var(--bd);padding:40px 0;margin-top:60px;text-align:center;}
+    footer p{font-size:12px;color:var(--txM);}
+
+    @media(max-width:768px){
+      .hero{padding:100px 0 40px;}
+      .steps-grid{grid-template-columns:1fr;}
+      .hero .cta-row{flex-direction:column;}
+      .cta-btn{width:100%;justify-content:center;}
+    }
+  </style>
 </head>
 <body>
-    <div id="app-nav"></div>
-
-    <main class="container mx-auto px-4 py-8">
-        <!-- Breadcrumb -->
-        <nav class="mb-6 text-sm text-gray-400">
-            <a href="/" class="hover:text-gray-300">Home</a> >
-            <a href="/tools/" class="hover:text-gray-300">Tools</a> >
-            <span>Find a Doctor</span>
-        </nav>
-
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-white mb-2">Find a WCB-Authorized Doctor</h1>
-            <p class="text-gray-300">Browse WCB-authorized medical providers in the NYC area.</p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Sidebar Filters -->
-            <aside class="lg:col-span-1">
-                <div class="bg-gray-800 rounded-lg p-6 sticky top-4">
-                    <h2 class="text-lg font-semibold text-white mb-6">Filters</h2>
-
-                    <!-- Specialty Dropdown -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Specialty</label>
-                        <select id="specialty-filter" class="w-full bg-gray-700 text-white rounded px-3 py-2 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none">
-                            <option value="">All Specialties</option>
-                            <option value="Orthopedic">Orthopedic</option>
-                            <option value="Neurologist">Neurologist</option>
-                            <option value="Pain Management">Pain Management</option>
-                            <option value="Chiropractor">Chiropractor</option>
-                            <option value="Physical Therapy">Physical Therapy</option>
-                        </select>
-                    </div>
-
-                    <!-- Distance Slider -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Distance: <span id="distance-value">10</span> mi</label>
-                        <input type="range" id="distance-filter" min="1" max="25" value="10" class="w-full">
-                    </div>
-
-                    <!-- Language Dropdown -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Language</label>
-                        <select id="language-filter" class="w-full bg-gray-700 text-white rounded px-3 py-2 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none">
-                            <option value="">All Languages</option>
-                            <option value="English">English</option>
-                            <option value="Spanish">Spanish</option>
-                            <option value="Chinese">Chinese</option>
-                            <option value="Russian">Russian</option>
-                            <option value="Korean">Korean</option>
-                        </select>
-                    </div>
-
-                    <!-- WCB Authorized Checkbox -->
-                    <div class="mb-6">
-                        <label class="flex items-center text-sm text-gray-300">
-                            <input type="checkbox" id="wcb-filter" class="w-4 h-4 rounded bg-gray-700 border-gray-600 text-blue-600">
-                            <span class="ml-2">WCB Authorized Only</span>
-                        </label>
-                    </div>
-
-                    <!-- Recommend Button -->
-                    <button id="recommend-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
-                        Recommend a Doctor
-                    </button>
-                </div>
-            </aside>
-
-            <!-- Main Content -->
-            <div class="lg:col-span-3">
-                <!-- Map Placeholder -->
-                <div class="bg-gray-800 rounded-lg p-6 mb-8 h-80 flex items-center justify-center border border-gray-700">
-                    <p class="text-gray-400 text-center">
-                        <span class="text-blue-400 font-semibold">Map view</span> — Doctor locations appear on an interactive map here
-                    </p>
-                </div>
-
-                <!-- Results Info -->
-                <div class="mb-6">
-                    <p class="text-gray-300">Showing <span id="result-count">8</span> doctors</p>
-                </div>
-
-                <!-- Doctor Cards Grid -->
-                <div id="doctors-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Cards will be populated by JavaScript -->
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Recommend Doctor Modal -->
-    <div id="recommend-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
-            <h2 class="text-2xl font-bold text-white mb-6">Recommend a Doctor</h2>
-            <form id="recommend-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Doctor Name</label>
-                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Specialty</label>
-                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Address</label>
-                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Phone</label>
-                    <input type="tel" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Your Name</label>
-                    <input type="text" class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Notes</label>
-                    <textarea class="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none" rows="3"></textarea>
-                </div>
-                <div class="flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition">
-                        Submit
-                    </button>
-                    <button type="button" id="close-modal" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="badge">Medical Provider Search</div>
+      <h1>Find <span>WCB-Authorized Doctors</span> Near You</h1>
+      <p class="sub">Search for New York workers' compensation medical providers by location, body part, and specialty. Free in the Comp Desk app.</p>
+      <div class="cta-row">
+        <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="cta-btn">Download on App Store</a>
+        <a href="https://thecompdesk.com" class="cta-btn outline">Learn More</a>
+      </div>
     </div>
+  </section>
 
-    <!-- Footer Disclaimer -->
-    <div id="app-footer"></div>
+  <!-- How It Works Section -->
+  <section>
+    <div class="wrap">
+      <h2>How It Works</h2>
+      <p class="section-sub">Find trusted medical providers in three simple steps.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Enter Your Location</h3>
+          <p>Start by entering your zip code and preferred search radius (1-25 miles).</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Select Body Part</h3>
+          <p>Choose the body part or injury you need treatment for to filter specialists.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Review & Contact</h3>
+          <p>Browse doctors on the map or in list view. Tap to call directly or save providers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script type="module">
-        import { getUser, hasAccess, TIER_LEVEL } from '../js/auth.js';
-        import { renderNav, renderFooterDisclaimer } from '../js/nav.js';
+  <!-- Key Benefits Section -->
+  <section>
+    <div class="wrap">
+      <h2>Why Use Find a Doctor?</h2>
+      <p class="section-sub">Features built for injured workers in New York.</p>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <h3>Free to Use</h3>
+          <p>No subscription required. Search and find WCB-authorized providers at no cost.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>NPI-Backed Data</h3>
+          <p>Providers sourced from the official National Provider Identifier registry for accuracy.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Interactive Map</h3>
+          <p>See providers on a map with distance, ratings, and reviews at a glance.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Tap to Call</h3>
+          <p>Contact doctors directly from the app with a single tap. No copy-pasting phone numbers.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Save Providers</h3>
+          <p>Build your personal list of preferred doctors for quick access anytime.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Filter Options</h3>
+          <p>Refine by specialty, language, distance, and WCB authorization status.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        const doctors = [
-            {
-                id: 1,
-                name: "Dr. Sarah Chen",
-                credential: "MD",
-                specialty: "Orthopedic",
-                address: "230 Park Ave S, NY",
-                phone: "(212) 555-0101",
-                distance: 2.3,
-                rating: 4.8,
-                reviews: 127,
-                languages: ["English", "Chinese"],
-                wcbAuthorized: true
-            },
-            {
-                id: 2,
-                name: "Dr. Michael Rodriguez",
-                credential: "DC",
-                specialty: "Chiropractor",
-                address: "450 Lexington Ave, NY",
-                phone: "(212) 555-0102",
-                distance: 3.1,
-                rating: 4.6,
-                reviews: 94,
-                languages: ["English", "Spanish"],
-                wcbAuthorized: true
-            },
-            {
-                id: 3,
-                name: "Dr. James O'Neill",
-                credential: "MD",
-                specialty: "Pain Management",
-                address: "501 Park Ave, NY",
-                phone: "(212) 555-0103",
-                distance: 4.5,
-                rating: 4.7,
-                reviews: 156,
-                languages: ["English"],
-                wcbAuthorized: true
-            },
-            {
-                id: 4,
-                name: "Dr. Elena Volkov",
-                credential: "MD",
-                specialty: "Neurologist",
-                address: "100 E 42nd St, NY",
-                phone: "(212) 555-0104",
-                distance: 1.8,
-                rating: 4.9,
-                reviews: 203,
-                languages: ["English", "Russian"],
-                wcbAuthorized: true
-            },
-            {
-                id: 5,
-                name: "Ms. Patricia Garcia",
-                credential: "PT",
-                specialty: "Physical Therapy",
-                address: "75 Broad St, NY",
-                phone: "(212) 555-0105",
-                distance: 6.2,
-                rating: 4.5,
-                reviews: 78,
-                languages: ["English", "Spanish"],
-                wcbAuthorized: true
-            },
-            {
-                id: 6,
-                name: "Dr. David Park",
-                credential: "MD",
-                specialty: "Orthopedic",
-                address: "1 World Trade Center, NY",
-                phone: "(212) 555-0106",
-                distance: 5.4,
-                rating: 4.7,
-                reviews: 142,
-                languages: ["English", "Korean"],
-                wcbAuthorized: true
-            },
-            {
-                id: 7,
-                name: "Dr. Lisa Thompson",
-                credential: "DC",
-                specialty: "Chiropractor",
-                address: "350 5th Ave, NY",
-                phone: "(212) 555-0107",
-                distance: 7.3,
-                rating: 4.4,
-                reviews: 65,
-                languages: ["English"],
-                wcbAuthorized: false
-            },
-            {
-                id: 8,
-                name: "Dr. Raymond Martinez",
-                credential: "MD",
-                specialty: "Pain Management",
-                address: "2 E 72nd St, NY",
-                phone: "(212) 555-0108",
-                distance: 8.9,
-                rating: 4.6,
-                reviews: 119,
-                languages: ["English", "Spanish"],
-                wcbAuthorized: true
-            }
-        ];
+  <!-- Body Parts Supported Section -->
+  <section>
+    <div class="wrap">
+      <h2>Body Parts & Specialties Supported</h2>
+      <p class="section-sub">Search across 13 injury categories and related medical specialties.</p>
+      <div class="body-parts-grid">
+        <div class="body-part-item">
+          <h4>Head & Brain</h4>
+          <p>Neurology, neurosurgery</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Neck & Spine</h4>
+          <p>Orthopedics, neurology</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Shoulder & Arm</h4>
+          <p>Orthopedics, PT, hand surgery</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Wrist & Hand</h4>
+          <p>Hand surgery, orthopedics</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Back & Lumbar</h4>
+          <p>Orthopedics, neurology, PT</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Chest & Heart</h4>
+          <p>Cardiology, cardiothoracic</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Abdomen</h4>
+          <p>General surgery, gastroenterology</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Hip & Pelvis</h4>
+          <p>Orthopedics, PT</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Knee</h4>
+          <p>Orthopedics, PT</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Ankle & Foot</h4>
+          <p>Orthopedics, podiatry, PT</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Lung & Respiratory</h4>
+          <p>Pulmonology, occupational medicine</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Multiple Injuries</h4>
+          <p>Primary care, occupational medicine</p>
+        </div>
+        <div class="body-part-item">
+          <h4>Pain Management</h4>
+          <p>Pain specialists, PM&R</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        function renderStars(rating) {
-            const fullStars = Math.floor(rating);
-            const hasHalf = rating % 1 >= 0.5;
-            let html = '';
-            for (let i = 0; i < fullStars; i++) {
-                html += '★';
-            }
-            if (hasHalf) html += '✦';
-            return html;
-        }
+  <!-- FAQ Section -->
+  <section>
+    <div class="wrap">
+      <h2>Frequently Asked Questions</h2>
+      <p class="section-sub">Common questions about finding WCB doctors in New York.</p>
+      <div class="faq-container">
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>How do I find a WCB-authorized doctor in New York?</span>
+            <span class="faq-toggle">▼</span>
+          </button>
+          <div class="faq-answer">
+            Use the Find a Doctor tool in the Comp Desk app. Enter your zip code, select the body part you injured, and choose a search radius. The app displays nearby doctors on an interactive map and in list view. You can filter by specialty, language, and distance to narrow results.
+          </div>
+        </div>
 
-        function renderDoctorCard(doctor) {
-            return `
-                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-white">${doctor.name}, ${doctor.credential}</h3>
-                            <p class="text-blue-400 text-sm">${doctor.specialty}</p>
-                        </div>
-                        <button class="text-gray-400 hover:text-red-500 text-2xl transition">♡</button>
-                    </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Can I choose my own doctor in New York workers' compensation?</span>
+            <span class="faq-toggle">▼</span>
+          </button>
+          <div class="faq-answer">
+            In New York workers' compensation, the employer or carrier typically selects the initial treating physician. However, you have the right to request a change of physician and select a provider of your choice under certain conditions, particularly after the first treatment. Consult with a workers' compensation attorney to understand your options.
+          </div>
+        </div>
 
-                    <p class="text-gray-300 text-sm mb-2">${doctor.address}</p>
-                    <p class="text-gray-400 text-sm mb-4">${doctor.distance}mi away</p>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>What specialties are available in the doctor finder?</span>
+            <span class="faq-toggle">▼</span>
+          </button>
+          <div class="faq-answer">
+            The Find a Doctor tool covers 13 injury categories across medical specialties including orthopedics, neurology, pain management, physical therapy, chiropractic care, hand surgery, cardiac rehabilitation, and pulmonology. Search by body part and the app recommends qualified specialists in your area.
+          </div>
+        </div>
 
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-yellow-400">${renderStars(doctor.rating)}</span>
-                        <span class="text-gray-400 text-sm">${doctor.rating} (${doctor.reviews})</span>
-                    </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Is the doctor finder free to use?</span>
+            <span class="faq-toggle">▼</span>
+          </button>
+          <div class="faq-answer">
+            Yes. The Find a Doctor feature is completely free for all users of the Comp Desk app. Download the app or visit the web version to search for WCB-authorized providers near you in New York at no cost.
+          </div>
+        </div>
 
-                    <p class="text-gray-300 text-sm mb-4">
-                        <span class="text-gray-500">Languages:</span> ${doctor.languages.join(', ')}
-                    </p>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Can I save my favorite doctors?</span>
+            <span class="faq-toggle">▼</span>
+          </button>
+          <div class="faq-answer">
+            Yes. In the Comp Desk app, you can save doctors to your personal profile. Your saved providers are stored locally on your device so you can quickly call them later or reference them when scheduling appointments.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-                    <div class="flex gap-2 mb-4">
-                        ${doctor.wcbAuthorized ? '<span class="bg-green-900 text-green-200 text-xs font-semibold px-3 py-1 rounded">WCB Auth</span>' : '<span class="bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-1 rounded">Not WCB Auth</span>'}
-                    </div>
+  <!-- CTA Section -->
+  <section>
+    <div class="wrap" style="text-align:center;">
+      <h2>Start Finding Doctors Today</h2>
+      <p class="section-sub">Download Comp Desk and get free access to find WCB-authorized providers near you in New York.</p>
+      <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="cta-btn" style="display:inline-block;">Download on App Store</a>
+    </div>
+  </section>
 
-                    <div class="flex gap-3">
-                        <a href="tel:${doctor.phone}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-center text-sm transition">
-                            Call
-                        </a>
-                        <button class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded text-sm transition">
-                            Details
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
+  <!-- Disclaimer -->
+  <div class="wrap">
+    <div class="disclaimer">
+      <p><strong>Disclaimer:</strong> The Find a Doctor tool is provided for informational purposes only and does not constitute legal advice, medical advice, or a recommendation to seek treatment from any specific provider. This tool is not a substitute for consultation with a licensed attorney, physician, or qualified healthcare provider. The information in this tool may not be complete or current. Always verify a provider's credentials, insurance acceptance, and WCB authorization status directly before scheduling treatment. The Comp Desk does not endorse any specific healthcare provider.</p>
+    </div>
+  </div>
 
-        function filterDoctors() {
-            const specialtyFilter = document.getElementById('specialty-filter').value;
-            const distanceFilter = parseFloat(document.getElementById('distance-filter').value);
-            const languageFilter = document.getElementById('language-filter').value;
-            const wcbFilter = document.getElementById('wcb-filter').checked;
+  <!-- Footer -->
+  <footer>
+    <div class="wrap">
+      <p>&copy; 2026 The Comp Desk. All rights reserved. | <a href="https://thecompdesk.com">Home</a> | <a href="https://thecompdesk.com/privacy">Privacy Policy</a></p>
+    </div>
+  </footer>
 
-            const filtered = doctors.filter(doc => {
-                if (specialtyFilter && doc.specialty !== specialtyFilter) return false;
-                if (doc.distance > distanceFilter) return false;
-                if (languageFilter && !doc.languages.includes(languageFilter)) return false;
-                if (wcbFilter && !doc.wcbAuthorized) return false;
-                return true;
-            });
-
-            const grid = document.getElementById('doctors-grid');
-            grid.innerHTML = filtered.map(renderDoctorCard).join('');
-            document.getElementById('result-count').textContent = filtered.length;
-        }
-
-        // Initialize
-        const session = await getUser();
-        const tier = TIER_LEVEL[session?.tier] || 'free';
-        renderNav(session, tier);
-        renderFooterDisclaimer();
-
-        // Render initial doctors
-        filterDoctors();
-
-        // Filter event listeners
-        document.getElementById('specialty-filter').addEventListener('change', filterDoctors);
-        document.getElementById('distance-filter').addEventListener('input', (e) => {
-            document.getElementById('distance-value').textContent = e.target.value;
-            filterDoctors();
-        });
-        document.getElementById('language-filter').addEventListener('change', filterDoctors);
-        document.getElementById('wcb-filter').addEventListener('change', filterDoctors);
-
-        // Modal handling
-        const modal = document.getElementById('recommend-modal');
-        document.getElementById('recommend-btn').addEventListener('click', () => {
-            modal.classList.remove('hidden');
-        });
-        document.getElementById('close-modal').addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.add('hidden');
-        });
-
-        document.getElementById('recommend-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Thank you for your recommendation!');
-            modal.classList.add('hidden');
-            document.getElementById('recommend-form').reset();
-        });
-    </script>
-<script src="/js/disclaimer.js" defer></script>
+  <script>
+    // FAQ Toggle
+    document.querySelectorAll('.faq-question').forEach(button => {
+      button.addEventListener('click', () => {
+        const item = button.closest('.faq-item');
+        item.classList.toggle('open');
+      });
+    });
+  </script>
 </body>
 </html>
