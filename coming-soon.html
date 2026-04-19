@@ -75,6 +75,11 @@
     .aud-both{background:rgba(79,143,247,0.12);color:var(--ac);}
     .aud-attorney{background:rgba(240,160,48,0.12);color:var(--gd);}
     .feat-card .phase{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--txM);text-transform:uppercase;letter-spacing:0.5px;}
+    .feat-card .phase.live{color:var(--gn);background:rgba(45,212,160,0.12);padding:3px 10px;border-radius:4px;border:1px solid rgba(45,212,160,0.3);}
+    .feat-card.card-live{border-color:rgba(45,212,160,0.3);}
+    .feat-card.card-live::before{opacity:1;background:linear-gradient(90deg,var(--gn),var(--ac));}
+    .feat-card .try-link{display:inline-block;margin-top:12px;padding:6px 16px;border-radius:6px;background:rgba(45,212,160,0.12);color:var(--gn);font-size:12px;font-weight:700;border:1px solid rgba(45,212,160,0.3);transition:background 0.2s;}
+    .feat-card .try-link:hover{background:rgba(45,212,160,0.2);text-decoration:none;}
     .signup{padding:80px 0;text-align:center;position:relative;}
     .signup::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(79,143,247,0.06) 0%,transparent 70%);pointer-events:none;}
     .signup h2{font-size:clamp(22px,4vw,32px);font-weight:800;color:var(--wh);margin-bottom:8px;}
@@ -124,31 +129,33 @@
 
 <section class="hero">
   <div class="wrap">
-    <div class="badge">Coming 2026</div>
+    <div class="badge">Now Available + More Coming 2026</div>
     <h1>Meet <span>Comp Buddy</span></h1>
-    <p class="sub">Your AI-powered workers’ compensation companion. 8 new features that manage your entire claim — from filing to settlement.</p>
+    <p class="sub">Your AI-powered workers’ compensation companion. 8 features that manage your entire claim — from filing to settlement. Some are live now, more are on the way.</p>
     <p class="tagline">Built for attorneys. Designed for everyone.</p>
   </div>
 </section>
 
 <section class="features" id="features">
   <div class="wrap">
-    <h2>What’s Coming</h2>
-    <p class="sub">Every feature injured workers and attorneys have been asking for — all in one platform.</p>
+    <h2>What’s Available &amp; What’s Coming</h2>
+    <p class="sub">Every feature injured workers and attorneys have been asking for — all in one platform. Features marked "Available Now" are live and free to use today.</p>
     <div class="feat-grid">
-      <div class="feat-card">
-        <span class="phase">Phase C</span>
+      <div class="feat-card card-live">
+        <span class="phase live">Available Now</span>
         <div class="icon">🗺️</div>
         <h3>Find a Doctor Map</h3>
-        <p>Interactive map of WC-authorized treating providers and IME doctors near you. Filter by specialty, distance, language, and WCB authorization status. Powered by WCB provider data and Google Maps.</p>
+        <p>Interactive map of WC-authorized treating providers and IME doctors near you. Filter by specialty, distance, and body part. Powered by NPI registry data.</p>
         <span class="audience aud-both">Workers + Attorneys</span>
+        <a href="/tools/find-doctor.html" class="try-link">Try It Free →</a>
       </div>
-      <div class="feat-card">
-        <span class="phase">Phase C</span>
+      <div class="feat-card card-live">
+        <span class="phase live">Available Now</span>
         <div class="icon">🚗</div>
-        <h3>IME Reminders + Transportation</h3>
-        <p>Never miss an IME. Push notifications at 1 week, 3 days, 1 day, and 2 hours. Calendar sync for hearings, doctor visits, and IME dates. AI-powered transportation booking gets you there.</p>
+        <h3>IME Reminders + Prep</h3>
+        <p>Never miss an IME. Push notifications at 1 week, 1 day, and 2 hours. Built-in directions, "What to Bring" checklist, and doctor info — all free.</p>
         <span class="audience aud-worker">Injured Workers</span>
+        <a href="/tools/ime-reminders.html" class="try-link">Try It Free →</a>
       </div>
       <div class="feat-card">
         <span class="phase">Phase D</span>
@@ -209,11 +216,11 @@
         </div>
       </div>
       <div class="tl-item">
-        <div class="tl-dot"></div>
+        <div class="tl-dot" style="background:var(--gn);box-shadow:0 0 12px rgba(45,212,160,0.4);"></div>
         <div class="tl-content">
-          <div class="phase-label">Phase C — Late 2026</div>
-          <h3>Find a Doctor + IME Calendar</h3>
-          <p>WC provider map, IME reminders, calendar integration, and push notifications.</p>
+          <div class="phase-label" style="color:var(--gn);">Phase C — Live Now ✓</div>
+          <h3>Find a Doctor + IME Reminders</h3>
+          <p>WC provider map, IME reminders, preparation checklists, and push notifications. <a href="/tools/find-doctor.html" style="color:var(--gn);">Try Find a Doctor</a> · <a href="/tools/ime-reminders.html" style="color:var(--gn);">Try IME Reminders</a></p>
         </div>
       </div>
       <div class="tl-item">
