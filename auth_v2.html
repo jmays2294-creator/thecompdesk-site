@@ -63,13 +63,13 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100
 .row{display:flex;gap:10px;}
 .row .form-group{flex:1;}
 
-/* Referral Program */
-.referral-box{background:var(--acG);border:1px solid rgba(79,143,247,0.25);border-radius:10px;padding:14px;margin-top:14px;margin-bottom:6px;}
-.referral-box .ref-title{font-size:12px;font-weight:700;color:var(--ac);margin-bottom:4px;}
-.referral-box .ref-desc{font-size:11px;color:var(--txD);line-height:1.5;margin-bottom:8px;}
-.referral-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
-.referral-toggle input{accent-color:var(--ac);width:16px;height:16px;cursor:pointer;}
-.referral-toggle span{font-size:12px;font-weight:600;color:var(--tx);}
+/* Attorney Connect Program */
+.connect-box{background:var(--acG);border:1px solid rgba(79,143,247,0.25);border-radius:10px;padding:14px;margin-top:14px;margin-bottom:6px;}
+.connect-box .ref-title{font-size:12px;font-weight:700;color:var(--ac);margin-bottom:4px;}
+.connect-box .ref-desc{font-size:11px;color:var(--txD);line-height:1.5;margin-bottom:8px;}
+.connect-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+.connect-toggle input{accent-color:var(--ac);width:16px;height:16px;cursor:pointer;}
+.connect-toggle span{font-size:12px;font-weight:600;color:var(--tx);}
 
 /* Steps indicator */
 .steps{display:flex;justify-content:center;gap:8px;margin-bottom:18px;}
@@ -103,7 +103,7 @@ const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 let state={
   mode:'login',        // 'login' | 'signup_step1' | 'signup_step2'
   userType:'worker',   // 'attorney' | 'worker'
-  referral:false,
+  connectProgram:false,
   email:'',
   password:''
 };
@@ -232,12 +232,12 @@ function renderSignupStep2(){
         </div>
       </div>
     </div>
-    <div class="referral-box">
-      <div class="ref-title">📋 Comp Desk Referral Program</div>
-      <div class="ref-desc">Join our referral network and connect with injured workers in your area who are looking for representation. Program details coming soon.</div>
-      <label class="referral-toggle">
-        <input type="checkbox" id="atty-referral" ${state.referral?'checked':''} onchange="state.referral=this.checked">
-        <span>I'm interested in the referral program</span>
+    <div class="connect-box">
+      <div class="ref-title">📋 Comp Desk Attorney Connect Program</div>
+      <div class="ref-desc">Join our Attorney Connect network to receive leads from injured workers in your area looking for representation. Program details coming soon.</div>
+      <label class="connect-toggle">
+        <input type="checkbox" id="atty-connect-program" ${state.connectProgram?'checked':''} onchange="state.connectProgram=this.checked">
+        <span>I'm interested in the Attorney Connect Program</span>
       </label>
     </div>
     <button class="submit-btn" onclick="handleAttorneySignup()">Create Attorney Account</button>
@@ -286,7 +286,7 @@ async function handleAttorneySignup(){
   const address=document.getElementById('atty-address').value.trim();
   const rnumber=document.getElementById('atty-rnumber').value.trim();
   const phone=document.getElementById('atty-phone').value.trim();
-  const referral=document.getElementById('atty-referral').checked;
+  const connectProgram=document.getElementById('atty-connect-program').checked;
   const msg=document.getElementById('msg');
   if(!name||!firm){msg.className='msg error';msg.textContent='Please enter your name and firm name.';return;}
   const btn=document.querySelector('.submit-btn');
@@ -300,7 +300,7 @@ async function handleAttorneySignup(){
       firm_address:address,
       r_number:rnumber,
       phone:phone,
-      referral_enrolled:referral
+      referral_enrolled:connectProgram // TODO: rename DB field to attorney_connect_enrolled (Dev coordination)
     }}
   });
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Create Attorney Account';return;}
