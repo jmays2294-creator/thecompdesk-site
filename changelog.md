@@ -5,6 +5,49 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-04-19
+
+### Sitemap patch (commit `43a01a9`)
+- **Sitemap.xml** — added 4 URLs that had been pushed to prod but missed in earlier sitemap commits: `/for-attorneys.html`, `/learn/average-weekly-wage-ny-workers-comp.html`, `/learn/schedule-loss-of-use-ny-workers-comp.html`, `/learn/lwec-loss-wage-earning-capacity.html`. Sitemap grew from 24 URLs → 28. Updated date bumped to 2026-04-19.
+- **Google Search Console** — sitemap **resubmitted by Joel** on Apr 19, 2026.
+- **URL Inspection / Request Indexing** — all 4 newly added URLs submitted via Search Console URL Inspection on Apr 19, 2026. Each returned "Indexing requested" confirmation:
+  - `/learn/average-weekly-wage-ny-workers-comp.html` — status: "URL is unknown to Google" (never crawled). Indexing requested.
+  - `/learn/schedule-loss-of-use-ny-workers-comp.html` — status: "Page with redirect" flag (last crawl Apr 20, 2026 by Googlebot smartphone). Indexing requested. **⚠ Follow-up:** redirect flag likely caused by sitemap using `https://thecompdesk.com/...` (no www) while canonical is `www.thecompdesk.com`. Update sitemap to use www-prefixed URLs.
+  - `/learn/lwec-loss-wage-earning-capacity.html` — status: "URL is unknown to Google". Indexing requested.
+  - `/for-attorneys.html` — status: "Page with redirect" flag (last crawl Apr 21, 2026 by Googlebot smartphone). Indexing requested.
+
+### Legal scaffolds (commit `43a01a9`)
+- Created `/legal/terms.html` (8 sections: Service Description, Attorney Participation, Consumer Experience, Disclaimers, Arbitration, Refund Policy, Changes, Contact) and `/legal/privacy.html` (10 sections). Section headers only — content drafting window May 15–30, 2026. Both pages excluded from sitemap until drafted; Privacy scaffold has notice banner pointing to existing `/privacy.html`.
+
+### Attorney Connect Program rename (commit `726052f`)
+- Renamed signup-flow "Referral Program" → **Attorney Connect Program** in `auth.html` and `auth_v2.html`. CSS classes (`referral-box`→`connect-box`, `referral-toggle`→`connect-toggle`), JS state variable (`referral`→`connectProgram`), DOM id (`atty-referral`→`atty-connect-program`), all user-facing copy. Description rewritten: "Join our Attorney Connect network to receive leads from injured workers in your area looking for representation."
+- DB payload key `referral_enrolled` retained for backwards compatibility — TODO comment added flagging Dev coordination needed for `profiles` column rename to `attorney_connect_enrolled`.
+- Carve-out per Joel's decision: "no referral fees / no referral percentages" user-facing phrases on `connect-with-attorney.html`, `find-attorney-how-it-works.html`, and `coming-soon.html` are intentionally **kept** as trust signals (factually accurate, signals trustworthy model).
+- Audit catalog at `audit_referral_language.md` updated with Joel's approvals.
+
+### LinkedIn Post 3 (attorney-focused)
+- Copy fix in `marketing/linkedin-post-3-attorney.md`: "seven free Workers' Compensation calculators" → **"six"**, dropped Spine & Brain from the calculator list (Spine & Brain was retired April 12 per commit `13fc8c0`). Post is publish-ready; Joel to publish manually on LinkedIn (no LinkedIn MCP connector available).
+
+---
+
+## 2026-04-17
+
+### Phase C — Find a Doctor, IME Reminders & Learn Hub Articles
+- **Find a Doctor SEO page** (`tools/find-doctor.html`) — launched publicly. Full landing page with hero, how-it-works, 13 body part/specialty reference, 6-question FAQ with FAQPage JSON-LD schema, WebApplication schema, app download CTAs.
+- **IME Reminders SEO page** (`tools/ime-reminders.html`) — updated and promoted in sitemap. 6 feature cards, 3-step process, "What to Bring" checklist, 5-question FAQ, WebApplication schema with aggregate rating.
+- **Learn article: "What to Expect at an IME"** (`learn/what-to-expect-ime.html`) — 9-minute comprehensive guide with Article JSON-LD schema. Covers IME process, preparation tips, rights, and links to IME Reminders tool.
+- **Learn article: "How to Find a Workers' Comp Doctor in NY"** (`learn/find-workers-comp-doctor-ny.html`) — 8-minute guide with Article schema. Covers WC-authorized providers, search methods, red flags, and links to Find a Doctor tool.
+- **Sitemap updated** — 3 new URLs added: `tools/find-doctor.html`, `learn/what-to-expect-ime.html`, `learn/find-workers-comp-doctor-ny.html`. Find a Doctor removed from excluded list. IME Reminders priority bumped to 0.6.
+- **Google Search Console** — sitemap resubmitted Apr 17, 2026. Status: Success, 24 discovered pages.
+
+### Coming Soon Page Refresh & Cross-Navigation (`coming-soon.html`)
+- **Hero updated** — badge now reads "Now Available + More Coming 2026". Subtitle reflects that some features are live.
+- **Feature cards** — Find a Doctor and IME Reminders cards now show green "Available Now" badges with "Try It Free →" links to `/tools/find-doctor.html` and `/tools/ime-reminders.html`. Cards have green border + gradient top accent. Remaining 6 features unchanged (phase labels intact).
+- **Roadmap** — Phase C timeline item updated to green dot, "Phase C — Live Now ✓" label, with direct links to both live tools.
+- **Comp Buddy CTA banners** added to all 4 Phase C pages: `tools/find-doctor.html`, `tools/ime-reminders.html`, `learn/what-to-expect-ime.html`, `learn/find-workers-comp-doctor-ny.html`. Each banner links back to `/coming-soon.html` with "Explore All Comp Buddy Features →" button. Consistent green/blue gradient design across all pages.
+
+---
+
 ## 2026-04-12
 
 ### Homepage Redesign (`index.html`)
@@ -24,7 +67,8 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 - **Verified** against 2012 Guidelines by Joel Mays, Esq.
 
 ### Spine & Brain Calculator — Retired
-- `calculators/spine-brain.html` deleted. Removed from index, homepage, Pro tier list, sitemap.
+- `calculators/spine-brain.html` deleted. Removed from index, homepage, Pro tier list, Pro Suite (`pro.html`), sitemap.
+- Pro Suite (`calculators/pro.html`): Spine/Brain tab, panel HTML, JS module, and save handler all removed. Calculator count updated 7 → 6 in title, meta descriptions, OG/Twitter tags, and gate overlay. SCI/TBI feature bullet removed from gate feature list.
 - Reason: SCI/TBI tables were not sourced from official Guidelines.
 
 ---
