@@ -197,7 +197,13 @@
     const code = await r.text();
     const out = window.Babel.transform(code, { presets: ['react'] }).code;
     const s = document.createElement('script');
-    s.textContent = out;
+    // Wrap in an IIFE so each transformed script gets its own scope —
+    // tiles.js and app.js both top-level-declare React hooks (useState,
+    // useEffect, ...). Without scoping, the second appendChild throws
+    // "Identifier 'useState' has already been declared". Globals the
+    // scripts deliberately publish (window.TILE_SPECS, window.buildEquation,
+    // window.WorkspaceApp, etc.) still work via window assignment.
+    s.textContent = '(function(){\n' + out + '\n})();';
     document.body.appendChild(s);
   };
 
