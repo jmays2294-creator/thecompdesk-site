@@ -137,6 +137,9 @@
   import { getUser, hasAccess, supabase, TIERS } from './js/auth.js';
   import { renderNav } from './js/nav.js';
 
+  // Wrap module body in async IIFE so the early-return guards (non-auth,
+  // non-Pro) are legal — top-level `return` is a SyntaxError in ES modules.
+  (async () => {
   const status = document.getElementById('ws-bootstrap-status');
   const setStatus = (msg, color) => {
     status.textContent = msg || '';
@@ -222,6 +225,7 @@
     console.error('[workspace] BOOTSTRAP_FAILED', e);
     setStatus('Workspace failed to load — refresh or contact support.', '#ef4444');
   }
+  })();
 </script>
 
 <script src="/js/disclaimer.js" defer></script>
