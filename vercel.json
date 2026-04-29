@@ -2,17 +2,6 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.thecompdesk.com"
-        }
-      ],
-      "destination": "https://thecompdesk.com/:path*",
-      "permanent": true
-    },
-    {
       "source": "/calculators/pro.html",
       "destination": "/workspace/",
       "permanent": true
@@ -27,7 +16,10 @@
     {
       "source": "/.well-known/apple-app-site-association",
       "headers": [
-        { "key": "Content-Type", "value": "application/json" }
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
       ]
     },
     {
