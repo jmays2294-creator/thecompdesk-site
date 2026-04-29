@@ -134,8 +134,8 @@
   // Site-level auth + nav. The workspace bundle loads as plain <script>
   // (Babel-transformed) and reads window.supa / window.workspaceUserId /
   // window.currentTier — bridged below.
-  import { getUser, hasAccess, supabase, TIERS } from './js/auth.js';
-  import { renderNav } from './js/nav.js';
+  import { getUser, hasAccess, supabase, TIERS } from '/js/auth.js';
+  import { renderNav } from '/js/nav.js';
 
   // Wrap module body in async IIFE so the early-return guards (non-auth,
   // non-Pro) are legal — top-level `return` is a SyntaxError in ES modules.
