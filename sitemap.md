@@ -30,7 +30,7 @@
 | Benefit Rate Lookup | `/calculators/benefit-rate` | Free | LIVE |
 | Radiculopathy Calculator | `/calculators/radiculopathy.html` | Free | LIVE (rebuilt 2026-04-12, S11.4–S11.7 point system) |
 | ~~Spine & Brain Calculator~~ | ~~`/calculators/spine-brain.html`~~ | — | RETIRED 2026-04-12 |
-| Pro Calculator Suite | `/calculators/pro.html` | Pro | LIVE (noindex) |
+| Pro Attorney Workspace | `/workspace/` | Free | LIVE (launched 2026-04-28; replaced /calculators/pro.html via 301) |
 
 ## Phase B SEO Landing Pages
 

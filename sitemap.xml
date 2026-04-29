@@ -219,7 +219,7 @@
        EXCLUDED (noindex / auth-gated):
        /account.html, /auth.html, /auth_v2.html, /dashboard/,
        /dashboard/my-cases.html, /delete-account.html, /workspace.html,
-       /calculators/pro.html, /tools/settlement.html,
+       /tools/settlement.html,
        /legal/terms.html, /legal/privacy.html (scaffolds — not yet published)
        ========================================================== -->
 

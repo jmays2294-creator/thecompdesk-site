@@ -411,7 +411,7 @@
           <div class="main-case-title" id="detailCaseName">—</div>
           <div class="main-case-subtitle" id="detailCaseMeta">—</div>
           <div class="main-actions">
-            <a id="openInProBtn" href="/calculators/pro.html" class="btn-sm primary">Open in Pro Suite</a>
+            <a id="openInProBtn" href="/workspace/" class="btn-sm primary">Open in Workspace</a>
             <button class="btn-sm" id="refreshBtn">Refresh</button>
           </div>
         </div>
@@ -486,7 +486,7 @@
           <div class="empty-state">
             <div class="empty-state-icon">📋</div>
             <h3>${filter ? 'No matching cases' : 'No cases yet'}</h3>
-            <p>${filter ? 'Try a different search term.' : 'Save calculations from the <a href="/calculators/pro.html" style="color:var(--ac);">Pro Suite</a> with a case name to see them here.'}</p>
+            <p>${filter ? 'Try a different search term.' : 'Save calculations from the <a href="/workspace/" style="color:var(--ac);">Workspace</a> with a case name to see them here.'}</p>
           </div>`;
         return;
       }
@@ -544,7 +544,7 @@
       document.getElementById('detailCaseMeta').textContent = metaParts.join('  •  ');
 
       // Set Pro Suite link with case name
-      document.getElementById('openInProBtn').href = '/calculators/pro.html?case=' + encodeURIComponent(caseObj.case_name);
+      document.getElementById('openInProBtn').href = '/workspace/?case=' + encodeURIComponent(caseObj.case_name);
 
       // Render calculations timeline
       renderTimeline(caseObj.calculations);
@@ -702,7 +702,7 @@
     function loadIntoProSuite(calc) {
       // Store in sessionStorage so Pro Suite can pick it up
       sessionStorage.setItem('loadCalc', JSON.stringify(calc));
-      window.location.href = '/calculators/pro.html?case=' + encodeURIComponent(selectedCase?.case_name || '') + '&load=' + calc.id;
+      window.location.href = '/workspace/?case=' + encodeURIComponent(selectedCase?.case_name || '') + '&load=' + calc.id;
     }
 
     // ─── Init ───

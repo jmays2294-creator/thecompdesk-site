@@ -174,7 +174,7 @@
        EXCLUDED (noindex, auth-gated):
        /account.html, /auth.html, /auth_v2.html, /dashboard/,
        /dashboard/my-cases.html, /delete-account.html, /workspace.html,
-       /calculators/pro.html, /tools/find-doctor.html,
+       /tools/find-doctor.html,
        /tools/settlement.html, /subscribe/, /subscription/*
        ========================================================== -->
 
