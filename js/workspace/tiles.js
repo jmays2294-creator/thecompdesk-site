@@ -2,11 +2,13 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 const TILE_SPECS = {
-  SLU:           { w: 480, h: 520, name: 'Schedule Loss of Use' },
-  LWEC:          { w: 400, h: 380, name: 'Loss of Wage Earning Capacity' },
+  SLU:           { w: 480, h: 600, name: 'Schedule Loss of Use' },
+  LWEC:          { w: 400, h: 460, name: 'Loss of Wage Earning Capacity' },
   CCP:           { w: 560, h: 600, name: 'CCP / Award Builder' },
   RateLookup:    { w: 320, h: 240, name: 'Rate Lookup' },
   Radiculopathy: { w: 480, h: 720, name: 'Radiculopathy Scorer' },
+  Burns:         { w: 460, h: 520, name: 'Burns Rate (3rd-Party Lien)' },
+  Settlement:    { w: 420, h: 360, name: 'Section 32 Settlement' },
 };
 
 // ---------- Inherited rate strip ----------
@@ -25,7 +27,7 @@ function Inherited({ ttRate, maxRate, minRate, source = 'global' }) {
 // SLU Tile
 // ====================================================================
 function SLUTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { rows: [{ id: 1, bp: 'Leg', pct: 0, priorWks: 0 }], priorPay: 0 };
+  const inputs = tile.inputs || { rows: [{ id: 1, bp: 'Leg', pct: 0, priorWks: 0 }], priorPay: 0, priorTTRWks: 0 };
   const tt = global.ttRate;
 
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
@@ -51,11 +53,18 @@ function SLUTile({ tile, global, onUpdate }) {
       totalWeeks += totWks;
       return { ...r, bp, sluWks, phpWks, totWks };
     });
-    const total = totalWeeks * tt;
+    const grossTotal = totalWeeks * tt;
+    // §15(3)(w) credit at TOTAL rate — distinct from per-row PHP. When the
+    // case-level prior weeks of TT/TR/TP exceed 130, the carrier credits
+    // (priorWks − 130) × TT rate against the gross SLU value.
+    const priorTTRWks = Number(inputs.priorTTRWks || 0);
+    const creditWks = priorTTRWks > 130 ? priorTTRWks - 130 : 0;
+    const creditDollars = creditWks * tt;
+    const total = Math.max(0, grossTotal - creditDollars);
     const moving = Math.max(0, total - Number(inputs.priorPay || 0));
     const fee = moving * 0.15;
     const net = moving - fee;
-    return { rowOut, totalWeeks, total, moving, fee, net };
+    return { rowOut, totalWeeks, grossTotal, creditWks, creditDollars, total, moving, fee, net };
   }, [inputs, tt]);
 
   return (
@@ -77,7 +86,7 @@ function SLUTile({ tile, global, onUpdate }) {
                   onChange={e => updateRow(r.id, { pct: e.target.value })} />
               </div>
               <div className="f-group">
-                <label className="f-label">Prior TT Wks</label>
+                <label className="f-label">PHP Wks (per part)</label>
                 <input className="f-input" type="number" min="0" value={r.priorWks}
                   onChange={e => updateRow(r.id, { priorWks: e.target.value })} />
               </div>
@@ -86,6 +95,15 @@ function SLUTile({ tile, global, onUpdate }) {
           ))}
         </div>
         <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
+
+        <div className="f-group" style={{maxWidth: 260}}>
+          <label className="f-label">Prior TT / TR / TP Weeks (§15(3)(w))</label>
+          <input className="f-input" type="number" min="0" step="0.5" value={inputs.priorTTRWks || 0}
+            onChange={e => setInputs({ priorTTRWks: e.target.value })} />
+          <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+            Case-level prior weeks. Excess over 130 credited at the TT (total) rate.
+          </span>
+        </div>
 
         <div className="f-group" style={{maxWidth: 220}}>
           <label className="f-label">Prior Payments Already Made</label>
@@ -99,6 +117,10 @@ function SLUTile({ tile, global, onUpdate }) {
 
         <div className="results">
           <div className="r-row"><span className="l">Total SLU Weeks</span><span className="v">{fmtN(computed.totalWeeks, 2)}</span></div>
+          <div className="r-row"><span className="l">Gross SLU Value</span><span className="v">{fmt$(computed.grossTotal)}</span></div>
+          {computed.creditWks > 0 && (
+            <div className="r-row"><span className="l">§15(3)(w) Credit</span><span className="v">−{fmtN(computed.creditWks, 2)} wks @ {fmt$(tt)} = −{fmt$(computed.creditDollars)}</span></div>
+          )}
           <div className="r-row big"><span className="l">Total Award</span><span className="v">{fmt$(computed.total)}</span></div>
           <div className="r-row"><span className="l">Moving (after prior)</span><span className="v">{fmt$(computed.moving)}</span></div>
           <div className="r-row"><span className="l">Attorney Fee (15%)</span><span className="v">{fmt$(computed.fee)}</span></div>
@@ -113,7 +135,7 @@ function SLUTile({ tile, global, onUpdate }) {
 // LWEC Tile
 // ====================================================================
 function LWECTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { pct: 50, feePerWeek: 0 };
+  const inputs = tile.inputs || { pct: 50, feePerWeek: 0, priorTTRWks: 0 };
   const tt = global.ttRate;
   const aww = global.aww;
 
@@ -124,11 +146,21 @@ function LWECTile({ tile, global, onUpdate }) {
     const classRate = tt * (pct / 100);
     const bracket = lwecBracket(pct);
     const isLifetime = bracket.mw === 'Lifetime';
-    const totalAward = isLifetime ? null : classRate * bracket.mw;
+    // §15(3)(w) credit: when prior weeks of TT/TR/TP exceed 130, the carrier
+    // takes credit on the LWEC award by reducing the awarded weeks (not dollars
+    // — the credit is paid week-for-week at the classification rate).
+    const priorWks = Number(inputs.priorTTRWks || 0);
+    const creditWks = priorWks > 130 ? priorWks - 130 : 0;
+    const grossWks = isLifetime ? null : bracket.mw;
+    const adjustedWks = isLifetime ? null : Math.max(0, grossWks - creditWks);
+    const totalAward = isLifetime ? null : classRate * adjustedWks;
+    const grossAward = isLifetime ? null : classRate * grossWks;
+    const creditDollars = isLifetime ? null : classRate * creditWks;
     const fee = classRate * 15;
     const weeklyNet = classRate - Number(inputs.feePerWeek || 0);
     const totalNet = isLifetime ? null : totalAward - fee;
-    return { pct, classRate, bracket, isLifetime, totalAward, fee, weeklyNet, totalNet };
+    return { pct, classRate, bracket, isLifetime, grossWks, creditWks, adjustedWks,
+             grossAward, creditDollars, totalAward, fee, weeklyNet, totalNet };
   }, [inputs, tt]);
 
   return (
@@ -141,6 +173,14 @@ function LWECTile({ tile, global, onUpdate }) {
             onChange={e => setInputs({ pct: e.target.value })} />
           <input className="f-input" type="number" min="0" max="100" value={inputs.pct}
             onChange={e => setInputs({ pct: e.target.value })} style={{maxWidth:120}}/>
+        </div>
+        <div className="f-group" style={{maxWidth: 260}}>
+          <label className="f-label">Prior TT / TR / TP Weeks (§15(3)(w))</label>
+          <input className="f-input" type="number" min="0" step="0.5" value={inputs.priorTTRWks || 0}
+            onChange={e => setInputs({ priorTTRWks: e.target.value })} />
+          <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+            Carrier credits weeks paid &gt; 130 against the LWEC award at the class rate.
+          </span>
         </div>
         <div className="f-group" style={{maxWidth: 220}}>
           <label className="f-label">Attorney Fee / Week (optional)</label>
@@ -155,7 +195,13 @@ function LWECTile({ tile, global, onUpdate }) {
           <div className="r-row"><span className="l">2/3 AWW</span><span className="v">{fmt$(aww * 2/3)}</span></div>
           <div className="r-row"><span className="l">Class Rate</span><span className="v">{fmt$(computed.classRate)}/wk</span></div>
           <div className="r-row"><span className="l">Bracket</span><span className="v">{computed.bracket.l}</span></div>
-          <div className="r-row"><span className="l">Max Weeks</span><span className="v">{computed.isLifetime ? 'Lifetime' : computed.bracket.mw}</span></div>
+          <div className="r-row"><span className="l">Gross Weeks</span><span className="v">{computed.isLifetime ? 'Lifetime' : computed.grossWks}</span></div>
+          {computed.creditWks > 0 && !computed.isLifetime && (
+            <>
+              <div className="r-row"><span className="l">§15(3)(w) Credit</span><span className="v">−{fmtN(computed.creditWks, 2)} wks ({fmt$(computed.creditDollars)})</span></div>
+              <div className="r-row"><span className="l">Adjusted Weeks</span><span className="v">{fmtN(computed.adjustedWks, 2)}</span></div>
+            </>
+          )}
           <div className="r-row big"><span className="l">Total Award</span><span className="v">{computed.isLifetime ? 'Lifetime' : fmt$(computed.totalAward)}</span></div>
           <div className="r-row"><span className="l">Atty Fee (15 wks)</span><span className="v">{fmt$(computed.fee)}</span></div>
           <div className="r-row net"><span className="l">Total Net</span><span className="v">{computed.isLifetime ? '—' : fmt$(computed.totalNet)}</span></div>
@@ -468,6 +514,147 @@ function RadiculopathyTile({ tile, global, onUpdate }) {
 }
 
 // ====================================================================
+// Burns Rate Tile  —  Burns v Varick Industries 6 NY3d 504 (2006).
+//                    Workers' Comp lien on a third-party recovery is
+//                    reduced by the claimant's litigation costs ratably:
+//                      Burns Rate   = (Atty Fee + Disbursements) ÷ Gross Settlement
+//                      Net WC Lien  = Burns Rate × Gross Lien (indemnity + medical)
+//                      Net to PL    = Gross Settlement − Litigation Costs − Net WC Lien
+//                    MVA carve-out reduces the lien base by the no-fault
+//                    threshold ($50,000) before applying the Burns rate.
+// ====================================================================
+function BurnsTile({ tile, global, onUpdate }) {
+  const inputs = tile.inputs || {
+    indemnity: 0, medical: 0, gross: 0, attyFee: 0, disbursements: 0,
+    isMVA: false, mvaThreshold: 50000,
+  };
+  const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+
+  const c = useMemo(() => {
+    const indemnity = Number(inputs.indemnity) || 0;
+    const medical   = Number(inputs.medical)   || 0;
+    const gross     = Number(inputs.gross)     || 0;
+    const attyFee   = Number(inputs.attyFee)   || 0;
+    const disb      = Number(inputs.disbursements) || 0;
+    const grossLien = indemnity + medical;
+    const lienBase  = inputs.isMVA
+      ? Math.max(0, grossLien - (Number(inputs.mvaThreshold) || 0))
+      : grossLien;
+    const litCosts  = attyFee + disb;
+    const burnsRate = gross > 0 ? litCosts / gross : 0;
+    const netLien   = burnsRate * lienBase;
+    const netToPlaintiff = gross - litCosts - netLien;
+    return { grossLien, lienBase, litCosts, burnsRate, netLien, netToPlaintiff };
+  }, [inputs]);
+
+  return (
+    <div className="tile-body">
+      <div className="row cols-2">
+        <div className="f-group">
+          <label className="f-label">Indemnity Paid</label>
+          <div className="f-input-wrap"><span className="prefix">$</span>
+            <input className="f-input with-prefix" type="number" min="0" value={inputs.indemnity}
+              onChange={e => setInputs({ indemnity: e.target.value })}/></div>
+        </div>
+        <div className="f-group">
+          <label className="f-label">Medical Paid</label>
+          <div className="f-input-wrap"><span className="prefix">$</span>
+            <input className="f-input with-prefix" type="number" min="0" value={inputs.medical}
+              onChange={e => setInputs({ medical: e.target.value })}/></div>
+        </div>
+      </div>
+
+      <div className="f-group">
+        <label className="f-label">Gross 3rd-Party Settlement</label>
+        <div className="f-input-wrap"><span className="prefix">$</span>
+          <input className="f-input with-prefix" type="number" min="0" value={inputs.gross}
+            onChange={e => setInputs({ gross: e.target.value })}/></div>
+      </div>
+
+      <div className="row cols-2">
+        <div className="f-group">
+          <label className="f-label">3rd-Party Atty Fee</label>
+          <div className="f-input-wrap"><span className="prefix">$</span>
+            <input className="f-input with-prefix" type="number" min="0" value={inputs.attyFee}
+              onChange={e => setInputs({ attyFee: e.target.value })}/></div>
+        </div>
+        <div className="f-group">
+          <label className="f-label">Disbursements</label>
+          <div className="f-input-wrap"><span className="prefix">$</span>
+            <input className="f-input with-prefix" type="number" min="0" value={inputs.disbursements}
+              onChange={e => setInputs({ disbursements: e.target.value })}/></div>
+        </div>
+      </div>
+
+      <div className="f-group" style={{display:'flex',alignItems:'center',gap:8}}>
+        <input type="checkbox" id={'mva-' + tile.id} checked={!!inputs.isMVA}
+          onChange={e => setInputs({ isMVA: e.target.checked })}/>
+        <label htmlFor={'mva-' + tile.id} style={{fontSize:12, color:'var(--tx-dim)'}}>
+          MVA — apply no-fault threshold (${fmtN(inputs.mvaThreshold || 50000, 0)}) before Burns
+        </label>
+      </div>
+
+      <div className="results">
+        <div className="r-row"><span className="l">Gross Lien</span><span className="v">{fmt$(c.grossLien)}</span></div>
+        {inputs.isMVA && (
+          <div className="r-row"><span className="l">Lien Base (after MVA threshold)</span><span className="v">{fmt$(c.lienBase)}</span></div>
+        )}
+        <div className="r-row"><span className="l">Total Lit Costs</span><span className="v">{fmt$(c.litCosts)}</span></div>
+        <div className="r-row big"><span className="l">Burns Rate</span><span className="v">{(c.burnsRate * 100).toFixed(2)}%</span></div>
+        <div className="r-row"><span className="l">Net WC Lien</span><span className="v">{fmt$(c.netLien)}</span></div>
+        <div className="r-row net"><span className="l">Net to Plaintiff</span><span className="v">{fmt$(c.netToPlaintiff)}</span></div>
+      </div>
+    </div>
+  );
+}
+
+// ====================================================================
+// Section 32 Settlement Tile
+//   Net = (Settlement − Medical Set-Aside) − 15% atty fee on remainder.
+// ====================================================================
+function SettlementTile({ tile, global, onUpdate }) {
+  const inputs = tile.inputs || { settlement: 0, msa: 0 };
+  const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+
+  const c = useMemo(() => {
+    const settlement = Number(inputs.settlement) || 0;
+    const msa        = Number(inputs.msa)        || 0;
+    const remaining  = Math.max(0, settlement - msa);
+    const fee        = remaining * 0.15;
+    const net        = remaining - fee;
+    return { settlement, msa, remaining, fee, net };
+  }, [inputs]);
+
+  return (
+    <div className="tile-body">
+      <div className="f-group">
+        <label className="f-label">Settlement Amount</label>
+        <div className="f-input-wrap"><span className="prefix">$</span>
+          <input className="f-input with-prefix" type="number" min="0" value={inputs.settlement}
+            onChange={e => setInputs({ settlement: e.target.value })}/></div>
+      </div>
+      <div className="f-group">
+        <label className="f-label">Medical Set-Aside (MSA)</label>
+        <div className="f-input-wrap"><span className="prefix">$</span>
+          <input className="f-input with-prefix" type="number" min="0" value={inputs.msa}
+            onChange={e => setInputs({ msa: e.target.value })}/></div>
+        <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+          Carved out before fee — fee runs only on the remainder.
+        </span>
+      </div>
+
+      <div className="results">
+        <div className="r-row"><span className="l">Settlement</span><span className="v">{fmt$(c.settlement)}</span></div>
+        <div className="r-row"><span className="l">Less MSA</span><span className="v">−{fmt$(c.msa)}</span></div>
+        <div className="r-row big"><span className="l">Remaining</span><span className="v">{fmt$(c.remaining)}</span></div>
+        <div className="r-row"><span className="l">Atty Fee (15%)</span><span className="v">{fmt$(c.fee)}</span></div>
+        <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(c.net)}</span></div>
+      </div>
+    </div>
+  );
+}
+
+// ====================================================================
 // Equation Card builders
 // ====================================================================
 function buildEquation(tile, global) {
@@ -475,7 +662,7 @@ function buildEquation(tile, global) {
   const aww = global.aww;
   switch (tile.type) {
     case 'SLU': {
-      const inputs = tile.inputs || { rows: [], priorPay: 0 };
+      const inputs = tile.inputs || { rows: [], priorPay: 0, priorTTRWks: 0 };
       let totalWeeks = 0;
       const lines = [];
       const plain = [];
@@ -488,36 +675,58 @@ function buildEquation(tile, global) {
         lines.push(`PHP: max(0, ${r.priorWks || 0} − ${bp.hp}) = ${fmtN(phpWks, 2)} wks`);
         plain.push(`${bp.n} at ${r.pct}%`);
       });
-      const total = totalWeeks * tt;
+      const grossTotal = totalWeeks * tt;
+      const priorTTRWks = Number(inputs.priorTTRWks || 0);
+      const creditWks = priorTTRWks > 130 ? priorTTRWks - 130 : 0;
+      const creditDollars = creditWks * tt;
+      const total = Math.max(0, grossTotal - creditDollars);
       const moving = Math.max(0, total - Number(inputs.priorPay || 0));
       const fee = moving * 0.15;
       const net = moving - fee;
-      lines.push(`Total: ${fmtN(totalWeeks, 2)} wks × ${fmt$(tt)} = ${fmt$(total)}`);
+      lines.push(`Gross Value: ${fmtN(totalWeeks, 2)} wks × ${fmt$(tt)} = ${fmt$(grossTotal)}`);
+      if (creditWks > 0) {
+        lines.push(`§15(3)(w) Credit: (${fmtN(priorTTRWks, 2)} − 130) × ${fmt$(tt)} = −${fmt$(creditDollars)}`);
+        lines.push(`Total After Credit: ${fmt$(total)}`);
+      }
       lines.push(`Less prior: (${fmt$(Number(inputs.priorPay || 0))})`);
       lines.push(`Moving: ${fmt$(moving)}`);
       lines.push(`Fee: ${fmt$(moving)} × 15% = ${fmt$(fee)}`);
       lines.push(`Net: ${fmt$(net)}`);
-      const plainText = `SLU Award: ${plain.join(', ')}. Total ${fmtN(totalWeeks, 2)} weeks × ${fmt$(tt)}/wk = ${fmt$(total)}. Less prior payments of ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee 15% of moving = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      const creditNote = creditWks > 0
+        ? ` After §15(3)(w) credit of ${fmtN(creditWks, 2)} weeks at the TT rate (${fmt$(creditDollars)} deduction), total = ${fmt$(total)}.`
+        : '';
+      const plainText = `SLU Award: ${plain.join(', ')}. Total ${fmtN(totalWeeks, 2)} weeks × ${fmt$(tt)}/wk = ${fmt$(grossTotal)} gross.${creditNote} Less prior payments of ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee 15% of moving = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
       return { plain: plainText, mono: lines.join('\n') };
     }
     case 'LWEC': {
-      const inputs = tile.inputs || { pct: 0, feePerWeek: 0 };
+      const inputs = tile.inputs || { pct: 0, feePerWeek: 0, priorTTRWks: 0 };
       const pct = Number(inputs.pct);
       const classRate = tt * (pct / 100);
       const bracket = lwecBracket(pct);
       const isLifetime = bracket.mw === 'Lifetime';
-      const totalAward = isLifetime ? null : classRate * bracket.mw;
+      const priorWks = Number(inputs.priorTTRWks || 0);
+      const creditWks = priorWks > 130 ? priorWks - 130 : 0;
+      const grossWks = isLifetime ? null : bracket.mw;
+      const adjustedWks = isLifetime ? null : Math.max(0, grossWks - creditWks);
+      const totalAward = isLifetime ? null : classRate * adjustedWks;
       const fee = classRate * 15;
       const totalNet = isLifetime ? null : totalAward - fee;
       const lines = [
         `LWEC: ${pct}% (${bracket.l})`,
         `Class Rate: ${fmt$(tt)} × ${pct}% = ${fmt$(classRate)}/wk`,
-        `Max Weeks: ${isLifetime ? 'Lifetime' : bracket.mw}`,
-        `Total Award: ${isLifetime ? 'Lifetime' : fmt$(classRate) + ' × ' + bracket.mw + ' = ' + fmt$(totalAward)}`,
-        `Atty Fee: ${fmt$(classRate)} × 15 wks = ${fmt$(fee)}`,
-        `Total Net: ${isLifetime ? '—' : fmt$(totalNet)}`,
+        `Gross Weeks: ${isLifetime ? 'Lifetime' : bracket.mw}`,
       ];
-      const plain = `LWEC Award: ${pct}% loss of wage earning capacity (${bracket.l}). Classification rate is ${fmt$(tt)} × ${pct}% = ${fmt$(classRate)}/wk over ${isLifetime ? 'lifetime' : bracket.mw + ' weeks'}${isLifetime ? '' : ', for a total award of ' + fmt$(totalAward)}. Attorney fee is the first 15 weeks at the class rate = ${fmt$(fee)}${isLifetime ? '.' : ', leaving ' + fmt$(totalNet) + ' net to claimant.'}`;
+      if (!isLifetime && creditWks > 0) {
+        lines.push(`§15(3)(w) Credit: ${fmtN(priorWks, 2)} prior wks − 130 = ${fmtN(creditWks, 2)} wks credit`);
+        lines.push(`Adjusted Weeks: ${fmtN(grossWks, 2)} − ${fmtN(creditWks, 2)} = ${fmtN(adjustedWks, 2)}`);
+      }
+      lines.push(`Total Award: ${isLifetime ? 'Lifetime' : fmt$(classRate) + ' × ' + fmtN(adjustedWks, 2) + ' = ' + fmt$(totalAward)}`);
+      lines.push(`Atty Fee: ${fmt$(classRate)} × 15 wks = ${fmt$(fee)}`);
+      lines.push(`Total Net: ${isLifetime ? '—' : fmt$(totalNet)}`);
+      const creditNote = (!isLifetime && creditWks > 0)
+        ? ` After §15(3)(w) credit (${fmtN(creditWks, 2)} wks at the class rate), adjusted weeks = ${fmtN(adjustedWks, 2)}.`
+        : '';
+      const plain = `LWEC Award: ${pct}% loss of wage earning capacity (${bracket.l}). Classification rate is ${fmt$(tt)} × ${pct}% = ${fmt$(classRate)}/wk over ${isLifetime ? 'lifetime' : bracket.mw + ' gross weeks'}.${creditNote}${isLifetime ? '' : ' Total award of ' + fmt$(totalAward) + '.'} Attorney fee is the first 15 weeks at the class rate = ${fmt$(fee)}${isLifetime ? '.' : ', leaving ' + fmt$(totalNet) + ' net to claimant.'}`;
       return { plain, mono: lines.join('\n') };
     }
     case 'CCP': {
@@ -586,6 +795,54 @@ function buildEquation(tile, global) {
       const plain = `Radiculopathy Score: ${inputs.region} spine, ${nerve.v}. Total ${total} points after S11.5/S11.6 nerve-root caps. Severity rank ${rank.letter} (range ${rank.lo}–${rank.hi}).`;
       return { plain, mono: lines.join('\n') };
     }
+    case 'Burns': {
+      const inputs = tile.inputs || {};
+      const indemnity = Number(inputs.indemnity) || 0;
+      const medical   = Number(inputs.medical)   || 0;
+      const gross     = Number(inputs.gross)     || 0;
+      const attyFee   = Number(inputs.attyFee)   || 0;
+      const disb      = Number(inputs.disbursements) || 0;
+      const grossLien = indemnity + medical;
+      const lienBase  = inputs.isMVA
+        ? Math.max(0, grossLien - (Number(inputs.mvaThreshold) || 50000))
+        : grossLien;
+      const litCosts  = attyFee + disb;
+      const burnsRate = gross > 0 ? litCosts / gross : 0;
+      const netLien   = burnsRate * lienBase;
+      const netToPlaintiff = gross - litCosts - netLien;
+      const lines = [
+        `Indemnity: ${fmt$(indemnity)}`,
+        `Medical:   ${fmt$(medical)}`,
+        `Gross Lien (Indemnity + Medical): ${fmt$(grossLien)}`,
+      ];
+      if (inputs.isMVA) {
+        lines.push(`MVA No-Fault Threshold: −${fmt$(Number(inputs.mvaThreshold) || 50000)}`);
+        lines.push(`Lien Base: ${fmt$(lienBase)}`);
+      }
+      lines.push(`3rd-Party Atty Fee + Disb: ${fmt$(attyFee)} + ${fmt$(disb)} = ${fmt$(litCosts)}`);
+      lines.push(`Burns Rate: ${fmt$(litCosts)} ÷ ${fmt$(gross)} = ${(burnsRate * 100).toFixed(2)}%`);
+      lines.push(`Net WC Lien: ${(burnsRate * 100).toFixed(2)}% × ${fmt$(lienBase)} = ${fmt$(netLien)}`);
+      lines.push(`Net to Plaintiff: ${fmt$(gross)} − ${fmt$(litCosts)} − ${fmt$(netLien)} = ${fmt$(netToPlaintiff)}`);
+      const plain = `Burns Rate Calculation${inputs.isMVA ? ' (MVA)' : ''}: gross 3rd-party settlement of ${fmt$(gross)} with attorney fee + disbursements of ${fmt$(litCosts)} produces a Burns rate of ${(burnsRate * 100).toFixed(2)}%. Applied to a${inputs.isMVA ? ' (post-no-fault)' : ''} lien base of ${fmt$(lienBase)}, net WC lien = ${fmt$(netLien)}. Net to plaintiff after litigation costs and reduced lien = ${fmt$(netToPlaintiff)}.`;
+      return { plain, mono: lines.join('\n') };
+    }
+    case 'Settlement': {
+      const inputs = tile.inputs || {};
+      const settlement = Number(inputs.settlement) || 0;
+      const msa        = Number(inputs.msa)        || 0;
+      const remaining  = Math.max(0, settlement - msa);
+      const fee        = remaining * 0.15;
+      const net        = remaining - fee;
+      const lines = [
+        `Settlement: ${fmt$(settlement)}`,
+        `Less MSA:  −${fmt$(msa)}`,
+        `Remaining: ${fmt$(remaining)}`,
+        `Atty Fee:  ${fmt$(remaining)} × 15% = ${fmt$(fee)}`,
+        `Net:       ${fmt$(net)}`,
+      ];
+      const plain = `Section 32 Settlement of ${fmt$(settlement)} with a Medical Set-Aside of ${fmt$(msa)} carved out leaves ${fmt$(remaining)} as the fee base. Attorney fee of 15% = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      return { plain, mono: lines.join('\n') };
+    }
     default:
       return { plain: '', mono: '' };
   }
@@ -593,5 +850,6 @@ function buildEquation(tile, global) {
 
 Object.assign(window, {
   TILE_SPECS, SLUTile, LWECTile, CCPTile, RateLookupTile, RadiculopathyTile,
+  BurnsTile, SettlementTile,
   buildEquation, weeksBetween, MUSCLE_WEAKNESS, DESIGNATIONS,
 });

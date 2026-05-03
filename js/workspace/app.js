@@ -23,27 +23,28 @@ const CANVAS_PAD = 10;
 // SECTION 1 — AWW COMPUTATION (Task 1)
 // ============================================================================
 //
-// WCL §14 method mapping. The artifact's pill IDs are kept (52week, multi,
-// similar, straight, hourly) so existing state keys still resolve, but each
-// is now explicitly mapped to a §14 subsection so the badge + computation
-// stay in sync with the statute.
+// WCL §14 method mapping (revised May 2026).
+// §14(1) and §14(2) are unified under one method because they describe the
+// claimant's OWN earnings — (1) when the claimant worked substantially the
+// whole year (annual ÷ 52), (2) when the claimant did not (statutory daily-
+// wage multiplier ÷ 52). The Multiplier method is kept as a distinct entry
+// for the §14(2) computation when the (1)/(2) wizard alone is insufficient.
+// §14(5) Apprentice is removed (rare in modern WC practice; if needed, the
+// Catchall covers it). §14(3) Similar Worker is the sole "comparator" method.
 
 const METHODS = [
-  { id: '52week',   label: '52-Week §14(1)',
-    badge: '§14(1) ÷52',
-    tip:   '§14(1) — Where the claimant worked substantially the whole year. Total earnings in the 52 weeks before injury, divided by 52.' },
-  { id: 'multi',    label: 'Multiplier §14(2)',
+  { id: '52week',   label: 'Section 14(1) and (2)',
+    badge: '§14(1) & (2)',
+    tip:   '§14(1) and (2) — The claimant\'s own earnings. §14(1) applies when the claimant worked substantially the whole year (annual ÷ 52). §14(2) applies when the claimant did not (daily wage × statutory multiplier ÷ 52). Enter annual earnings; if you have only partial-year earnings, switch to the Multiplier method below.' },
+  { id: 'multi',    label: 'Multiplier',
     badge: '§14(2) ×260',
-    tip:   '§14(2) — Where the claimant did NOT work substantially the whole year. Total earnings ÷ days worked × statutory multiplier (200/260/300/365 by days-per-week schedule), then ÷ 52.' },
-  { id: 'similar',  label: 'Similar Employee §14(3)',
+    tip:   '§14(2) Multiplier — Where the claimant did NOT work substantially the whole year. (Total earnings ÷ days worked) × statutory multiplier (200/260/300/365 by days-per-week schedule), then ÷ 52.' },
+  { id: 'similar',  label: 'Similar Worker',
     badge: '§14(3) Similar',
-    tip:   '§14(3) — When §14(1)/(2) cannot reasonably be applied, use the annual earnings of a similarly situated employee in the same employment, divided by 52.' },
-  { id: 'straight', label: 'Catchall §14(4)',
+    tip:   '§14(3) — When §14(1)/(2) cannot reasonably be applied, use the annual earnings of a similarly situated worker in the same employment, divided by 52.' },
+  { id: 'straight', label: 'Catchall',
     badge: '§14(4) Fair',
-    tip:   '§14(4) — Catchall. Where neither (1) nor (2) nor (3) reasonably applies, the Board fixes AWW to fairly approximate the annual earning capacity. Implemented here as total earnings ÷ weeks actually worked.' },
-  { id: 'hourly',   label: 'Apprentice §14(5)',
-    badge: '§14(5) Apprentice',
-    tip:   '§14(5) — Apprentices: AWW is the hire-rate at injury OR the expected wage at completion of apprenticeship if higher. Implemented as hourly rate × expected hours/week.' },
+    tip:   '§14(4) — Catchall. Where neither (1)/(2) nor (3) reasonably applies, the Board fixes AWW to fairly approximate the annual earning capacity. Implemented here as total earnings ÷ weeks actually worked.' },
 ];
 
 const DAYS_MULTIPLIER = { 4: 200, 5: 260, 6: 300, 7: 365 };
@@ -122,16 +123,6 @@ function computeAWW(state) {
       formula = `${fmt$(earn)} ÷ ${fmtN(wks, 0)} weeks = ${fmt$(baseAww)}`;
       breakdown.push({ label: 'Total Earnings', value: fmt$(earn) });
       breakdown.push({ label: 'Weeks Worked',   value: fmtN(wks, 0) });
-      break;
-    }
-    case 'hourly': {
-      const rate = Number(state.methodHourlyRate)  || 0;
-      const hrs  = Number(state.methodHourlyHours) || 0;
-      baseAww = rate * hrs;
-      methodLabel = '§14(5) — Apprentice / Hourly Hire-Rate';
-      formula = `${fmt$(rate)} × ${fmtN(hrs, 0)} hrs/wk = ${fmt$(baseAww)}`;
-      breakdown.push({ label: 'Hourly Rate',  value: fmt$(rate) });
-      breakdown.push({ label: 'Hours / Week', value: fmtN(hrs, 0) });
       break;
     }
     default:
@@ -364,21 +355,6 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
                     onChange={e => set({ methodSimilarEarn: Number(e.target.value) })}/></div>
               </div>
             )}
-            {state.method === 'hourly' && (
-              <>
-                <div className="f-group">
-                  <label className="f-label">Hourly Rate</label>
-                  <div className="f-input-wrap"><span className="prefix">$</span>
-                    <input className="f-input with-prefix" type="number" step="0.01" value={state.methodHourlyRate || ''}
-                      onChange={e => set({ methodHourlyRate: Number(e.target.value) })}/></div>
-                </div>
-                <div className="f-group">
-                  <label className="f-label">Hours / Week</label>
-                  <input className="f-input" type="number" value={state.methodHourlyHours || ''}
-                    onChange={e => set({ methodHourlyHours: Number(e.target.value) })}/>
-                </div>
-              </>
-            )}
           </div>
 
           <div className="method-fields">
@@ -587,6 +563,8 @@ const PALETTE_ITEMS = [
   { type: 'SLU',           name: 'SLU',           icon: 'SLU',  desc: 'Schedule Loss of Use — multi body part awards' },
   { type: 'LWEC',          name: 'LWEC',          icon: 'LW',   desc: 'Loss of Wage Earning Capacity bracket calc' },
   { type: 'CCP',           name: 'CCP / Award',   icon: 'CCP',  desc: 'Period-by-period builder · TT/RE/TR/TP/NCLT/NME' },
+  { type: 'Burns',         name: 'Burns Rate',    icon: 'BRN',  desc: '3rd-party lien apportionment per Burns v Varick' },
+  { type: 'Settlement',    name: 'Settlement',    icon: 'S32',  desc: 'Section 32 — settlement minus MSA, 15% fee on remainder' },
   { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', desc: 'Max + Min rate by date' },
   { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  desc: 'S11.4 point system + nerve-root caps' },
 ];
@@ -628,6 +606,7 @@ function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, p
   const Component = {
     SLU: SLUTile, LWEC: LWECTile, CCP: CCPTile,
     RateLookup: RateLookupTile, Radiculopathy: RadiculopathyTile,
+    Burns: BurnsTile, Settlement: SettlementTile,
   }[tile.type];
 
   const transform = `perspective(800px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;
