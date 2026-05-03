@@ -1,0 +1,54 @@
+# CODEOWNERS for thecompdesk-site
+#
+# This file enforces review on high-stakes paths once branch protection is enabled.
+# Until then, it serves as documentation of which paths are sensitive.
+#
+# Syntax: <path-pattern> <@owner1> <@owner2> ...
+# More specific rules later in the file override earlier ones.
+# See: https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner — all files require Joel's review unless overridden below
+*                                              @jmays2294-creator
+
+# === Pro Workspace (calculator engine) ===
+# Touches paid-tier UX, revenue-critical math, and case persistence.
+# Mistakes here corrupt user-saved cases or ship wrong WC numbers.
+/js/workspace/                                 @jmays2294-creator
+/js/aww-engine.mjs                             @jmays2294-creator
+/js/benefit-rate-engine.mjs                    @jmays2294-creator
+/js/ny-rate-table.mjs                          @jmays2294-creator
+/workspace.html                                @jmays2294-creator
+/css/app.css                                   @jmays2294-creator
+
+# === Billing / subscription / entitlement ===
+# Mistakes here cost money or strand paying users without features.
+/supabase/functions/revenuecat-webhook/        @jmays2294-creator
+/supabase/functions/stripe-webhook/            @jmays2294-creator
+/supabase/functions/user-stripe-webhook/       @jmays2294-creator
+/supabase/functions/create-attorney-checkout/  @jmays2294-creator
+/supabase/functions/accept-firm-invite/        @jmays2294-creator
+/supabase/functions/invite-firm-member/        @jmays2294-creator
+/supabase/functions/remove-firm-member/        @jmays2294-creator
+/js/entitlements.js                            @jmays2294-creator
+
+# === Database schema ===
+# Migrations are forward-only and irreversible in production.
+/supabase/migrations/                          @jmays2294-creator
+
+# === Auth / identity ===
+# Mistakes lock everyone out or open holes.
+/auth/                                         @jmays2294-creator
+/js/auth.js                                    @jmays2294-creator
+
+# === Routing / deploy config ===
+# Wrong redirect rules brick the entire site (see 2026-04-25 redirect-loop incident).
+/vercel.json                                   @jmays2294-creator
+/.well-known/                                  @jmays2294-creator
+
+# === Site-wide instructions for AI agents ===
+# Changes here change how every future Claude/Cowork session behaves.
+/CLAUDE.md                                     @jmays2294-creator
+/CODEOWNERS                                    @jmays2294-creator
+
+# === Repo doctor (the thing protecting the rest of this) ===
+/skills/repo-doctor/                           @jmays2294-creator
