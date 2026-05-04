@@ -1351,3 +1351,84 @@ footer.disclaimer {
 }
 .feeapp-status.error { color: #ef4444; }
 .feeapp-status.ok    { color: #10b981; }
+
+/* ============================================================================
+ * v1.2.2 — OC-400.1 profile chooser, intake wizard, profile bar
+ * ============================================================================ */
+
+.feeapp-profile-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-wrap: wrap;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ac) 8%, var(--bg-1));
+  font: 12px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+}
+.feeapp-profile-bar-label { color: var(--tx-dim); }
+.feeapp-profile-bar-label strong { color: var(--tx); }
+.feeapp-profile-bar-actions { display: flex; gap: 6px; }
+
+.feeapp-profile-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 14px;
+}
+.feeapp-profile-card {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--bg-1);
+  cursor: pointer;
+  transition: border-color 120ms, background 120ms;
+}
+.feeapp-profile-card:hover {
+  border-color: var(--ac);
+  background: color-mix(in srgb, var(--ac) 6%, var(--bg-1));
+}
+.feeapp-profile-card-main {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px;
+  cursor: pointer;
+}
+.feeapp-profile-label {
+  font-weight: 700; font-size: 14px; color: var(--tx);
+}
+.feeapp-profile-meta {
+  font-size: 12px; color: var(--tx-dim);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.feeapp-profile-actions {
+  display: flex; gap: 4px; flex-shrink: 0;
+}
+.feeapp-profile-actions .btn.danger {
+  color: #ef4444;
+}
+.feeapp-profile-actions .btn.danger:hover {
+  background: color-mix(in srgb, #ef4444 12%, transparent);
+  border-color: #ef4444;
+}
+.feeapp-profile-add {
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px;
+  border: 1px dashed var(--bd);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tx-dim);
+  font: 600 13px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  cursor: pointer;
+  transition: border-color 120ms, color 120ms;
+}
+.feeapp-profile-add:hover {
+  border-color: var(--ac);
+  color: var(--ac);
+}
+.feeapp-profile-cap-note {
+  padding: 10px 12px;
+  background: color-mix(in srgb, #f59e0b 12%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, #f59e0b 30%, var(--bg-1));
+  border-radius: 8px;
+  font-size: 12px; color: var(--tx);
+}

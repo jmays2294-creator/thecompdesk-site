@@ -1,70 +1,140 @@
 /* feeapp.js — OC-400.1 (Application for Fee by Claimant's Attorney)
- * generator for the Pro Attorney Workspace.  v1.2.1.
+ * generator for the Pro Attorney Workspace.  v1.2.2.
  *
- * v1.2.1 changes vs. v1.2:
- *   - Replace fuzzy field-name matcher with a HARD-CODED OC400_FIELD_MAP
- *     keyed off the official form's actual XFA field names (verified
- *     against the WCB-published OC-400.1 1-23 PDF, 2 pages, 40 fields).
- *   - Embed the signature image directly on the page-2 signature line
- *     rect (not just bottom-left of the last page).
- *   - Pre-populate modal from public.profiles (full_name, firm_name,
- *     firm_address, phone) so the attorney's certification block fills
- *     itself without retyping.
- *   - persistFeeApp() rewritten to match the EXISTING fee_applications
- *     schema (case_name + calculator_type are NOT NULL; calculation_data
- *     is jsonb; my v1.2 migration was never applied).
+ * v1.2.2 — Profile cache flow
+ * ---------------------------
+ * Each user can store up to 3 attorney/firm profile caches in
+ * public.oc400_profiles (RLS owner-only, max-3 enforced by trigger).
+ * Triggering the fee app now branches on the cache count:
  *
- * Architecture (unchanged from v1.2):
- *   window.triggerFeeApp(ctx?) opens the modal. ctx (optional) comes
- *   from the workspace shell — see app.js's onFeeApp handler.
+ *   0 profiles → IntakeWizard (seeded from public.profiles)
+ *                → save → FeeAppModal pre-filled
+ *   1 profile  → FeeAppModal pre-filled directly (no chooser friction)
+ *   2-3        → ProfileChooser → pick → FeeAppModal pre-filled
  *
- * Pro/Firm gate via window.currentTier; non-Pro dispatches feeapp:paywall.
+ * Inside the FeeAppModal, the user can "Switch profile" (re-opens chooser)
+ * or "Edit / Add" (opens wizard in edit / create mode).
+ *
+ * v1.2.1 features (unchanged)
+ * ---------------------------
+ * Hard-coded OC400_FIELD_MAP keyed off the actual XFA field names; signature
+ * image overlaid on the page-2 signature line rect; persistFeeApp() against
+ * the existing fee_applications schema.
  */
 
 (function () {
   'use strict';
 
-  const { useState, useEffect, useRef } = React;
+  const { useState, useEffect, useRef, useMemo } = React;
 
   const PDF_LIB_URL = 'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js';
   const TEMPLATE_URL = '/assets/forms/OC-400.1.pdf';
+  const MAX_PROFILES = 3;
 
   // ------------------------------------------------------------------
-  // Hard-coded OC-400.1 field map. Keys are the full XFA field names;
-  // values are the modal context keys whose value should fill them.
-  // Verified visually against the rendered template — see
-  // ops/dev/oc400-fieldmap.md (or this skill's reference render).
+  // OC-400.1 field map (hard-coded; verified against the WCB 1-23 PDF)
   // ------------------------------------------------------------------
   const OC400_FIELD_MAP = {
-    // Page 1 — top header
     'F[0].P1[0].#area[0].WCBCaseNos[0]':         'wcbNumber',
     'F[0].P1[0].#area[0].ClaimantsName[0]':      'claimantName',
-    'F[0].P1[0].#area[0].RepresentativeIDNo[0]': 'attorneyId',     // R-XXXXX
-    'F[0].P1[0].#area[0].DateRetained[0]':       'dateRetained',   // mm/dd/yyyy
-    // Page 1 — Section A "Fee Request"
-    'F[0].P1[0].TextField2[0]':                  'attorneyName',         // "I, [name]" attorney name in sentence
-    'F[0].P1[0].TextField2[1]':                  'feeRequestedDollar',   // "$ [amount]" fee amount
-    'F[0].P1[0].FeeRequestExplanation[0]':       'feeEquation',          // explanation textarea
-    // FeeReason1..6, FeeReasonOther, OtherText, AreYou, WereYou,
-    // RetainedYes/No, ServedYes/No/NA, OtherFeeYes/No/NA — left for the
-    // attorney to check manually; auto-checking would be presumptuous.
-    // Page 2 — top header
+    'F[0].P1[0].#area[0].RepresentativeIDNo[0]': 'attorneyId',
+    'F[0].P1[0].#area[0].DateRetained[0]':       'dateRetained',
+    'F[0].P1[0].TextField2[0]':                  'attorneyName',
+    'F[0].P1[0].TextField2[1]':                  'feeRequestedDollar',
+    'F[0].P1[0].FeeRequestExplanation[0]':       'feeEquation',
     'F[0].P2[0].WCBCaseNo[0]':                   'wcbNumber',
     'F[0].P2[0].ClaimantsName[0]':               'claimantName',
-    // Page 2 — Section C "Attorney/Licensed Representative Certification"
-    'F[0].P2[0].TextField2[1]':                  'attorneyName',     // Print Name
-    'F[0].P2[0].TextField2[0]':                  'attorneyName',     // Signature line (typed); image overlaid separately
-    'F[0].P2[0].TextField2[4]':                  'dateSubmitted',    // Date Submitted
-    'F[0].P2[0].TextField2[2]':                  'attorneyAddress',  // Address
-    'F[0].P2[0].TextField2[3]':                  'attorneyPhone',    // Phone #
-    // TextField2[5..7] — "Internal Use Only" (Date / Amount Approved /
-    // WCLJ Initials), filled by the WCLJ at the hearing. Leave blank.
+    'F[0].P2[0].TextField2[1]':                  'attorneyName',
+    'F[0].P2[0].TextField2[0]':                  'attorneyName',
+    'F[0].P2[0].TextField2[4]':                  'dateSubmitted',
+    'F[0].P2[0].TextField2[2]':                  'attorneyAddress',
+    'F[0].P2[0].TextField2[3]':                  'attorneyPhone',
   };
-
-  // Page-2 signature line rect from the AcroForm widget (PDF coords).
-  // The WCB form expects the visual signature on page 2, on the line
-  // labeled "Signature of Attorney/Licensed Representative".
   const SIGNATURE_RECT_PAGE2 = { x: 261, y: 690, width: 218, height: 30 };
+
+  // ------------------------------------------------------------------
+  // Supabase helpers
+  // ------------------------------------------------------------------
+  function getSupa() { return window.supa; }
+  function getUserId() { return window.workspaceUserId; }
+
+  async function listProfiles() {
+    const supa = getSupa(); const userId = getUserId();
+    if (!supa || !userId) return [];
+    const { data, error } = await supa
+      .from('oc400_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: true });
+    if (error) { console.warn('[feeapp] listProfiles failed:', error); return []; }
+    return data || [];
+  }
+
+  async function createProfile(profile) {
+    const supa = getSupa(); const userId = getUserId();
+    if (!supa || !userId) return { ok: false, reason: 'no-client' };
+    const { data, error } = await supa
+      .from('oc400_profiles')
+      .insert({ ...profile, user_id: userId })
+      .select()
+      .single();
+    if (error) return { ok: false, reason: error.message };
+    return { ok: true, profile: data };
+  }
+
+  async function updateProfile(id, patch) {
+    const supa = getSupa();
+    if (!supa) return { ok: false, reason: 'no-client' };
+    const { data, error } = await supa
+      .from('oc400_profiles')
+      .update(patch)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) return { ok: false, reason: error.message };
+    return { ok: true, profile: data };
+  }
+
+  async function deleteProfile(id) {
+    const supa = getSupa();
+    if (!supa) return { ok: false, reason: 'no-client' };
+    const { error } = await supa.from('oc400_profiles').delete().eq('id', id);
+    if (error) return { ok: false, reason: error.message };
+    return { ok: true };
+  }
+
+  // Fallback seed for first-time users — pulls from public.profiles.
+  async function loadProfileSeed() {
+    try {
+      const supa = getSupa(); const userId = getUserId();
+      if (!supa || !userId) return {};
+      const { data } = await supa
+        .from('profiles')
+        .select('full_name, display_name, firm_name, firm_address, phone')
+        .eq('id', userId)
+        .maybeSingle();
+      if (!data) return {};
+      return {
+        attorney_name:    data.full_name || data.display_name || '',
+        attorney_address: data.firm_address || '',
+        attorney_phone:   data.phone || '',
+        firm_name:        data.firm_name || '',
+      };
+    } catch (e) { return {}; }
+  }
+
+  // Map a stored profile row → the modal's context shape
+  function profileToCtx(profile) {
+    if (!profile) return {};
+    return {
+      attorneyName:    profile.attorney_name    || '',
+      attorneyId:      profile.attorney_id      || '',
+      attorneyPhone:   profile.attorney_phone   || '',
+      attorneyAddress: profile.attorney_address || '',
+      firmName:        profile.firm_name        || '',
+    };
+  }
 
   // ------------------------------------------------------------------
   // pdf-lib loader
@@ -77,40 +147,14 @@
       const s = document.createElement('script');
       s.src = PDF_LIB_URL;
       s.onload = () => window.PDFLib ? resolve(window.PDFLib) : reject(new Error('pdf-lib loaded but PDFLib global missing'));
-      s.onerror = () => reject(new Error('Failed to load pdf-lib from ' + PDF_LIB_URL));
+      s.onerror = () => reject(new Error('Failed to load pdf-lib'));
       document.head.appendChild(s);
     });
     return _pdfLibPromise;
   }
 
   // ------------------------------------------------------------------
-  // Profile loader — pre-populate the modal from public.profiles
-  // ------------------------------------------------------------------
-  async function loadAttorneyProfile() {
-    try {
-      const supa = window.supa;
-      const userId = window.workspaceUserId;
-      if (!supa || !userId) return {};
-      const { data, error } = await supa
-        .from('profiles')
-        .select('full_name, display_name, firm_name, firm_address, phone')
-        .eq('id', userId)
-        .maybeSingle();
-      if (error || !data) return {};
-      return {
-        attorneyName:    data.full_name || data.display_name || '',
-        attorneyAddress: data.firm_address || '',
-        attorneyPhone:   data.phone || '',
-        firmName:        data.firm_name || '',
-      };
-    } catch (e) {
-      console.warn('[feeapp] profile load failed:', e);
-      return {};
-    }
-  }
-
-  // ------------------------------------------------------------------
-  // Signature canvas (HiDPI, mouse + touch + pen) — unchanged from v1.2
+  // Signature canvas (HiDPI, mouse + touch + pen)
   // ------------------------------------------------------------------
   function SignatureCanvas({ onChange }) {
     const canvasRef = useRef(null);
@@ -128,10 +172,8 @@
         c.height = Math.round(rect.height * dpr);
         const ctx = c.getContext('2d');
         ctx.scale(dpr, dpr);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#0a0f1a';
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.lineWidth = 2; ctx.strokeStyle = '#0a0f1a';
       };
       resize();
       window.addEventListener('resize', resize);
@@ -143,57 +185,37 @@
       const t = e.touches ? e.touches[0] : e;
       return { x: t.clientX - rect.left, y: t.clientY - rect.top };
     };
-
-    const start = (e) => {
-      e.preventDefault();
-      drawingRef.current = true;
-      lastRef.current = getPoint(e);
-    };
+    const start = (e) => { e.preventDefault(); drawingRef.current = true; lastRef.current = getPoint(e); };
     const move = (e) => {
       if (!drawingRef.current) return;
       e.preventDefault();
       const ctx = canvasRef.current.getContext('2d');
       const p = getPoint(e);
-      ctx.beginPath();
-      ctx.moveTo(lastRef.current.x, lastRef.current.y);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(lastRef.current.x, lastRef.current.y); ctx.lineTo(p.x, p.y); ctx.stroke();
       lastRef.current = p;
-      if (!dirtyRef.current) {
-        dirtyRef.current = true;
-        onChange?.(true);
-      }
+      if (!dirtyRef.current) { dirtyRef.current = true; onChange?.(true); }
     };
     const end = () => { drawingRef.current = false; };
-
     const clear = () => {
       const c = canvasRef.current;
       const ctx = c.getContext('2d');
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, c.width, c.height);
       ctx.restore();
-      dirtyRef.current = false;
-      onChange?.(false);
+      dirtyRef.current = false; onChange?.(false);
     };
 
     useEffect(() => {
       if (!canvasRef.current) return;
-      canvasRef.current.__getSignaturePNG = () => {
-        if (!dirtyRef.current) return null;
-        return canvasRef.current.toDataURL('image/png');
-      };
+      canvasRef.current.__getSignaturePNG = () => dirtyRef.current ? canvasRef.current.toDataURL('image/png') : null;
       canvasRef.current.__clearSignature = clear;
     }, []);
 
     return (
       <div className="feeapp-sig-canvas-wrap">
-        <canvas
-          ref={canvasRef}
-          className="feeapp-sig-canvas"
+        <canvas ref={canvasRef} className="feeapp-sig-canvas"
           onMouseDown={start} onMouseMove={move} onMouseUp={end} onMouseLeave={end}
-          onTouchStart={start} onTouchMove={move} onTouchEnd={end} onTouchCancel={end}
-        />
+          onTouchStart={start} onTouchMove={move} onTouchEnd={end} onTouchCancel={end}/>
         <div className="feeapp-sig-actions">
           <span>Sign above using mouse, pen, or finger.</span>
           <button type="button" className="btn tiny ghost" onClick={clear}>Clear</button>
@@ -203,12 +225,11 @@
   }
 
   // ------------------------------------------------------------------
-  // AcroForm fill — hard-coded map keyed on full XFA field names
+  // Form fill + PDF generation
   // ------------------------------------------------------------------
   function fillFormFromMap(form, ctx) {
     const fields = form.getFields();
-    const filled = [];
-    const missed = [];
+    const filled = []; const missed = [];
     for (const f of fields) {
       const name = f.getName();
       const ctxKey = OC400_FIELD_MAP[name];
@@ -216,20 +237,12 @@
       const value = ctx[ctxKey];
       if (value === undefined || value === null || value === '') continue;
       try {
-        if (typeof f.setText === 'function') {
-          f.setText(String(value));
-          filled.push({ name, ctxKey });
-        }
-      } catch (e) {
-        missed.push({ name, ctxKey, error: String(e) });
-      }
+        if (typeof f.setText === 'function') { f.setText(String(value)); filled.push({ name, ctxKey }); }
+      } catch (e) { missed.push({ name, ctxKey, error: String(e) }); }
     }
     return { filled, missed };
   }
 
-  // ------------------------------------------------------------------
-  // From-scratch fallback (unchanged) — runs only when the template fetch fails
-  // ------------------------------------------------------------------
   async function renderFromScratch(ctx, pdfDoc, sigPngBytes) {
     const { StandardFonts, rgb } = window.PDFLib;
     const page = pdfDoc.addPage([612, 792]);
@@ -276,19 +289,13 @@
     page.drawLine({ start: { x: margin, y }, end: { x: margin + 240, y }, thickness: 0.5, color: rgb(0, 0, 0) });
     y -= 14;
     draw(`Signed: ${ctx.dateSubmitted || new Date().toISOString().slice(0, 10)}`, { size: 10 });
-    page.drawText(
-      'This is a Comp Desk-generated draft. Replace with the official OC-400.1 form template before submission.',
-      { x: margin, y: 30, size: 8, font: helv, color: rgb(0.5, 0.5, 0.5) }
-    );
+    page.drawText('This is a Comp Desk-generated draft. Replace with the official OC-400.1 form template before submission.',
+      { x: margin, y: 30, size: 8, font: helv, color: rgb(0.5, 0.5, 0.5) });
   }
 
-  // ------------------------------------------------------------------
-  // Generate the PDF
-  // ------------------------------------------------------------------
   async function generatePdf(ctx, sigPngDataUrl) {
     const PDFLib = await loadPdfLib();
     const { PDFDocument } = PDFLib;
-
     let sigPngBytes = null;
     if (sigPngDataUrl) {
       const base64 = sigPngDataUrl.split(',')[1];
@@ -296,123 +303,232 @@
       sigPngBytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) sigPngBytes[i] = bin.charCodeAt(i);
     }
-
-    let pdfDoc = null;
-    let usedTemplate = false;
-    let fillReport = null;
+    let pdfDoc = null; let usedTemplate = false; let fillReport = null;
     try {
       const r = await fetch(TEMPLATE_URL, { cache: 'force-cache' });
-      if (r.ok) {
-        const buf = await r.arrayBuffer();
-        pdfDoc = await PDFDocument.load(buf);
-        usedTemplate = true;
-      }
-    } catch (e) { /* fall through */ }
-
-    if (!pdfDoc) {
-      pdfDoc = await PDFDocument.create();
-    }
+      if (r.ok) { const buf = await r.arrayBuffer(); pdfDoc = await PDFDocument.load(buf); usedTemplate = true; }
+    } catch (e) {}
+    if (!pdfDoc) pdfDoc = await PDFDocument.create();
     pdfDoc.setTitle(`OC-400.1 — ${ctx.claimantName || 'Fee Application'}`);
     pdfDoc.setAuthor(ctx.attorneyName || 'The Comp Desk');
     pdfDoc.setProducer('The Comp Desk Pro Workspace');
-
     if (usedTemplate) {
       try {
         const form = pdfDoc.getForm();
         fillReport = fillFormFromMap(form, ctx);
         if (sigPngBytes) {
-          // Overlay signature on page-2 signature line. The form's
-          // TextField2[0] on page 2 (typed name) sits in the same rect;
-          // overlaying the image visually replaces it.
           const sigImg = await pdfDoc.embedPng(sigPngBytes);
           const pages = pdfDoc.getPages();
           const page2 = pages[1] || pages[pages.length - 1];
           const r = SIGNATURE_RECT_PAGE2;
-          // Constrain image to rect while preserving aspect
           const imgRatio = sigImg.height / sigImg.width;
-          let sigW = r.width;
-          let sigH = sigW * imgRatio;
-          if (sigH > r.height) {
-            sigH = r.height;
-            sigW = sigH / imgRatio;
-          }
+          let sigW = r.width; let sigH = sigW * imgRatio;
+          if (sigH > r.height) { sigH = r.height; sigW = sigH / imgRatio; }
           page2.drawImage(sigImg, { x: r.x, y: r.y, width: sigW, height: sigH });
         }
-        try { form.flatten(); } catch (e) { /* some pdf-lib versions can't flatten certain widgets */ }
-      } catch (e) {
-        console.warn('[feeapp] AcroForm fill failed; rendering from-scratch fallback', e);
-        usedTemplate = false;
-      }
+        try { form.flatten(); } catch (e) {}
+      } catch (e) { console.warn('[feeapp] AcroForm fill failed', e); usedTemplate = false; }
     }
-    if (!usedTemplate) {
-      await renderFromScratch(ctx, pdfDoc, sigPngBytes);
-    }
-
+    if (!usedTemplate) await renderFromScratch(ctx, pdfDoc, sigPngBytes);
     const bytes = await pdfDoc.save();
     return { bytes, usedTemplate, fillReport };
   }
 
-  // ------------------------------------------------------------------
-  // Persist to public.fee_applications (existing schema, NOT my migration)
-  // ------------------------------------------------------------------
   async function persistFeeApp(ctx, pdfBytes, meta) {
     try {
-      const supa = window.supa;
-      const userId = window.workspaceUserId;
+      const supa = getSupa(); const userId = getUserId();
       if (!supa || !userId) return { ok: false, reason: 'no-client' };
-
-      // Map workspace ctx → existing schema
-      const caseName = ctx.caseName
-        || ctx.claimantName
-        || ctx.wcbNumber
-        || 'OC-400.1';
-      const calcType = 'oc-400.1';
+      const caseName = ctx.caseName || ctx.claimantName || ctx.wcbNumber || 'OC-400.1';
       const feeAmount = ctx.feeRequestedDollar
         ? Number(String(ctx.feeRequestedDollar).replace(/[^0-9.\-]/g, ''))
         : null;
       const calcData = {
-        // Everything that doesn't map to a column lives in calculation_data.
-        doi:               ctx.doi || null,
-        aww:               ctx.aww || null,
-        fee_equation:      ctx.feeEquation || null,
-        attorney_name:     ctx.attorneyName || null,
-        attorney_id:       ctx.attorneyId || null,
-        attorney_phone:    ctx.attorneyPhone || null,
-        attorney_address:  ctx.attorneyAddress || null,
-        firm_name:         ctx.firmName || null,
-        date_retained:     ctx.dateRetained || null,
-        date_submitted:    ctx.dateSubmitted || null,
-        used_template:     !!meta?.usedTemplate,
-        fill_report:       meta?.fillReport || null,
-        pdf_byte_length:   pdfBytes ? pdfBytes.length : null,
+        doi: ctx.doi || null, aww: ctx.aww || null,
+        fee_equation: ctx.feeEquation || null,
+        attorney_name: ctx.attorneyName || null, attorney_id: ctx.attorneyId || null,
+        attorney_phone: ctx.attorneyPhone || null, attorney_address: ctx.attorneyAddress || null,
+        firm_name: ctx.firmName || null,
+        date_retained: ctx.dateRetained || null, date_submitted: ctx.dateSubmitted || null,
+        used_template: !!meta?.usedTemplate, fill_report: meta?.fillReport || null,
+        pdf_byte_length: pdfBytes ? pdfBytes.length : null,
+        profile_id: ctx._profileId || null,
       };
-
       const row = {
-        user_id:         userId,
-        case_name:       caseName,
-        wcb_case_number: ctx.wcbNumber || null,
-        claimant_name:   ctx.claimantName || null,
-        fee_amount:      feeAmount,
-        calculator_type: calcType,
-        calculation_data: calcData,
-        // status defaults to 'generated'
+        user_id: userId, case_name: caseName, wcb_case_number: ctx.wcbNumber || null,
+        claimant_name: ctx.claimantName || null, fee_amount: feeAmount,
+        calculator_type: 'oc-400.1', calculation_data: calcData,
       };
       const { error } = await supa.from('fee_applications').insert(row);
-      if (error) {
-        console.warn('[feeapp] persist failed:', error);
-        return { ok: false, reason: error.message };
-      }
+      if (error) return { ok: false, reason: error.message };
       return { ok: true };
-    } catch (e) {
-      console.warn('[feeapp] persist threw:', e);
-      return { ok: false, reason: String(e) };
-    }
+    } catch (e) { return { ok: false, reason: String(e) }; }
   }
 
-  // ------------------------------------------------------------------
-  // Modal
-  // ------------------------------------------------------------------
-  function FeeAppModal({ initialContext, onClose }) {
+  // ==================================================================
+  // IntakeWizard — create or edit a profile cache
+  // ==================================================================
+  function IntakeWizard({ initial, profileCount, onSave, onCancel, isEdit }) {
+    const [p, setP] = useState({
+      label:            initial?.label            || '',
+      attorney_name:    initial?.attorney_name    || '',
+      attorney_id:      initial?.attorney_id      || '',
+      attorney_phone:   initial?.attorney_phone   || '',
+      attorney_address: initial?.attorney_address || '',
+      firm_name:        initial?.firm_name        || '',
+    });
+    const [busy, setBusy] = useState(false);
+    const [err, setErr] = useState('');
+
+    // First-time wizard: seed from public.profiles
+    useEffect(() => {
+      if (isEdit) return;
+      let cancelled = false;
+      loadProfileSeed().then(seed => {
+        if (cancelled) return;
+        setP(prev => ({
+          ...prev,
+          attorney_name:    prev.attorney_name    || seed.attorney_name    || '',
+          attorney_address: prev.attorney_address || seed.attorney_address || '',
+          attorney_phone:   prev.attorney_phone   || seed.attorney_phone   || '',
+          firm_name:        prev.firm_name        || seed.firm_name        || '',
+        }));
+      });
+      return () => { cancelled = true; };
+    }, [isEdit]);
+
+    const set = (patch) => setP(c => ({ ...c, ...patch }));
+
+    const onSubmit = async () => {
+      if (!p.label.trim()) { setErr('Profile label is required (e.g. "Personal" or your firm name).'); return; }
+      setBusy(true); setErr('');
+      try {
+        const result = isEdit
+          ? await updateProfile(initial.id, p)
+          : await createProfile(p);
+        if (!result.ok) { setErr('Save failed: ' + result.reason); setBusy(false); return; }
+        onSave(result.profile);
+      } catch (e) { setErr(String(e)); setBusy(false); }
+    };
+
+    const titleText = isEdit
+      ? `Edit profile — ${initial.label}`
+      : (profileCount === 0 ? 'Set up your attorney profile' : 'Add a new profile');
+    const subText = isEdit
+      ? 'Update the autofill values for this profile cache.'
+      : (profileCount === 0
+          ? 'First time generating an OC-400.1. Save your firm + attorney info once and we\'ll pre-fill it on every fee app from now on. You can save up to 3 profiles (e.g. solo + two firms).'
+          : `You have ${profileCount}/${MAX_PROFILES} profiles saved. Add another to switch between firms.`);
+
+    return (
+      <div className="feeapp-modal-backdrop">
+        <div className="feeapp-modal" role="dialog" aria-labelledby="feeapp-wiz-title">
+          <h3 id="feeapp-wiz-title">{titleText}</h3>
+          <div className="sub">{subText}</div>
+
+          <div className="feeapp-fields">
+            <div className="f-group">
+              <label className="f-label">Profile label *</label>
+              <input className="f-input" value={p.label}
+                onChange={e => set({ label: e.target.value })}
+                placeholder="e.g. Personal · Shulman & Hill · Smith firm"/>
+            </div>
+            <div className="row2">
+              <div className="f-group">
+                <label className="f-label">Attorney Name</label>
+                <input className="f-input" value={p.attorney_name}
+                  onChange={e => set({ attorney_name: e.target.value })}/>
+              </div>
+              <div className="f-group">
+                <label className="f-label">Representative ID (R-#)</label>
+                <input className="f-input" value={p.attorney_id}
+                  onChange={e => set({ attorney_id: e.target.value })}
+                  placeholder="R-12345"/>
+              </div>
+            </div>
+            <div className="row2">
+              <div className="f-group">
+                <label className="f-label">Firm</label>
+                <input className="f-input" value={p.firm_name}
+                  onChange={e => set({ firm_name: e.target.value })}/>
+              </div>
+              <div className="f-group">
+                <label className="f-label">Phone #</label>
+                <input className="f-input" value={p.attorney_phone}
+                  onChange={e => set({ attorney_phone: e.target.value })}/>
+              </div>
+            </div>
+            <div className="f-group">
+              <label className="f-label">Address</label>
+              <input className="f-input" value={p.attorney_address}
+                onChange={e => set({ attorney_address: e.target.value })}/>
+            </div>
+          </div>
+
+          {err && <div className="feeapp-status error">{err}</div>}
+
+          <div className="feeapp-actions">
+            <button className="btn ghost" onClick={onCancel} disabled={busy}>Cancel</button>
+            <button className="btn primary" onClick={onSubmit} disabled={busy || !p.label.trim()}>
+              {busy ? 'Saving…' : (isEdit ? 'Save changes' : 'Save & continue')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==================================================================
+  // ProfileChooser — pick which profile to autofill from (also list mgmt)
+  // ==================================================================
+  function ProfileChooser({ profiles, onPick, onEdit, onDelete, onAddNew, onCancel }) {
+    const canAdd = profiles.length < MAX_PROFILES;
+    return (
+      <div className="feeapp-modal-backdrop">
+        <div className="feeapp-modal" role="dialog" aria-labelledby="feeapp-chooser-title">
+          <h3 id="feeapp-chooser-title">Choose attorney info</h3>
+          <div className="sub">Pick which saved profile should autofill the OC-400.1. Each user can keep up to {MAX_PROFILES} caches.</div>
+
+          <div className="feeapp-profile-list">
+            {profiles.map(p => (
+              <div key={p.id} className="feeapp-profile-card">
+                <div className="feeapp-profile-card-main" onClick={() => onPick(p)}>
+                  <div className="feeapp-profile-label">{p.label}</div>
+                  <div className="feeapp-profile-meta">
+                    {p.attorney_name || '—'}
+                    {p.firm_name ? ' · ' + p.firm_name : ''}
+                    {p.attorney_id ? ' · ' + p.attorney_id : ''}
+                  </div>
+                </div>
+                <div className="feeapp-profile-actions">
+                  <button className="btn tiny ghost" onClick={(e) => { e.stopPropagation(); onEdit(p); }}>Edit</button>
+                  <button className="btn tiny ghost danger" onClick={(e) => { e.stopPropagation(); if (confirm(`Delete profile "${p.label}"?`)) onDelete(p); }}>Delete</button>
+                </div>
+              </div>
+            ))}
+            {canAdd && (
+              <button className="feeapp-profile-add" onClick={onAddNew}>
+                + Add new profile {`(${profiles.length}/${MAX_PROFILES})`}
+              </button>
+            )}
+            {!canAdd && (
+              <div className="feeapp-profile-cap-note">
+                Maximum of {MAX_PROFILES} profiles reached. Delete one to add another.
+              </div>
+            )}
+          </div>
+
+          <div className="feeapp-actions">
+            <button className="btn ghost" onClick={onCancel}>Cancel</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==================================================================
+  // FeeAppModal — pre-filled from active workspace + chosen profile
+  // ==================================================================
+  function FeeAppModal({ initialContext, activeProfile, profileCount, onSwitchProfile, onEditCurrent, onClose }) {
     const [ctx, setCtx] = useState({
       claimantName:        initialContext?.claimantName        || '',
       wcbNumber:           initialContext?.wcbNumber           || '',
@@ -427,27 +543,11 @@
       firmName:            initialContext?.firmName            || '',
       dateRetained:        initialContext?.dateRetained        || '',
       dateSubmitted:       initialContext?.dateSubmitted       || new Date().toISOString().slice(0, 10),
+      _profileId:          activeProfile?.id                   || null,
     });
     const [hasSig, setHasSig] = useState(false);
     const [status, setStatus] = useState({ text: '', kind: '' });
     const [busy, setBusy] = useState(false);
-
-    // On mount, fold in profile data (won't clobber any field already set
-    // from initialContext).
-    useEffect(() => {
-      let cancelled = false;
-      loadAttorneyProfile().then(p => {
-        if (cancelled) return;
-        setCtx(c => ({
-          ...c,
-          attorneyName:    c.attorneyName    || p.attorneyName    || '',
-          attorneyAddress: c.attorneyAddress || p.attorneyAddress || '',
-          attorneyPhone:   c.attorneyPhone   || p.attorneyPhone   || '',
-          firmName:        c.firmName        || p.firmName        || '',
-        }));
-      });
-      return () => { cancelled = true; };
-    }, []);
 
     const update = (patch) => setCtx(c => ({ ...c, ...patch }));
 
@@ -459,12 +559,9 @@
         const sigData = sigEl?.__getSignaturePNG?.();
         if (!sigData) {
           setStatus({ text: 'Please sign before generating.', kind: 'error' });
-          setBusy(false);
-          return;
+          setBusy(false); return;
         }
-
         const { bytes, usedTemplate, fillReport } = await generatePdf(ctx, sigData);
-
         const blob = new Blob([bytes], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -494,7 +591,25 @@
       <div className="feeapp-modal-backdrop" onClick={(e) => { if (e.target.classList.contains('feeapp-modal-backdrop')) onClose(); }}>
         <div className="feeapp-modal" role="dialog" aria-labelledby="feeapp-title">
           <h3 id="feeapp-title">OC-400.1 — Fee Application</h3>
-          <div className="sub">Generates a court-ready Application for Fee. Pre-fills from the active workspace tab + your profile; review and sign before download.</div>
+          <div className="sub">Generates a court-ready Application for Fee. Pre-filled from the active workspace tab + your saved profile; review and sign before download.</div>
+
+          {/* Profile bar */}
+          {activeProfile && (
+            <div className="feeapp-profile-bar">
+              <span className="feeapp-profile-bar-label">
+                Profile: <strong>{activeProfile.label}</strong>
+              </span>
+              <div className="feeapp-profile-bar-actions">
+                <button className="btn tiny ghost" onClick={onEditCurrent}>Edit</button>
+                {profileCount > 1 && (
+                  <button className="btn tiny ghost" onClick={onSwitchProfile}>Switch / Manage</button>
+                )}
+                {profileCount === 1 && (
+                  <button className="btn tiny ghost" onClick={onSwitchProfile}>Manage / Add</button>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="feeapp-fields">
             <div className="row2">
@@ -584,6 +699,146 @@
     );
   }
 
+  // ==================================================================
+  // FeeAppFlow — orchestrates wizard / chooser / modal state machine
+  // ==================================================================
+  function FeeAppFlow({ initialContext, onClose }) {
+    // screen: 'loading' | 'wizard' | 'chooser' | 'modal'
+    const [screen, setScreen] = useState('loading');
+    const [profiles, setProfiles] = useState([]);
+    const [activeProfile, setActiveProfile] = useState(null);
+    // editingProfile: when set, we're editing this profile (null = new)
+    const [editingProfile, setEditingProfile] = useState(undefined);
+
+    // initial fetch
+    useEffect(() => {
+      let cancelled = false;
+      listProfiles().then(list => {
+        if (cancelled) return;
+        setProfiles(list);
+        if (list.length === 0) {
+          setScreen('wizard');
+          setEditingProfile(null);
+        } else if (list.length === 1) {
+          setActiveProfile(list[0]);
+          setScreen('modal');
+        } else {
+          // pick the default if present, but still show chooser so user
+          // can confirm or switch
+          setScreen('chooser');
+        }
+      });
+      return () => { cancelled = true; };
+    }, []);
+
+    // wizard save → if first profile, jump to modal; else back to chooser
+    const onWizardSave = (profile) => {
+      const wasEdit = !!(editingProfile && editingProfile.id);
+      if (wasEdit) {
+        setProfiles(prev => prev.map(p => p.id === profile.id ? profile : p));
+        // If we edited the active one, refresh it in the modal
+        if (activeProfile && activeProfile.id === profile.id) setActiveProfile(profile);
+        setScreen(profiles.length === 1 ? 'modal' : 'chooser');
+        setEditingProfile(undefined);
+      } else {
+        const next = [...profiles, profile];
+        setProfiles(next);
+        if (next.length === 1) {
+          setActiveProfile(profile);
+          setScreen('modal');
+        } else {
+          setActiveProfile(profile);
+          setScreen('chooser');
+        }
+        setEditingProfile(undefined);
+      }
+    };
+
+    const onWizardCancel = () => {
+      // First-time wizard cancel → close everything (no profile to fall back on)
+      if (profiles.length === 0) onClose();
+      else setScreen(profiles.length === 1 ? 'modal' : 'chooser');
+      setEditingProfile(undefined);
+    };
+
+    const onChooserPick = (profile) => {
+      setActiveProfile(profile);
+      setScreen('modal');
+    };
+
+    const onChooserEdit = (profile) => {
+      setEditingProfile(profile);
+      setScreen('wizard');
+    };
+
+    const onChooserDelete = async (profile) => {
+      const result = await deleteProfile(profile.id);
+      if (!result.ok) { alert('Delete failed: ' + result.reason); return; }
+      const next = profiles.filter(p => p.id !== profile.id);
+      setProfiles(next);
+      if (activeProfile && activeProfile.id === profile.id) setActiveProfile(next[0] || null);
+      if (next.length === 0) {
+        // No profiles left — bounce to wizard
+        setScreen('wizard');
+        setEditingProfile(null);
+      }
+    };
+
+    const onChooserAddNew = () => {
+      setEditingProfile(null);
+      setScreen('wizard');
+    };
+
+    const onSwitchFromModal = () => {
+      setScreen('chooser');
+    };
+
+    const onEditFromModal = () => {
+      setEditingProfile(activeProfile);
+      setScreen('wizard');
+    };
+
+    if (screen === 'loading') {
+      return (
+        <div className="feeapp-modal-backdrop">
+          <div className="feeapp-modal" role="dialog">
+            <div className="feeapp-status">Loading your profile caches…</div>
+          </div>
+        </div>
+      );
+    }
+    if (screen === 'wizard') {
+      return <IntakeWizard
+        initial={editingProfile || null}
+        isEdit={!!(editingProfile && editingProfile.id)}
+        profileCount={profiles.length}
+        onSave={onWizardSave}
+        onCancel={onWizardCancel}/>;
+    }
+    if (screen === 'chooser') {
+      return <ProfileChooser
+        profiles={profiles}
+        onPick={onChooserPick}
+        onEdit={onChooserEdit}
+        onDelete={onChooserDelete}
+        onAddNew={onChooserAddNew}
+        onCancel={onClose}/>;
+    }
+    // 'modal' — merge the workspace ctx with the active profile's ctx
+    const merged = { ...(initialContext || {}), ...profileToCtx(activeProfile) };
+    // workspace ctx wins for fields it actually has values for; profile fills empties
+    for (const k of ['attorneyName','attorneyId','attorneyPhone','attorneyAddress','firmName']) {
+      if (initialContext && initialContext[k]) merged[k] = initialContext[k];
+    }
+    return <FeeAppModal
+      initialContext={merged}
+      activeProfile={activeProfile}
+      profileCount={profiles.length}
+      onSwitchProfile={onSwitchFromModal}
+      onEditCurrent={onEditFromModal}
+      onClose={onClose}/>;
+  }
+
   // ------------------------------------------------------------------
   // Mount + Pro/Firm gate
   // ------------------------------------------------------------------
@@ -597,10 +852,10 @@
     return _hostRoot;
   }
 
-  function openModal(ctx) {
+  function openFlow(ctx) {
     const host = ensureHost();
     const close = () => host.render(null);
-    host.render(<FeeAppModal initialContext={ctx} onClose={close} />);
+    host.render(<FeeAppFlow initialContext={ctx} onClose={close} />);
   }
 
   window.triggerFeeApp = function (ctx) {
@@ -610,7 +865,7 @@
       return;
     }
     const merged = ctx || window.WorkspaceFeeAppContext || {};
-    openModal(merged);
+    openFlow(merged);
   };
 
   window.__feeappReady = true;
