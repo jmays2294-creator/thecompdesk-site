@@ -1,51 +1,73 @@
 /* feeapp.js — OC-400.1 (Application for Fee by Claimant's Attorney)
- * generator for the Pro Attorney Workspace.
+ * generator for the Pro Attorney Workspace.  v1.2.1.
  *
- * Architecture
- * ============
- * The module renders nothing on its own. It registers two globals:
+ * v1.2.1 changes vs. v1.2:
+ *   - Replace fuzzy field-name matcher with a HARD-CODED OC400_FIELD_MAP
+ *     keyed off the official form's actual XFA field names (verified
+ *     against the WCB-published OC-400.1 1-23 PDF, 2 pages, 40 fields).
+ *   - Embed the signature image directly on the page-2 signature line
+ *     rect (not just bottom-left of the last page).
+ *   - Pre-populate modal from public.profiles (full_name, firm_name,
+ *     firm_address, phone) so the attorney's certification block fills
+ *     itself without retyping.
+ *   - persistFeeApp() rewritten to match the EXISTING fee_applications
+ *     schema (case_name + calculator_type are NOT NULL; calculation_data
+ *     is jsonb; my v1.2 migration was never applied).
  *
- *   window.triggerFeeApp(ctx?)  — opens the modal. `ctx` is an optional
- *                                  object from the workspace shell with
- *                                  the active tab's claimant + AWW state.
- *                                  When omitted, the module reads from
- *                                  window.WorkspaceFeeAppContext (set by
- *                                  app.js right before the call).
- *   window.WorkspaceFeeAppContext — last-known context (set by app.js)
+ * Architecture (unchanged from v1.2):
+ *   window.triggerFeeApp(ctx?) opens the modal. ctx (optional) comes
+ *   from the workspace shell — see app.js's onFeeApp handler.
  *
- * The existing app.js EquationCard already calls `window.triggerFeeApp()`
- * on the "Generate Fee App" button — we just plug into that hook.
- *
- * Generation strategy
- * -------------------
- * 1. Try to load `/assets/forms/OC-400.1.pdf` (an official WCB form template
- *    that gets dropped into the repo). If found, fill AcroForm fields by
- *    fuzzy name match (claimant name, WCB#, AWW, signature, etc.).
- * 2. If no template is found, generate a 1-page summary PDF FROM SCRATCH —
- *    using pdf-lib's StandardFonts and a clean form-style layout. The
- *    output is clearly marked "OC-400.1 — DRAFT (template not bundled)"
- *    so attorneys know to replace before submission.
- *
- * Either way the signature image is embedded and the PDF downloads + uploads
- * to the `fee_applications` Supabase table for history.
- *
- * Pro/Firm gate
- * -------------
- * The module checks `window.currentTier`. Anything other than 'pro' or
- * 'firm' falls back to the existing paywall — same gate the rest of the
- * workspace uses.
+ * Pro/Firm gate via window.currentTier; non-Pro dispatches feeapp:paywall.
  */
 
 (function () {
   'use strict';
 
-  const { useState, useEffect, useRef, useMemo, useCallback } = React;
+  const { useState, useEffect, useRef } = React;
 
   const PDF_LIB_URL = 'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js';
   const TEMPLATE_URL = '/assets/forms/OC-400.1.pdf';
 
   // ------------------------------------------------------------------
-  // pdf-lib loader (cached promise so multiple modal opens reuse it)
+  // Hard-coded OC-400.1 field map. Keys are the full XFA field names;
+  // values are the modal context keys whose value should fill them.
+  // Verified visually against the rendered template — see
+  // ops/dev/oc400-fieldmap.md (or this skill's reference render).
+  // ------------------------------------------------------------------
+  const OC400_FIELD_MAP = {
+    // Page 1 — top header
+    'F[0].P1[0].#area[0].WCBCaseNos[0]':         'wcbNumber',
+    'F[0].P1[0].#area[0].ClaimantsName[0]':      'claimantName',
+    'F[0].P1[0].#area[0].RepresentativeIDNo[0]': 'attorneyId',     // R-XXXXX
+    'F[0].P1[0].#area[0].DateRetained[0]':       'dateRetained',   // mm/dd/yyyy
+    // Page 1 — Section A "Fee Request"
+    'F[0].P1[0].TextField2[0]':                  'attorneyName',         // "I, [name]" attorney name in sentence
+    'F[0].P1[0].TextField2[1]':                  'feeRequestedDollar',   // "$ [amount]" fee amount
+    'F[0].P1[0].FeeRequestExplanation[0]':       'feeEquation',          // explanation textarea
+    // FeeReason1..6, FeeReasonOther, OtherText, AreYou, WereYou,
+    // RetainedYes/No, ServedYes/No/NA, OtherFeeYes/No/NA — left for the
+    // attorney to check manually; auto-checking would be presumptuous.
+    // Page 2 — top header
+    'F[0].P2[0].WCBCaseNo[0]':                   'wcbNumber',
+    'F[0].P2[0].ClaimantsName[0]':               'claimantName',
+    // Page 2 — Section C "Attorney/Licensed Representative Certification"
+    'F[0].P2[0].TextField2[1]':                  'attorneyName',     // Print Name
+    'F[0].P2[0].TextField2[0]':                  'attorneyName',     // Signature line (typed); image overlaid separately
+    'F[0].P2[0].TextField2[4]':                  'dateSubmitted',    // Date Submitted
+    'F[0].P2[0].TextField2[2]':                  'attorneyAddress',  // Address
+    'F[0].P2[0].TextField2[3]':                  'attorneyPhone',    // Phone #
+    // TextField2[5..7] — "Internal Use Only" (Date / Amount Approved /
+    // WCLJ Initials), filled by the WCLJ at the hearing. Leave blank.
+  };
+
+  // Page-2 signature line rect from the AcroForm widget (PDF coords).
+  // The WCB form expects the visual signature on page 2, on the line
+  // labeled "Signature of Attorney/Licensed Representative".
+  const SIGNATURE_RECT_PAGE2 = { x: 261, y: 690, width: 218, height: 30 };
+
+  // ------------------------------------------------------------------
+  // pdf-lib loader
   // ------------------------------------------------------------------
   let _pdfLibPromise = null;
   function loadPdfLib() {
@@ -62,7 +84,33 @@
   }
 
   // ------------------------------------------------------------------
-  // Signature canvas (HiDPI, mouse + touch + pen)
+  // Profile loader — pre-populate the modal from public.profiles
+  // ------------------------------------------------------------------
+  async function loadAttorneyProfile() {
+    try {
+      const supa = window.supa;
+      const userId = window.workspaceUserId;
+      if (!supa || !userId) return {};
+      const { data, error } = await supa
+        .from('profiles')
+        .select('full_name, display_name, firm_name, firm_address, phone')
+        .eq('id', userId)
+        .maybeSingle();
+      if (error || !data) return {};
+      return {
+        attorneyName:    data.full_name || data.display_name || '',
+        attorneyAddress: data.firm_address || '',
+        attorneyPhone:   data.phone || '',
+        firmName:        data.firm_name || '',
+      };
+    } catch (e) {
+      console.warn('[feeapp] profile load failed:', e);
+      return {};
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Signature canvas (HiDPI, mouse + touch + pen) — unchanged from v1.2
   // ------------------------------------------------------------------
   function SignatureCanvas({ onChange }) {
     const canvasRef = useRef(null);
@@ -70,7 +118,6 @@
     const lastRef = useRef({ x: 0, y: 0 });
     const dirtyRef = useRef(false);
 
-    // HiDPI sizing — match canvas backing buffer to device pixel ratio
     useEffect(() => {
       const c = canvasRef.current;
       if (!c) return;
@@ -130,7 +177,6 @@
       onChange?.(false);
     };
 
-    // Expose getDataURL via canvasRef.current.__getSignatureData (set on mount)
     useEffect(() => {
       if (!canvasRef.current) return;
       canvasRef.current.__getSignaturePNG = () => {
@@ -157,110 +203,79 @@
   }
 
   // ------------------------------------------------------------------
-  // Field-name matching for AcroForm fill. Tries to fill any field whose
-  // name includes one of the keywords. Robust to WCB form revisions.
+  // AcroForm fill — hard-coded map keyed on full XFA field names
   // ------------------------------------------------------------------
-  function fuzzyFillFields(form, ctx) {
+  function fillFormFromMap(form, ctx) {
     const fields = form.getFields();
-    const tryFill = (matchers, value) => {
-      if (value === undefined || value === null || value === '') return false;
-      const v = String(value);
-      for (const f of fields) {
-        const name = (f.getName() || '').toLowerCase();
-        if (matchers.some(m => name.includes(m))) {
-          try {
-            if (typeof f.setText === 'function') { f.setText(v); return true; }
-            if (typeof f.check === 'function')   { f.check();    return true; }
-          } catch (e) { /* ignore field type mismatch */ }
+    const filled = [];
+    const missed = [];
+    for (const f of fields) {
+      const name = f.getName();
+      const ctxKey = OC400_FIELD_MAP[name];
+      if (!ctxKey) continue;
+      const value = ctx[ctxKey];
+      if (value === undefined || value === null || value === '') continue;
+      try {
+        if (typeof f.setText === 'function') {
+          f.setText(String(value));
+          filled.push({ name, ctxKey });
         }
+      } catch (e) {
+        missed.push({ name, ctxKey, error: String(e) });
       }
-      return false;
-    };
-    const out = {};
-    out.claimant = tryFill(['claimant', 'injured', 'employee_name', 'name_of_claimant'], ctx.claimantName);
-    out.wcb      = tryFill(['wcb', 'case_number', 'case#', 'wcbnumber'], ctx.wcbNumber);
-    out.doi      = tryFill(['doi', 'date_of_injury', 'injury_date', 'dateofaccident'], ctx.doi);
-    out.aww      = tryFill(['aww', 'average_weekly', 'weekly_wage'], ctx.aww);
-    out.attorney = tryFill(['attorney_name', 'representative_name', 'firm_attorney'], ctx.attorneyName);
-    out.firm     = tryFill(['firm', 'law_office', 'attorney_firm'], ctx.firmName);
-    out.feeAmt   = tryFill(['fee_requested', 'amount_of_fee', 'attorney_fee'], ctx.feeRequested);
-    out.feeDate  = tryFill(['fee_date', 'date_of_fee', 'app_date', 'date_signed'], ctx.signedDate);
-    return out;
+    }
+    return { filled, missed };
   }
 
   // ------------------------------------------------------------------
-  // Fallback: render a clean OC-400.1-shaped page from scratch
+  // From-scratch fallback (unchanged) — runs only when the template fetch fails
   // ------------------------------------------------------------------
   async function renderFromScratch(ctx, pdfDoc, sigPngBytes) {
     const { StandardFonts, rgb } = window.PDFLib;
-    const page = pdfDoc.addPage([612, 792]); // US Letter
+    const page = pdfDoc.addPage([612, 792]);
     const helv = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const helvB = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
     const margin = 50;
     let y = 762;
-
     const draw = (text, opts = {}) => {
       const font = opts.bold ? helvB : helv;
       const size = opts.size || 11;
-      const x = opts.x ?? margin;
-      const yy = opts.y ?? y;
-      page.drawText(String(text || ''), { x, y: yy, size, font, color: rgb(0, 0, 0) });
+      page.drawText(String(text || ''), { x: opts.x ?? margin, y: opts.y ?? y, size, font, color: rgb(0, 0, 0) });
       if (opts.y === undefined) y -= (opts.lh || size + 4);
     };
-    const hr = (gap = 8) => {
-      y -= gap;
-      page.drawLine({ start: { x: margin, y }, end: { x: 612 - margin, y }, thickness: 0.5, color: rgb(0.7, 0.7, 0.7) });
-      y -= gap;
-    };
-
-    // Header
+    const hr = (gap = 8) => { y -= gap; page.drawLine({ start: { x: margin, y }, end: { x: 612 - margin, y }, thickness: 0.5, color: rgb(0.7, 0.7, 0.7) }); y -= gap; };
     draw('NEW YORK STATE WORKERS\' COMPENSATION BOARD', { bold: true, size: 13 });
-    draw('OC-400.1 — Application for Fee by Claimant\'s Attorney or Licensed Representative', { bold: true, size: 11 });
+    draw('OC-400.1 — Application for Fee by Claimant\'s Attorney', { bold: true, size: 11 });
     draw('DRAFT — generated by The Comp Desk Pro Workspace', { size: 9 });
     hr();
-
-    // Case identifiers
     draw('Case Identifiers', { bold: true, size: 12 });
-    draw(`Claimant:   ${ctx.claimantName || '—'}`);
-    draw(`WCB #:      ${ctx.wcbNumber || '—'}`);
-    draw(`Date of Injury: ${ctx.doi || '—'}`);
-    draw(`Average Weekly Wage: ${ctx.aww ? '$' + Number(ctx.aww).toFixed(2) : '—'}`);
+    draw(`Claimant:          ${ctx.claimantName || '—'}`);
+    draw(`WCB #:             ${ctx.wcbNumber || '—'}`);
+    draw(`Date Retained:     ${ctx.dateRetained || '—'}`);
+    draw(`Representative ID: ${ctx.attorneyId || '—'}`);
     hr();
-
-    // Fee request
     draw('Fee Request', { bold: true, size: 12 });
-    draw(`Amount of Fee Requested: ${ctx.feeRequested ? '$' + Number(ctx.feeRequested).toFixed(2) : '—'}`);
-    draw(`Basis for Fee:`);
-    const eqLines = (ctx.feeEquation || '').split('\n');
-    for (const ln of eqLines.slice(0, 8)) draw('  ' + ln, { size: 10 });
+    draw(`Amount Requested:  ${ctx.feeRequestedDollar ? '$' + ctx.feeRequestedDollar : '—'}`);
+    draw('Basis:');
+    for (const ln of (ctx.feeEquation || '').split('\n').slice(0, 8)) draw('  ' + ln, { size: 10 });
     hr();
-
-    // Attorney info
     draw('Attorney / Representative', { bold: true, size: 12 });
-    draw(`Name:  ${ctx.attorneyName || '—'}`);
-    draw(`Firm:  ${ctx.firmName || '—'}`);
-    draw(`Email: ${ctx.attorneyEmail || '—'}`);
+    draw(`Name:    ${ctx.attorneyName || '—'}`);
+    draw(`Firm:    ${ctx.firmName || '—'}`);
+    draw(`Address: ${ctx.attorneyAddress || '—'}`);
+    draw(`Phone:   ${ctx.attorneyPhone || '—'}`);
     hr();
-
-    // Signature block
     draw('Signature', { bold: true, size: 12 });
     if (sigPngBytes) {
       const sigImg = await pdfDoc.embedPng(sigPngBytes);
-      const dims = sigImg.scale(0.4);
-      const sigW = Math.min(220, dims.width);
-      const sigH = sigW * (dims.height / dims.width);
+      const sigW = 220;
+      const sigH = sigW * (sigImg.height / sigImg.width);
       page.drawImage(sigImg, { x: margin, y: y - sigH, width: sigW, height: sigH });
       y -= (sigH + 8);
-    } else {
-      draw('  (no signature provided)', { size: 10 });
     }
-    page.drawLine({ start: { x: margin, y: y }, end: { x: margin + 240, y: y }, thickness: 0.5, color: rgb(0, 0, 0) });
+    page.drawLine({ start: { x: margin, y }, end: { x: margin + 240, y }, thickness: 0.5, color: rgb(0, 0, 0) });
     y -= 14;
-    draw(`Signed: ${ctx.signedDate || new Date().toISOString().slice(0, 10)}`, { size: 10 });
-    draw(`Generated: ${new Date().toLocaleString()}`, { size: 8 });
-
-    // Footer note
+    draw(`Signed: ${ctx.dateSubmitted || new Date().toISOString().slice(0, 10)}`, { size: 10 });
     page.drawText(
       'This is a Comp Desk-generated draft. Replace with the official OC-400.1 form template before submission.',
       { x: margin, y: 30, size: 8, font: helv, color: rgb(0.5, 0.5, 0.5) }
@@ -268,13 +283,12 @@
   }
 
   // ------------------------------------------------------------------
-  // Generate the PDF (template-fill if available, else from scratch)
+  // Generate the PDF
   // ------------------------------------------------------------------
   async function generatePdf(ctx, sigPngDataUrl) {
     const PDFLib = await loadPdfLib();
     const { PDFDocument } = PDFLib;
 
-    // Decode signature PNG (data URL → bytes)
     let sigPngBytes = null;
     if (sigPngDataUrl) {
       const base64 = sigPngDataUrl.split(',')[1];
@@ -283,9 +297,9 @@
       for (let i = 0; i < bin.length; i++) sigPngBytes[i] = bin.charCodeAt(i);
     }
 
-    // Try template fetch first
     let pdfDoc = null;
     let usedTemplate = false;
+    let fillReport = null;
     try {
       const r = await fetch(TEMPLATE_URL, { cache: 'force-cache' });
       if (r.ok) {
@@ -302,25 +316,31 @@
     pdfDoc.setAuthor(ctx.attorneyName || 'The Comp Desk');
     pdfDoc.setProducer('The Comp Desk Pro Workspace');
 
-    let filledFields = null;
     if (usedTemplate) {
-      // Try AcroForm fill, then embed signature on the last page bottom-left
       try {
         const form = pdfDoc.getForm();
-        filledFields = fuzzyFillFields(form, ctx);
+        fillReport = fillFormFromMap(form, ctx);
         if (sigPngBytes) {
+          // Overlay signature on page-2 signature line. The form's
+          // TextField2[0] on page 2 (typed name) sits in the same rect;
+          // overlaying the image visually replaces it.
           const sigImg = await pdfDoc.embedPng(sigPngBytes);
           const pages = pdfDoc.getPages();
-          const last = pages[pages.length - 1];
-          const { width } = last.getSize();
-          const dims = sigImg.scale(0.4);
-          const sigW = Math.min(220, dims.width);
-          const sigH = sigW * (dims.height / dims.width);
-          last.drawImage(sigImg, { x: 60, y: 60, width: sigW, height: sigH });
+          const page2 = pages[1] || pages[pages.length - 1];
+          const r = SIGNATURE_RECT_PAGE2;
+          // Constrain image to rect while preserving aspect
+          const imgRatio = sigImg.height / sigImg.width;
+          let sigW = r.width;
+          let sigH = sigW * imgRatio;
+          if (sigH > r.height) {
+            sigH = r.height;
+            sigW = sigH / imgRatio;
+          }
+          page2.drawImage(sigImg, { x: r.x, y: r.y, width: sigW, height: sigH });
         }
-        try { form.flatten(); } catch (e) { /* some pdf-lib versions throw on un-fillable widgets */ }
+        try { form.flatten(); } catch (e) { /* some pdf-lib versions can't flatten certain widgets */ }
       } catch (e) {
-        console.warn('[feeapp] AcroForm fill failed; falling back to from-scratch page', e);
+        console.warn('[feeapp] AcroForm fill failed; rendering from-scratch fallback', e);
         usedTemplate = false;
       }
     }
@@ -329,28 +349,53 @@
     }
 
     const bytes = await pdfDoc.save();
-    return { bytes, usedTemplate, filledFields };
+    return { bytes, usedTemplate, fillReport };
   }
 
   // ------------------------------------------------------------------
-  // Supabase insert (best-effort; failure does not block the download)
+  // Persist to public.fee_applications (existing schema, NOT my migration)
   // ------------------------------------------------------------------
   async function persistFeeApp(ctx, pdfBytes, meta) {
     try {
       const supa = window.supa;
       const userId = window.workspaceUserId;
       if (!supa || !userId) return { ok: false, reason: 'no-client' };
+
+      // Map workspace ctx → existing schema
+      const caseName = ctx.caseName
+        || ctx.claimantName
+        || ctx.wcbNumber
+        || 'OC-400.1';
+      const calcType = 'oc-400.1';
+      const feeAmount = ctx.feeRequestedDollar
+        ? Number(String(ctx.feeRequestedDollar).replace(/[^0-9.\-]/g, ''))
+        : null;
+      const calcData = {
+        // Everything that doesn't map to a column lives in calculation_data.
+        doi:               ctx.doi || null,
+        aww:               ctx.aww || null,
+        fee_equation:      ctx.feeEquation || null,
+        attorney_name:     ctx.attorneyName || null,
+        attorney_id:       ctx.attorneyId || null,
+        attorney_phone:    ctx.attorneyPhone || null,
+        attorney_address:  ctx.attorneyAddress || null,
+        firm_name:         ctx.firmName || null,
+        date_retained:     ctx.dateRetained || null,
+        date_submitted:    ctx.dateSubmitted || null,
+        used_template:     !!meta?.usedTemplate,
+        fill_report:       meta?.fillReport || null,
+        pdf_byte_length:   pdfBytes ? pdfBytes.length : null,
+      };
+
       const row = {
-        user_id: userId,
-        claimant_name: ctx.claimantName || null,
-        wcb_number: ctx.wcbNumber || null,
-        doi: ctx.doi || null,
-        aww: ctx.aww || null,
-        fee_requested: ctx.feeRequested || null,
-        fee_equation: ctx.feeEquation || null,
-        used_template: meta.usedTemplate || false,
-        pdf_bytes: pdfBytes.length,
-        created_at: new Date().toISOString(),
+        user_id:         userId,
+        case_name:       caseName,
+        wcb_case_number: ctx.wcbNumber || null,
+        claimant_name:   ctx.claimantName || null,
+        fee_amount:      feeAmount,
+        calculator_type: calcType,
+        calculation_data: calcData,
+        // status defaults to 'generated'
       };
       const { error } = await supa.from('fee_applications').insert(row);
       if (error) {
@@ -365,25 +410,44 @@
   }
 
   // ------------------------------------------------------------------
-  // Modal — pulls from active workspace context, lets user edit, generates
+  // Modal
   // ------------------------------------------------------------------
   function FeeAppModal({ initialContext, onClose }) {
     const [ctx, setCtx] = useState({
-      claimantName: initialContext?.claimantName || '',
-      wcbNumber:    initialContext?.wcbNumber || '',
-      doi:          initialContext?.doi || '',
-      aww:          initialContext?.aww || '',
-      feeRequested: initialContext?.feeRequested || '',
-      feeEquation:  initialContext?.feeEquation || '',
-      attorneyName: initialContext?.attorneyName || (window.workspaceUserEmail || ''),
-      firmName:     initialContext?.firmName || '',
-      attorneyEmail: window.workspaceUserEmail || '',
-      signedDate:   new Date().toISOString().slice(0, 10),
+      claimantName:        initialContext?.claimantName        || '',
+      wcbNumber:           initialContext?.wcbNumber           || '',
+      doi:                 initialContext?.doi                 || '',
+      aww:                 initialContext?.aww                 || '',
+      feeRequestedDollar:  initialContext?.feeRequested        || initialContext?.feeRequestedDollar || '',
+      feeEquation:         initialContext?.feeEquation         || '',
+      attorneyName:        initialContext?.attorneyName        || '',
+      attorneyId:          initialContext?.attorneyId          || '',
+      attorneyAddress:     initialContext?.attorneyAddress     || '',
+      attorneyPhone:       initialContext?.attorneyPhone       || '',
+      firmName:            initialContext?.firmName            || '',
+      dateRetained:        initialContext?.dateRetained        || '',
+      dateSubmitted:       initialContext?.dateSubmitted       || new Date().toISOString().slice(0, 10),
     });
     const [hasSig, setHasSig] = useState(false);
-    const sigRef = useRef(null);
     const [status, setStatus] = useState({ text: '', kind: '' });
     const [busy, setBusy] = useState(false);
+
+    // On mount, fold in profile data (won't clobber any field already set
+    // from initialContext).
+    useEffect(() => {
+      let cancelled = false;
+      loadAttorneyProfile().then(p => {
+        if (cancelled) return;
+        setCtx(c => ({
+          ...c,
+          attorneyName:    c.attorneyName    || p.attorneyName    || '',
+          attorneyAddress: c.attorneyAddress || p.attorneyAddress || '',
+          attorneyPhone:   c.attorneyPhone   || p.attorneyPhone   || '',
+          firmName:        c.firmName        || p.firmName        || '',
+        }));
+      });
+      return () => { cancelled = true; };
+    }, []);
 
     const update = (patch) => setCtx(c => ({ ...c, ...patch }));
 
@@ -391,21 +455,16 @@
       setBusy(true);
       setStatus({ text: 'Generating PDF…', kind: '' });
       try {
-        let sigData = null;
-        // Find the canvas node (we render it via SignatureCanvas)
         const sigEl = document.querySelector('.feeapp-sig-canvas');
-        if (sigEl && typeof sigEl.__getSignaturePNG === 'function') {
-          sigData = sigEl.__getSignaturePNG();
-        }
+        const sigData = sigEl?.__getSignaturePNG?.();
         if (!sigData) {
           setStatus({ text: 'Please sign before generating.', kind: 'error' });
           setBusy(false);
           return;
         }
 
-        const { bytes, usedTemplate } = await generatePdf(ctx, sigData);
+        const { bytes, usedTemplate, fillReport } = await generatePdf(ctx, sigData);
 
-        // Trigger download
         const blob = new Blob([bytes], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -415,16 +474,13 @@
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 5000);
 
-        // Persist (best-effort; never blocks the download)
-        persistFeeApp(ctx, bytes, { usedTemplate }).then(res => {
-          if (res.ok) {
-            setStatus({ text: usedTemplate
-              ? 'PDF generated from official template + saved to history.'
-              : 'PDF generated (from-scratch draft) + saved to history.',
-              kind: 'ok' });
-          } else {
-            setStatus({ text: 'PDF generated; could not save to history (' + res.reason + ').', kind: 'ok' });
-          }
+        const filledCount = fillReport?.filled?.length || 0;
+        const baseMsg = usedTemplate
+          ? `PDF generated from official OC-400.1 template (${filledCount} fields filled).`
+          : 'PDF generated (from-scratch DRAFT — official template missing).';
+        persistFeeApp(ctx, bytes, { usedTemplate, fillReport }).then(res => {
+          if (res.ok) setStatus({ text: baseMsg + ' Saved to history.', kind: 'ok' });
+          else setStatus({ text: baseMsg + ' (history insert failed: ' + res.reason + ')', kind: 'ok' });
         });
       } catch (e) {
         console.error('[feeapp] generate failed', e);
@@ -438,10 +494,7 @@
       <div className="feeapp-modal-backdrop" onClick={(e) => { if (e.target.classList.contains('feeapp-modal-backdrop')) onClose(); }}>
         <div className="feeapp-modal" role="dialog" aria-labelledby="feeapp-title">
           <h3 id="feeapp-title">OC-400.1 — Fee Application</h3>
-          <div className="sub">
-            Generates a court-ready Application for Fee. Pre-fills from the
-            active workspace tab; review and sign before download.
-          </div>
+          <div className="sub">Generates a court-ready Application for Fee. Pre-fills from the active workspace tab + your profile; review and sign before download.</div>
 
           <div className="feeapp-fields">
             <div className="row2">
@@ -460,39 +513,57 @@
                 <input className="f-input" type="date" value={ctx.doi} onChange={e => update({ doi: e.target.value })}/>
               </div>
               <div className="f-group">
-                <label className="f-label">AWW</label>
-                <div className="f-input-wrap"><span className="prefix">$</span>
-                  <input className="f-input with-prefix" type="number" value={ctx.aww} onChange={e => update({ aww: e.target.value })}/>
-                </div>
+                <label className="f-label">Date Retained</label>
+                <input className="f-input" type="date" value={ctx.dateRetained} onChange={e => update({ dateRetained: e.target.value })}/>
               </div>
             </div>
             <div className="row2">
               <div className="f-group">
-                <label className="f-label">Fee Requested</label>
+                <label className="f-label">AWW (workspace)</label>
                 <div className="f-input-wrap"><span className="prefix">$</span>
-                  <input className="f-input with-prefix" type="number" value={ctx.feeRequested} onChange={e => update({ feeRequested: e.target.value })}/>
+                  <input className="f-input with-prefix" type="number" value={ctx.aww} onChange={e => update({ aww: e.target.value })}/>
                 </div>
               </div>
               <div className="f-group">
-                <label className="f-label">Date Signed</label>
-                <input className="f-input" type="date" value={ctx.signedDate} onChange={e => update({ signedDate: e.target.value })}/>
+                <label className="f-label">Fee Requested</label>
+                <div className="f-input-wrap"><span className="prefix">$</span>
+                  <input className="f-input with-prefix" type="number" value={ctx.feeRequestedDollar} onChange={e => update({ feeRequestedDollar: e.target.value })}/>
+                </div>
               </div>
             </div>
             <div className="f-group">
-              <label className="f-label">Fee Equation / Basis</label>
+              <label className="f-label">Fee Basis / Explanation</label>
               <textarea className="f-input" rows="3" value={ctx.feeEquation}
                 onChange={e => update({ feeEquation: e.target.value })}
                 placeholder="e.g. 15% of $42,000 moving award + ⅓ of $9,000 CCP = $9,300"/>
             </div>
             <div className="row2">
               <div className="f-group">
-                <label className="f-label">Attorney</label>
+                <label className="f-label">Attorney Name</label>
                 <input className="f-input" value={ctx.attorneyName} onChange={e => update({ attorneyName: e.target.value })}/>
               </div>
+              <div className="f-group">
+                <label className="f-label">Representative ID (R-#)</label>
+                <input className="f-input" value={ctx.attorneyId} onChange={e => update({ attorneyId: e.target.value })} placeholder="R-12345"/>
+              </div>
+            </div>
+            <div className="row2">
               <div className="f-group">
                 <label className="f-label">Firm</label>
                 <input className="f-input" value={ctx.firmName} onChange={e => update({ firmName: e.target.value })}/>
               </div>
+              <div className="f-group">
+                <label className="f-label">Phone #</label>
+                <input className="f-input" value={ctx.attorneyPhone} onChange={e => update({ attorneyPhone: e.target.value })}/>
+              </div>
+            </div>
+            <div className="f-group">
+              <label className="f-label">Address</label>
+              <input className="f-input" value={ctx.attorneyAddress} onChange={e => update({ attorneyAddress: e.target.value })}/>
+            </div>
+            <div className="f-group">
+              <label className="f-label">Date Submitted</label>
+              <input className="f-input" type="date" value={ctx.dateSubmitted} onChange={e => update({ dateSubmitted: e.target.value })}/>
             </div>
             <div className="f-group">
               <label className="f-label">Signature</label>
@@ -514,7 +585,7 @@
   }
 
   // ------------------------------------------------------------------
-  // Mount point — a hidden host div + ReactDOM portal-style mount
+  // Mount + Pro/Firm gate
   // ------------------------------------------------------------------
   let _hostRoot = null;
   function ensureHost() {
@@ -532,13 +603,9 @@
     host.render(<FeeAppModal initialContext={ctx} onClose={close} />);
   }
 
-  // ------------------------------------------------------------------
-  // Pro/Firm gate + global registration
-  // ------------------------------------------------------------------
   window.triggerFeeApp = function (ctx) {
     const tier = window.currentTier || 'free';
     if (tier !== 'pro' && tier !== 'firm') {
-      // Re-use the existing paywall via a CustomEvent the App can listen for.
       window.dispatchEvent(new CustomEvent('feeapp:paywall'));
       return;
     }
@@ -546,8 +613,5 @@
     openModal(merged);
   };
 
-  // Surface a flag the workspace shell can read to decide whether to render
-  // the "Generate Fee App" button at all (even outside Pro, the button is
-  // shown but dispatches paywall — see EquationCard).
   window.__feeappReady = true;
 })();
