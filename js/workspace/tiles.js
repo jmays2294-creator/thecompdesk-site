@@ -258,7 +258,16 @@ function CCPTile({ tile, global, onUpdate }) {
       let currentRate = 0;
       if (p.desg === 'TT')         currentRate = tt;
       else if (p.desg === 'RE')    currentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
-      else if (p.desg === 'TR')    currentRate = tt * (Number(p.ratePct || 0) / 100);
+      else if (p.desg === 'TR') {
+        // TR percentage is applied to the UNCAPPED ⅔ × AWW first, then capped
+        // at the statutory max for the DOI. Using the already-capped TT as the
+        // base understates the TR any time ⅔ × AWW exceeds the max.
+        // Example: AWW $2,258.12, max $1,171.46 (DOI 10/10/24), TR @ 87.5%:
+        //   wrong: 0.875 × $1,171.46 = $1,025.03
+        //   right: min($1,171.46, 0.875 × ⅔ × $2,258.12) = $1,171.46
+        const uncapped = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
+        currentRate = global.maxRate > 0 ? Math.min(uncapped, global.maxRate) : uncapped;
+      }
       else                         currentRate = Number(p.manualRate || 0);
 
       // Change 3 — Amending Award. If the period is amending, compute
