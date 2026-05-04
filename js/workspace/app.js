@@ -33,32 +33,51 @@ const CANVAS_PAD = 10;
 // Catchall covers it). §14(3) Similar Worker is the sole "comparator" method.
 
 const METHODS = [
-  { id: '52week',   label: 'Section 14(1) and (2)',
-    badge: '§14(1) & (2)',
-    tip:   '§14(1) and (2) — The claimant\'s own earnings. §14(1) applies when the claimant worked substantially the whole year (annual ÷ 52). §14(2) applies when the claimant did not (daily wage × statutory multiplier ÷ 52). Enter annual earnings; if you have only partial-year earnings, switch to the Multiplier method below.' },
-  { id: 'multi',    label: 'Multiplier',
-    badge: '§14(2) ×260',
-    tip:   '§14(2) Multiplier — Where the claimant did NOT work substantially the whole year. (Total earnings ÷ days worked) × statutory multiplier (200/260/300/365 by days-per-week schedule), then ÷ 52.' },
-  { id: 'similar',  label: 'Similar Worker',
-    badge: '§14(3) Similar',
-    tip:   '§14(3) — When §14(1)/(2) cannot reasonably be applied, use the annual earnings of a similarly situated worker in the same employment, divided by 52.' },
-  { id: 'straight', label: 'Catchall',
-    badge: '§14(4) Fair',
-    tip:   '§14(4) — Catchall. Where neither (1)/(2) nor (3) reasonably applies, the Board fixes AWW to fairly approximate the annual earning capacity. Implemented here as total earnings ÷ weeks actually worked.' },
+  { id: 'multi',    label: 'Section 14(1) & (2) (Multiplier)',
+    badge: '§14(1)/(2)',
+    tip:   '§14(1) and §14(2) — The claimant\'s own earnings via the statutory daily-wage multiplier. (Total earnings ÷ days worked) × multiplier (200/260/300/365), then ÷ 52. Pick the multiplier that matches the claimant\'s work schedule. This is the unified §14(1)/(2) path in the workspace.' },
+  { id: 'straight', label: 'Catchall (Weekly Divisor)',
+    badge: '§14(3)/(4)',
+    tip:   '§14(3)/§14(4) Catchall — Where neither (1)/(2) nor a similar-worker comparison reasonably applies, the Board fixes AWW by fairly approximating annual earning capacity. Implemented here as total earnings ÷ weeks actually worked.' },
 ];
 
 const DAYS_MULTIPLIER = { 4: 200, 5: 260, 6: 300, 7: 365 };
 
 function methodBadge(method, daysWeek) {
-  if (method === 'multi') {
-    const n = DAYS_MULTIPLIER[daysWeek] || 260;
+  if (method === 'straight') {
     return {
-      badge: `§14(2) ×${n}`,
-      tip: `§14(2) Statutory Multiplier — total earnings ÷ days worked × ${n} ÷ 52, on a ${daysWeek}-day schedule.`,
+      badge: '§14(3)/(4)',
+      tip: '§14(3)/(4) Catchall — total earnings ÷ weeks worked.',
     };
   }
-  const m = METHODS.find(x => x.id === method) || METHODS[0];
-  return { badge: m.badge, tip: m.tip };
+  // 'multi' (and any legacy method id that is no longer in the workspace UI)
+  const n = DAYS_MULTIPLIER[daysWeek] || 260;
+  return {
+    badge: `§14(1)/(2) ×${n}`,
+    tip: `§14(1)/(2) Multiplier — total earnings ÷ days worked × ${n} ÷ 52.`,
+  };
+}
+
+
+/**
+ * methodCitation(state) — Returns the citation suffix for the AWW header.
+ * Multiplier:    "Section 14(1) or (2) × {n}"
+ * Catchall:      "Section 14(3) — divisor {n}"
+ * + concurrent:  "· Section 14(6) (concurrent)"
+ *
+ * Returned as an array of pieces so the header can stack/wrap responsively.
+ */
+function methodCitation(state) {
+  const pieces = [];
+  if (state.method === 'straight') {
+    const wks = Number(state.methodStraightWeeks) || 0;
+    pieces.push(`Section 14(3) — divisor ${wks || '—'}`);
+  } else {
+    const mult = DAYS_MULTIPLIER[state.daysWeek] || 260;
+    pieces.push(`Section 14(1) or (2) × ${mult}`);
+  }
+  if (state.concurrentOn) pieces.push('Section 14(6) (concurrent)');
+  return pieces;
 }
 
 /**
@@ -81,61 +100,52 @@ function computeAWW(state) {
   let methodLabel = '';
   let formula = '';
 
+  // The workspace UI exposes only two §14 paths:
+  //   - 'multi'    → §14(1)/(2) statutory multiplier  (total ÷ days × N ÷ 52)
+  //   - 'straight' → §14(3)/(4) catchall              (total ÷ weeks)
+  // Legacy state ('52week' or 'similar' from v1.1) falls through to 'multi'
+  // so old persisted tabs don't crash; the user re-applies once on load.
   switch (state.method) {
-    case '52week': {
-      const annual = Number(state.method52Annual) || 0;
-      baseAww = annual / 52;
-      methodLabel = '§14(1) — 52-Week Method';
-      formula = `${fmt$(annual)} ÷ 52 = ${fmt$(baseAww)}`;
-      breakdown.push({ label: 'Annual Earnings (52 wks)', value: fmt$(annual) });
-      breakdown.push({ label: 'Divisor',                   value: '÷ 52' });
-      break;
-    }
-    case 'multi': {
-      const earn = Number(state.methodMultiEarn) || 0;
-      const days = Number(state.methodMultiDays) || 0;
-      const mult = DAYS_MULTIPLIER[state.daysWeek] || 260;
-      const dailyWage = days > 0 ? earn / days : 0;
-      baseAww = days > 0 ? (dailyWage * mult) / 52 : 0;
-      methodLabel = `§14(2) — Statutory Multiplier ×${mult}`;
-      formula = `(${fmt$(earn)} ÷ ${fmtN(days, 0)} days) × ${mult} ÷ 52 = ${fmt$(baseAww)}`;
-      breakdown.push({ label: 'Total Earnings',  value: fmt$(earn) });
-      breakdown.push({ label: 'Days Worked',     value: fmtN(days, 0) });
-      breakdown.push({ label: 'Daily Wage',      value: fmt$(dailyWage) });
-      breakdown.push({ label: `Multiplier (${state.daysWeek}-day wk)`, value: `×${mult}` });
-      breakdown.push({ label: 'Divisor',         value: '÷ 52' });
-      break;
-    }
-    case 'similar': {
-      const sim = Number(state.methodSimilarEarn) || 0;
-      baseAww = sim / 52;
-      methodLabel = '§14(3) — Similar Employee';
-      formula = `${fmt$(sim)} ÷ 52 = ${fmt$(baseAww)}`;
-      breakdown.push({ label: 'Similar Employee Annual', value: fmt$(sim) });
-      breakdown.push({ label: 'Divisor',                 value: '÷ 52' });
-      break;
-    }
     case 'straight': {
       const earn = Number(state.methodStraightEarn)  || 0;
       const wks  = Number(state.methodStraightWeeks) || 0;
       baseAww = wks > 0 ? earn / wks : 0;
-      methodLabel = '§14(4) — Catchall (Fair Approximation)';
+      methodLabel = '§14(3)/(4) — Catchall (Weekly Divisor)';
       formula = `${fmt$(earn)} ÷ ${fmtN(wks, 0)} weeks = ${fmt$(baseAww)}`;
       breakdown.push({ label: 'Total Earnings', value: fmt$(earn) });
       breakdown.push({ label: 'Weeks Worked',   value: fmtN(wks, 0) });
       break;
     }
-    default:
-      baseAww = 0;
-      methodLabel = 'Unknown method';
-      formula = '—';
+    case 'multi':
+    default: {
+      const earn = Number(state.methodMultiEarn) || 0;
+      const days = Number(state.methodMultiDays) || 0;
+      const mult = DAYS_MULTIPLIER[state.daysWeek] || 260;
+      const dailyWage = days > 0 ? earn / days : 0;
+      baseAww = days > 0 ? (dailyWage * mult) / 52 : 0;
+      methodLabel = `§14(1)/(2) — Multiplier ×${mult}`;
+      formula = `(${fmt$(earn)} ÷ ${fmtN(days, 0)} days) × ${mult} ÷ 52 = ${fmt$(baseAww)}`;
+      breakdown.push({ label: 'Total Earnings',  value: fmt$(earn) });
+      breakdown.push({ label: 'Days Worked',     value: fmtN(days, 0) });
+      breakdown.push({ label: 'Daily Wage',      value: fmt$(dailyWage) });
+      breakdown.push({ label: `Multiplier (${mult})`, value: `×${mult}` });
+      breakdown.push({ label: 'Divisor',         value: '÷ 52' });
+      break;
+    }
   }
 
-  const adjustedAww = baseAww + adjTips + adjBoard + adjConcur;
-  if (adjTips || adjBoard || adjConcur) {
-    if (adjTips)   breakdown.push({ label: '+ Tips/Gratuities (§2(9))',     value: fmt$(adjTips) });
-    if (adjBoard)  breakdown.push({ label: '+ Board/Lodging (§2(9))',       value: fmt$(adjBoard) });
-    if (adjConcur) breakdown.push({ label: '+ Concurrent Employment (§14(6))', value: fmt$(adjConcur) });
+  // Concurrent employment §14(6): include only when the toggle is ON.
+  // The dollar value `state.adjConcurrent` is preserved across toggles so
+  // attorneys can flip the toggle to A/B test impact without re-typing.
+  const includeConcurrent = !!state.concurrentOn;
+  const concurrentApplied = includeConcurrent ? adjConcur : 0;
+
+  const adjustedAww = baseAww + adjTips + adjBoard + concurrentApplied;
+  if (adjTips || adjBoard || concurrentApplied) {
+    if (adjTips)            breakdown.push({ label: '+ Tips/Gratuities (§2(9))',         value: fmt$(adjTips) });
+    if (adjBoard)           breakdown.push({ label: '+ Board/Lodging (§2(9))',           value: fmt$(adjBoard) });
+    if (concurrentApplied)  breakdown.push({ label: '+ Concurrent Employment (§14(6))', value: fmt$(concurrentApplied) });
+    if (concurrentApplied)  breakdown.push({ label: '= Composite AWW',                        value: fmt$(adjustedAww) });
   }
 
   const max = lookupMax(state.doi);
@@ -147,8 +157,11 @@ function computeAWW(state) {
   return {
     aww: Math.round(adjustedAww * 100) / 100,
     baseAww: Math.round(baseAww * 100) / 100,
+    concurrentAww: Math.round(concurrentApplied * 100) / 100,
+    isComposite: includeConcurrent && concurrentApplied > 0,
     method: state.method,
     methodLabel,
+    citation: methodCitation(state),
     formula,
     breakdown,
     ttRate,
@@ -259,6 +272,11 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
         </div>
         <div className="tt-display">
           <div>
+            <div className="lbl">{state.concurrentOn ? 'Composite AWW' : 'AWW'}</div>
+            <div className="val">{fmt$(state.aww)}{state.concurrentOn ? <span className="composite-tag">composite</span> : null}</div>
+          </div>
+          <div className="sep">·</div>
+          <div>
             <div className="lbl">TT Rate</div>
             <div className="val">{fmt$(computed.ttRate)}/wk</div>
           </div>
@@ -279,6 +297,16 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
             </div>
           </div>
         </div>
+        {/* Method citation line — Change 2. Stacks below tt-display on
+            desktop; wraps independently on mobile. */}
+        <div className="aww-citation" aria-label="Active §14 method citation">
+          {methodCitation(state).map((piece, i) => (
+            <span key={i} className="aww-citation-piece">
+              {i > 0 ? <span className="aww-citation-sep">·</span> : null}
+              {piece}
+            </span>
+          ))}
+        </div>
         <button className={'expand-toggle ' + (open ? 'open' : '')} onClick={() => setOpen(!open)}>
           Configure AWW <span className="chev">▾</span>
         </button>
@@ -296,12 +324,13 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
 
           {state.method === 'multi' && (
             <div className="f-group">
-              <label className="f-label">Days per Week</label>
+              <label className="f-label">Statutory Multiplier</label>
               <div className="days-week-toggle">
                 {[4,5,6,7].map(d => (
                   <button key={d} className={state.daysWeek === d ? 'active' : ''}
-                    onClick={() => set({ daysWeek: d })}>
-                    {d} ×{DAYS_MULTIPLIER[d]}
+                    onClick={() => set({ daysWeek: d })}
+                    title={`${d}-day work week`}>
+                    {DAYS_MULTIPLIER[d]}
                   </button>
                 ))}
               </div>
@@ -309,15 +338,7 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
           )}
 
           <div className="method-fields">
-            {state.method === '52week' && (
-              <div className="f-group">
-                <label className="f-label">Annual Earnings (52 wks)</label>
-                <div className="f-input-wrap"><span className="prefix">$</span>
-                  <input className="f-input with-prefix" type="number" value={state.method52Annual || ''}
-                    onChange={e => set({ method52Annual: Number(e.target.value) })}/></div>
-              </div>
-            )}
-            {state.method === 'multi' && (
+            {(state.method === 'multi' || !state.method || state.method === '52week' || state.method === 'similar') && (
               <>
                 <div className="f-group">
                   <label className="f-label">Total Earnings</label>
@@ -347,14 +368,6 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
                 </div>
               </>
             )}
-            {state.method === 'similar' && (
-              <div className="f-group">
-                <label className="f-label">Similar Employee Annual Earnings</label>
-                <div className="f-input-wrap"><span className="prefix">$</span>
-                  <input className="f-input with-prefix" type="number" value={state.methodSimilarEarn || ''}
-                    onChange={e => set({ methodSimilarEarn: Number(e.target.value) })}/></div>
-              </div>
-            )}
           </div>
 
           <div className="method-fields">
@@ -370,12 +383,28 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
                 <input className="f-input with-prefix" type="number" value={state.adjBoard || 0}
                   onChange={e => set({ adjBoard: Number(e.target.value) })}/></div>
             </div>
-            <div className="f-group">
-              <label className="f-label">Concurrent AWW</label>
-              <div className="f-input-wrap"><span className="prefix">$</span>
-                <input className="f-input with-prefix" type="number" value={state.adjConcurrent || 0}
-                  onChange={e => set({ adjConcurrent: Number(e.target.value) })}/></div>
-            </div>
+          </div>
+
+          {/* Concurrent employment §14(6) — toggle + conditional input.
+              When ON, downstream tiles consume composite AWW = base + concurrent. */}
+          <div className="concurrent-toggle-row">
+            <button
+              type="button"
+              className={'concurrent-toggle ' + (state.concurrentOn ? 'on' : '')}
+              onClick={() => set({ concurrentOn: !state.concurrentOn })}
+              aria-pressed={!!state.concurrentOn}>
+              <span className="concurrent-toggle-knob" aria-hidden="true">{state.concurrentOn ? '✓' : '+'}</span>
+              {state.concurrentOn ? 'Concurrent Employment ON' : 'Add Concurrent Employment'}
+            </button>
+            {state.concurrentOn && (
+              <div className="f-group concurrent-input">
+                <label className="f-label">Concurrent Employer AWW</label>
+                <div className="f-input-wrap"><span className="prefix">$</span>
+                  <input className="f-input with-prefix" type="number" value={state.adjConcurrent || 0}
+                    onChange={e => set({ adjConcurrent: Number(e.target.value) })}/></div>
+                <div className="concurrent-help">§14(6) — the concurrent AWW is added to base AWW; the composite drives every downstream tile.</div>
+              </div>
+            )}
           </div>
 
           {/* Result preview + Compute & Apply */}
@@ -821,8 +850,13 @@ const DEFAULT_AWW_STATE = {
   aww: 1500,
   doi: '2024-09-15',
   maxRate: 1171.46,
-  method: '52week',
+  // v1.2: only 'multi' (§14(1)/(2) Multiplier) and 'straight' (§14(3)/(4)
+  // Catchall) are exposed in the UI. Legacy '52week' or 'similar' values
+  // from persisted v1.1 workspaces fall through to 'multi' in computeAWW.
+  method: 'multi',
   daysWeek: 5,
+  // §14(6) — toggle drives whether adjConcurrent is included in composite AWW.
+  concurrentOn: false,
   adjTips: 0, adjBoard: 0, adjConcurrent: 0,
   method52Annual: 78000,
   methodMultiEarn: 0, methodMultiDays: 0,
@@ -1210,9 +1244,33 @@ function App() {
   };
 
   const onFeeApp = (tile) => {
-    if (typeof window.triggerFeeApp === 'function') window.triggerFeeApp();
+    // Build context from the active tab + tile, then expose for feeapp.js
+    // (which reads window.WorkspaceFeeAppContext when no arg is passed).
+    const ctx = {
+      claimantName: awwState.caseName || activeTab.clientName || activeTab.name || '',
+      wcbNumber:    activeTab.wcbNumber || '',
+      doi:          awwState.doi,
+      aww:          awwState.aww,
+      feeEquation:  '',
+      attorneyName: (window.workspaceUserEmail || '').split('@')[0] || '',
+      firmName:     '',
+    };
+    if (typeof window.buildEquation === 'function') {
+      try { ctx.feeEquation = window.buildEquation(tile, global)?.mono || ''; }
+      catch (e) { /* tile-specific failure is non-fatal */ }
+    }
+    window.WorkspaceFeeAppContext = ctx;
+    if (typeof window.triggerFeeApp === 'function') window.triggerFeeApp(ctx);
     else setPaywallOpen(true);
   };
+
+  // feeapp.js dispatches 'feeapp:paywall' when a non-Pro user invokes the
+  // generator. Surface the same paywall the workspace already uses.
+  useEffect(() => {
+    const onPaywall = () => setPaywallOpen(true);
+    window.addEventListener('feeapp:paywall', onPaywall);
+    return () => window.removeEventListener('feeapp:paywall', onPaywall);
+  }, []);
 
   // ---------- Render ----------
   return (
