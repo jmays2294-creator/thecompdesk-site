@@ -227,7 +227,8 @@ function weeksBetween(start, end) {
 function CCPTile({ tile, global, onUpdate }) {
   const inputs = tile.inputs || {
     periods: [
-      { id: 1, start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0 },
+      { id: 1, start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
+        amending: false, priorMode: 'pct', priorVal: 0 },
     ],
     ccpAmount: 0,
     priorPay: 0,
@@ -237,7 +238,10 @@ function CCPTile({ tile, global, onUpdate }) {
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
   const addPeriod = () => {
-    setInputs({ periods: [...inputs.periods, { id: Date.now(), start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0 }] });
+    setInputs({ periods: [...inputs.periods, {
+      id: Date.now(), start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
+      amending: false, priorMode: 'pct', priorVal: 0,
+    }] });
   };
   const updatePeriod = (id, patch) => {
     setInputs({ periods: inputs.periods.map(p => p.id === id ? { ...p, ...patch } : p) });
@@ -247,14 +251,38 @@ function CCPTile({ tile, global, onUpdate }) {
   };
 
   const computed = useMemo(() => {
+    const ttBase = (Number(aww) || 0) * 2 / 3;
     const out = inputs.periods.map(p => {
       const wks = weeksBetween(p.start, p.end);
-      let rate = 0;
-      if (p.desg === 'TT') rate = tt;
-      else if (p.desg === 'RE') rate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
-      else if (p.desg === 'TR') rate = tt * (Number(p.ratePct || 0) / 100);
-      else rate = Number(p.manualRate || 0);
-      return { ...p, wks, rate, amount: wks * rate };
+      // Resolve the "current" rate using the desg, exactly as v1.1 did.
+      let currentRate = 0;
+      if (p.desg === 'TT')         currentRate = tt;
+      else if (p.desg === 'RE')    currentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
+      else if (p.desg === 'TR')    currentRate = tt * (Number(p.ratePct || 0) / 100);
+      else                         currentRate = Number(p.manualRate || 0);
+
+      // Change 3 — Amending Award. If the period is amending, compute
+      // delta vs. prior rate; the dollars-owed for the period are based
+      // on (current − prior).
+      let rate = currentRate;
+      let priorRate = 0;
+      if (p.amending) {
+        if (p.priorMode === 'usd') {
+          // $ → effective % against AWW, then delta. Cap at 100% so a
+          // garbled prior > full TT doesn't flip the delta negative.
+          const priorUsd = Math.max(0, Number(p.priorVal || 0));
+          const priorPct = ttBase > 0 ? Math.min(100, (priorUsd / ttBase) * 100) : 0;
+          // Convert back to $ using the same AWW so we're apples-to-apples.
+          priorRate = (priorPct / 100) * ttBase;
+        } else {
+          // 'pct' (default) — direct percentage of TT.
+          const priorPct = Math.max(0, Math.min(100, Number(p.priorVal || 0)));
+          priorRate = (priorPct / 100) * ttBase;
+        }
+        rate = Math.max(0, currentRate - priorRate);
+      }
+
+      return { ...p, wks, currentRate, priorRate, rate, amount: wks * rate };
     });
     const totalAward = out.reduce((s, p) => s + p.amount, 0);
     const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0));
@@ -320,8 +348,51 @@ function CCPTile({ tile, global, onUpdate }) {
                   </div>
                 </div>
               )}
+              {/* Amending-Award control (Change 3). When ON, a prior-rate
+                  input appears; the period $ amount uses the delta between
+                  current and prior rates against the same AWW × ⅔. */}
+              <div className="f-group">
+                <button
+                  type="button"
+                  className={'amending-toggle ' + (p.amending ? 'on' : '')}
+                  onClick={() => updatePeriod(p.id, { amending: !p.amending })}
+                  aria-pressed={!!p.amending}>
+                  {p.amending ? '✓ Amending Award' : '+ Amending Award'}
+                </button>
+                {p.amending && (
+                  <div className="amending-block">
+                    <label className="f-label">Prior rate (% or $)</label>
+                    <div style={{display:'flex', gap:6}}>
+                      <select
+                        className="f-select"
+                        style={{flex:'0 0 80px'}}
+                        value={p.priorMode || 'pct'}
+                        onChange={e => updatePeriod(p.id, { priorMode: e.target.value })}>
+                        <option value="pct">%</option>
+                        <option value="usd">$</option>
+                      </select>
+                      <div className="f-input-wrap" style={{flex:1}}>
+                        {p.priorMode === 'usd' && <span className="prefix">$</span>}
+                        <input
+                          className={'f-input ' + (p.priorMode === 'usd' ? 'with-prefix' : '')}
+                          type="number" min="0"
+                          value={p.priorVal || 0}
+                          onChange={e => updatePeriod(p.id, { priorVal: Number(e.target.value) })}/>
+                      </div>
+                    </div>
+                    <div className="amending-help">Award will be calculated using the difference between current and prior rates.</div>
+                    <div style={{fontFamily:'var(--mono)', fontSize:10, color:'var(--tx-faint)'}}>
+                      current {fmt$(computed.rows.find(r => r.id === p.id)?.currentRate)}/wk
+                      {' − '}
+                      prior {fmt$(computed.rows.find(r => r.id === p.id)?.priorRate)}/wk
+                      {' = '}
+                      delta {fmt$(computed.rows.find(r => r.id === p.id)?.rate)}/wk
+                    </div>
+                  </div>
+                )}
+              </div>
               <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', fontFamily:'var(--mono)', fontSize:11, color:'var(--tx-dim)', borderTop:'1px solid var(--bd-soft)', paddingTop:8}}>
-                <span>{fmtN(computed.rows.find(r => r.id === p.id)?.wks, 2)} wks × {fmt$(computed.rows.find(r => r.id === p.id)?.rate)}</span>
+                <span>{fmtN(computed.rows.find(r => r.id === p.id)?.wks, 2)} wks × {fmt$(computed.rows.find(r => r.id === p.id)?.rate)}{p.amending ? ' (amending)' : ''}</span>
                 <span style={{color:'var(--ac-2)'}}>{fmt$(computed.rows.find(r => r.id === p.id)?.amount)}</span>
                 <button className="delete-row" onClick={() => removePeriod(p.id)}>×</button>
               </div>

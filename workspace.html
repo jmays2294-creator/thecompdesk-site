@@ -216,6 +216,8 @@
     await loadScript('/js/workspace/constants.js');
     await loadAndTransform('/js/workspace/tiles.js');
     await loadAndTransform('/js/workspace/app.js');
+    // v1.2 — OC-400.1 fee-app generator. Loads pdf-lib lazily on first open.
+    await loadAndTransform('/js/workspace/feeapp.js');
 
     setStatus(
       tier === 'firm' ? 'Firm · synced'

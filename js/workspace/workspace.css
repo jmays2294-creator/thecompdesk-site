@@ -431,6 +431,20 @@ html, body {
   min-height: 100vh;
 }
 
+/* v1.2 — Theme bg propagates to the workspace canvas. The inline style in
+   workspace.html sets `html, body { background: var(--site-bg) }` for the
+   site-level chrome (beta banner, upgrade wall). Once React mounts and sets
+   data-theme on body, we raise specificity here so the theme-aware --bg wins
+   for Onyx / Eggshell / Aurora alike. */
+html body[data-theme] {
+  background: var(--bg);
+  color: var(--tx);
+  transition: background 200ms ease, color 200ms ease;
+}
+html body[data-theme] .beta-banner {
+  color: var(--tx);
+}
+
 :root,
 [data-theme="onyx"] {
   --bg: hsl(225 25% 8%);
@@ -1161,3 +1175,179 @@ footer.disclaimer {
 }
 .sync-toast .btn.tiny { padding: 5px 10px; font-size: 11px; }
 .sync-toast .btn.ghost { background: transparent; color: var(--tx-dim); }
+
+/* ============================================================================
+ * v1.2 — Concurrent employment toggle, AWW citation line, composite tag,
+ *         CCP amending-award button, OC-400.1 modal.
+ * Tokens come from existing theme palette (--bg, --bg-1, --bd, --tx, etc.).
+ * ============================================================================ */
+
+.concurrent-toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  border: 1px dashed var(--bd);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-1) 60%, transparent);
+}
+.concurrent-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  background: var(--bg-1);
+  color: var(--tx-dim);
+  font: 600 12px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+  align-self: flex-start;
+}
+.concurrent-toggle:hover { border-color: var(--ac); color: var(--tx); }
+.concurrent-toggle.on {
+  background: color-mix(in srgb, var(--ac) 18%, var(--bg-1));
+  border-color: var(--ac);
+  color: var(--tx);
+}
+.concurrent-toggle-knob {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--ac);
+  color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
+}
+.concurrent-input {
+  display: grid; gap: 4px;
+  max-width: 320px;
+}
+.concurrent-help {
+  font: 11px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx-faint);
+  margin-top: 2px;
+}
+
+/* Method citation line under TT/SLU/Min row */
+.aww-citation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 0;
+  font: 600 12px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx-dim);
+  letter-spacing: 0.02em;
+}
+.aww-citation-piece {
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.aww-citation-sep {
+  color: var(--tx-faint);
+  margin: 0 2px;
+}
+
+/* Composite-AWW tag pill next to the AWW value when concurrent is on. */
+.composite-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ac) 22%, var(--bg-1));
+  color: var(--ac);
+  font: 700 9px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+}
+
+@media (max-width: 640px) {
+  .aww-citation { gap: 6px; font-size: 11px; }
+  .concurrent-toggle-row { margin-top: 12px; }
+}
+
+/* ----- CCP Amending Award (Change 3) ----- */
+.amending-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--tx-dim);
+  font: 600 11px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+.amending-toggle:hover { border-color: var(--ac); color: var(--tx); }
+.amending-toggle.on {
+  background: color-mix(in srgb, #f59e0b 22%, var(--bg-1));
+  border-color: #f59e0b;
+  color: var(--tx);
+}
+.amending-block {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px dashed var(--bd);
+  border-radius: 6px;
+  margin-top: 4px;
+}
+.amending-help {
+  font: 11px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx-faint);
+}
+
+/* ----- OC-400.1 generator modal (Change 5) ----- */
+.feeapp-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+.feeapp-modal {
+  width: 100%; max-width: 640px;
+  max-height: 90vh; overflow-y: auto;
+  background: var(--tile, var(--bg-1));
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  font-family: var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx);
+}
+.feeapp-modal h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; }
+.feeapp-modal .sub { font-size: 13px; color: var(--tx-dim); margin-bottom: 14px; }
+.feeapp-fields { display: grid; gap: 10px; margin-bottom: 14px; }
+.feeapp-fields .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.feeapp-sig-canvas-wrap {
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0;
+  position: relative;
+}
+.feeapp-sig-canvas {
+  display: block;
+  width: 100%;
+  height: 140px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.feeapp-sig-actions {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 8px; border-top: 1px dashed var(--bd);
+  font-size: 11px; color: var(--tx-dim);
+}
+.feeapp-actions {
+  display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;
+}
+.feeapp-status {
+  font-size: 12px; color: var(--tx-dim); padding: 6px 0;
+}
+.feeapp-status.error { color: #ef4444; }
+.feeapp-status.ok    { color: #10b981; }
