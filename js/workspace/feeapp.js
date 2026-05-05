@@ -39,16 +39,35 @@
     'F[0].P1[0].#area[0].ClaimantsName[0]':      'claimantName',
     'F[0].P1[0].#area[0].RepresentativeIDNo[0]': 'attorneyId',
     'F[0].P1[0].#area[0].DateRetained[0]':       'dateRetained',
-    'F[0].P1[0].TextField2[0]':                  'attorneyName',
+    'F[0].P1[0].TextField2[0]':                  'firmName',           // 'I, [firm], a duly retained attorney…'
     'F[0].P1[0].TextField2[1]':                  'feeRequestedDollar',
     'F[0].P1[0].FeeRequestExplanation[0]':       'feeEquation',
+    'F[0].P1[0].OtherText[0]':                   'otherReasonText',     // text next to 'Other' checkbox
     'F[0].P2[0].WCBCaseNo[0]':                   'wcbNumber',
     'F[0].P2[0].ClaimantsName[0]':               'claimantName',
-    'F[0].P2[0].TextField2[1]':                  'attorneyName',
-    'F[0].P2[0].TextField2[0]':                  'attorneyName',
+    'F[0].P2[0].TextField2[1]':                  'firmName',            // Print Name = firm
+    // P2.TextField2[0] (signature line) — REMOVED. The visual signature
+    // image is drawn on its rect via SIGNATURE_RECT_PAGE2; no typed name.
     'F[0].P2[0].TextField2[4]':                  'dateSubmitted',
     'F[0].P2[0].TextField2[2]':                  'attorneyAddress',
     'F[0].P2[0].TextField2[3]':                  'attorneyPhone',
+  };
+
+  // Date fields that need YYYY-MM-DD → MM/DD/YYYY conversion before fill.
+  const OC400_DATE_KEYS = new Set(['dateRetained', 'dateSubmitted']);
+
+  // Section B checkbox group → modal context key. Each group is mutually
+  // exclusive; we check exactly one of the names per group, based on the
+  // user's radio selection in the modal.
+  const OC400_SECTION_B_GROUPS = {
+    // Are you the claimant's CURRENT attorney, OR were you SUBSTITUTED FOR?
+    currentRole: { current: 'AreYou', substituted: 'WereYou' },
+    // Has the claimant previously retained any other attorney/rep?
+    priorRetained: { yes: 'RetainedYes', no: 'RetainedNo' },
+    // Have you served or been served a Notice of Substitution?
+    servedNotice: { yes: 'ServedYes', no: 'ServedNo', na: 'ServedNA' },
+    // Aware of any fee requests from other attorneys/reps?
+    otherFees: { yes: 'OtherFeeYes', no: 'OtherFeeNo', na: 'OtherFeeNA' },
   };
   const SIGNATURE_RECT_PAGE2 = { x: 261, y: 690, width: 218, height: 30 };
 
@@ -72,6 +91,16 @@
       .replace(/\u201D/g, '"')   // " right double quote
       .replace(/\u2026/g, '...') // … ellipsis
       .replace(/\u00A0/g, ' ');  // non-breaking space
+  }
+
+  // formatDateMDY — workspace dates come from <input type="date"> as
+  // YYYY-MM-DD; the OC-400.1 form expects MM/DD/YYYY. Pure string
+  // transform — no Date() to avoid timezone shifts for date-only values.
+  function formatDateMDY(s) {
+    if (!s) return '';
+    const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return String(s);
+    return `${m[2]}/${m[3]}/${m[1]}`;
   }
 
   // floor5(n) — round dollars DOWN to nearest $5. Used for the
@@ -282,12 +311,41 @@
   function fillFormFromMap(form, ctx) {
     const fields = form.getFields();
     const filled = []; const missed = [];
+
+    // Build the set of checkbox names to check from:
+    //   1) tile-derived feeReasons (e.g. ['FeeReason3'] for SLU)
+    //   2) manual feeReason additions (death benefits, other)
+    //   3) Section B group selections (AreYou/WereYou, Retained, Served,
+    //      OtherFee — exactly one name per group based on the radio).
+    const checkSet = new Set();
+    (ctx.feeReasons || []).forEach(r => r && checkSet.add(r));
+    if (ctx.deathBenefits) checkSet.add('FeeReason5');
+    if (ctx.otherReasonChecked) checkSet.add('FeeReasonOther');
+    Object.entries(OC400_SECTION_B_GROUPS).forEach(([groupKey, opts]) => {
+      const choice = ctx[groupKey];
+      if (choice && opts[choice]) checkSet.add(opts[choice]);
+    });
+
     for (const f of fields) {
       const name = f.getName();
       const ctxKey = OC400_FIELD_MAP[name];
+
+      // Checkbox path — runs first, since checkboxes use setText too in
+      // some pdf-lib versions and we want the boolean check() instead.
+      if (checkSet.has(name)) {
+        try {
+          if (typeof f.check === 'function') { f.check(); filled.push({ name, kind: 'check' }); }
+        } catch (e) { missed.push({ name, error: String(e) }); }
+        continue;
+      }
+
       if (!ctxKey) continue;
-      const value = ctx[ctxKey];
+      let value = ctx[ctxKey];
       if (value === undefined || value === null || value === '') continue;
+
+      // Date conversion: YYYY-MM-DD → MM/DD/YYYY
+      if (OC400_DATE_KEYS.has(ctxKey)) value = formatDateMDY(value);
+
       try {
         if (typeof f.setText === 'function') { f.setText(sanitizeText(value)); filled.push({ name, ctxKey }); }
       } catch (e) { missed.push({ name, ctxKey, error: String(e) }); }
@@ -617,6 +675,18 @@
       dateRetained:        initialContext?.dateRetained        || '',
       dateSubmitted:       initialContext?.dateSubmitted       || new Date().toISOString().slice(0, 10),
       _profileId:          activeProfile?.id                   || null,
+      // v1.2.4 — tile-derived fee reasons (carried through; merged with
+      // manual selections at generate time)
+      feeReasons:          Array.isArray(initialContext?.feeReasons) ? initialContext.feeReasons : [],
+      // v1.2.4 — manual fee-reason additions (Section A)
+      deathBenefits:       false,
+      otherReasonChecked:  false,
+      otherReasonText:     '',
+      // v1.2.4 — Section B answers (radios). '' = unanswered (no box checked)
+      currentRole:         '',  // 'current' | 'substituted'
+      priorRetained:       '',  // 'yes' | 'no'
+      servedNotice:        '',  // 'yes' | 'no' | 'na'
+      otherFees:           '',  // 'yes' | 'no' | 'na'
     });
     const [hasSig, setHasSig] = useState(false);
     const [status, setStatus] = useState({ text: '', kind: '' });
@@ -753,6 +823,75 @@
               <label className="f-label">Date Submitted</label>
               <input className="f-input" type="date" value={ctx.dateSubmitted} onChange={e => update({ dateSubmitted: e.target.value })}/>
             </div>
+            {/* v1.2.4 — § A fee reasons (auto from tile + manual extras) */}
+            <div className="feeapp-section-divider">Section A — Fee Reasons</div>
+            <div className="feeapp-help">
+              {(ctx.feeReasons || []).length > 0
+                ? 'Auto-checked from the tile: ' + (ctx.feeReasons || []).join(', ') + '. Add more below if applicable.'
+                : 'No fee reasons auto-detected from the tile. Add at least one manually.'}
+            </div>
+            <div className="f-group">
+              <label className="feeapp-checkbox-row">
+                <input type="checkbox" checked={!!ctx.deathBenefits}
+                  onChange={e => update({ deathBenefits: e.target.checked })}/>
+                Death benefits (WCL § 16, § 24[2][e])
+              </label>
+              <label className="feeapp-checkbox-row">
+                <input type="checkbox" checked={!!ctx.otherReasonChecked}
+                  onChange={e => update({ otherReasonChecked: e.target.checked })}/>
+                Other (specify)
+              </label>
+              {ctx.otherReasonChecked && (
+                <input className="f-input" value={ctx.otherReasonText}
+                  placeholder="Describe the other fee reason"
+                  onChange={e => update({ otherReasonText: e.target.value })}/>
+              )}
+            </div>
+
+            {/* v1.2.4 — § B substitution + other-fee questions */}
+            <div className="feeapp-section-divider">Section B — Substitution &amp; Other Fees</div>
+            <div className="f-group">
+              <div className="f-label">Are you the claimant's current attorney/representative, or were you substituted for?</div>
+              <div className="feeapp-radio-row">
+                <label><input type="radio" name="currentRole" checked={ctx.currentRole==='current'}
+                  onChange={() => update({ currentRole: 'current' })}/> Current attorney</label>
+                <label><input type="radio" name="currentRole" checked={ctx.currentRole==='substituted'}
+                  onChange={() => update({ currentRole: 'substituted' })}/> Substituted for</label>
+              </div>
+            </div>
+            <div className="f-group">
+              <div className="f-label">Has the claimant previously retained any other attorney or licensed representative?</div>
+              <div className="feeapp-radio-row">
+                <label><input type="radio" name="priorRetained" checked={ctx.priorRetained==='yes'}
+                  onChange={() => update({ priorRetained: 'yes' })}/> Yes</label>
+                <label><input type="radio" name="priorRetained" checked={ctx.priorRetained==='no'}
+                  onChange={() => update({ priorRetained: 'no' })}/> No</label>
+              </div>
+            </div>
+            <div className="f-group">
+              <div className="f-label">Have you served or been served a Notice of Substitution?</div>
+              <div className="feeapp-radio-row">
+                <label><input type="radio" name="servedNotice" checked={ctx.servedNotice==='yes'}
+                  onChange={() => update({ servedNotice: 'yes' })}/> Yes</label>
+                <label><input type="radio" name="servedNotice" checked={ctx.servedNotice==='no'}
+                  onChange={() => update({ servedNotice: 'no' })}/> No</label>
+                <label><input type="radio" name="servedNotice" checked={ctx.servedNotice==='na'}
+                  onChange={() => update({ servedNotice: 'na' })}/> N/A</label>
+              </div>
+            </div>
+            <div className="f-group">
+              <div className="f-label">Are you aware of any fee requests from other attorneys and/or licensed representatives?</div>
+              <div className="feeapp-radio-row">
+                <label><input type="radio" name="otherFees" checked={ctx.otherFees==='yes'}
+                  onChange={() => update({ otherFees: 'yes' })}/> Yes</label>
+                <label><input type="radio" name="otherFees" checked={ctx.otherFees==='no'}
+                  onChange={() => update({ otherFees: 'no' })}/> No</label>
+                <label><input type="radio" name="otherFees" checked={ctx.otherFees==='na'}
+                  onChange={() => update({ otherFees: 'na' })}/> N/A</label>
+              </div>
+            </div>
+
+            <div className="feeapp-section-divider">Section C — Certification</div>
             <div className="f-group">
               <label className="f-label">Signature</label>
               <SignatureCanvas onChange={setHasSig} initialDataUrl={activeProfile?.signature_data_url || ''} />

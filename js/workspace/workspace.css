@@ -1450,3 +1450,45 @@ footer.disclaimer {
   color: var(--tx-faint);
   margin-top: 4px;
 }
+
+/* v1.2.4 — feeapp modal section dividers + checkbox/radio rows */
+.feeapp-section-divider {
+  margin: 14px 0 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--bd);
+  font: 700 11px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tx-dim);
+}
+.feeapp-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font: 13px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx);
+  cursor: pointer;
+}
+.feeapp-checkbox-row input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+.feeapp-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 4px 0;
+}
+.feeapp-radio-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 13px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx);
+  cursor: pointer;
+}
+.feeapp-radio-row input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
