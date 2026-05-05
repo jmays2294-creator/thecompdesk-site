@@ -1258,9 +1258,15 @@ function App() {
     if (typeof window.buildEquation === 'function') {
       try {
         const eq = window.buildEquation(tile, global);
-        ctx.feeEquation = eq?.mono || '';
+        // Use the prose `plain` form for the OC-400.1 FeeRequestExplanation
+        // field — it auto-wraps into the form's narrow box. The line-by-line
+        // `mono` form gets truncated at ~4 lines in the rendered PDF.
+        ctx.feeEquation = eq?.plain || eq?.mono || '';
         // Numeric eligible fee — feeapp.js floors to nearest $5 for autofill.
         ctx.feeRequested = (typeof eq?.fee === 'number' && isFinite(eq.fee) && eq.fee > 0) ? eq.fee : 0;
+        // Tile-derived OC-400.1 § A checkboxes (e.g. SLU → FeeReason3).
+        // Modal-side manual selections (death benefits, other) merged later.
+        ctx.feeReasons = Array.isArray(eq?.feeReasons) ? eq.feeReasons : [];
       } catch (e) { /* tile-specific failure is non-fatal */ }
     }
     window.WorkspaceFeeAppContext = ctx;
