@@ -72,6 +72,63 @@
   const SIGNATURE_RECT_PAGE2 = { x: 261, y: 690, width: 218, height: 30 };
 
   // ------------------------------------------------------------------
+  // Checkbox rects (PDF coords, ~9×9 pt boxes). All on page 1.
+  // pdf-lib's PDFCheckBox.check() doesn't render reliably on this XFA
+  // form — getFields() returns generic PDFField instances rather than
+  // PDFCheckBox subclasses, so .check() is undefined and the box stays
+  // empty. We draw a 2-stroke X via drawLine() at the rect instead.
+  // ------------------------------------------------------------------
+  const CHECKBOX_RECTS = {
+    // § A fee reasons (left margin column)
+    FeeReason1:     { page: 0, x: 59,  y: 533, w: 9, h: 9 },  // continuation TT/TR
+    FeeReason2:     { page: 0, x: 59,  y: 506, w: 9, h: 9 },  // increase prior period
+    FeeReason3:     { page: 0, x: 59,  y: 477, w: 9, h: 9 },  // SLU / facial disfigurement
+    FeeReason4:     { page: 0, x: 59,  y: 447, w: 9, h: 9 },  // perm total / non-schedule PPD
+    FeeReason5:     { page: 0, x: 59,  y: 419, w: 9, h: 9 },  // death benefits §16
+    FeeReason6:     { page: 0, x: 59,  y: 397, w: 9, h: 9 },  // §32 settlement
+    FeeReasonOther: { page: 0, x: 59,  y: 376, w: 9, h: 9 },  // other (with OtherText input)
+    // § B substitution + other-fee questions
+    AreYou:         { page: 0, x: 95,  y: 178, w: 9, h: 9 },  // current attorney
+    WereYou:        { page: 0, x: 349, y: 178, w: 9, h: 9 },  // were substituted for
+    RetainedYes:    { page: 0, x: 402, y: 155, w: 9, h: 9 },
+    RetainedNo:     { page: 0, x: 440, y: 155, w: 9, h: 9 },
+    ServedYes:      { page: 0, x: 298, y: 135, w: 9, h: 9 },
+    ServedNo:       { page: 0, x: 336, y: 135, w: 9, h: 9 },
+    ServedNA:       { page: 0, x: 375, y: 135, w: 9, h: 9 },
+    OtherFeeYes:    { page: 0, x: 426, y: 112, w: 9, h: 9 },
+    OtherFeeNo:     { page: 0, x: 464, y: 112, w: 9, h: 9 },
+    OtherFeeNA:     { page: 0, x: 503, y: 112, w: 9, h: 9 },
+  };
+
+  // Draw a 2-stroke X centered in the rect with a small inset so the
+  // strokes don't run over the box border.
+  function drawCheckMark(page, rect) {
+    const { rgb } = window.PDFLib;
+    const inset = 1.4;
+    const x1 = rect.x + inset;
+    const y1 = rect.y + inset;
+    const x2 = rect.x + rect.w - inset;
+    const y2 = rect.y + rect.h - inset;
+    page.drawLine({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 }, thickness: 1.4, color: rgb(0, 0, 0) });
+    page.drawLine({ start: { x: x1, y: y2 }, end: { x: x2, y: y1 }, thickness: 1.4, color: rgb(0, 0, 0) });
+  }
+
+  // Build the set of checkbox names we should mark — from tile-derived
+  // feeReasons, manual extras (death/other), and Section B group radios.
+  function buildCheckSet(ctx) {
+    const set = new Set();
+    (ctx.feeReasons || []).forEach(r => r && set.add(r));
+    if (ctx.deathBenefits) set.add('FeeReason5');
+    if (ctx.otherReasonChecked) set.add('FeeReasonOther');
+    Object.entries(OC400_SECTION_B_GROUPS).forEach(([groupKey, opts]) => {
+      const choice = ctx[groupKey];
+      if (choice && opts[choice]) set.add(opts[choice]);
+    });
+    return set;
+  }
+
+
+  // ------------------------------------------------------------------
   // sanitizeText — pdf-lib's StandardFonts use WinAnsi (codepage 1252)
   // which can't encode U+2212 (math minus) and a handful of other
   // common Unicode chars that the workspace's equation builder emits
@@ -312,33 +369,9 @@
     const fields = form.getFields();
     const filled = []; const missed = [];
 
-    // Build the set of checkbox names to check from:
-    //   1) tile-derived feeReasons (e.g. ['FeeReason3'] for SLU)
-    //   2) manual feeReason additions (death benefits, other)
-    //   3) Section B group selections (AreYou/WereYou, Retained, Served,
-    //      OtherFee — exactly one name per group based on the radio).
-    const checkSet = new Set();
-    (ctx.feeReasons || []).forEach(r => r && checkSet.add(r));
-    if (ctx.deathBenefits) checkSet.add('FeeReason5');
-    if (ctx.otherReasonChecked) checkSet.add('FeeReasonOther');
-    Object.entries(OC400_SECTION_B_GROUPS).forEach(([groupKey, opts]) => {
-      const choice = ctx[groupKey];
-      if (choice && opts[choice]) checkSet.add(opts[choice]);
-    });
-
     for (const f of fields) {
       const name = f.getName();
       const ctxKey = OC400_FIELD_MAP[name];
-
-      // Checkbox path — runs first, since checkboxes use setText too in
-      // some pdf-lib versions and we want the boolean check() instead.
-      if (checkSet.has(name)) {
-        try {
-          if (typeof f.check === 'function') { f.check(); filled.push({ name, kind: 'check' }); }
-        } catch (e) { missed.push({ name, error: String(e) }); }
-        continue;
-      }
-
       if (!ctxKey) continue;
       let value = ctx[ctxKey];
       if (value === undefined || value === null || value === '') continue;
@@ -351,6 +384,28 @@
       } catch (e) { missed.push({ name, ctxKey, error: String(e) }); }
     }
     return { filled, missed };
+  }
+
+  // Render X marks for every checkbox in `checkSet` by drawing two
+  // diagonal lines at the rect on the right page. Also tries the
+  // pdf-lib CheckBox.check() API as a soft attempt — but the X overlay
+  // is the bulletproof path on this XFA form.
+  function drawCheckSet(form, pdfDoc, checkSet) {
+    const pages = pdfDoc.getPages();
+    const checked = []; const noRect = [];
+    for (const name of checkSet) {
+      // Soft attempt: pdf-lib typed CheckBox API (no-op on failure)
+      try { form.getCheckBox(name).check(); } catch (e) { /* ignore */ }
+
+      // Bulletproof: draw X at the rect coordinates
+      const rect = CHECKBOX_RECTS[name];
+      if (!rect) { noRect.push(name); continue; }
+      const page = pages[rect.page];
+      if (!page) { noRect.push(name); continue; }
+      drawCheckMark(page, rect);
+      checked.push(name);
+    }
+    return { checked, noRect };
   }
 
   async function renderFromScratch(ctx, pdfDoc, sigPngBytes) {
@@ -426,6 +481,12 @@
       try {
         const form = pdfDoc.getForm();
         fillReport = fillFormFromMap(form, ctx);
+        // Draw X marks for every checkbox that should be checked. Runs
+        // BEFORE form.flatten() so the strokes are baked into the page.
+        const checkSet = buildCheckSet(ctx);
+        const checkReport = drawCheckSet(form, pdfDoc, checkSet);
+        fillReport.checked = checkReport.checked;
+        fillReport.noRect  = checkReport.noRect;
         if (sigPngBytes) {
           const sigImg = await pdfDoc.embedPng(sigPngBytes);
           const pages = pdfDoc.getPages();
