@@ -776,7 +776,7 @@ function buildEquation(tile, global) {
         ? ` After §15(3)(w) credit of ${fmtN(creditWks, 2)} weeks at the TT rate (${fmt$(creditDollars)} deduction), total = ${fmt$(total)}.`
         : '';
       const plainText = `SLU Award: ${plain.join(', ')}. Total ${fmtN(totalWeeks, 2)} weeks × ${fmt$(tt)}/wk = ${fmt$(grossTotal)} gross.${creditNote} Less prior payments of ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee 15% of moving = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
-      return { plain: plainText, mono: lines.join('\n'), fee };
+      return { plain: plainText, mono: lines.join('\n'), fee, feeReasons: ['FeeReason3'] };
     }
     case 'LWEC': {
       const inputs = tile.inputs || { pct: 0, feePerWeek: 0, priorTTRWks: 0 };
@@ -807,7 +807,7 @@ function buildEquation(tile, global) {
         ? ` After §15(3)(w) credit (${fmtN(creditWks, 2)} wks at the class rate), adjusted weeks = ${fmtN(adjustedWks, 2)}.`
         : '';
       const plain = `LWEC Award: ${pct}% loss of wage earning capacity (${bracket.l}). Classification rate is ${fmt$(tt)} × ${pct}% = ${fmt$(classRate)}/wk over ${isLifetime ? 'lifetime' : bracket.mw + ' gross weeks'}.${creditNote}${isLifetime ? '' : ' Total award of ' + fmt$(totalAward) + '.'} Attorney fee is the first 15 weeks at the class rate = ${fmt$(fee)}${isLifetime ? '.' : ', leaving ' + fmt$(totalNet) + ' net to claimant.'}`;
-      return { plain, mono: lines.join('\n'), fee };
+      return { plain, mono: lines.join('\n'), fee, feeReasons: ['FeeReason4'] };
     }
     case 'CCP': {
       const inputs = tile.inputs || { periods: [], ccpAmount: 0, priorPay: 0 };
@@ -839,7 +839,23 @@ function buildEquation(tile, global) {
       lines.push(`Total Fee: ${fmt$(totalFee)}`);
       lines.push(`Net: ${fmt$(net)}`);
       const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)} less prior payments ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee is 15% of moving (${fmt$(feeOnAward)}) plus one-third of CCP (${fmt$(feeOnCCP)}) = ${fmt$(totalFee)} total fee. Net to claimant = ${fmt$(net)}.`;
-      return { plain, mono: lines.join('\n'), fee: totalFee };
+      // Detect prior vs continuing periods. Per Joel's spec:
+      //   end < today → prior period award      → FeeReason2 (increase for prior period)
+      //   end ≥ today → continuing payment      → FeeReason1 (continuation of weekly comp)
+      // Mixed → both checkboxes get checked.
+      const ccpToday = new Date(); ccpToday.setHours(0, 0, 0, 0);
+      let ccpHasPrior = false, ccpHasContinuing = false;
+      inputs.periods.forEach(p => {
+        if (!p.end) return;
+        const endDate = new Date(p.end);
+        if (isNaN(endDate.getTime())) return;
+        if (endDate < ccpToday) ccpHasPrior = true;
+        else ccpHasContinuing = true;
+      });
+      const ccpFeeReasons = [];
+      if (ccpHasContinuing) ccpFeeReasons.push('FeeReason1');
+      if (ccpHasPrior)      ccpFeeReasons.push('FeeReason2');
+      return { plain, mono: lines.join('\n'), fee: totalFee, feeReasons: ccpFeeReasons };
     }
     case 'RateLookup': {
       const date = tile.inputs?.date || global.doi || '';
@@ -851,7 +867,7 @@ function buildEquation(tile, global) {
         `Min Rate: ${min?.min ? fmt$(min.min) + ' (' + min.l + ')' : '—'}`,
       ];
       const plain = `Rate Lookup for ${date || 'no date'}: maximum weekly rate ${max ? fmt$(max.max) : 'unavailable'} (${max?.l || ''}); minimum weekly rate ${min?.min ? fmt$(min.min) : 'unavailable'}${min?.n ? ' (' + min.n + ')' : ''}.`;
-      return { plain, mono: lines.join('\n'), fee: 0 };
+      return { plain, mono: lines.join('\n'), fee: 0, feeReasons: [] };
     }
     case 'Radiculopathy': {
       const inputs = tile.inputs || {};
@@ -873,7 +889,7 @@ function buildEquation(tile, global) {
         `Total: ${total} pts → Rank ${rank.letter}`,
       ];
       const plain = `Radiculopathy Score: ${inputs.region} spine, ${nerve.v}. Total ${total} points after S11.5/S11.6 nerve-root caps. Severity rank ${rank.letter} (range ${rank.lo}–${rank.hi}).`;
-      return { plain, mono: lines.join('\n'), fee: 0 };
+      return { plain, mono: lines.join('\n'), fee: 0, feeReasons: [] };
     }
     case 'Burns': {
       const inputs = tile.inputs || {};
@@ -904,7 +920,7 @@ function buildEquation(tile, global) {
       lines.push(`Net WC Lien: ${(burnsRate * 100).toFixed(2)}% × ${fmt$(lienBase)} = ${fmt$(netLien)}`);
       lines.push(`Net to Plaintiff: ${fmt$(gross)} − ${fmt$(litCosts)} − ${fmt$(netLien)} = ${fmt$(netToPlaintiff)}`);
       const plain = `Burns Rate Calculation${inputs.isMVA ? ' (MVA)' : ''}: gross 3rd-party settlement of ${fmt$(gross)} with attorney fee + disbursements of ${fmt$(litCosts)} produces a Burns rate of ${(burnsRate * 100).toFixed(2)}%. Applied to a${inputs.isMVA ? ' (post-no-fault)' : ''} lien base of ${fmt$(lienBase)}, net WC lien = ${fmt$(netLien)}. Net to plaintiff after litigation costs and reduced lien = ${fmt$(netToPlaintiff)}.`;
-      return { plain, mono: lines.join('\n'), fee: 0 };
+      return { plain, mono: lines.join('\n'), fee: 0, feeReasons: [] };
     }
     case 'Settlement': {
       const inputs = tile.inputs || {};
@@ -921,10 +937,10 @@ function buildEquation(tile, global) {
         `Net:       ${fmt$(net)}`,
       ];
       const plain = `Section 32 Settlement of ${fmt$(settlement)} with a Medical Set-Aside of ${fmt$(msa)} carved out leaves ${fmt$(remaining)} as the fee base. Attorney fee of 15% = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
-      return { plain, mono: lines.join('\n'), fee };
+      return { plain, mono: lines.join('\n'), fee, feeReasons: ['FeeReason6'] };
     }
     default:
-      return { plain: '', mono: '', fee: 0 };
+      return { plain: '', mono: '', fee: 0, feeReasons: [] };
   }
 }
 
