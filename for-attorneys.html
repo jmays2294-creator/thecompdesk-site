@@ -486,14 +486,27 @@ footer a{color:var(--txD);}
   </div>
 </section>
 
+<!-- ATTORNEY REFERRAL NETWORK CTA -->
+<section class="cta-banner" style="padding-top:0;">
+  <div class="wrap">
+    <h2>Want client referrals too?</h2>
+    <p>Apply to join The Comp Desk's neutral, round-robin attorney referral network. Pay only for leads you accept — no monthly fees, no paid placement, no referral percentages.</p>
+    <div class="ctas">
+      <button type="button" class="cta-btn gold" onclick="openAttorneyApplication()">Join Our Attorney Referral Network</button>
+      <a href="/connect-with-attorney.html#for-attorneys" class="cta-btn outline">How the Network Works</a>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
     <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
-    <p style="margin-top:8px;"><a href="/">Home</a> · <a href="/privacy">Privacy Policy</a> · <a href="/connect-with-attorney.html">Find Attorney</a> · <a href="/auth_v2.html">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
+    <p style="margin-top:8px;"><a href="/">Home</a> · <a href="/privacy">Privacy Policy</a> · <a href="/connect-with-attorney.html">Find Attorney</a> · <a href="javascript:void(0)" onclick="openAttorneyApplication()">Join Our Attorney Referral Network</a> · <a href="/auth_v2.html">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
   </div>
 </footer>
 
+<script defer src="/js/attorney-network-modal.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

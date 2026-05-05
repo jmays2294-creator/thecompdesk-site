@@ -262,6 +262,34 @@
     .form-error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;}
     .form-error.visible{display:block;}
 
+    /* ─── Body Diagram ─────────────────────────────────────────── */
+    .body-dx{margin-top:4px;}
+    .body-dx-tabs{display:inline-flex;background:rgba(6,8,15,0.6);border:1px solid var(--bd);border-radius:8px;padding:3px;gap:2px;margin-bottom:12px;}
+    .body-dx-tab{background:transparent;border:none;color:var(--txD);font:600 13px/1 'DM Sans',sans-serif;padding:7px 16px;border-radius:6px;cursor:pointer;transition:background 0.15s,color 0.15s;}
+    .body-dx-tab.active{background:var(--ac);color:#fff;}
+    .body-dx-tab:focus-visible{outline:2px solid var(--ac);outline-offset:2px;}
+    .body-dx-stage{position:relative;width:100%;max-width:280px;margin:0 auto;}
+    @media(min-width:600px){.body-dx-stage{max-width:340px;}}
+    .body-dx-stage svg{width:100%;height:auto;display:block;}
+    .body-dx-view{display:none;}
+    .body-dx-view.active{display:block;}
+    /* Silhouette outline */
+    .body-silhouette{fill:rgba(79,143,247,0.05);stroke:var(--bd);stroke-width:1.2;pointer-events:none;}
+    /* Hit regions */
+    .body-region{fill:rgba(79,143,247,0.10);stroke:rgba(79,143,247,0.45);stroke-width:1;cursor:pointer;transition:fill 0.15s,stroke 0.15s;}
+    .body-region:hover{fill:rgba(79,143,247,0.28);stroke:var(--ac);}
+    .body-region:focus{outline:none;}
+    .body-region:focus-visible{stroke:var(--wh);stroke-width:2;}
+    .body-region.selected{fill:var(--ac);stroke:var(--wh);stroke-width:1.5;}
+    .body-region.selected:hover{fill:#6ba2ff;}
+    /* Selection summary */
+    .body-dx-summary{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;min-height:28px;}
+    .body-dx-pill{display:inline-flex;align-items:center;gap:6px;background:var(--acG);border:1px solid rgba(79,143,247,0.35);color:var(--ac);font-size:12px;font-weight:600;padding:4px 10px;border-radius:14px;}
+    .body-dx-pill button{background:none;border:none;color:var(--ac);cursor:pointer;font-size:14px;line-height:1;padding:0;display:inline-flex;align-items:center;}
+    .body-dx-pill button:hover{color:var(--wh);}
+    .body-dx-empty{font-size:12px;color:var(--txM);font-style:italic;padding:4px 0;}
+    .body-dx-help{font-size:11px;color:var(--txM);margin-top:8px;text-align:center;}
+
     /* Responsive */
     @media(max-width:600px){
       nav .links a:not(.cta-btn){display:none;}
@@ -421,7 +449,7 @@
 
         <p style="color:var(--txD);font-size:14px;max-width:600px;margin:24px auto 0;">No monthly fees. No setup costs. No referral percentages. You only pay for leads you choose to accept.</p>
 
-        <a href="mailto:joel@thecompdesk.com?subject=Apply to Join The Comp Desk Attorney Network" class="cta-btn gold">Apply to Join</a>
+        <button type="button" class="cta-btn gold" onclick="openAttorneyApplication()">Join Our Attorney Referral Network</button>
       </div>
     </div>
   </section>
@@ -472,10 +500,13 @@
   <!-- Footer -->
   <footer>
     <div class="wrap">
-      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved. | <a href="/privacy.html">Privacy Policy</a></p>
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved. | <a href="/privacy.html">Privacy Policy</a> | <a href="javascript:void(0)" onclick="openAttorneyApplication()">Join Our Attorney Referral Network</a></p>
       <p style="margin-top:8px;font-size:11px;color:var(--txM);">The Comp Desk is a directory service only. No attorney-client relationship is created by using this service. Attorney assignment is mechanical and does not constitute a recommendation or endorsement by The Comp Desk. Consult directly with an attorney about your specific legal needs.</p>
     </div>
   </footer>
+
+  <!-- Attorney Network Application Modal -->
+  <script defer src="/js/attorney-network-modal.js"></script>
 
   <!-- Intake Wizard Modal -->
   <div class="modal-overlay" id="wizModal">
@@ -635,13 +666,200 @@
 
             <div class="field">
               <label>What Happened? <span class="req">*</span></label>
-              <textarea name="accident_description" placeholder="Briefly describe how the injury occurred (e.g., 'Fell from scaffold at construction site')" required minlength="20" maxlength="1500"></textarea>
-              <div class="hint">At least a couple of sentences.</div>
+              <textarea name="accident_description" placeholder="Briefly — e.g., fell, slipped, hit, attacked." required minlength="3" maxlength="1500"></textarea>
+              <div class="hint">A word or two is fine. More detail helps the attorney prepare.</div>
             </div>
 
             <div class="field">
               <label>Body Parts Injured <span class="req">*</span></label>
-              <textarea name="injuries" placeholder="List all injured body parts (e.g., 'Lower back, left knee, right shoulder')" required minlength="5" maxlength="1000" style="min-height:56px;"></textarea>
+              <div class="body-dx" id="bodyDx">
+                <div class="body-dx-tabs" role="tablist" aria-label="Body view">
+                  <button type="button" class="body-dx-tab active" id="bodyTabFront" role="tab" aria-selected="true" aria-controls="bodyViewFront" data-view="front">Front</button>
+                  <button type="button" class="body-dx-tab" id="bodyTabBack" role="tab" aria-selected="false" aria-controls="bodyViewBack" data-view="back">Back</button>
+                </div>
+
+                <div class="body-dx-stage">
+                  <!-- FRONT VIEW -->
+                  <div class="body-dx-view active" id="bodyViewFront" role="tabpanel" aria-labelledby="bodyTabFront">
+                    <svg viewBox="0 0 200 480" xmlns="http://www.w3.org/2000/svg" aria-label="Front view of human body. Tap a region to mark it as injured.">
+                      <!-- Silhouette outline (decorative) -->
+                      <path class="body-silhouette" d="M100 18
+                        c-15 0 -27 12 -27 27 c0 11 5 21 13 26
+                        l-3 8
+                        c-12 2 -22 8 -28 18 c-6 10 -8 22 -8 36
+                        l0 60 c0 6 -2 12 -5 17
+                        l-22 38 c-3 5 -3 11 0 16 c3 4 9 5 14 2
+                        l8 -6 l-2 60 c-1 8 0 16 2 24
+                        l4 18
+                        l-2 90 c0 4 1 8 4 11 c3 3 7 4 11 3
+                        l8 -2 l2 32 c0 4 2 8 5 10 c3 2 7 2 11 1
+                        l8 -3
+                        l4 -28
+                        l4 28
+                        l8 3 c4 1 8 1 11 -1 c3 -2 5 -6 5 -10
+                        l2 -32 l8 2 c4 1 8 0 11 -3 c3 -3 4 -7 4 -11
+                        l-2 -90
+                        l4 -18 c2 -8 3 -16 2 -24
+                        l-2 -60 l8 6 c5 3 11 2 14 -2 c3 -5 3 -11 0 -16
+                        l-22 -38 c-3 -5 -5 -11 -5 -17 l0 -60
+                        c0 -14 -2 -26 -8 -36 c-6 -10 -16 -16 -28 -18
+                        l-3 -8 c8 -5 13 -15 13 -26 c0 -15 -12 -27 -27 -27 z" />
+
+                      <!-- Hit regions: head -->
+                      <ellipse class="body-region" data-region="head" data-label="Head"
+                        cx="100" cy="45" rx="26" ry="28" tabindex="0" role="button" aria-label="Head" aria-pressed="false"></ellipse>
+
+                      <!-- Neck -->
+                      <rect class="body-region" data-region="neck" data-label="Neck"
+                        x="86" y="74" width="28" height="16" rx="6" tabindex="0" role="button" aria-label="Neck" aria-pressed="false"></rect>
+
+                      <!-- Shoulders -->
+                      <ellipse class="body-region" data-region="left_shoulder" data-label="Left shoulder"
+                        cx="63" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Left shoulder" aria-pressed="false"></ellipse>
+                      <ellipse class="body-region" data-region="right_shoulder" data-label="Right shoulder"
+                        cx="137" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Right shoulder" aria-pressed="false"></ellipse>
+
+                      <!-- Chest -->
+                      <rect class="body-region" data-region="chest" data-label="Chest"
+                        x="76" y="98" width="48" height="60" rx="12" tabindex="0" role="button" aria-label="Chest" aria-pressed="false"></rect>
+
+                      <!-- Upper arms -->
+                      <rect class="body-region" data-region="left_arm" data-label="Left arm"
+                        x="42" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Left arm" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="right_arm" data-label="Right arm"
+                        x="138" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Right arm" aria-pressed="false"></rect>
+
+                      <!-- Elbows -->
+                      <circle class="body-region" data-region="left_elbow" data-label="Left elbow"
+                        cx="52" cy="194" r="11" tabindex="0" role="button" aria-label="Left elbow" aria-pressed="false"></circle>
+                      <circle class="body-region" data-region="right_elbow" data-label="Right elbow"
+                        cx="148" cy="194" r="11" tabindex="0" role="button" aria-label="Right elbow" aria-pressed="false"></circle>
+
+                      <!-- Wrist / hand -->
+                      <rect class="body-region" data-region="left_wrist_hand" data-label="Left wrist/hand"
+                        x="42" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Left wrist and hand" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="right_wrist_hand" data-label="Right wrist/hand"
+                        x="136" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Right wrist and hand" aria-pressed="false"></rect>
+
+                      <!-- Hips -->
+                      <ellipse class="body-region" data-region="left_hip" data-label="Left hip"
+                        cx="84" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Left hip" aria-pressed="false"></ellipse>
+                      <ellipse class="body-region" data-region="right_hip" data-label="Right hip"
+                        cx="116" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Right hip" aria-pressed="false"></ellipse>
+
+                      <!-- Knees -->
+                      <circle class="body-region" data-region="left_knee" data-label="Left knee"
+                        cx="84" cy="316" r="13" tabindex="0" role="button" aria-label="Left knee" aria-pressed="false"></circle>
+                      <circle class="body-region" data-region="right_knee" data-label="Right knee"
+                        cx="116" cy="316" r="13" tabindex="0" role="button" aria-label="Right knee" aria-pressed="false"></circle>
+
+                      <!-- Ankles / feet -->
+                      <rect class="body-region" data-region="left_ankle_foot" data-label="Left ankle/foot"
+                        x="68" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Left ankle and foot" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="right_ankle_foot" data-label="Right ankle/foot"
+                        x="108" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Right ankle and foot" aria-pressed="false"></rect>
+                    </svg>
+                  </div>
+
+                  <!-- BACK VIEW -->
+                  <div class="body-dx-view" id="bodyViewBack" role="tabpanel" aria-labelledby="bodyTabBack">
+                    <svg viewBox="0 0 200 480" xmlns="http://www.w3.org/2000/svg" aria-label="Back view of human body. Tap a region to mark it as injured.">
+                      <!-- Silhouette outline (decorative; mirror of front) -->
+                      <path class="body-silhouette" d="M100 18
+                        c-15 0 -27 12 -27 27 c0 11 5 21 13 26
+                        l-3 8
+                        c-12 2 -22 8 -28 18 c-6 10 -8 22 -8 36
+                        l0 60 c0 6 -2 12 -5 17
+                        l-22 38 c-3 5 -3 11 0 16 c3 4 9 5 14 2
+                        l8 -6 l-2 60 c-1 8 0 16 2 24
+                        l4 18
+                        l-2 90 c0 4 1 8 4 11 c3 3 7 4 11 3
+                        l8 -2 l2 32 c0 4 2 8 5 10 c3 2 7 2 11 1
+                        l8 -3
+                        l4 -28
+                        l4 28
+                        l8 3 c4 1 8 1 11 -1 c3 -2 5 -6 5 -10
+                        l2 -32 l8 2 c4 1 8 0 11 -3 c3 -3 4 -7 4 -11
+                        l-2 -90
+                        l4 -18 c2 -8 3 -16 2 -24
+                        l-2 -60 l8 6 c5 3 11 2 14 -2 c3 -5 3 -11 0 -16
+                        l-22 -38 c-3 -5 -5 -11 -5 -17 l0 -60
+                        c0 -14 -2 -26 -8 -36 c-6 -10 -16 -16 -28 -18
+                        l-3 -8 c8 -5 13 -15 13 -26 c0 -15 -12 -27 -27 -27 z" />
+
+                      <!-- Head -->
+                      <ellipse class="body-region" data-region="head" data-label="Head"
+                        cx="100" cy="45" rx="26" ry="28" tabindex="0" role="button" aria-label="Head" aria-pressed="false"></ellipse>
+
+                      <!-- Neck (back) -->
+                      <rect class="body-region" data-region="neck" data-label="Neck"
+                        x="86" y="74" width="28" height="16" rx="6" tabindex="0" role="button" aria-label="Neck" aria-pressed="false"></rect>
+
+                      <!-- Shoulders (back) -->
+                      <ellipse class="body-region" data-region="left_shoulder" data-label="Left shoulder"
+                        cx="137" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Left shoulder (back view)" aria-pressed="false"></ellipse>
+                      <ellipse class="body-region" data-region="right_shoulder" data-label="Right shoulder"
+                        cx="63" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Right shoulder (back view)" aria-pressed="false"></ellipse>
+
+                      <!-- BACK: cervical (upper), thoracic (mid), lumbar (lower) -->
+                      <rect class="body-region" data-region="back_cervical" data-label="Cervical (upper) back"
+                        x="78" y="92" width="44" height="22" rx="6" tabindex="0" role="button" aria-label="Cervical back (upper)" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="back_thoracic" data-label="Thoracic (mid) back"
+                        x="76" y="116" width="48" height="44" rx="6" tabindex="0" role="button" aria-label="Thoracic back (mid)" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="back_lumbar" data-label="Lumbar (lower) back"
+                        x="76" y="162" width="48" height="40" rx="6" tabindex="0" role="button" aria-label="Lumbar back (lower)" aria-pressed="false"></rect>
+
+                      <!-- Upper arms (mirrored: left side of viewer = right arm) -->
+                      <rect class="body-region" data-region="right_arm" data-label="Right arm"
+                        x="42" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Right arm (back view)" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="left_arm" data-label="Left arm"
+                        x="138" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Left arm (back view)" aria-pressed="false"></rect>
+
+                      <!-- Elbows (mirrored) -->
+                      <circle class="body-region" data-region="right_elbow" data-label="Right elbow"
+                        cx="52" cy="194" r="11" tabindex="0" role="button" aria-label="Right elbow (back view)" aria-pressed="false"></circle>
+                      <circle class="body-region" data-region="left_elbow" data-label="Left elbow"
+                        cx="148" cy="194" r="11" tabindex="0" role="button" aria-label="Left elbow (back view)" aria-pressed="false"></circle>
+
+                      <!-- Wrist / hand (mirrored) -->
+                      <rect class="body-region" data-region="right_wrist_hand" data-label="Right wrist/hand"
+                        x="42" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Right wrist and hand (back view)" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="left_wrist_hand" data-label="Left wrist/hand"
+                        x="136" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Left wrist and hand (back view)" aria-pressed="false"></rect>
+
+                      <!-- Hips (mirrored) -->
+                      <ellipse class="body-region" data-region="right_hip" data-label="Right hip"
+                        cx="84" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Right hip (back view)" aria-pressed="false"></ellipse>
+                      <ellipse class="body-region" data-region="left_hip" data-label="Left hip"
+                        cx="116" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Left hip (back view)" aria-pressed="false"></ellipse>
+
+                      <!-- Knees (mirrored) -->
+                      <circle class="body-region" data-region="right_knee" data-label="Right knee"
+                        cx="84" cy="316" r="13" tabindex="0" role="button" aria-label="Right knee (back view)" aria-pressed="false"></circle>
+                      <circle class="body-region" data-region="left_knee" data-label="Left knee"
+                        cx="116" cy="316" r="13" tabindex="0" role="button" aria-label="Left knee (back view)" aria-pressed="false"></circle>
+
+                      <!-- Ankles / feet (mirrored) -->
+                      <rect class="body-region" data-region="right_ankle_foot" data-label="Right ankle/foot"
+                        x="68" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Right ankle and foot (back view)" aria-pressed="false"></rect>
+                      <rect class="body-region" data-region="left_ankle_foot" data-label="Left ankle/foot"
+                        x="108" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Left ankle and foot (back view)" aria-pressed="false"></rect>
+                    </svg>
+                  </div>
+                </div>
+
+                <p class="body-dx-help">Tap each injured area on the front and back views. Selections from both views combine.</p>
+
+                <div class="body-dx-summary" id="bodyDxSummary" aria-live="polite" aria-label="Selected body parts">
+                  <span class="body-dx-empty" id="bodyDxEmpty">No body parts selected yet</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="bodyOther">Other body part (any language)</label>
+              <input type="text" id="bodyOther" name="body_parts_other" placeholder="e.g., rodilla, épaule, plecy, ribs" maxlength="200" autocomplete="off">
+              <div class="hint">Optional. Type any body part the diagram doesn't cover, in any language.</div>
             </div>
 
             <div class="wiz-btns">
@@ -720,9 +938,9 @@
       <div class="wiz-step" data-step="confirm" id="confirmScreen" style="display:none;">
         <div class="confirm-screen">
           <div class="check">&#10003;</div>
-          <h3>You're All Set</h3>
-          <p>Your case details have been submitted. A licensed NYS workers' compensation attorney will contact you within <strong style="color:var(--wh);">48 hours</strong>.</p>
-          <p style="margin-top:12px;">If the attorney doesn't reach out in time, we'll automatically connect you with the next available attorney in your area.</p>
+          <h3>Thanks</h3>
+          <p>A New York Workers' Compensation attorney will contact you within <strong style="color:var(--wh);">48 hours</strong>.</p>
+          <p style="margin-top:12px;font-size:12px;color:var(--txM);">If they don't reach out in time, we'll automatically connect you with the next available attorney in your area.</p>
           <div class="ref" id="confirmRef"></div>
           <button onclick="closeWizard()" class="cta-btn" style="margin-top:24px;">Done</button>
         </div>
@@ -744,6 +962,95 @@
     let currentStep = 1;
     let turnstileWidgetId = null;
     let turnstileToken = '';
+
+    // ── Body diagram state ──────────────────────────────────────
+    const bodyDxState = new Set(); // keys like "left_knee", "back_lumbar"
+    const bodyRegionLabels = {};   // key → human label (e.g. "Left knee")
+
+    function syncBodyRegionVisuals(regionKey) {
+      // Update every <region> with this data-region (front + back views may share keys)
+      document.querySelectorAll(`.body-region[data-region="${regionKey}"]`).forEach(el => {
+        const on = bodyDxState.has(regionKey);
+        el.classList.toggle('selected', on);
+        el.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+
+    function renderBodyDxSummary() {
+      const container = document.getElementById('bodyDxSummary');
+      const empty = document.getElementById('bodyDxEmpty');
+      if (!container) return;
+      // Clear existing pills
+      container.querySelectorAll('.body-dx-pill').forEach(n => n.remove());
+      if (bodyDxState.size === 0) {
+        if (empty) empty.style.display = '';
+        return;
+      }
+      if (empty) empty.style.display = 'none';
+      [...bodyDxState].forEach(key => {
+        const label = bodyRegionLabels[key] || key;
+        const pill = document.createElement('span');
+        pill.className = 'body-dx-pill';
+        pill.innerHTML = `${label.replace(/[<>&]/g,'')} <button type="button" aria-label="Remove ${label.replace(/"/g,'')}" data-remove="${key}">&times;</button>`;
+        container.appendChild(pill);
+      });
+    }
+
+    function toggleBodyRegion(key, label) {
+      if (bodyDxState.has(key)) {
+        bodyDxState.delete(key);
+      } else {
+        bodyDxState.add(key);
+        if (label) bodyRegionLabels[key] = label;
+      }
+      // Clear any error state on the diagram field
+      const dxField = document.getElementById('bodyDx')?.closest('.field');
+      if (dxField) dxField.classList.remove('has-error');
+      syncBodyRegionVisuals(key);
+      renderBodyDxSummary();
+    }
+
+    function initBodyDiagram() {
+      // Build label map and bind events on every region
+      document.querySelectorAll('.body-region').forEach(el => {
+        const key = el.getAttribute('data-region');
+        const label = el.getAttribute('data-label') || key;
+        if (key && !bodyRegionLabels[key]) bodyRegionLabels[key] = label;
+        el.addEventListener('click', () => toggleBodyRegion(key, label));
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleBodyRegion(key, label);
+          }
+        });
+      });
+      // Tabs
+      document.querySelectorAll('.body-dx-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const view = tab.dataset.view;
+          document.querySelectorAll('.body-dx-tab').forEach(t => {
+            const active = t === tab;
+            t.classList.toggle('active', active);
+            t.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          document.querySelectorAll('.body-dx-view').forEach(v => {
+            v.classList.toggle('active', v.id === 'bodyView' + (view === 'back' ? 'Back' : 'Front'));
+          });
+        });
+      });
+      // Pill remove buttons (event delegation)
+      document.getElementById('bodyDxSummary')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-remove]');
+        if (!btn) return;
+        const key = btn.getAttribute('data-remove');
+        if (bodyDxState.has(key)) {
+          bodyDxState.delete(key);
+          syncBodyRegionVisuals(key);
+          renderBodyDxSummary();
+        }
+      });
+    }
+    document.addEventListener('DOMContentLoaded', initBodyDiagram);
 
     // ── Set max date on DOA field ───────────────────────────────
     const doaField = document.querySelector('input[name="date_of_accident"]');
@@ -878,13 +1185,9 @@
             errors.push('Please enter a valid 10-digit phone number.');
           }
         }
-        if (field.name === 'accident_description' && val.length < 20) {
+        if (field.name === 'accident_description' && val.length < 3) {
           if (parent) parent.classList.add('has-error');
-          errors.push('Please describe the accident in at least a couple of sentences.');
-        }
-        if (field.name === 'injuries' && val.length < 5) {
-          if (parent) parent.classList.add('has-error');
-          errors.push('Please list the injured body parts.');
+          errors.push('Please give us at least a word about what happened.');
         }
         if (field.name === 'date_of_accident') {
           const d = new Date(val);
@@ -894,6 +1197,17 @@
           }
         }
       });
+
+      // Body diagram check on step 2 — must have at least one region selected OR freeform text
+      if (step === 2) {
+        const otherEl = document.getElementById('bodyOther');
+        const otherVal = (otherEl?.value || '').trim();
+        if (bodyDxState.size === 0 && !otherVal) {
+          const dxField = document.getElementById('bodyDx')?.closest('.field');
+          if (dxField) dxField.classList.add('has-error');
+          errors.push('Please tap at least one body part on the diagram, or type one in the "Other body part" field.');
+        }
+      }
 
       // De-duplicate
       errors = [...new Set(errors)];
@@ -928,6 +1242,13 @@
         if (params.get(k)) utm[k] = params.get(k);
       });
 
+      // Build body_parts: union of clicked regions + freeform "other" field
+      const otherRaw = (document.getElementById('bodyOther')?.value || '').trim();
+      const otherParts = otherRaw
+        ? otherRaw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 10)
+        : [];
+      const bodyPartsArr = [...new Set([...bodyDxState, ...otherParts])];
+
       const payload = {
         first_name:           fd.get('first_name')?.trim(),
         last_name:            fd.get('last_name')?.trim(),
@@ -936,7 +1257,8 @@
         date_of_accident:     fd.get('date_of_accident'),
         employer_name:        fd.get('employer_name')?.trim(),
         accident_description: fd.get('accident_description')?.trim(),
-        injuries:             fd.get('injuries')?.trim(),
+        body_parts:           bodyPartsArr,
+        body_parts_other:     otherRaw || null,
         preferred_contact:    fd.get('preferred_contact') || 'either',
         best_time:            null,
         geo_lat:              null,
@@ -1027,6 +1349,5 @@
     });
   </script>
 
-<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
