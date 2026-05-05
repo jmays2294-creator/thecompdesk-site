@@ -160,6 +160,15 @@
     return `${m[2]}/${m[3]}/${m[1]}`;
   }
 
+  // stripRPrefix — the OC-400.1 form pre-prints 'R-' before the
+  // RepresentativeIDNo input area, so the user's stored value
+  // 'R-12345' would render as 'R- R-12345'. Accept any leading R/r
+  // followed by optional dash/whitespace, drop it, return the rest.
+  function stripRPrefix(s) {
+    return String(s || '').trim().replace(/^[Rr][\-\s]*/, '').trim();
+  }
+
+
   // floor5(n) — round dollars DOWN to nearest $5. Used for the
   // auto-populated "Fee Requested" field. Joel's spec: "the fee
   // requested should automatically generate the nearest $5 number
@@ -378,6 +387,11 @@
 
       // Date conversion: YYYY-MM-DD → MM/DD/YYYY
       if (OC400_DATE_KEYS.has(ctxKey)) value = formatDateMDY(value);
+
+      // Strip leading 'R-' from attorney_id — form pre-prints 'R-' as
+      // static text before the input area, so filling 'R-12345' would
+      // produce 'R- R-12345' on the rendered PDF.
+      if (ctxKey === 'attorneyId') value = stripRPrefix(value);
 
       try {
         if (typeof f.setText === 'function') { f.setText(sanitizeText(value)); filled.push({ name, ctxKey }); }
