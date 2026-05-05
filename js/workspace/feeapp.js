@@ -52,6 +52,28 @@
   };
   const SIGNATURE_RECT_PAGE2 = { x: 261, y: 690, width: 218, height: 30 };
 
+  // ------------------------------------------------------------------
+  // sanitizeText — pdf-lib's StandardFonts use WinAnsi (codepage 1252)
+  // which can't encode U+2212 (math minus) and a handful of other
+  // common Unicode chars that the workspace's equation builder emits
+  // for visual polish. Map the ones we know about to WinAnsi-safe
+  // equivalents BEFORE the string hits pdf-lib (form.setText, drawText,
+  // metadata, etc.). U+2014 em-dash IS preserved (WinAnsi has it at 0x97).
+  // ------------------------------------------------------------------
+  function sanitizeText(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/\u2212/g, '-')   // − minus sign
+      .replace(/\u2013/g, '-')   // – en-dash
+      .replace(/\u2010/g, '-')   // ‐ Unicode hyphen
+      .replace(/\u2018/g, "'")   // ' left single quote
+      .replace(/\u2019/g, "'")   // ' right single quote
+      .replace(/\u201C/g, '"')   // " left double quote
+      .replace(/\u201D/g, '"')   // " right double quote
+      .replace(/\u2026/g, '...') // … ellipsis
+      .replace(/\u00A0/g, ' ');  // non-breaking space
+  }
+
   // floor5(n) — round dollars DOWN to nearest $5. Used for the
   // auto-populated "Fee Requested" field. Joel's spec: "the fee
   // requested should automatically generate the nearest $5 number
@@ -267,7 +289,7 @@
       const value = ctx[ctxKey];
       if (value === undefined || value === null || value === '') continue;
       try {
-        if (typeof f.setText === 'function') { f.setText(String(value)); filled.push({ name, ctxKey }); }
+        if (typeof f.setText === 'function') { f.setText(sanitizeText(value)); filled.push({ name, ctxKey }); }
       } catch (e) { missed.push({ name, ctxKey, error: String(e) }); }
     }
     return { filled, missed };
@@ -283,7 +305,7 @@
     const draw = (text, opts = {}) => {
       const font = opts.bold ? helvB : helv;
       const size = opts.size || 11;
-      page.drawText(String(text || ''), { x: opts.x ?? margin, y: opts.y ?? y, size, font, color: rgb(0, 0, 0) });
+      page.drawText(sanitizeText(String(text || '')), { x: opts.x ?? margin, y: opts.y ?? y, size, font, color: rgb(0, 0, 0) });
       if (opts.y === undefined) y -= (opts.lh || size + 4);
     };
     const hr = (gap = 8) => { y -= gap; page.drawLine({ start: { x: margin, y }, end: { x: 612 - margin, y }, thickness: 0.5, color: rgb(0.7, 0.7, 0.7) }); y -= gap; };
@@ -319,7 +341,7 @@
     page.drawLine({ start: { x: margin, y }, end: { x: margin + 240, y }, thickness: 0.5, color: rgb(0, 0, 0) });
     y -= 14;
     draw(`Signed: ${ctx.dateSubmitted || new Date().toISOString().slice(0, 10)}`, { size: 10 });
-    page.drawText('This is a Comp Desk-generated draft. Replace with the official OC-400.1 form template before submission.',
+    page.drawText(sanitizeText('This is a Comp Desk-generated draft. Replace with the official OC-400.1 form template before submission.'),
       { x: margin, y: 30, size: 8, font: helv, color: rgb(0.5, 0.5, 0.5) });
   }
 
@@ -339,9 +361,9 @@
       if (r.ok) { const buf = await r.arrayBuffer(); pdfDoc = await PDFDocument.load(buf); usedTemplate = true; }
     } catch (e) {}
     if (!pdfDoc) pdfDoc = await PDFDocument.create();
-    pdfDoc.setTitle(`OC-400.1 — ${ctx.claimantName || 'Fee Application'}`);
-    pdfDoc.setAuthor(ctx.attorneyName || 'The Comp Desk');
-    pdfDoc.setProducer('The Comp Desk Pro Workspace');
+    pdfDoc.setTitle(sanitizeText(`OC-400.1 — ${ctx.claimantName || 'Fee Application'}`));
+    pdfDoc.setAuthor(sanitizeText(ctx.attorneyName || 'The Comp Desk'));
+    pdfDoc.setProducer(sanitizeText('The Comp Desk Pro Workspace'));
     if (usedTemplate) {
       try {
         const form = pdfDoc.getForm();
