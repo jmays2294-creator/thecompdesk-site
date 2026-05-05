@@ -1432,3 +1432,21 @@ footer.disclaimer {
   border-radius: 8px;
   font-size: 12px; color: var(--tx);
 }
+
+/* v1.2.3 — signature thumbnail in chooser cards + wizard help line */
+.feeapp-profile-sig-thumb {
+  display: block;
+  margin-top: 6px;
+  max-width: 180px;
+  max-height: 40px;
+  background: #fff;
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 2px;
+  object-fit: contain;
+}
+.feeapp-help {
+  font: 11px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx-faint);
+  margin-top: 4px;
+}

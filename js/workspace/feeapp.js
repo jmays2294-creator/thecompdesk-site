@@ -52,6 +52,16 @@
   };
   const SIGNATURE_RECT_PAGE2 = { x: 261, y: 690, width: 218, height: 30 };
 
+  // floor5(n) — round dollars DOWN to nearest $5. Used for the
+  // auto-populated "Fee Requested" field. Joel's spec: "the fee
+  // requested should automatically generate the nearest $5 number
+  // below the eligible fee." So $4,876.32 → $4,875; $5,000 → $5,000.
+  function floor5(x) {
+    const v = Number(x);
+    if (!isFinite(v) || v <= 0) return '';
+    return Math.floor(v / 5) * 5;
+  }
+
   // ------------------------------------------------------------------
   // Supabase helpers
   // ------------------------------------------------------------------
@@ -128,11 +138,12 @@
   function profileToCtx(profile) {
     if (!profile) return {};
     return {
-      attorneyName:    profile.attorney_name    || '',
-      attorneyId:      profile.attorney_id      || '',
-      attorneyPhone:   profile.attorney_phone   || '',
-      attorneyAddress: profile.attorney_address || '',
-      firmName:        profile.firm_name        || '',
+      attorneyName:      profile.attorney_name    || '',
+      attorneyId:        profile.attorney_id      || '',
+      attorneyPhone:     profile.attorney_phone   || '',
+      attorneyAddress:   profile.attorney_address || '',
+      firmName:          profile.firm_name        || '',
+      signatureDataUrl:  profile.signature_data_url || '',
     };
   }
 
@@ -156,7 +167,7 @@
   // ------------------------------------------------------------------
   // Signature canvas (HiDPI, mouse + touch + pen)
   // ------------------------------------------------------------------
-  function SignatureCanvas({ onChange }) {
+  function SignatureCanvas({ onChange, initialDataUrl }) {
     const canvasRef = useRef(null);
     const drawingRef = useRef(false);
     const lastRef = useRef({ x: 0, y: 0 });
@@ -210,6 +221,25 @@
       canvasRef.current.__getSignaturePNG = () => dirtyRef.current ? canvasRef.current.toDataURL('image/png') : null;
       canvasRef.current.__clearSignature = clear;
     }, []);
+
+    // Paint a stored signature onto the canvas when one is provided.
+    // Runs after the resize() useEffect so the canvas is sized correctly.
+    // Marks dirty=true so the parent's must-sign gate passes immediately.
+    useEffect(() => {
+      if (!initialDataUrl || !canvasRef.current) return;
+      const c = canvasRef.current;
+      const img = new Image();
+      img.onload = () => {
+        // Canvas transform is dpr-scaled in resize(); draw in CSS px.
+        const rect = c.getBoundingClientRect();
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        dirtyRef.current = true;
+        onChange?.(true);
+      };
+      img.src = initialDataUrl;
+    }, [initialDataUrl]);
 
     return (
       <div className="feeapp-sig-canvas-wrap">
@@ -369,12 +399,13 @@
   // ==================================================================
   function IntakeWizard({ initial, profileCount, onSave, onCancel, isEdit }) {
     const [p, setP] = useState({
-      label:            initial?.label            || '',
-      attorney_name:    initial?.attorney_name    || '',
-      attorney_id:      initial?.attorney_id      || '',
-      attorney_phone:   initial?.attorney_phone   || '',
-      attorney_address: initial?.attorney_address || '',
-      firm_name:        initial?.firm_name        || '',
+      label:              initial?.label              || '',
+      attorney_name:      initial?.attorney_name      || '',
+      attorney_id:        initial?.attorney_id        || '',
+      attorney_phone:     initial?.attorney_phone     || '',
+      attorney_address:   initial?.attorney_address   || '',
+      firm_name:          initial?.firm_name          || '',
+      signature_data_url: initial?.signature_data_url || '',
     });
     const [busy, setBusy] = useState(false);
     const [err, setErr] = useState('');
@@ -402,9 +433,19 @@
       if (!p.label.trim()) { setErr('Profile label is required (e.g. "Personal" or your firm name).'); return; }
       setBusy(true); setErr('');
       try {
+        // Capture signature if user drew one. The canvas exposes
+        // __getSignaturePNG which returns null when nothing was drawn —
+        // in edit mode we keep the existing sig (initial.signature_data_url);
+        // in create mode an unsigned profile saves with NULL signature.
+        const sigEl = document.querySelector('.feeapp-wizard-sig .feeapp-sig-canvas');
+        const drawnSig = sigEl?.__getSignaturePNG?.() || null;
+        const payload = {
+          ...p,
+          signature_data_url: drawnSig || (isEdit ? (initial.signature_data_url || null) : null),
+        };
         const result = isEdit
-          ? await updateProfile(initial.id, p)
-          : await createProfile(p);
+          ? await updateProfile(initial.id, payload)
+          : await createProfile(payload);
         if (!result.ok) { setErr('Save failed: ' + result.reason); setBusy(false); return; }
         onSave(result.profile);
       } catch (e) { setErr(String(e)); setBusy(false); }
@@ -462,6 +503,13 @@
               <input className="f-input" value={p.attorney_address}
                 onChange={e => set({ attorney_address: e.target.value })}/>
             </div>
+            <div className="f-group feeapp-wizard-sig">
+              <label className="f-label">Signature (optional — preloads on every fee app)</label>
+              <SignatureCanvas initialDataUrl={p.signature_data_url || ''} />
+              {p.signature_data_url && !isEdit && (
+                <div className="feeapp-help">A signature is already loaded from your profile seed. Re-sign here to replace it, or skip and we'll keep the existing one.</div>
+              )}
+            </div>
           </div>
 
           {err && <div className="feeapp-status error">{err}</div>}
@@ -498,6 +546,9 @@
                     {p.firm_name ? ' · ' + p.firm_name : ''}
                     {p.attorney_id ? ' · ' + p.attorney_id : ''}
                   </div>
+                  {p.signature_data_url && (
+                    <img className="feeapp-profile-sig-thumb" src={p.signature_data_url} alt="" />
+                  )}
                 </div>
                 <div className="feeapp-profile-actions">
                   <button className="btn tiny ghost" onClick={(e) => { e.stopPropagation(); onEdit(p); }}>Edit</button>
@@ -534,7 +585,7 @@
       wcbNumber:           initialContext?.wcbNumber           || '',
       doi:                 initialContext?.doi                 || '',
       aww:                 initialContext?.aww                 || '',
-      feeRequestedDollar:  initialContext?.feeRequested        || initialContext?.feeRequestedDollar || '',
+      feeRequestedDollar:  initialContext?.feeRequestedDollar || floor5(initialContext?.feeRequested) || '',
       feeEquation:         initialContext?.feeEquation         || '',
       attorneyName:        initialContext?.attorneyName        || '',
       attorneyId:          initialContext?.attorneyId          || '',
@@ -682,7 +733,7 @@
             </div>
             <div className="f-group">
               <label className="f-label">Signature</label>
-              <SignatureCanvas onChange={setHasSig} />
+              <SignatureCanvas onChange={setHasSig} initialDataUrl={activeProfile?.signature_data_url || ''} />
             </div>
           </div>
 
@@ -824,12 +875,13 @@
         onAddNew={onChooserAddNew}
         onCancel={onClose}/>;
     }
-    // 'modal' — merge the workspace ctx with the active profile's ctx
+    // 'modal' — merge the workspace ctx with the active profile's ctx.
+    // Profile WINS for the attorney/firm/signature keys (the workspace's
+    // attorneyName falls back to email-prefix garbage; we want the saved
+    // profile's full name). Workspace ctx still wins for case data —
+    // claimantName, wcbNumber, doi, aww, feeEquation, feeRequested —
+    // since profileToCtx doesn't include those keys.
     const merged = { ...(initialContext || {}), ...profileToCtx(activeProfile) };
-    // workspace ctx wins for fields it actually has values for; profile fills empties
-    for (const k of ['attorneyName','attorneyId','attorneyPhone','attorneyAddress','firmName']) {
-      if (initialContext && initialContext[k]) merged[k] = initialContext[k];
-    }
     return <FeeAppModal
       initialContext={merged}
       activeProfile={activeProfile}
