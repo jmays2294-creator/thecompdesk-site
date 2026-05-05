@@ -1256,8 +1256,12 @@ function App() {
       firmName:     '',
     };
     if (typeof window.buildEquation === 'function') {
-      try { ctx.feeEquation = window.buildEquation(tile, global)?.mono || ''; }
-      catch (e) { /* tile-specific failure is non-fatal */ }
+      try {
+        const eq = window.buildEquation(tile, global);
+        ctx.feeEquation = eq?.mono || '';
+        // Numeric eligible fee — feeapp.js floors to nearest $5 for autofill.
+        ctx.feeRequested = (typeof eq?.fee === 'number' && isFinite(eq.fee) && eq.fee > 0) ? eq.fee : 0;
+      } catch (e) { /* tile-specific failure is non-fatal */ }
     }
     window.WorkspaceFeeAppContext = ctx;
     if (typeof window.triggerFeeApp === 'function') window.triggerFeeApp(ctx);
