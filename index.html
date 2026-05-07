@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preload" as="image" href="assets/hero/comp-desk.png" fetchpriority="high">
+<link rel="preload" as="video" href="/assets/animations/login_loop_web.mp4" type="video/mp4" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hero/comp-desk.png">
 <title>The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker</title>
 <meta name="description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers. Built by a practicing WC attorney.">
 <meta name="keywords" content="workers compensation calculator, NYS, New York, schedule loss of use, SLU, AWW, LWEC, permanency guidelines, work injury, comp benefits">
@@ -65,8 +66,10 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .cta-btn.gold{background:var(--gd);color:#1a1200;}
 
 /* HERO */
-.hero{padding:140px 0 80px;text-align:center;position:relative;overflow:hidden;}
+.hero{padding:140px 0 80px;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,0.10) 0%,rgba(45,212,160,0.06) 40%,rgba(240,160,48,0.04) 65%,transparent 80%);pointer-events:none;}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:32px;align-items:center;text-align:center;position:relative;}
+.hero-copy{display:flex;flex-direction:column;align-items:center;}
 .hero .badge{display:inline-block;background:var(--acG);border:1px solid rgba(59,130,246,0.25);color:var(--ac);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
 .hero h1{font-size:clamp(36px,6vw,56px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
 .hero h1 span{color:var(--ac);}
@@ -74,14 +77,25 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .hero .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 .hero .attr{margin-top:32px;font-size:13px;color:var(--txM);}
 .hero .attr strong{color:var(--txD);}
-.hero .logo-anim{position:relative;width:min(280px,65vw);margin:0 auto 32px;}
-.hero .logo-anim img{width:100%;height:auto;display:block;animation:logoFadeIn 1.2s ease-out both;}
-.hero .logo-anim::after{content:'';position:absolute;inset:-12%;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.18) 0%,rgba(45,212,160,0.08) 50%,transparent 72%);animation:logoPulse 3s ease-in-out infinite;pointer-events:none;z-index:-1;}
-@keyframes logoFadeIn{0%{opacity:0;transform:scale(0.92) translateY(12px);}100%{opacity:1;transform:scale(1) translateY(0);}}
-@keyframes logoPulse{0%,100%{opacity:0.6;transform:scale(1);}50%{opacity:1;transform:scale(1.06);}}
+.hero-media{position:relative;width:100%;display:flex;justify-content:center;align-items:center;}
+.hero-media::after{content:'';position:absolute;inset:-8%;border-radius:24px;background:radial-gradient(circle,rgba(59,130,246,0.22) 0%,rgba(45,212,160,0.08) 55%,transparent 75%);pointer-events:none;z-index:-1;filter:blur(8px);animation:heroPulse 4s ease-in-out infinite;}
+.hero-video{width:100%;max-width:380px;aspect-ratio:9/16;background:#0a0f1a;border-radius:16px;overflow:hidden;display:block;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.45),0 0 0 1px rgba(59,130,246,0.20);}
+.hero-fallback{display:none;width:100%;max-width:280px;height:auto;}
+@keyframes heroPulse{0%,100%{opacity:0.55;transform:scale(1);}50%{opacity:1;transform:scale(1.04);}}
+@media(min-width:900px){
+  .hero-grid{grid-template-columns:1fr 380px;text-align:left;gap:56px;}
+  .hero-copy{align-items:flex-start;}
+  .hero .sub{margin-left:0;margin-right:0;}
+  .hero .ctas{justify-content:flex-start;}
+  .hero-media{justify-content:flex-end;}
+}
+@media(max-width:600px){
+  .hero-video{max-width:100%;max-height:70vh;width:auto;}
+}
 @media (prefers-reduced-motion: reduce){
-  .hero .logo-anim img{animation:none;}
-  .hero .logo-anim::after{animation:none;}
+  .hero-video{display:none;}
+  .hero-fallback{display:block;}
+  .hero-media::after{animation:none;}
 }
 
 /* STATS */
@@ -160,18 +174,23 @@ footer a{color:var(--txD);}
 </nav>
 
 <section class="hero">
-  <div class="wrap">
-    <div class="badge">Free for injured workers</div>
-    <div class="logo-anim" aria-label="The Comp Desk logo">
-      <img src="assets/hero/comp-desk.png" alt="The Comp Desk" width="420" height="420" fetchpriority="high" decoding="async">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="badge">Free for injured workers</div>
+      <h1>Injured at work?<br>You're <span>not alone.</span></h1>
+      <p class="sub">The Comp Desk helps you understand your benefits, track your case, and connect with an attorney — all in one free app. Know your comp. Fight for your rights.</p>
+      <div class="ctas">
+        <a href="calculators/" class="cta-btn">Explore Free Calculators</a>
+        <a href="/connect-with-attorney.html" class="cta-btn outline">Find an Attorney</a>
+      </div>
+      <p class="attr">Built by a practicing NYS Workers' Compensation attorney. <strong>Always free for injured workers.</strong></p>
     </div>
-    <h1>Injured at work?<br>You're <span>not alone.</span></h1>
-    <p class="sub">The Comp Desk helps you understand your benefits, track your case, and connect with an attorney — all in one free app. Know your comp. Fight for your rights.</p>
-    <div class="ctas">
-      <a href="calculators/" class="cta-btn">Explore Free Calculators</a>
-      <a href="/connect-with-attorney.html" class="cta-btn outline">Find an Attorney</a>
+    <div class="hero-media" aria-label="The Comp Desk app login animation">
+      <video autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true" class="hero-video">
+        <source src="/assets/animations/login_loop_web.mp4" type="video/mp4">
+      </video>
+      <img class="hero-fallback" src="assets/hero/comp-desk.png" alt="The Comp Desk" width="420" height="420" decoding="async">
     </div>
-    <p class="attr">Built by a practicing NYS Workers' Compensation attorney. <strong>Always free for injured workers.</strong></p>
   </div>
 </section>
 
@@ -422,7 +441,7 @@ sb.auth.onAuthStateChange((event, session) => {
 
 initAuth();
 </script>
-<!-- Hero animation: CSS-only logo pulse. Replace with Lottie/video when app animation is exported. -->
+<!-- Hero animation: Haring-style login loop video (MP4). Falls back to brand glyph for prefers-reduced-motion. -->
 <script src="/js/disclaimer.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
