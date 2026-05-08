@@ -956,8 +956,8 @@
     const SUPABASE_URL  = 'https://ltibymvlytodkemdeeox.supabase.co';
     const EDGE_FN_URL   = SUPABASE_URL + '/functions/v1/submit-attorney-lead';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
-    // Turnstile: use test key in dev, replace with real key in production
-    const TURNSTILE_SITE_KEY = '0x4AAAAAABcKJ1234567890A'; // Replace with real Cloudflare Turnstile site key
+    // Cloudflare Turnstile site key for thecompdesk.com (configured in Joel's CF account)
+    const TURNSTILE_SITE_KEY = '0x4AAAAAADLKXPKaU6fJEY7f';
 
     let currentStep = 1;
     let turnstileWidgetId = null;
@@ -1278,6 +1278,22 @@
 
       const errEl = document.getElementById('err3');
 
+      // ── error_code → UX mapping ───────────────────────────────
+      // submit-attorney-lead returns:
+      //   200 { ok:true, error_code:null }                      → matched cleanly
+      //   200 { ok:true, error_code:'NO_ATTORNEY_AVAILABLE' }   → saved, manual followup
+      //   200 { ok:true, error_code:'REFERRAL_CREATE_FAILED' }  → saved, manual followup
+      //   200 { ok:true, error_code:'ASSIGN_CHAIN_ERROR' }      → saved, manual followup
+      //   4xx/5xx { error_code:'VALIDATION_FAILED'|'CAPTCHA_FAILED'|'RATE_LIMIT_*'|'INSERT_FAILED'|... }
+      const SOFT_FAIL_CODES = new Set([
+        'NO_ATTORNEY_AVAILABLE',
+        'REFERRAL_CREATE_FAILED',
+        'ASSIGN_FAILED',
+        'ASSIGN_CHAIN_ERROR',
+      ]);
+      const SOFT_FAIL_HEADLINE = "Thanks — we've got your case";
+      const SOFT_FAIL_BODY = "We received your case. No attorney was available to take it automatically right now — our team will follow up with you within one business day.";
+
       try {
         const res = await fetch(EDGE_FN_URL, {
           method: 'POST',
@@ -1289,22 +1305,56 @@
           body: JSON.stringify(payload),
         });
 
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
         if (res.ok && data.ok) {
-          // Show confirmation
+          // Lead was saved. Now branch on error_code:
           document.getElementById('wizProgress').style.display = 'none';
           document.querySelectorAll('.wiz-step').forEach(el => {
             el.classList.remove('active');
             el.style.display = 'none';
           });
-          const confirm = document.getElementById('confirmScreen');
-          confirm.style.display = 'block';
+          const confirmEl = document.getElementById('confirmScreen');
+          confirmEl.style.display = 'block';
+
+          if (data.error_code && SOFT_FAIL_CODES.has(data.error_code)) {
+            // Saved but unmatched — switch the copy to the soft-fail message
+            const h3 = confirmEl.querySelector('h3');
+            const ps = confirmEl.querySelectorAll('p');
+            if (h3) h3.textContent = SOFT_FAIL_HEADLINE;
+            if (ps[0]) ps[0].textContent = SOFT_FAIL_BODY;
+            if (ps[1]) ps[1].textContent = '';
+          }
+
           if (data.id) {
             document.getElementById('confirmRef').textContent = 'Ref: ' + data.id.substring(0, 8).toUpperCase();
           }
         } else {
-          throw new Error(data.error || 'Submission failed. Please try again.');
+          // True error. Map error_code to user-facing copy.
+          const code = data.error_code || 'UNKNOWN';
+          let msg;
+          switch (code) {
+            case 'VALIDATION_FAILED':
+              msg = data.error || 'Please double-check your form and try again.';
+              break;
+            case 'CAPTCHA_FAILED':
+            case 'MISSING_CAPTCHA':
+              msg = "We couldn't verify the CAPTCHA. Please complete it and resubmit.";
+              break;
+            case 'RATE_LIMIT_IP_HOUR':
+            case 'RATE_LIMIT_IP_DAY':
+            case 'RATE_LIMIT_EMAIL_DAY':
+            case 'RATE_LIMIT_PHONE_DAY':
+              msg = data.error || "You've already submitted recently. Please wait before trying again.";
+              break;
+            case 'INSERT_FAILED':
+            case 'INVALID_JSON':
+            case 'METHOD_NOT_ALLOWED':
+            case 'UNKNOWN':
+            default:
+              msg = "Something went wrong on our end. Please try again, or call us directly if it keeps happening.";
+          }
+          throw new Error(msg);
         }
       } catch (err) {
         if (errEl) {
