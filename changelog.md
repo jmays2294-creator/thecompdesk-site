@@ -5,6 +5,14 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-07
+
+### Workspace opens to public demo (commit `00dd752`)
+- **`/workspace/`** — dropped the `getUser()` redirect-to-`/auth_v2.html` gate and the `hasAccess(tier, TIERS.PRO)` upgrade-wall. Anonymous visitors now load the React canvas at `tier='free'`. Per-tab paywall (1 synced tab on Free, unlimited on Pro/Firm) and the `feeapp.js` Pro gate are unchanged — monetization moves from a hard auth wall to the existing in-canvas tier checks.
+- **Why:** `/for-attorneys` already advertises **"Open the Workspace — Free"** and **"Everything in the free Workspace"** under Pro pricing. The auth wall on `/workspace/` contradicted that copy. This commit closes the gap.
+- **Implementation:** `getOptionalUser()` instead of `getUser()`; `renderPublicNav` for guests, `renderNav` for signed-in users; `persistence.js` + `sync.js` only loaded when authed (the React app already degrades to `saveStatus='offline'` when `WorkspacePersistence` is absent). Status indicator gains `Guest demo · sign in to save` and `Free · 1 tab synced` states. The `<div class="upgrade-wall">` markup is retained but never activated, so a future revert is one `display:block` away.
+- **Vercel deploy:** `dpl_FDhLUQtW5ThzgprYszBDydTJqKrE`, READY, production target.
+
 ## 2026-04-19
 
 ### Sitemap patch (commit `43a01a9`)
