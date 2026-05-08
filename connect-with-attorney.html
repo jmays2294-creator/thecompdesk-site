@@ -666,7 +666,7 @@
 
             <div class="field">
               <label>What Happened? <span class="req">*</span></label>
-              <textarea name="accident_description" placeholder="Briefly — e.g., fell, slipped, hit, attacked." required minlength="3" maxlength="1500"></textarea>
+              <textarea name="accident_description" placeholder="Briefly — e.g., fell, slipped, hit, attacked." required></textarea>
               <div class="hint">A word or two is fine. More detail helps the attorney prepare.</div>
             </div>
 
@@ -1185,10 +1185,8 @@
             errors.push('Please enter a valid 10-digit phone number.');
           }
         }
-        if (field.name === 'accident_description' && val.length < 3) {
-          if (parent) parent.classList.add('has-error');
-          errors.push('Please give us at least a word about what happened.');
-        }
+        // accident_description: only enforces required (handled above by !val check).
+        // No min/max char limits per directive 2026-05-08.
         if (field.name === 'date_of_accident') {
           const d = new Date(val);
           if (isNaN(d.getTime()) || d > new Date()) {

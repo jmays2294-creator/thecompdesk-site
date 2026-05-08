@@ -5,13 +5,53 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-08
+
+### Fix: injured-worker intake wizard not submitting (commit `896ec47`, edge fn v3.3)
+- **Symptom**: Step 3 of `/connect-with-attorney` returned `"injuries must be 5-1000 chars"` and blocked submission even with full form data.
+- **Root cause**: The `submit-attorney-lead` edge function expected an `injuries` string field, but the web client (since the body-diagram refactor on 2026-05-06) sends `body_parts` (array) + `body_parts_other` (string) and no `injuries` field. Server saw empty `injuries`, failed the `< 5 chars` check, returned `VALIDATION_FAILED`.
+- **Fixes** (paired client + server):
+  - **Edge function v3.3**: Removed the 5–1000 char limit on `injuries` per directive. Server now derives `injuries` from `body_parts` + `body_parts_other` when the field isn't sent. Validation only requires that something be present (single body part fine).
+  - **`connect-with-attorney.html`**: Client now composes `injuries` from selected body regions + freeform "Other body part" text and sends it in the payload. Removed `maxlength="200"` cap on the "Other body part" input. Removed the `.slice(0, 10)` cap on freeform parts. No character ceiling on injuries anywhere in the flow now.
+- **Impact**: Wizard submissions that select at least one body region (or type one in the freeform field) now succeed end-to-end. iOS path unchanged but covered by the same server-side derivation when it ships.
+
+---
+
 ## 2026-05-07
 
-### Workspace opens to public demo (commit `00dd752`)
-- **`/workspace/`** — dropped the `getUser()` redirect-to-`/auth_v2.html` gate and the `hasAccess(tier, TIERS.PRO)` upgrade-wall. Anonymous visitors now load the React canvas at `tier='free'`. Per-tab paywall (1 synced tab on Free, unlimited on Pro/Firm) and the `feeapp.js` Pro gate are unchanged — monetization moves from a hard auth wall to the existing in-canvas tier checks.
-- **Why:** `/for-attorneys` already advertises **"Open the Workspace — Free"** and **"Everything in the free Workspace"** under Pro pricing. The auth wall on `/workspace/` contradicted that copy. This commit closes the gap.
-- **Implementation:** `getOptionalUser()` instead of `getUser()`; `renderPublicNav` for guests, `renderNav` for signed-in users; `persistence.js` + `sync.js` only loaded when authed (the React app already degrades to `saveStatus='offline'` when `WorkspacePersistence` is absent). Status indicator gains `Guest demo · sign in to save` and `Free · 1 tab synced` states. The `<div class="upgrade-wall">` markup is retained but never activated, so a future revert is one `display:block` away.
-- **Vercel deploy:** `dpl_FDhLUQtW5ThzgprYszBDydTJqKrE`, READY, production target.
+### Homepage reorientation: injured-worker first (commit `dcbdb40`)
+- **Strategic shift**: Home page (`index.html`) is now exclusively a **Comp Buddy / injured-worker** experience. All Pro/Firm attorney content moved off the home page to keep the worker journey clean.
+- **Hero** retained ("Injured at work? You're not alone.") but body copy rewritten to lead with Comp Buddy: find a doctor, never miss an IME, understand your rights, connect with an attorney.
+- **CTAs**: "Find an Attorney" (green primary) + "Explore Free Tools" (outline). Removed "Explore Free Calculators" as primary CTA (calculators still in features grid).
+- **Stats row** rewritten — replaced calculator-count / guidelines technical stats with worker-facing stats: $0 always free, WCB-authorized provider search, 24/7 in your pocket, NY-focused.
+- **Features grid** replaced — 6 cards: Find a WCB-Authorized Doctor, IME Reminders, Learn Your Rights, Find an Attorney, Free Benefit Calculators, Case Tracker. Case Tracker tagged "In Development" (the only feature not yet shipped).
+- **Pricing section** completely replaced — single "Always Free" Comp Buddy card ($0, "for every injured worker in New York State") with feature checklist; Pro/Firm tier grid removed entirely. Case Tracker line carries "In Dev" sub-tag inside the pricing card too.
+- **New "Are you a WC Attorney?" callout banner** added between pricing and About — gold-gradient card pointing attorneys to `/for-attorneys` and `/workspace/`. Keeps attorney funnel visible without crowding the worker journey.
+- **About section** rewritten to make the Comp Buddy mission explicit: "we built Comp Buddy" framing, lists Find a Doctor, IME Reminders, learning portal, attorney network as the named pillars. Closes with "Know your comp. Fight for your rights."
+- **Download section** reframed "Get Comp Buddy" instead of "Get The Comp Desk".
+- **Nav** simplified for workers: Learn / Tools / Pricing / Find Attorney / For Attorneys / Sign In. Removed Calculators from nav (still discoverable via features grid + For Attorneys).
+
+### For Attorneys page — full calculator showcase (commit `dcbdb40`)
+- **New `<section class="calcs" id="calculators">`** added between hero and pain points on `for-attorneys.html`. 9-card grid: Pro Workspace (free), CCP & Award (free), AWW (free), SLU (Pro), LWEC (free), Statutory Rates (free), Radiculopathy (Pro), Spine & Brain (Pro), See All Calculators link.
+- Every card is a clickable link to its calculator page, with a Free / Pro tier badge.
+- **Nav updated**: Calculators anchor now points to `#calculators` (within-page anchor) instead of `/calculators/`. Added Home link as first nav item.
+
+### Find an Attorney modal — Cloudflare Turnstile fix end-to-end (commit `a0f0224`)
+- **Site key wired up** — replaced placeholder `0x4AAAAAABcKJ1234567890A` in `connect-with-attorney.html` with real Cloudflare Turnstile site key `0x4AAAAAADLKXPKaU6fJEY7f`. New Cloudflare Turnstile site provisioned in Joel's CF account (Jmays2294@gmail.com) for `thecompdesk.com` + `www.thecompdesk.com`, Managed challenge mode.
+- **Verified end-to-end in browser**: widget renders inside the wizard step 3, issues a real validation token (`0.dYuHeo-...`), populates the hidden `cf-turnstile-response` input. Form is no longer blocked at submission.
+- **Supabase secret set** — `TURNSTILE_SECRET_KEY` set on project `ltibymvlytodkemdeeox` via `supabase secrets set TURNSTILE_SECRET_KEY=… --project-ref ltibymvlytodkemdeeox`. The deployed `submit-attorney-lead` edge function (v9) reads this secret in `verifyTurnstile()` and now actually validates tokens against `https://challenges.cloudflare.com/turnstile/v0/siteverify` instead of failing open. Bot protection is now real.
+- **Bonus error-handling improvements** that had been sitting uncommitted in working copy went live with this commit: `SOFT_FAIL_CODES` set (`NO_ATTORNEY_AVAILABLE`, `REFERRAL_CREATE_FAILED`, `ASSIGN_FAILED`, `ASSIGN_CHAIN_ERROR`) → render the soft-fail confirmation copy instead of an error; explicit `error_code` → user-facing copy mapping for `VALIDATION_FAILED`, `CAPTCHA_FAILED`, `MISSING_CAPTCHA`, `RATE_LIMIT_*`, `INSERT_FAILED`, fallthrough.
+
+### Two commits, both auto-deployed by Vercel
+- `dcbdb40` — Reorganize homepage for injured workers (Comp Buddy focus); move attorney/calculator content to For Attorneys
+- `a0f0224` — Wire real Cloudflare Turnstile site key + improve attorney-lead error handling
+
+### Open follow-ups (next session)
+- **Sitemap.xml** unchanged — same URL set, but home page content is materially different. Consider a forced re-index of `/` and `/for-attorneys` via Search Console URL Inspection given the substantial content shift.
+- **OG images** for `/` still reference the old calculator framing — refresh `/images/og-home.png` to a Comp Buddy-themed image when convenient.
+- **Case Tracker** is the only "In Dev" feature surfaced on the home page — track in `comp_buddy_tracker.md`.
+
+---
 
 ## 2026-04-19
 
