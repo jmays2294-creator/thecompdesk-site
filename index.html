@@ -5,21 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preload" as="video" href="/assets/animations/login_loop_web.mp4" type="video/mp4" fetchpriority="high">
 <link rel="preload" as="image" href="assets/hero/comp-desk.png">
-<title>The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker</title>
-<meta name="description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers. Built by a practicing WC attorney.">
-<meta name="keywords" content="workers compensation calculator, NYS, New York, schedule loss of use, SLU, AWW, LWEC, permanency guidelines, work injury, comp benefits">
+<title>The Comp Desk — Free Workers' Compensation Companion for Injured NY Workers</title>
+<meta name="description" content="Comp Buddy by The Comp Desk is the free companion app for injured New York workers. Find a WCB-authorized doctor, get IME reminders, understand your rights, and connect with an experienced attorney — all in one place.">
+<meta name="keywords" content="injured worker NY, workers compensation help New York, find workers comp doctor, IME reminder, free workers comp app, NYS workers comp, find a workers comp attorney, comp buddy">
 
 <!-- Open Graph -->
-<meta property="og:title" content="The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker">
-<meta property="og:description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers.">
+<meta property="og:title" content="The Comp Desk — Free Workers' Compensation Companion for Injured NY Workers">
+<meta property="og:description" content="Comp Buddy is the free companion app for injured workers in New York. Find a doctor, get IME reminders, learn your rights, and connect with an attorney.">
 <meta property="og:image" content="https://www.thecompdesk.com/images/og-home.png">
 <meta property="og:url" content="https://www.thecompdesk.com/">
 <meta property="og:type" content="website">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Comp Desk — NYS Workers' Compensation Calculator & Permanency Checker">
-<meta name="twitter:description" content="The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines. Free for injured workers.">
+<meta name="twitter:title" content="The Comp Desk — Free Workers' Compensation Companion for Injured NY Workers">
+<meta name="twitter:description" content="Comp Buddy is the free companion app for injured workers in New York. Find a doctor, get IME reminders, learn your rights, and connect with an attorney.">
 <meta name="twitter:image" content="https://www.thecompdesk.com/images/og-home.png">
 
 <!-- Canonical -->
@@ -32,10 +32,10 @@
   "@type": "WebSite",
   "name": "The Comp Desk",
   "url": "https://www.thecompdesk.com/",
-  "description": "The most comprehensive NYS Workers' Compensation calculator app. Calculate AWW, SLU, LWEC, CCP awards, and check permanency guidelines.",
+  "description": "Comp Buddy by The Comp Desk is the free companion app for injured New York workers — find a WCB-authorized doctor, get IME reminders, learn your rights, and connect with an experienced attorney.",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://www.thecompdesk.com/calculators/?q={search_term_string}",
+    "target": "https://www.thecompdesk.com/learn/?q={search_term_string}",
     "query-input": "required name=search_term_string"
   }
 }
@@ -64,6 +64,7 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
 .cta-btn.outline:hover{background:var(--acG);}
 .cta-btn.gold{background:var(--gd);color:#1a1200;}
+.cta-btn.green{background:var(--gn);color:#0a1a14;}
 
 /* HERO */
 .hero{padding:140px 0 80px;position:relative;overflow:hidden;}
@@ -110,28 +111,41 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .features h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:12px;}
 .features .sub{text-align:center;color:var(--txD);font-size:16px;margin-bottom:48px;max-width:560px;margin-left:auto;margin-right:auto;}
 .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
-.feat-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:28px 24px;transition:border-color 0.2s,transform 0.2s;}
-.feat-card:hover{border-color:var(--ac);transform:translateY(-2px);}
+.feat-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:28px 24px;transition:border-color 0.2s,transform 0.2s;display:block;color:inherit;text-decoration:none;}
+.feat-card:hover{border-color:var(--ac);transform:translateY(-2px);text-decoration:none;}
 .feat-card .icon{font-size:28px;margin-bottom:12px;}
 .feat-card h3{font-size:16px;font-weight:700;color:var(--wh);margin-bottom:8px;}
 .feat-card p{font-size:14px;color:var(--txD);line-height:1.6;}
 .feat-card .tag{display:inline-block;margin-top:12px;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
 .tag-free{background:rgba(45,212,160,0.12);color:var(--gn);}
-.tag-pro{background:rgba(240,160,48,0.12);color:var(--gd);}
+.tag-dev{background:rgba(240,160,48,0.12);color:var(--gd);}
 
 /* TIERS */
 .tiers{padding:80px 0;background:var(--card);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
-.tiers h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:48px;}
-.tier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:900px;margin:0 auto;}
-.tier-card{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:32px 24px;text-align:center;}
-.tier-card.featured{border-color:var(--ac);box-shadow:0 0 30px rgba(59,130,246,0.15);}
-.tier-card .tier-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txD);margin-bottom:8px;}
-.tier-card .tier-price{font-size:36px;font-weight:900;color:var(--wh);margin-bottom:4px;font-family:'JetBrains Mono',monospace;}
+.tiers h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:12px;}
+.tiers .sub{text-align:center;color:var(--txD);font-size:16px;margin-bottom:48px;max-width:560px;margin-left:auto;margin-right:auto;}
+.tier-grid{display:grid;grid-template-columns:1fr;gap:20px;max-width:520px;margin:0 auto;}
+.tier-card{background:var(--bg);border:1px solid var(--bd);border-radius:16px;padding:40px 32px;text-align:center;}
+.tier-card.featured{border-color:var(--gn);box-shadow:0 0 40px rgba(45,212,160,0.18);position:relative;}
+.tier-card.featured::before{content:'Always Free';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gn);color:#0a1a14;padding:4px 16px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-card .tier-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gn);margin-bottom:8px;}
+.tier-card .tier-price{font-size:48px;font-weight:900;color:var(--wh);margin-bottom:4px;font-family:'JetBrains Mono',monospace;}
 .tier-card .tier-price span{font-size:16px;color:var(--txD);font-weight:500;}
-.tier-card .tier-desc{font-size:13px;color:var(--txM);margin-bottom:20px;}
-.tier-card ul{list-style:none;text-align:left;margin-bottom:24px;}
-.tier-card li{font-size:13px;color:var(--txD);padding:6px 0;border-bottom:1px solid rgba(28,45,74,0.3);display:flex;align-items:center;gap:8px;}
-.tier-card li::before{content:'✓';color:var(--gn);font-weight:700;font-size:12px;}
+.tier-card .tier-desc{font-size:14px;color:var(--txM);margin-bottom:24px;}
+.tier-card ul{list-style:none;text-align:left;margin-bottom:28px;}
+.tier-card li{font-size:14px;color:var(--txD);padding:8px 0;border-bottom:1px solid rgba(28,45,74,0.3);display:flex;align-items:center;gap:8px;}
+.tier-card li::before{content:'✓';color:var(--gn);font-weight:700;font-size:13px;flex-shrink:0;}
+.tier-card li.dev{color:var(--txM);}
+.tier-card li.dev::before{content:'🛠';color:var(--gd);}
+.tier-card li .dev-tag{margin-left:auto;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gd);background:rgba(240,160,48,0.12);padding:2px 8px;border-radius:4px;}
+
+/* ATTORNEY CALLOUT */
+.attorney-callout{padding:60px 0;border-top:1px solid var(--bd);}
+.callout-card{background:linear-gradient(135deg,rgba(240,160,48,0.08),rgba(59,130,246,0.06));border:1px solid rgba(240,160,48,0.25);border-radius:16px;padding:40px 32px;text-align:center;}
+.callout-card .eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gd);margin-bottom:8px;}
+.callout-card h2{font-size:clamp(22px,3.5vw,30px);font-weight:800;color:var(--wh);margin-bottom:12px;}
+.callout-card p{color:var(--txD);max-width:640px;margin:0 auto 24px;font-size:15px;}
+.callout-card .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 
 /* ABOUT */
 .about{padding:80px 0;}
@@ -150,7 +164,6 @@ footer a{color:var(--txD);}
   nav .links a:not(.cta-btn):not([href="/calculators/"]){display:none;}
   .stats .inner{gap:24px;}
   .stat .num{font-size:24px;}
-  .tier-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -160,12 +173,10 @@ footer a{color:var(--txD);}
   <div class="inner">
     <div class="logo">The <span>Comp</span> Desk</div>
     <div class="links">
-      <a href="/calculators/" style="color:var(--ac);font-weight:700;">Calculators</a>
-      <a href="/workspace/" style="color:var(--gn);font-weight:700;">Workspace</a>
-      <a href="#features">Features</a>
+      <a href="/learn">Learn</a>
+      <a href="#features">Tools</a>
       <a href="#pricing">Pricing</a>
-      <a href="#about">About</a>
-      <a href="/connect-with-attorney.html">Find Attorney</a>
+      <a href="/connect-with-attorney.html" style="color:var(--gn);font-weight:700;">Find Attorney</a>
       <a href="/for-attorneys" style="color:var(--gd);font-weight:700;">For Attorneys</a>
       <a href="/auth_v2.html" class="cta-btn" id="nav-auth">Sign In</a>
       <a href="/account.html" class="cta-btn" id="nav-account" style="display:none;">My Account</a>
@@ -176,12 +187,12 @@ footer a{color:var(--txD);}
 <section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <div class="badge">Free for injured workers</div>
+      <div class="badge">Always Free for Injured Workers</div>
       <h1>Injured at work?<br>You're <span>not alone.</span></h1>
-      <p class="sub">The Comp Desk helps you understand your benefits, track your case, and connect with an attorney — all in one free app. Know your comp. Fight for your rights.</p>
+      <p class="sub">Comp Buddy is your free companion through every step of a New York workers' compensation case. Find an authorized doctor, never miss an IME, understand your rights, and connect with an experienced attorney — all in one app.</p>
       <div class="ctas">
-        <a href="calculators/" class="cta-btn">Explore Free Calculators</a>
-        <a href="/connect-with-attorney.html" class="cta-btn outline">Find an Attorney</a>
+        <a href="/connect-with-attorney.html" class="cta-btn green">Find an Attorney</a>
+        <a href="#features" class="cta-btn outline">Explore Free Tools</a>
       </div>
       <p class="attr">Built by a practicing NYS Workers' Compensation attorney. <strong>Always free for injured workers.</strong></p>
     </div>
@@ -196,55 +207,53 @@ footer a{color:var(--txD);}
 
 <section class="stats">
   <div class="inner">
-    <div class="stat"><div class="num">5</div><div class="label">Calculator modules</div></div>
-    <div class="stat"><div class="num">2018</div><div class="label">Permanency Guidelines</div></div>
-    <div class="stat"><div class="num">2012</div><div class="label">Impairment Guide</div></div>
-    <div class="stat"><div class="num">40+</div><div class="label">Years of statutory rates</div></div>
+    <div class="stat"><div class="num">$0</div><div class="label">Always free for workers</div></div>
+    <div class="stat"><div class="num">WCB</div><div class="label">Authorized provider search</div></div>
+    <div class="stat"><div class="num">24/7</div><div class="label">Help, in your pocket</div></div>
+    <div class="stat"><div class="num">NY</div><div class="label">Workers' Comp focused</div></div>
   </div>
 </section>
 
 <section class="features" id="features">
   <div class="wrap">
-    <h2>Everything you need. One app.</h2>
-    <p class="sub">Whether you're an attorney at a hearing or a worker checking your benefits, The Comp Desk has every tool in one place.</p>
+    <h2>Everything an injured worker needs.</h2>
+    <p class="sub">From the day you get hurt to the day your case closes — Comp Buddy walks with you, every step of the way.</p>
     <div class="feat-grid">
-      <a href="/workspace/" style="text-decoration:none;color:inherit;">
-        <div class="feat-card" style="border-color:rgba(45,212,160,0.35);">
-          <div class="icon">🧰</div>
-          <h3>Pro Attorney Workspace · Free</h3>
-          <p>Every calculator on one canvas. Drag, drop, switch between cases. AWW once, every tile updates.</p>
-          <span class="tag tag-free">Free</span>
-        </div>
+      <a href="/tools/find-doctor.html" class="feat-card">
+        <div class="icon">🏥</div>
+        <h3>Find a WCB-Authorized Doctor</h3>
+        <p>Search the New York Workers' Compensation Board's authorized provider directory by location, specialty, and body part. Get the right care, fast.</p>
+        <span class="tag tag-free">Free</span>
       </a>
-      <div class="feat-card">
-        <div class="icon">💰</div>
-        <h3>CCP & Award Calculator</h3>
-        <p>Multi-period entries with TT/TP/TR/RE/NME/NCLT designations. Auto-rate from AWW. Fee app equation generator with copy-to-clipboard.</p>
+      <a href="/tools/ime-reminders.html" class="feat-card">
+        <div class="icon">📅</div>
+        <h3>IME Reminders</h3>
+        <p>Never miss an Independent Medical Exam. Automatic notifications, directions to the appointment, and a "What to Bring" checklist so you arrive prepared.</p>
         <span class="tag tag-free">Free</span>
-      </div>
-      <div class="feat-card">
-        <div class="icon">📊</div>
-        <h3>AWW Calculator</h3>
-        <p>4/5/6/7-day weeks. Salary or hourly. Concurrent employment with composite AWW. Amending AWW with differential awards. Full rate table.</p>
+      </a>
+      <a href="/learn" class="feat-card">
+        <div class="icon">📚</div>
+        <h3>Learn Your Rights</h3>
+        <p>Plain-language guides and videos that explain how workers' comp actually works in New York — what to file, what to expect, and what you're entitled to.</p>
         <span class="tag tag-free">Free</span>
-      </div>
-      <div class="feat-card">
-        <div class="icon">🦿</div>
-        <h3>SLU Permanency Checker</h3>
-        <p>Enter a doctor's ROM finding → instant SLU percentage. Shoulder, elbow, wrist, knee, hip, ankle. 2018 NYS Permanency Guidelines built in.</p>
-        <span class="tag tag-pro">Pro</span>
-      </div>
-      <div class="feat-card">
+      </a>
+      <a href="/connect-with-attorney.html" class="feat-card">
         <div class="icon">⚖️</div>
-        <h3>LWEC / Classification</h3>
-        <p>Enter LWEC percentage → auto bracket lookup, classification rate, max weeks, total award, and attorney fee calculation.</p>
+        <h3>Find an Attorney</h3>
+        <p>Connect with an experienced NYS Workers' Compensation attorney through our neutral, round-robin referral network. No paid placement, no spam — just real help.</p>
         <span class="tag tag-free">Free</span>
-      </div>
-      <div class="feat-card">
-        <div class="icon">📋</div>
-        <h3>Statutory Rate Reference</h3>
-        <p>Complete history of NYS max and min weekly rates from 1985 to present. Auto-lookup by date of accident. Future-proofed with indexed minimums.</p>
+      </a>
+      <a href="/calculators/" class="feat-card">
+        <div class="icon">🧮</div>
+        <h3>Free Benefit Calculators</h3>
+        <p>Estimate your average weekly wage, indemnity rate, and award amounts using the same calculators built for attorneys. Understand the numbers in your case.</p>
         <span class="tag tag-free">Free</span>
+      </a>
+      <div class="feat-card" style="opacity:0.85;cursor:default;">
+        <div class="icon">📍</div>
+        <h3>Case Tracker</h3>
+        <p>One place to see every hearing, decision, and deadline in your case. Get plain-English explanations of what each event means and what comes next.</p>
+        <span class="tag tag-dev">In Development</span>
       </div>
     </div>
   </div>
@@ -252,49 +261,37 @@ footer a{color:var(--txD);}
 
 <section class="tiers" id="pricing">
   <div class="wrap">
-    <h2>Simple, fair pricing</h2>
+    <h2>Always free for injured workers.</h2>
+    <p class="sub">No subscriptions. No hidden fees. No pay-to-play attorney referrals. Comp Buddy is free, period.</p>
     <div class="tier-grid">
-      <div class="tier-card">
-        <div class="tier-name">Free</div>
-        <div class="tier-price">$0</div>
-        <div class="tier-desc">For injured workers & basic calculations</div>
-        <ul>
-          <li>CCP / Award calculator</li>
-          <li>AWW calculator & rate table</li>
-          <li>LWEC classification lookup</li>
-          <li>Max & min rate reference</li>
-          <li>Educational resources</li>
-        </ul>
-        <a href="#download" class="cta-btn outline" style="width:100%;justify-content:center;">Download Free</a>
-      </div>
       <div class="tier-card featured">
-        <div class="tier-name" style="color:var(--ac)">Pro</div>
-        <div class="tier-price">$9.99<span>/mo</span></div>
-        <div class="tier-desc">For practicing WC attorneys</div>
+        <div class="tier-name">Comp Buddy</div>
+        <div class="tier-price">$0</div>
+        <div class="tier-desc">For every injured worker in New York State</div>
         <ul>
-          <li>Everything in Free</li>
-          <li>SLU Permanency Checker (all body parts)</li>
-          <li>Radiculopathy point calculator (§S11.4–S11.7)</li>
-          <li>Fee app equation generator</li>
-          <li>Concurrent & amended AWW</li>
-          <li>Reduced earnings calculator</li>
-          <li>Severity crosswalk reference</li>
+          <li>Find a WCB-authorized doctor near you</li>
+          <li>IME reminders, directions, and prep checklists</li>
+          <li>Plain-language learning portal &amp; videos</li>
+          <li>Free benefit calculators (AWW, rates, awards)</li>
+          <li>Connect with an experienced WC attorney</li>
+          <li class="dev">Case tracker &amp; status updates <span class="dev-tag">In Dev</span></li>
         </ul>
-        <a href="#" class="cta-btn" style="width:100%;justify-content:center;" id="btn-start-pro" onclick="handleUpgrade('pro');return false;">Start Pro</a>
+        <a href="https://apps.apple.com/app/the-comp-desk/id6761267639" class="cta-btn green" style="width:100%;justify-content:center;">Download Free on App Store</a>
+        <p style="font-size:12px;color:var(--txM);margin-top:12px;">Android &amp; desktop versions coming soon.</p>
       </div>
-      <div class="tier-card">
-        <div class="tier-name" style="color:var(--gd)">Firm</div>
-        <div class="tier-price">$99<span>/mo</span></div>
-        <div class="tier-desc">For WC law firms & practices</div>
-        <ul>
-          <li>Everything in Pro</li>
-          <li>Multi-attorney access</li>
-          <li>Salesforce / Litify integration</li>
-          <li>Case data export</li>
-          <li>Priority support</li>
-          <li>Custom branding option</li>
-        </ul>
-        <a href="/cdn-cgi/l/email-protection#4a20252f260a3e222f2925273a2e2f392164292527" class="cta-btn gold" style="width:100%;justify-content:center;">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<section class="attorney-callout">
+  <div class="wrap">
+    <div class="callout-card">
+      <div class="eyebrow">Are you a Workers' Comp Attorney?</div>
+      <h2>The Comp Desk Pro is built for you.</h2>
+      <p>SLU permanency checking, fee app equation generators, the Pro Attorney Workspace, multi-attorney firm access, Salesforce/Litify integration, and our neutral attorney referral network — everything practicing WC attorneys need to run faster, sharper, and more profitable cases.</p>
+      <div class="ctas">
+        <a href="/for-attorneys" class="cta-btn gold">Visit For Attorneys →</a>
+        <a href="/workspace/" class="cta-btn outline">Try the Free Workspace</a>
       </div>
     </div>
   </div>
@@ -303,10 +300,10 @@ footer a{color:var(--txD);}
 <section class="about" id="about">
   <div class="wrap">
     <h2>Built for the hearing room. Growing into your companion.</h2>
-    <p>The Comp Desk started where the need was most obvious — in the hearing room. AWW calculations done on scrap paper, SLU percentages pulled from memory, fee application equations scribbled by hand. We built the calculator that the room was missing, and attorneys started using it every day.</p>
+    <p>The Comp Desk started where the need was most obvious — in the hearing room. AWW calculations done on scrap paper, SLU percentages pulled from memory, fee application equations scribbled by hand. We built the calculators that the room was missing, and attorneys started using them every day.</p>
     <p>But a calculator was never the finish line. When you're injured at work, the confusion doesn't start at the hearing — it starts the moment you get hurt. What do I file? Where do I go for treatment? What's an IME, and how do I prepare? What am I actually entitled to? The system is complicated, and nobody hands you a guidebook.</p>
-    <p>That's why The Comp Desk is growing into something bigger. We call the injured worker experience <strong style="color:var(--wh);">Comp Buddy</strong> — a free companion that walks with you from the moment of injury through treatment, hearings, and settlement. We're building a Find a Doctor tool to connect you with authorized providers, IME reminders so you never miss an appointment, a learning portal that explains your rights in plain language, and a direct connection to experienced workers' compensation attorneys who can fight for you.</p>
-    <p>The calculators are just the beginning. The mission is making sure every injured worker in New York State has the information, the tools, and the support they deserve — without paying a dime.</p>
+    <p>That's why we built <strong style="color:var(--wh);">Comp Buddy</strong> — a free companion that walks with you from the moment of injury through treatment, hearings, and settlement. Find a Doctor connects you with WCB-authorized providers. IME Reminders make sure you never miss an appointment. The learning portal explains your rights in plain language. And our attorney network connects you with experienced WC attorneys who can fight for you.</p>
+    <p>The mission is making sure every injured worker in New York State has the information, the tools, and the support they deserve — without paying a dime.</p>
     <p><strong style="color:var(--wh);">Know your comp. Fight for your rights.</strong></p>
     <div class="sig">— The Comp Desk Team</div>
   </div>
@@ -314,8 +311,8 @@ footer a{color:var(--txD);}
 
 <section id="download" style="padding:60px 0;text-align:center;">
   <div class="wrap">
-    <h2 style="font-size:28px;font-weight:800;color:var(--wh);margin-bottom:8px;">Get The Comp Desk</h2>
-    <p style="color:var(--txD);margin-bottom:24px;">Available on all platforms. Free to download.</p>
+    <h2 style="font-size:28px;font-weight:800;color:var(--wh);margin-bottom:8px;">Get Comp Buddy</h2>
+    <p style="color:var(--txD);margin-bottom:24px;">Available on iOS today. Android &amp; desktop coming soon.</p>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
       <a href="https://apps.apple.com/app/the-comp-desk/id6761267639" class="cta-btn">Download on App Store</a>
       <a href="#" class="cta-btn outline">Google Play (Coming Soon)</a>
@@ -338,37 +335,16 @@ const SUPABASE_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const PRO_FEATURES = [
-  'slu_permanency', 'spine_brain', 'radiculopathy',
-  'fee_equations', 'concurrent_aww', 'amended_aww', 'reduced_earnings'
-];
-const FIRM_FEATURES = [
-  ...PRO_FEATURES,
-  'multi_attorney', 'data_export', 'custom_branding'
-];
-
 let currentUser = null;
-let currentTier = 'anonymous';
 
 async function initAuth() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     currentUser = session.user;
-    const { data: profile } = await sb
-      .from('profiles')
-      .select('subscription_tier, subscription_status')
-      .eq('id', session.user.id)
-      .single();
-    if (profile && profile.subscription_status === 'active') {
-      currentTier = profile.subscription_tier;
-    } else {
-      currentTier = 'free';
-    }
     updateNav(true);
   } else {
     updateNav(false);
   }
-  updateFeatureTags();
 }
 
 function updateNav(loggedIn) {
@@ -383,50 +359,6 @@ function updateNav(loggedIn) {
   }
 }
 
-function updateFeatureTags() {
-  // Add lock icons to pro features if user isn't pro/firm
-  document.querySelectorAll('.tag-pro').forEach(tag => {
-    if (currentTier === 'pro' || currentTier === 'firm') {
-      tag.textContent = 'UNLOCKED';
-      tag.style.background = 'rgba(45,212,160,0.12)';
-      tag.style.color = '#2dd4a0';
-    }
-  });
-}
-
-function canAccess(feature) {
-  if (currentTier === 'firm') return true;
-  if (currentTier === 'pro') return PRO_FEATURES.includes(feature);
-  return !PRO_FEATURES.includes(feature);
-}
-
-async function handleUpgrade(tier) {
-  if (!currentUser) {
-    window.location.href = '/auth_v2.html';
-    return;
-  }
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    const res = await fetch(SUPABASE_URL + '/functions/v1/create-checkout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + session.access_token,
-        'apikey': SUPABASE_KEY
-      },
-      body: JSON.stringify({ tier: tier })
-    });
-    const data = await res.json();
-    if (data.checkout_url) {
-      window.location.href = data.checkout_url;
-    } else {
-      alert('Error creating checkout: ' + (data.error || 'Unknown error'));
-    }
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
-}
-
 // Listen for auth changes
 sb.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session) {
@@ -434,7 +366,6 @@ sb.auth.onAuthStateChange((event, session) => {
     updateNav(true);
   } else if (event === 'SIGNED_OUT') {
     currentUser = null;
-    currentTier = 'anonymous';
     updateNav(false);
   }
 });

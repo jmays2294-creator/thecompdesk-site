@@ -85,6 +85,20 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .hero .sub{font-size:clamp(16px,2.5vw,20px);color:var(--txD);max-width:640px;margin:0 auto 32px;line-height:1.6;}
 .hero .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 
+/* CALCULATORS SHOWCASE */
+.calcs{padding:80px 0;border-top:1px solid var(--bd);}
+.calcs h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:12px;}
+.calcs .sub{text-align:center;color:var(--txD);font-size:16px;margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto;}
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.calc-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:28px 24px;transition:border-color 0.2s,transform 0.2s;display:block;color:inherit;text-decoration:none;}
+.calc-card:hover{border-color:var(--ac);transform:translateY(-2px);text-decoration:none;}
+.calc-card .icon{font-size:28px;margin-bottom:12px;}
+.calc-card h3{font-size:16px;font-weight:700;color:var(--wh);margin-bottom:8px;}
+.calc-card p{font-size:14px;color:var(--txD);line-height:1.6;}
+.calc-card .ctag{display:inline-block;margin-top:12px;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.ctag-free{background:rgba(45,212,160,0.12);color:var(--gn);}
+.ctag-pro{background:rgba(240,160,48,0.12);color:var(--gd);}
+
 /* PAIN POINTS */
 .pain{padding:80px 0;border-top:1px solid var(--bd);}
 .pain h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:12px;}
@@ -182,9 +196,9 @@ footer a{color:var(--txD);}
   <div class="inner">
     <a href="/" class="logo" style="text-decoration:none;">The <span>Comp</span> Desk</a>
     <div class="links">
-      <a href="/calculators/" style="color:var(--ac);font-weight:700;">Calculators</a>
+      <a href="/" style="color:var(--txD);">Home</a>
+      <a href="#calculators" style="color:var(--ac);font-weight:700;">Calculators</a>
       <a href="/workspace/" style="color:var(--gn);font-weight:700;">Workspace</a>
-      <a href="/#features">Features</a>
       <a href="#compare">Compare Plans</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -202,6 +216,70 @@ footer a{color:var(--txD);}
     <div class="ctas">
       <a href="/workspace/" class="cta-btn">Open the Workspace — Free</a>
       <a href="#pricing" class="cta-btn outline">See Pro & Firm Tiers</a>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATORS SHOWCASE -->
+<section class="calcs" id="calculators">
+  <div class="wrap">
+    <h2>Every calculator a WC attorney needs.</h2>
+    <p class="sub">Built from the 2018 Permanency Guidelines, the 2012 Impairment Guide, and 40+ years of statutory rates. Every tile is grounded in how the Board actually operates.</p>
+    <div class="calc-grid">
+      <a href="/workspace/" class="calc-card" style="border-color:rgba(45,212,160,0.35);">
+        <div class="icon">🧰</div>
+        <h3>Pro Attorney Workspace</h3>
+        <p>Every calculator on one canvas. Drag, drop, switch between cases. Enter AWW once and every tile updates instantly.</p>
+        <span class="ctag ctag-free">Free</span>
+      </a>
+      <a href="/calculators/ccp-award.html" class="calc-card">
+        <div class="icon">💰</div>
+        <h3>CCP &amp; Award Calculator</h3>
+        <p>Multi-period entries with TT/TP/TR/RE/NME/NCLT designations. Auto-rate from AWW. Fee app equation generator with copy-to-clipboard.</p>
+        <span class="ctag ctag-free">Free</span>
+      </a>
+      <a href="/calculators/aww.html" class="calc-card">
+        <div class="icon">📊</div>
+        <h3>AWW Calculator</h3>
+        <p>4/5/6/7-day weeks. Salary or hourly. Concurrent employment with composite AWW. Amending AWW with differential awards. Full rate table.</p>
+        <span class="ctag ctag-free">Free</span>
+      </a>
+      <a href="/calculators/slu.html" class="calc-card">
+        <div class="icon">🦿</div>
+        <h3>SLU Permanency Checker</h3>
+        <p>Enter a doctor's ROM finding → instant SLU percentage. Shoulder, elbow, wrist, knee, hip, ankle. 2018 NYS Permanency Guidelines built in.</p>
+        <span class="ctag ctag-pro">Pro</span>
+      </a>
+      <a href="/calculators/lwec.html" class="calc-card">
+        <div class="icon">⚖️</div>
+        <h3>LWEC / Classification</h3>
+        <p>Enter LWEC percentage → auto bracket lookup, classification rate, max weeks, total award, and attorney fee calculation.</p>
+        <span class="ctag ctag-free">Free</span>
+      </a>
+      <a href="/calculators/rates.html" class="calc-card">
+        <div class="icon">📋</div>
+        <h3>Statutory Rate Reference</h3>
+        <p>Complete history of NYS max and min weekly rates from 1985 to present. Auto-lookup by date of accident. Future-proofed with indexed minimums.</p>
+        <span class="ctag ctag-free">Free</span>
+      </a>
+      <a href="/calculators/radiculopathy.html" class="calc-card">
+        <div class="icon">🩻</div>
+        <h3>Radiculopathy Point Calculator</h3>
+        <p>Sections S11.4–S11.7 walked through step-by-step. Calculates the radiculopathy point total automatically, consistent with the 2012 Guidelines.</p>
+        <span class="ctag ctag-pro">Pro</span>
+      </a>
+      <a href="/calculators/spine-brain.html" class="calc-card">
+        <div class="icon">🧠</div>
+        <h3>Spine &amp; Brain Severity</h3>
+        <p>Severity crosswalk reference for spine and brain injuries. Built straight from the 2012 Impairment Guide for fast, defensible classifications.</p>
+        <span class="ctag ctag-pro">Pro</span>
+      </a>
+      <a href="/calculators/" class="calc-card">
+        <div class="icon">➕</div>
+        <h3>See All Calculators</h3>
+        <p>Browse the full Comp Desk calculator library — every tool, every body part, every rate table — in one place.</p>
+        <span class="ctag ctag-free">All Tiers</span>
+      </a>
     </div>
   </div>
 </section>
