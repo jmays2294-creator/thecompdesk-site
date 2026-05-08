@@ -10,6 +10,21 @@
       "source": "/calculators/pro",
       "destination": "/workspace/",
       "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/legal/privacy.html",
+      "permanent": true
+    },
+    {
+      "source": "/privacy.html",
+      "destination": "/legal/privacy.html",
+      "permanent": true
+    },
+    {
+      "source": "/terms",
+      "destination": "/legal/terms.html",
+      "permanent": true
     }
   ],
   "headers": [

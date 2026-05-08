@@ -7,6 +7,34 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ## 2026-05-08
 
+### Site-wide SEO sweep (full pass on every public page)
+Comprehensive SEO audit + fix pass triggered by Joel's "ensure relevant parts of the website have are SEO'd" directive. Audit produced `seo/seo_audit_2026-05-08.md` covering 33 public + private pages. Fixes pushed in this commit:
+
+- **Canonical mismatch (CRITICAL)**: `index.html`, `for-attorneys.html`, `attorneys.html`, and `extension-privacy.html` declared canonical + og:url with the `www.` subdomain while the entire rest of the site (sitemap, served domain) uses bare apex. This was splitting link-equity on the homepage. All four converted to `https://thecompdesk.com` (no www). Six occurrences on the homepage alone.
+- **`og:site_name` site-wide**: zero pages had it before. Inserted on 33 files via perl across all public + auth pages. Single canonical `<meta property="og:site_name" content="The Comp Desk">` after every existing `og:type` tag.
+- **`/attorneys.html` regression repaired**: was missing `og:url`, `og:image`, and the entire `twitter:*` set since some prior edit. Added back, plus upgraded JSON-LD from minimal `WebPage` to `SoftwareApplication` with both Free and $9.99/mo Pro Offers and Organization publisher.
+- **Tools pages — thin titles + missing JSON-LD** rewritten: `tools/claim-filing.html`, `tools/mileage.html`, `tools/utdm.html`, `tools/work-search.html` all had ASCII-hyphen, ~30-char "X - The Comp Desk" titles and ~100-char descriptions. Now have keyword-targeted ~60-char titles, ~155-char descriptions, and `WebApplication` JSON-LD with free Offer + Organization publisher. `tools/learning/index.html` got `CollectionPage` JSON-LD.
+- **`/tools/utdm.html` title clarity**: opaque "UTDM Monitoring" replaced with "Trial De Novo Motion Tracker (UTDM) — NY Workers' Comp" to spell out what the tool does for first-time visitors.
+- **Noindex meta added** to `auth.html`, `auth_v2.html`, `dashboard/my-cases.html` (belt-and-suspenders alongside `robots.txt` Disallow).
+- **`calculators/spine-brain.html` retired**: officially retired 2026-04-12 but the file was still indexable and (briefly) in sitemap. Added `<meta name="robots" content="noindex, nofollow">`. Now also disallowed in `robots.txt`. Removed from sitemap.xml.
+- **Vercel redirects**: added 301s for `/privacy` → `/legal/privacy.html`, `/privacy.html` → `/legal/privacy.html`, `/terms` → `/legal/terms.html`. Fixes the broken `/privacy` footer link on the homepage and stops legacy `/privacy.html` requests from 404'ing.
+- **`robots.txt` to canonical location**: file lived at `/seo/robots.txt`, served as `https://thecompdesk.com/seo/robots.txt` — Google couldn't find it at `/robots.txt`. Mirror written to repo root so it's served at the standard URL. Old `/seo/robots.txt` updated to match for parity.
+- **`robots.txt` content**: refreshed last-updated date, added `Disallow: /Website/` (legacy duplicate path), `Disallow: /calculators/spine-brain` (retired).
+- **`sitemap.xml` refresh**: removed stale `/privacy.html` entry (now 301'd via Vercel). Added `/hire-attorney.html`, `/legal/privacy.html`, `/legal/terms.html`, `/extension-privacy.html`. Bumped lastmod to 2026-05-08 across the board for files touched in this sweep.
+- **Audit doc**: full per-page inventory written to `seo/seo_audit_2026-05-08.md` covering title, meta description, canonical, OG, Twitter Card, JSON-LD, robots meta, H1, image alt, internal links, and gap priority for every public page.
+
+**Coverage moved from** (April 5 baseline → May 8 post-sweep):
+- Title: 100% → 100%
+- Meta description: 82% → 100%
+- Canonical (apex, correct): 53% → 100%
+- OG core: 53% → 100%
+- `og:site_name`: 0% → 100%
+- Twitter Card: 0% → 100%
+- JSON-LD: 6% → ~100% on public pages (5 tool pages were the gap; now closed)
+- Robots meta on private: 0% → 100% (auth, auth_v2, my-cases now carry noindex)
+
+**Strategic decisions still pending Joel**: `/attorneys.html` vs `/for-attorneys.html` consolidation, `/connect-with-attorney.html` vs `/hire-attorney.html` consolidation, `/learn.html` vs `/tools/learning/index.html` consolidation, `/tools/find-doctor.html` indexable-or-gated decision (currently in `robots.txt` Disallow but built as a public landing), AI-crawler policy (currently full block on GPTBot/ChatGPT-User/CCBot/Google-Extended/anthropic-ai). Captured in the audit doc for follow-up.
+
 ### Fix: injured-worker intake wizard not submitting (commit `896ec47`, edge fn v3.3)
 - **Symptom**: Step 3 of `/connect-with-attorney` returned `"injuries must be 5-1000 chars"` and blocked submission even with full form data.
 - **Root cause**: The `submit-attorney-lead` edge function expected an `injuries` string field, but the web client (since the body-diagram refactor on 2026-05-06) sends `body_parts` (array) + `body_parts_other` (string) and no `injuries` field. Server saw empty `injuries`, failed the `< 5 chars` check, returned `VALIDATION_FAILED`.
