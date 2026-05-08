@@ -922,34 +922,11 @@ function Paywall({ onClose, reason, tileName }) {
 // SECTION 5 — DEFAULTS, TAB FACTORY
 // ============================================================================
 
-const DEFAULT_AWW_STATE = {
-  caseName: '',
-  aww: 1500,
-  doi: '2024-09-15',
-  maxRate: 1171.46,
-  // v1.2: only 'multi' (§14(1)/(2) Multiplier) and 'straight' (§14(3)/(4)
-  // Catchall) are exposed in the UI. Legacy '52week' or 'similar' values
-  // from persisted v1.1 workspaces fall through to 'multi' in computeAWW.
-  method: 'multi',
-  daysWeek: 5,
-  // §14(6) — toggle drives whether adjConcurrent is included in composite AWW.
-  concurrentOn: false,
-  adjTips: 0, adjBoard: 0, adjConcurrent: 0,
-  method52Annual: 78000,
-  methodMultiEarn: 0, methodMultiDays: 0,
-  methodStraightEarn: 0, methodStraightWeeks: 0,
-  methodSimilarEarn: 0,
-  methodHourlyRate: 0, methodHourlyHours: 0,
-};
-
-const DEFAULT_TWEAKS = {
-  theme: 'onyx',
-  iridescence: 'subtle',
-  perspective: 'subtle',
-  snapSize: 20,
-  showGrid: false,
-  preseedDemo: true,
-};
+// DEFAULT_AWW_STATE / DEFAULT_TWEAKS / TILE_INPUT_DEFAULTS / hydrateWorkspaceData
+// are defined in constants.js (loaded before this file in workspace.html). See
+// ops/rd/specs/workspace_case_hydration.md for the canonical save format.
+const DEFAULT_AWW_STATE = window.DEFAULT_AWW_STATE;
+const DEFAULT_TWEAKS    = window.DEFAULT_TWEAKS;
 
 function newTabId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -1031,14 +1008,34 @@ function App() {
           setLoaded(true);
           return;
         }
-        const data = await window.WorkspacePersistence.loadWorkspace();
+        const rawData = await window.WorkspacePersistence.loadWorkspace();
+
+        // Hydrate every level (top-level / awwState / tile.inputs / nested
+        // arrays) against canonical defaults. Lazy-migrates v1 rows in memory;
+        // the next debounced save persists v2. See spec.
+        let data = null;
+        try {
+          data = window.hydrateWorkspaceData
+            ? window.hydrateWorkspaceData(rawData)
+            : rawData;
+        } catch (hydErr) {
+          console.error('[workspace] HYDRATION_FAILED', hydErr);
+          window.dispatchEvent(new CustomEvent('workspace:hydration-error', { detail: { error: hydErr } }));
+          setSaveStatus('error');
+          data = null;
+        }
 
         // Free-tier overflow tabs from previous sessions live in localStorage
         const localKey = 'workspace.local-tabs.' + (window.workspaceUserId || 'anon');
         let localTabs = [];
         try {
           const raw = localStorage.getItem(localKey);
-          if (raw) localTabs = JSON.parse(raw);
+          if (raw && window.hydrateTab) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              localTabs = parsed.map(window.hydrateTab).filter(Boolean);
+            }
+          }
         } catch (e) {}
 
         if (cancelled) return;
@@ -1088,6 +1085,7 @@ function App() {
       const unsyncedTabs = tabs.filter(t => t.synced === false);
 
       const payload = {
+        formatVersion: window.WORKSPACE_FORMAT_VERSION || 2,
         tabs: syncedTabs,
         activeTabId: syncedTabs.find(t => t.id === activeTabId) ? activeTabId : (syncedTabs[0]?.id || null),
         tweaks,
@@ -1126,6 +1124,7 @@ function App() {
         clearTimeout(saveTimerRef.current);
         const syncedTabs = tabs.filter(t => t.synced !== false);
         const payload = {
+          formatVersion: window.WORKSPACE_FORMAT_VERSION || 2,
           tabs: syncedTabs,
           activeTabId,
           tweaks,
@@ -1141,16 +1140,26 @@ function App() {
   // ---------- Realtime — handle remote changes ----------
   useEffect(() => {
     const onRemote = (ev) => {
-      const { remoteVersion, workspace_data } = ev.detail || {};
-      if (!workspace_data) return;
+      const { remoteVersion, workspace_data: rawRemote } = ev.detail || {};
+      if (!rawRemote) return;
+      // Hydrate the remote payload — sender's formatVersion may be < ours,
+      // and we never trust raw blobs onto local state. See spec §6.
+      let remote = rawRemote;
+      try {
+        if (window.hydrateWorkspaceData) remote = window.hydrateWorkspaceData(rawRemote);
+      } catch (e) {
+        console.error('[workspace] HYDRATION_FAILED_REMOTE', e);
+        return;
+      }
+      if (!remote) return;
       if (dirtyRef.current) {
-        setConflictToast({ remoteVersion, workspace_data });
+        setConflictToast({ remoteVersion, workspace_data: remote });
       } else {
         // No local edits pending — silently reload
-        if (Array.isArray(workspace_data.tabs) && workspace_data.tabs.length > 0) {
-          setTabs(workspace_data.tabs.map(t => ({ ...t, synced: true })));
-          setActiveTabId(workspace_data.activeTabId || workspace_data.tabs[0].id);
-          if (workspace_data.tweaks) setTweaks(prev => ({ ...prev, ...workspace_data.tweaks }));
+        if (Array.isArray(remote.tabs) && remote.tabs.length > 0) {
+          setTabs(remote.tabs.map(t => ({ ...t, synced: true })));
+          setActiveTabId(remote.activeTabId || remote.tabs[0].id);
+          if (remote.tweaks) setTweaks(prev => ({ ...prev, ...remote.tweaks }));
         }
         if (window.WorkspacePersistence && remoteVersion) {
           window.WorkspacePersistence._setVersion(remoteVersion);
@@ -1316,7 +1325,16 @@ function App() {
     const slot = findEmptySlot(activeTab.tiles, spec.w, spec.h, opts.preferX || 20, opts.preferY || 20, tweaks.snapSize || GRID);
     const sameTypeCount = activeTab.tiles.filter(t => t.type === type).length + 1;
     const id = Date.now() + Math.random();
-    const newT = { id, type, x: slot.x, y: slot.y, instance: sameTypeCount, addedAt: Date.now() };
+    // Initialize inputs from the canonical default factory so new tiles enter
+    // the system fully populated (see workspace_case_hydration.md). Without
+    // this, a save before any user edit persists a tile with NO inputs key.
+    const inputsFactory = window.TILE_INPUT_DEFAULTS && window.TILE_INPUT_DEFAULTS[type];
+    const newT = {
+      id, type, x: slot.x, y: slot.y,
+      instance: sameTypeCount,
+      addedAt: Date.now(),
+      inputs: inputsFactory ? inputsFactory() : {},
+    };
     setActiveTiles(prev => [...prev, newT]);
     setMostRecentId(id);
   };
@@ -1431,8 +1449,15 @@ function App() {
         <div className="sync-toast" role="alert">
           <span>Workspace updated on another device.</span>
           <button className="btn tiny" onClick={() => {
-            const wd = conflictToast.workspace_data;
-            if (Array.isArray(wd.tabs) && wd.tabs.length > 0) {
+            // Defensive re-hydrate — onRemote already hydrates, but a future
+            // code path could stuff raw data into conflictToast.workspace_data.
+            let wd = conflictToast.workspace_data;
+            try {
+              if (window.hydrateWorkspaceData) wd = window.hydrateWorkspaceData(wd) || wd;
+            } catch (e) {
+              console.error('[workspace] HYDRATION_FAILED_RELOAD', e);
+            }
+            if (wd && Array.isArray(wd.tabs) && wd.tabs.length > 0) {
               setTabs(wd.tabs.map(t => ({ ...t, synced: true })));
               setActiveTabId(wd.activeTabId || wd.tabs[0].id);
               if (wd.tweaks) setTweaks(prev => ({ ...prev, ...wd.tweaks }));

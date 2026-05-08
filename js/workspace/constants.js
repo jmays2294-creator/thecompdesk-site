@@ -184,8 +184,192 @@ const fmtN = (n, d=2) => {
   return Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 };
 
+// ============================================================================
+// CASE HYDRATION (May 8, 2026)
+// ============================================================================
+//
+// Canonical save format for attorney_workspaces.workspace_data. See
+// ops/rd/specs/workspace_case_hydration.md (in TheCompDesk repo) for the
+// full contract — same contract for the website + app surfaces.
+//
+// Fix: hydrateWorkspaceData(raw) walks the entire blob and default-merges
+// every level so partial saves (and old rows missing keys added in later
+// releases) render with sensible defaults instead of value={undefined}.
+//
+// Website-specific notes vs the app's bundle: this surface includes Burns
+// and Settlement tiles, plus extra keys on SLU/LWEC (priorTTRWks) and CCP
+// periods (amending, priorMode, priorVal). The defaults below are the
+// authoritative shape FOR THE WEBSITE — kept in sync with ops/rd/specs/.
+
+const WORKSPACE_FORMAT_VERSION = 2;
+
+const DEFAULT_AWW_STATE = {
+  caseName: '',
+  aww: 1500,
+  doi: '2024-09-15',
+  maxRate: 1171.46,
+  // v1.2: only 'multi' (§14(1)/(2) Multiplier) and 'straight' (§14(3)/(4)
+  // Catchall) are exposed in the UI. Legacy '52week' or 'similar' values
+  // from persisted v1.1 workspaces fall through to 'multi' in computeAWW.
+  method: 'multi',
+  daysWeek: 5,
+  // §14(6) — toggle drives whether adjConcurrent is included in composite AWW.
+  concurrentOn: false,
+  adjTips: 0, adjBoard: 0, adjConcurrent: 0,
+  method52Annual: 78000,
+  methodMultiEarn: 0, methodMultiDays: 0,
+  methodStraightEarn: 0, methodStraightWeeks: 0,
+  methodSimilarEarn: 0,
+  methodHourlyRate: 0, methodHourlyHours: 0,
+};
+
+const DEFAULT_TWEAKS = {
+  theme: 'onyx',
+  iridescence: 'subtle',
+  perspective: 'subtle',
+  snapSize: 20,
+  showGrid: false,
+  preseedDemo: true,
+};
+
+// Tile input defaults — factories so each call produces fresh row IDs.
+// Mirrors the per-tile `tile.inputs || { ... }` literals in tiles.js.
+const TILE_INPUT_DEFAULTS = {
+  SLU:           () => ({
+    rows: [{ id: Date.now(), bp: 'Leg', pct: 0, priorWks: 0 }],
+    priorPay: 0,
+    priorTTRWks: 0,
+  }),
+  LWEC:          () => ({ pct: 50, feePerWeek: 0, priorTTRWks: 0 }),
+  CCP:           () => ({
+    periods: [{
+      id: Date.now(), start: '', end: '', desg: 'TT',
+      curEarn: 0, ratePct: 100, manualRate: 0,
+      amending: false, priorMode: 'pct', priorVal: 0,
+    }],
+    ccpAmount: 0,
+    priorPay: 0,
+  }),
+  RateLookup:    () => ({ date: '' }),
+  Radiculopathy: () => ({
+    region: 'lumbar', nerve: 'L5',
+    imaging: 0, emg: 0, weakness: 5, atrophy: 0,
+    sensory: 0, reflex: 0, tension: 0,
+  }),
+  Burns:         () => ({
+    indemnity: 0, medical: 0, gross: 0, attyFee: 0, disbursements: 0,
+    isMVA: false, mvaThreshold: 50000,
+  }),
+  Settlement:    () => ({ settlement: 0, msa: 0 }),
+};
+
+// Per-row defaults inside known nested arrays.
+const TILE_ROW_DEFAULTS = {
+  SLU_ROW:    () => ({ id: Date.now() + Math.random(), bp: 'Leg', pct: 0, priorWks: 0 }),
+  CCP_PERIOD: () => ({
+    id: Date.now() + Math.random(), start: '', end: '', desg: 'TT',
+    curEarn: 0, ratePct: 100, manualRate: 0,
+    amending: false, priorMode: 'pct', priorVal: 0,
+  }),
+};
+
+function hydrateAwwState(raw) {
+  return { ...DEFAULT_AWW_STATE, ...(raw && typeof raw === 'object' ? raw : {}) };
+}
+
+function hydrateTweaks(raw) {
+  return { ...DEFAULT_TWEAKS, ...(raw && typeof raw === 'object' ? raw : {}) };
+}
+
+function hydrateTileInputs(type, raw) {
+  const defaultsFn = TILE_INPUT_DEFAULTS[type];
+  if (!defaultsFn) return raw || {};
+  const defaults = defaultsFn();
+  const merged = { ...defaults, ...(raw && typeof raw === 'object' ? raw : {}) };
+  if (type === 'SLU' && Array.isArray(merged.rows)) {
+    merged.rows = merged.rows
+      .filter(r => r && typeof r === 'object')
+      .map(r => ({ ...TILE_ROW_DEFAULTS.SLU_ROW(), ...r }));
+    if (merged.rows.length === 0) merged.rows = [TILE_ROW_DEFAULTS.SLU_ROW()];
+  }
+  if (type === 'CCP' && Array.isArray(merged.periods)) {
+    merged.periods = merged.periods
+      .filter(p => p && typeof p === 'object')
+      .map(p => ({ ...TILE_ROW_DEFAULTS.CCP_PERIOD(), ...p }));
+    if (merged.periods.length === 0) merged.periods = [TILE_ROW_DEFAULTS.CCP_PERIOD()];
+  }
+  return merged;
+}
+
+function hydrateTile(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (!TILE_INPUT_DEFAULTS[raw.type]) {
+    console.warn('[workspace] HYDRATION_UNKNOWN_TILE_TYPE', raw.type);
+    return null;
+  }
+  return {
+    id: (raw.id !== undefined && raw.id !== null) ? raw.id : (Date.now() + Math.random()),
+    type: raw.type,
+    x: typeof raw.x === 'number' ? raw.x : 20,
+    y: typeof raw.y === 'number' ? raw.y : 20,
+    instance: typeof raw.instance === 'number' ? raw.instance : 1,
+    addedAt: typeof raw.addedAt === 'number' ? raw.addedAt : Date.now(),
+    inputs: hydrateTileInputs(raw.type, raw.inputs),
+  };
+}
+
+function _newTabId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'tab_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function hydrateTab(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const tiles = Array.isArray(raw.tiles)
+    ? raw.tiles.map(hydrateTile).filter(Boolean)
+    : [];
+  return {
+    id: raw.id || _newTabId(),
+    name: raw.name || 'New Case',
+    clientName: raw.clientName === undefined ? null : raw.clientName,
+    wcbNumber: raw.wcbNumber === undefined ? null : raw.wcbNumber,
+    awwState: hydrateAwwState(raw.awwState),
+    tiles,
+    synced: raw.synced !== false,
+    createdAt: raw.createdAt || new Date().toISOString(),
+    updatedAt: raw.updatedAt || new Date().toISOString(),
+  };
+}
+
+function hydrateWorkspaceData(raw) {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('WORKSPACE_HYDRATION_NOT_OBJECT');
+  }
+  const tabs = Array.isArray(raw.tabs)
+    ? raw.tabs.map(hydrateTab).filter(Boolean)
+    : [];
+  const activeTabId =
+    raw.activeTabId && tabs.find(t => t.id === raw.activeTabId)
+      ? raw.activeTabId
+      : (tabs[0] ? tabs[0].id : null);
+  return {
+    formatVersion: WORKSPACE_FORMAT_VERSION,
+    tabs,
+    activeTabId,
+    tweaks: hydrateTweaks(raw.tweaks),
+    savedAt: raw.savedAt || new Date().toISOString(),
+  };
+}
+
 Object.assign(window, {
   MAX_RATES, MIN_RATES, SLU_BP, LWEC_BR, NERVE_CAPS, CERVICAL_RANKS, LUMBAR_RANKS,
   lookupMax, lookupMin, applyMinFloor, applyRateBounds, isAwwBelowMin,
   getCappedTT, lwecBracket, fmt$, fmtN,
+  // Hydration contract — see ops/rd/specs/workspace_case_hydration.md
+  WORKSPACE_FORMAT_VERSION,
+  DEFAULT_AWW_STATE, DEFAULT_TWEAKS,
+  TILE_INPUT_DEFAULTS, TILE_ROW_DEFAULTS,
+  hydrateAwwState, hydrateTweaks, hydrateTileInputs, hydrateTile, hydrateTab,
+  hydrateWorkspaceData,
 });
