@@ -33,9 +33,9 @@ const CANVAS_PAD = 10;
 // Catchall covers it). §14(3) Similar Worker is the sole "comparator" method.
 
 const METHODS = [
-  { id: 'multi',    label: 'Section 14(1) & (2) (Multiplier)',
-    badge: '§14(1)/(2)',
-    tip:   '§14(1) and §14(2) — The claimant\'s own earnings via the statutory daily-wage multiplier. (Total earnings ÷ days worked) × multiplier (200/260/300/365), then ÷ 52. Pick the multiplier that matches the claimant\'s work schedule. This is the unified §14(1)/(2) path in the workspace.' },
+  { id: 'multi',    label: 'Section 14(1), (2) & (3).',
+    badge: '§14(1)/(2)/(3)',
+    tip:   '§14(1), (2) & (3) — The claimant\'s own earnings via the statutory daily-wage multiplier. (Total earnings ÷ days worked) × multiplier (200 / 260 / 300 / 365), then ÷ 52. The 200, 260, 300, and 365 buttons map to 4-day (or <4-day), 5-day, 6-day, and 7-day workers respectively.' },
   { id: 'straight', label: 'Catchall (Weekly Divisor)',
     badge: '§14(3)/(4)',
     tip:   '§14(3)/§14(4) Catchall — Where neither (1)/(2) nor a similar-worker comparison reasonably applies, the Board fixes AWW by fairly approximating annual earning capacity. Implemented here as total earnings ÷ weeks actually worked.' },
@@ -53,8 +53,8 @@ function methodBadge(method, daysWeek) {
   // 'multi' (and any legacy method id that is no longer in the workspace UI)
   const n = DAYS_MULTIPLIER[daysWeek] || 260;
   return {
-    badge: `§14(1)/(2) ×${n}`,
-    tip: `§14(1)/(2) Multiplier — total earnings ÷ days worked × ${n} ÷ 52.`,
+    badge: `§14(1)/(2)/(3) ×${n}`,
+    tip: `§14(1), (2) & (3) Multiplier — total earnings ÷ days worked × ${n} ÷ 52.`,
   };
 }
 
@@ -187,8 +187,12 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
     set({ doi: val, maxRate: m ? m.max : state.maxRate });
   };
 
-  const slu = state.aww * 2 / 3;
-  const sluCapped = Math.min(slu, computed.maxRate || Infinity);
+  // SLU rate, TT rate, and the floor all collapse to AWW when AWW is below
+  // the statutory min for the DOA (May 2026 rule). Otherwise SLU rate equals
+  // the bounded TT rate (2/3 AWW capped at max, floored at min).
+  const awwOverride = isAwwBelowMin(state.aww, computed.minRate);
+  const sluCapped = computed.ttRate;
+  const displayMin = awwOverride ? state.aww : (computed.minRate || 0);
   const badge = methodBadge(state.method, state.daysWeek);
 
   // Re-compute preview whenever wizard inputs change (only while open)
@@ -288,8 +292,18 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
           <div className="sep">·</div>
           <div>
             <div className="lbl">Min</div>
-            <div className="val" style={{fontSize:13}}>{min?.min ? fmt$(min.min) : '—'}</div>
+            <div className="val" style={{fontSize:13}}>{displayMin ? fmt$(displayMin) : '—'}</div>
           </div>
+          {awwOverride && (
+            <div style={{
+              marginLeft:8, padding:'2px 8px', borderRadius:6,
+              background:'var(--bg-soft, rgba(255,255,255,0.06))',
+              color:'var(--ac-2)', fontSize:11, fontWeight:600,
+              alignSelf:'center',
+            }} title={`AWW ${fmt$(state.aww)} is below the statutory minimum ${fmt$(min?.min || 0)} for the DOA — AWW is the effective floor for TT, SLU, and any percentage-adjusted rate.`}>
+              AWW &lt; min · AWW is floor
+            </div>
+          )}
           <div style={{marginLeft:'auto'}}>
             <div className="method-badge" tabIndex="0">
               {badge.badge}
@@ -324,13 +338,19 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
 
           {state.method === 'multi' && (
             <div className="f-group">
-              <label className="f-label">Statutory Multiplier</label>
-              <div className="days-week-toggle">
-                {[4,5,6,7].map(d => (
+              <label className="f-label">Section 14(1), (2) &amp; (3).</label>
+              <div className="days-week-toggle days-week-toggle-stacked">
+                {[
+                  { d: 4, n: 200, note: '4-day workers (or <4 days/wk)' },
+                  { d: 5, n: 260, note: '5-day workers' },
+                  { d: 6, n: 300, note: '6-day workers' },
+                  { d: 7, n: 365, note: '' },
+                ].map(({ d, n, note }) => (
                   <button key={d} className={state.daysWeek === d ? 'active' : ''}
                     onClick={() => set({ daysWeek: d })}
-                    title={`${d}-day work week`}>
-                    {DAYS_MULTIPLIER[d]}
+                    title={note || `${d}-day work week`}>
+                    <span className="days-week-mult">{n}</span>
+                    {note && <span className="days-week-note">{note}</span>}
                   </button>
                 ))}
               </div>
@@ -1269,12 +1289,17 @@ function App() {
     const maxRate = Number(awwState.maxRate) || (max ? max.max : 0);
     const minRate = (min && min.min) || 0;
     const ttRate = getCappedTT(awwState.aww, maxRate, minRate);
-    return { maxRate, minRate, ttRate };
+    const awwOverride = isAwwBelowMin(awwState.aww, minRate);
+    return { maxRate, minRate, ttRate, awwOverride };
   }, [awwState.aww, awwState.doi, awwState.maxRate]);
 
   const global = {
     aww: awwState.aww, doi: awwState.doi,
     ttRate: computed.ttRate, maxRate: computed.maxRate, minRate: computed.minRate,
+    // SLU rate is identically the TT rate after bounds (May 2026 rule); both
+    // collapse to AWW when AWW < min for DOA.
+    sluRate: computed.ttRate,
+    awwOverride: computed.awwOverride,
   };
 
   // ---------- Tile actions on the active tab ----------

@@ -16,12 +16,24 @@ const TILE_SPECS = {
 };
 
 // ---------- Inherited rate strip ----------
-function Inherited({ ttRate, maxRate, minRate, source = 'global' }) {
+// `awwOverride` is true when AWW < statutory min for DOA — in that case TT
+// rate, SLU rate, and the floor all collapse to AWW (per Joel, May 2026).
+function Inherited({ ttRate, maxRate, minRate, aww, awwOverride, source = 'global' }) {
+  const displayMin = awwOverride ? aww : (minRate || 0);
   return (
     <div className="tile-inherited">
       <span><span className="tag">TT</span><span className="v">{fmt$(ttRate)}/wk</span></span>
       <span><span className="tag">Max</span><span className="v">{fmt$(maxRate)}</span></span>
-      <span><span className="tag">Min</span><span className="v">{minRate ? fmt$(minRate) : '—'}</span></span>
+      <span>
+        <span className="tag">Min</span>
+        <span className="v">{displayMin ? fmt$(displayMin) : '—'}</span>
+      </span>
+      {awwOverride && (
+        <span title="AWW is below the statutory minimum for the DOA — AWW is the effective floor for every rate."
+              style={{color:'var(--ac-2)', fontSize:11, fontWeight:600}}>
+          AWW &lt; min · AWW is the floor
+        </span>
+      )}
       <span style={{marginLeft:'auto', color:'var(--tx-faint)'}}>from {source}</span>
     </div>
   );
@@ -147,7 +159,11 @@ function LWECTile({ tile, global, onUpdate }) {
 
   const computed = useMemo(() => {
     const pct = Number(inputs.pct) || 0;
-    const classRate = tt * (pct / 100);
+    const rawClassRate = tt * (pct / 100);
+    // Floor at min / cap at max for the DOA. AWW < min override fires here too —
+    // a 50% LWEC class rate of $66.67 with AWW=$200 collapses to $200 (AWW),
+    // not $325 (min), per Joel (May 2026).
+    const classRate = applyRateBounds(rawClassRate, aww, global.minRate, global.maxRate);
     const bracket = lwecBracket(pct);
     const isLifetime = bracket.mw === 'Lifetime';
     // §15(3)(w) credit: when prior weeks of TT/TR/TP exceed 130, the carrier
@@ -163,9 +179,9 @@ function LWECTile({ tile, global, onUpdate }) {
     const fee = classRate * 15;
     const weeklyNet = classRate - Number(inputs.feePerWeek || 0);
     const totalNet = isLifetime ? null : totalAward - fee;
-    return { pct, classRate, bracket, isLifetime, grossWks, creditWks, adjustedWks,
+    return { pct, rawClassRate, classRate, bracket, isLifetime, grossWks, creditWks, adjustedWks,
              grossAward, creditDollars, totalAward, fee, weeklyNet, totalNet };
-  }, [inputs, tt]);
+  }, [inputs, tt, aww, global.minRate, global.maxRate]);
 
   return (
     <>
@@ -259,20 +275,25 @@ function CCPTile({ tile, global, onUpdate }) {
     const out = inputs.periods.map(p => {
       const wks = weeksBetween(p.start, p.end);
       // Resolve the "current" rate using the desg, exactly as v1.1 did.
-      let currentRate = 0;
-      if (p.desg === 'TT')         currentRate = tt;
-      else if (p.desg === 'RE')    currentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
+      let rawCurrentRate = 0;
+      if (p.desg === 'TT')         rawCurrentRate = tt;
+      else if (p.desg === 'RE')    rawCurrentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
       else if (p.desg === 'TR') {
-        // TR percentage is applied to the UNCAPPED ⅔ × AWW first, then capped
-        // at the statutory max for the DOI. Using the already-capped TT as the
-        // base understates the TR any time ⅔ × AWW exceeds the max.
+        // TR percentage is applied to the UNCAPPED ⅔ × AWW first; the cap is
+        // applied below by applyRateBounds. Using the already-capped TT as the
+        // base understates TR any time ⅔ × AWW exceeds the max.
         // Example: AWW $2,258.12, max $1,171.46 (DOI 10/10/24), TR @ 87.5%:
         //   wrong: 0.875 × $1,171.46 = $1,025.03
         //   right: min($1,171.46, 0.875 × ⅔ × $2,258.12) = $1,171.46
-        const uncapped = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
-        currentRate = global.maxRate > 0 ? Math.min(uncapped, global.maxRate) : uncapped;
+        rawCurrentRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
       }
-      else                         currentRate = Number(p.manualRate || 0);
+      else                         rawCurrentRate = Number(p.manualRate || 0);
+
+      // Universal min/max + AWW-override enforcement (May 2026). A 25% TR with
+      // raw rate below the DOA min is bumped UP to the min, and any raw rate
+      // above the DOA max is bumped DOWN to the max. When AWW < min, all rates
+      // collapse to AWW.
+      const currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
 
       // Change 3 — Amending Award. If the period is amending, compute
       // delta vs. prior rate; the dollars-owed for the period are based
@@ -295,7 +316,7 @@ function CCPTile({ tile, global, onUpdate }) {
         rate = Math.max(0, currentRate - priorRate);
       }
 
-      return { ...p, wks, currentRate, priorRate, rate, amount: wks * rate };
+      return { ...p, wks, rawCurrentRate, currentRate, priorRate, rate, amount: wks * rate };
     });
     const totalAward = out.reduce((s, p) => s + p.amount, 0);
     const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0));
@@ -304,7 +325,7 @@ function CCPTile({ tile, global, onUpdate }) {
     const totalFee = feeOnAward + feeOnCCP;
     const net = moving - totalFee;
     return { rows: out, totalAward, moving, feeOnAward, feeOnCCP, totalFee, net };
-  }, [inputs, tt, aww]);
+  }, [inputs, tt, aww, global.minRate, global.maxRate]);
 
   return (
     <>
@@ -785,7 +806,9 @@ function buildEquation(tile, global) {
     case 'LWEC': {
       const inputs = tile.inputs || { pct: 0, feePerWeek: 0, priorTTRWks: 0 };
       const pct = Number(inputs.pct);
-      const classRate = tt * (pct / 100);
+      const rawClassRate = tt * (pct / 100);
+      const classRate = applyRateBounds(rawClassRate, aww, global.minRate, global.maxRate);
+      const wasFloored = classRate !== rawClassRate;
       const bracket = lwecBracket(pct);
       const isLifetime = bracket.mw === 'Lifetime';
       const priorWks = Number(inputs.priorTTRWks || 0);
@@ -795,11 +818,20 @@ function buildEquation(tile, global) {
       const totalAward = isLifetime ? null : classRate * adjustedWks;
       const fee = classRate * 15;
       const totalNet = isLifetime ? null : totalAward - fee;
+      const floorReason = isAwwBelowMin(aww, global.minRate)
+        ? `AWW ${fmt$(aww)} < statutory min ${fmt$(global.minRate)} → AWW is the floor`
+        : (rawClassRate < (global.minRate || 0)
+            ? `raw class rate ${fmt$(rawClassRate)} below DOA min ${fmt$(global.minRate)}`
+            : (rawClassRate > (global.maxRate || 0)
+                ? `raw class rate ${fmt$(rawClassRate)} above DOA max ${fmt$(global.maxRate)}`
+                : ''));
       const lines = [
         `LWEC: ${pct}% (${bracket.l})`,
-        `Class Rate: ${fmt$(tt)} × ${pct}% = ${fmt$(classRate)}/wk`,
-        `Gross Weeks: ${isLifetime ? 'Lifetime' : bracket.mw}`,
+        `Raw Class Rate: ${fmt$(tt)} × ${pct}% = ${fmt$(rawClassRate)}/wk`,
       ];
+      if (wasFloored) lines.push(`Adjusted Class Rate: ${fmt$(classRate)}/wk (${floorReason})`);
+      else lines.push(`Class Rate: ${fmt$(classRate)}/wk`);
+      lines.push(`Gross Weeks: ${isLifetime ? 'Lifetime' : bracket.mw}`);
       if (!isLifetime && creditWks > 0) {
         lines.push(`§15(3)(w) Credit: ${fmtN(priorWks, 2)} prior wks − 130 = ${fmtN(creditWks, 2)} wks credit`);
         lines.push(`Adjusted Weeks: ${fmtN(grossWks, 2)} − ${fmtN(creditWks, 2)} = ${fmtN(adjustedWks, 2)}`);
@@ -818,17 +850,23 @@ function buildEquation(tile, global) {
       let totalAward = 0;
       const lines = [];
       const summary = [];
+      const awwOverride = isAwwBelowMin(aww, global.minRate);
+      if (awwOverride) {
+        lines.push(`** AWW ${fmt$(aww)} < statutory min ${fmt$(global.minRate)} → AWW is the floor for every rate. **`);
+      }
       inputs.periods.forEach((p, i) => {
         const wks = weeksBetween(p.start, p.end);
-        let rate = 0;
-        if (p.desg === 'TT') rate = tt;
-        else if (p.desg === 'RE') rate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
-        else if (p.desg === 'TR') rate = tt * (Number(p.ratePct || 0) / 100);
-        else rate = Number(p.manualRate || 0);
+        let rawRate = 0;
+        if (p.desg === 'TT') rawRate = tt;
+        else if (p.desg === 'RE') rawRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
+        else if (p.desg === 'TR') rawRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
+        else rawRate = Number(p.manualRate || 0);
+        const rate = applyRateBounds(rawRate, aww, global.minRate, global.maxRate);
+        const adjusted = Math.abs(rate - rawRate) > 0.005;
         const amt = wks * rate;
         totalAward += amt;
-        lines.push(`P${i+1} ${p.desg}: ${fmtN(wks, 2)} wks × ${fmt$(rate)} = ${fmt$(amt)}`);
-        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk = ${fmt$(amt)})`);
+        lines.push(`P${i+1} ${p.desg}: ${fmtN(wks, 2)} wks × ${fmt$(rate)}${adjusted ? ` (raw ${fmt$(rawRate)}, bounded by min/max for DOA)` : ''} = ${fmt$(amt)}`);
+        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted ? ` — adjusted from raw ${fmt$(rawRate)}` : ''} = ${fmt$(amt)})`);
       });
       const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0));
       const feeOnAward = moving * 0.15;

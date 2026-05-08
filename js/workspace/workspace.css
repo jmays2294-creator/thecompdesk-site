@@ -667,6 +667,16 @@ html body[data-theme] .beta-banner {
   cursor: pointer; font: inherit; font-size: 12px; font-family: var(--mono);
 }
 .days-week-toggle button.active { background: var(--ac-soft); border-color: var(--ac); color: var(--ac-2); }
+.days-week-toggle-stacked button {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 8px 6px; min-height: 56px; line-height: 1.15;
+}
+.days-week-toggle-stacked .days-week-mult { font-size: 14px; font-weight: 600; }
+.days-week-toggle-stacked .days-week-note {
+  font-family: var(--sans, inherit); font-size: 10px;
+  color: var(--tx-faint); text-align: center; max-width: 11em;
+}
+.days-week-toggle-stacked button.active .days-week-note { color: var(--ac-2); }
 
 /* ---------- Workspace shell ---------- */
 

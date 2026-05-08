@@ -118,10 +118,51 @@ function applyMinFloor(rate, aww, minR) {
   return rate;
 }
 
+// =============================================================================
+// applyRateBounds(rate, aww, minRate, maxRate)
+// =============================================================================
+// Universal min/max enforcement for any computed weekly compensation rate
+// (TT, SLU, RE, TR, LWEC class rate, manual CCP rate, etc.).
+//
+// Rule (May 2026, per Joel — applies to all award tiles):
+//   1. If AWW for the DOA is BELOW the statutory minimum rate for the DOA,
+//      the AWW itself becomes the floor AND ceiling for everything. The TT
+//      rate, SLU rate, and minimum rate all collapse to the AWW. This is
+//      because a worker can never receive more than 100% of their AWW, so
+//      when min > AWW, the floor must drop to AWW.
+//   2. Otherwise: cap the rate at the statutory max for the DOA, then floor
+//      it at the statutory min. This means a 25% CCP/TR rate that computes
+//      below the min floor is bumped UP to the min, and a high rate is
+//      bumped DOWN to the max.
+//
+// Returns the bounded rate. Pass minRate/maxRate as 0 (or null/undefined) to
+// skip that bound. AWW-override only fires when both aww > 0 and minRate > 0.
+function applyRateBounds(rate, aww, minRate, maxRate) {
+  const awwNum = Number(aww) || 0;
+  const r = Number(rate) || 0;
+  const minR = Number(minRate) || 0;
+  const maxR = Number(maxRate) || 0;
+  // Override: AWW < min → everything collapses to AWW
+  if (minR > 0 && awwNum > 0 && awwNum < minR) {
+    return awwNum;
+  }
+  let bounded = r;
+  if (maxR > 0) bounded = Math.min(bounded, maxR);
+  if (minR > 0 && bounded < minR) bounded = minR;
+  return bounded;
+}
+
+// Whether the AWW-overrides-all rule is firing for this (aww, doi) combination.
+// Useful for UI badges / equation explanations.
+function isAwwBelowMin(aww, minRate) {
+  const a = Number(aww) || 0;
+  const m = Number(minRate) || 0;
+  return m > 0 && a > 0 && a < m;
+}
+
 function getCappedTT(aww, maxRate, minRate) {
   const tt = (Number(aww) || 0) * 2 / 3;
-  const capped = maxRate > 0 ? Math.min(tt, maxRate) : tt;
-  return applyMinFloor(capped, Number(aww) || 0, minRate || 0);
+  return applyRateBounds(tt, aww, minRate, maxRate);
 }
 
 function lwecBracket(pct) {
@@ -145,5 +186,6 @@ const fmtN = (n, d=2) => {
 
 Object.assign(window, {
   MAX_RATES, MIN_RATES, SLU_BP, LWEC_BR, NERVE_CAPS, CERVICAL_RANKS, LUMBAR_RANKS,
-  lookupMax, lookupMin, applyMinFloor, getCappedTT, lwecBracket, fmt$, fmtN,
+  lookupMax, lookupMin, applyMinFloor, applyRateBounds, isAwwBelowMin,
+  getCappedTT, lwecBracket, fmt$, fmtN,
 });
