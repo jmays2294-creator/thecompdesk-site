@@ -858,7 +858,7 @@
 
             <div class="field">
               <label for="bodyOther">Other body part (any language)</label>
-              <input type="text" id="bodyOther" name="body_parts_other" placeholder="e.g., rodilla, épaule, plecy, ribs" maxlength="200" autocomplete="off">
+              <input type="text" id="bodyOther" name="body_parts_other" placeholder="e.g., rodilla, épaule, plecy, ribs" autocomplete="off">
               <div class="hint">Optional. Type any body part the diagram doesn't cover, in any language.</div>
             </div>
 
@@ -1245,9 +1245,13 @@
       // Build body_parts: union of clicked regions + freeform "other" field
       const otherRaw = (document.getElementById('bodyOther')?.value || '').trim();
       const otherParts = otherRaw
-        ? otherRaw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 10)
+        ? otherRaw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean)
         : [];
       const bodyPartsArr = [...new Set([...bodyDxState, ...otherParts])];
+
+      // Server expects an `injuries` string. Compose from clicked body
+      // regions + any freeform "other body part" text. No char limits.
+      const injuriesStr = bodyPartsArr.join(', ');
 
       const payload = {
         first_name:           fd.get('first_name')?.trim(),
@@ -1257,6 +1261,7 @@
         date_of_accident:     fd.get('date_of_accident'),
         employer_name:        fd.get('employer_name')?.trim(),
         accident_description: fd.get('accident_description')?.trim(),
+        injuries:             injuriesStr,
         body_parts:           bodyPartsArr,
         body_parts_other:     otherRaw || null,
         preferred_contact:    fd.get('preferred_contact') || 'either',
