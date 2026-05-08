@@ -575,9 +575,9 @@ function TabStrip({ tabs, activeTabId, tier, onSwitch, onNew, onClose, onRename,
           +
         </button>
       </div>
-      {!isPro && tabs.length > 1 && (
+      {!isPro && (
         <div className="tab-strip-tier-note">
-          Free tier: {syncedCount}/1 synced. Upgrade to Pro to sync every tab across devices.
+          Free tier: 1 case at a time. Upgrade to Pro to open multiple case tabs.
         </div>
       )}
     </div>
@@ -589,29 +589,57 @@ function TabStrip({ tabs, activeTabId, tier, onSwitch, onNew, onClose, onRename,
 // ============================================================================
 
 const PALETTE_ITEMS = [
-  { type: 'SLU',           name: 'SLU',           icon: 'SLU',  desc: 'Schedule Loss of Use — multi body part awards' },
+  // pro:true mirrors TILE_SPECS in tiles.js. Free users see a lock badge on
+  // these palette cards and hit the Paywall on click/drop.
+  { type: 'SLU',           name: 'SLU',           icon: 'SLU',  desc: 'Schedule Loss of Use — multi body part awards', pro: true },
   { type: 'LWEC',          name: 'LWEC',          icon: 'LW',   desc: 'Loss of Wage Earning Capacity bracket calc' },
   { type: 'CCP',           name: 'CCP / Award',   icon: 'CCP',  desc: 'Period-by-period builder · TT/RE/TR/TP/NCLT/NME' },
   { type: 'Burns',         name: 'Burns Rate',    icon: 'BRN',  desc: '3rd-party lien apportionment per Burns v Varick' },
   { type: 'Settlement',    name: 'Settlement',    icon: 'S32',  desc: 'Section 32 — settlement minus MSA, 15% fee on remainder' },
   { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', desc: 'Max + Min rate by date' },
-  { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  desc: 'S11.4 point system + nerve-root caps' },
+  { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  desc: 'S11.4 point system + nerve-root caps', pro: true },
 ];
 
-function Palette({ onAdd, onDragStart }) {
+function Palette({ onAdd, onDragStart, isPro }) {
   return (
     <aside className="palette">
       <h2>Tile Palette</h2>
-      {PALETTE_ITEMS.map(item => (
-        <button key={item.type} className="palette-card"
-          draggable
-          onDragStart={(e) => onDragStart(e, item.type)}
-          onClick={() => onAdd(item.type)}>
-          <div className="pc-icon">{item.icon}</div>
-          <div className="pc-name">{item.name}</div>
-          <div className="pc-desc">{item.desc}</div>
-        </button>
-      ))}
+      {PALETTE_ITEMS.map(item => {
+        const locked = !!item.pro && !isPro;
+        return (
+          <button
+            key={item.type}
+            className={'palette-card' + (locked ? ' locked' : '')}
+            draggable
+            onDragStart={(e) => onDragStart(e, item.type)}
+            onClick={() => onAdd(item.type)}
+            title={locked ? 'Pro feature — upgrade to use this tile' : item.desc}>
+            <div className="pc-icon">{item.icon}</div>
+            <div className="pc-name">
+              {item.name}
+              {item.pro && (
+                <span
+                  className={'pc-pro-badge' + (locked ? ' locked' : '')}
+                  aria-label={locked ? 'Pro feature' : 'Pro tier'}
+                  style={{
+                    marginLeft: '6px',
+                    fontSize: '9px',
+                    fontWeight: 800,
+                    letterSpacing: '0.5px',
+                    padding: '1px 6px',
+                    borderRadius: '3px',
+                    background: locked ? 'rgba(245,158,11,0.18)' : 'rgba(45,212,160,0.18)',
+                    color: locked ? '#f59e0b' : '#2dd4a0',
+                    verticalAlign: 'middle',
+                  }}>
+                  {locked ? '🔒 PRO' : 'PRO'}
+                </span>
+              )}
+            </div>
+            <div className="pc-desc">{item.desc}</div>
+          </button>
+        );
+      })}
     </aside>
   );
 }
@@ -826,15 +854,44 @@ function EquationCard({ tile, global, onFeeApp }) {
   );
 }
 
-function Paywall({ onClose }) {
+const PAYWALL_COPY = {
+  // Default — fee-app generation. Preserved as-is so feeapp.js's existing
+  // 'feeapp:paywall' event surfaces the same message it always did.
+  'fee-app': {
+    title: 'Pro / Firm Subscription Required',
+    body:  'Generate Fee App produces a court-ready WCB-EC-2.1 PDF with the equation, fee request, and assignment. This feature is gated behind a Pro or Firm subscription.',
+  },
+  // Hard tab cap on Free — second tab requires Pro/Firm. Replaces the prior
+  // "1 synced + unlimited local" model so the workspace behaves like a true
+  // single-case sandbox for free attorneys evaluating the product.
+  'tab': {
+    title: 'Multi-case tabs require Pro',
+    body:  'The free workspace is limited to one case at a time. Upgrade to Pro or Firm to open additional case tabs and switch between cases without losing your place.',
+  },
+  // Per-tile gate — SLU + Radiculopathy mirror the /for-attorneys Pro tier.
+  // The reason string includes the tile name so the message is specific.
+  'pro-tile': {
+    title: 'This tile is Pro-only',
+    body:  'This calculator is part of the Pro tier. Upgrade to Pro or Firm to add it to your workspace canvas.',
+  },
+};
+
+function Paywall({ onClose, reason, tileName }) {
+  const copy = PAYWALL_COPY[reason] || PAYWALL_COPY['fee-app'];
+  const body = (reason === 'pro-tile' && tileName)
+    ? `${tileName} is part of the Pro tier. Upgrade to Pro or Firm to add it to your workspace canvas.`
+    : copy.body;
+  // Best-effort upgrade CTA — sends the user to the for-attorneys pricing
+  // section. If that path ever moves, update here.
+  const upgrade = () => { window.location.href = '/for-attorneys.html#pricing'; };
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h3>Pro / Firm Subscription Required</h3>
-        <p>Generate Fee App produces a court-ready WCB-EC-2.1 PDF with the equation, fee request, and assignment. This feature is gated behind a Pro or Firm subscription.</p>
+        <h3>{copy.title}</h3>
+        <p>{body}</p>
         <div className="actions">
           <button className="btn" onClick={onClose}>Not now</button>
-          <button className="btn primary" onClick={onClose}>View plans</button>
+          <button className="btn primary" onClick={upgrade}>View plans</button>
         </div>
       </div>
     </div>
@@ -919,7 +976,7 @@ function App() {
   // UI scaffolding
   const [tweaks, setTweaks] = useState(() => ({ ...DEFAULT_TWEAKS }));
   const [mostRecentId, setMostRecentId] = useState(null);
-  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [paywallState, setPaywallState] = useState(null); // null | { reason, tileName? }
   const [saveStatus, setSaveStatus] = useState('saved'); // saved|saving|error|offline
   const [conflictToast, setConflictToast] = useState(null); // {remoteData, remoteVersion}
   const [tier, setTier] = useState(() => window.currentTier || 'free');
@@ -1125,11 +1182,14 @@ function App() {
 
   const newTabAction = useCallback(() => {
     setTabs(prev => {
-      // Free tier: only one tab is synced (the active one stays synced if it
-      // already is; new tab is local-only). Pro/Firm: every tab synced.
-      const syncedCount = prev.filter(t => t.synced !== false).length;
-      const synced = isPro ? true : syncedCount === 0; // first tab synced for free
-      const t = newTab({ synced });
+      // Free tier hard cap: one tab. Attempting to open a second tab fires
+      // the Paywall modal — multi-case tabs are a Pro feature per the
+      // /for-attorneys pricing copy. Pro/Firm: unlimited synced tabs.
+      if (!isPro && prev.length >= 1) {
+        setPaywallState({ reason: 'tab' });
+        return prev;
+      }
+      const t = newTab({ synced: true });
       const next = [...prev, t];
       setActiveTabId(t.id);
       return next;
@@ -1220,6 +1280,14 @@ function App() {
   // ---------- Tile actions on the active tab ----------
   const addTile = (type, opts = {}) => {
     const spec = TILE_SPECS[type];
+    if (!spec) return;
+    // Per-tile Pro gate: SLU + Radiculopathy require Pro/Firm. Both palette
+    // click and canvas drop funnel through this function, so one check covers
+    // both entry points.
+    if (spec.pro && !isPro) {
+      setPaywallState({ reason: 'pro-tile', tileName: spec.name });
+      return;
+    }
     const slot = findEmptySlot(activeTab.tiles, spec.w, spec.h, opts.preferX || 20, opts.preferY || 20, tweaks.snapSize || GRID);
     const sameTypeCount = activeTab.tiles.filter(t => t.type === type).length + 1;
     const id = Date.now() + Math.random();
@@ -1271,13 +1339,13 @@ function App() {
     }
     window.WorkspaceFeeAppContext = ctx;
     if (typeof window.triggerFeeApp === 'function') window.triggerFeeApp(ctx);
-    else setPaywallOpen(true);
+    else setPaywallState({ reason: 'fee-app' });
   };
 
   // feeapp.js dispatches 'feeapp:paywall' when a non-Pro user invokes the
   // generator. Surface the same paywall the workspace already uses.
   useEffect(() => {
-    const onPaywall = () => setPaywallOpen(true);
+    const onPaywall = () => setPaywallState({ reason: 'fee-app' });
     window.addEventListener('feeapp:paywall', onPaywall);
     return () => window.removeEventListener('feeapp:paywall', onPaywall);
   }, []);
@@ -1304,7 +1372,7 @@ function App() {
         saveStatus={saveStatus}/>
 
       <div className="workspace">
-        <Palette onAdd={addTile} onDragStart={onPaletteDragStart} />
+        <Palette onAdd={addTile} onDragStart={onPaletteDragStart} isPro={isPro} />
         <Canvas
           tiles={activeTab.tiles}
           global={global}
@@ -1332,7 +1400,7 @@ function App() {
         Informational only — verify against WCB records. Not legal advice.
       </footer>
 
-      {paywallOpen && <Paywall onClose={() => setPaywallOpen(false)} />}
+      {paywallState && <Paywall onClose={() => setPaywallState(null)} reason={paywallState.reason} tileName={paywallState.tileName} />}
 
       {conflictToast && (
         <div className="sync-toast" role="alert">

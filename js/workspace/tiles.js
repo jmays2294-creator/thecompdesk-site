@@ -2,11 +2,15 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 const TILE_SPECS = {
-  SLU:           { w: 480, h: 600, name: 'Schedule Loss of Use' },
+  // pro:true marks tiles gated to Pro/Firm subscribers per /for-attorneys
+  // pricing copy ("SLU Permanency tile · Radiculopathy point calculator tile").
+  // Free users see a lock badge in the palette and hit the Paywall modal on
+  // click/drop. Keep this in sync with PALETTE_ITEMS in app.js.
+  SLU:           { w: 480, h: 600, name: 'Schedule Loss of Use', pro: true },
   LWEC:          { w: 400, h: 460, name: 'Loss of Wage Earning Capacity' },
   CCP:           { w: 560, h: 600, name: 'CCP / Award Builder' },
   RateLookup:    { w: 320, h: 240, name: 'Rate Lookup' },
-  Radiculopathy: { w: 480, h: 720, name: 'Radiculopathy Scorer' },
+  Radiculopathy: { w: 480, h: 720, name: 'Radiculopathy Scorer', pro: true },
   Burns:         { w: 460, h: 520, name: 'Burns Rate (3rd-Party Lien)' },
   Settlement:    { w: 420, h: 360, name: 'Section 32 Settlement' },
 };
