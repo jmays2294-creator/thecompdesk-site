@@ -488,13 +488,27 @@ function CCPTile({ tile, global, onUpdate }) {
           </div>
         </div>
 
-        {/* Period Summary — compact one-line view of every period, shown
-            above the full Award/Fee/Net breakdown. Format per row:
-              [start]–[end]  [rate $/wk]  [DESG]  [% if TR/RE]  [REIMB ER if any] */}
+        {/* Period Summary — condensed, single-line per period, shown above
+            the full Award/Fee/Net breakdown. Format per row:
+              mm/dd/yyyy-mm/dd/yyyy · $rate/wk · DESG · % (if TR/RE) · REIMB ER −$X (if any)
+            Reviewing attorneys read these at a glance, so the whole line
+            packs into one flex row with middot separators. */}
         {computed.rows.length > 0 && (
           <div className="ccp-summary">
             <div className="ccp-summary-title">Periods</div>
             {computed.rows.map((p, i) => {
+              // ISO `YYYY-MM-DD` from <input type="date"> → `mm/dd/yyyy`.
+              const fmtMDY = (iso) => {
+                if (!iso || typeof iso !== 'string') return '';
+                const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                return m ? `${m[2]}/${m[3]}/${m[1]}` : iso;
+              };
+              const startStr = fmtMDY(p.start);
+              const endStr   = fmtMDY(p.end);
+              const dateStr  = (startStr || endStr)
+                ? `${startStr || '—'}-${endStr || '—'}`
+                : '—';
+
               const showPct = p.desg === 'TR' || p.desg === 'RE';
               let pctText = '';
               if (showPct) {
@@ -506,15 +520,26 @@ function CCPTile({ tile, global, onUpdate }) {
                 }
               }
               const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
+
               return (
                 <div className="ccp-summary-row" key={p.id}>
-                  <span className="ccp-sum-dates">{p.start || '—'}{p.start || p.end ? ' – ' : ''}{p.end || '—'}</span>
+                  <span className="ccp-sum-dates">{dateStr}</span>
+                  <span className="ccp-sum-sep">·</span>
                   <span className="ccp-sum-rate">{fmt$(p.rate)}/wk</span>
+                  <span className="ccp-sum-sep">·</span>
                   <span className={'ccp-sum-desg desg-' + p.desg}>{p.desg}</span>
-                  <span className="ccp-sum-pct">{pctText}</span>
-                  {p.reimbErOn
-                    ? <span className="ccp-sum-reimb">REIMB ER −{fmt$(reimbAmt)}</span>
-                    : <span className="ccp-sum-reimb empty"/>}
+                  {pctText && (
+                    <>
+                      <span className="ccp-sum-sep">·</span>
+                      <span className="ccp-sum-pct">{pctText}</span>
+                    </>
+                  )}
+                  {p.reimbErOn && (
+                    <>
+                      <span className="ccp-sum-sep">·</span>
+                      <span className="ccp-sum-reimb">REIMB ER −{fmt$(reimbAmt)}</span>
+                    </>
+                  )}
                 </div>
               );
             })}
