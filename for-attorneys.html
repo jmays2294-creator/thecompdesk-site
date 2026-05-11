@@ -200,6 +200,7 @@ footer a{color:var(--txD);}
       <a href="/" style="color:var(--txD);">Home</a>
       <a href="#calculators" style="color:var(--ac);font-weight:700;">Calculators</a>
       <a href="/workspace/" style="color:var(--gn);font-weight:700;">Workspace</a>
+      <a href="/extension" style="color:var(--gn);font-weight:700;">Apps</a>
       <a href="#compare">Compare Plans</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -552,6 +553,78 @@ footer a{color:var(--txD);}
     </div>
   </div>
 </section>
+
+<!-- GET THE COMP DESK EVERYWHERE -->
+<style>
+.everywhere{padding:80px 0;border-top:1px solid var(--bd);background:var(--card);}
+.everywhere h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:12px;}
+.everywhere .sub{text-align:center;color:var(--txD);font-size:16px;margin-bottom:48px;max-width:640px;margin-left:auto;margin-right:auto;}
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.ev-card{background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;}
+.ev-card.live{border-color:rgba(45,212,160,0.35);}
+.ev-card.soon{border-color:rgba(240,160,48,0.35);}
+.ev-card .icon{font-size:28px;margin-bottom:10px;}
+.ev-card .tag{align-self:flex-start;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.ev-card.live .tag{background:rgba(45,212,160,0.12);color:var(--gn);}
+.ev-card.soon .tag{background:rgba(240,160,48,0.12);color:var(--gd);}
+.ev-card h3{font-size:18px;font-weight:800;color:var(--wh);margin-bottom:8px;letter-spacing:-0.2px;}
+.ev-card p{font-size:14px;color:var(--txD);line-height:1.65;margin-bottom:18px;flex-grow:1;}
+.ev-card .ev-cta{margin-top:auto;}
+.ev-form{display:flex;flex-direction:column;gap:6px;margin-top:auto;}
+.ev-form .field-row{display:flex;gap:8px;}
+.ev-form input[type="email"]{flex:1;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);font-family:inherit;}
+.ev-form input[type="email"]:focus{outline:none;border-color:var(--gd);}
+.ev-form button{background:var(--gd);color:#1a1200;border:none;border-radius:8px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+.ev-form button:hover{filter:brightness(1.05);}
+.ev-form button:disabled{opacity:0.6;cursor:wait;}
+.ev-form [data-capture-status]{font-size:12px;margin-top:2px;}
+.ev-form .privacy-note{font-size:11px;color:var(--txM);margin-top:2px;}
+@media(max-width:600px){.ev-grid{grid-template-columns:1fr;}}
+</style>
+<section class="everywhere" id="apps">
+  <div class="wrap">
+    <h2>Get The Comp Desk everywhere you work.</h2>
+    <p class="sub">One subscription, one synced case library. Calculate at the hearing, finish in your inbox, draft at your desk — without re-entering an AWW between them.</p>
+    <div class="ev-grid">
+
+      <div class="ev-card live">
+        <div class="icon">📱</div>
+        <span class="tag">Live on App Store</span>
+        <h3>iOS App</h3>
+        <p>The hearing-room workhorse. Full calculator suite, saved cases, fee app math — one hand on the way to the floor.</p>
+        <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="cta-btn green ev-cta" aria-label="Download The Comp Desk on the App Store">Download on App Store</a>
+      </div>
+
+      <div class="ev-card soon">
+        <div class="icon">🧩</div>
+        <span class="tag">Chrome — Coming Soon</span>
+        <h3>Chrome Extension</h3>
+        <p>Highlight a wage statement in an adjuster email — the AWW lands in the side panel. Same calculators, no tab-switching.</p>
+        <form class="ev-form" data-capture="extension" data-tags="chrome-waitlist,for-attorneys">
+          <div class="field-row">
+            <input type="email" name="email" placeholder="you@firm.com" required aria-label="Email for Chrome extension waitlist">
+            <button type="submit">Notify Me</button>
+          </div>
+          <p class="privacy-note">One email when the listing goes live. See <a href="/extension-privacy" style="color:var(--txD);">extension privacy</a>.</p>
+        </form>
+      </div>
+
+      <div class="ev-card live">
+        <div class="icon">🖥️</div>
+        <span class="tag">Open Now</span>
+        <h3>Web Workspace</h3>
+        <p>Every Pro tile on one canvas — drag, drop, switch cases. Free single-tab demo, no sign-in required.</p>
+        <a href="/workspace/" class="cta-btn outline ev-cta">Open the Workspace</a>
+      </div>
+
+    </div>
+    <p style="text-align:center;color:var(--txM);font-size:13px;margin-top:32px;">Want the full breakdown? <a href="/extension" style="color:var(--ac);">See every platform →</a></p>
+  </div>
+</section>
+
+<!-- Email capture infrastructure (required for the Chrome waitlist form above) -->
+<script src="/js/esp-adapter.js" defer></script>
+<script src="/js/email-capture.js" defer></script>
 
 <!-- BOTTOM CTA -->
 <section class="cta-banner">

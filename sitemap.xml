@@ -3,7 +3,7 @@
 
   <!-- ============================================
        The Comp Desk — Sitemap
-       Updated: 2026-05-08 (full SEO sweep)
+       Updated: 2026-05-10 (added /extension landing page)
        Domain: https://thecompdesk.com
        ============================================ -->
 
@@ -41,6 +41,13 @@
     <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://thecompdesk.com/extension</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- ==================== CALCULATOR PAGES ==================== -->

@@ -28,6 +28,7 @@
     'footer',
     'exit-intent',
     'post-calculator',
+    'extension',
   ]);
 
   // Default no-op adapter. Logs to console and POSTs to /api/subscribe if
