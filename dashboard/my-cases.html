@@ -324,6 +324,141 @@
     .card-action-btn.delete { color: var(--rd); border-color: rgba(239,68,68,.2); }
     .card-action-btn.delete:hover { background: rgba(239,68,68,.08); }
 
+    /* ═══ Per-row trash icon + bulk-select (May 10, 2026) ═══ */
+    .calc-row-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border: 1px solid var(--bd);
+      border-radius: 3px;
+      background: var(--bg);
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      transition: all .12s;
+    }
+    .calc-row-checkbox:hover { border-color: var(--ac); }
+    .calc-row-checkbox:checked {
+      background: var(--ac);
+      border-color: var(--ac);
+    }
+    .calc-row-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .calc-trash-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--txM);
+      font-size: 14px;
+      line-height: 1;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all .12s;
+      flex-shrink: 0;
+    }
+    .calc-trash-btn:hover {
+      color: var(--rd);
+      border-color: rgba(239,68,68,.25);
+      background: rgba(239,68,68,.06);
+    }
+
+    /* Bulk action bar — slides into main-actions when items selected */
+    .bulk-action-bar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: rgba(239,68,68,.06);
+      border: 1px solid rgba(239,68,68,.25);
+      border-radius: 6px;
+    }
+    .bulk-action-bar.visible { display: flex; }
+    .bulk-action-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--txD);
+    }
+    .bulk-action-btn {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 5px;
+      border: 1px solid var(--rd);
+      background: var(--rd);
+      color: #fff;
+      cursor: pointer;
+      transition: all .12s;
+      margin-left: auto;
+    }
+    .bulk-action-btn:hover { background: #c92a2a; border-color: #c92a2a; }
+    .bulk-action-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .bulk-action-clear {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid var(--bd);
+      background: transparent;
+      color: var(--txM);
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .bulk-action-clear:hover { color: var(--txD); border-color: var(--txD); }
+
+    /* Confirm modal — replaces native confirm() */
+    .cd-confirm-overlay {
+      position: fixed; inset: 0; z-index: 9500;
+      background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      animation: cdConfirmFadeIn .12s ease-out;
+    }
+    @keyframes cdConfirmFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .cd-confirm-box {
+      background: linear-gradient(135deg, #101828 0%, #0d1f3c 100%);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 12px;
+      padding: 24px 24px 20px;
+      max-width: 380px;
+      width: 92%;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+    .cd-confirm-box h3 {
+      color: #fff; font-size: 17px; font-weight: 800;
+      margin: 0 0 8px;
+    }
+    .cd-confirm-box p {
+      color: var(--txD); font-size: 13px; line-height: 1.55;
+      margin: 0 0 18px;
+    }
+    .cd-confirm-actions {
+      display: flex; gap: 8px; justify-content: flex-end;
+    }
+    .cd-confirm-cancel,
+    .cd-confirm-delete {
+      font-size: 12px; font-weight: 700;
+      padding: 8px 16px; border-radius: 6px;
+      cursor: pointer; transition: all .12s;
+      border: 1px solid var(--bd);
+    }
+    .cd-confirm-cancel { background: transparent; color: var(--txD); }
+    .cd-confirm-cancel:hover { border-color: var(--txD); color: #fff; }
+    .cd-confirm-delete {
+      background: var(--rd); border-color: var(--rd); color: #fff;
+    }
+    .cd-confirm-delete:hover { background: #c92a2a; border-color: #c92a2a; }
+
+    /* Header layout for checkbox + trash on each calc card */
+    .calc-card-header { gap: 8px; }
+
     /* Welcome / no-selection state */
     .welcome-state {
       flex: 1;
@@ -415,6 +550,11 @@
             <a id="openInProBtn" href="/workspace/" class="btn-sm primary">Open in Workspace</a>
             <button class="btn-sm" id="refreshBtn">Refresh</button>
           </div>
+          <div class="bulk-action-bar" id="bulkActionBar" aria-live="polite">
+            <span class="bulk-action-count" id="bulkActionCount">0 selected</span>
+            <button class="bulk-action-clear" id="bulkActionClear" type="button">Clear</button>
+            <button class="bulk-action-btn" id="bulkActionDelete" type="button">Delete selected (0)</button>
+          </div>
         </div>
         <div class="calc-timeline" id="calcTimeline">
           <!-- Populated by JS -->
@@ -424,14 +564,19 @@
   </div>
 
   <script type="module">
-    import { getUser, hasAccess, getUserCases, getCaseCalculations, deleteCalculation, TIERS } from '../js/auth.js';
+    import { getUser, hasAccess, getUserCases, getCaseCalculations, deleteCalculation, TIERS, supabase } from '../js/auth.js';
     import { renderNav } from '../js/nav.js';
+    import { startCalcHistorySync, stopCalcHistorySync } from '../js/calc-history-sync.js';
 
     // ─── State ───
     let allCases = [];
     let selectedCase = null;
     let currentSort = 'recent';
     let currentUser = null;
+    // Set of calc IDs currently checked for bulk-delete. Scoped to the currently
+    // viewed case — cleared whenever the user switches cases or the realtime
+    // sync refetches. Stored as strings to match HTMLDataset values.
+    const selectedIds = new Set();
 
     // ─── Helpers ───
     function fmtDate(iso) {
@@ -486,8 +631,8 @@
         list.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">📋</div>
-            <h3>${filter ? 'No matching cases' : 'No cases yet'}</h3>
-            <p>${filter ? 'Try a different search term.' : 'Save calculations from the <a href="/workspace/" style="color:var(--ac);">Workspace</a> with a case name to see them here.'}</p>
+            <h3>${filter ? 'No matching cases' : 'No saved cases yet'}</h3>
+            <p>${filter ? 'Try a different search term.' : 'No saved cases yet — run a calc and hit Save to start your case list. <a href="/workspace/" style="color:var(--ac);display:inline-block;margin-top:8px;">Open the Workspace →</a>'}</p>
           </div>`;
         return;
       }
@@ -522,7 +667,15 @@
 
     // ─── Select a case and render detail ───
     async function selectCase(caseObj) {
+      // Only drop the bulk-select state when actually switching to a different
+      // case. Re-selecting the same case (e.g. after a realtime refetch) keeps
+      // any checks the user already made.
+      const switchingCases = !selectedCase || selectedCase.case_name !== caseObj.case_name;
       selectedCase = caseObj;
+      if (switchingCases) {
+        selectedIds.clear();
+        updateBulkBar();
+      }
 
       // Update sidebar active state
       document.querySelectorAll('.case-item').forEach(el => {
@@ -592,25 +745,114 @@
         });
       });
 
-      // Wire delete buttons
+      // Wire per-row delete buttons (both header trash icon and bottom Delete button)
       timeline.querySelectorAll('.delete-calc-btn').forEach(btn => {
         btn.addEventListener('click', async e => {
           e.stopPropagation();
-          if (!confirm('Delete this calculation? This cannot be undone.')) return;
           const id = btn.dataset.id;
-          const ok = await deleteCalculation(id);
-          if (ok) {
-            btn.closest('.calc-card').remove();
-            // Refresh case data
-            allCases = await getUserCases(currentUser.session.user.id);
-            const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
-            if (refreshed) {
-              selectedCase = refreshed;
-              renderCaseList(document.getElementById('caseSearch').value);
-            }
-          }
+          const ok = await cdConfirm({
+            title: 'Delete this case?',
+            message: 'Delete this case? This cannot be undone.',
+          });
+          if (!ok) return;
+          await runDelete([id]);
         });
       });
+
+      // Wire row checkboxes — keep selectedIds in sync, update bulk bar.
+      timeline.querySelectorAll('.row-select').forEach(cb => {
+        cb.addEventListener('click', e => e.stopPropagation());
+        cb.addEventListener('change', () => {
+          const id = cb.dataset.id;
+          if (cb.checked) selectedIds.add(id); else selectedIds.delete(id);
+          updateBulkBar();
+        });
+      });
+
+      updateBulkBar();
+    }
+
+    // ─── Confirm modal — replaces window.confirm() ───
+    function cdConfirm({ title = 'Delete this case?', message = 'Delete this case? This cannot be undone.', okLabel = 'Delete', cancelLabel = 'Cancel' } = {}) {
+      return new Promise(resolve => {
+        const existing = document.getElementById('cdConfirmOverlay');
+        if (existing) existing.remove();
+        const ov = document.createElement('div');
+        ov.id = 'cdConfirmOverlay';
+        ov.className = 'cd-confirm-overlay';
+        ov.setAttribute('role', 'dialog');
+        ov.setAttribute('aria-modal', 'true');
+        ov.innerHTML = `
+          <div class="cd-confirm-box">
+            <h3>${escHTML(title)}</h3>
+            <p>${escHTML(message)}</p>
+            <div class="cd-confirm-actions">
+              <button class="cd-confirm-cancel" type="button">${escHTML(cancelLabel)}</button>
+              <button class="cd-confirm-delete" type="button">${escHTML(okLabel)}</button>
+            </div>
+          </div>`;
+        const cleanup = (v) => { ov.remove(); document.removeEventListener('keydown', onKey); resolve(v); };
+        const onKey = (e) => { if (e.key === 'Escape') cleanup(false); if (e.key === 'Enter') cleanup(true); };
+        ov.querySelector('.cd-confirm-cancel').addEventListener('click', () => cleanup(false));
+        ov.querySelector('.cd-confirm-delete').addEventListener('click', () => cleanup(true));
+        ov.addEventListener('click', (e) => { if (e.target === ov) cleanup(false); });
+        document.addEventListener('keydown', onKey);
+        document.body.appendChild(ov);
+        // Focus the destructive button so Enter confirms, Esc cancels.
+        setTimeout(() => ov.querySelector('.cd-confirm-delete').focus(), 0);
+      });
+    }
+
+    // ─── Delete one or many calculation rows ───
+    // Per Joel's May 10 spec: hard-delete v1 (matches Migration 018 RLS).
+    // Realtime sync (startCalcHistorySync below) repaints when the DELETE event
+    // fires, but we ALSO refetch + render here as a fallback in case realtime is
+    // degraded (per the Apr 27 "fail loud, not silent" playbook).
+    async function runDelete(ids) {
+      if (!ids || !ids.length) return;
+      // Optimistic: drop selection state immediately so the bulk bar collapses
+      // even if a single delete fails partway through.
+      ids.forEach(id => selectedIds.delete(String(id)));
+      const results = await Promise.all(ids.map(id => deleteCalculation(id)));
+      const failed = results.filter(ok => !ok).length;
+      if (failed > 0) {
+        console.warn('[my-cases] DELETE_PARTIAL_FAILURE', { attempted: ids.length, failed });
+      }
+      // Refetch + re-render. Realtime should also fire, but doing it manually
+      // guarantees the UI updates even if the websocket is in a degraded state.
+      if (currentUser && currentUser.session) {
+        allCases = await getUserCases(currentUser.session.user.id);
+        if (selectedCase) {
+          const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
+          if (refreshed) {
+            selectedCase = refreshed;
+            renderTimeline(refreshed.calculations);
+          } else {
+            // Last calc in the case was deleted — drop back to welcome state.
+            selectedCase = null;
+            document.getElementById('caseDetail').style.display = 'none';
+            document.getElementById('welcomeState').style.display = 'flex';
+          }
+        }
+        renderCaseList(document.getElementById('caseSearch').value);
+      }
+      updateBulkBar();
+    }
+
+    // ─── Bulk action bar visibility + count ───
+    function updateBulkBar() {
+      const bar = document.getElementById('bulkActionBar');
+      const countEl = document.getElementById('bulkActionCount');
+      const deleteBtn = document.getElementById('bulkActionDelete');
+      if (!bar || !countEl || !deleteBtn) return;
+      const n = selectedIds.size;
+      if (n === 0) {
+        bar.classList.remove('visible');
+      } else {
+        bar.classList.add('visible');
+        countEl.textContent = `${n} selected`;
+        deleteBtn.textContent = `Delete selected (${n})`;
+      }
     }
 
     // ─── Render a single calculation card ───
@@ -677,12 +919,15 @@
         inputSummary = inp.periods.filter(p => p.start && p.end).map(p => p.desig + ' ' + p.start + '→' + p.end).join(', ');
       }
 
+      const isChecked = selectedIds.has(String(calc.id));
       return `
         <div class="calc-card" data-id="${calc.id}">
           <div class="calc-card-header">
+            <input type="checkbox" class="calc-row-checkbox row-select" data-id="${calc.id}" aria-label="Select calculation" ${isChecked ? 'checked' : ''}>
             <span class="calc-card-type calc-badge ${type}">${label}</span>
             <span class="calc-card-summary">${escHTML(summary)}</span>
             <span class="calc-card-time">${time}</span>
+            <button class="calc-trash-btn delete-calc-btn" data-id="${calc.id}" title="Delete this calculation" aria-label="Delete this calculation">🗑️</button>
           </div>
           <div class="calc-card-body">
             ${detailHTML}
@@ -751,6 +996,29 @@
         renderCaseList(document.getElementById('caseSearch').value);
       });
 
+      // Bulk action bar — Clear + Delete selected (N)
+      document.getElementById('bulkActionClear').addEventListener('click', () => {
+        selectedIds.clear();
+        document.querySelectorAll('.row-select:checked').forEach(cb => { cb.checked = false; });
+        updateBulkBar();
+      });
+      document.getElementById('bulkActionDelete').addEventListener('click', async () => {
+        const n = selectedIds.size;
+        if (!n) return;
+        const ok = await cdConfirm({
+          title: `Delete ${n} ${n === 1 ? 'case' : 'cases'}?`,
+          message: `Delete ${n} selected ${n === 1 ? 'calculation' : 'calculations'}? This cannot be undone.`,
+          okLabel: `Delete ${n}`,
+        });
+        if (!ok) return;
+        const ids = Array.from(selectedIds);
+        const btn = document.getElementById('bulkActionDelete');
+        btn.disabled = true;
+        btn.textContent = 'Deleting...';
+        await runDelete(ids);
+        btn.disabled = false;
+      });
+
       // Auto-select case from URL param
       const params = new URLSearchParams(window.location.search);
       const caseName = params.get('case');
@@ -758,6 +1026,44 @@
         const c = allCases.find(x => x.case_name === caseName);
         if (c) selectCase(c);
       }
+
+      // ─── Cross-surface sync (May 8, 2026) ───
+      // When a save/update/delete happens on the iOS/Android app or another
+      // tab, the Realtime channel fires and we refetch + re-render so the
+      // user doesn't have to hit the Refresh button.
+      const syncHandle = startCalcHistorySync({
+        supabase,
+        userId: user.session.user.id,
+        onChange: async () => {
+          allCases = await getUserCases(user.session.user.id);
+          if (selectedCase) {
+            const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
+            if (refreshed) {
+              // Prune any selection IDs that no longer exist after the realtime
+              // refresh (cross-surface delete from app/another tab).
+              const liveIds = new Set(refreshed.calculations.map(c => String(c.id)));
+              Array.from(selectedIds).forEach(id => { if (!liveIds.has(id)) selectedIds.delete(id); });
+              selectCase(refreshed);
+            } else {
+              selectedCase = null;
+              selectedIds.clear();
+              updateBulkBar();
+            }
+          }
+          const search = document.getElementById('caseSearch');
+          renderCaseList(search ? search.value : '');
+        },
+      });
+
+      // Surface subscribe errors as a non-blocking inline notice (per the
+      // Apr 27 "fail loud, not silent" playbook in CLAUDE.md). The Refresh
+      // button stays as a manual fallback so the page is never stuck.
+      window.addEventListener('calchistory:error', (e) => {
+        console.warn('[my-cases] live sync degraded — Refresh button still works:', e.detail);
+      });
+
+      // SPA-style cleanup if the user navigates away.
+      window.addEventListener('beforeunload', () => stopCalcHistorySync(syncHandle));
     });
   </script>
 <script src="/js/disclaimer.js" defer></script>
