@@ -175,7 +175,7 @@ function computeAWW(state) {
 // SECTION 2 — AWW STRIP (with Compute & Apply)
 // ============================================================================
 
-function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
+function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSaveCase, onDeleteCase, saveCaseStatus }) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null); // computed result, prior to apply
 
@@ -230,6 +230,27 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus }) {
           <div className="sub">All calculators in one canvas. Set AWW & DOI once — every tile updates automatically.</div>
         </div>
         <div className="right-cluster">
+          <div className="case-actions">
+            <button
+              type="button"
+              className="btn primary tiny case-action-save"
+              onClick={onSaveCase}
+              disabled={saveCaseStatus === 'saving'}
+              title="Save this case (AWW + every tile) to My Cases">
+              {saveCaseStatus === 'saving' ? 'Saving…'
+                : saveCaseStatus === 'saved' ? 'Saved ✓'
+                : saveCaseStatus === 'error' ? 'Retry Save'
+                : saveCaseStatus === 'no-name' ? 'Enter Case Name'
+                : 'Save to My Cases'}
+            </button>
+            <button
+              type="button"
+              className="btn ghost tiny case-action-delete"
+              onClick={onDeleteCase}
+              title="Delete this case tab. If it's the only tab open, it will be replaced with a fresh blank tab.">
+              Delete Case
+            </button>
+          </div>
           <div className={'save-indicator ' + (saveStatus === 'saving' ? 'saving' : saveStatus === 'error' ? 'error' : '')}>
             <span className="dot"></span>
             {saveStatus === 'saving' ? 'Saving…'
@@ -975,6 +996,10 @@ function App() {
   const [mostRecentId, setMostRecentId] = useState(null);
   const [paywallState, setPaywallState] = useState(null); // null | { reason, tileName? }
   const [saveStatus, setSaveStatus] = useState('saved'); // saved|saving|error|offline
+  // Transient feedback for the Save to My Cases button (distinct from the
+  // background workspace auto-save indicator). Resets to null after 2–3s so
+  // the button label flips back to "Save to My Cases".
+  const [saveCaseStatus, setSaveCaseStatus] = useState(null); // null|'saving'|'saved'|'error'|'no-name'
   const [conflictToast, setConflictToast] = useState(null); // {remoteData, remoteVersion}
   const [tier, setTier] = useState(() => window.currentTier || 'free');
 
@@ -1190,10 +1215,28 @@ function App() {
   }, [tweaks.theme, tweaks.iridescence]);
 
   // ---------- Active-tab state helpers ----------
+  // When the user types in the Case / WCB# field at the top of the workspace,
+  // mirror that value into the tab's display name AND (if it parses as a WCB
+  // identifier) the tab's wcbNumber. This is how "the tab name changes from
+  // 'New Case' to that name/WCB#" — and how the value carries through to the
+  // calculation_history.case_name column when Save to My Cases is invoked.
   const setActiveAwwPartial = (patch) => {
-    setTabs(prev => prev.map(t => t.id === activeTabId
-      ? { ...t, awwState: { ...t.awwState, ...patch }, updatedAt: new Date().toISOString() }
-      : t));
+    setTabs(prev => prev.map(t => {
+      if (t.id !== activeTabId) return t;
+      const newAwwState = { ...t.awwState, ...patch };
+      const next = { ...t, awwState: newAwwState, updatedAt: new Date().toISOString() };
+      if (Object.prototype.hasOwnProperty.call(patch, 'caseName')) {
+        const trimmed = (patch.caseName || '').trim();
+        next.name = trimmed || 'New Case';
+        // Loose WCB-ID heuristic: optional leading letter + 7–9 digits, no spaces.
+        // Examples that match: G1234567, 12345678, W7654321.
+        const noSpace = trimmed.replace(/\s/g, '');
+        if (/^[A-Z]?\d{7,9}$/i.test(noSpace)) {
+          next.wcbNumber = noSpace.toUpperCase();
+        }
+      }
+      return next;
+    }));
   };
 
   const setActiveTiles = (updater) => {
@@ -1348,6 +1391,111 @@ function App() {
     setActiveTiles(prev => prev.filter(t => t.id !== id));
   };
 
+  // ---------- Save to My Cases ----------
+  // Writes one row per artifact (AWW row + one per tile) to
+  // calculation_history with the active tab's case name as the grouping key.
+  // The /dashboard/my-cases page reads from the same table via getUserCases(),
+  // so saved cases appear there immediately on next load.
+  const saveCaseAction = useCallback(async () => {
+    const trimmedName = (activeTab.awwState.caseName || activeTab.name || '').trim();
+    if (!trimmedName || trimmedName === 'New Case') {
+      setSaveCaseStatus('no-name');
+      setTimeout(() => setSaveCaseStatus(null), 2500);
+      return;
+    }
+    const supa = window.supa;
+    const userId = window.workspaceUserId;
+    if (!supa || !userId) {
+      setSaveCaseStatus('error');
+      setTimeout(() => setSaveCaseStatus(null), 3000);
+      return;
+    }
+    setSaveCaseStatus('saving');
+    try {
+      // Composite snapshot row — the AWW header itself becomes a calculation
+      // entry so the case shows up in My Cases even with no tiles on canvas.
+      const aw = activeTab.awwState || {};
+      const max = lookupMax(aw.doi);
+      const min = lookupMin(aw.doi);
+      const maxRate = Number(aw.maxRate) || (max ? max.max : 0);
+      const minRate = (min && min.min) || 0;
+      const ttRate = getCappedTT(aw.aww, maxRate, minRate);
+
+      const rows = [];
+      rows.push({
+        user_id: userId,
+        calculator_type: 'aww',
+        case_name: trimmedName,
+        input_data: {
+          aww: aw.aww,
+          doi: aw.doi,
+          doa: aw.doi, // native-app alias
+          method: aw.method,
+          daysWeek: aw.daysWeek,
+          maxRate,
+          adjTips: aw.adjTips || 0,
+          adjBoard: aw.adjBoard || 0,
+          adjConcurrent: aw.adjConcurrent || 0,
+          concurrentOn: !!aw.concurrentOn,
+          methodMultiEarn: aw.methodMultiEarn,
+          methodMultiDays: aw.methodMultiDays,
+          methodStraightEarn: aw.methodStraightEarn,
+          methodStraightWeeks: aw.methodStraightWeeks,
+          caseName: trimmedName,
+          wcbNumber: activeTab.wcbNumber || null,
+        },
+        result_data: { ttRate, maxRate, minRate },
+      });
+
+      for (const tile of (activeTab.tiles || [])) {
+        const calcType = (tile.type || '').toLowerCase();
+        let eq = null;
+        if (typeof window.buildEquation === 'function') {
+          try { eq = window.buildEquation(tile, global); } catch (e) { /* per-tile failure non-fatal */ }
+        }
+        rows.push({
+          user_id: userId,
+          calculator_type: calcType,
+          case_name: trimmedName,
+          input_data: {
+            ...(tile.inputs || {}),
+            aww: aw.aww,
+            doi: aw.doi,
+            doa: aw.doi,
+          },
+          result_data: eq ? {
+            plain: eq.plain || null,
+            mono: eq.mono || null,
+            fee: typeof eq.fee === 'number' ? eq.fee : null,
+          } : null,
+        });
+      }
+
+      const { error } = await supa.from('calculation_history').insert(rows);
+      if (error) throw error;
+      setSaveCaseStatus('saved');
+      setTimeout(() => setSaveCaseStatus(null), 2500);
+    } catch (err) {
+      console.error('[workspace] SAVE_TO_MY_CASES_FAILED', err);
+      setSaveCaseStatus('error');
+      setTimeout(() => setSaveCaseStatus(null), 3000);
+    }
+  }, [activeTab]); // global is derived from activeTab so re-binds with it
+
+  // ---------- Delete Case ----------
+  // Removes the current tab. closeTabAction already handles the single-tab
+  // fallback (replaces the last remaining tab with a fresh blank one), so
+  // this just adds a confirm prompt and delegates.
+  const deleteCaseAction = useCallback(() => {
+    const label = (activeTab.awwState?.caseName || activeTab.name || '').trim() || 'this case';
+    const onlyTab = tabs.length === 1;
+    const msg = onlyTab
+      ? `Delete "${label}"? This is your only open tab — it will be replaced with a fresh blank case. Anything you've saved to My Cases is not affected.`
+      : `Delete "${label}" from the workspace? Anything you've saved to My Cases is not affected.`;
+    if (!window.confirm(msg)) return;
+    closeTabAction(activeTabId);
+  }, [activeTab, activeTabId, tabs.length, closeTabAction]);
+
   const onPaletteDragStart = (e, type) => {
     e.dataTransfer.effectAllowed = 'copy';
     e.dataTransfer.setData('application/x-tile-type', type);
@@ -1412,7 +1560,10 @@ function App() {
         computed={computed}
         themeName={tweaks.theme}
         setTheme={(t) => setTweaks(prev => ({ ...prev, theme: t }))}
-        saveStatus={saveStatus}/>
+        saveStatus={saveStatus}
+        onSaveCase={saveCaseAction}
+        onDeleteCase={deleteCaseAction}
+        saveCaseStatus={saveCaseStatus}/>
 
       <div className="workspace">
         <Palette onAdd={addTile} onDragStart={onPaletteDragStart} isPro={isPro} />
