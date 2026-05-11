@@ -1265,6 +1265,38 @@ footer.disclaimer {
   margin-top: 2px;
 }
 
+/* Settlement tile — Medicare SA toggle. Visually mirrors .concurrent-toggle
+   so toggleable carve-outs feel the same across the workspace. */
+.msa-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  margin: 6px 0 4px;
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  background: var(--bg-1);
+  color: var(--tx-dim);
+  font: 600 12px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+  align-self: flex-start;
+}
+.msa-toggle:hover { border-color: var(--ac); color: var(--tx); }
+.msa-toggle.on {
+  background: color-mix(in srgb, var(--ac) 18%, var(--bg-1));
+  border-color: var(--ac);
+  color: var(--tx);
+}
+.msa-toggle-knob {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--ac);
+  color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
+}
+
 /* Method citation line under TT/SLU/Min row */
 .aww-citation {
   display: flex;

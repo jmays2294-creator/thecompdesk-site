@@ -715,19 +715,24 @@ function BurnsTile({ tile, global, onUpdate }) {
 
 // ====================================================================
 // Section 32 Settlement Tile
-//   Net = (Settlement − Medical Set-Aside) − 15% atty fee on remainder.
+//   Default:        Net = Settlement − 15% atty fee.   (no MSA)
+//   Medicare SA on: Net = Settlement − MSA − 15% atty fee on the
+//                   post-MSA remainder.
 // ====================================================================
 function SettlementTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { settlement: 0, msa: 0 };
+  const inputs = tile.inputs || { settlement: 0, msa: 0, msaOn: false };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
   const c = useMemo(() => {
     const settlement = Number(inputs.settlement) || 0;
-    const msa        = Number(inputs.msa)        || 0;
-    const remaining  = Math.max(0, settlement - msa);
-    const fee        = remaining * 0.15;
-    const net        = remaining - fee;
-    return { settlement, msa, remaining, fee, net };
+    const msaOn      = !!inputs.msaOn;
+    const msa        = msaOn ? (Number(inputs.msa) || 0) : 0;
+    // Fee base mirrors NY WC practice: when an MSA is carved out, the fee
+    // runs on the post-MSA remainder; otherwise on the full settlement.
+    const feeBase    = Math.max(0, settlement - msa);
+    const fee        = feeBase * 0.15;
+    const net        = Math.max(0, settlement - msa - fee);
+    return { settlement, msaOn, msa, feeBase, fee, net };
   }, [inputs]);
 
   return (
@@ -738,21 +743,37 @@ function SettlementTile({ tile, global, onUpdate }) {
           <input className="f-input with-prefix" type="number" min="0" value={inputs.settlement}
             onChange={e => setInputs({ settlement: e.target.value })}/></div>
       </div>
-      <div className="f-group">
-        <label className="f-label">Medical Set-Aside (MSA)</label>
-        <div className="f-input-wrap"><span className="prefix">$</span>
-          <input className="f-input with-prefix" type="number" min="0" value={inputs.msa}
-            onChange={e => setInputs({ msa: e.target.value })}/></div>
-        <span style={{fontSize:11, color:'var(--tx-faint)'}}>
-          Carved out before fee — fee runs only on the remainder.
-        </span>
-      </div>
+
+      {/* Medicare SA toggle — off by default. When on, the MSA carve-out
+          field appears and the net-to-claimant subtracts it. */}
+      <button
+        type="button"
+        className={'msa-toggle ' + (c.msaOn ? 'on' : '')}
+        onClick={() => setInputs({ msaOn: !c.msaOn })}
+        aria-pressed={c.msaOn}
+        title="Toggle Medicare Set-Aside carve-out">
+        <span className="msa-toggle-knob" aria-hidden="true">{c.msaOn ? '✓' : '+'}</span>
+        {c.msaOn ? 'Medicare SA carve-out: ON' : 'Medicare SA'}
+      </button>
+
+      {c.msaOn && (
+        <div className="f-group">
+          <label className="f-label">Medicare Set-Aside (MSA)</label>
+          <div className="f-input-wrap"><span className="prefix">$</span>
+            <input className="f-input with-prefix" type="number" min="0" value={inputs.msa || ''}
+              onChange={e => setInputs({ msa: e.target.value })}/></div>
+          <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+            Carved out of the claimant's take-home; fee runs on the post-MSA remainder.
+          </span>
+        </div>
+      )}
 
       <div className="results">
         <div className="r-row"><span className="l">Settlement</span><span className="v">{fmt$(c.settlement)}</span></div>
-        <div className="r-row"><span className="l">Less MSA</span><span className="v">−{fmt$(c.msa)}</span></div>
-        <div className="r-row big"><span className="l">Remaining</span><span className="v">{fmt$(c.remaining)}</span></div>
-        <div className="r-row"><span className="l">Atty Fee (15%)</span><span className="v">{fmt$(c.fee)}</span></div>
+        {c.msaOn && (
+          <div className="r-row"><span className="l">Less Medicare SA</span><span className="v">−{fmt$(c.msa)}</span></div>
+        )}
+        <div className="r-row"><span className="l">Atty Fee (15%)</span><span className="v">−{fmt$(c.fee)}</span></div>
         <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(c.net)}</span></div>
       </div>
     </div>
@@ -967,18 +988,18 @@ function buildEquation(tile, global) {
     case 'Settlement': {
       const inputs = tile.inputs || {};
       const settlement = Number(inputs.settlement) || 0;
-      const msa        = Number(inputs.msa)        || 0;
-      const remaining  = Math.max(0, settlement - msa);
-      const fee        = remaining * 0.15;
-      const net        = remaining - fee;
-      const lines = [
-        `Settlement: ${fmt$(settlement)}`,
-        `Less MSA:  −${fmt$(msa)}`,
-        `Remaining: ${fmt$(remaining)}`,
-        `Atty Fee:  ${fmt$(remaining)} × 15% = ${fmt$(fee)}`,
-        `Net:       ${fmt$(net)}`,
-      ];
-      const plain = `Section 32 Settlement of ${fmt$(settlement)} with a Medical Set-Aside of ${fmt$(msa)} carved out leaves ${fmt$(remaining)} as the fee base. Attorney fee of 15% = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      const msaOn      = !!inputs.msaOn;
+      const msa        = msaOn ? (Number(inputs.msa) || 0) : 0;
+      const feeBase    = Math.max(0, settlement - msa);
+      const fee        = feeBase * 0.15;
+      const net        = Math.max(0, settlement - msa - fee);
+      const lines = [`Settlement: ${fmt$(settlement)}`];
+      if (msaOn) lines.push(`Less Medicare SA:  −${fmt$(msa)}`);
+      lines.push(`Atty Fee:  ${fmt$(feeBase)} × 15% = ${fmt$(fee)}`);
+      lines.push(`Net:       ${fmt$(net)}`);
+      const plain = msaOn
+        ? `Section 32 Settlement of ${fmt$(settlement)} with a Medicare Set-Aside of ${fmt$(msa)} carved out. Attorney fee of 15% on the ${fmt$(feeBase)} remainder = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`
+        : `Section 32 Settlement of ${fmt$(settlement)}. Attorney fee of 15% = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
       return { plain, mono: lines.join('\n'), fee, feeReasons: ['FeeReason6'] };
     }
     default:

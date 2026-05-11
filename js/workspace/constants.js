@@ -260,7 +260,7 @@ const TILE_INPUT_DEFAULTS = {
     indemnity: 0, medical: 0, gross: 0, attyFee: 0, disbursements: 0,
     isMVA: false, mvaThreshold: 50000,
   }),
-  Settlement:    () => ({ settlement: 0, msa: 0 }),
+  Settlement:    () => ({ settlement: 0, msa: 0, msaOn: false }),
 };
 
 // Per-row defaults inside known nested arrays.
