@@ -1265,36 +1265,40 @@ footer.disclaimer {
   margin-top: 2px;
 }
 
-/* Settlement tile — Medicare SA toggle. Visually mirrors .concurrent-toggle
-   so toggleable carve-outs feel the same across the workspace. */
-.msa-toggle {
+/* Settlement tile — three-way set-aside selector
+   (None / MSA / Medicare MSA). Segmented pill control. */
+.msa-type-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 4px 0 6px;
+  flex-wrap: wrap;
+}
+.msa-type-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  margin: 6px 0 4px;
   border: 1px solid var(--bd);
   border-radius: 999px;
+  padding: 2px;
   background: var(--bg-1);
+  gap: 2px;
+}
+.msa-type-pill {
+  border: 0;
+  background: transparent;
   color: var(--tx-dim);
-  font: 600 12px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  font: 600 11px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  padding: 6px 12px;
+  border-radius: 999px;
   cursor: pointer;
-  transition: background 120ms, color 120ms, border-color 120ms;
-  align-self: flex-start;
+  transition: background 120ms, color 120ms;
+  white-space: nowrap;
 }
-.msa-toggle:hover { border-color: var(--ac); color: var(--tx); }
-.msa-toggle.on {
-  background: color-mix(in srgb, var(--ac) 18%, var(--bg-1));
-  border-color: var(--ac);
+.msa-type-pill:hover { color: var(--tx); }
+.msa-type-pill.on {
+  background: color-mix(in srgb, var(--ac) 22%, var(--bg-1));
   color: var(--tx);
-}
-.msa-toggle-knob {
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: var(--ac);
-  color: #fff;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 800;
 }
 
 /* Method citation line under TT/SLU/Min row */

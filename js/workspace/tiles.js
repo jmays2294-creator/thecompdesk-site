@@ -715,25 +715,41 @@ function BurnsTile({ tile, global, onUpdate }) {
 
 // ====================================================================
 // Section 32 Settlement Tile
-//   Default:        Net = Settlement − 15% atty fee.   (no MSA)
-//   Medicare SA on: Net = Settlement − MSA − 15% atty fee on the
-//                   post-MSA remainder.
+//   Three set-aside modes:
+//     'none'     → Net = Settlement − 15% fee on the full settlement.
+//     'msa'      → Non-Medicare MSA. Net = Settlement − MSA − 15% fee
+//                  on (Settlement − MSA).
+//     'medicare' → Settlement = MSA + Indemnity. Fee runs ONLY on the
+//                  indemnity portion: Net to Claimant = Indemnity − 15%.
+//                  Mathematically equivalent to 'msa' but labeled around
+//                  the formal WCMSA / indemnity split that CMS submissions
+//                  use.
 // ====================================================================
 function SettlementTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { settlement: 0, msa: 0, msaOn: false };
+  const inputs = tile.inputs || { settlement: 0, msa: 0, msaType: 'none' };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
   const c = useMemo(() => {
     const settlement = Number(inputs.settlement) || 0;
-    const msaOn      = !!inputs.msaOn;
-    const msa        = msaOn ? (Number(inputs.msa) || 0) : 0;
-    // Fee base mirrors NY WC practice: when an MSA is carved out, the fee
-    // runs on the post-MSA remainder; otherwise on the full settlement.
-    const feeBase    = Math.max(0, settlement - msa);
-    const fee        = feeBase * 0.15;
-    const net        = Math.max(0, settlement - msa - fee);
-    return { settlement, msaOn, msa, feeBase, fee, net };
+    // Back-compat: older saves stored msaOn:bool. Treat msaOn:true as 'msa'.
+    const msaType =
+      inputs.msaType ||
+      (inputs.msaOn ? 'msa' : 'none');
+    const hasMSA = msaType === 'msa' || msaType === 'medicare';
+    const msa = hasMSA ? (Number(inputs.msa) || 0) : 0;
+    // Indemnity = the portion of the settlement that goes to the claimant
+    // before fees, i.e. settlement net of any MSA carve-out.
+    const indemnity = Math.max(0, settlement - msa);
+    const fee = indemnity * 0.15;
+    const net = Math.max(0, indemnity - fee);
+    return { settlement, msaType, hasMSA, msa, indemnity, fee, net };
   }, [inputs]);
+
+  const MSA_TYPES = [
+    { id: 'none',     label: 'None' },
+    { id: 'msa',      label: 'MSA' },
+    { id: 'medicare', label: 'Medicare MSA' },
+  ];
 
   return (
     <div className="tile-body">
@@ -744,34 +760,47 @@ function SettlementTile({ tile, global, onUpdate }) {
             onChange={e => setInputs({ settlement: e.target.value })}/></div>
       </div>
 
-      {/* Medicare SA toggle — off by default. When on, the MSA carve-out
-          field appears and the net-to-claimant subtracts it. */}
-      <button
-        type="button"
-        className={'msa-toggle ' + (c.msaOn ? 'on' : '')}
-        onClick={() => setInputs({ msaOn: !c.msaOn })}
-        aria-pressed={c.msaOn}
-        title="Toggle Medicare Set-Aside carve-out">
-        <span className="msa-toggle-knob" aria-hidden="true">{c.msaOn ? '✓' : '+'}</span>
-        {c.msaOn ? 'Medicare SA carve-out: ON' : 'Medicare SA'}
-      </button>
+      {/* Set-aside type — three-way segmented selector. */}
+      <div className="msa-type-row">
+        <label className="f-label" style={{margin: 0}}>Set-Aside</label>
+        <div className="msa-type-toggle" role="radiogroup" aria-label="Set-aside type">
+          {MSA_TYPES.map(opt => (
+            <button key={opt.id} type="button" role="radio"
+              aria-checked={c.msaType === opt.id}
+              className={'msa-type-pill ' + (c.msaType === opt.id ? 'on' : '')}
+              onClick={() => setInputs({ msaType: opt.id })}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {c.msaOn && (
+      {c.hasMSA && (
         <div className="f-group">
-          <label className="f-label">Medicare Set-Aside (MSA)</label>
+          <label className="f-label">
+            {c.msaType === 'medicare' ? 'Medicare Set-Aside (WCMSA)' : 'Medical Set-Aside'}
+          </label>
           <div className="f-input-wrap"><span className="prefix">$</span>
             <input className="f-input with-prefix" type="number" min="0" value={inputs.msa || ''}
               onChange={e => setInputs({ msa: e.target.value })}/></div>
           <span style={{fontSize:11, color:'var(--tx-faint)'}}>
-            Carved out of the claimant's take-home; fee runs on the post-MSA remainder.
+            {c.msaType === 'medicare'
+              ? 'Total settlement = Medicare MSA + Indemnity. Fee runs only on the indemnity portion.'
+              : 'Carved out before fee; fee runs only on the remainder.'}
           </span>
         </div>
       )}
 
       <div className="results">
         <div className="r-row"><span className="l">Settlement</span><span className="v">{fmt$(c.settlement)}</span></div>
-        {c.msaOn && (
-          <div className="r-row"><span className="l">Less Medicare SA</span><span className="v">−{fmt$(c.msa)}</span></div>
+        {c.hasMSA && (
+          <div className="r-row">
+            <span className="l">{c.msaType === 'medicare' ? 'Less Medicare MSA' : 'Less MSA'}</span>
+            <span className="v">−{fmt$(c.msa)}</span>
+          </div>
+        )}
+        {c.msaType === 'medicare' && (
+          <div className="r-row big"><span className="l">Indemnity</span><span className="v">{fmt$(c.indemnity)}</span></div>
         )}
         <div className="r-row"><span className="l">Atty Fee (15%)</span><span className="v">−{fmt$(c.fee)}</span></div>
         <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(c.net)}</span></div>
@@ -988,18 +1017,36 @@ function buildEquation(tile, global) {
     case 'Settlement': {
       const inputs = tile.inputs || {};
       const settlement = Number(inputs.settlement) || 0;
-      const msaOn      = !!inputs.msaOn;
-      const msa        = msaOn ? (Number(inputs.msa) || 0) : 0;
-      const feeBase    = Math.max(0, settlement - msa);
-      const fee        = feeBase * 0.15;
-      const net        = Math.max(0, settlement - msa - fee);
+      const msaType =
+        inputs.msaType ||
+        (inputs.msaOn ? 'msa' : 'none');
+      const hasMSA = msaType === 'msa' || msaType === 'medicare';
+      const msa = hasMSA ? (Number(inputs.msa) || 0) : 0;
+      const indemnity = Math.max(0, settlement - msa);
+      const fee = indemnity * 0.15;
+      const net = Math.max(0, indemnity - fee);
+
       const lines = [`Settlement: ${fmt$(settlement)}`];
-      if (msaOn) lines.push(`Less Medicare SA:  −${fmt$(msa)}`);
-      lines.push(`Atty Fee:  ${fmt$(feeBase)} × 15% = ${fmt$(fee)}`);
-      lines.push(`Net:       ${fmt$(net)}`);
-      const plain = msaOn
-        ? `Section 32 Settlement of ${fmt$(settlement)} with a Medicare Set-Aside of ${fmt$(msa)} carved out. Attorney fee of 15% on the ${fmt$(feeBase)} remainder = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`
-        : `Section 32 Settlement of ${fmt$(settlement)}. Attorney fee of 15% = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      if (msaType === 'medicare') {
+        lines.push(`Less Medicare MSA:  −${fmt$(msa)}`);
+        lines.push(`Indemnity:  ${fmt$(indemnity)}`);
+        lines.push(`Atty Fee:   ${fmt$(indemnity)} × 15% = ${fmt$(fee)}`);
+      } else if (msaType === 'msa') {
+        lines.push(`Less MSA:   −${fmt$(msa)}`);
+        lines.push(`Atty Fee:   ${fmt$(indemnity)} × 15% = ${fmt$(fee)}`);
+      } else {
+        lines.push(`Atty Fee:   ${fmt$(settlement)} × 15% = ${fmt$(fee)}`);
+      }
+      lines.push(`Net:        ${fmt$(net)}`);
+
+      let plain;
+      if (msaType === 'medicare') {
+        plain = `Section 32 Settlement of ${fmt$(settlement)} with a Medicare Set-Aside (WCMSA) of ${fmt$(msa)} funded separately. Indemnity portion to the claimant = ${fmt$(indemnity)}. Attorney fee of 15% on the indemnity = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      } else if (msaType === 'msa') {
+        plain = `Section 32 Settlement of ${fmt$(settlement)} with a non-Medicare Medical Set-Aside of ${fmt$(msa)} carved out. Attorney fee of 15% on the ${fmt$(indemnity)} remainder = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      } else {
+        plain = `Section 32 Settlement of ${fmt$(settlement)}. Attorney fee of 15% = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      }
       return { plain, mono: lines.join('\n'), fee, feeReasons: ['FeeReason6'] };
     }
     default:
