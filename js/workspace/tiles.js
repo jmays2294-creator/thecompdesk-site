@@ -248,7 +248,8 @@ function CCPTile({ tile, global, onUpdate }) {
   const inputs = tile.inputs || {
     periods: [
       { id: 1, start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
-        amending: false, priorMode: 'pct', priorVal: 0 },
+        amending: false, priorMode: 'pct', priorVal: 0,
+        reimbErOn: false, reimbErAmount: 0 },
     ],
     ccpAmount: 0,
     priorPay: 0,
@@ -261,6 +262,7 @@ function CCPTile({ tile, global, onUpdate }) {
     setInputs({ periods: [...inputs.periods, {
       id: Date.now(), start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
       amending: false, priorMode: 'pct', priorVal: 0,
+      reimbErOn: false, reimbErAmount: 0,
     }] });
   };
   const updatePeriod = (id, patch) => {
@@ -319,12 +321,20 @@ function CCPTile({ tile, global, onUpdate }) {
       return { ...p, wks, rawCurrentRate, currentRate, priorRate, rate, amount: wks * rate };
     });
     const totalAward = out.reduce((s, p) => s + p.amount, 0);
-    const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0));
+    // Per-period employer reimbursements (REIMB ER). Total reimbursement is
+    // deducted from the moving amount before the 15% fee is computed, so the
+    // claimant's net + fee + reimbursements + prior payments reconcile back
+    // to the total award.
+    const totalReimbEr = out.reduce(
+      (s, p) => s + (p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0),
+      0,
+    );
+    const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - totalReimbEr);
     const feeOnAward = moving * 0.15;
     const feeOnCCP = Number(inputs.ccpAmount || 0) / 3;
     const totalFee = feeOnAward + feeOnCCP;
     const net = moving - totalFee;
-    return { rows: out, totalAward, moving, feeOnAward, feeOnCCP, totalFee, net };
+    return { rows: out, totalAward, totalReimbEr, moving, feeOnAward, feeOnCCP, totalFee, net };
   }, [inputs, tt, aww, global.minRate, global.maxRate]);
 
   return (
@@ -382,6 +392,30 @@ function CCPTile({ tile, global, onUpdate }) {
                   </div>
                 </div>
               )}
+              {/* REIMB ER (reimburse employer) — per-period toggle. When ON,
+                  an amount field appears and that $ is deducted from the
+                  money moving to the claimant. */}
+              <div className="f-group">
+                <button
+                  type="button"
+                  className={'amending-toggle ' + (p.reimbErOn ? 'on' : '')}
+                  onClick={() => updatePeriod(p.id, { reimbErOn: !p.reimbErOn })}
+                  aria-pressed={!!p.reimbErOn}>
+                  {p.reimbErOn ? '✓ REIMB ER' : '+ REIMB ER'}
+                </button>
+                {p.reimbErOn && (
+                  <div className="amending-block">
+                    <label className="f-label">Reimbursement to Employer</label>
+                    <div className="f-input-wrap">
+                      <span className="prefix">$</span>
+                      <input className="f-input with-prefix" type="number" min="0"
+                        value={p.reimbErAmount || 0}
+                        onChange={e => updatePeriod(p.id, { reimbErAmount: Number(e.target.value) })}/>
+                    </div>
+                    <div className="amending-help">Deducted from the money moving to the claimant.</div>
+                  </div>
+                )}
+              </div>
               {/* Amending-Award control (Change 3). When ON, a prior-rate
                   input appears; the period $ amount uses the delta between
                   current and prior rates against the same AWW × ⅔. */}
@@ -454,8 +488,44 @@ function CCPTile({ tile, global, onUpdate }) {
           </div>
         </div>
 
+        {/* Period Summary — compact one-line view of every period, shown
+            above the full Award/Fee/Net breakdown. Format per row:
+              [start]–[end]  [rate $/wk]  [DESG]  [% if TR/RE]  [REIMB ER if any] */}
+        {computed.rows.length > 0 && (
+          <div className="ccp-summary">
+            <div className="ccp-summary-title">Periods</div>
+            {computed.rows.map((p, i) => {
+              const showPct = p.desg === 'TR' || p.desg === 'RE';
+              let pctText = '';
+              if (showPct) {
+                if (p.desg === 'TR') {
+                  pctText = `${Number(p.ratePct) || 0}%`;
+                } else if (p.desg === 'RE' && aww > 0) {
+                  const wageLossPct = Math.max(0, Math.min(100, ((aww - Number(p.curEarn || 0)) / aww) * 100));
+                  pctText = `${wageLossPct.toFixed(1)}%`;
+                }
+              }
+              const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
+              return (
+                <div className="ccp-summary-row" key={p.id}>
+                  <span className="ccp-sum-dates">{p.start || '—'}{p.start || p.end ? ' – ' : ''}{p.end || '—'}</span>
+                  <span className="ccp-sum-rate">{fmt$(p.rate)}/wk</span>
+                  <span className={'ccp-sum-desg desg-' + p.desg}>{p.desg}</span>
+                  <span className="ccp-sum-pct">{pctText}</span>
+                  {p.reimbErOn
+                    ? <span className="ccp-sum-reimb">REIMB ER −{fmt$(reimbAmt)}</span>
+                    : <span className="ccp-sum-reimb empty"/>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="results">
           <div className="r-row big"><span className="l">Total Award</span><span className="v">{fmt$(computed.totalAward)}</span></div>
+          {computed.totalReimbEr > 0 && (
+            <div className="r-row"><span className="l">Less Reimb to ER</span><span className="v">−{fmt$(computed.totalReimbEr)}</span></div>
+          )}
           <div className="r-row"><span className="l">Moving</span><span className="v">{fmt$(computed.moving)}</span></div>
           <div className="r-row"><span className="l">Fee on Award (15%)</span><span className="v">{fmt$(computed.feeOnAward)}</span></div>
           <div className="r-row"><span className="l">Fee on CCP (÷3)</span><span className="v">{fmt$(computed.feeOnCCP)}</span></div>
@@ -726,8 +796,18 @@ function BurnsTile({ tile, global, onUpdate }) {
 //                  use.
 // ====================================================================
 function SettlementTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { settlement: 0, msa: 0, msaType: 'none' };
+  const inputs = tile.inputs || { settlement: 0, msa: 0, msaType: 'none', msaMode: 'usd', msaPct: 5 };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+
+  // Mode-switching helper: when the user picks MSA-regular for the first time
+  // (no msaMode set yet), default to 'pct' with 5% preset per Joel's spec.
+  const onMsaTypeChange = (id) => {
+    if (id === 'msa' && !inputs.msaMode) {
+      setInputs({ msaType: id, msaMode: 'pct', msaPct: inputs.msaPct || 5 });
+    } else {
+      setInputs({ msaType: id });
+    }
+  };
 
   const c = useMemo(() => {
     const settlement = Number(inputs.settlement) || 0;
@@ -736,13 +816,19 @@ function SettlementTile({ tile, global, onUpdate }) {
       inputs.msaType ||
       (inputs.msaOn ? 'msa' : 'none');
     const hasMSA = msaType === 'msa' || msaType === 'medicare';
-    const msa = hasMSA ? (Number(inputs.msa) || 0) : 0;
+    const msaMode = inputs.msaMode || 'usd'; // 'usd' | 'pct'
+    const msaPct = Number(inputs.msaPct) || 0;
+    // Effective MSA in dollars — when in % mode, derive from settlement.
+    const msaUsd =
+      !hasMSA ? 0
+      : msaMode === 'pct' ? (settlement * msaPct / 100)
+      : (Number(inputs.msa) || 0);
     // Indemnity = the portion of the settlement that goes to the claimant
     // before fees, i.e. settlement net of any MSA carve-out.
-    const indemnity = Math.max(0, settlement - msa);
+    const indemnity = Math.max(0, settlement - msaUsd);
     const fee = indemnity * 0.15;
     const net = Math.max(0, indemnity - fee);
-    return { settlement, msaType, hasMSA, msa, indemnity, fee, net };
+    return { settlement, msaType, hasMSA, msaMode, msaPct, msa: msaUsd, indemnity, fee, net };
   }, [inputs]);
 
   const MSA_TYPES = [
@@ -768,7 +854,7 @@ function SettlementTile({ tile, global, onUpdate }) {
             <button key={opt.id} type="button" role="radio"
               aria-checked={c.msaType === opt.id}
               className={'msa-type-pill ' + (c.msaType === opt.id ? 'on' : '')}
-              onClick={() => setInputs({ msaType: opt.id })}>
+              onClick={() => onMsaTypeChange(opt.id)}>
               {opt.label}
             </button>
           ))}
@@ -777,17 +863,52 @@ function SettlementTile({ tile, global, onUpdate }) {
 
       {c.hasMSA && (
         <div className="f-group">
-          <label className="f-label">
-            {c.msaType === 'medicare' ? 'Medicare Set-Aside (WCMSA)' : 'Medical Set-Aside'}
-          </label>
-          <div className="f-input-wrap"><span className="prefix">$</span>
-            <input className="f-input with-prefix" type="number" min="0" value={inputs.msa || ''}
-              onChange={e => setInputs({ msa: e.target.value })}/></div>
-          <span style={{fontSize:11, color:'var(--tx-faint)'}}>
-            {c.msaType === 'medicare'
-              ? 'Total settlement = Medicare MSA + Indemnity. Fee runs only on the indemnity portion.'
-              : 'Carved out before fee; fee runs only on the remainder.'}
-          </span>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, marginBottom:4}}>
+            <label className="f-label" style={{margin:0}}>
+              {c.msaType === 'medicare' ? 'Medicare Set-Aside (WCMSA)' : 'Medical Set-Aside'}
+            </label>
+            {/* $ / % mode switch — lets the attorney enter a flat dollar
+                amount or a percentage of the settlement. Defaults to 5%
+                when MSA-regular is first selected. */}
+            <div className="msa-mode-toggle" role="radiogroup" aria-label="MSA amount mode">
+              <button type="button" role="radio"
+                aria-checked={c.msaMode === 'usd'}
+                className={'msa-mode-pill ' + (c.msaMode === 'usd' ? 'on' : '')}
+                onClick={() => setInputs({ msaMode: 'usd' })}>$</button>
+              <button type="button" role="radio"
+                aria-checked={c.msaMode === 'pct'}
+                className={'msa-mode-pill ' + (c.msaMode === 'pct' ? 'on' : '')}
+                onClick={() => setInputs({ msaMode: 'pct', msaPct: inputs.msaPct || 5 })}>%</button>
+            </div>
+          </div>
+          {c.msaMode === 'pct' ? (
+            <>
+              <div style={{display:'flex', alignItems:'center', gap:6}}>
+                <input className="f-input" type="number" min="0" max="100" step="0.1"
+                  style={{flex:1}}
+                  value={inputs.msaPct ?? 5}
+                  onChange={e => setInputs({ msaPct: e.target.value })}/>
+                <span style={{color:'var(--tx-dim)', fontFamily:'var(--mono)', fontSize:13}}>%</span>
+              </div>
+              <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+                = {fmt$(c.msa)} ({c.msaPct}% × {fmt$(c.settlement)}).
+                {c.msaType === 'medicare'
+                  ? ' Fee runs only on the indemnity portion.'
+                  : ' Fee runs on the post-MSA remainder.'}
+              </span>
+            </>
+          ) : (
+            <>
+              <div className="f-input-wrap"><span className="prefix">$</span>
+                <input className="f-input with-prefix" type="number" min="0" value={inputs.msa || ''}
+                  onChange={e => setInputs({ msa: e.target.value })}/></div>
+              <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+                {c.msaType === 'medicare'
+                  ? 'Total settlement = Medicare MSA + Indemnity. Fee runs only on the indemnity portion.'
+                  : 'Carved out before fee; fee runs only on the remainder.'}
+              </span>
+            </>
+          )}
         </div>
       )}
 
@@ -904,6 +1025,7 @@ function buildEquation(tile, global) {
       if (awwOverride) {
         lines.push(`** AWW ${fmt$(aww)} < statutory min ${fmt$(global.minRate)} → AWW is the floor for every rate. **`);
       }
+      let totalReimbEr = 0;
       inputs.periods.forEach((p, i) => {
         const wks = weeksBetween(p.start, p.end);
         let rawRate = 0;
@@ -915,22 +1037,29 @@ function buildEquation(tile, global) {
         const adjusted = Math.abs(rate - rawRate) > 0.005;
         const amt = wks * rate;
         totalAward += amt;
-        lines.push(`P${i+1} ${p.desg}: ${fmtN(wks, 2)} wks × ${fmt$(rate)}${adjusted ? ` (raw ${fmt$(rawRate)}, bounded by min/max for DOA)` : ''} = ${fmt$(amt)}`);
-        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted ? ` — adjusted from raw ${fmt$(rawRate)}` : ''} = ${fmt$(amt)})`);
+        const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
+        totalReimbEr += reimbAmt;
+        const reimbSuffix = reimbAmt > 0 ? ` · REIMB ER −${fmt$(reimbAmt)}` : '';
+        lines.push(`P${i+1} ${p.desg}: ${fmtN(wks, 2)} wks × ${fmt$(rate)}${adjusted ? ` (raw ${fmt$(rawRate)}, bounded by min/max for DOA)` : ''} = ${fmt$(amt)}${reimbSuffix}`);
+        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted ? ` — adjusted from raw ${fmt$(rawRate)}` : ''} = ${fmt$(amt)}${reimbAmt > 0 ? `, reimbursement to employer of ${fmt$(reimbAmt)}` : ''})`);
       });
-      const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0));
+      const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - totalReimbEr);
       const feeOnAward = moving * 0.15;
       const feeOnCCP = Number(inputs.ccpAmount || 0) / 3;
       const totalFee = feeOnAward + feeOnCCP;
       const net = moving - totalFee;
       lines.push(`Total Award: ${fmt$(totalAward)}`);
       lines.push(`Less Prior: (${fmt$(Number(inputs.priorPay || 0))})`);
+      if (totalReimbEr > 0) lines.push(`Less Reimb to ER: (${fmt$(totalReimbEr)})`);
       lines.push(`Moving: ${fmt$(moving)}`);
       lines.push(`Fee on Award: ${fmt$(moving)} × 15% = ${fmt$(feeOnAward)}`);
       lines.push(`Fee on CCP: ${fmt$(Number(inputs.ccpAmount || 0))} ÷ 3 = ${fmt$(feeOnCCP)}`);
       lines.push(`Total Fee: ${fmt$(totalFee)}`);
       lines.push(`Net: ${fmt$(net)}`);
-      const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)} less prior payments ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee is 15% of moving (${fmt$(feeOnAward)}) plus one-third of CCP (${fmt$(feeOnCCP)}) = ${fmt$(totalFee)} total fee. Net to claimant = ${fmt$(net)}.`;
+      const reimbClause = totalReimbEr > 0
+        ? ` and reimbursement to employer of ${fmt$(totalReimbEr)}`
+        : '';
+      const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)} less prior payments ${fmt$(Number(inputs.priorPay || 0))}${reimbClause} = ${fmt$(moving)} moving. Attorney fee is 15% of moving (${fmt$(feeOnAward)}) plus one-third of CCP (${fmt$(feeOnCCP)}) = ${fmt$(totalFee)} total fee. Net to claimant = ${fmt$(net)}.`;
       // Detect prior vs continuing periods. Per Joel's spec:
       //   end < today → prior period award      → FeeReason2 (increase for prior period)
       //   end ≥ today → continuing payment      → FeeReason1 (continuation of weekly comp)
@@ -1021,7 +1150,11 @@ function buildEquation(tile, global) {
         inputs.msaType ||
         (inputs.msaOn ? 'msa' : 'none');
       const hasMSA = msaType === 'msa' || msaType === 'medicare';
-      const msa = hasMSA ? (Number(inputs.msa) || 0) : 0;
+      const msaMode = inputs.msaMode || 'usd';
+      const msaPct = Number(inputs.msaPct) || 0;
+      const msa = !hasMSA ? 0
+        : msaMode === 'pct' ? (settlement * msaPct / 100)
+        : (Number(inputs.msa) || 0);
       const indemnity = Math.max(0, settlement - msa);
       const fee = indemnity * 0.15;
       const net = Math.max(0, indemnity - fee);

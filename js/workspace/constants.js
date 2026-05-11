@@ -246,6 +246,7 @@ const TILE_INPUT_DEFAULTS = {
       id: Date.now(), start: '', end: '', desg: 'TT',
       curEarn: 0, ratePct: 100, manualRate: 0,
       amending: false, priorMode: 'pct', priorVal: 0,
+      reimbErOn: false, reimbErAmount: 0,
     }],
     ccpAmount: 0,
     priorPay: 0,
@@ -260,7 +261,7 @@ const TILE_INPUT_DEFAULTS = {
     indemnity: 0, medical: 0, gross: 0, attyFee: 0, disbursements: 0,
     isMVA: false, mvaThreshold: 50000,
   }),
-  Settlement:    () => ({ settlement: 0, msa: 0, msaType: 'none' }),
+  Settlement:    () => ({ settlement: 0, msa: 0, msaType: 'none', msaMode: 'usd', msaPct: 5 }),
 };
 
 // Per-row defaults inside known nested arrays.
@@ -270,6 +271,7 @@ const TILE_ROW_DEFAULTS = {
     id: Date.now() + Math.random(), start: '', end: '', desg: 'TT',
     curEarn: 0, ratePct: 100, manualRate: 0,
     amending: false, priorMode: 'pct', priorVal: 0,
+    reimbErOn: false, reimbErAmount: 0,
   }),
 };
 
