@@ -530,12 +530,8 @@ html body[data-theme] .beta-banner {
   --grid-line: hsl(212 30% 18%);
   --shadow: 0 1px 0 hsl(212 80% 0% / 0.5), 0 8px 32px hsl(212 60% 0% / 0.35);
 }
-body[data-theme="knicks"] {
-  background-color: var(--bg);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='52' font-weight='900' fill='%23F58426' opacity='0.07'>NYK</text></svg>");
-  background-repeat: repeat;
-  background-attachment: fixed;
-}
+/* (Tiled monograms removed per Joel — team identity now reads through
+   the accent colors only; no logo watermarks on the canvas grid.) */
 
 [data-theme="yankees"] {
   --bg: hsl(0 0% 96%);
@@ -555,14 +551,8 @@ body[data-theme="knicks"] {
   --grid-line: hsl(218 20% 88%);
   --shadow: 0 1px 0 hsl(218 30% 70% / 0.6), 0 8px 24px hsl(218 30% 50% / 0.18);
 }
-body[data-theme="yankees"] {
-  background-color: var(--bg);
-  /* Pinstripes + monogram. Vertical hairlines every 14px on a soft cream. */
-  background-image:
-    repeating-linear-gradient(90deg, transparent 0 12px, hsl(218 60% 22% / 0.06) 12px 13px),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'><text x='120' y='140' text-anchor='middle' font-family='Times New Roman, serif' font-size='62' font-weight='900' fill='%23003087' opacity='0.07'>NY</text></svg>");
-  background-attachment: fixed;
-}
+/* Yankees pinstripes + monogram also removed; only the navy-on-cream
+   palette remains. */
 
 [data-theme="mets"] {
   --bg: hsl(218 70% 11%);
@@ -582,12 +572,7 @@ body[data-theme="yankees"] {
   --grid-line: hsl(218 35% 20%);
   --shadow: 0 1px 0 hsl(218 80% 0% / 0.5), 0 8px 32px hsl(218 60% 0% / 0.35);
 }
-body[data-theme="mets"] {
-  background-color: var(--bg);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='56' font-weight='900' fill='%23FF5910' opacity='0.07'>NY</text></svg>");
-  background-repeat: repeat;
-  background-attachment: fixed;
-}
+/* Mets monogram removed. */
 
 [data-theme="heat"] {
   --bg: hsl(0 0% 5%);
@@ -607,12 +592,7 @@ body[data-theme="mets"] {
   --grid-line: hsl(0 0% 14%);
   --shadow: 0 1px 0 hsl(0 0% 0% / 0.6), 0 8px 32px hsl(345 50% 5% / 0.45);
 }
-body[data-theme="heat"] {
-  background-color: var(--bg);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='50' font-weight='900' fill='%23F9A01B' opacity='0.07'>MIA</text></svg>");
-  background-repeat: repeat;
-  background-attachment: fixed;
-}
+/* Heat monogram removed. */
 
 [data-theme="bills"] {
   --bg: hsl(217 75% 10%);
@@ -632,12 +612,7 @@ body[data-theme="heat"] {
   --grid-line: hsl(217 40% 20%);
   --shadow: 0 1px 0 hsl(217 80% 0% / 0.5), 0 8px 32px hsl(217 60% 0% / 0.35);
 }
-body[data-theme="bills"] {
-  background-color: var(--bg);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='48' font-weight='900' fill='%23C60C30' opacity='0.08'>BUF</text></svg>");
-  background-repeat: repeat;
-  background-attachment: fixed;
-}
+/* Bills monogram removed. */
 
 /* Density */
 [data-density="comfortable"] { --pad: 16px; --pad-tight: 10px; }
