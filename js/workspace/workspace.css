@@ -967,38 +967,32 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   color: var(--tx-faint);
   margin-bottom: 2px;
 }
-.ccp-summary-row {
+.ccp-summary-head {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  font: 600 12px/1.25 var(--mono, ui-monospace, monospace);
-  color: var(--tx-dim);
-  padding: 4px 0;
-  border-top: 1px dashed var(--bd-soft);
+  justify-content: space-between;
+  margin-bottom: 4px;
 }
-.ccp-summary-row:first-of-type { border-top: 0; }
-.ccp-sum-sep { color: var(--tx-faint); user-select: none; }
-.ccp-sum-dates { color: var(--tx); white-space: nowrap; letter-spacing: 0.02em; }
-.ccp-sum-rate  { color: var(--ac-2); white-space: nowrap; }
-.ccp-sum-desg {
-  font: 800 10px/1 var(--ui, 'Inter', system-ui, sans-serif);
-  letter-spacing: 0.06em;
-  padding: 3px 7px;
-  border-radius: 4px;
-  background: var(--ac-soft);
-  color: var(--ac-2);
+.ccp-summary-copy {
+  font-family: var(--mono, ui-monospace, monospace);
 }
-.ccp-sum-pct { color: var(--tx-dim); white-space: nowrap; }
-.ccp-sum-reimb {
-  font: 700 10px/1 var(--ui, 'Inter', system-ui, sans-serif);
+.ccp-summary-row {
+  /* Plain-text-style line: one period per row, single-space joined. */
+  font: 600 12.5px/1.4 var(--mono, ui-monospace, monospace);
+  color: var(--tx);
+  padding: 2px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.ccp-summary-row + .ccp-summary-row { border-top: 1px dashed var(--bd-soft); padding-top: 4px; margin-top: 2px; }
+
+.ccp-same-btn {
+  font-size: 10px;
   letter-spacing: 0.04em;
-  color: hsl(0 70% 65%);
   white-space: nowrap;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: color-mix(in srgb, hsl(0 70% 50%) 12%, transparent);
+  padding: 3px 8px;
 }
+.ccp-same-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* ---------- Equation cards ---------- */
 .eq-region {

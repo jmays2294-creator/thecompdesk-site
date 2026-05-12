@@ -1372,11 +1372,29 @@ function App() {
     // the system fully populated (see workspace_case_hydration.md). Without
     // this, a save before any user edit persists a tile with NO inputs key.
     const inputsFactory = window.TILE_INPUT_DEFAULTS && window.TILE_INPUT_DEFAULTS[type];
+    let initialInputs = inputsFactory ? inputsFactory() : {};
+    // CCP convenience: if the AWW section already has a DOA, prefill the
+    // first period's start date with it at tile-creation time. This only
+    // runs once, at creation — later edits to the DOA never reach back
+    // and rewrite an existing period's start.
+    if (
+      type === 'CCP'
+      && awwState && awwState.doi
+      && Array.isArray(initialInputs.periods)
+      && initialInputs.periods[0]
+      && !initialInputs.periods[0].start
+    ) {
+      const [first, ...rest] = initialInputs.periods;
+      initialInputs = {
+        ...initialInputs,
+        periods: [{ ...first, start: awwState.doi }, ...rest],
+      };
+    }
     const newT = {
       id, type, x: slot.x, y: slot.y,
       instance: sameTypeCount,
       addedAt: Date.now(),
-      inputs: inputsFactory ? inputsFactory() : {},
+      inputs: initialInputs,
     };
     setActiveTiles(prev => [...prev, newT]);
     setMostRecentId(id);

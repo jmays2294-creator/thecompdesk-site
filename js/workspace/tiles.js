@@ -258,12 +258,32 @@ function CCPTile({ tile, global, onUpdate }) {
   const aww = global.aww;
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
+  // Local UI state — copy-confirmation chip on the Periods Copy button.
+  const [copiedSummary, setCopiedSummary] = useState(false);
+
   const addPeriod = () => {
+    // Default the new period's start date to the previous period's end
+    // date so chained periods can be built without retyping. Still
+    // editable by the user once added.
+    const prior = inputs.periods[inputs.periods.length - 1];
+    const chainedStart = prior && prior.end ? prior.end : '';
     setInputs({ periods: [...inputs.periods, {
-      id: Date.now(), start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
+      id: Date.now(), start: chainedStart, end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
       amending: false, priorMode: 'pct', priorVal: 0,
       reimbErOn: false, reimbErAmount: 0,
     }] });
+  };
+
+  // "CCP same" — fills the CCP Amount field with the rate from the last
+  // period in the builder. Skips when there are no periods or the last
+  // period hasn't resolved a rate yet.
+  const setCcpFromLastPeriod = () => {
+    if (!computed || !Array.isArray(computed.rows) || computed.rows.length === 0) return;
+    const last = computed.rows[computed.rows.length - 1];
+    if (!last) return;
+    const rate = Number(last.rate) || 0;
+    if (!rate) return;
+    setInputs({ ccpAmount: Math.round(rate * 100) / 100 });
   };
   const updatePeriod = (id, patch) => {
     setInputs({ periods: inputs.periods.map(p => p.id === id ? { ...p, ...patch } : p) });
@@ -471,7 +491,16 @@ function CCPTile({ tile, global, onUpdate }) {
 
         <div className="row cols-2">
           <div className="f-group">
-            <label className="f-label">CCP Amount</label>
+            <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:6, marginBottom:4}}>
+              <label className="f-label" style={{margin:0}}>CCP Amount</label>
+              <button type="button"
+                className="btn tiny ccp-same-btn"
+                onClick={setCcpFromLastPeriod}
+                title="Fill CCP Amount with the rate from the last period entered"
+                disabled={!computed.rows.length || !Number(computed.rows[computed.rows.length - 1]?.rate)}>
+                CCP same
+              </button>
+            </div>
             <div className="f-input-wrap">
               <span className="prefix">$</span>
               <input className="f-input with-prefix" type="number" value={inputs.ccpAmount}
@@ -488,63 +517,67 @@ function CCPTile({ tile, global, onUpdate }) {
           </div>
         </div>
 
-        {/* Period Summary — condensed, single-line per period, shown above
-            the full Award/Fee/Net breakdown. Format per row:
-              mm/dd/yyyy-mm/dd/yyyy · $rate/wk · DESG · % (if TR/RE) · REIMB ER −$X (if any)
-            Reviewing attorneys read these at a glance, so the whole line
-            packs into one flex row with middot separators. */}
-        {computed.rows.length > 0 && (
-          <div className="ccp-summary">
-            <div className="ccp-summary-title">Periods</div>
-            {computed.rows.map((p, i) => {
-              // ISO `YYYY-MM-DD` from <input type="date"> → `mm/dd/yyyy`.
-              const fmtMDY = (iso) => {
-                if (!iso || typeof iso !== 'string') return '';
-                const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
-                return m ? `${m[2]}/${m[3]}/${m[1]}` : iso;
-              };
-              const startStr = fmtMDY(p.start);
-              const endStr   = fmtMDY(p.end);
-              const dateStr  = (startStr || endStr)
-                ? `${startStr || '—'}-${endStr || '—'}`
-                : '—';
-
-              const showPct = p.desg === 'TR' || p.desg === 'RE';
-              let pctText = '';
-              if (showPct) {
-                if (p.desg === 'TR') {
-                  pctText = `${Number(p.ratePct) || 0}%`;
-                } else if (p.desg === 'RE' && aww > 0) {
-                  const wageLossPct = Math.max(0, Math.min(100, ((aww - Number(p.curEarn || 0)) / aww) * 100));
-                  pctText = `${wageLossPct.toFixed(1)}%`;
-                }
-              }
-              const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
-
-              return (
-                <div className="ccp-summary-row" key={p.id}>
-                  <span className="ccp-sum-dates">{dateStr}</span>
-                  <span className="ccp-sum-sep">·</span>
-                  <span className="ccp-sum-rate">{fmt$(p.rate)}/wk</span>
-                  <span className="ccp-sum-sep">·</span>
-                  <span className={'ccp-sum-desg desg-' + p.desg}>{p.desg}</span>
-                  {pctText && (
-                    <>
-                      <span className="ccp-sum-sep">·</span>
-                      <span className="ccp-sum-pct">{pctText}</span>
-                    </>
-                  )}
-                  {p.reimbErOn && (
-                    <>
-                      <span className="ccp-sum-sep">·</span>
-                      <span className="ccp-sum-reimb">REIMB ER −{fmt$(reimbAmt)}</span>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* Period Summary — copy-friendly plain-text-style lines so an
+            attorney can paste the periods into hearing notes / docs.
+            Format per row:
+              M/D/YYYY-M/D/YYYY [$rate] DESG [(XX%) if TR/RE] [REIMB ER −$X]
+            Rate is omitted entirely for NCLT/NME (those are zero-comp
+            designations by definition); the /wk suffix is dropped because
+            attorneys reading the line know the rate is weekly. */}
+        {computed.rows.length > 0 && (() => {
+          // ISO `YYYY-MM-DD` from <input type="date"> → natural M/D/YYYY,
+          // no leading zeros on month/day (e.g. 3/9/2026 not 03/09/2026).
+          const fmtMDY = (iso) => {
+            if (!iso || typeof iso !== 'string') return '';
+            const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (!m) return iso;
+            return `${parseInt(m[2],10)}/${parseInt(m[3],10)}/${m[1]}`;
+          };
+          const buildRow = (p) => {
+            const startStr = fmtMDY(p.start);
+            const endStr   = fmtMDY(p.end);
+            const dateStr  = (startStr || endStr) ? `${startStr || '—'}-${endStr || '—'}` : '—';
+            const showRate = p.desg !== 'NCLT' && p.desg !== 'NME';
+            const rateStr  = showRate ? fmt$(p.rate) : '';
+            let pctStr = '';
+            if (p.desg === 'TR') {
+              pctStr = `(${Number(p.ratePct) || 0}%)`;
+            } else if (p.desg === 'RE' && aww > 0) {
+              const wageLossPct = Math.max(0, Math.min(100, ((aww - Number(p.curEarn || 0)) / aww) * 100));
+              pctStr = `(${wageLossPct.toFixed(1)}%)`;
+            }
+            const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
+            const reimbStr = reimbAmt > 0 ? `REIMB ER −${fmt$(reimbAmt)}` : '';
+            // Single-space joiner per Joel's spec: dates  RATE  DESG  (%)  REIMB.
+            return [dateStr, rateStr, p.desg, pctStr, reimbStr].filter(Boolean).join(' ');
+          };
+          const plainText = computed.rows.map(buildRow).join('\n');
+          const onCopySummary = async () => {
+            try { await navigator.clipboard.writeText(plainText); }
+            catch (e) {
+              const ta = document.createElement('textarea');
+              ta.value = plainText;
+              document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+            }
+            setCopiedSummary(true);
+            setTimeout(() => setCopiedSummary(false), 1500);
+          };
+          return (
+            <div className="ccp-summary">
+              <div className="ccp-summary-head">
+                <span className="ccp-summary-title">Periods</span>
+                <button type="button" className="btn tiny ccp-summary-copy"
+                  onClick={onCopySummary}
+                  title="Copy these lines to the clipboard for paste into hearing notes">
+                  {copiedSummary ? 'Copied ✓' : 'Copy'}
+                </button>
+              </div>
+              {computed.rows.map((p) => (
+                <div className="ccp-summary-row" key={p.id}>{buildRow(p)}</div>
+              ))}
+            </div>
+          );
+        })()}
 
         <div className="results">
           <div className="r-row big"><span className="l">Total Award</span><span className="v">{fmt$(computed.totalAward)}</span></div>
