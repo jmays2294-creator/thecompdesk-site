@@ -1121,23 +1121,57 @@ function buildEquation(tile, global) {
       if (awwOverride) {
         lines.push(`** AWW ${fmt$(aww)} < statutory min ${fmt$(global.minRate)} → AWW is the floor for every rate. **`);
       }
+      // Mirror the CCPTile.computed math 1:1 so the equation card at the
+      // bottom of the workspace, the OC-400.1 fee-app prefill, and the
+      // tile's own results panel all agree. Previously the equation card
+      // ignored Amending Award toggles and used the full current rate,
+      // which over-stated totalAward, moving, and totalFee.
+      const ttBase = (Number(aww) || 0) * 2 / 3;
       let totalReimbEr = 0;
       inputs.periods.forEach((p, i) => {
         const wks = weeksBetween(p.start, p.end);
-        let rawRate = 0;
-        if (p.desg === 'TT') rawRate = tt;
-        else if (p.desg === 'RE') rawRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
-        else if (p.desg === 'TR') rawRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
-        else rawRate = Number(p.manualRate || 0);
-        const rate = applyRateBounds(rawRate, aww, global.minRate, global.maxRate);
-        const adjusted = Math.abs(rate - rawRate) > 0.005;
+        let rawCurrentRate = 0;
+        if (p.desg === 'TT') rawCurrentRate = tt;
+        else if (p.desg === 'RE') rawCurrentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
+        else if (p.desg === 'TR') rawCurrentRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
+        else rawCurrentRate = Number(p.manualRate || 0);
+        const currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
+        const adjusted = Math.abs(currentRate - rawCurrentRate) > 0.005;
+
+        // Amending-award delta — match CCPTile.computed exactly:
+        //   priorMode 'pct' → priorRate = priorVal% × ⅔ × AWW (uncapped base)
+        //   priorMode 'usd' → priorRate = (priorVal / ⅔×AWW × 100)% × ⅔ × AWW
+        // Period rate = max(0, currentRate − priorRate).
+        let rate = currentRate;
+        let priorRate = 0;
+        if (p.amending) {
+          if (p.priorMode === 'usd') {
+            const priorUsd = Math.max(0, Number(p.priorVal || 0));
+            const priorPct = ttBase > 0 ? Math.min(100, (priorUsd / ttBase) * 100) : 0;
+            priorRate = (priorPct / 100) * ttBase;
+          } else {
+            const priorPct = Math.max(0, Math.min(100, Number(p.priorVal || 0)));
+            priorRate = (priorPct / 100) * ttBase;
+          }
+          rate = Math.max(0, currentRate - priorRate);
+        }
+
         const amt = wks * rate;
         totalAward += amt;
         const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
         totalReimbEr += reimbAmt;
         const reimbSuffix = reimbAmt > 0 ? ` · REIMB ER −${fmt$(reimbAmt)}` : '';
-        lines.push(`P${i+1} ${p.desg}: ${fmtN(wks, 2)} wks × ${fmt$(rate)}${adjusted ? ` (raw ${fmt$(rawRate)}, bounded by min/max for DOA)` : ''} = ${fmt$(amt)}${reimbSuffix}`);
-        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted ? ` — adjusted from raw ${fmt$(rawRate)}` : ''} = ${fmt$(amt)}${reimbAmt > 0 ? `, reimbursement to employer of ${fmt$(reimbAmt)}` : ''})`);
+        const amendSuffix = p.amending
+          ? ` (amending: ${fmt$(currentRate)} − ${fmt$(priorRate)} = ${fmt$(rate)}/wk)`
+          : '';
+        const adjustedSuffix = adjusted && !p.amending
+          ? ` (raw ${fmt$(rawCurrentRate)}, bounded by min/max for DOA)`
+          : '';
+        lines.push(`P${i+1} ${p.desg}: ${fmtN(wks, 2)} wks × ${fmt$(rate)}${adjustedSuffix}${amendSuffix} = ${fmt$(amt)}${reimbSuffix}`);
+        const summaryAmend = p.amending
+          ? `, amending — ${fmt$(currentRate)} − ${fmt$(priorRate)} = ${fmt$(rate)}/wk`
+          : '';
+        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted && !p.amending ? ` — adjusted from raw ${fmt$(rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(amt)}${reimbAmt > 0 ? `, reimbursement to employer of ${fmt$(reimbAmt)}` : ''})`);
       });
       const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - totalReimbEr);
       const feeOnAward = moving * 0.15;
