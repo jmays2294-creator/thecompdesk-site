@@ -105,7 +105,9 @@
 
 <div id="app-nav"></div>
 
-<!-- Upgrade wall — shown for free / Comp Buddy users -->
+<!-- Upgrade wall — RETAINED but no longer activated. Workspace is now
+     a public demo (2026-05-07); the per-tab paywall in /js/workspace/app.js
+     handles monetization. Leave the markup in case we ever want to re-gate. -->
 <div class="upgrade-wall" id="upgrade-wall" style="display:none;">
   <div class="icon">🔒</div>
   <h2>Pro Attorney Workspace</h2>
@@ -134,11 +136,18 @@
   // Site-level auth + nav. The workspace bundle loads as plain <script>
   // (Babel-transformed) and reads window.supa / window.workspaceUserId /
   // window.currentTier — bridged below.
-  import { getUser, hasAccess, supabase, TIERS } from '/js/auth.js';
-  import { renderNav } from '/js/nav.js';
+  //
+  // 2026-05-07: workspace is now a public demo. Anonymous visitors load the
+  // React canvas at tier='free' (no Supabase calls — local session only).
+  // Signed-in users keep the existing tier-aware Supabase persistence + sync.
+  // The per-tab paywall (1 synced tab on Free, unlimited on Pro/Firm) and the
+  // feeapp.js Pro gate are unchanged — they continue to enforce monetization
+  // exactly as before, just inside the workspace itself instead of at the door.
+  import { getOptionalUser, supabase, TIERS } from '/js/auth.js';
+  import { renderNav, renderPublicNav } from '/js/nav.js';
 
-  // Wrap module body in async IIFE so the early-return guards (non-auth,
-  // non-Pro) are legal — top-level `return` is a SyntaxError in ES modules.
+  // Wrap module body in async IIFE so the early-return guards are legal —
+  // top-level `return` is a SyntaxError in ES modules.
   (async () => {
   const status = document.getElementById('ws-bootstrap-status');
   const setStatus = (msg, color) => {
@@ -146,38 +155,25 @@
     status.style.color = color || '';
   };
 
-  const userState = await getUser();
-  if (!userState) return; // getUser() already redirected to /auth.html
+  const userState = await getOptionalUser();
+  const session = userState && userState.session ? userState.session : null;
+  const tier = (userState && userState.tier) || 'free';
+  const isAuthed = !!session;
 
-  const { session, tier } = userState;
-
-  // Bridge ESM client → globals for the workspace bundle
+  // Bridge ESM client → globals for the workspace bundle. Anonymous visitors
+  // get a null userId; persistence.js / sync.js are skipped below so they
+  // never see it. The React app already handles a missing WorkspacePersistence
+  // gracefully (sets saveStatus='offline', loaded=true, keeps the seed tab).
   window.supa = supabase;
-  window.workspaceUserId = session.user.id;
-  window.workspaceUserEmail = session.user.email;
+  window.workspaceUserId = isAuthed ? session.user.id : null;
+  window.workspaceUserEmail = isAuthed ? session.user.email : null;
   window.currentTier = tier;
   window.dispatchEvent(new CustomEvent('tier:changed', { detail: tier }));
 
-  try { renderNav(session, tier); } catch (e) { console.warn('nav render failed', e); }
-
-  if (!hasAccess(tier, TIERS.PRO)) {
-    document.getElementById('upgrade-wall').style.display = 'block';
-    document.getElementById('upgrade-btn').addEventListener('click', async () => {
-      const btn = document.getElementById('upgrade-btn');
-      btn.textContent = 'Loading...'; btn.disabled = true;
-      try {
-        const { data, error } = await supabase.functions.invoke('create-checkout', {
-          body: { tier: 'pro', user_id: session.user.id },
-        });
-        if (error || !data?.checkout_url) throw new Error('Checkout failed');
-        window.location.href = data.checkout_url;
-      } catch (err) {
-        btn.textContent = 'Upgrade to Pro — $9.99/mo'; btn.disabled = false;
-        console.error('Checkout error:', err);
-      }
-    });
-    return; // Don't load the workspace bundle for non-Pro
-  }
+  try {
+    if (isAuthed) renderNav(session, tier);
+    else renderPublicNav(userState);
+  } catch (e) { console.warn('nav render failed', e); }
 
   // Pro / Firm — load the React workspace.
   setStatus('Loading workspace…');
@@ -211,22 +207,29 @@
     await loadScript('https://unpkg.com/react@18/umd/react.production.min.js', { crossOrigin: true });
     await loadScript('https://unpkg.com/react-dom@18/umd/react-dom.production.min.js', { crossOrigin: true });
     await loadScript('https://unpkg.com/@babel/standalone@7/babel.min.js');
-    await loadScript('/js/workspace/persistence.js');
-    await loadScript('/js/workspace/sync.js');
+    // Persistence + realtime sync are Supabase-bound and require an authed
+    // userId — skip them for guest visitors. The React app degrades to
+    // local/offline mode when window.WorkspacePersistence is absent.
+    if (isAuthed) {
+      await loadScript('/js/workspace/persistence.js');
+      await loadScript('/js/workspace/sync.js');
+    }
     await loadScript('/js/workspace/constants.js');
     await loadAndTransform('/js/workspace/tiles.js');
     await loadAndTransform('/js/workspace/app.js');
+    // v1.2 — OC-400.1 fee-app generator. Loads pdf-lib lazily on first open.
+    await loadAndTransform('/js/workspace/feeapp.js');
 
-    setStatus(
-      tier === 'firm' ? 'Firm · synced'
-      : tier === 'pro' ? 'Pro · synced'
-      : '',
-      'var(--site-gn)'
-    );
+    const idleStatus = () => isAuthed
+      ? (tier === 'firm' ? 'Firm · synced'
+          : tier === 'pro' ? 'Pro · synced'
+          : 'Free · 1 tab synced')
+      : 'Guest demo · sign in to save';
+    setStatus(idleStatus(), 'var(--site-gn)');
     // Surface persistence errors loudly per the Apr 27 fail-loud playbook.
     window.addEventListener('workspace:save-error', () => setStatus('Save error — see console', 'var(--site-gd)'));
     window.addEventListener('workspace:load-error', () => setStatus('Load error — see console', '#ef4444'));
-    window.addEventListener('workspace:saved', () => setStatus(tier === 'firm' ? 'Firm · synced' : 'Pro · synced', 'var(--site-gn)'));
+    window.addEventListener('workspace:saved', () => setStatus(idleStatus(), 'var(--site-gn)'));
   } catch (e) {
     console.error('[workspace] BOOTSTRAP_FAILED', e);
     setStatus('Workspace failed to load — refresh or contact support.', '#ef4444');
