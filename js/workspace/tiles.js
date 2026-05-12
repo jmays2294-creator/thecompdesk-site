@@ -1190,11 +1190,20 @@ function buildEquation(tile, global) {
         ? ` and reimbursement to employer of ${fmt$(totalReimbEr)}`
         : '';
       const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)} less prior payments ${fmt$(Number(inputs.priorPay || 0))}${reimbClause} = ${fmt$(moving)} moving. Attorney fee is 15% of moving (${fmt$(feeOnAward)}) plus one-third of CCP (${fmt$(feeOnCCP)}) = ${fmt$(totalFee)} total fee. Net to claimant = ${fmt$(net)}.`;
-      // Detect prior vs continuing periods. Per Joel's spec:
-      //   end < today → prior period award      → FeeReason2 (increase for prior period)
-      //   end ≥ today → continuing payment      → FeeReason1 (continuation of weekly comp)
-      // Mixed → both checkboxes get checked.
+      // Per OC-400.1 § A fee-reason checkboxes:
+      //   FeeReason1 = "continuation of weekly compensation benefits"
+      //   FeeReason2 = "increase in the amount of compensation awarded
+      //                 or paid for a prior period"
+      //
+      // Joel's rule: a CCP entry IS continuing compensation, so any
+      // non-zero ccpAmount fires FeeReason1 regardless of period dates.
+      // A future-dated/ongoing award period also fires FeeReason1.
+      // A past-dated period with an award fires FeeReason2.
+      //
+      // Result: a case with both a CCP amount and a back-due award
+      // period gets BOTH boxes auto-checked in the fee app modal.
       const ccpToday = new Date(); ccpToday.setHours(0, 0, 0, 0);
+      const ccpHasAmount = Number(inputs.ccpAmount || 0) > 0;
       let ccpHasPrior = false, ccpHasContinuing = false;
       inputs.periods.forEach(p => {
         if (!p.end) return;
@@ -1204,8 +1213,8 @@ function buildEquation(tile, global) {
         else ccpHasContinuing = true;
       });
       const ccpFeeReasons = [];
-      if (ccpHasContinuing) ccpFeeReasons.push('FeeReason1');
-      if (ccpHasPrior)      ccpFeeReasons.push('FeeReason2');
+      if (ccpHasAmount || ccpHasContinuing) ccpFeeReasons.push('FeeReason1');
+      if (ccpHasPrior)                       ccpFeeReasons.push('FeeReason2');
       return { plain, mono: lines.join('\n'), fee: totalFee, feeReasons: ccpFeeReasons };
     }
     case 'RateLookup': {
