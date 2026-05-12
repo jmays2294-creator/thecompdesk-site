@@ -236,9 +236,10 @@ const DEFAULT_TWEAKS = {
 // Mirrors the per-tile `tile.inputs || { ... }` literals in tiles.js.
 const TILE_INPUT_DEFAULTS = {
   SLU:           () => ({
-    rows: [{ id: Date.now(), bp: 'Leg', pct: 0, priorWks: 0 }],
+    rows: [{ id: Date.now(), bp: 'Leg', pct: 0 }],
     priorPay: 0,
     priorTTRWks: 0,
+    phpWks: 0,
   }),
   LWEC:          () => ({ pct: 50, feePerWeek: 0, priorTTRWks: 0 }),
   CCP:           () => ({
@@ -266,7 +267,7 @@ const TILE_INPUT_DEFAULTS = {
 
 // Per-row defaults inside known nested arrays.
 const TILE_ROW_DEFAULTS = {
-  SLU_ROW:    () => ({ id: Date.now() + Math.random(), bp: 'Leg', pct: 0, priorWks: 0 }),
+  SLU_ROW:    () => ({ id: Date.now() + Math.random(), bp: 'Leg', pct: 0 }),
   CCP_PERIOD: () => ({
     id: Date.now() + Math.random(), start: '', end: '', desg: 'TT',
     curEarn: 0, ratePct: 100, manualRate: 0,

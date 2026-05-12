@@ -1069,6 +1069,7 @@ html body[data-theme] .beta-banner {
 .row.cols-2 { grid-template-columns: 1fr 1fr; }
 .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 .row.cols-tile { grid-template-columns: 2fr 1fr 1fr auto; align-items: end; }
+.row.cols-slu-bp { grid-template-columns: 2fr 1fr auto; align-items: end; gap: 10px; }
 
 .btn {
   background: transparent; border: 1px solid var(--bd);

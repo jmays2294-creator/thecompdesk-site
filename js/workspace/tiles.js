@@ -43,14 +43,14 @@ function Inherited({ ttRate, maxRate, minRate, aww, awwOverride, source = 'globa
 // SLU Tile
 // ====================================================================
 function SLUTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { rows: [{ id: 1, bp: 'Leg', pct: 0, priorWks: 0 }], priorPay: 0, priorTTRWks: 0 };
+  const inputs = tile.inputs || { rows: [{ id: 1, bp: 'Leg', pct: 0 }], priorPay: 0, priorTTRWks: 0, phpWks: 0 };
   const tt = global.ttRate;
 
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
   const addRow = () => {
     const id = Date.now();
-    setInputs({ rows: [...inputs.rows, { id, bp: 'Leg', pct: 0, priorWks: 0 }] });
+    setInputs({ rows: [...inputs.rows, { id, bp: 'Leg', pct: 0 }] });
   };
   const updateRow = (id, patch) => {
     setInputs({ rows: inputs.rows.map(r => r.id === id ? { ...r, ...patch } : r) });
@@ -60,19 +60,27 @@ function SLUTile({ tile, global, onUpdate }) {
   };
 
   const computed = useMemo(() => {
-    let totalWeeks = 0;
+    // SLU weeks per row.
+    let sluWeeksTotal = 0;
     const rowOut = inputs.rows.map(r => {
       const bp = SLU_BP.find(b => b.n === r.bp) || SLU_BP[0];
       const sluWks = (Number(r.pct) / 100) * bp.w;
-      const phpWks = Math.max(0, Number(r.priorWks || 0) - bp.hp);
-      const totWks = sluWks + phpWks;
-      totalWeeks += totWks;
-      return { ...r, bp, sluWks, phpWks, totWks };
+      sluWeeksTotal += sluWks;
+      return { ...r, bp, sluWks };
     });
+    // PHP (Protracted Healing Period) — single tile-level input that applies
+    // ONCE for the whole SLU, against the body part with the highest
+    // statutory healing period. Per WCL §15(4-a): multi-part SLUs don't
+    // stack PHP — they share the longest healing-period requirement.
+    // Example: SLU for both leg (hp 40) and hand (hp 32) with 46 weeks of
+    // prior TT during healing → credit 6 PHP weeks (46 − 40), not 14.
+    const phpInput = Number(inputs.phpWks || 0);
+    const maxHp = rowOut.reduce((m, r) => Math.max(m, r.bp.hp || 0), 0);
+    const phpCreditWks = Math.max(0, phpInput - maxHp);
+    const totalWeeks = sluWeeksTotal + phpCreditWks;
     const grossTotal = totalWeeks * tt;
-    // §15(3)(w) credit at TOTAL rate — distinct from per-row PHP. When the
-    // case-level prior weeks of TT/TR/TP exceed 130, the carrier credits
-    // (priorWks − 130) × TT rate against the gross SLU value.
+    // §15(3)(w) credit at TOTAL rate. When case-level prior TT/TR/TP weeks
+    // exceed 130, the carrier credits (priorWks − 130) × TT against gross.
     const priorTTRWks = Number(inputs.priorTTRWks || 0);
     const creditWks = priorTTRWks > 130 ? priorTTRWks - 130 : 0;
     const creditDollars = creditWks * tt;
@@ -80,7 +88,10 @@ function SLUTile({ tile, global, onUpdate }) {
     const moving = Math.max(0, total - Number(inputs.priorPay || 0));
     const fee = moving * 0.15;
     const net = moving - fee;
-    return { rowOut, totalWeeks, grossTotal, creditWks, creditDollars, total, moving, fee, net };
+    return {
+      rowOut, sluWeeksTotal, phpInput, maxHp, phpCreditWks,
+      totalWeeks, grossTotal, creditWks, creditDollars, total, moving, fee, net,
+    };
   }, [inputs, tt]);
 
   return (
@@ -89,7 +100,7 @@ function SLUTile({ tile, global, onUpdate }) {
       <div className="tile-body">
         <div style={{display:'grid', gap:8}}>
           {inputs.rows.map(r => (
-            <div className="row cols-tile" key={r.id}>
+            <div className="row cols-slu-bp" key={r.id}>
               <div className="f-group">
                 <label className="f-label">Body Part</label>
                 <select className="f-select" value={r.bp} onChange={e => updateRow(r.id, { bp: e.target.value })}>
@@ -101,24 +112,34 @@ function SLUTile({ tile, global, onUpdate }) {
                 <input className="f-input" type="number" min="0" max="100" value={r.pct}
                   onChange={e => updateRow(r.id, { pct: e.target.value })} />
               </div>
-              <div className="f-group">
-                <label className="f-label">PHP Wks (per part)</label>
-                <input className="f-input" type="number" min="0" value={r.priorWks}
-                  onChange={e => updateRow(r.id, { priorWks: e.target.value })} />
-              </div>
               <button className="delete-row" onClick={() => removeRow(r.id)} title="Remove">×</button>
             </div>
           ))}
         </div>
         <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
 
-        <div className="f-group" style={{maxWidth: 260}}>
-          <label className="f-label">Prior TT / TR / TP Weeks (§15(3)(w))</label>
-          <input className="f-input" type="number" min="0" step="0.5" value={inputs.priorTTRWks || 0}
-            onChange={e => setInputs({ priorTTRWks: e.target.value })} />
-          <span style={{fontSize:11, color:'var(--tx-faint)'}}>
-            Case-level prior weeks. Excess over 130 credited at the TT (total) rate.
-          </span>
+        {/* Prior TT/TR/TP (§15(3)(w)) and PHP sit side-by-side. Both are
+            case-level inputs (not per body part). PHP is shared across the
+            SLU and credits only against the longest healing-period
+            requirement among the selected body parts. */}
+        <div className="row cols-2" style={{maxWidth: 560}}>
+          <div className="f-group">
+            <label className="f-label">Prior TT / TR / TP Weeks (§15(3)(w))</label>
+            <input className="f-input" type="number" min="0" step="0.5" value={inputs.priorTTRWks || 0}
+              onChange={e => setInputs({ priorTTRWks: e.target.value })} />
+            <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+              Case-level prior weeks. Excess over 130 credited at the TT (total) rate.
+            </span>
+          </div>
+          <div className="f-group">
+            <label className="f-label">Prior Wks @ TT (PHP)</label>
+            <input className="f-input" type="number" min="0" step="0.5" value={inputs.phpWks || 0}
+              onChange={e => setInputs({ phpWks: e.target.value })} />
+            <span style={{fontSize:11, color:'var(--tx-faint)'}}>
+              Protracted Healing Period — applies once against the longest hp ({computed.maxHp} wks here).
+              Credit: {fmtN(computed.phpCreditWks, 2)} wks.
+            </span>
+          </div>
         </div>
 
         <div className="f-group" style={{maxWidth: 220}}>
@@ -132,6 +153,10 @@ function SLUTile({ tile, global, onUpdate }) {
         </div>
 
         <div className="results">
+          <div className="r-row"><span className="l">SLU Weeks (parts)</span><span className="v">{fmtN(computed.sluWeeksTotal, 2)}</span></div>
+          {computed.phpCreditWks > 0 && (
+            <div className="r-row"><span className="l">PHP Credit ({fmtN(computed.phpInput, 2)} − {computed.maxHp} hp)</span><span className="v">+{fmtN(computed.phpCreditWks, 2)} wks</span></div>
+          )}
           <div className="r-row"><span className="l">Total SLU Weeks</span><span className="v">{fmtN(computed.totalWeeks, 2)}</span></div>
           <div className="r-row"><span className="l">Gross SLU Value</span><span className="v">{fmt$(computed.grossTotal)}</span></div>
           {computed.creditWks > 0 && (
@@ -996,19 +1021,29 @@ function buildEquation(tile, global) {
   const aww = global.aww;
   switch (tile.type) {
     case 'SLU': {
-      const inputs = tile.inputs || { rows: [], priorPay: 0, priorTTRWks: 0 };
-      let totalWeeks = 0;
+      const inputs = tile.inputs || { rows: [], priorPay: 0, priorTTRWks: 0, phpWks: 0 };
+      let sluWeeksTotal = 0;
       const lines = [];
       const plain = [];
+      const rowMeta = [];
       inputs.rows.forEach(r => {
         const bp = SLU_BP.find(b => b.n === r.bp) || SLU_BP[0];
         const sluWks = (Number(r.pct) / 100) * bp.w;
-        const phpWks = Math.max(0, Number(r.priorWks || 0) - bp.hp);
-        totalWeeks += sluWks + phpWks;
+        sluWeeksTotal += sluWks;
+        rowMeta.push({ bp, sluWks });
         lines.push(`${bp.n}: ${r.pct}% × ${bp.w} = ${fmtN(sluWks, 2)} wks`);
-        lines.push(`PHP: max(0, ${r.priorWks || 0} − ${bp.hp}) = ${fmtN(phpWks, 2)} wks`);
         plain.push(`${bp.n} at ${r.pct}%`);
       });
+      // PHP — single tile-level value, credited once against the longest hp
+      // among the selected body parts (per WCL §15(4-a) — PHP doesn't stack
+      // across parts in a combined SLU).
+      const phpInput = Number(inputs.phpWks || 0);
+      const maxHp = rowMeta.reduce((m, r) => Math.max(m, r.bp.hp || 0), 0);
+      const phpCreditWks = Math.max(0, phpInput - maxHp);
+      if (phpInput > 0 || phpCreditWks > 0) {
+        lines.push(`PHP: max(0, ${fmtN(phpInput, 2)} − ${maxHp} hp) = ${fmtN(phpCreditWks, 2)} wks`);
+      }
+      const totalWeeks = sluWeeksTotal + phpCreditWks;
       const grossTotal = totalWeeks * tt;
       const priorTTRWks = Number(inputs.priorTTRWks || 0);
       const creditWks = priorTTRWks > 130 ? priorTTRWks - 130 : 0;
@@ -1026,10 +1061,13 @@ function buildEquation(tile, global) {
       lines.push(`Moving: ${fmt$(moving)}`);
       lines.push(`Fee: ${fmt$(moving)} × 15% = ${fmt$(fee)}`);
       lines.push(`Net: ${fmt$(net)}`);
+      const phpNote = phpCreditWks > 0
+        ? ` PHP adds ${fmtN(phpCreditWks, 2)} weeks (${fmtN(phpInput, 2)} prior TT weeks − ${maxHp}-week healing period for the longest-hp part).`
+        : '';
       const creditNote = creditWks > 0
         ? ` After §15(3)(w) credit of ${fmtN(creditWks, 2)} weeks at the TT rate (${fmt$(creditDollars)} deduction), total = ${fmt$(total)}.`
         : '';
-      const plainText = `SLU Award: ${plain.join(', ')}. Total ${fmtN(totalWeeks, 2)} weeks × ${fmt$(tt)}/wk = ${fmt$(grossTotal)} gross.${creditNote} Less prior payments of ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee 15% of moving = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      const plainText = `SLU Award: ${plain.join(', ')}.${phpNote} Total ${fmtN(totalWeeks, 2)} weeks × ${fmt$(tt)}/wk = ${fmt$(grossTotal)} gross.${creditNote} Less prior payments of ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee 15% of moving = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
       return { plain: plainText, mono: lines.join('\n'), fee, feeReasons: ['FeeReason3'] };
     }
     case 'LWEC': {
