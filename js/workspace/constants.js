@@ -224,7 +224,7 @@ const DEFAULT_AWW_STATE = {
 };
 
 const DEFAULT_TWEAKS = {
-  theme: 'onyx',
+  theme: 'eggshell',
   iridescence: 'subtle',
   perspective: 'subtle',
   snapSize: 20,

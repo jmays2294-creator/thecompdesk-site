@@ -19,6 +19,11 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 const GRID = 20;
 const CANVAS_PAD = 10;
 
+// Sports-team themes available in the AWW header's "More Themes" dropdown.
+// Used in two places: the dropdown options, and to detect whether the
+// currently-active theme is "one of these" so the dropdown can echo it.
+const EXTRA_THEMES = new Set(['knicks', 'yankees', 'mets', 'heat', 'bills']);
+
 // ============================================================================
 // SECTION 1 — AWW COMPUTATION (Task 1)
 // ============================================================================
@@ -332,15 +337,24 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
             </div>
           </div>
         </div>
-        {/* Method citation line — Change 2. Stacks below tt-display on
-            desktop; wraps independently on mobile. */}
-        <div className="aww-citation" aria-label="Active §14 method citation">
-          {methodCitation(state).map((piece, i) => (
-            <span key={i} className="aww-citation-piece">
-              {i > 0 ? <span className="aww-citation-sep">·</span> : null}
-              {piece}
-            </span>
-          ))}
+        {/* "More Themes" dropdown — sports/anime variants beyond the
+            three primary onyx/eggshell/aurora pills. Sits where the
+            duplicate §14 citation used to render; the method-badge above
+            still shows the active citation on hover. */}
+        <div className="more-themes-row">
+          <label htmlFor="more-themes-select" className="more-themes-label">More Themes</label>
+          <select
+            id="more-themes-select"
+            className="more-themes-select"
+            value={EXTRA_THEMES.has(themeName) ? themeName : ''}
+            onChange={e => setTheme(e.target.value || 'eggshell')}>
+            <option value="">— pick a team theme —</option>
+            <option value="knicks">New York Knicks</option>
+            <option value="yankees">New York Yankees</option>
+            <option value="mets">New York Mets</option>
+            <option value="heat">Miami Heat</option>
+            <option value="bills">Buffalo Bills</option>
+          </select>
         </div>
         <button className={'expand-toggle ' + (open ? 'open' : '')} onClick={() => setOpen(!open)}>
           Configure AWW <span className="chev">▾</span>

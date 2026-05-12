@@ -504,6 +504,141 @@ html body[data-theme] .beta-banner {
   --shadow: 0 1px 0 hsl(265 50% 0% / 0.5), 0 8px 32px hsl(280 60% 20% / 0.45);
 }
 
+/* ────────────────────────────────────────────────────────────────────
+   Sports-team themes (More Themes dropdown)
+   Each one ships team-colored tokens + a soft tiled monogram on the
+   body so the team identity reads even through the AWW strip blur.
+   Monogram opacity is kept low so it doesn't compete with the canvas
+   tiles for attention.
+   ──────────────────────────────────────────────────────────────────── */
+
+[data-theme="knicks"] {
+  --bg: hsl(212 60% 9%);
+  --bg-1: hsl(212 55% 12%);
+  --tile: hsl(212 50% 15%);
+  --tile-2: hsl(212 50% 17%);
+  --bd: hsl(212 30% 30%);
+  --bd-soft: hsl(212 30% 24%);
+  --tx: hsl(35 28% 92%);
+  --tx-dim: hsl(35 18% 72%);
+  --tx-faint: hsl(35 12% 52%);
+  --ac: hsl(25 90% 55%);
+  --ac-2: hsl(30 95% 65%);
+  --ac-soft: hsl(25 90% 55% / 0.16);
+  --ok: hsl(150 55% 55%);
+  --warn: hsl(45 90% 60%);
+  --grid-line: hsl(212 30% 18%);
+  --shadow: 0 1px 0 hsl(212 80% 0% / 0.5), 0 8px 32px hsl(212 60% 0% / 0.35);
+}
+body[data-theme="knicks"] {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='52' font-weight='900' fill='%23F58426' opacity='0.07'>NYK</text></svg>");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+[data-theme="yankees"] {
+  --bg: hsl(0 0% 96%);
+  --bg-1: hsl(0 0% 99%);
+  --tile: hsl(0 0% 100%);
+  --tile-2: hsl(218 30% 97%);
+  --bd: hsl(218 50% 28%);
+  --bd-soft: hsl(218 25% 78%);
+  --tx: hsl(218 80% 16%);
+  --tx-dim: hsl(218 35% 36%);
+  --tx-faint: hsl(218 18% 56%);
+  --ac: hsl(218 80% 22%);
+  --ac-2: hsl(218 80% 38%);
+  --ac-soft: hsl(218 80% 22% / 0.12);
+  --ok: hsl(150 50% 35%);
+  --warn: hsl(28 80% 45%);
+  --grid-line: hsl(218 20% 88%);
+  --shadow: 0 1px 0 hsl(218 30% 70% / 0.6), 0 8px 24px hsl(218 30% 50% / 0.18);
+}
+body[data-theme="yankees"] {
+  background-color: var(--bg);
+  /* Pinstripes + monogram. Vertical hairlines every 14px on a soft cream. */
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 12px, hsl(218 60% 22% / 0.06) 12px 13px),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'><text x='120' y='140' text-anchor='middle' font-family='Times New Roman, serif' font-size='62' font-weight='900' fill='%23003087' opacity='0.07'>NY</text></svg>");
+  background-attachment: fixed;
+}
+
+[data-theme="mets"] {
+  --bg: hsl(218 70% 11%);
+  --bg-1: hsl(218 65% 14%);
+  --tile: hsl(218 60% 17%);
+  --tile-2: hsl(218 60% 19%);
+  --bd: hsl(218 35% 32%);
+  --bd-soft: hsl(218 35% 26%);
+  --tx: hsl(35 25% 92%);
+  --tx-dim: hsl(35 15% 72%);
+  --tx-faint: hsl(35 10% 52%);
+  --ac: hsl(14 95% 56%);
+  --ac-2: hsl(18 98% 68%);
+  --ac-soft: hsl(14 95% 56% / 0.16);
+  --ok: hsl(150 55% 55%);
+  --warn: hsl(45 90% 60%);
+  --grid-line: hsl(218 35% 20%);
+  --shadow: 0 1px 0 hsl(218 80% 0% / 0.5), 0 8px 32px hsl(218 60% 0% / 0.35);
+}
+body[data-theme="mets"] {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='56' font-weight='900' fill='%23FF5910' opacity='0.07'>NY</text></svg>");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+[data-theme="heat"] {
+  --bg: hsl(0 0% 5%);
+  --bg-1: hsl(0 0% 8%);
+  --tile: hsl(0 0% 11%);
+  --tile-2: hsl(0 0% 13%);
+  --bd: hsl(345 60% 28%);
+  --bd-soft: hsl(0 0% 20%);
+  --tx: hsl(40 30% 92%);
+  --tx-dim: hsl(40 15% 70%);
+  --tx-faint: hsl(40 10% 50%);
+  --ac: hsl(345 95% 38%);
+  --ac-2: hsl(42 92% 55%);
+  --ac-soft: hsl(345 95% 38% / 0.18);
+  --ok: hsl(150 55% 55%);
+  --warn: hsl(42 92% 55%);
+  --grid-line: hsl(0 0% 14%);
+  --shadow: 0 1px 0 hsl(0 0% 0% / 0.6), 0 8px 32px hsl(345 50% 5% / 0.45);
+}
+body[data-theme="heat"] {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='50' font-weight='900' fill='%23F9A01B' opacity='0.07'>MIA</text></svg>");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+[data-theme="bills"] {
+  --bg: hsl(217 75% 10%);
+  --bg-1: hsl(217 70% 13%);
+  --tile: hsl(217 65% 16%);
+  --tile-2: hsl(217 65% 18%);
+  --bd: hsl(217 40% 32%);
+  --bd-soft: hsl(217 40% 26%);
+  --tx: hsl(0 5% 95%);
+  --tx-dim: hsl(0 5% 75%);
+  --tx-faint: hsl(0 5% 55%);
+  --ac: hsl(350 90% 48%);
+  --ac-2: hsl(217 80% 65%);
+  --ac-soft: hsl(350 90% 48% / 0.16);
+  --ok: hsl(150 55% 55%);
+  --warn: hsl(45 90% 60%);
+  --grid-line: hsl(217 40% 20%);
+  --shadow: 0 1px 0 hsl(217 80% 0% / 0.5), 0 8px 32px hsl(217 60% 0% / 0.35);
+}
+body[data-theme="bills"] {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><text x='110' y='130' text-anchor='middle' font-family='DM Sans, system-ui, sans-serif' font-size='48' font-weight='900' fill='%23C60C30' opacity='0.08'>BUF</text></svg>");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
 /* Density */
 [data-density="comfortable"] { --pad: 16px; --pad-tight: 10px; }
 [data-density="compact"] { --pad: 11px; --pad-tight: 7px; }
@@ -1372,24 +1507,40 @@ footer.disclaimer {
   color: var(--tx);
 }
 
-/* Method citation line under TT/SLU/Min row */
-.aww-citation {
+/* "More Themes" selector — sits where the duplicate §14 citation used to
+   live, right-aligned under the tt-display row. The compact onyx /
+   eggshell / aurora pill switcher stays in the AWW right-cluster above. */
+.more-themes-row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   padding: 6px 0 0;
   font: 600 12px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
   color: var(--tx-dim);
-  letter-spacing: 0.02em;
 }
-.aww-citation-piece {
-  display: inline-flex; align-items: center; gap: 8px;
-}
-.aww-citation-sep {
+.more-themes-label {
   color: var(--tx-faint);
-  margin: 0 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 700;
 }
+.more-themes-select {
+  appearance: none;
+  background: var(--tile);
+  color: var(--tx);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 5px 26px 5px 10px;
+  font: 600 12px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='currentColor' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+.more-themes-select:hover { border-color: var(--ac); }
+.more-themes-select:focus { outline: 2px solid var(--ac-soft); outline-offset: 1px; }
 
 /* Composite-AWW tag pill next to the AWW value when concurrent is on. */
 .composite-tag {
@@ -1406,7 +1557,8 @@ footer.disclaimer {
 }
 
 @media (max-width: 640px) {
-  .aww-citation { gap: 6px; font-size: 11px; }
+  .more-themes-row { gap: 6px; font-size: 11px; justify-content: flex-start; }
+  .more-themes-select { padding: 4px 22px 4px 8px; font-size: 11px; }
   .concurrent-toggle-row { margin-top: 12px; }
 }
 
