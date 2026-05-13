@@ -172,6 +172,36 @@
     .calc-badge.spine_brain { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.2); color: var(--rd); }
     .calc-badge.rates { background: rgba(100,116,139,.1); border-color: rgba(100,116,139,.25); color: var(--txD); }
 
+    /* Per-case trash button in sidebar (May 13, 2026) */
+    .case-item { position: relative; padding-right: 38px; }
+    .case-trash-btn {
+      position: absolute;
+      top: 10px;
+      right: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--txM);
+      font-size: 13px;
+      line-height: 1;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all .12s;
+      opacity: .6;
+    }
+    .case-item:hover .case-trash-btn { opacity: 1; }
+    .case-trash-btn:hover {
+      color: var(--rd);
+      border-color: rgba(239,68,68,.25);
+      background: rgba(239,68,68,.08);
+      opacity: 1;
+    }
+    .case-trash-btn:focus-visible {
+      outline: 2px solid var(--ac);
+      outline-offset: 1px;
+      opacity: 1;
+    }
+
     /* Empty state */
     .empty-state {
       padding: 40px 20px;
@@ -639,8 +669,10 @@
 
       list.innerHTML = cases.map(c => {
         const isActive = selectedCase && selectedCase.case_name === c.case_name;
+        const cn = encodeURIComponent(c.case_name);
         return `
-          <div class="case-item${isActive ? ' active' : ''}" data-case="${encodeURIComponent(c.case_name)}">
+          <div class="case-item${isActive ? ' active' : ''}" data-case="${cn}">
+            <button class="case-trash-btn case-delete-btn" type="button" data-case="${cn}" aria-label="Delete case ${escHTML(c.case_name)}" title="Delete this case">🗑️</button>
             <div class="case-item-name">${escHTML(c.case_name)}</div>
             <div class="case-item-meta">
               <span class="case-meta-item"><strong>${c.calc_count}</strong> calc${c.calc_count !== 1 ? 's' : ''}</span>
@@ -653,12 +685,42 @@
           </div>`;
       }).join('');
 
-      // Wire click handlers
+      // Wire click handlers (open case detail)
       list.querySelectorAll('.case-item').forEach(el => {
         el.addEventListener('click', () => {
           const cn = decodeURIComponent(el.dataset.case);
           const c = allCases.find(x => x.case_name === cn);
           if (c) selectCase(c);
+        });
+      });
+
+      // Wire per-case trash buttons. Stop propagation so the case-item click
+      // doesn't also fire (otherwise we'd open the case we're about to delete).
+      list.querySelectorAll('.case-delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const cn = decodeURIComponent(btn.dataset.case);
+          const c = allCases.find(x => x.case_name === cn);
+          if (!c) return;
+          const n = c.calc_count;
+          const ok = await cdConfirm({
+            title: 'Delete this case?',
+            message: `Delete "${cn}" and all ${n} calculation${n !== 1 ? 's' : ''}? This cannot be undone.`,
+            okLabel: 'Delete case',
+          });
+          if (!ok) return;
+          const ids = (c.calculations || []).map(x => String(x.id));
+          if (!ids.length) return;
+          // If the case being deleted is currently open, drop the detail panel
+          // so runDelete() doesn't try to re-render an empty timeline.
+          if (selectedCase && selectedCase.case_name === cn) {
+            selectedCase = null;
+            const detail = document.getElementById('caseDetail');
+            const welcome = document.getElementById('welcomeState');
+            if (detail) detail.style.display = 'none';
+            if (welcome) welcome.style.display = 'flex';
+          }
+          await runDelete(ids);
         });
       });
     }
@@ -951,16 +1013,60 @@
       window.location.href = '/workspace/?case=' + encodeURIComponent(selectedCase?.case_name || '') + '&load=' + calc.id;
     }
 
+    // ─── Resolve the user's effective access tier ───
+    // The shared getUserTier() in auth.js occasionally returns 'free' for a
+    // paying user when the supabase client's JWT hasn't fully hydrated yet
+    // (May 13, 2026 bug report: pro attorneys hitting the My Cases paywall).
+    // We re-query the canonical sources directly here, with maybeSingle() so a
+    // missing row doesn't throw, and we ALSO check firm_members so anyone on a
+    // firm seat gets through the gate even if their profile row hasn't been
+    // cascaded yet.
+    async function resolveEffectiveTier(session, fallbackTier) {
+      try {
+        const { data: prof, error: profErr } = await supabase
+          .from('profiles')
+          .select('subscription_tier, subscription_status, firm_id')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        if (profErr) {
+          console.warn('[my-cases] profile re-read failed:', profErr.message);
+        }
+        if (prof && prof.subscription_tier && prof.subscription_tier !== 'free') {
+          return prof.subscription_tier;
+        }
+        // Firm-member fallback — covers users invited onto a firm seat whose
+        // profile.subscription_tier hasn't been cascaded yet.
+        const { data: fm, error: fmErr } = await supabase
+          .from('firm_members')
+          .select('firm_id, status')
+          .eq('user_id', session.user.id)
+          .in('status', ['active', 'pending'])
+          .maybeSingle();
+        if (fmErr) {
+          console.warn('[my-cases] firm_members fetch failed:', fmErr.message);
+        }
+        if (fm && fm.firm_id) {
+          return 'firm';
+        }
+      } catch (err) {
+        console.warn('[my-cases] tier resolution error:', err);
+      }
+      return fallbackTier || 'free';
+    }
+
     // ─── Init ───
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await getUser();
       if (!user) return;
 
-      currentUser = user;
-      renderNav(user.session, user.tier);
+      const effectiveTier = await resolveEffectiveTier(user.session, user.tier);
+      console.log('[my-cases] tier resolved:', { fromAuthJs: user.tier, effective: effectiveTier });
+
+      currentUser = { session: user.session, tier: effectiveTier };
+      renderNav(user.session, effectiveTier);
 
       // Check Pro access
-      if (!hasAccess(user.tier, ['pro', 'firm'])) {
+      if (!hasAccess(effectiveTier, ['pro', 'firm'])) {
         return; // Gate stays visible
       }
 
