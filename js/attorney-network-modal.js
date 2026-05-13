@@ -253,30 +253,34 @@
   }
 
   function validate(payload, formEl) {
+    // Payload keys match the edge fn / DB schema (name, bar_number, email,
+    // phone, years_wc_practice). HTML <input name="..."> attrs use the
+    // legacy form labels (full_name, ny_bar_number, contact_email,
+    // contact_phone, years_practicing_wc) so autocomplete still works.
     const errs = [];
-    const flag = (name) => {
-      const el = formEl.querySelector(`[name="${name}"]`);
+    const flag = (htmlName) => {
+      const el = formEl.querySelector(`[name="${htmlName}"]`);
       el?.closest('.attyApp-field')?.classList.add('has-error');
     };
 
-    if (!payload.full_name)        { errs.push('Full name is required.'); flag('full_name'); }
-    if (!payload.ny_bar_number)    { errs.push('NY bar number is required.'); flag('ny_bar_number'); }
-    if (payload.ny_bar_number && !/^\d{4,10}$/.test(payload.ny_bar_number)) {
+    if (!payload.name)             { errs.push('Full name is required.'); flag('full_name'); }
+    if (!payload.bar_number)       { errs.push('NY bar number is required.'); flag('ny_bar_number'); }
+    if (payload.bar_number && !/^\d{4,10}$/.test(payload.bar_number)) {
       errs.push('Bar number should be 4–10 digits.'); flag('ny_bar_number');
     }
     if (!payload.firm_name)        { errs.push('Firm name is required.'); flag('firm_name'); }
     if (!payload.firm_address)     { errs.push('Firm address is required.'); flag('firm_address'); }
-    if (!payload.contact_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.contact_email)) {
+    if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
       errs.push('A valid contact email is required.'); flag('contact_email');
     }
-    if (!payload.contact_phone || payload.contact_phone.replace(/\D/g, '').length < 10) {
+    if (!payload.phone || payload.phone.replace(/\D/g, '').length < 10) {
       errs.push('A valid 10-digit phone number is required.'); flag('contact_phone');
     }
     if (!Array.isArray(payload.counties_served) || payload.counties_served.length === 0) {
       errs.push('Select at least one county served.');
       formEl.querySelector('#attyAppCounties')?.closest('.attyApp-field')?.classList.add('has-error');
     }
-    if (payload.years_practicing_wc === '' || payload.years_practicing_wc === null || isNaN(payload.years_practicing_wc) || payload.years_practicing_wc < 0) {
+    if (payload.years_wc_practice === '' || payload.years_wc_practice === null || isNaN(payload.years_wc_practice) || payload.years_wc_practice < 0) {
       errs.push('Years practicing WC must be 0 or more.'); flag('years_practicing_wc');
     }
     if (!payload.malpractice_carrier)        { errs.push('Malpractice carrier is required.'); flag('malpractice_carrier'); }
@@ -297,15 +301,20 @@
     const counties = fd.getAll('counties_served');
     const yearsRaw = fd.get('years_practicing_wc');
 
+    // ── Edge fn / DB schema rename (smoke test Bug B4, 2026-05-13) ─────
+    // submit-attorney-application expects: name, bar_number, email, phone,
+    // years_wc_practice — NOT the form's input names. We only rename keys
+    // on the wire; the <input name="..."> attrs above are unchanged so
+    // existing autocomplete/UX still works.
     const payload = {
-      full_name:                  (fd.get('full_name')           || '').trim(),
-      ny_bar_number:              (fd.get('ny_bar_number')       || '').trim(),
+      name:                       (fd.get('full_name')           || '').trim(),
+      bar_number:                 (fd.get('ny_bar_number')       || '').trim(),
       firm_name:                  (fd.get('firm_name')           || '').trim(),
       firm_address:               (fd.get('firm_address')        || '').trim(),
-      contact_email:              (fd.get('contact_email')       || '').trim().toLowerCase(),
-      contact_phone:              (fd.get('contact_phone')       || '').trim(),
+      email:                      (fd.get('contact_email')       || '').trim().toLowerCase(),
+      phone:                      (fd.get('contact_phone')       || '').trim(),
       counties_served:            counties,
-      years_practicing_wc:        yearsRaw === null || yearsRaw === '' ? null : Number(yearsRaw),
+      years_wc_practice:          yearsRaw === null || yearsRaw === '' ? null : Number(yearsRaw),
       malpractice_carrier:        (fd.get('malpractice_carrier') || '').trim(),
       malpractice_policy_number:  (fd.get('malpractice_policy_number') || '').trim(),
       conflict_check_method:      (fd.get('conflict_check_method')     || '').trim(),

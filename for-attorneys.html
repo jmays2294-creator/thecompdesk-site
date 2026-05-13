@@ -204,7 +204,7 @@ footer a{color:var(--txD);}
       <a href="#compare">Compare Plans</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
-      <a href="https://buy.stripe.com/5kQcMZ4MXfwHazb5SugIo04" class="cta-btn">Start Free Trial</a>
+      <button type="button" class="cta-btn" data-checkout-tier="pro">Start Free Trial</button>
     </div>
   </div>
 </nav>
@@ -470,7 +470,7 @@ footer a{color:var(--txD);}
           <li>Severity crosswalk reference</li>
           <li>Multi-device sync (laptop, tablet, phone)</li>
         </ul>
-        <a href="https://buy.stripe.com/5kQcMZ4MXfwHazb5SugIo04" class="cta-btn" style="width:100%;justify-content:center;">Start Free Trial</a>
+        <button type="button" class="cta-btn" data-checkout-tier="pro" style="width:100%;justify-content:center;">Start Free Trial</button>
         <p class="trial-note">7-day free trial included. Cancel anytime.</p>
       </div>
       <div class="tier-card">
@@ -485,7 +485,7 @@ footer a{color:var(--txD);}
           <li>Priority support</li>
           <li>Custom branding option</li>
         </ul>
-        <a href="https://buy.stripe.com/dRm28lgvFgAL9v71CegIo05" class="cta-btn gold" style="width:100%;justify-content:center;">Start Firm Trial</a>
+        <button type="button" class="cta-btn gold" data-checkout-tier="firm" style="width:100%;justify-content:center;">Start Firm Trial</button>
         <p class="trial-note">7-day free trial included. Cancel anytime.</p>
       </div>
     </div>
@@ -632,8 +632,8 @@ footer a{color:var(--txD);}
     <h2>Ready to upgrade your practice?</h2>
     <p>Join attorneys across New York State who are done calculating by hand. Start your free trial today.</p>
     <div class="ctas">
-      <a href="https://buy.stripe.com/5kQcMZ4MXfwHazb5SugIo04" class="cta-btn">Start Pro — $9.99/mo</a>
-      <a href="https://buy.stripe.com/dRm28lgvFgAL9v71CegIo05" class="cta-btn gold">Start Firm — $99/mo</a>
+      <button type="button" class="cta-btn" data-checkout-tier="pro">Start Pro — $9.99/mo</button>
+      <button type="button" class="cta-btn gold" data-checkout-tier="firm">Start Firm — $99/mo</button>
     </div>
   </div>
 </section>
@@ -660,5 +660,51 @@ footer a{color:var(--txD);}
 
 <script defer src="/js/attorney-network-modal.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
+
+<!-- Upgrade CTAs → create-checkout edge fn (replaces raw Payment Links per smoke test bug A1, 2026-05-13) -->
+<script type="module">
+  import { supabase } from '/js/auth.js';
+
+  const CHECKOUT_URL = 'https://ltibymvlytodkemdeeox.supabase.co/functions/v1/create-checkout';
+
+  async function startCheckout(tier, btn) {
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Loading…';
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        // Park the desired tier so /subscribe (or whatever lands them post-signin) can pick up if needed
+        const redirect = '/for-attorneys#pricing';
+        window.location.href = `/auth_v2.html?redirect=${encodeURIComponent(redirect)}`;
+        return;
+      }
+      const response = await fetch(CHECKOUT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ tier }),
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Checkout failed (${response.status})`);
+      }
+      const data = await response.json();
+      if (!data.checkout_url) throw new Error('No checkout URL returned');
+      window.location.href = data.checkout_url;
+    } catch (err) {
+      console.error('[for-attorneys] checkout error:', err);
+      alert('Could not start checkout: ' + (err.message || 'unknown error'));
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+
+  document.querySelectorAll('button[data-checkout-tier]').forEach((btn) => {
+    btn.addEventListener('click', () => startCheckout(btn.dataset.checkoutTier, btn));
+  });
+</script>
 </body>
 </html>

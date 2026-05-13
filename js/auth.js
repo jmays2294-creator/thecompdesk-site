@@ -12,6 +12,44 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 // Initialize Supabase client
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// ────────────────────────────────────────────────────────────────────────
+// Tier-fetch error tracking — restored 2026-05-13 per smoke test Bug A3.
+// Apr 27 incident encoded in CLAUDE.md "Database Operations Playbook →
+// Application code — fail loud, not silent": any DB read whose error path
+// silently degrades the user experience MUST surface the error.
+// ────────────────────────────────────────────────────────────────────────
+let _lastTierFetchError = null;
+
+function getLastTierFetchError() {
+  return _lastTierFetchError;
+}
+
+// Non-blocking toast for tier-fetch failures. Renders without depending on
+// any other UI scaffolding so it works on every page that imports auth.js.
+function showNonBlockingToast(message) {
+  try {
+    if (typeof document === 'undefined') return;
+    const existing = document.getElementById('auth-tier-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'auth-tier-toast';
+    toast.setAttribute('role', 'alert');
+    toast.style.cssText = [
+      'position:fixed','bottom:24px','right:24px','z-index:99999',
+      'background:rgba(239,68,68,0.95)','color:#fff',
+      'padding:12px 18px','border-radius:8px','max-width:360px',
+      'font-family:system-ui,-apple-system,sans-serif','font-size:13px',
+      'line-height:1.5','box-shadow:0 4px 20px rgba(0,0,0,0.3)',
+      'border:1px solid rgba(255,255,255,0.15)'
+    ].join(';');
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 8000);
+  } catch (_) {
+    // Toast is best-effort; never let UI rendering errors mask the underlying issue.
+  }
+}
+
 // Tier constants
 const TIERS = {
   FREE: 'free',
@@ -58,6 +96,7 @@ async function requireAuth() {
  */
 async function getUserTier(session) {
   if (!session || !session.user) {
+    _lastTierFetchError = null;
     return TIERS.FREE;
   }
 
@@ -69,13 +108,32 @@ async function getUserTier(session) {
       .single();
 
     if (error) {
-      console.warn('Could not fetch user tier:', error);
+      // Fail LOUD. Apr 27, 2026 incident: RLS recursion (42P17) silently
+      // downgraded every Pro user to free. CLAUDE.md mandates: sentinel
+      // prefix in the console, CustomEvent dispatch, toast, and a getter
+      // so callers can distinguish "really free" from "couldn't determine".
+      _lastTierFetchError = error;
+      console.error('[auth] TIER_FETCH_FAILED', error);
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('auth:tier-fetch-error', { detail: error }));
+      }
+      showNonBlockingToast(
+        "We couldn't verify your subscription. If a paid feature is locked, please reload."
+      );
       return TIERS.FREE;
     }
 
+    _lastTierFetchError = null;
     return data?.subscription_tier || TIERS.FREE;
   } catch (err) {
-    console.error('Error fetching user tier:', err);
+    _lastTierFetchError = err;
+    console.error('[auth] TIER_FETCH_FAILED', err);
+    if (typeof window !== 'undefined' && window.dispatchEvent) {
+      window.dispatchEvent(new CustomEvent('auth:tier-fetch-error', { detail: err }));
+    }
+    showNonBlockingToast(
+      "We couldn't verify your subscription. If a paid feature is locked, please reload."
+    );
     return TIERS.FREE;
   }
 }
@@ -288,6 +346,7 @@ export {
   supabase,
   requireAuth,
   getUserTier,
+  getLastTierFetchError,
   hasAccess,
   getUser,
   getOptionalUser,
