@@ -269,15 +269,46 @@ function weeksBetween(start, end) {
   return days / 7;
 }
 
+// Round-DOWN to a precision mode. 'tenth' floors to the nearest 0.1 wk,
+// 'whole' floors to the nearest 1 wk, anything else returns exact value.
+// Used by the CCP tile rounding toggles + mirrored in buildEquation.
+function roundWeeksDown(wks, mode) {
+  const n = Number(wks) || 0;
+  if (mode === 'tenth') return Math.floor(n * 10) / 10;
+  if (mode === 'whole') return Math.floor(n);
+  return n;
+}
+
+// Local-time ISO date strings (YYYY-MM-DD) so the Today / Day-After-Today
+// shortcuts on CCP period end-dates produce values compatible with
+// <input type="date">.
+function todayISO() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+function tomorrowISO() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+
 function CCPTile({ tile, global, onUpdate }) {
   const inputs = tile.inputs || {
     periods: [
       { id: 1, start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
         amending: false, priorMode: 'pct', priorVal: 0,
-        reimbErOn: false, reimbErAmount: 0 },
+        reimbErOn: false, reimbErAmount: 0,
+        endMode: null },
     ],
     ccpAmount: 0,
     priorPay: 0,
+    rounding: 'none', // 'none' | 'tenth' | 'whole'
   };
   const tt = global.ttRate;
   const aww = global.aww;
@@ -296,6 +327,7 @@ function CCPTile({ tile, global, onUpdate }) {
       id: Date.now(), start: chainedStart, end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
       amending: false, priorMode: 'pct', priorVal: 0,
       reimbErOn: false, reimbErAmount: 0,
+      endMode: null,
     }] });
   };
 
@@ -319,8 +351,12 @@ function CCPTile({ tile, global, onUpdate }) {
 
   const computed = useMemo(() => {
     const ttBase = (Number(aww) || 0) * 2 / 3;
+    const rounding = inputs.rounding || 'none';
     const out = inputs.periods.map(p => {
-      const wks = weeksBetween(p.start, p.end);
+      // Raw week count from the dates, then floored to whatever rounding
+      // mode is active on the tile. 'none' is the historical exact value.
+      const wksRaw = weeksBetween(p.start, p.end);
+      const wks = roundWeeksDown(wksRaw, rounding);
       // Resolve the "current" rate using the desg, exactly as v1.1 did.
       let rawCurrentRate = 0;
       if (p.desg === 'TT')         rawCurrentRate = tt;
@@ -385,6 +421,27 @@ function CCPTile({ tile, global, onUpdate }) {
   return (
     <>
       <Inherited {...global} />
+      {/* Week-rounding selector — mutually exclusive, both can be off.
+          When on, every period's week count is floored to the chosen
+          precision and the rounded value drives totalAward, moving, fee,
+          net, the equation card, and the fee-app prefill. */}
+      <div className="ccp-rounding-row">
+        <span className="ccp-rounding-label">Round Weeks</span>
+        <div className="ccp-rounding-toggle" role="radiogroup" aria-label="Round weeks">
+          <button type="button" role="radio"
+            aria-checked={(inputs.rounding || 'none') === 'tenth'}
+            className={'ccp-rounding-pill ' + ((inputs.rounding || 'none') === 'tenth' ? 'on' : '')}
+            onClick={() => setInputs({ rounding: (inputs.rounding === 'tenth') ? 'none' : 'tenth' })}>
+            Nearest 1/10 wk (round down)
+          </button>
+          <button type="button" role="radio"
+            aria-checked={(inputs.rounding || 'none') === 'whole'}
+            className={'ccp-rounding-pill ' + ((inputs.rounding || 'none') === 'whole' ? 'on' : '')}
+            onClick={() => setInputs({ rounding: (inputs.rounding === 'whole') ? 'none' : 'whole' })}>
+            Nearest whole wk (round down)
+          </button>
+        </div>
+      </div>
       <div className="tile-body">
         <div style={{display:'grid', gap:8}}>
           {inputs.periods.map(p => (
@@ -398,7 +455,31 @@ function CCPTile({ tile, global, onUpdate }) {
                 <div className="f-group">
                   <label className="f-label">End</label>
                   <input className="f-input" type="date" value={p.end}
-                    onChange={e => updatePeriod(p.id, { end: e.target.value })}/>
+                    onChange={e => updatePeriod(p.id, { end: e.target.value, endMode: null })}/>
+                  {/* Today / Day-After-Today shortcuts. Mutually exclusive,
+                      both can be off. Clicking an active pill toggles it
+                      off (leaves the date as-is). Manual date edits clear
+                      both toggles via the onChange above. */}
+                  <div className="ccp-end-shortcuts">
+                    <button type="button"
+                      className={'ccp-end-shortcut-pill ' + (p.endMode === 'today' ? 'on' : '')}
+                      aria-pressed={p.endMode === 'today'}
+                      onClick={() => {
+                        if (p.endMode === 'today') updatePeriod(p.id, { endMode: null });
+                        else updatePeriod(p.id, { end: todayISO(), endMode: 'today' });
+                      }}>
+                      Today
+                    </button>
+                    <button type="button"
+                      className={'ccp-end-shortcut-pill ' + (p.endMode === 'tomorrow' ? 'on' : '')}
+                      aria-pressed={p.endMode === 'tomorrow'}
+                      onClick={() => {
+                        if (p.endMode === 'tomorrow') updatePeriod(p.id, { endMode: null });
+                        else updatePeriod(p.id, { end: tomorrowISO(), endMode: 'tomorrow' });
+                      }}>
+                      Day After Today
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="f-group">
@@ -1127,9 +1208,11 @@ function buildEquation(tile, global) {
       // ignored Amending Award toggles and used the full current rate,
       // which over-stated totalAward, moving, and totalFee.
       const ttBase = (Number(aww) || 0) * 2 / 3;
+      const ccpRounding = inputs.rounding || 'none';
       let totalReimbEr = 0;
       inputs.periods.forEach((p, i) => {
-        const wks = weeksBetween(p.start, p.end);
+        const wksRaw = weeksBetween(p.start, p.end);
+        const wks = roundWeeksDown(wksRaw, ccpRounding);
         let rawCurrentRate = 0;
         if (p.desg === 'TT') rawCurrentRate = tt;
         else if (p.desg === 'RE') rawCurrentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);

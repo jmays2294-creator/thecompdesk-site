@@ -248,9 +248,11 @@ const TILE_INPUT_DEFAULTS = {
       curEarn: 0, ratePct: 100, manualRate: 0,
       amending: false, priorMode: 'pct', priorVal: 0,
       reimbErOn: false, reimbErAmount: 0,
+      endMode: null,
     }],
     ccpAmount: 0,
     priorPay: 0,
+    rounding: 'none',
   }),
   RateLookup:    () => ({ date: '' }),
   Radiculopathy: () => ({
@@ -273,6 +275,7 @@ const TILE_ROW_DEFAULTS = {
     curEarn: 0, ratePct: 100, manualRate: 0,
     amending: false, priorMode: 'pct', priorVal: 0,
     reimbErOn: false, reimbErAmount: 0,
+    endMode: null,
   }),
 };
 

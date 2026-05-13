@@ -1183,6 +1183,74 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 }
 .ccp-same-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* CCP tile — tile-level week-rounding selector. Sits between the
+   Inherited TT/Max/Min strip and the period list. Mutually exclusive,
+   both can be off. */
+.ccp-rounding-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 6px;
+  border-bottom: 1px solid var(--bd-soft);
+  background: color-mix(in srgb, var(--bg-1) 50%, transparent);
+  flex-wrap: wrap;
+}
+.ccp-rounding-label {
+  font: 700 10px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tx-faint);
+}
+.ccp-rounding-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 2px;
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  background: var(--bg-1);
+}
+.ccp-rounding-pill {
+  border: 0;
+  background: transparent;
+  color: var(--tx-dim);
+  font: 600 11px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+  white-space: nowrap;
+}
+.ccp-rounding-pill:hover { color: var(--tx); }
+.ccp-rounding-pill.on {
+  background: color-mix(in srgb, var(--ac) 22%, var(--bg-1));
+  color: var(--tx);
+}
+
+/* CCP period — Today / Day-After-Today shortcuts under the End date. */
+.ccp-end-shortcuts {
+  display: inline-flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.ccp-end-shortcut-pill {
+  border: 1px solid var(--bd);
+  background: var(--bg-1);
+  color: var(--tx-dim);
+  font: 600 10px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  padding: 4px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+  white-space: nowrap;
+}
+.ccp-end-shortcut-pill:hover { border-color: var(--ac); color: var(--tx); }
+.ccp-end-shortcut-pill.on {
+  background: color-mix(in srgb, var(--ac) 22%, var(--bg-1));
+  border-color: var(--ac);
+  color: var(--tx);
+}
+
 /* ---------- Equation cards ---------- */
 .eq-region {
   padding: 28px 24px 80px;
