@@ -61,7 +61,9 @@
 
   // ── Data loader (cached) ─────────────────────────────────────────────────
   const cache = {};
-  let catalogLoaded = null;  // Promise resolving to the GUIDELINES array
+  let catalogLoaded = null;          // Promise resolving to the GUIDELINES array
+  let abbreviationsLoaded = null;    // Promise resolving to ABBREVIATIONS map
+  let ABBREVIATIONS = {};            // lowercase token → array of expansion strings
 
   function loadCatalog() {
     if (catalogLoaded) return catalogLoaded;
@@ -79,6 +81,15 @@
     return catalogLoaded;
   }
 
+  function loadAbbreviations() {
+    if (abbreviationsLoaded) return abbreviationsLoaded;
+    abbreviationsLoaded = fetch('../data/mtg/abbreviations.json')
+      .then(r => { if (!r.ok) throw new Error('abbrev ' + r.status); return r.json(); })
+      .then(j => { ABBREVIATIONS = j.abbreviations || {}; return ABBREVIATIONS; })
+      .catch(e => { console.warn('[MTG] abbrev', e); ABBREVIATIONS = {}; return {}; });
+    return abbreviationsLoaded;
+  }
+
   function loadGuideline(slug) {
     if (cache[slug] && typeof cache[slug] === 'object') return Promise.resolve(cache[slug]);
     if (cache[slug] === 'loading') return cache[slug + ':promise'];
@@ -92,17 +103,33 @@
     return p;
   }
   function loadAll() {
-    return loadCatalog().then(() => Promise.all(GUIDELINES.map(g => loadGuideline(g.slug))));
+    return Promise.all([loadCatalog(), loadAbbreviations()])
+      .then(() => Promise.all(GUIDELINES.map(g => loadGuideline(g.slug))));
   }
 
   // ── Search & filter ──────────────────────────────────────────────────────
   function tokens(s) {
     return (s || '').toLowerCase().split(/[^a-z0-9]+/).filter(t => t.length >= 2);
   }
+  // Each typed token matches the haystack if the token itself appears, OR if
+  // any of its registered abbreviation expansions appears. Lets "PT" find
+  // sections that say "physical therapy" without forcing the user to know
+  // which phrasing the WCB used. ABBREVIATIONS is loaded from
+  // /data/mtg/abbreviations.json on startup.
+  function tokenMatches(hay, token) {
+    if (hay.indexOf(token) !== -1) return true;
+    const exps = ABBREVIATIONS[token];
+    if (exps) {
+      for (let i = 0; i < exps.length; i++) {
+        if (hay.indexOf(exps[i]) !== -1) return true;
+      }
+    }
+    return false;
+  }
   function matchesKeyword(section, kwTokens) {
     if (!kwTokens.length) return true;
     const hay = (section.title + ' ' + section.body_text).toLowerCase();
-    return kwTokens.every(t => hay.indexOf(t) !== -1);
+    return kwTokens.every(t => tokenMatches(hay, t));
   }
   function buildResults() {
     const kwTokens = tokens(state.keyword);
@@ -136,6 +163,74 @@
     const start = Math.max(0, idx - 80);
     const end = Math.min(body.length, idx + 240);
     return (start > 0 ? '…' : '') + body.slice(start, end) + (end < body.length ? '…' : '');
+  }
+
+  // ── Section overlay (hover peek / click lock) ────────────────────────────
+  // Single viewport-level overlay reused across result cards. In peek mode
+  // (hover or first tap) it sits at 50% opacity over the page. In locked
+  // mode (second tap or click) it goes solid, gains an X button, and stays
+  // open until X / Escape / backdrop click.
+  const overlayState = { result: null, locked: false, el: null };
+
+  function ensureOverlayEl() {
+    if (overlayState.el) return overlayState.el;
+    const root = h('div', { className: 'mtg-overlay-root', role: 'dialog', 'aria-modal': 'false' });
+    const backdrop = h('div', { className: 'mtg-overlay-backdrop' });
+    const card = h('div', { className: 'mtg-overlay-card' });
+    const xBtn = h('button', { className: 'mtg-overlay-x', 'aria-label': 'Close section' }, '×');
+    xBtn.addEventListener('click', (e) => { e.stopPropagation(); closeOverlay(); });
+    backdrop.addEventListener('click', () => { if (overlayState.locked) closeOverlay(); });
+    card.appendChild(xBtn);
+    const meta = h('div', { className: 'mtg-overlay-meta' });
+    const title = h('h2', { className: 'mtg-overlay-title' });
+    const cite = h('div', { className: 'mtg-overlay-cite' });
+    const body = h('div', { className: 'mtg-overlay-body' });
+    const pdfLink = h('a', { className: 'mtg-overlay-pdf', target: '_blank', rel: 'noopener' }, 'View source PDF at this section →');
+    card.appendChild(meta);
+    card.appendChild(title);
+    card.appendChild(body);
+    card.appendChild(cite);
+    card.appendChild(pdfLink);
+    root.appendChild(backdrop);
+    root.appendChild(card);
+    document.body.appendChild(root);
+    overlayState.el = root;
+    overlayState._refs = { card, meta, title, cite, body, pdfLink, xBtn };
+    // Esc to close (when locked)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlayState.locked) closeOverlay();
+    });
+    return root;
+  }
+
+  function openOverlay(result, locked) {
+    ensureOverlayEl();
+    overlayState.result = result;
+    overlayState.locked = !!locked;
+    const refs = overlayState._refs;
+    refs.meta.innerHTML = '';
+    refs.meta.appendChild(h('span', { className: 'mtg-overlay-guideline' }, result.guideline));
+    refs.meta.appendChild(h('span', null, ' · '));
+    refs.meta.appendChild(h('span', { className: 'mtg-overlay-id' }, result.id));
+    refs.title.textContent = result.title || '';
+    refs.body.textContent = result.body_text || '';
+    refs.cite.textContent = result.citation || '';
+    refs.pdfLink.href = `../data/mtg/pdfs/${result.slug}.pdf#page=${result.page}`;
+    overlayState.el.classList.toggle('locked', overlayState.locked);
+    overlayState.el.classList.add('visible');
+  }
+
+  function lockOverlay() {
+    if (!overlayState.result) return;
+    overlayState.locked = true;
+    overlayState.el.classList.add('locked');
+  }
+
+  function closeOverlay() {
+    if (!overlayState.el) return;
+    overlayState.el.classList.remove('visible', 'locked');
+    overlayState.result = null;
+    overlayState.locked = false;
   }
 
   // ── Renderers ────────────────────────────────────────────────────────────
@@ -303,7 +398,7 @@
     wrap.appendChild(hdr);
 
     results.slice(0, 50).forEach(r => {
-      const card = h('div', { className: 'mtg-result-card' });
+      const card = h('div', { className: 'mtg-result-card mtg-result-card-interactive' });
       card.appendChild(h('div', { className: 'mtg-result-meta' }, [
         h('span', { className: 'mtg-result-guideline' }, r.guideline),
         h('span', { className: 'mtg-result-sep' }, '·'),
@@ -312,6 +407,28 @@
       card.appendChild(h('div', { className: 'mtg-result-title' }, r.title));
       card.appendChild(h('div', { className: 'mtg-result-excerpt' }, makeExcerpt(r.body_text, state.keyword)));
       card.appendChild(h('div', { className: 'mtg-result-cite' }, r.citation));
+      // Hover (desktop) → peek overlay. Click → lock overlay.
+      // Mobile: first tap → peek, tap again on the card → lock.
+      // No hover events are bound on touch-only devices (matchMedia hover:none).
+      const canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+      let peekHandled = false;
+      if (canHover) {
+        card.addEventListener('mouseenter', () => openOverlay(r, false));
+        card.addEventListener('mouseleave', () => { if (!overlayState.locked) closeOverlay(); });
+      }
+      card.addEventListener('click', () => {
+        if (!overlayState.locked && overlayState.result && overlayState.result.id === r.id && overlayState.result.slug === r.slug) {
+          // Already peeking this result — lock it.
+          lockOverlay();
+        } else if (!canHover && !peekHandled) {
+          // First tap on touch device — peek
+          peekHandled = true;
+          openOverlay(r, false);
+          setTimeout(() => { peekHandled = false; }, 500);
+        } else {
+          openOverlay(r, true);
+        }
+      });
       wrap.appendChild(card);
     });
     if (results.length > 50) {

@@ -29,6 +29,8 @@ let MTG_GUIDELINES = [];     // populated by mtgLoadCatalog()
 const _mtgCache = {};        // slug -> parsed JSON or 'loading' or 'error'
 const _mtgPromises = {};     // slug -> in-flight Promise
 let _mtgCatalogPromise = null;
+let _mtgAbbrevPromise = null;
+let MTG_ABBREVIATIONS = {};  // lowercase token -> array of expansions
 
 function mtgLoadCatalog() {
   if (_mtgCatalogPromise) return _mtgCatalogPromise;
@@ -43,6 +45,29 @@ function mtgLoadCatalog() {
     })
     .catch(e => { console.warn('[MTG] catalog', e); MTG_GUIDELINES = []; return []; });
   return _mtgCatalogPromise;
+}
+
+function mtgLoadAbbreviations() {
+  if (_mtgAbbrevPromise) return _mtgAbbrevPromise;
+  _mtgAbbrevPromise = fetch('/data/mtg/abbreviations.json')
+    .then(r => { if (!r.ok) throw new Error('abbrev ' + r.status); return r.json(); })
+    .then(j => { MTG_ABBREVIATIONS = j.abbreviations || {}; return MTG_ABBREVIATIONS; })
+    .catch(e => { console.warn('[MTG] abbrev', e); MTG_ABBREVIATIONS = {}; return {}; });
+  return _mtgAbbrevPromise;
+}
+
+// A typed token matches the haystack if the token appears OR if any of its
+// registered abbreviation expansions appears. Lets "PT" find "physical
+// therapy" sections without forcing the user to know the WCB's phrasing.
+function mtgTokenMatches(hay, token) {
+  if (hay.indexOf(token) !== -1) return true;
+  const exps = MTG_ABBREVIATIONS[token];
+  if (exps) {
+    for (let i = 0; i < exps.length; i++) {
+      if (hay.indexOf(exps[i]) !== -1) return true;
+    }
+  }
+  return false;
 }
 
 function mtgLoad(slug) {
@@ -72,14 +97,25 @@ function MTGTile({ tile, global, onUpdate }) {
   const guidelineFilter = inputs.guidelineFilter || ''; // '' = all, or one slug
   const [ready, setReady] = useState(false);
 
-  // Load catalog first, then all guideline JSONs in parallel.
+  // Overlay state — null means closed; { result, locked } when open.
+  const [overlay, setOverlay] = useState(null);
+
+  // Load catalog + abbreviations + all guideline JSONs in parallel.
   useEffect(() => {
     let alive = true;
-    mtgLoadCatalog()
-      .then(catalog => Promise.all(catalog.map(g => mtgLoad(g.slug))))
+    Promise.all([mtgLoadCatalog(), mtgLoadAbbreviations()])
+      .then(([catalog]) => Promise.all(catalog.map(g => mtgLoad(g.slug))))
       .then(() => { if (alive) setReady(true); });
     return () => { alive = false; };
   }, []);
+
+  // Esc closes the locked overlay
+  useEffect(() => {
+    if (!overlay || !overlay.locked) return;
+    const onKey = (e) => { if (e.key === 'Escape') setOverlay(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [overlay]);
 
   const set = (patch) => onUpdate({ ...tile, inputs: { ...inputs, ...patch } });
 
@@ -94,7 +130,7 @@ function MTGTile({ tile, global, onUpdate }) {
       for (const sec of data.sections) {
         if (kwTokens.length) {
           const hay = (sec.title + ' ' + sec.body_text).toLowerCase();
-          if (!kwTokens.every(t => hay.indexOf(t) !== -1)) continue;
+          if (!kwTokens.every(t => mtgTokenMatches(hay, t))) continue;
         }
         out.push({ ...sec, guideline: data.guideline, slug });
         if (out.length >= 200) break;
@@ -151,13 +187,25 @@ function MTGTile({ tile, global, onUpdate }) {
               : 'Enter a keyword to search across all loaded MTGs.'}
           </div>
         )}
-        {results.slice(0, 25).map((r, i) => (
-          <div key={r.slug + ':' + r.id + ':' + i} style={{
-            background: 'var(--tile-2, rgba(255,255,255,0.03))',
-            border: '1px solid var(--bd, #1e3a5f)',
-            borderLeft: '3px solid var(--ac, #3b82f6)',
-            borderRadius: 5, padding: '7px 9px', marginBottom: 6,
-          }}>
+        {results.slice(0, 25).map((r, i) => {
+          const canHover = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover)').matches;
+          const isPeeking = overlay && !overlay.locked && overlay.result && overlay.result.slug === r.slug && overlay.result.id === r.id;
+          return (
+          <div key={r.slug + ':' + r.id + ':' + i}
+            onMouseEnter={canHover ? () => { if (!overlay || !overlay.locked) setOverlay({ result: r, locked: false }); } : undefined}
+            onMouseLeave={canHover ? () => { if (overlay && !overlay.locked) setOverlay(null); } : undefined}
+            onClick={() => {
+              if (isPeeking) setOverlay({ result: r, locked: true });
+              else if (!canHover && (!overlay || overlay.result.id !== r.id)) setOverlay({ result: r, locked: false });
+              else setOverlay({ result: r, locked: true });
+            }}
+            style={{
+              background: 'var(--tile-2, rgba(255,255,255,0.03))',
+              border: '1px solid var(--bd, #1e3a5f)',
+              borderLeft: '3px solid var(--ac, #3b82f6)',
+              borderRadius: 5, padding: '7px 9px', marginBottom: 6,
+              cursor: 'pointer',
+            }}>
             <div style={{
               display: 'flex', gap: 6, alignItems: 'center', fontSize: 9,
               color: 'var(--tx-faint, #64748b)', textTransform: 'uppercase',
@@ -178,7 +226,8 @@ function MTGTile({ tile, global, onUpdate }) {
               borderTop: '1px dashed var(--bd, #1e3a5f)',
             }}>{r.citation}</div>
           </div>
-        ))}
+          );
+        })}
         {results.length > 25 && (
           <div style={{
             fontSize: 10, color: 'var(--tx-faint, #64748b)', fontStyle: 'italic',
@@ -202,6 +251,82 @@ function MTGTile({ tile, global, onUpdate }) {
         }}>
         Open full 3D anatomy picker ↗
       </a>
+
+      {overlay && <MTGOverlay overlay={overlay} onClose={() => setOverlay(null)} onLock={() => setOverlay({ ...overlay, locked: true })} />}
+    </div>
+  );
+}
+
+// Viewport-level overlay for MTG section preview. Hover/first-tap shows it at
+// reduced opacity (peek). Click lock makes it solid + adds X-to-close.
+function MTGOverlay({ overlay, onClose, onLock }) {
+  const r = overlay.result;
+  const locked = overlay.locked;
+  return (
+    <div
+      onClick={(e) => {
+        // Click on backdrop (not the card itself) closes when locked
+        if (locked && e.target === e.currentTarget) onClose();
+      }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 5000,
+        pointerEvents: locked ? 'auto' : 'none',
+        opacity: locked ? 1 : 0.55,
+        transition: 'opacity .12s ease',
+      }}>
+      {/* backdrop */}
+      <div style={{ position: 'absolute', inset: 0, background: locked ? 'rgba(8,12,24,0.55)' : 'rgba(8,12,24,0.25)' }} />
+      {/* card */}
+      <div
+        onClick={(e) => { e.stopPropagation(); if (!locked) onLock(); }}
+        style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: 'min(720px, 92vw)', maxHeight: '85vh', display: 'flex', flexDirection: 'column',
+          background: 'linear-gradient(180deg, #111827 0%, #0d1421 100%)',
+          border: '1px solid #3b82f6', borderRadius: 12,
+          padding: '22px 24px',
+          boxShadow: '0 20px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(59,130,246,.18)',
+          pointerEvents: 'auto',
+        }}>
+        {locked && (
+          <button
+            aria-label="Close section"
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            style={{
+              position: 'absolute', top: 8, right: 12, background: 'transparent', border: 'none',
+              color: '#94a3b8', fontSize: 26, lineHeight: 1, cursor: 'pointer',
+              padding: '4px 8px', borderRadius: 6, fontFamily: 'inherit',
+            }}>×</button>
+        )}
+        <div style={{
+          display: 'flex', gap: 6, alignItems: 'center', fontSize: 11, color: '#94a3b8',
+          textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, marginBottom: 6,
+        }}>
+          <span style={{ color: '#3b82f6' }}>{r.guideline}</span>
+          <span> · </span>
+          <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{r.id}</span>
+        </div>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 14, letterSpacing: -0.2 }}>{r.title}</h2>
+        <div style={{
+          flex: 1, overflowY: 'auto', fontSize: 14, color: '#cbd5e1', lineHeight: 1.65,
+          whiteSpace: 'pre-wrap', padding: '10px 12px 14px 0', marginRight: -6,
+          borderTop: '1px solid rgba(59,130,246,.18)', borderBottom: '1px solid rgba(59,130,246,.18)',
+        }}>{r.body_text}</div>
+        <div style={{
+          fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+          color: '#64748b', paddingTop: 12, paddingBottom: 8,
+        }}>{r.citation}</div>
+        <a href={`/data/mtg/pdfs/${r.slug}.pdf#page=${r.page}`} target="_blank" rel="noopener"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            display: 'inline-block', padding: '9px 18px', background: 'rgba(59,130,246,.15)',
+            border: '1px solid #3b82f6', color: '#3b82f6', borderRadius: 6,
+            fontSize: 12, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3,
+            textTransform: 'uppercase', alignSelf: 'flex-start',
+          }}>
+          View source PDF at this section →
+        </a>
+      </div>
     </div>
   );
 }
