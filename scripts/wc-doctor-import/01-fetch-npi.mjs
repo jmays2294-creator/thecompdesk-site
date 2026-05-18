@@ -14,7 +14,11 @@ const OUT_DIR = path.join(__dirname, 'data');
 const OUT_FILE = path.join(OUT_DIR, 'npi-raw.json');
 
 // WC-relevant taxonomy descriptions (NUCC). The API does case-insensitive match.
+// On 2026-05-18 second-pass: added 11 specialties beyond the initial 16 to cover
+// occupational injuries that don't fit the "broken bone → orthopedist" pattern
+// (eye/ear/skin/dental trauma, mental claims, post-injury speech rehab, etc.).
 const TAXONOMIES = [
+  // Initial 16 (2026-05-18 first pass)
   'Orthopaedic Surgery',
   'Orthopaedic Surgery of the Spine',
   'Hand Surgery',
@@ -31,6 +35,21 @@ const TAXONOMIES = [
   'Family Medicine',
   'Psychiatry',
   'Anesthesiology',
+  // Second pass (2026-05-18 supplement) — WC-relevant specialties for non-MSK injuries.
+  // Three names from the first supplement attempt returned 0 results — the live NUCC
+  // strings use '&' (not 'and') and the API doesn't substring-prefix-match on subspec
+  // descriptions ("Clinical Psychologist" hits 0; "Psychologist" partial-matches
+  // "Psychologist, Clinical" correctly). Corrected here.
+  'Acupuncturist',                      // covered by NY WC since 2017
+  'Audiologist',                        // hearing-loss claims
+  'Oral & Maxillofacial Surgery',       // dental/jaw trauma from work (NUCC uses '&')
+  'Optometrist',                        // eye injury
+  'Ophthalmology',                      // eye injury
+  'Otolaryngology',                     // ENT for hearing/throat injuries
+  'Plastic Surgery',                    // burns, lacerations, scar revisions
+  'Dermatology',                        // occupational skin conditions
+  'Speech-Language Pathologist',        // post-injury speech / swallowing rehab
+  'Psychologist',                       // mental WC claims (PhD, distinct from Psychiatry MDs)
 ];
 
 // NYC five boroughs. For Queens we use postal-code prefixes because the NPI
