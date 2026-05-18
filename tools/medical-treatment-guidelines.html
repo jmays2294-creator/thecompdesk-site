@@ -42,15 +42,21 @@
         .mtg-select:disabled { opacity: .5; cursor: not-allowed; }
         .mtg-clear { margin-top: 12px; background: rgba(239,68,68,.13); border: 1px solid rgba(239,68,68,.3); color: #ef4444; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 11px; font-weight: 700; font-family: inherit; }
 
-        /* Anatomy iframe (Z-Anatomy via Sketchfab Viewer API) */
-        .mtg-anatomy-canvas { width: 100%; height: 600px; background: #0a0f1a; position: relative; }
-        .mtg-anatomy-canvas iframe { display: block; width: 100%; height: 100%; border: 0; }
-        .mtg-anatomy-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px; background: #0a0f1a; pointer-events: none; transition: opacity .3s ease; }
-        .mtg-anatomy-canvas.loaded .mtg-anatomy-loading { opacity: 0; }
+        /* Anatomy 3D (Three.js + AnatomyTOOL skeleton GLB) */
+        .mtg-anatomy-canvas-wrap { position: relative; width: 100%; height: 600px; background: #0a0f1a; overflow: hidden; }
+        .mtg-anatomy-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .mtg-anatomy-canvas canvas { display: block; width: 100% !important; height: 100% !important; }
+        .mtg-anatomy-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px; background: #0a0f1a; pointer-events: none; transition: opacity .3s ease; z-index: 1; }
+        .mtg-anatomy-hover-label { position: absolute; top: 14px; left: 16px; padding: 6px 12px; background: rgba(8,12,24,.78); border: 1px solid #3b82f6; color: #3b82f6; border-radius: 16px; font-size: 12px; font-weight: 700; text-transform: capitalize; pointer-events: none; min-height: 16px; }
+        .mtg-anatomy-hover-label:empty { display: none; }
+        .mtg-rotbar { display: flex; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.02); border-top: 1px solid #1e3a5f; }
+        .mtg-rotbtn { flex: 1; background: #0a0f1a; border: 1px solid #1e3a5f; color: #94a3b8; padding: 7px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; font-family: inherit; }
+        .mtg-rotbtn:hover { border-color: #3b82f6; color: #3b82f6; }
         .mtg-anatomy-hint { padding: 10px 14px; background: rgba(59,130,246,.08); border-top: 1px solid #1e3a5f; font-size: 12px; color: #cbd5e1; line-height: 1.55; }
         .mtg-anatomy-hint strong { color: #3b82f6; }
         .mtg-anatomy-history { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 12px; border-top: 1px solid #1e3a5f; min-height: 44px; align-items: center; }
         .mtg-anatomy-history-empty { font-size: 12px; color: #64748b; font-style: italic; }
+        .mtg-anatomy-bone-tag { font-size: 11px; color: #64748b; font-style: italic; margin-left: 8px; }
         .mtg-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(59,130,246,.13); border: 1px solid #3b82f6; color: #3b82f6; padding: 4px 4px 4px 11px; border-radius: 16px; font-size: 12px; font-weight: 600; text-transform: capitalize; cursor: default; }
         .mtg-chip-x { background: transparent; border: none; color: #3b82f6; cursor: pointer; font-size: 13px; padding: 0 5px; line-height: 1; font-family: inherit; }
         .mtg-chip-x:hover { color: #ef4444; }
@@ -114,7 +120,7 @@
 
         /* Responsive */
         @media (max-width: 640px) {
-            .mtg-anatomy-canvas { height: 380px; }
+            .mtg-anatomy-canvas-wrap { height: 440px; }
             .mtg-page-title { font-size: 22px; }
             .mtg-subtab { padding: 8px 10px; font-size: 11px; }
             .mtg-overlay-card { width: 96vw; max-height: 90vh; padding: 18px 18px; }
@@ -148,10 +154,11 @@
         <div id="mtg-tool-root" class="mtg-tool-root"></div>
     </main>
 
-    <!-- Sketchfab Viewer API — used by mtg-tool.js to wire up clickable
-         body regions on the embedded Z-Anatomy model. -->
-    <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.0.js"></script>
-    <!-- MTG tool -->
+    <!-- Three.js (r147 — last release with full UMD addon support) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- MTG anatomy scene + tool -->
+    <script src="js/mtg-anatomy.js"></script>
     <script src="js/mtg-tool.js"></script>
     <script>
         // Mount the tool once DOM is ready

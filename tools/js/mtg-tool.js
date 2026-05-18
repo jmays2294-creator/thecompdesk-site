@@ -57,7 +57,7 @@
     filterSlug: '',
     filterCategory: '',
     filterSectionId: '',
-    lastAnatomyTerm: '',     // normalized name from last Sketchfab click
+    lastAnatomyTerm: '',     // legacy field, retained for backward compat
   };
 
   // ── Data loader (cached) ─────────────────────────────────────────────────
@@ -327,127 +327,46 @@
     return wrap;
   }
 
-  // ── Sketchfab embed (Z-Anatomy Myology) ──────────────────────────────────
-  // Singleton iframe held at module scope. The Sketchfab model takes 5-10s
-  // to load, so we keep the iframe + API instance alive across re-renders.
-  // The iframe is parked in a fixed-position host that we show/hide based
-  // on the active sub-tab; this avoids the DOM-detach-and-reattach reload
-  // that would otherwise fire on every keystroke in the keyword panel.
-  const Z_ANATOMY_MODEL_UID = '31b40fd809b14665b93773936d67c52c';
-  const Z_ANATOMY_MODEL_URL = 'https://sketchfab.com/3d-models/myology-31b40fd809b14665b93773936d67c52c';
-  const Z_ANATOMY_AUTHOR_URL = 'https://sketchfab.com/Z-Anatomy';
-  let sketchfabHostEl = null;     // The persistent wrapper that lives in <body>
-  let sketchfabIframeEl = null;   // The Sketchfab iframe
-  let sketchfabApi = null;        // Viewer API once initialized
-  let sketchfabNodeMap = null;    // instanceID -> { name, ... }
-  let sketchfabAnchorEl = null;   // The placeholder we overlay; tracked via rect
+  // ── 3D Anatomy panel (Three.js + AnatomyTOOL skeleton GLB) ──────────────
+  // The skeleton model is loaded once via MTGAnatomy3D.mount() on the
+  // canvas div. Hover highlights regions, click adds the region+bone to
+  // the query. The Three.js scene is kept alive across rerenders by NOT
+  // remounting on every state change — we only remount when the anatomy
+  // panel mounts the first time or after a tab switch.
+  let anatomyMounted = false;
+  let anatomyLoading = true;
+  let anatomyHoverLabel = null;     // pretty name of hovered region (display only)
+  let anatomyClickedBone = null;    // last-clicked bone name (display)
 
-  // Last clicked-from-anatomy term, shown as a chip in the history bar.
-  function recordAnatomyClick(term) {
-    if (!term) return;
-    state.lastAnatomyTerm = term;
-    state.keyword = term;
+  function prettyRegionName(regionId) {
+    if (!regionId) return '';
+    return regionId.replace(/^(left|right)_/, function (_, side) {
+      return side.charAt(0).toUpperCase() + side.slice(1) + ' ';
+    }).replace(/_/g, ' ');
   }
 
-  function ensureSketchfabHost() {
-    if (sketchfabHostEl) return sketchfabHostEl;
-    sketchfabHostEl = document.createElement('div');
-    sketchfabHostEl.className = 'mtg-sketchfab-host';
-    sketchfabHostEl.style.cssText = 'position:absolute;z-index:10;display:none;background:#0a0f1a;';
-    sketchfabIframeEl = document.createElement('iframe');
-    sketchfabIframeEl.title = 'Z-Anatomy Myology — Sketchfab';
-    sketchfabIframeEl.setAttribute('allow', 'autoplay; fullscreen; xr-spatial-tracking');
-    sketchfabIframeEl.setAttribute('allowfullscreen', '');
-    sketchfabIframeEl.setAttribute('mozallowfullscreen', 'true');
-    sketchfabIframeEl.setAttribute('webkitallowfullscreen', 'true');
-    sketchfabIframeEl.style.cssText = 'width:100%;height:100%;border:0;display:block;';
-    sketchfabHostEl.appendChild(sketchfabIframeEl);
-    document.body.appendChild(sketchfabHostEl);
-
-    // Initialize Viewer API (the global is loaded via medical-treatment-guidelines.html)
-    if (typeof window.Sketchfab === 'function') {
-      const client = new window.Sketchfab('1.12.0', sketchfabIframeEl);
-      client.init(Z_ANATOMY_MODEL_UID, {
-        autostart: 1,
-        ui_infos: 0,
-        ui_controls: 1,
-        ui_stop: 0,
-        ui_watermark_link: 0,
-        ui_inspector: 0,
-        ui_settings: 0,
-        ui_help: 0,
-        ui_color: '3b82f6',
-        success: function (api) {
-          sketchfabApi = api;
-          api.start();
-          api.addEventListener('viewerready', function () {
-            api.getNodeMap(function (err, nodes) {
-              if (!err) sketchfabNodeMap = nodes;
-            });
-            api.addEventListener('click', function (info) {
-              if (info.instanceID === undefined || !sketchfabNodeMap) return;
-              const node = sketchfabNodeMap[info.instanceID];
-              if (!node || !node.name) return;
-              const term = normalizeAnatomicalName(node.name);
-              if (!term) return;
-              recordAnatomyClick(term);
-              // Update only the results + history panels (not the iframe)
-              refreshAnatomyDynamicContent();
-            });
-          });
-        },
-        error: function () { console.error('[MTG] Sketchfab init failed'); }
-      });
-    } else {
-      console.warn('[MTG] Sketchfab Viewer API not loaded — model will not render');
-    }
-    return sketchfabHostEl;
+  function handleAnatomyClick(regionId, boneName) {
+    if (!regionId) return;
+    anatomyClickedBone = boneName || '';
+    // Filter results by the clicked region (chip-style) and clear free-text
+    // keyword so the user sees ALL sections for that region. They can layer
+    // on a keyword from the Keyword tab afterward.
+    state.selectedRegions = [regionId];
+    state.keyword = '';
+    refreshAnatomyDynamicContent();
   }
 
-  // Normalize a TA2/Latin anatomical name into a keyword that has a chance
-  // of matching MTG body_text. Strips Musculus/Os/Articulatio prefixes,
-  // trailing numeric suffixes, drops common Latin endings (-us, -a, -is,
-  // -um, -ae) on the last word to widen matching with English terms.
-  function normalizeAnatomicalName(name) {
-    let s = String(name || '').trim();
-    if (!s) return '';
-    // Strip leading articles / type prefixes
-    s = s.replace(/^(musculus|os|articulatio|nervus|arteria|vena|ligamentum)\s+/i, '');
-    // Strip trailing "left"/"right"/"dx"/"sx" / digits
-    s = s.replace(/\s+(left|right|dx|sx|sinister|dexter)\s*$/i, '');
-    s = s.replace(/\s+\d+\s*$/, '');
-    s = s.toLowerCase().trim();
-    // Soften the last Latin word's ending so e.g. "deltoideus" → "deltoid"
-    s = s.replace(/(\w+?)(eus|ius|us|um|ae|is|ii)$/i, '$1');
-    return s.replace(/\s+/g, ' ');
+  function handleAnatomyHover(regionId /*, boneName */) {
+    anatomyHoverLabel = regionId ? prettyRegionName(regionId) : null;
+    refreshAnatomyHoverLabel();
   }
 
-  function positionSketchfabHost() {
-    if (!sketchfabHostEl || !sketchfabAnchorEl || !sketchfabAnchorEl.isConnected) return;
-    const r = sketchfabAnchorEl.getBoundingClientRect();
-    sketchfabHostEl.style.top = (r.top + window.scrollY) + 'px';
-    sketchfabHostEl.style.left = (r.left + window.scrollX) + 'px';
-    sketchfabHostEl.style.width = r.width + 'px';
-    sketchfabHostEl.style.height = r.height + 'px';
+  function refreshAnatomyHoverLabel() {
+    if (!rootEl) return;
+    const label = rootEl.querySelector('.mtg-anatomy-hover-label');
+    if (label) label.textContent = anatomyHoverLabel || '';
   }
 
-  function showSketchfab(anchor) {
-    ensureSketchfabHost();
-    sketchfabAnchorEl = anchor;
-    sketchfabHostEl.style.display = 'block';
-    positionSketchfabHost();
-  }
-  function hideSketchfab() {
-    if (sketchfabHostEl) sketchfabHostEl.style.display = 'none';
-    sketchfabAnchorEl = null;
-  }
-
-  // Re-position on scroll/resize while the anatomy tab is visible.
-  window.addEventListener('scroll', positionSketchfabHost, true);
-  window.addEventListener('resize', positionSketchfabHost);
-
-  // Targeted refresh: rebuild only the results + history panels inside the
-  // anatomy view, leaving the iframe untouched. Called from Sketchfab click.
   function refreshAnatomyDynamicContent() {
     if (!rootEl) return;
     const oldResults = rootEl.querySelector('.mtg-results');
@@ -458,51 +377,95 @@
 
   function renderAnatomyHistory() {
     const bar = h('div', { className: 'mtg-anatomy-history' });
-    if (state.lastAnatomyTerm) {
-      bar.appendChild(h('span', { className: 'mtg-chip' }, [
-        h('span', null, 'Searching: ' + state.lastAnatomyTerm),
-        h('button', {
-          className: 'mtg-chip-x',
-          onclick: () => {
-            state.lastAnatomyTerm = '';
-            state.keyword = '';
-            refreshAnatomyDynamicContent();
-          },
-        }, '✕'),
-      ]));
+    if (state.selectedRegions.length) {
+      state.selectedRegions.forEach(r => {
+        bar.appendChild(h('span', { className: 'mtg-chip' }, [
+          h('span', null, prettyRegionName(r)),
+          h('button', {
+            className: 'mtg-chip-x',
+            onclick: () => {
+              state.selectedRegions = state.selectedRegions.filter(x => x !== r);
+              if (window.MTGAnatomy3D) window.MTGAnatomy3D.clearHighlight();
+              refreshAnatomyDynamicContent();
+            },
+          }, '✕'),
+        ]));
+      });
+      if (anatomyClickedBone) {
+        bar.appendChild(h('span', { className: 'mtg-anatomy-bone-tag' }, 'last bone: ' + anatomyClickedBone));
+      }
     } else {
       bar.appendChild(h('div', { className: 'mtg-anatomy-history-empty' },
-        'Click any muscle or bone on the 3D figure — the keyword search updates automatically.'));
+        'Hover the skeleton to highlight regions · click any bone to filter the guidelines below.'));
     }
     return bar;
+  }
+
+  // Singleton canvas div (the WebGL renderer attaches to it). Kept across
+  // rerenders so we don't have to reload the 3.4MB GLB every time the user
+  // toggles a chip or types in the keyword search.
+  let anatomyCanvasEl = null;
+  function getAnatomyCanvas() {
+    if (anatomyCanvasEl) return anatomyCanvasEl;
+    anatomyCanvasEl = document.createElement('div');
+    anatomyCanvasEl.className = 'mtg-anatomy-canvas';
+    return anatomyCanvasEl;
   }
 
   function renderAnatomyPanel() {
     const wrap = h('div', { className: 'mtg-panel mtg-anatomy-panel' });
 
-    const anchor = h('div', { className: 'mtg-anatomy-canvas' });
-    anchor.appendChild(h('div', { className: 'mtg-anatomy-loading' },
-      'Loading 3D anatomy from Sketchfab… (one-time, ~5–10s).'));
-    wrap.appendChild(anchor);
+    const canvasWrap = h('div', { className: 'mtg-anatomy-canvas-wrap' });
+    canvasWrap.appendChild(getAnatomyCanvas());
+    if (anatomyLoading) {
+      canvasWrap.appendChild(h('div', { className: 'mtg-anatomy-loading' },
+        'Loading 3D skeleton… (3.4 MB · first time only).'));
+    }
+    canvasWrap.appendChild(h('div', { className: 'mtg-anatomy-hover-label' }, anatomyHoverLabel || ''));
+    wrap.appendChild(canvasWrap);
+
+    const rotBar = h('div', { className: 'mtg-rotbar' });
+    ['Front', 'Right', 'Back', 'Left'].forEach(view => {
+      rotBar.appendChild(h('button', {
+        className: 'mtg-rotbtn',
+        onclick: () => { if (window.MTGAnatomy3D) window.MTGAnatomy3D.rotateTo(view.toLowerCase()); },
+      }, view));
+    });
+    wrap.appendChild(rotBar);
 
     wrap.appendChild(h('div', { className: 'mtg-anatomy-hint' }, [
-      h('strong', null, 'Tip: '),
-      h('span', null, 'Rotate with click+drag · zoom with scroll · click any anatomical part to populate the keyword search below.'),
+      h('strong', null, 'How it works: '),
+      h('span', null, 'Hover a bone to highlight its body region · click to filter the guidelines list below by that region · use Front/Back/Left/Right to rotate.'),
     ]));
 
     wrap.appendChild(renderAnatomyHistory());
 
     const credit = h('div', { className: 'mtg-anatomy-credit' });
-    credit.innerHTML = '3D model: <a href="' + Z_ANATOMY_MODEL_URL + '" target="_blank" rel="noopener">Myology</a> by <a href="' + Z_ANATOMY_AUTHOR_URL + '" target="_blank" rel="noopener">Z-Anatomy</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>';
+    credit.innerHTML = '3D skeleton: <a href="https://anatomytool.org/open3dmodel" target="_blank" rel="noopener">AnatomyTOOL Open3DModel</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>';
     wrap.appendChild(credit);
 
-    // After this wrap lands in the DOM, attach the Sketchfab iframe over it.
+    // Mount Three.js scene once, on first render of the panel.
     setTimeout(() => {
-      if (!anchor.isConnected) return;
-      showSketchfab(anchor);
-      // Mark loaded once Sketchfab confirms; otherwise hide the placeholder
-      // when the iframe reports viewerready (handled in the API init).
-      if (sketchfabApi) anchor.classList.add('loaded');
+      if (!anatomyCanvasEl || !anatomyCanvasEl.isConnected) return;
+      if (anatomyMounted) return;
+      if (!window.MTGAnatomy3D) return;
+      window.MTGAnatomy3D.mount(anatomyCanvasEl, {
+        onRegionClick: handleAnatomyClick,
+        onRegionHover: handleAnatomyHover,
+        onReady: () => {
+          anatomyLoading = false;
+          // Hide the loading text without a full rerender
+          const ld = rootEl && rootEl.querySelector('.mtg-anatomy-loading');
+          if (ld) ld.remove();
+        },
+        onError: (err) => {
+          anatomyLoading = false;
+          const ld = rootEl && rootEl.querySelector('.mtg-anatomy-loading');
+          if (ld) ld.textContent = '3D model failed to load. Try refreshing the page.';
+          console.error('[MTG] anatomy load failed:', err);
+        },
+      });
+      anatomyMounted = true;
     }, 0);
 
     return wrap;
@@ -572,8 +535,8 @@
       loadAll().then(() => rerender());
     }
     el.appendChild(renderSubTabs());
-    if (state.mode === 'keyword')      { hideSketchfab(); el.appendChild(renderKeywordPanel()); }
-    else if (state.mode === 'filters') { hideSketchfab(); el.appendChild(renderFilterPanel()); }
+    if (state.mode === 'keyword')      el.appendChild(renderKeywordPanel());
+    else if (state.mode === 'filters') el.appendChild(renderFilterPanel());
     else                                el.appendChild(renderAnatomyPanel());
     el.appendChild(renderResults());
   }
