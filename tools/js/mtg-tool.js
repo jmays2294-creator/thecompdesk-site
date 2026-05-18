@@ -108,15 +108,84 @@
       .then(() => Promise.all(GUIDELINES.map(g => loadGuideline(g.slug))));
   }
 
-  // ── Search & filter ──────────────────────────────────────────────────────
-  function tokens(s) {
-    return (s || '').toLowerCase().split(/[^a-z0-9]+/).filter(t => t.length >= 2);
+  // ── Smart query parser ──────────────────────────────────────────────────
+  // Splits the user's query into three orthogonal axes:
+  //   1. sectionRefs — explicit section IDs like "C.2.a", "D.10", or bare
+  //      "D6" (no dots). These drive the top-rank for exact section matches.
+  //   2. guidelineHints — tokens that match a guideline's name or slug
+  //      (e.g. "low back" → Mid and Low Back Injury). Strict filter: when
+  //      any hint matches, results are limited to those guidelines.
+  //   3. freeText — leftover tokens that go through the existing
+  //      abbreviation expansion (PT → physical therapy, etc).
+  const STOPWORDS = new Set(['of', 'and', 'the', 'injury', 'a', 'an', 'in', 'for']);
+  const SECTION_REF_CANON = /\b([A-E])\.(\d{1,3})(?:\.([a-z]))?\b/gi;
+  const SECTION_REF_BARE  = /\b([A-E])(\d{1,3})\b/gi;
+
+  function parseQuery(q) {
+    const raw = (q || '').toLowerCase();
+    const sectionRefs = [];
+    let m;
+    SECTION_REF_CANON.lastIndex = 0;
+    while ((m = SECTION_REF_CANON.exec(raw)) !== null) {
+      const letter = m[1].toUpperCase();
+      const number = parseInt(m[2], 10);
+      const sub = m[3] ? m[3].toLowerCase() : null;
+      sectionRefs.push({
+        letter, number, sub, ref: m[0],
+        parent: letter + '.' + number,
+        canonical: letter + '.' + number + (sub ? '.' + sub : ''),
+      });
+    }
+    SECTION_REF_BARE.lastIndex = 0;
+    while ((m = SECTION_REF_BARE.exec(raw)) !== null) {
+      const full = m[0];
+      if (sectionRefs.some(r => r.ref.toLowerCase().indexOf(full.toLowerCase()) !== -1)) continue;
+      const letter = m[1].toUpperCase();
+      const number = parseInt(m[2], 10);
+      sectionRefs.push({
+        letter, number, sub: null, ref: full,
+        parent: letter + '.' + number,
+        canonical: letter + '.' + number,
+      });
+    }
+    let remaining = raw;
+    sectionRefs.forEach(r => { remaining = remaining.split(r.ref.toLowerCase()).join(' '); });
+
+    const guidelineHints = [];
+    for (const g of GUIDELINES) {
+      const nameTokens = (g.name || '').toLowerCase().split(/[^a-z0-9]+/)
+        .filter(t => t.length >= 3 && !STOPWORDS.has(t));
+      const slugTokens = (g.slug || '').toLowerCase().split(/[^a-z0-9]+/)
+        .filter(t => t.length >= 3);
+      const allTokens = Array.from(new Set([...nameTokens, ...slugTokens]));
+      const matched = [];
+      for (const t of allTokens) {
+        const tRe = new RegExp('\\b' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+        if (tRe.test(remaining)) matched.push(t);
+      }
+      // Try phrase matches too — "mid and low back", "low-back" → low back
+      const phrases = [g.name.toLowerCase(), g.slug.toLowerCase().replace(/-/g, ' ')];
+      for (const p of phrases) {
+        if (p.length >= 4 && remaining.indexOf(p) !== -1) matched.push(p);
+      }
+      if (matched.length) guidelineHints.push({ slug: g.slug, name: g.name, matchedTokens: matched });
+    }
+    // Strip matched guideline tokens from remaining so they don't double-count as free-text
+    for (const h of guidelineHints) {
+      for (const t of h.matchedTokens) {
+        const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[\s\-]+/g, '[\\s\\-]+');
+        remaining = remaining.replace(new RegExp('\\b' + esc + '\\b', 'gi'), ' ');
+      }
+    }
+
+    const freeText = remaining.toLowerCase().split(/[^a-z0-9]+/)
+      .filter(t => t.length >= 2 && !STOPWORDS.has(t));
+    return { sectionRefs, guidelineHints, freeText };
   }
+
   // Each typed token matches the haystack if the token itself appears, OR if
-  // any of its registered abbreviation expansions appears. Lets "PT" find
-  // sections that say "physical therapy" without forcing the user to know
-  // which phrasing the WCB used. ABBREVIATIONS is loaded from
-  // /data/mtg/abbreviations.json on startup.
+  // any of its registered abbreviation expansions appears (PT → "physical
+  // therapy", etc.). ABBREVIATIONS is loaded from /data/mtg/abbreviations.json.
   function tokenMatches(hay, token) {
     if (hay.indexOf(token) !== -1) return true;
     const exps = ABBREVIATIONS[token];
@@ -127,39 +196,89 @@
     }
     return false;
   }
-  function matchesKeyword(section, kwTokens) {
-    if (!kwTokens.length) return true;
-    const hay = (section.title + ' ' + section.body_text).toLowerCase();
-    return kwTokens.every(t => tokenMatches(hay, t));
+
+  // ── Section scoring ─────────────────────────────────────────────────────
+  // Higher score = more relevant. Combined as: section-id match dominates,
+  // guideline hint is a moderate bonus, free-text density adds the long tail.
+  function scoreSection(section, slug, parsed) {
+    let score = 0;
+    for (const ref of parsed.sectionRefs) {
+      if (section.id === ref.canonical) score += 1000;
+      else if (ref.sub && section.id === ref.parent) score += 800;
+      else if (section.body_text.toLowerCase().indexOf(ref.canonical.toLowerCase()) !== -1) score += 400;
+      else if (section.id.toLowerCase() === ref.parent.toLowerCase()) score += 200;
+    }
+    if (parsed.guidelineHints.some(h => h.slug === slug)) score += 200;
+    if (parsed.freeText.length) {
+      const hay = (section.title + ' ' + section.body_text).toLowerCase();
+      const haylo = hay;
+      for (const t of parsed.freeText) {
+        if (section.title.toLowerCase().indexOf(t) !== -1) score += 50;
+        if (tokenMatches(hay, t)) {
+          const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const count = (haylo.match(new RegExp(esc, 'g')) || []).length;
+          score += Math.min(count * 8, 80);
+        }
+      }
+    }
+    return score;
   }
+
   function buildResults() {
-    const kwTokens = tokens(state.keyword);
+    const parsed = parseQuery(state.keyword);
     const wanted = new Set();
     if (state.selectedRegions.length) {
       state.selectedRegions.forEach(r => (REGION_TO_SLUGS[r] || []).forEach(s => wanted.add(s)));
+    } else if (parsed.guidelineHints.length) {
+      // STRICT filter: query named a guideline → only that guideline's results
+      parsed.guidelineHints.forEach(h => wanted.add(h.slug));
     } else if (state.filterSlug) {
       wanted.add(state.filterSlug);
     } else {
       GUIDELINES.forEach(g => wanted.add(g.slug));
     }
     const results = [];
+    const refToAnchor = parsed.sectionRefs[0] ? parsed.sectionRefs[0].canonical : null;
     wanted.forEach(slug => {
       const data = cache[slug];
       if (!data || typeof data !== 'object') return;
       data.sections.forEach(sec => {
         if (state.filterCategory && sec.id[0] !== state.filterCategory) return;
         if (state.filterSectionId && sec.id !== state.filterSectionId) return;
-        if (!matchesKeyword(sec, kwTokens)) return;
-        results.push(Object.assign({}, sec, { guideline: data.guideline, slug }));
+        // Strict free-text: every typed free-text token must match.
+        if (parsed.freeText.length) {
+          const hay = (sec.title + ' ' + sec.body_text).toLowerCase();
+          if (!parsed.freeText.every(t => tokenMatches(hay, t))) return;
+        }
+        const score = scoreSection(sec, slug, parsed);
+        results.push(Object.assign({}, sec, {
+          guideline: data.guideline, slug, _score: score, _anchorRef: refToAnchor,
+        }));
       });
     });
+    // Sort by score desc, then by section id for stable order at equal scores.
+    results.sort((a, b) => (b._score - a._score) || a.id.localeCompare(b.id));
     return results;
   }
-  function makeExcerpt(body, keyword) {
+
+  function makeExcerpt(body, keyword, anchorRef) {
+    // If the query included a section ref that appears in body_text, prefer
+    // an excerpt anchored around that mention (so "low back C.2.a" surfaces
+    // the C.2.a chunk of C.2's body, not the start).
+    if (anchorRef) {
+      const idx = body.toLowerCase().indexOf(anchorRef.toLowerCase());
+      if (idx !== -1) {
+        const start = Math.max(0, idx - 60);
+        const end = Math.min(body.length, idx + 260);
+        return (start > 0 ? '…' : '') + body.slice(start, end) + (end < body.length ? '…' : '');
+      }
+    }
     if (!keyword) return body.slice(0, 320) + (body.length > 320 ? '…' : '');
     const lk = keyword.toLowerCase();
     const lb = body.toLowerCase();
-    const idx = lb.indexOf(lk.split(/\s+/)[0]);
+    // Pick the first free-text token (skipping section refs) for anchoring
+    const firstFree = lk.split(/\s+/).find(t => !/^[a-e]\.?\d+(\.[a-z])?$/i.test(t)) || lk.split(/\s+/)[0];
+    const idx = lb.indexOf(firstFree);
     if (idx === -1) return body.slice(0, 320) + '…';
     const start = Math.max(0, idx - 80);
     const end = Math.min(body.length, idx + 240);
@@ -284,13 +403,41 @@
     refs.meta.appendChild(h('span', null, ' · '));
     refs.meta.appendChild(h('span', { className: 'mtg-overlay-id' }, result.id));
     refs.title.textContent = result.title || '';
-    refs.body.textContent = result.body_text || '';
+    // If the result came in with an anchor ref, render the body with the
+    // matching substring wrapped in <mark> so it stands out, and remember
+    // the mark element so we can scroll it into view in locked mode.
+    const anchorRef = result._anchorRef || null;
+    const markEl = renderBodyWithHighlight(refs.body, result.body_text || '', anchorRef);
     refs.cite.textContent = result.citation || '';
     refs.pdfLink.href = `../data/mtg/pdfs/${result.slug}.pdf#page=${result.page}`;
     refs.root.classList.toggle('locked', overlayState.locked);
     refs.root.classList.toggle('peek', !overlayState.locked);
     refs.root.classList.add('visible');
     positionOverlay(anchorEl);
+    // Auto-scroll the body to show the highlighted ref when locked (peek is
+    // line-clamped, so scrolling there has no effect).
+    if (markEl && overlayState.locked) {
+      requestAnimationFrame(() => {
+        try { markEl.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (_) {}
+      });
+    }
+  }
+
+  // Render body_text into bodyEl. If anchorText is found, wrap that substring
+  // in a <mark class="mtg-overlay-mark"> for visual emphasis. Returns the mark
+  // element (or null if no anchor / not found).
+  function renderBodyWithHighlight(bodyEl, bodyText, anchorText) {
+    if (!anchorText) { bodyEl.textContent = bodyText; return null; }
+    const idx = bodyText.toLowerCase().indexOf(anchorText.toLowerCase());
+    if (idx === -1) { bodyEl.textContent = bodyText; return null; }
+    bodyEl.innerHTML = '';
+    bodyEl.appendChild(document.createTextNode(bodyText.slice(0, idx)));
+    const mark = document.createElement('mark');
+    mark.className = 'mtg-overlay-mark';
+    mark.textContent = bodyText.slice(idx, idx + anchorText.length);
+    bodyEl.appendChild(mark);
+    bodyEl.appendChild(document.createTextNode(bodyText.slice(idx + anchorText.length)));
+    return mark;
   }
 
   function lockOverlay() {
@@ -340,7 +487,7 @@
     const input = h('input', {
       type: 'search',
       className: 'mtg-input',
-      placeholder: 'Search guideline text (e.g. "rotator cuff", "epidural", "ACL")',
+      placeholder: 'Search by guideline + section + keyword (e.g. "low back C.2.a", "shoulder D6", "knee PT", "ACL")',
       value: state.keyword,
     });
     input.addEventListener('input', e => { state.keyword = e.target.value; });
@@ -596,7 +743,7 @@
         h('span', { className: 'mtg-result-id' }, r.id),
       ]));
       card.appendChild(h('div', { className: 'mtg-result-title' }, r.title));
-      card.appendChild(h('div', { className: 'mtg-result-excerpt' }, makeExcerpt(r.body_text, state.keyword)));
+      card.appendChild(h('div', { className: 'mtg-result-excerpt' }, makeExcerpt(r.body_text, state.keyword, r._anchorRef)));
       card.appendChild(h('div', { className: 'mtg-result-cite' }, r.citation));
       // Hover (desktop) → peek overlay. Click → lock overlay.
       // Mobile: first tap → peek, tap again on the card → lock.

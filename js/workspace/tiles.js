@@ -81,14 +81,109 @@ function mtgLoad(slug) {
   return _mtgPromises[slug];
 }
 
-function mtgMakeExcerpt(body, keyword) {
+function mtgMakeExcerpt(body, keyword, anchorRef) {
+  // If the query named a section ref like "C.2.a" that appears in body,
+  // pull the excerpt from around it (so the card preview shows the right
+  // chunk, not the start of the parent section).
+  if (anchorRef) {
+    const idx = body.toLowerCase().indexOf(anchorRef.toLowerCase());
+    if (idx !== -1) {
+      const start = Math.max(0, idx - 60);
+      const end = Math.min(body.length, idx + 200);
+      return (start > 0 ? '…' : '') + body.slice(start, end) + (end < body.length ? '…' : '');
+    }
+  }
   if (!keyword) return body.slice(0, 220) + (body.length > 220 ? '…' : '');
-  const firstTok = keyword.toLowerCase().split(/\s+/)[0];
+  // Use the first free-text token (skipping section refs) for anchoring
+  const toks = keyword.toLowerCase().split(/\s+/);
+  const firstTok = toks.find(t => t && !/^[a-e]\.?\d+(\.[a-z])?$/i.test(t)) || toks[0];
   const idx = body.toLowerCase().indexOf(firstTok);
   if (idx === -1) return body.slice(0, 220) + '…';
   const start = Math.max(0, idx - 60);
   const end = Math.min(body.length, idx + 180);
   return (start > 0 ? '…' : '') + body.slice(start, end) + (end < body.length ? '…' : '');
+}
+
+// Smart query parser — same shape/semantics as mtg-tool.js. Keep these
+// implementations in sync (small files; explicit duplication beats setting up
+// a shared module given the workspace's Babel-transformed loading).
+const MTG_STOPWORDS = new Set(['of', 'and', 'the', 'injury', 'a', 'an', 'in', 'for']);
+function mtgParseQuery(q, guidelines) {
+  const raw = (q || '').toLowerCase();
+  const sectionRefs = [];
+  const canonRe = /\b([a-e])\.(\d{1,3})(?:\.([a-z]))?\b/gi;
+  const bareRe = /\b([a-e])(\d{1,3})\b/gi;
+  let m;
+  while ((m = canonRe.exec(raw)) !== null) {
+    const letter = m[1].toUpperCase();
+    const number = parseInt(m[2], 10);
+    const sub = m[3] ? m[3].toLowerCase() : null;
+    sectionRefs.push({
+      letter, number, sub, ref: m[0],
+      parent: letter + '.' + number,
+      canonical: letter + '.' + number + (sub ? '.' + sub : ''),
+    });
+  }
+  while ((m = bareRe.exec(raw)) !== null) {
+    const full = m[0];
+    if (sectionRefs.some(r => r.ref.toLowerCase().indexOf(full.toLowerCase()) !== -1)) continue;
+    sectionRefs.push({
+      letter: m[1].toUpperCase(), number: parseInt(m[2], 10), sub: null,
+      ref: full, parent: m[1].toUpperCase() + '.' + m[2], canonical: m[1].toUpperCase() + '.' + m[2],
+    });
+  }
+  let remaining = raw;
+  sectionRefs.forEach(r => { remaining = remaining.split(r.ref.toLowerCase()).join(' '); });
+  const guidelineHints = [];
+  for (const g of guidelines) {
+    const nameTokens = (g.name || '').toLowerCase().split(/[^a-z0-9]+/)
+      .filter(t => t.length >= 3 && !MTG_STOPWORDS.has(t));
+    const slugTokens = (g.slug || '').toLowerCase().split(/[^a-z0-9]+/)
+      .filter(t => t.length >= 3);
+    const allTokens = Array.from(new Set([...nameTokens, ...slugTokens]));
+    const matched = [];
+    for (const t of allTokens) {
+      const tRe = new RegExp('\\b' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+      if (tRe.test(remaining)) matched.push(t);
+    }
+    const phrases = [g.name.toLowerCase(), (g.slug || '').toLowerCase().replace(/-/g, ' ')];
+    for (const p of phrases) {
+      if (p.length >= 4 && remaining.indexOf(p) !== -1) matched.push(p);
+    }
+    if (matched.length) guidelineHints.push({ slug: g.slug, name: g.name, matchedTokens: matched });
+  }
+  for (const h of guidelineHints) {
+    for (const t of h.matchedTokens) {
+      const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[\s\-]+/g, '[\\s\\-]+');
+      remaining = remaining.replace(new RegExp('\\b' + esc + '\\b', 'gi'), ' ');
+    }
+  }
+  const freeText = remaining.toLowerCase().split(/[^a-z0-9]+/)
+    .filter(t => t.length >= 2 && !MTG_STOPWORDS.has(t));
+  return { sectionRefs, guidelineHints, freeText };
+}
+
+function mtgScoreSection(section, slug, parsed) {
+  let score = 0;
+  for (const ref of parsed.sectionRefs) {
+    if (section.id === ref.canonical) score += 1000;
+    else if (ref.sub && section.id === ref.parent) score += 800;
+    else if (section.body_text.toLowerCase().indexOf(ref.canonical.toLowerCase()) !== -1) score += 400;
+    else if (section.id.toLowerCase() === ref.parent.toLowerCase()) score += 200;
+  }
+  if (parsed.guidelineHints.some(h => h.slug === slug)) score += 200;
+  if (parsed.freeText.length) {
+    const hay = (section.title + ' ' + section.body_text).toLowerCase();
+    for (const t of parsed.freeText) {
+      if (section.title.toLowerCase().indexOf(t) !== -1) score += 50;
+      if (mtgTokenMatches(hay, t)) {
+        const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const count = (hay.match(new RegExp(esc, 'g')) || []).length;
+        score += Math.min(count * 8, 80);
+      }
+    }
+  }
+  return score;
 }
 
 function MTGTile({ tile, global, onUpdate }) {
@@ -121,22 +216,35 @@ function MTGTile({ tile, global, onUpdate }) {
 
   const results = useMemo(() => {
     if (!ready) return [];
-    const kwTokens = keyword.toLowerCase().split(/[^a-z0-9]+/).filter(t => t.length >= 2);
-    const slugs = guidelineFilter ? [guidelineFilter] : MTG_GUIDELINES.map(g => g.slug);
+    const parsed = mtgParseQuery(keyword, MTG_GUIDELINES);
+    // Strict guideline filter: if the query named a guideline, results are
+    // limited to that guideline. Otherwise honor the explicit dropdown.
+    let slugs;
+    if (parsed.guidelineHints.length) {
+      slugs = parsed.guidelineHints.map(h => h.slug);
+    } else if (guidelineFilter) {
+      slugs = [guidelineFilter];
+    } else {
+      slugs = MTG_GUIDELINES.map(g => g.slug);
+    }
+    const anchorRef = parsed.sectionRefs[0] ? parsed.sectionRefs[0].canonical : null;
     const out = [];
     for (const slug of slugs) {
       const data = _mtgCache[slug];
       if (!data || typeof data !== 'object') continue;
       for (const sec of data.sections) {
-        if (kwTokens.length) {
+        // Strict free-text: every typed free-text token must match
+        if (parsed.freeText.length) {
           const hay = (sec.title + ' ' + sec.body_text).toLowerCase();
-          if (!kwTokens.every(t => mtgTokenMatches(hay, t))) continue;
+          if (!parsed.freeText.every(t => mtgTokenMatches(hay, t))) continue;
         }
-        out.push({ ...sec, guideline: data.guideline, slug });
-        if (out.length >= 200) break;
+        const score = mtgScoreSection(sec, slug, parsed);
+        out.push({ ...sec, guideline: data.guideline, slug, _score: score, _anchorRef: anchorRef });
+        if (out.length >= 400) break;
       }
-      if (out.length >= 200) break;
+      if (out.length >= 400) break;
     }
+    out.sort((a, b) => (b._score - a._score) || a.id.localeCompare(b.id));
     return out;
   }, [ready, keyword, guidelineFilter]);
 
@@ -146,7 +254,7 @@ function MTGTile({ tile, global, onUpdate }) {
         <input
           type="search"
           value={keyword}
-          placeholder='Keyword (e.g. "rotator cuff", "ACL", "epidural")'
+          placeholder='Guideline + section + keyword (e.g. "low back C.2.a", "knee D6 PT")'
           onChange={(e) => set({ keyword: e.target.value })}
           style={{
             flex: 1, background: 'var(--bg-1, #0a0f1a)', border: '1px solid var(--bd, #1e3a5f)',
@@ -229,7 +337,7 @@ function MTGTile({ tile, global, onUpdate }) {
             <div style={{
               fontSize: 11, color: 'var(--tx-2, #cbd5e1)', lineHeight: 1.5,
               whiteSpace: 'pre-wrap', marginBottom: 4,
-            }}>{mtgMakeExcerpt(r.body_text, keyword)}</div>
+            }}>{mtgMakeExcerpt(r.body_text, keyword, r._anchorRef)}</div>
             <div style={{
               fontSize: 9, fontFamily: 'var(--mono, ui-monospace, Menlo, monospace)',
               color: 'var(--tx-faint, #64748b)', paddingTop: 4,
@@ -265,6 +373,34 @@ function MTGTile({ tile, global, onUpdate }) {
       {overlay && <MTGOverlay overlay={overlay} onClose={() => setOverlay(null)} onLock={() => setOverlay({ ...overlay, locked: true })} />}
     </div>
   );
+}
+
+// Renders body_text into the overlay body div. If anchorText is supplied and
+// is locked-visible, the matching substring is wrapped in a <mark> element
+// so it visually pops; the parent MTGOverlay scrolls it into view via ref.
+// We return an array of React nodes (text + mark + text) so React reconciles
+// cleanly across rerenders.
+function renderBodyMaybeHighlighted(bodyText, anchorRef, locked) {
+  if (!anchorRef) return bodyText;
+  const idx = bodyText.toLowerCase().indexOf(anchorRef.toLowerCase());
+  if (idx === -1) return bodyText;
+  return [
+    bodyText.slice(0, idx),
+    React.createElement('mark', {
+      key: 'mtg-anchor',
+      className: 'mtg-anchor-mark',
+      ref: locked ? (el) => { if (el) requestAnimationFrame(() => { try { el.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (_) {} }); } : undefined,
+      style: {
+        background: 'rgba(245,158,11,0.32)',
+        color: '#fff',
+        padding: '1px 3px',
+        borderRadius: 3,
+        boxShadow: '0 0 0 1px rgba(245,158,11,0.55)',
+        fontWeight: 700,
+      },
+    }, bodyText.slice(idx, idx + anchorRef.length)),
+    bodyText.slice(idx + anchorRef.length),
+  ];
 }
 
 // Viewport-level overlay for MTG section preview. Portaled to document.body
@@ -384,7 +520,7 @@ function MTGOverlay({ overlay, onClose, onLock }) {
           maxHeight: locked ? 'none' : 180,
           WebkitMaskImage: locked ? 'none' : 'linear-gradient(180deg, #000 70%, transparent 100%)',
           maskImage: locked ? 'none' : 'linear-gradient(180deg, #000 70%, transparent 100%)',
-        }}>{r.body_text}</div>
+        }}>{renderBodyMaybeHighlighted(r.body_text, r._anchorRef, locked)}</div>
         {locked && (
           <div style={{
             fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
