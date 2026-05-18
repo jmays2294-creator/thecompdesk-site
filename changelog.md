@@ -5,6 +5,26 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-18
+
+### Find a WC Doctor — rebuilt as a working five-borough map tool
+The existing `/tools/find-doctor.html` was a marketing-only landing page that promoted the app's doctor-finder feature without providing a working web tool. Rebuilt as an interactive directory:
+
+- **Legislative disclaimer banner** at the top of the page (gold-tinted, just under the nav) explains the 2024 NY CRRP reform: every licensed NY physician can now treat WC patients without separate WCB authorization for most services. Removes the implicit "you must use WCB-authorized doctors" framing that the prior copy carried.
+- **Interactive Mapbox map** (`mapbox-gl-js` v3.4.0, `dark-v11` style with a CSS `saturate(0) contrast(1.18)` overlay for the high-contrast black/white look). Click-and-drag enabled. **Hard-bounded to NYC five boroughs** via `maxBounds` so users can't pan to Long Island or upstate. Min zoom 9.5, max zoom 17.
+- **"Use my location"** button + Mapbox's built-in `GeolocateControl`. On success the map `flyTo`s the user's coords at zoom 13 with a smooth easing curve (replaces the "Remotion best practices" idea Joel mentioned — Remotion is for pre-rendered video, not interactive maps; Mapbox's animation primitives are the right tool here). User pin is a small blue dot with a halo.
+- **Filters**: borough (5) + specialty (10). List re-sorts by distance from the user pin when location is granted.
+- **Apple/Google Maps deep-link**: each doctor card has an "Open in Maps" button that detects platform — iOS/Mac users get `maps.apple.com`, everyone else gets Google Maps `/dir/?api=1`. One button, smart routing.
+- **Empty state**: directory ships empty (no fabricated provider names). Empty state links out to the WCB provider search and NPI Registry so the page is useful day one. Cards render as soon as rows land in `public.wc_doctors`.
+- **SEO scaffolding preserved**: JSON-LD `WebApplication` + `FAQPage` blocks rewritten to match the new reality (NYC-only scope, post-CRRP framing, free directory, no-payment-for-placement language). Body-parts grid + FAQ + legal disclaimer retained.
+- **Brand-theme compliant**: `nav[data-brand-nav]`, brand-theme.css + brand-bg.js loaded, page-level dark `#06080f` body preserved with the translucent navy nav overlay from brand_guidelines.md v1.0.0.
+- Sitemap entry bumped to `lastmod 2026-05-18`, priority 0.7 → 0.8, changefreq monthly → weekly.
+
+### New table: `public.wc_doctors` (migration `20260518000000_wc_doctors_directory.sql`)
+Directory table for workers'-comp-experienced NY providers. Public read (RLS policy `wc_doctors_public_read` for anon + authenticated); writes are service-role only. Columns: npi, name, practice_name, specialty, subspecialty, borough (CHECK constraint: 5 boroughs only or NULL), address, city/state/zip, lat/lng, phone, website, email, languages[], body_parts[], accepting_new_patients, wcb_authorized, wcb_provider_id, notes, source, last_verified_at, created_at, updated_at (with auto-touch trigger). Indexed on borough, specialty, zip, (lat,lng), and npi. Seeds to be populated separately — either via Supabase Studio import or a Node scraper job hitting the WCB provider search.
+
+---
+
 ## 2026-05-08
 
 ### Site-wide SEO sweep (full pass on every public page)
