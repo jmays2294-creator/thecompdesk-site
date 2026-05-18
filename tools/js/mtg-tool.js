@@ -444,31 +444,51 @@
     credit.innerHTML = '3D skeleton: <a href="https://anatomytool.org/open3dmodel" target="_blank" rel="noopener">AnatomyTOOL Open3DModel</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>';
     wrap.appendChild(credit);
 
-    // Mount Three.js scene once, on first render of the panel.
+    // Mount Three.js scene once, after the ES module has finished loading.
+    // mtg-anatomy.js is a `type="module"` script which loads asynchronously
+    // — so window.MTGAnatomy3D may not exist yet on first paint. We await
+    // window.MTGAnatomy3DReady (set up by an inline script in the HTML
+    // before the module loads).
     setTimeout(() => {
       if (!anatomyCanvasEl || !anatomyCanvasEl.isConnected) return;
       if (anatomyMounted) return;
-      if (!window.MTGAnatomy3D) return;
-      window.MTGAnatomy3D.mount(anatomyCanvasEl, {
-        onRegionClick: handleAnatomyClick,
-        onRegionHover: handleAnatomyHover,
-        onReady: () => {
-          anatomyLoading = false;
-          // Hide the loading text without a full rerender
-          const ld = rootEl && rootEl.querySelector('.mtg-anatomy-loading');
-          if (ld) ld.remove();
-        },
-        onError: (err) => {
-          anatomyLoading = false;
-          const ld = rootEl && rootEl.querySelector('.mtg-anatomy-loading');
-          if (ld) ld.textContent = '3D model failed to load. Try refreshing the page.';
-          console.error('[MTG] anatomy load failed:', err);
-        },
+      const readyPromise = window.MTGAnatomy3DReady || Promise.resolve();
+      readyPromise.then(() => {
+        if (anatomyMounted) return;
+        if (!window.MTGAnatomy3D) {
+          showAnatomyError('MTGAnatomy3D module did not load. Check console.');
+          return;
+        }
+        anatomyMounted = true;
+        try {
+          window.MTGAnatomy3D.mount(anatomyCanvasEl, {
+            onRegionClick: handleAnatomyClick,
+            onRegionHover: handleAnatomyHover,
+            onReady: () => {
+              anatomyLoading = false;
+              const ld = rootEl && rootEl.querySelector('.mtg-anatomy-loading');
+              if (ld) ld.remove();
+            },
+            onError: (err) => {
+              const msg = (err && (err.message || err.toString())) || 'unknown error';
+              showAnatomyError('3D model failed to load: ' + msg);
+              console.error('[MTG] anatomy load failed:', err);
+            },
+          });
+        } catch (e) {
+          showAnatomyError('3D init crashed: ' + (e && e.message || e));
+          console.error('[MTG] anatomy mount crashed:', e);
+        }
       });
-      anatomyMounted = true;
     }, 0);
 
     return wrap;
+  }
+
+  function showAnatomyError(text) {
+    anatomyLoading = false;
+    const ld = rootEl && rootEl.querySelector('.mtg-anatomy-loading');
+    if (ld) ld.textContent = text;
   }
 
   function renderResults() {

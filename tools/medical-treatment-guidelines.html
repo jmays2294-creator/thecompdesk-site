@@ -154,11 +154,28 @@
         <div id="mtg-tool-root" class="mtg-tool-root"></div>
     </main>
 
-    <!-- Three.js (r147 — last release with full UMD addon support) -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
-    <!-- MTG anatomy scene + tool -->
-    <script src="js/mtg-anatomy.js"></script>
+    <!-- Three.js ESM import map. The anatomy scene module imports `three`
+         and `three/addons/loaders/GLTFLoader.js`; the import map below
+         resolves those bare specifiers to the official jsdelivr ESM CDN. -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+    <!-- Create the readiness Promise BEFORE the module loads. mtg-tool.js
+         (a classic script that loads first) awaits window.MTGAnatomy3DReady
+         before calling MTGAnatomy3D.mount(). The module resolves it at
+         the end of its top-level execution. -->
+    <script>
+      window.MTGAnatomy3DReady = new Promise(function (resolve) {
+        window.MTGAnatomy3DReadyResolve = resolve;
+      });
+    </script>
+    <!-- MTG anatomy scene (ES module) + tool (classic, runs first) -->
+    <script type="module" src="js/mtg-anatomy.js"></script>
     <script src="js/mtg-tool.js"></script>
     <script>
         // Mount the tool once DOM is ready
