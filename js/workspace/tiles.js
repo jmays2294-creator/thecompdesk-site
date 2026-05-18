@@ -112,6 +112,7 @@ function mtgParseQuery(q, guidelines) {
   const raw = (q || '').toLowerCase();
   const sectionRefs = [];
   const canonRe = /\b([a-e])\.(\d{1,3})(?:\.([a-z]))?\b/gi;
+  const bareSubRe = /\b([a-e])(\d{1,3})([a-z])\b/gi;
   const bareRe = /\b([a-e])(\d{1,3})\b/gi;
   let m;
   while ((m = canonRe.exec(raw)) !== null) {
@@ -122,6 +123,19 @@ function mtgParseQuery(q, guidelines) {
       letter, number, sub, ref: m[0],
       parent: letter + '.' + number,
       canonical: letter + '.' + number + (sub ? '.' + sub : ''),
+    });
+  }
+  // Bare-with-sub before bare-no-sub so "C2a" claims as C.2.a (not C.2 + "a")
+  while ((m = bareSubRe.exec(raw)) !== null) {
+    const full = m[0];
+    if (sectionRefs.some(r => r.ref.toLowerCase().indexOf(full.toLowerCase()) !== -1)) continue;
+    const letter = m[1].toUpperCase();
+    const number = parseInt(m[2], 10);
+    const sub = m[3].toLowerCase();
+    sectionRefs.push({
+      letter, number, sub, ref: full,
+      parent: letter + '.' + number,
+      canonical: letter + '.' + number + '.' + sub,
     });
   }
   while ((m = bareRe.exec(raw)) !== null) {
@@ -254,7 +268,7 @@ function MTGTile({ tile, global, onUpdate }) {
         <input
           type="search"
           value={keyword}
-          placeholder='Guideline + section + keyword (e.g. "low back C.2.a", "knee D6 PT")'
+          placeholder='Guideline + section + keyword (e.g. "low back C2a", "knee D6 PT")'
           onChange={(e) => set({ keyword: e.target.value })}
           style={{
             flex: 1, background: 'var(--bg-1, #0a0f1a)', border: '1px solid var(--bd, #1e3a5f)',

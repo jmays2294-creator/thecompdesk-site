@@ -118,8 +118,9 @@
   //   3. freeText — leftover tokens that go through the existing
   //      abbreviation expansion (PT → physical therapy, etc).
   const STOPWORDS = new Set(['of', 'and', 'the', 'injury', 'a', 'an', 'in', 'for']);
-  const SECTION_REF_CANON = /\b([A-E])\.(\d{1,3})(?:\.([a-z]))?\b/gi;
-  const SECTION_REF_BARE  = /\b([A-E])(\d{1,3})\b/gi;
+  const SECTION_REF_CANON    = /\b([A-E])\.(\d{1,3})(?:\.([a-z]))?\b/gi;
+  const SECTION_REF_BARE_SUB = /\b([A-E])(\d{1,3})([a-z])\b/gi;
+  const SECTION_REF_BARE     = /\b([A-E])(\d{1,3})\b/gi;
 
   function parseQuery(q) {
     const raw = (q || '').toLowerCase();
@@ -134,6 +135,21 @@
         letter, number, sub, ref: m[0],
         parent: letter + '.' + number,
         canonical: letter + '.' + number + (sub ? '.' + sub : ''),
+      });
+    }
+    // Bare-with-sub MUST run before bare-no-sub so "C2a" is claimed as
+    // C.2.a, not split into C.2 + leftover "a".
+    SECTION_REF_BARE_SUB.lastIndex = 0;
+    while ((m = SECTION_REF_BARE_SUB.exec(raw)) !== null) {
+      const full = m[0];
+      if (sectionRefs.some(r => r.ref.toLowerCase().indexOf(full.toLowerCase()) !== -1)) continue;
+      const letter = m[1].toUpperCase();
+      const number = parseInt(m[2], 10);
+      const sub = m[3].toLowerCase();
+      sectionRefs.push({
+        letter, number, sub, ref: full,
+        parent: letter + '.' + number,
+        canonical: letter + '.' + number + '.' + sub,
       });
     }
     SECTION_REF_BARE.lastIndex = 0;
@@ -487,7 +503,7 @@
     const input = h('input', {
       type: 'search',
       className: 'mtg-input',
-      placeholder: 'Search by guideline + section + keyword (e.g. "low back C.2.a", "shoulder D6", "knee PT", "ACL")',
+      placeholder: 'Search by guideline + section + keyword (e.g. "low back C2a", "shoulder D6", "knee PT", "ACL")',
       value: state.keyword,
     });
     input.addEventListener('input', e => { state.keyword = e.target.value; });
