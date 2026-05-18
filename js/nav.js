@@ -339,6 +339,7 @@ function renderNav(session, tier) {
             <a href="/tools/utdm.html" class="nav-dropdown-item" style="color:#666">More Coming Soon</a>
           </div>
         </li>
+        <li><a href="/contact.html" class="nav-link">Contact</a></li>
         <li><a href="/account.html" class="nav-link">Account</a></li>
       </ul>
 
@@ -625,6 +626,7 @@ function renderPublicNav(userState) {
             <a href="/tools/learning/" class="nav-dropdown-item">Learning Portal</a>
           </div>
         </li>
+        <li><a href="/contact.html" class="nav-link">Contact</a></li>
         ${isLoggedIn ? '<li><a href="/dashboard/" class="nav-link">Dashboard</a></li>' : ''}
         ${isLoggedIn ? '<li><a href="/dashboard/my-cases.html" class="nav-link" style="color:#3b82f6;">My Cases</a></li>' : ''}
       </ul>

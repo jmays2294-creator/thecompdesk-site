@@ -5,23 +5,133 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-18 (later same day)
+
+### Universal contact rollout — phone (786) 815-4612 + email contact@thecompdesk.com
+
+Site-wide contact channel rollout so every public surface answers "how do I reach you?" with the same number/email and framing.
+
+- **New universal footer block** (`/js/footer-contact.js`) — self-bootstrapping, auto-injects a Contact section ("Questions? Call, text, or email us." + tel/sms/mailto links + UPL disclaimer) into every page's `<footer>`. Idempotent. Suppressed via `<body data-no-contact-footer="true">` on pages that handle contact themselves.
+  - Injected into 39 HTML pages across `/`, `/calculators/*`, `/tools/*`, `/learn/*`, `/dashboard/*`, `/for-attorneys*`, `/extension`, `/connect-with-attorney`, `/subscribe`, `/coming-soon`, `/credits/success`, `/hire-attorney`, `/attorneys`, `/settlement-calculator`, `/workspace*`.
+  - **Flagged & skipped** (no contact block): `/auth.html`, `/auth_v2.html` (modal-style sign-in), `/legal/privacy.html`, `/legal/terms.html`, `/extension-privacy.html` (formal legal docs).
+- **New `/contact.html`** — clean brand-aligned page: three contact-method cards (phone / text / email), business hours (Mon–Fri 9 AM – 6 PM ET, marked TBD per Ops), "what we can help with" list, prominent UPL disclaimer, ContactPage + ContactPoint JSON-LD.
+- **Nav** — Contact link added to both authenticated and public nav variants in `js/nav.js`.
+- **For-attorneys page** — inline "Talk to us" block added immediately after the pricing tier grid ("Have questions about the Pro or Firm tier? Call, text, or email.").
+- **Injured-worker surfaces** — UPL disclaimer banners added prominently after the hero on `index.html` and `hire-attorney.html` (highest-confusion-risk surfaces).
+- **Referral form confirmation** (`connect-with-attorney.html`) — added a follow-up contact card on the post-submit thank-you screen so leads have a channel back to us.
+- **404 page** (`404.html`, new) — friendly WC-themed copy ("This page took an unscheduled hearing."), three nav CTAs, and a contact card. `noindex`.
+- **Schema.org markup** — added an `Organization` + `ContactPoint` JSON-LD block to `index.html` so Google can surface the phone/email in search results.
+- **Sitemap** — `/contact.html` added (priority 0.8, monthly).
+- **UPL disclaimer wording** (used everywhere): *"The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney."*
+
+---
+
 ## 2026-05-18
 
-### Find a WC Doctor — rebuilt as a working five-borough map tool
-The existing `/tools/find-doctor.html` was a marketing-only landing page that promoted the app's doctor-finder feature without providing a working web tool. Rebuilt as an interactive directory:
+### Launch + iteration: Medical Treatment Guidelines (MTG) tool (commits `a3e6c5e` → `1de9ade`, 11 commits same day)
 
-- **Legislative disclaimer banner** at the top of the page (gold-tinted, just under the nav) explains the 2024 NY CRRP reform: every licensed NY physician can now treat WC patients without separate WCB authorization for most services. Removes the implicit "you must use WCB-authorized doctors" framing that the prior copy carried.
-- **Interactive Mapbox map** (`mapbox-gl-js` v3.4.0, `dark-v11` style with a CSS `saturate(0) contrast(1.18)` overlay for the high-contrast black/white look). Click-and-drag enabled. **Hard-bounded to NYC five boroughs** via `maxBounds` so users can't pan to Long Island or upstate. Min zoom 9.5, max zoom 17.
-- **"Use my location"** button + Mapbox's built-in `GeolocateControl`. On success the map `flyTo`s the user's coords at zoom 13 with a smooth easing curve (replaces the "Remotion best practices" idea Joel mentioned — Remotion is for pre-rendered video, not interactive maps; Mapbox's animation primitives are the right tool here). User pin is a small blue dot with a halo.
-- **Filters**: borough (5) + specialty (10). List re-sorts by distance from the user pin when location is granted.
-- **Apple/Google Maps deep-link**: each doctor card has an "Open in Maps" button that detects platform — iOS/Mac users get `maps.apple.com`, everyone else gets Google Maps `/dir/?api=1`. One button, smart routing.
-- **Empty state**: directory ships empty (no fabricated provider names). Empty state links out to the WCB provider search and NPI Registry so the page is useful day one. Cards render as soon as rows land in `public.wc_doctors`.
-- **SEO scaffolding preserved**: JSON-LD `WebApplication` + `FAQPage` blocks rewritten to match the new reality (NYC-only scope, post-CRRP framing, free directory, no-payment-for-placement language). Body-parts grid + FAQ + legal disclaimer retained.
-- **Brand-theme compliant**: `nav[data-brand-nav]`, brand-theme.css + brand-bg.js loaded, page-level dark `#06080f` body preserved with the translucent navy nav overlay from brand_guidelines.md v1.0.0.
-- Sitemap entry bumped to `lastmod 2026-05-18`, priority 0.7 → 0.8, changefreq monthly → weekly.
+Brand-new tool surface — `/tools/medical-treatment-guidelines` — that makes the **2021 NYS WCB Medical Treatment Guidelines** searchable from both the marketing site and the Pro Attorney Workspace. Single-session arc: launch → backfill all 16 guidelines → smart search → 3D anatomy upgrade with click-to-filter → polished overlay UX. End-state shipped on commit `1de9ade`.
 
-### New table: `public.wc_doctors` (migration `20260518000000_wc_doctors_directory.sql`)
-Directory table for workers'-comp-experienced NY providers. Public read (RLS policy `wc_doctors_public_read` for anon + authenticated); writes are service-role only. Columns: npi, name, practice_name, specialty, subspecialty, borough (CHECK constraint: 5 boroughs only or NULL), address, city/state/zip, lat/lng, phone, website, email, languages[], body_parts[], accepting_new_patients, wcb_authorized, wcb_provider_id, notes, source, last_verified_at, created_at, updated_at (with auto-touch trigger). Indexed on borough, specialty, zip, (lat,lng), and npi. Seeds to be populated separately — either via Supabase Studio import or a Node scraper job hitting the WCB provider search.
+---
+
+**New page**: `/tools/medical-treatment-guidelines` (`tools/medical-treatment-guidelines.html`). Three search surfaces feed one ranked results panel:
+1. **Keyword** input — abbreviation-expanded, smart query parser (see below).
+2. **Filters** — guideline / section-letter / specific-section dropdowns.
+3. **3D Anatomy** — interactive skeleton, hover-highlight by body region, click to filter results to that region.
+
+**Data layer** (`/data/mtg/`):
+- 16 guideline JSONs (`shoulder`, `low-back`, `knee`, `neck`, `elbow`, `hand-wrist-forearm`, `hip-groin`, `ankle-foot`, `crps`, `non-acute-pain`, `tbi`, `ptsd`, `depression`, `asthma`, `eye-disorders`, `lung-disease`), ~642 sections total, each with `id` / `title` / `body_text` / `page` / `citation`.
+- `_summary.json` catalog (loaded once at startup so adding new guidelines requires zero frontend code change).
+- `abbreviations.json` — ~45 WC medical abbreviations (PT, OT, MRI, EMG, NCS, ROM, IME, SLU, LWEC, NSAID, ESI, TENS, RFA, ACL/PCL/MCL/LCL, CRPS, TBI, PTSD, RCR, MUA, FCE, DOA, MMI, PPD/PTD/TTD/TPD, CTS, MCP/PIP/DIP, AC/SC, SLAP, WCB, SIJ, TMJ, ESWT). Loaded once; "PT" → matches sections containing "physical therapy".
+- `pdfs/{slug}.pdf` (~47 MB total, 16 PDFs) — source documents linked from the section overlay via `#page=N` anchors.
+- Ingest script lives at `tools/mtg/ingest.py` in the app-monorepo, depends on `pymupdf`. Section-letter-agnostic parser (some MTGs use Section C for diagnoses, others use D); TOC entries are filtered out by alpha-char density rather than the brittle dot-leader heuristic so genuinely short body sections like Knee D.2 "Not Recommended" survive.
+
+**Smart query parser** (`mtg-tool.js` + `tiles.js`, kept in sync):
+- Splits a query into three orthogonal axes: **section refs** (`C.2.a` canonical, `D6` bare, `C2a` bare-with-sub), **guideline hints** (matched against each guideline's name + slug, e.g. "low back" → Mid and Low Back Injury), **free-text** (everything else, abbreviation-expanded).
+- **Strict guideline filter** — when a hint matches, results are limited to that guideline; e.g. `low back rotator cuff` returns zero hits rather than leaking Shoulder results.
+- **Scored ranking**: exact section.id match +1000, parent-of-sub-ref match +800, sub-ref in body_text +400, guideline-hint match +200, free-text token in title +50/ea, free-text density in body +8/occurrence (cap 80). Stable secondary sort by section ID.
+- **Excerpt anchoring + highlight**: when the query has a section ref, the result-card excerpt is pulled from around that mention (not the start of the parent body), and clicking to expand the locked overlay auto-scrolls to a yellow `<mark>` wrapped around the matched text via `scrollIntoView({block: 'center'})`.
+- Example queries that just work: `low back C.2.a` · `low back C2a` · `shoulder D6` · `knee C.4 ACL` · `PT shoulder` · `CRPS`.
+
+**Section overlay (hover-peek / click-lock)**:
+- **Peek** — small translucent (rgba(17,24,39,0.82) + backdrop blur) tooltip anchored to the RIGHT of the hovered result card, line-clamped body with fade mask, `pointer-events: none` so mouseleave on the underlying card cleanly dismisses. Falls back to left-of-card or below-card if the screen edge is in the way.
+- **Locked** — moderately larger side panel docked to the right edge of the viewport (480px × 90vh, 5vh top offset). Solid background, dedicated 32×32 X close button (with hover→red), full body scrollable, citation + "View source PDF →" button. Esc, backdrop click, and X all close. Bottom-sheet layout on narrow viewports (<720px).
+- **Workspace clipping fix** — the workspace canvas applies CSS `transform` for tile dragging, which creates a "containing block" for `position: fixed` descendants. That's why the original overlay was getting clipped + the close button cut off inside the workspace tile. Solved with `ReactDOM.createPortal(overlay, document.body)` so the overlay escapes the transformed ancestor entirely.
+
+**3D Anatomy picker (iteration trail):**
+1. **Procedural Three.js figure first** (commit `a3e6c5e` — initial launch) — ~30 meshes from primitive geometries, hover/click worked but Joel didn't like the geometric aesthetic.
+2. **Sketchfab Z-Anatomy iframe** (commit `a2e221c`) — embedded Myology via Sketchfab Viewer API. Pretty, but the API can't deliver hover-highlight on free CC models (PRO-only feature on the model owner's side), and click handling depended on model internals we didn't control.
+3. **Three.js + downloadable GLB** (commit `240e6cb`) — switched to **AnatomyTOOL Open3DModel "Skeleton"** (`CC BY-SA 4.0`, 3.4 MB, 144 individually-named anatomical bone meshes). Source files at `https://anatomytool.org/open3dmodel`, attribution credit line below the canvas + `data/mtg/anatomy/ATTRIBUTION.md` committed alongside the GLB.
+4. **ESM import map** (commit `7f525f8`) — initial UMD `GLTFLoader.js` from `three@0.147/examples/js/` was unreliable; switched to the modern import-map pattern (`three@0.160.0` ESM) with the module exposing `window.MTGAnatomy3D` via a Promise so the classic-script `mtg-tool.js` can `await` readiness.
+5. **DRACOLoader added** (commit `80fa26c`) — the AnatomyTOOL GLB declares `KHR_draco_mesh_compression` in `extensionsRequired` (the reason 144 meshes fit in 3.4 MB). `GLTFLoader` errored "No DRACOLoader instance provided" until I wired one up pointing at `three@0.160.0/examples/jsm/libs/draco/`.
+6. **Half-skeleton mirror fix + permissive finger/toe regex** (commit `af66f98`) — the AnatomyTOOL model ships as a half-skeleton (midline bones + right-side bones; the viewer mirrors the right side at render-time). My first mirror code did `clone.scale.x = -1` per mesh, which flips the GEOMETRY around the mesh's local origin but doesn't move its POSITION — so clones ended up overlapping the originals on the right side. Fix: clone the whole `Bones_right` + `Cartilages_right` subtrees with hierarchy intact, wrap them in a parent `THREE.Group` with `scale.x = -1`, add that group as a child of `originalGroup`. Negative-X scale on the parent mirrors all descendant positions AND geometries through the origin in one shot. `material.side = THREE.DoubleSide` on left-side material handles the inverted normal winding. Separately, the finger/toe regex was tightened to `/^.*phalanx of \w+ finger(?! of foot)/i` — `\w+` covers all ordinal variants the model uses (`1st`, `2d`, `3d`, `3rd`, `4th`, `5th`) that the previous narrow regex was missing. Verified: 144/144 meshes now have a `regionId`.
+7. **Clickable bones drive the query** — hovering a bone shows a "Left knee" / "Upper back" capsule label top-left of the canvas; clicking sets `state.selectedRegions = [regionId]` (strict filter chip), and the results panel re-renders with sections from that body region's guideline(s).
+
+**Surfaces touched**:
+- **Marketing site** (`thecompdesk-site` repo, this changelog covers): `tools/medical-treatment-guidelines.html` (new page), `tools/js/mtg-tool.js` (vanilla DOM, query parser + overlay), `tools/js/mtg-anatomy.js` (ES module — Three.js scene), `data/mtg/*` (16 JSONs + abbreviations + summary + ATTRIBUTION + 16 PDFs + skeleton.glb), `js/workspace/tiles.js` (workspace MTG tile — React/JSX, same parser + overlay via `ReactDOM.createPortal`), `js/workspace/app.js` (palette + Tile component map), `index.html` (home-grid feat-card between IME Reminders and Learn Your Rights), `for-attorneys.html` (calc-grid card between Spine & Brain and "See All"), `js/nav.js` (Tools dropdown in both `renderNav` and `renderPublicNav`).
+- **App bundle** (separate, in app-monorepo at `www/`): MTG tab + procedural Three.js figure was added earlier; per Joel's call, the app keeps the procedural figure (battery/perf), the marketing site gets the GLB-based skeleton.
+
+**Preserve audit (all still intact on live URLs)**: AASA header in `vercel.json`, www→apex via Vercel dashboard config (not via `vercel.json` — preserved per the Apr 28 redirect-loop postmortem), Vercel Web Analytics on every public HTML page, PostHog import + global date-input guard in `nav.js`, `/learn/` nav links, every existing `application/ld+json` block.
+
+**Post-deploy smoke (all 200, no redirect loops, ≤2 hops)**:
+- `/tools/medical-treatment-guidelines` → 200
+- `/data/mtg/_summary.json` → 200 (3.8 KB, 16 guidelines listed)
+- `/data/mtg/anatomy/skeleton.glb` → 200 (3.4 MB)
+- `/data/mtg/pdfs/shoulder.pdf` → 200 (634 KB)
+- `/workspace/` (MTG tile loads same JSON) → 200
+- `/` and `/for-attorneys` (control URLs, new feat-cards rendering) → 200
+
+**Final Vercel deploy**: `dpl_DCx9UMGDcjYXgvuVUtnCNBczb9gb` — READY, target=production, SHA=`1de9ade9c060a0219517626a192274c5ffef4614`. (Intermediate deploys: `a3e6c5e`, `eed2e1a`, `6a37ebd`, `a2e221c`, `240e6cb`, `7f525f8`, `841f12c`, `80fa26c`, `af66f98`, `ebfd057`, `1de9ade`.)
+
+**Sitemap updated**: `sitemap.md` adds the new page under a new "Tools" section (this commit pairs with that update — see the file).
+
+**Open follow-ups (non-blocking)**:
+- **TBI and Depression came in light on Section C/D detection** — their PDF structure puts the clinical content under a different section letter than the other MTGs. Followup ingest tuning will add per-PDF detection overrides at `tools/mtg/ingest.py`. Until then, those two guidelines surface ~30 sections each instead of the 50-ish other guidelines have.
+- **Chart rendering in the overlay** — I attempted full-page PNG rendering during ingest but the output was ~350 MB of static assets (Hip/Groin alone is 949 pages). Pivoted to shipping the source PDFs + a "View source PDF" link with `#page=N` anchor. A future v2 could layer in *selective* chart-page rendering (only pages with >X drawings or with embedded images larger than the standard header logo) — would land somewhere around 10-20 MB if the detector is tight enough.
+- **SEO keyword tracking should add**: "NYS workers comp medical treatment guidelines", "WCB MTG search", "Shoulder MTG D.6 rotator cuff", "Mid and Low Back MTG epidural injection", "WC anatomy picker". Not blocking — sweep into next weekly SEO check.
+
+**iCloud resync**: all 7 edited/added files mirrored into `ops/website/` so local edits start from the deployed state (Secretary's standing playbook: clone fresh / apply edits on the repo / resync iCloud at the end).
+
+---
+
+## 2026-05-10
+
+### Launch: `/extension` landing page + "Apps" nav + "Get The Comp Desk Everywhere" rollout (commit `9d05874`)
+
+End-to-end multi-platform rollout. The Comp Desk now has a dedicated landing page and consistent cross-promotion across the site for its three delivery surfaces: iOS app (live), Chrome extension (CWS-in-review, waitlist live), and the public web workspace.
+
+**New page**: `/extension` (`extension.html`). Brand-matched dark-attorney aesthetic. Sections: hero, three-platform grid (iOS / Chrome / Web), four-card "one engine, three contexts" why-row, three-step extension-preview, six-question FAQ, bottom CTA. Includes `SoftwareApplication` JSON-LD, OG/Twitter meta, apex canonical, and a Chrome waitlist form wired through `CompBuddyESP` (`data-capture="extension"`).
+
+**Nav**: "Apps" link added between Tools and Pricing on `index.html`, between Workspace and Compare Plans on `for-attorneys.html`, and in both `renderNav` (dashboard) and `renderPublicNav` (calculators-index) inside `js/nav.js`. Mobile-visibility CSS exception on `index.html` updated so the new link survives <600px: `nav .links a:not(.cta-btn):not([href="/calculators/"]):not([href="/extension"]){display:none;}`.
+
+**`/for-attorneys`**: "Get The Comp Desk everywhere you work." card row inserted before the bottom CTA banner. Three cards — iOS App Store badge, Chrome waitlist form, Web Workspace CTA. Anchor at `#apps` for direct linking.
+
+**`/`**: `#download` section rebuilt as "Available everywhere you work." three-card row (iOS / Chrome waitlist / Web). Replaces the old "Get Comp Buddy / Google Play Coming Soon / Desktop Coming Soon" block. **Injured-worker hero left untouched** per the sacred-hero rule.
+
+**Email-capture infrastructure**: `js/esp-adapter.js` `VALID_SOURCES` set extended with `'extension'` so both Chrome waitlist forms (the one on `/extension` and the one on `/for-attorneys`) post through the existing stub adapter → `/api/subscribe` pipeline. When an ESP is wired in the future, the extension form will pick it up automatically with no further code changes.
+
+**`sitemap.xml`**: `/extension` added at priority 0.85, weekly changefreq. `/extension-privacy.html` was already in the sitemap from the May 8 SEO sweep.
+
+**Correction to yesterday's working brief**: `/extension-privacy` was **not** 404 — verified live via Chrome MCP serving 200 OK with correct `<h1>`, canonical, and content. The file shipped May 7 (commit `9bf787a`, "Add extension-privacy.html for Chrome Web Store submission") and was already covered in the May 8 SEO sweep. CWS submission was not blocked by an infrastructure issue. The actual remaining gap was the `/extension` landing page itself, which this commit ships.
+
+**Preserve audit (all still intact on live URLs)**: AASA header in `vercel.json`, www→apex via Vercel dashboard config (not via `vercel.json` — preserved per the Apr 28 redirect-loop postmortem), Vercel Web Analytics on every public HTML page, PostHog import + global date-input guard in `nav.js`, `/learn/` links in nav.js, every existing `application/ld+json` block on every page, and the injured-worker hero on `index.html` ("Injured at work? You're not alone.").
+
+**Post-deploy redirect smoke (all 200, no loops, ≤1 hop):**
+- `/` → 200 (control)
+- `/extension` → 200 ✓ new
+- `/extension-privacy` → 200 ✓ CWS target
+- `/for-attorneys` → 200 ✓ edited
+- `/calculators/` → 200 (control)
+- `/workspace/` → 200 (control)
+- `/extension.html → /extension` → 200 ✓ clean-URL routing intact
+
+**Vercel deploy**: `dpl_5i6yZpyB3bqtnvrwxTJmv2X4pf41` — READY, target=production, SHA=`9d05874d8f9d298a9fc4179096328935b84a7054`.
+
+**Open follow-ups (non-blocking)**:
+- `sitemap.md` updated to reflect `/extension` (this commit pairs with that update — see the file).
+- Swap the Chrome "Coming Soon" placeholder + waitlist form for the live Chrome Web Store URL once CWS approves the listing. Both surfaces (the `/extension` page and the `/for-attorneys` card) use the same `data-capture="extension"` hook, so the swap is two HTML edits + a possible push to convert the captured emails into a launch-day blast.
+- SEO keyword tracking should add: "comp desk chrome extension", "workers comp chrome extension", "NYS workers comp browser tool". Not blocking — sweep into next weekly SEO check.
+- Consider an OG image specifically for `/extension` (currently reuses `og-home.png`). Cosmetic only; ranks fine either way.
 
 ---
 

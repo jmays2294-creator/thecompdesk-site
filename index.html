@@ -42,6 +42,29 @@
 }
 </script>
 
+<!-- JSON-LD: Organization + ContactPoint (surfaces phone/email in Google search) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "The Comp Desk",
+  "legalName": "NJJ Document Services, Inc.",
+  "url": "https://thecompdesk.com/",
+  "logo": "https://thecompdesk.com/assets/hero/comp-desk.png",
+  "sameAs": [
+    "https://thecompdesk.com/"
+  ],
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "telephone": "+1-786-815-4612",
+    "email": "contact@thecompdesk.com",
+    "contactType": "customer support",
+    "availableLanguage": ["English", "Spanish"],
+    "areaServed": "US"
+  }]
+}
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#3b82f6;--acG:rgba(59,130,246,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;}
@@ -214,6 +237,13 @@ body.connect-modal-open{overflow:hidden;}
     <div class="hero-media" aria-label="The Comp Desk">
       <img class="hero-fallback" src="assets/hero/comp-desk.png" alt="The Comp Desk" width="420" height="420" decoding="async">
     </div>
+  </div>
+</section>
+
+<!-- UPL DISCLAIMER (prominent on injured-worker landing) -->
+<section style="padding:0 24px;">
+  <div style="max-width:880px;margin:0 auto;background:rgba(240,160,48,0.06);border:1px solid rgba(240,160,48,0.3);border-left:4px solid var(--gd);border-radius:10px;padding:16px 22px;color:var(--tx);font-size:13.5px;line-height:1.55;text-align:center;">
+    <strong style="color:var(--gd);">Important:</strong> The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney.
   </div>
 </section>
 
