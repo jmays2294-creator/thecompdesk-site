@@ -23,10 +23,10 @@
 #brand-bg {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background: var(--brand-navy);
+  background: transparent;
 }
 #brand-bg::after {
   /* Cream-tinted vignette so dark text on cream cards still reads */
@@ -55,8 +55,28 @@
   }
 }
 
-/* All page content sits above the video bg. */
-body { position: relative; z-index: 1; }
+/* All page content sits above the video bg.
+   The video uses z-index:-1 so it stays behind html-flow content
+   without any body stacking-context manipulation. Pages that have
+   their own opaque body bg will cover the video naturally; pages
+   with transparent body will let it show through. Both intentional. */
+
+/* Backstop: modals, dialogs, popups, and overlays explicitly come
+   to the front. Defends against any page that lost layering when
+   z-index was reshuffled. Use a low-medium z-index so toast/alert
+   layers can still stack above when needed. */
+.modal, .modal-overlay, .modal-backdrop, .modal-dialog,
+.popup, .popover, .overlay, .lightbox, .drawer,
+[role="dialog"], [role="alertdialog"], dialog,
+[class*="modal"]:not(.modal-hidden),
+[class*="popup"]:not([class*="-trigger"]) {
+  z-index: 1000;
+}
+.toast, .alert, .notification, .snackbar,
+[role="status"]:not(.splash-screen),
+[role="alert"] {
+  z-index: 1100;
+}
 
 /* ─────────────────────────────────────────────────────────
    NAVIGATION — translucent + brand colors
@@ -148,16 +168,19 @@ nav[data-brand-nav].nav-open .brand-nav-toggle .icon-close { display: block; }
 
 @media (max-width: 760px) {
   .brand-nav-toggle { display: inline-flex; }
-  nav[data-brand-nav] .inner,
+  nav[data-brand-nav] > .inner,
   nav[data-brand-nav] > div {
     flex-wrap: wrap;
   }
-  /* Hide every nav child after the brand/logo by default; the toggle reveals them. */
-  nav[data-brand-nav] .links,
-  nav[data-brand-nav] .menu,
-  nav[data-brand-nav] [class*="links"],
-  nav[data-brand-nav] [class*="menu"],
-  nav[data-brand-nav] ul {
+  /* Hide the primary links container by default; the toggle reveals it.
+     Scoped to direct children of nav.inner only — broader [class*="links"]
+     selectors were hiding unrelated containers across the site. */
+  nav[data-brand-nav] > .inner > .links,
+  nav[data-brand-nav] > .inner > .menu,
+  nav[data-brand-nav] > .inner > ul.nav-links,
+  nav[data-brand-nav] > .links,
+  nav[data-brand-nav] > .menu,
+  nav[data-brand-nav] > ul.nav-links {
     display: none;
     flex-direction: column;
     width: 100%;
@@ -166,20 +189,21 @@ nav[data-brand-nav].nav-open .brand-nav-toggle .icon-close { display: block; }
     padding: 12px 0 8px;
     border-top: 1px solid var(--brand-divider);
   }
-  nav[data-brand-nav].nav-open .links,
-  nav[data-brand-nav].nav-open .menu,
-  nav[data-brand-nav].nav-open [class*="links"],
-  nav[data-brand-nav].nav-open [class*="menu"],
-  nav[data-brand-nav].nav-open ul {
+  nav[data-brand-nav].nav-open > .inner > .links,
+  nav[data-brand-nav].nav-open > .inner > .menu,
+  nav[data-brand-nav].nav-open > .inner > ul.nav-links,
+  nav[data-brand-nav].nav-open > .links,
+  nav[data-brand-nav].nav-open > .menu,
+  nav[data-brand-nav].nav-open > ul.nav-links {
     display: flex;
   }
-  nav[data-brand-nav] .links a,
-  nav[data-brand-nav] .menu a {
+  nav[data-brand-nav] > .inner > .links a,
+  nav[data-brand-nav] > .inner > .menu a {
     padding: 10px 6px;
     border-radius: 8px;
   }
-  nav[data-brand-nav] .links a:hover,
-  nav[data-brand-nav] .menu a:hover {
+  nav[data-brand-nav] > .inner > .links a:hover,
+  nav[data-brand-nav] > .inner > .menu a:hover {
     background: rgba(248, 246, 241, 0.08);
   }
 }
