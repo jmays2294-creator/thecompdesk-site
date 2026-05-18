@@ -48,12 +48,20 @@ const REGION_RULES = [
   [/^humerus/i, 'SIDE_upper_arm'],
   [/^(radius|ulna)/i, 'SIDE_forearm'],
   [/^(scaphoid|lunate|triquetrum|pisiform|hamate|capitate|trapezoid|trapezium)/i, 'SIDE_wrist'],
-  [/^(\d.. metacarpal bone|.*phalanx of \dd? finger|.*phalanx of \dst finger|.*phalanx of \dth finger|sesamoid_bones_of_hand|sesamoid bones of hand)/i, 'SIDE_hand'],
+  // Foot first — the "of foot" suffix distinguishes toes from fingers.
+  [/^.*phalanx of \w+ finger of foot/i, 'SIDE_foot'],
+  [/^.*metatarsal bone/i, 'SIDE_foot'],
+  [/^sesamoid[ _]bones[ _]of[ _]foot/i, 'SIDE_foot'],
+  // Hand — \w+ covers all ordinal variants the model uses ("1st", "2d", "3d",
+  // "3rd", "4th", "5th") that the previous narrower regex was missing. The
+  // negative lookahead prevents matching toe phalanges (... of foot).
+  [/^.*phalanx of \w+ finger(?! of foot)/i, 'SIDE_hand'],
+  [/^.*metacarpal bone/i, 'SIDE_hand'],
+  [/^sesamoid[ _]bones[ _]of[ _]hand/i, 'SIDE_hand'],
   [/^femur/i, 'SIDE_thigh'],
   [/^patella/i, 'SIDE_knee'],
   [/^(tibia|fibula)/i, 'SIDE_shin'],
   [/^(talus|calcaneus|navicular bone|cuboid bone|medial cuneiform|intermediate cuneiform|lateral cuneiform)/i, 'SIDE_ankle'],
-  [/^(first metatarsal|second metatarsal|third metatarsal|fourth metatarsal|fifth metatarsal|.*finger of foot|sesamoid bones of foot)/i, 'SIDE_foot'],
 ];
 
 function inferRegion(meshName, side) {
@@ -156,31 +164,68 @@ function prepareMesh(mesh, side) {
 
 function mirrorRightSideToLeft() {
   if (!originalGroup) return;
+
+  // Find the right-side subtrees in the loaded model. The AnatomyTOOL
+  // skeleton ships as a half-skeleton: midline bones live under a top-level
+  // "Bones" group, and right-side bones + cartilages live under "Bones_right"
+  // / "Cartilages_right". The model's viewing convention is to mirror the
+  // right subtree at render-time to reconstitute the full skeleton.
+  let bonesRight = null, cartilagesRight = null;
+  originalGroup.traverse(n => {
+    if (n.name === 'Bones_right') bonesRight = n;
+    else if (n.name === 'Cartilages_right') cartilagesRight = n;
+  });
+
+  // Parent group with scale.x = -1 mirrors all descendant positions AND
+  // geometries through the origin in one shot — far simpler and more correct
+  // than per-mesh transforms. Added as a child of originalGroup so it
+  // inherits the same scale/centering that loadModel() applied.
   mirroredGroup = new THREE.Group();
   mirroredGroup.name = 'MirroredLeft';
-  // Collect right-side meshes from the original first (so we don't iterate
-  // over our own additions).
-  const rightMeshes = [];
-  originalGroup.traverse(node => {
-    if (node.isMesh && /\.r\.?$/i.test(node.name || '')) rightMeshes.push(node);
-  });
-  rightMeshes.forEach(node => {
-    const clone = node.clone();
-    clone.material = makeBoneMaterial('left');
-    clone.scale.x *= -1;
-    clone.name = (node.name || '').replace(/\.r(\.)?$/i, '.l');
-    const region = inferRegion(clone.name, 'left');
-    clone.userData.regionId = region;
-    clone.userData.boneName = clone.name;
-    clone.userData.side = 'left';
+  mirroredGroup.scale.x = -1;
+
+  if (bonesRight) {
+    const clonedBones = bonesRight.clone();  // recursive clone
+    clonedBones.name = 'Bones_left';
+    mirroredGroup.add(clonedBones);
+  } else {
+    // Fallback if the model structure changes: clone every .r mesh individually.
+    originalGroup.traverse(node => {
+      if (node.isMesh && /\.r\.?$/i.test(node.name || '')) {
+        const c = node.clone();
+        mirroredGroup.add(c);
+      }
+    });
+  }
+  if (cartilagesRight) {
+    const clonedCart = cartilagesRight.clone();
+    clonedCart.name = 'Cartilages_left';
+    mirroredGroup.add(clonedCart);
+  }
+
+  // Walk the cloned hierarchy: fresh materials (originals are shared by
+  // default after Object3D.clone()), rename .r → .l, assign region+side.
+  mirroredGroup.traverse(node => {
+    if (!node.isMesh) return;
+    node.material = makeBoneMaterial('left');
+    const oldName = node.name || '';
+    const newName = oldName.replace(/\.r(\.)?$/i, '.l');
+    node.name = newName;
+    const region = inferRegion(newName, 'left');
+    node.userData.regionId = region;
+    node.userData.boneName = newName;
+    node.userData.side = 'left';
     if (region) {
       if (!meshByRegion.has(region)) meshByRegion.set(region, new Set());
-      meshByRegion.get(region).add(clone);
+      meshByRegion.get(region).add(node);
     }
-    allMeshes.push(clone);
-    mirroredGroup.add(clone);
+    allMeshes.push(node);
   });
-  scene.add(mirroredGroup);
+
+  // Add as child of originalGroup so the mirror inherits the same world
+  // scale/centering. Inverted-X normal winding gets handled by the materials
+  // having side: DoubleSide (see makeBoneMaterial('left')).
+  originalGroup.add(mirroredGroup);
 }
 
 function setCameraTheta(theta) {
@@ -285,9 +330,18 @@ function loadModel(onReady, onError) {
         });
 
         mirrorRightSideToLeft();
-        if (mirroredGroup) {
-          mirroredGroup.scale.copy(originalGroup.scale);
-          mirroredGroup.position.copy(originalGroup.position);
+        // mirroredGroup is now a child of originalGroup with its own
+        // scale.x = -1, so it automatically inherits originalGroup's scale
+        // and centering. The previous "scale.copy / position.copy" step
+        // was overwriting the scale.x = -1 (that's why only half the
+        // skeleton was rendering — the clones ended up overlapping the
+        // originals on the right side instead of mirroring to the left).
+
+        // Diagnostic: log any mesh that ended up without a regionId so we
+        // can quickly spot future name-pattern misses.
+        const unmapped = allMeshes.filter(m => !m.userData.regionId).map(m => m.userData.boneName);
+        if (unmapped.length) {
+          console.warn('[MTGAnatomy3D] ' + unmapped.length + ' mesh(es) without regionId:', unmapped);
         }
 
         modelLoaded = true;
