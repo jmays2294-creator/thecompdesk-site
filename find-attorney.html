@@ -1227,15 +1227,10 @@
 
 <!-- ═══════════════════════════════════════════════════════════
      Configuration
-     REQUIRED: Replace placeholder values before deploying.
+     Mapbox token lives in /js/mapbox-config.js — one file to rotate.
 ════════════════════════════════════════════════════════════ -->
+<script src="/js/mapbox-config.js"></script>
 <script>
-  // MAPBOX TOKEN — Required for the map to display.
-  // Get yours at https://account.mapbox.com/
-  // Set as NEXT_PUBLIC_MAPBOX_TOKEN in Vercel, or replace the string below.
-  window.MAPBOX_TOKEN = (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_MAPBOX_TOKEN)
-    || 'pk.INSERT_YOUR_MAPBOX_PUBLIC_TOKEN_HERE';
-
   // CLOUDFLARE TURNSTILE SITE KEY
   // Replace with your real site key from https://dash.cloudflare.com/
   // The placeholder 'TURNSTILE_SITE_KEY_PLACEHOLDER' is set in the widget above —
