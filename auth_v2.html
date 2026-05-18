@@ -8,6 +8,7 @@
 <meta name="description" content="Sign in or create an account to access The Comp Desk Pro features.">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/hibp-check.js"></script>
 <style>
 :root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acD:#1d4ed8;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gn:#2dd4a0;--gnG:rgba(16,185,129,0.12);--rd:#ef4444;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--font:'DM Sans',system-ui,sans-serif;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -268,10 +269,13 @@ async function handleWorkerSignup(){
   const pass2=document.getElementById('signup-pass2').value;
   const msg=document.getElementById('msg');
   if(!email||!pass){msg.className='msg error';msg.textContent='Please enter email and password.';return;}
-  if(pass.length<6){msg.className='msg error';msg.textContent='Password must be at least 6 characters.';return;}
+  if(pass.length<10){msg.className='msg error';msg.textContent='Password must be at least 10 characters.';return;}
   if(pass!==pass2){msg.className='msg error';msg.textContent='Passwords do not match.';return;}
   const btn=document.querySelector('.submit-btn');
-  btn.disabled=true;btn.textContent='Creating account...';
+  btn.disabled=true;btn.textContent='Checking password...';
+  const hibp=await window.tcdHibpCheck(pass);
+  if(hibp.pwned){msg.className='msg error';msg.textContent='This password has appeared in a known data breach ('+hibp.count.toLocaleString()+' times). Please choose a different one.';btn.disabled=false;btn.textContent='Create Account';return;}
+  btn.textContent='Creating account...';
   const{data,error}=await sb.auth.signUp({
     email,password:pass,
     options:{data:{user_type:'worker'}}
@@ -294,7 +298,10 @@ async function handleAttorneySignup(){
   const msg=document.getElementById('msg');
   if(!name||!firm){msg.className='msg error';msg.textContent='Please enter your name and firm name.';return;}
   const btn=document.querySelector('.submit-btn');
-  btn.disabled=true;btn.textContent='Creating account...';
+  btn.disabled=true;btn.textContent='Checking password...';
+  const hibp=await window.tcdHibpCheck(state.password);
+  if(hibp.pwned){msg.className='msg error';msg.textContent='The password you chose in the previous step has appeared in a known data breach ('+hibp.count.toLocaleString()+' times). Please go back and choose a different one.';btn.disabled=false;btn.textContent='Create Attorney Account';return;}
+  btn.textContent='Creating account...';
   const{data,error}=await sb.auth.signUp({
     email:state.email,password:state.password,
     options:{data:{

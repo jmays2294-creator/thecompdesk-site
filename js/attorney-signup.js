@@ -82,8 +82,8 @@ function attachStep1Events() {
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         setErr('err-atty-auth', 'Valid email required.'); return;
       }
-      if (!password || password.length < 8) {
-        setErr('err-atty-auth', 'Password must be at least 8 characters.'); return;
+      if (!password || password.length < 10) {
+        setErr('err-atty-auth', 'Password must be at least 10 characters.'); return;
       }
 
       const submitBtn = emailPasswordForm.querySelector('button[type=submit]');
@@ -91,6 +91,15 @@ function attachStep1Events() {
 
       let error;
       if (mode === 'signup') {
+        // HIBP breach check before signUp (skip for sign-in — already a known password)
+        if (typeof window.tcdHibpCheck === 'function') {
+          const hibp = await window.tcdHibpCheck(password);
+          if (hibp.pwned) {
+            setErr('err-atty-auth', 'This password has appeared in a known data breach (' + hibp.count.toLocaleString() + ' times). Please choose a different one.');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create Account →'; }
+            return;
+          }
+        }
         const { error: signUpError } = await supabase.auth.signUp({ email, password });
         error = signUpError;
       } else {
