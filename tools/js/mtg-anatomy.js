@@ -23,6 +23,13 @@
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+// The AnatomyTOOL skeleton GLB declares KHR_draco_mesh_compression in
+// extensionsRequired, so GLTFLoader needs a DRACOLoader instance to decode
+// the meshes. We point it at the WASM decoder shipped alongside three@0.160
+// (matches the import map version above).
+const DRACO_DECODER_PATH = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/';
 
 // ── Bone-name → canonical region ID mapping ─────────────────────────────
 // Patterns are evaluated in order; first match wins. ".r"/".l" suffixes
@@ -245,6 +252,13 @@ function fitToContainer() {
 
 function loadModel(onReady, onError) {
   const loader = new GLTFLoader();
+  const draco = new DRACOLoader();
+  draco.setDecoderPath(DRACO_DECODER_PATH);
+  // Use the JS decoder by default (more compatible). DRACOLoader will swap
+  // to WASM automatically if available. Calling preload primes the decoder
+  // before the first decodeGeometry() call.
+  draco.preload();
+  loader.setDRACOLoader(draco);
   loader.load(
     '/data/mtg/anatomy/skeleton.glb',
     (gltf) => {
