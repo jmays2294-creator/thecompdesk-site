@@ -335,6 +335,7 @@ function renderNav(session, tier) {
             <a href="/tools/learning/" class="nav-dropdown-item">Learning Portal</a>
             <a href="/tools/find-doctor.html" class="nav-dropdown-item">Find a Doctor</a>
             <a href="/tools/ime-reminders.html" class="nav-dropdown-item">IME Reminders</a>
+            <a href="/tools/medical-treatment-guidelines.html" class="nav-dropdown-item">Medical Treatment Guidelines</a>
             <a href="/tools/utdm.html" class="nav-dropdown-item" style="color:#666">More Coming Soon</a>
           </div>
         </li>
@@ -620,6 +621,7 @@ function renderPublicNav(userState) {
           <div class="nav-dropdown-menu">
             <a href="/tools/settlement.html" class="nav-dropdown-item">Settlement Comparison</a>
             <a href="/tools/find-doctor.html" class="nav-dropdown-item">Find a Doctor</a>
+            <a href="/tools/medical-treatment-guidelines.html" class="nav-dropdown-item">Medical Treatment Guidelines</a>
             <a href="/tools/learning/" class="nav-dropdown-item">Learning Portal</a>
           </div>
         </li>
