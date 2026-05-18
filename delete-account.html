@@ -237,7 +237,7 @@
                     <button type="button" id="deleteBtn" class="button button-delete" disabled onclick="handleDelete()">Delete Account</button>
                 </div>
                 <div class="contact-note">
-                    Need help instead? Contact us at <a href="mailto:support@thecompdesk.com">support@thecompdesk.com</a>
+                    Need help instead? Contact us at <a href="mailto:contact@thecompdesk.com">contact@thecompdesk.com</a>
                 </div>
             </div>
             <div id="successState" class="success-state">
@@ -274,12 +274,12 @@
                     document.getElementById('successState').style.display = 'block';
                 } else {
                     const data = await response.json();
-                    alert(data.error || 'Failed to delete account. Please contact support@thecompdesk.com for assistance.');
+                    alert(data.error || 'Failed to delete account. Please contact contact@thecompdesk.com for assistance.');
                     deleteBtn.disabled = false;
                     deleteBtn.textContent = 'Delete Account';
                 }
             } catch (err) {
-                alert('An error occurred. Please contact support@thecompdesk.com for assistance.');
+                alert('An error occurred. Please contact contact@thecompdesk.com for assistance.');
                 deleteBtn.disabled = false;
                 deleteBtn.textContent = 'Delete Account';
             }
