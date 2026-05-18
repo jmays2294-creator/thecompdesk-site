@@ -167,10 +167,15 @@
   }
 
   // ── Section overlay (hover peek / click lock) ────────────────────────────
-  // Single viewport-level overlay reused across result cards. In peek mode
-  // (hover or first tap) it sits at 50% opacity over the page. In locked
-  // mode (second tap or click) it goes solid, gains an X button, and stays
-  // open until X / Escape / backdrop click.
+  // Section preview overlay. Two visual modes:
+  //   peek   — small translucent tooltip-style card anchored to the right
+  //            of the hovered result card. Pointer-events:none so the user
+  //            can move off the result card to dismiss. No close button.
+  //   locked — moderately larger side panel docked to the right edge of
+  //            the viewport. Solid background, dedicated X close button,
+  //            full body text scrollable, "View source PDF" link.
+  // The overlay lives in document.body so it escapes any transform/overflow
+  // context on the page (important for embedded surfaces like the workspace).
   const overlayState = { result: null, locked: false, el: null };
 
   function ensureOverlayEl() {
@@ -178,7 +183,7 @@
     const root = h('div', { className: 'mtg-overlay-root', role: 'dialog', 'aria-modal': 'false' });
     const backdrop = h('div', { className: 'mtg-overlay-backdrop' });
     const card = h('div', { className: 'mtg-overlay-card' });
-    const xBtn = h('button', { className: 'mtg-overlay-x', 'aria-label': 'Close section' }, '×');
+    const xBtn = h('button', { className: 'mtg-overlay-x', 'aria-label': 'Close section', type: 'button' }, '×');
     xBtn.addEventListener('click', (e) => { e.stopPropagation(); closeOverlay(); });
     backdrop.addEventListener('click', () => { if (overlayState.locked) closeOverlay(); });
     card.appendChild(xBtn);
@@ -196,18 +201,83 @@
     root.appendChild(card);
     document.body.appendChild(root);
     overlayState.el = root;
-    overlayState._refs = { card, meta, title, cite, body, pdfLink, xBtn };
-    // Esc to close (when locked)
+    overlayState._refs = { root, card, meta, title, cite, body, pdfLink, xBtn };
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && overlayState.locked) closeOverlay();
     });
     return root;
   }
 
-  function openOverlay(result, locked) {
+  // Position the card next to `anchorEl` (peek mode) or as a right side
+  // panel (locked mode). All positioning is via inline styles so the CSS
+  // can stay mode-class-driven.
+  function positionOverlay(anchorEl) {
+    const refs = overlayState._refs;
+    if (!refs) return;
+    const card = refs.card;
+    const narrowVp = window.innerWidth < 720;
+    if (overlayState.locked) {
+      // Side panel docked to right (or bottom sheet on narrow viewports).
+      if (narrowVp) {
+        card.style.left = '8px';
+        card.style.right = '8px';
+        card.style.top = 'auto';
+        card.style.bottom = '8px';
+        card.style.width = 'auto';
+        card.style.maxWidth = 'none';
+        card.style.maxHeight = '70vh';
+      } else {
+        card.style.left = 'auto';
+        card.style.right = '24px';
+        card.style.top = '5vh';
+        card.style.bottom = 'auto';
+        card.style.width = 'min(480px, 40vw)';
+        card.style.maxWidth = 'none';
+        card.style.maxHeight = '90vh';
+      }
+      return;
+    }
+    // Peek: anchor to right of cardEl, fall back to left, then below.
+    if (!anchorEl || narrowVp) {
+      card.style.left = 'auto';
+      card.style.right = '16px';
+      card.style.top = '80px';
+      card.style.bottom = 'auto';
+      card.style.width = 'min(360px, 92vw)';
+      card.style.maxHeight = '320px';
+      return;
+    }
+    const rect = anchorEl.getBoundingClientRect();
+    const peekWidth = 360;
+    const peekMaxH = 320;
+    const margin = 12;
+    let left = rect.right + margin;
+    let top = rect.top;
+    if (left + peekWidth > window.innerWidth - 12) {
+      left = rect.left - peekWidth - margin;
+      if (left < 12) {
+        // Not enough room either side — anchor below the card
+        left = Math.max(12, Math.min(window.innerWidth - peekWidth - 12, rect.left));
+        top = rect.bottom + margin;
+      }
+    }
+    if (top + peekMaxH > window.innerHeight - 12) {
+      top = Math.max(12, window.innerHeight - peekMaxH - 12);
+    }
+    card.style.left = left + 'px';
+    card.style.top = top + 'px';
+    card.style.right = 'auto';
+    card.style.bottom = 'auto';
+    card.style.width = peekWidth + 'px';
+    card.style.maxWidth = peekWidth + 'px';
+    card.style.maxHeight = peekMaxH + 'px';
+  }
+
+  function openOverlay(result, locked, anchorEl) {
     ensureOverlayEl();
     overlayState.result = result;
     overlayState.locked = !!locked;
+    overlayState.anchor = anchorEl || null;
     const refs = overlayState._refs;
     refs.meta.innerHTML = '';
     refs.meta.appendChild(h('span', { className: 'mtg-overlay-guideline' }, result.guideline));
@@ -217,22 +287,34 @@
     refs.body.textContent = result.body_text || '';
     refs.cite.textContent = result.citation || '';
     refs.pdfLink.href = `../data/mtg/pdfs/${result.slug}.pdf#page=${result.page}`;
-    overlayState.el.classList.toggle('locked', overlayState.locked);
-    overlayState.el.classList.add('visible');
+    refs.root.classList.toggle('locked', overlayState.locked);
+    refs.root.classList.toggle('peek', !overlayState.locked);
+    refs.root.classList.add('visible');
+    positionOverlay(anchorEl);
   }
 
   function lockOverlay() {
-    if (!overlayState.result) return;
+    if (!overlayState.result || !overlayState.el) return;
     overlayState.locked = true;
+    overlayState.el.classList.remove('peek');
     overlayState.el.classList.add('locked');
+    positionOverlay(overlayState.anchor);
   }
 
   function closeOverlay() {
     if (!overlayState.el) return;
-    overlayState.el.classList.remove('visible', 'locked');
+    overlayState.el.classList.remove('visible', 'locked', 'peek');
     overlayState.result = null;
     overlayState.locked = false;
+    overlayState.anchor = null;
   }
+
+  // Re-position on resize so the side panel stays docked correctly.
+  window.addEventListener('resize', () => {
+    if (overlayState.el && overlayState.el.classList.contains('visible')) {
+      positionOverlay(overlayState.anchor);
+    }
+  });
 
   // ── Renderers ────────────────────────────────────────────────────────────
   let rootEl = null;
@@ -522,7 +604,7 @@
       const canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
       let peekHandled = false;
       if (canHover) {
-        card.addEventListener('mouseenter', () => openOverlay(r, false));
+        card.addEventListener('mouseenter', () => openOverlay(r, false, card));
         card.addEventListener('mouseleave', () => { if (!overlayState.locked) closeOverlay(); });
       }
       card.addEventListener('click', () => {
@@ -532,10 +614,10 @@
         } else if (!canHover && !peekHandled) {
           // First tap on touch device — peek
           peekHandled = true;
-          openOverlay(r, false);
+          openOverlay(r, false, card);
           setTimeout(() => { peekHandled = false; }, 500);
         } else {
-          openOverlay(r, true);
+          openOverlay(r, true, card);
         }
       });
       wrap.appendChild(card);

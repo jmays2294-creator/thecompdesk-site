@@ -190,14 +190,24 @@ function MTGTile({ tile, global, onUpdate }) {
         {results.slice(0, 25).map((r, i) => {
           const canHover = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover)').matches;
           const isPeeking = overlay && !overlay.locked && overlay.result && overlay.result.slug === r.slug && overlay.result.id === r.id;
+          // Capture the result card's viewport rect so the overlay (which
+          // portals to document.body, escaping the workspace's transformed
+          // canvas) can position itself next to the card on hover.
+          const captureRect = (e) => {
+            const t = e.currentTarget;
+            if (!t) return null;
+            const b = t.getBoundingClientRect();
+            return { left: b.left, top: b.top, right: b.right, bottom: b.bottom, width: b.width, height: b.height };
+          };
           return (
           <div key={r.slug + ':' + r.id + ':' + i}
-            onMouseEnter={canHover ? () => { if (!overlay || !overlay.locked) setOverlay({ result: r, locked: false }); } : undefined}
+            onMouseEnter={canHover ? (e) => { if (!overlay || !overlay.locked) setOverlay({ result: r, locked: false, anchor: captureRect(e) }); } : undefined}
             onMouseLeave={canHover ? () => { if (overlay && !overlay.locked) setOverlay(null); } : undefined}
-            onClick={() => {
-              if (isPeeking) setOverlay({ result: r, locked: true });
-              else if (!canHover && (!overlay || overlay.result.id !== r.id)) setOverlay({ result: r, locked: false });
-              else setOverlay({ result: r, locked: true });
+            onClick={(e) => {
+              const a = captureRect(e);
+              if (isPeeking) setOverlay({ result: r, locked: true, anchor: a });
+              else if (!canHover && (!overlay || overlay.result.id !== r.id)) setOverlay({ result: r, locked: false, anchor: a });
+              else setOverlay({ result: r, locked: true, anchor: a });
             }}
             style={{
               background: 'var(--tile-2, rgba(255,255,255,0.03))',
@@ -257,78 +267,152 @@ function MTGTile({ tile, global, onUpdate }) {
   );
 }
 
-// Viewport-level overlay for MTG section preview. Hover/first-tap shows it at
-// reduced opacity (peek). Click lock makes it solid + adds X-to-close.
+// Viewport-level overlay for MTG section preview. Portaled to document.body
+// so it escapes the workspace canvas's transform context — otherwise
+// position:fixed gets clipped because the canvas applies CSS transforms
+// for tile dragging (transformed ancestors break position:fixed).
+//
+// Two visual modes:
+//   peek   — small translucent tooltip anchored to the right of the hovered
+//            result card. Pointer-events:none on the card so mouseleave on
+//            the underlying card fires correctly. No close button.
+//   locked — moderately larger side-panel docked to the right edge of the
+//            viewport (bottom sheet on narrow screens). Solid background,
+//            explicit X close button, full body scrollable.
 function MTGOverlay({ overlay, onClose, onLock }) {
   const r = overlay.result;
   const locked = overlay.locked;
-  return (
+  const anchor = overlay.anchor || null;
+
+  // Esc-to-close when locked
+  useEffect(() => {
+    if (!locked) return;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [locked, onClose]);
+
+  // Compute card position based on mode + anchor rect
+  const narrowVp = typeof window !== 'undefined' && window.innerWidth < 720;
+  let cardPosStyle;
+  if (locked) {
+    if (narrowVp) {
+      cardPosStyle = { left: 8, right: 8, top: 'auto', bottom: 8, width: 'auto', maxHeight: '70vh' };
+    } else {
+      cardPosStyle = { left: 'auto', right: 24, top: '5vh', bottom: 'auto', width: 'min(480px, 40vw)', maxHeight: '90vh' };
+    }
+  } else if (anchor && !narrowVp) {
+    const peekWidth = 360;
+    const peekMaxH = 320;
+    const margin = 12;
+    let left = anchor.right + margin;
+    let top = anchor.top;
+    if (left + peekWidth > window.innerWidth - 12) {
+      left = anchor.left - peekWidth - margin;
+      if (left < 12) {
+        left = Math.max(12, Math.min(window.innerWidth - peekWidth - 12, anchor.left));
+        top = anchor.bottom + margin;
+      }
+    }
+    if (top + peekMaxH > window.innerHeight - 12) {
+      top = Math.max(12, window.innerHeight - peekMaxH - 12);
+    }
+    cardPosStyle = { left, top, right: 'auto', bottom: 'auto', width: peekWidth, maxHeight: peekMaxH };
+  } else {
+    cardPosStyle = { left: 'auto', right: 16, top: 80, bottom: 'auto', width: 'min(360px, 92vw)', maxHeight: 320 };
+  }
+
+  const overlay_node = (
     <div
-      onClick={(e) => {
-        // Click on backdrop (not the card itself) closes when locked
-        if (locked && e.target === e.currentTarget) onClose();
-      }}
+      onClick={(e) => { if (locked && e.target === e.currentTarget) onClose(); }}
       style={{
-        position: 'fixed', inset: 0, zIndex: 5000,
+        position: 'fixed', inset: 0, zIndex: 9000,
         pointerEvents: locked ? 'auto' : 'none',
-        opacity: locked ? 1 : 0.55,
-        transition: 'opacity .12s ease',
       }}>
-      {/* backdrop */}
-      <div style={{ position: 'absolute', inset: 0, background: locked ? 'rgba(8,12,24,0.55)' : 'rgba(8,12,24,0.25)' }} />
+      {/* backdrop — only interactive when locked */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: locked ? 'rgba(8,12,24,0.42)' : 'transparent',
+        transition: 'background .15s ease',
+      }} />
       {/* card */}
       <div
         onClick={(e) => { e.stopPropagation(); if (!locked) onLock(); }}
         style={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: 'min(720px, 92vw)', maxHeight: '85vh', display: 'flex', flexDirection: 'column',
-          background: 'linear-gradient(180deg, #111827 0%, #0d1421 100%)',
-          border: '1px solid #3b82f6', borderRadius: 12,
-          padding: '22px 24px',
+          position: 'absolute', ...cardPosStyle, display: 'flex', flexDirection: 'column',
+          background: locked
+            ? 'linear-gradient(180deg, #111827 0%, #0d1421 100%)'
+            : 'rgba(17,24,39,0.82)',
+          backdropFilter: locked ? 'none' : 'blur(6px)',
+          WebkitBackdropFilter: locked ? 'none' : 'blur(6px)',
+          border: '1px solid ' + (locked ? '#3b82f6' : 'rgba(59,130,246,0.7)'),
+          borderRadius: 12,
+          padding: locked ? '18px 20px' : '14px 16px',
           boxShadow: '0 20px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(59,130,246,.18)',
-          pointerEvents: 'auto',
+          pointerEvents: locked ? 'auto' : 'none',
         }}>
         {locked && (
           <button
             aria-label="Close section"
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             style={{
-              position: 'absolute', top: 8, right: 12, background: 'transparent', border: 'none',
-              color: '#94a3b8', fontSize: 26, lineHeight: 1, cursor: 'pointer',
-              padding: '4px 8px', borderRadius: 6, fontFamily: 'inherit',
+              position: 'absolute', top: 10, right: 14,
+              background: 'rgba(8,12,24,0.5)', border: '1px solid rgba(148,163,184,0.35)',
+              color: '#cbd5e1', width: 32, height: 32, lineHeight: 1, cursor: 'pointer',
+              padding: 0, borderRadius: 8, fontFamily: 'inherit', fontSize: 22,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
             }}>×</button>
         )}
         <div style={{
           display: 'flex', gap: 6, alignItems: 'center', fontSize: 11, color: '#94a3b8',
           textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, marginBottom: 6,
+          paddingRight: locked ? 40 : 0,
         }}>
           <span style={{ color: '#3b82f6' }}>{r.guideline}</span>
           <span> · </span>
           <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{r.id}</span>
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 14, letterSpacing: -0.2 }}>{r.title}</h2>
+        <h2 style={{ fontSize: locked ? 18 : 15, fontWeight: 700, color: '#fff', marginBottom: locked ? 12 : 8, letterSpacing: -0.2, paddingRight: locked ? 40 : 0, lineHeight: 1.3 }}>{r.title}</h2>
         <div style={{
-          flex: 1, overflowY: 'auto', fontSize: 14, color: '#cbd5e1', lineHeight: 1.65,
-          whiteSpace: 'pre-wrap', padding: '10px 12px 14px 0', marginRight: -6,
-          borderTop: '1px solid rgba(59,130,246,.18)', borderBottom: '1px solid rgba(59,130,246,.18)',
+          flex: 1, overflowY: locked ? 'auto' : 'hidden',
+          fontSize: locked ? 14 : 13, color: '#cbd5e1', lineHeight: 1.65,
+          whiteSpace: 'pre-wrap',
+          padding: locked ? '10px 12px 14px 0' : '8px 0 0',
+          marginRight: locked ? -6 : 0,
+          borderTop: locked ? '1px solid rgba(59,130,246,.18)' : 'none',
+          borderBottom: locked ? '1px solid rgba(59,130,246,.18)' : 'none',
+          maxHeight: locked ? 'none' : 180,
+          WebkitMaskImage: locked ? 'none' : 'linear-gradient(180deg, #000 70%, transparent 100%)',
+          maskImage: locked ? 'none' : 'linear-gradient(180deg, #000 70%, transparent 100%)',
         }}>{r.body_text}</div>
-        <div style={{
-          fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          color: '#64748b', paddingTop: 12, paddingBottom: 8,
-        }}>{r.citation}</div>
-        <a href={`/data/mtg/pdfs/${r.slug}.pdf#page=${r.page}`} target="_blank" rel="noopener"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            display: 'inline-block', padding: '9px 18px', background: 'rgba(59,130,246,.15)',
-            border: '1px solid #3b82f6', color: '#3b82f6', borderRadius: 6,
-            fontSize: 12, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3,
-            textTransform: 'uppercase', alignSelf: 'flex-start',
-          }}>
-          View source PDF at this section →
-        </a>
+        {locked && (
+          <div style={{
+            fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            color: '#64748b', paddingTop: 12, paddingBottom: 10, wordBreak: 'break-all',
+          }}>{r.citation}</div>
+        )}
+        {locked && (
+          <a href={`/data/mtg/pdfs/${r.slug}.pdf#page=${r.page}`} target="_blank" rel="noopener"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              display: 'inline-block', padding: '9px 18px', background: 'rgba(59,130,246,.15)',
+              border: '1px solid #3b82f6', color: '#3b82f6', borderRadius: 6,
+              fontSize: 12, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3,
+              textTransform: 'uppercase', alignSelf: 'flex-start',
+            }}>
+            View source PDF at this section →
+          </a>
+        )}
       </div>
     </div>
   );
+
+  // Portal to document.body so the overlay escapes the workspace canvas's
+  // transform context (transformed ancestors would otherwise clip position:fixed).
+  if (typeof ReactDOM !== 'undefined' && ReactDOM.createPortal && typeof document !== 'undefined') {
+    return ReactDOM.createPortal(overlay_node, document.body);
+  }
+  return overlay_node;
 }
 
 // ---------- Inherited rate strip ----------
