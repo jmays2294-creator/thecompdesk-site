@@ -1,0 +1,279 @@
+/* The Comp Desk — Brand Theme Overlay
+ * Locked under brand_guidelines.md v1.0.0 (2026-05-17).
+ * Loads on every non-workspace page; layers a video bg + translucent nav over the page's own design.
+ * Palette: Navy #1B2A4A · Orange #E87722 · Cream #F8F6F1
+ */
+
+:root {
+  --brand-navy: #1B2A4A;
+  --brand-navy-soft: rgba(27, 42, 74, 0.85);
+  --brand-navy-translucent: rgba(27, 42, 74, 0.55);
+  --brand-orange: #E87722;
+  --brand-orange-hover: #FF8B33;
+  --brand-cream: #F8F6F1;
+  --brand-cream-warm: #F0EBE0;
+  --brand-cream-translucent: rgba(248, 246, 241, 0.92);
+  --brand-divider: rgba(248, 246, 241, 0.18);
+}
+
+/* ─────────────────────────────────────────────────────────
+   VIDEO BACKGROUND (injected by /js/brand-bg.js)
+   Sits at z-index 0, fixed to viewport, content sits over it.
+   ───────────────────────────────────────────────────────── */
+#brand-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--brand-navy);
+}
+#brand-bg::after {
+  /* Cream-tinted vignette so dark text on cream cards still reads */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgba(248,246,241,0.35) 0%, rgba(248,246,241,0) 60%),
+    linear-gradient(180deg, rgba(27,42,74,0.18) 0%, rgba(27,42,74,0) 35%, rgba(27,42,74,0.10) 100%);
+  pointer-events: none;
+}
+#brand-bg video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Reduced-motion: hide the video, show a static brand-gradient still that mirrors the ambient loop's settled frame. */
+@media (prefers-reduced-motion: reduce) {
+  #brand-bg video { display: none; }
+  #brand-bg {
+    background:
+      radial-gradient(60% 50% at 50% 60%, rgba(232,119,34,0.42) 0%, rgba(232,119,34,0) 65%),
+      linear-gradient(180deg, var(--brand-navy) 0%, var(--brand-cream-warm) 65%, var(--brand-cream) 100%);
+  }
+}
+
+/* All page content sits above the video bg. */
+body { position: relative; z-index: 1; }
+
+/* ─────────────────────────────────────────────────────────
+   NAVIGATION — translucent + brand colors
+   Targets the shared <nav><div class="inner">…</div></nav> pattern.
+   Per-page nav rules win for layout; we override surface + colors.
+   ───────────────────────────────────────────────────────── */
+nav[data-brand-nav] {
+  background: var(--brand-navy-translucent) !important;
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid var(--brand-divider);
+  box-shadow: 0 6px 24px rgba(27, 42, 74, 0.12);
+  transition: background 200ms ease, backdrop-filter 200ms ease;
+}
+nav[data-brand-nav].nav-scrolled {
+  background: var(--brand-navy-soft) !important;
+}
+nav[data-brand-nav] .inner,
+nav[data-brand-nav] > div { position: relative; }
+
+/* Links inside the nav inherit cream, hover to orange. */
+nav[data-brand-nav] a:not(.cta-btn):not([class*="btn"]) {
+  color: var(--brand-cream) !important;
+  transition: color 120ms ease;
+}
+nav[data-brand-nav] a:not(.cta-btn):not([class*="btn"]):hover,
+nav[data-brand-nav] a:not(.cta-btn):not([class*="btn"]):focus-visible {
+  color: var(--brand-orange) !important;
+}
+
+/* Wordmark / brand link — never recolor on hover (keeps identity stable) */
+nav[data-brand-nav] .logo,
+nav[data-brand-nav] .brand,
+nav[data-brand-nav] [class*="logo"],
+nav[data-brand-nav] [class*="brand"] {
+  color: var(--brand-cream) !important;
+}
+
+/* CTA buttons inside the nav — orange fill, navy text */
+nav[data-brand-nav] .cta-btn:not(.outline):not(.ghost),
+nav[data-brand-nav] [class*="btn"]:not(.outline):not(.ghost):not([class*="text"]) {
+  background: var(--brand-orange) !important;
+  color: var(--brand-navy) !important;
+  border-color: var(--brand-orange) !important;
+  font-weight: 600;
+  transition: background 120ms ease, transform 120ms ease;
+}
+nav[data-brand-nav] .cta-btn:not(.outline):not(.ghost):hover,
+nav[data-brand-nav] [class*="btn"]:not(.outline):not(.ghost):hover {
+  background: var(--brand-orange-hover) !important;
+  border-color: var(--brand-orange-hover) !important;
+  transform: translateY(-1px);
+}
+nav[data-brand-nav] .cta-btn.outline,
+nav[data-brand-nav] .cta-btn.ghost {
+  background: transparent !important;
+  color: var(--brand-cream) !important;
+  border: 1px solid var(--brand-cream) !important;
+}
+nav[data-brand-nav] .cta-btn.outline:hover,
+nav[data-brand-nav] .cta-btn.ghost:hover {
+  background: var(--brand-cream-translucent) !important;
+  color: var(--brand-navy) !important;
+  border-color: var(--brand-cream) !important;
+}
+
+/* ─────────────────────────────────────────────────────────
+   COLLAPSIBLE NAV (mobile) — injected hamburger toggle
+   The button is added by brand-bg.js when viewport ≤ 760px.
+   ───────────────────────────────────────────────────────── */
+.brand-nav-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--brand-cream);
+  border-radius: 8px;
+  width: 40px; height: 40px;
+  padding: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-cream);
+  margin-left: auto;
+}
+.brand-nav-toggle:hover { color: var(--brand-orange); border-color: var(--brand-orange); }
+.brand-nav-toggle svg { width: 22px; height: 22px; display: block; }
+.brand-nav-toggle .icon-close { display: none; }
+nav[data-brand-nav].nav-open .brand-nav-toggle .icon-open  { display: none; }
+nav[data-brand-nav].nav-open .brand-nav-toggle .icon-close { display: block; }
+
+@media (max-width: 760px) {
+  .brand-nav-toggle { display: inline-flex; }
+  nav[data-brand-nav] .inner,
+  nav[data-brand-nav] > div {
+    flex-wrap: wrap;
+  }
+  /* Hide every nav child after the brand/logo by default; the toggle reveals them. */
+  nav[data-brand-nav] .links,
+  nav[data-brand-nav] .menu,
+  nav[data-brand-nav] [class*="links"],
+  nav[data-brand-nav] [class*="menu"],
+  nav[data-brand-nav] ul {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 12px;
+    gap: 10px;
+    padding: 12px 0 8px;
+    border-top: 1px solid var(--brand-divider);
+  }
+  nav[data-brand-nav].nav-open .links,
+  nav[data-brand-nav].nav-open .menu,
+  nav[data-brand-nav].nav-open [class*="links"],
+  nav[data-brand-nav].nav-open [class*="menu"],
+  nav[data-brand-nav].nav-open ul {
+    display: flex;
+  }
+  nav[data-brand-nav] .links a,
+  nav[data-brand-nav] .menu a {
+    padding: 10px 6px;
+    border-radius: 8px;
+  }
+  nav[data-brand-nav] .links a:hover,
+  nav[data-brand-nav] .menu a:hover {
+    background: rgba(248, 246, 241, 0.08);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   IN-PAGE CTA ACCENTS (light touch — surface CTA buttons only)
+   Targets common button classes used across pages without
+   stomping page-specific layouts.
+   ───────────────────────────────────────────────────────── */
+.cta-btn:not(.outline):not(.ghost):not([data-skip-brand]),
+.btn-primary:not([data-skip-brand]) {
+  background: var(--brand-orange);
+  color: var(--brand-navy);
+  border-color: var(--brand-orange);
+}
+.cta-btn:not(.outline):not(.ghost):not([data-skip-brand]):hover,
+.btn-primary:not([data-skip-brand]):hover {
+  background: var(--brand-orange-hover);
+  border-color: var(--brand-orange-hover);
+  color: var(--brand-navy);
+}
+.cta-btn.outline:not([data-skip-brand]) {
+  border-color: var(--brand-navy);
+  color: var(--brand-navy);
+}
+.cta-btn.outline:not([data-skip-brand]):hover {
+  background: var(--brand-navy);
+  color: var(--brand-cream);
+}
+
+/* Workspace surface: same nav theme, no video bg (body sits over solid bg) */
+body[data-no-brand-bg] { background: var(--brand-cream); }
+body[data-no-brand-bg] #brand-bg { display: none; }
+
+/* ─────────────────────────────────────────────────────────
+   APP NAV (#app-nav, rendered by /js/nav.js into workspace/dashboard)
+   Layered overrides — preserve the existing layout, swap colors.
+   ───────────────────────────────────────────────────────── */
+#app-nav {
+  background: var(--brand-navy-translucent) !important;
+  backdrop-filter: saturate(140%) blur(14px) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(14px) !important;
+  border-bottom: 1px solid var(--brand-divider) !important;
+  box-shadow: 0 6px 24px rgba(27, 42, 74, 0.12);
+}
+#app-nav .nav-logo,
+#app-nav .nav-logo span {
+  color: var(--brand-cream) !important;
+}
+#app-nav .nav-link,
+#app-nav .nav-dropdown-toggle {
+  color: var(--brand-cream) !important;
+  transition: color 120ms ease;
+}
+#app-nav .nav-link:hover,
+#app-nav .nav-dropdown-toggle:hover,
+#app-nav .nav-link:focus-visible {
+  color: var(--brand-orange) !important;
+  opacity: 1 !important;
+}
+/* Tier-coded link accents (workspace, attorneys, my-cases, etc.) get unified into the brand palette. */
+#app-nav .nav-link[style*="color:#4f8ff7"],
+#app-nav .nav-link[style*="color:#3b82f6"],
+#app-nav .nav-link[style*="color:#4CAF50"],
+#app-nav .nav-link[style*="color:#f59e0b"] {
+  color: var(--brand-cream) !important;
+}
+#app-nav .nav-link[style*="color:#4f8ff7"]:hover,
+#app-nav .nav-link[style*="color:#3b82f6"]:hover,
+#app-nav .nav-link[style*="color:#4CAF50"]:hover,
+#app-nav .nav-link[style*="color:#f59e0b"]:hover {
+  color: var(--brand-orange) !important;
+}
+#app-nav .nav-dropdown-menu {
+  background: var(--brand-navy-soft) !important;
+  border-color: var(--brand-divider) !important;
+}
+#app-nav .nav-dropdown-item { color: var(--brand-cream) !important; }
+#app-nav .nav-dropdown-item:hover {
+  background: rgba(232, 119, 34, 0.18) !important;
+  color: var(--brand-orange) !important;
+}
+#app-nav .nav-sign-out { color: var(--brand-cream) !important; opacity: 0.78; }
+#app-nav .nav-sign-out:hover { color: var(--brand-orange) !important; opacity: 1; }
+/* Sign-up CTA in the public nav: convert green gradient → brand orange */
+#app-nav a[style*="linear-gradient(135deg,#4CAF50"],
+#app-nav a[style*="linear-gradient(135deg, #4CAF50"] {
+  background: var(--brand-orange) !important;
+  color: var(--brand-navy) !important;
+}
+/* Tier badges: keep distinct chips but recolor onto navy/cream/orange — preserves at-a-glance meaning, brand-aligned. */
+#app-nav .tier-badge { border: 1px solid var(--brand-divider); }
+#app-nav .tier-badge.tier-free { background: rgba(248,246,241,0.10) !important; color: var(--brand-cream) !important; }
+#app-nav .tier-badge.tier-comp_buddy { background: rgba(232,119,34,0.18) !important; color: var(--brand-orange) !important; }
+#app-nav .tier-badge.tier-pro { background: rgba(248,246,241,0.18) !important; color: var(--brand-cream) !important; border-color: var(--brand-cream) !important; }
+#app-nav .tier-badge.tier-firm { background: var(--brand-orange) !important; color: var(--brand-navy) !important; border-color: var(--brand-orange) !important; }
+#app-nav .nav-hamburger span { background: var(--brand-cream) !important; }
