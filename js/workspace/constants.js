@@ -230,6 +230,7 @@ const DEFAULT_TWEAKS = {
   snapSize: 20,
   showGrid: false,
   preseedDemo: true,
+  paletteCollapsed: false,
 };
 
 // Tile input defaults — factories so each call produces fresh row IDs.

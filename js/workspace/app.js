@@ -646,22 +646,36 @@ function TabStrip({ tabs, activeTabId, tier, onSwitch, onNew, onClose, onRename,
 const PALETTE_ITEMS = [
   // pro:true mirrors TILE_SPECS in tiles.js. Free users see a lock badge on
   // these palette cards and hit the Paywall on click/drop.
-  { type: 'SLU',           name: 'SLU',           icon: 'SLU',  desc: 'Schedule Loss of Use — multi body part awards', pro: true },
-  { type: 'LWEC',          name: 'LWEC',          icon: 'LW',   desc: 'Loss of Wage Earning Capacity bracket calc' },
-  { type: 'CCP',           name: 'CCP / Award',   icon: 'CCP',  desc: 'Period-by-period builder · TT/RE/TR/TP/NCLT/NME' },
-  { type: 'Burns',         name: 'Burns Rate',    icon: 'BRN',  desc: '3rd-party lien apportionment per Burns v Varick' },
-  { type: 'Settlement',    name: 'Settlement',    icon: 'S32',  desc: 'Section 32 — settlement minus MSA, 15% fee on remainder' },
-  { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', desc: 'Max + Min rate by date' },
-  { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  desc: 'S11.4 point system + nerve-root caps', pro: true },
-  { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   desc: 'NYS WCB Medical Treatment Guidelines — keyword search w/ citations' },
+  // `short` is the chip label used by the collapsed rail (icons like '⚕️' or
+  // 'S11' don't read as the tile name in the narrow column).
+  { type: 'SLU',           name: 'SLU',           icon: 'SLU',  short: 'SLU',    desc: 'Schedule Loss of Use — multi body part awards', pro: true },
+  { type: 'LWEC',          name: 'LWEC',          icon: 'LW',   short: 'LW',     desc: 'Loss of Wage Earning Capacity bracket calc' },
+  { type: 'CCP',           name: 'CCP / Award',   icon: 'CCP',  short: 'CCP',    desc: 'Period-by-period builder · TT/RE/TR/TP/NCLT/NME' },
+  { type: 'Burns',         name: 'Burns Rate',    icon: 'BRN',  short: 'BRN',    desc: '3rd-party lien apportionment per Burns v Varick' },
+  { type: 'Settlement',    name: 'Settlement',    icon: 'S32',  short: 'S32',    desc: 'Section 32 — settlement minus MSA, 15% fee on remainder' },
+  { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', short: '$/Wk',   desc: 'Max + Min rate by date' },
+  { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  short: 'Radic.', desc: 'S11.4 point system + nerve-root caps', pro: true },
+  { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   short: 'MTGs',   desc: 'NYS WCB Medical Treatment Guidelines — keyword search w/ citations' },
 ];
 
-function Palette({ onAdd, onDragStart, isPro }) {
+function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
   return (
-    <aside className="palette">
-      <h2>Tile Palette</h2>
+    <aside className={'palette' + (collapsed ? ' palette-collapsed' : '')}>
+      <div className="palette-toolbar">
+        {!collapsed && <h2>Tile Palette</h2>}
+        <button
+          type="button"
+          className="palette-toggle"
+          onClick={onToggleCollapsed}
+          title={collapsed ? 'Expand palette' : 'Collapse palette'}
+          aria-label={collapsed ? 'Expand palette' : 'Collapse palette'}
+          aria-expanded={!collapsed}>
+          {collapsed ? '›' : '‹'}
+        </button>
+      </div>
       {PALETTE_ITEMS.map(item => {
         const locked = !!item.pro && !isPro;
+        const shortLabel = item.short || item.icon;
         return (
           <button
             key={item.type}
@@ -669,30 +683,43 @@ function Palette({ onAdd, onDragStart, isPro }) {
             draggable
             onDragStart={(e) => onDragStart(e, item.type)}
             onClick={() => onAdd(item.type)}
-            title={locked ? 'Pro feature — upgrade to use this tile' : item.desc}>
-            <div className="pc-icon">{item.icon}</div>
-            <div className="pc-name">
-              {item.name}
-              {item.pro && (
-                <span
-                  className={'pc-pro-badge' + (locked ? ' locked' : '')}
-                  aria-label={locked ? 'Pro feature' : 'Pro tier'}
-                  style={{
-                    marginLeft: '6px',
-                    fontSize: '9px',
-                    fontWeight: 800,
-                    letterSpacing: '0.5px',
-                    padding: '1px 6px',
-                    borderRadius: '3px',
-                    background: locked ? 'rgba(245,158,11,0.18)' : 'rgba(45,212,160,0.18)',
-                    color: locked ? '#f59e0b' : '#2dd4a0',
-                    verticalAlign: 'middle',
-                  }}>
-                  {locked ? '🔒 PRO' : 'PRO'}
-                </span>
-              )}
-            </div>
-            <div className="pc-desc">{item.desc}</div>
+            title={
+              collapsed
+                ? (locked ? `${item.name} — Pro feature` : `${item.name} — ${item.desc}`)
+                : (locked ? 'Pro feature — upgrade to use this tile' : item.desc)
+            }>
+            {collapsed ? (
+              <span className="pc-short">
+                {shortLabel}
+                {item.pro && <span className={'pc-pro-dot' + (locked ? ' locked' : '')} aria-hidden="true" />}
+              </span>
+            ) : (
+              <>
+                <div className="pc-icon">{item.icon}</div>
+                <div className="pc-name">
+                  {item.name}
+                  {item.pro && (
+                    <span
+                      className={'pc-pro-badge' + (locked ? ' locked' : '')}
+                      aria-label={locked ? 'Pro feature' : 'Pro tier'}
+                      style={{
+                        marginLeft: '6px',
+                        fontSize: '9px',
+                        fontWeight: 800,
+                        letterSpacing: '0.5px',
+                        padding: '1px 6px',
+                        borderRadius: '3px',
+                        background: locked ? 'rgba(245,158,11,0.18)' : 'rgba(45,212,160,0.18)',
+                        color: locked ? '#f59e0b' : '#2dd4a0',
+                        verticalAlign: 'middle',
+                      }}>
+                      {locked ? '🔒 PRO' : 'PRO'}
+                    </span>
+                  )}
+                </div>
+                <div className="pc-desc">{item.desc}</div>
+              </>
+            )}
           </button>
         );
       })}
@@ -1598,8 +1625,13 @@ function App() {
         onDeleteCase={deleteCaseAction}
         saveCaseStatus={saveCaseStatus}/>
 
-      <div className="workspace">
-        <Palette onAdd={addTile} onDragStart={onPaletteDragStart} isPro={isPro} />
+      <div className={'workspace' + (tweaks.paletteCollapsed ? ' palette-collapsed' : '')}>
+        <Palette
+          onAdd={addTile}
+          onDragStart={onPaletteDragStart}
+          isPro={isPro}
+          collapsed={!!tweaks.paletteCollapsed}
+          onToggleCollapsed={() => setTweaks(prev => ({ ...prev, paletteCollapsed: !prev.paletteCollapsed }))}/>
         <Canvas
           tiles={activeTab.tiles}
           global={global}
