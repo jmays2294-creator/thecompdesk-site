@@ -1,0 +1,165 @@
+{
+  "schema_version": 2,
+  "guidelines": [
+    {
+      "slug": "shoulder",
+      "name": "Shoulder Injury",
+      "pdf_filename": "ShoulderInjuryMTG2021.pdf",
+      "page_count": 77,
+      "body_regions": [
+        "left_shoulder",
+        "right_shoulder"
+      ],
+      "section_count": 54
+    },
+    {
+      "slug": "low-back",
+      "name": "Mid and Low Back Injury",
+      "pdf_filename": "MidandLowBackInjuryMTG2021.pdf",
+      "page_count": 63,
+      "body_regions": [
+        "upper_back",
+        "lower_back"
+      ],
+      "section_count": 50
+    },
+    {
+      "slug": "knee",
+      "name": "Knee Injury",
+      "pdf_filename": "KneeInjuryMTG2021.pdf",
+      "page_count": 64,
+      "body_regions": [
+        "left_knee",
+        "right_knee"
+      ],
+      "section_count": 48
+    },
+    {
+      "slug": "neck",
+      "name": "Neck Injury",
+      "pdf_filename": "NeckInjuryMTG2021.pdf",
+      "page_count": 64,
+      "body_regions": [
+        "neck"
+      ],
+      "section_count": 48
+    },
+    {
+      "slug": "elbow",
+      "name": "Elbow Injury",
+      "pdf_filename": "ElbowMTG2021.pdf",
+      "page_count": 182,
+      "body_regions": [
+        "left_elbow",
+        "right_elbow"
+      ],
+      "section_count": 39
+    },
+    {
+      "slug": "hand-wrist-forearm",
+      "name": "Hand, Wrist and Forearm Injury",
+      "pdf_filename": "HandWristForarmMTG2021.pdf",
+      "page_count": 704,
+      "body_regions": [
+        "left_hand",
+        "right_hand",
+        "left_wrist",
+        "right_wrist",
+        "left_forearm",
+        "right_forearm"
+      ],
+      "section_count": 45
+    },
+    {
+      "slug": "hip-groin",
+      "name": "Hip and Groin Injury",
+      "pdf_filename": "Hip_GroinMTG2021.pdf",
+      "page_count": 949,
+      "body_regions": [
+        "left_hip",
+        "right_hip",
+        "pelvis"
+      ],
+      "section_count": 40
+    },
+    {
+      "slug": "ankle-foot",
+      "name": "Ankle and Foot Injury",
+      "pdf_filename": "Ankle_FootMTG2021.pdf",
+      "page_count": 409,
+      "body_regions": [
+        "left_ankle",
+        "right_ankle",
+        "left_foot",
+        "right_foot"
+      ],
+      "section_count": 46
+    },
+    {
+      "slug": "crps",
+      "name": "Complex Regional Pain Syndrome",
+      "pdf_filename": "ComplexRegionalPainSyndromeMTG2021.pdf",
+      "page_count": 320,
+      "body_regions": [],
+      "section_count": 31
+    },
+    {
+      "slug": "non-acute-pain",
+      "name": "Non-Acute Pain",
+      "pdf_filename": "Non-AcutePainMTG2021.pdf",
+      "page_count": 122,
+      "body_regions": [],
+      "section_count": 34
+    },
+    {
+      "slug": "tbi",
+      "name": "Traumatic Brain Injury",
+      "pdf_filename": "TraumaticBrainInjuryMTG2021.pdf",
+      "page_count": 672,
+      "body_regions": [
+        "head"
+      ],
+      "section_count": 38
+    },
+    {
+      "slug": "ptsd",
+      "name": "Post-Traumatic Stress Disorder",
+      "pdf_filename": "PTSD-MTG2021.pdf",
+      "page_count": 266,
+      "body_regions": [],
+      "section_count": 34
+    },
+    {
+      "slug": "depression",
+      "name": "Depression",
+      "pdf_filename": "DepressionMTG2021.pdf",
+      "page_count": 892,
+      "body_regions": [],
+      "section_count": 29
+    },
+    {
+      "slug": "asthma",
+      "name": "Asthma",
+      "pdf_filename": "AsthmaMTG2021.pdf",
+      "page_count": 133,
+      "body_regions": [],
+      "section_count": 32
+    },
+    {
+      "slug": "eye-disorders",
+      "name": "Eye Disorders",
+      "pdf_filename": "EyeDisordersMTG2021.pdf",
+      "page_count": 661,
+      "body_regions": [],
+      "section_count": 43
+    },
+    {
+      "slug": "lung-disease",
+      "name": "Occupational Interstitial Lung Disease",
+      "pdf_filename": "Occ-Interstitial-Lung-DiseaseMTG2021.pdf",
+      "page_count": 67,
+      "body_regions": [],
+      "section_count": 31
+    }
+  ]
+}

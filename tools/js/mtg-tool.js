@@ -16,16 +16,18 @@
 (function (global) {
   'use strict';
 
-  // ── Guideline catalog (mirror of www/js/mtg-module.js GUIDELINES) ────────
-  const GUIDELINES = [
-    { slug: 'shoulder', name: 'Shoulder Injury',         regions: ['left_shoulder', 'right_shoulder'] },
-    { slug: 'low-back', name: 'Mid and Low Back Injury', regions: ['upper_back', 'lower_back'] },
-    { slug: 'knee',     name: 'Knee Injury',             regions: ['left_knee', 'right_knee'] },
-  ];
-  const REGION_TO_SLUGS = {};
-  GUIDELINES.forEach(g => g.regions.forEach(r => {
-    (REGION_TO_SLUGS[r] = REGION_TO_SLUGS[r] || []).push(g.slug);
-  }));
+  // ── Guideline catalog (loaded from /data/mtg/_summary.json at startup) ──
+  // We start with the catalog empty and let loadCatalog() populate it. The
+  // tool renders an empty results panel until the fetch resolves; that lets
+  // us add new guidelines server-side without any frontend code change.
+  let GUIDELINES = [];
+  let REGION_TO_SLUGS = {};
+  function rebuildRegionMap() {
+    REGION_TO_SLUGS = {};
+    GUIDELINES.forEach(g => (g.regions || g.body_regions || []).forEach(r => {
+      (REGION_TO_SLUGS[r] = REGION_TO_SLUGS[r] || []).push(g.slug);
+    }));
+  }
 
   // ── Minimal DOM helper (no CD dependency) ────────────────────────────────
   function h(tag, attrs, children) {
@@ -59,6 +61,24 @@
 
   // ── Data loader (cached) ─────────────────────────────────────────────────
   const cache = {};
+  let catalogLoaded = null;  // Promise resolving to the GUIDELINES array
+
+  function loadCatalog() {
+    if (catalogLoaded) return catalogLoaded;
+    catalogLoaded = fetch('../data/mtg/_summary.json')
+      .then(r => { if (!r.ok) throw new Error('summary ' + r.status); return r.json(); })
+      .then(j => {
+        GUIDELINES = (j.guidelines || []).map(g => ({
+          slug: g.slug, name: g.name, regions: g.body_regions || [],
+          pdf_filename: g.pdf_filename, page_count: g.page_count, section_count: g.section_count,
+        }));
+        rebuildRegionMap();
+        return GUIDELINES;
+      })
+      .catch(e => { console.error('[MTG] catalog', e); GUIDELINES = []; return []; });
+    return catalogLoaded;
+  }
+
   function loadGuideline(slug) {
     if (cache[slug] && typeof cache[slug] === 'object') return Promise.resolve(cache[slug]);
     if (cache[slug] === 'loading') return cache[slug + ':promise'];
@@ -71,7 +91,9 @@
     cache[slug + ':promise'] = p;
     return p;
   }
-  function loadAll() { return Promise.all(GUIDELINES.map(g => loadGuideline(g.slug))); }
+  function loadAll() {
+    return loadCatalog().then(() => Promise.all(GUIDELINES.map(g => loadGuideline(g.slug))));
+  }
 
   // ── Search & filter ──────────────────────────────────────────────────────
   function tokens(s) {

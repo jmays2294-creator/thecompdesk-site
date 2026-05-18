@@ -17,19 +17,33 @@ const TILE_SPECS = {
 };
 
 // ====================================================================
-// MTG Tile — quick search across the 2021 NYS WCB Medical Treatment
-// Guidelines. Data lives at /data/mtg/{shoulder,low-back,knee}.json and
-// is cached in a module-scoped Map so multiple MTG tiles on one canvas
-// share a single fetch. The full 3D anatomy picker lives at
+// MTG Tile — quick search across all NYS WCB Medical Treatment Guidelines.
+// Catalog is loaded from /data/mtg/_summary.json at first tile mount, so
+// adding a new guideline server-side requires zero frontend changes.
+// Per-guideline JSON lives at /data/mtg/{slug}.json. Both are cached in
+// module-scoped Maps so multiple MTG tiles on one canvas share a single
+// fetch. The full 3D anatomy picker lives at
 // /tools/medical-treatment-guidelines.html — opened in a new tab.
 // ====================================================================
-const MTG_GUIDELINES = [
-  { slug: 'shoulder', name: 'Shoulder Injury' },
-  { slug: 'low-back', name: 'Mid and Low Back Injury' },
-  { slug: 'knee',     name: 'Knee Injury' },
-];
-const _mtgCache = {};       // slug -> parsed JSON or 'loading' or 'error'
-const _mtgPromises = {};    // slug -> in-flight Promise
+let MTG_GUIDELINES = [];     // populated by mtgLoadCatalog()
+const _mtgCache = {};        // slug -> parsed JSON or 'loading' or 'error'
+const _mtgPromises = {};     // slug -> in-flight Promise
+let _mtgCatalogPromise = null;
+
+function mtgLoadCatalog() {
+  if (_mtgCatalogPromise) return _mtgCatalogPromise;
+  _mtgCatalogPromise = fetch('/data/mtg/_summary.json')
+    .then(r => { if (!r.ok) throw new Error('summary ' + r.status); return r.json(); })
+    .then(j => {
+      MTG_GUIDELINES = (j.guidelines || []).map(g => ({
+        slug: g.slug, name: g.name, body_regions: g.body_regions || [],
+        page_count: g.page_count, section_count: g.section_count,
+      }));
+      return MTG_GUIDELINES;
+    })
+    .catch(e => { console.warn('[MTG] catalog', e); MTG_GUIDELINES = []; return []; });
+  return _mtgCatalogPromise;
+}
 
 function mtgLoad(slug) {
   if (_mtgCache[slug] && typeof _mtgCache[slug] === 'object') return Promise.resolve(_mtgCache[slug]);
@@ -58,12 +72,12 @@ function MTGTile({ tile, global, onUpdate }) {
   const guidelineFilter = inputs.guidelineFilter || ''; // '' = all, or one slug
   const [ready, setReady] = useState(false);
 
-  // Trigger loads (kick off all three; we don't await — re-render when ready)
+  // Load catalog first, then all guideline JSONs in parallel.
   useEffect(() => {
     let alive = true;
-    Promise.all(MTG_GUIDELINES.map(g => mtgLoad(g.slug))).then(() => {
-      if (alive) setReady(true);
-    });
+    mtgLoadCatalog()
+      .then(catalog => Promise.all(catalog.map(g => mtgLoad(g.slug))))
+      .then(() => { if (alive) setReady(true); });
     return () => { alive = false; };
   }, []);
 
