@@ -166,6 +166,15 @@ footer a{color:var(--txD);}
   .stats .inner{gap:24px;}
   .stat .num{font-size:24px;}
 }
+
+/* CONNECT-WITH-ATTORNEY IFRAME MODAL — opens the intake wizard inline
+   so injured workers aren't navigated away from the home page. */
+.connect-modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);}
+.connect-modal-overlay.active{display:block;}
+.connect-modal-overlay iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;}
+.connect-modal-close{position:fixed;top:16px;right:16px;z-index:310;background:rgba(14,19,34,0.92);border:1px solid var(--bd);color:var(--wh);font-size:22px;line-height:1;cursor:pointer;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.connect-modal-close:hover{background:rgba(28,45,74,0.92);}
+body.connect-modal-open{overflow:hidden;}
 </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
@@ -181,7 +190,7 @@ footer a{color:var(--txD);}
       <a href="#features">Tools</a>
       <a href="/extension" style="color:var(--gn);font-weight:700;">Apps</a>
       <a href="#pricing">Pricing</a>
-      <a href="/connect-with-attorney.html" style="color:var(--gn);font-weight:700;">Find Attorney</a>
+      <a href="/connect-with-attorney.html" data-connect-modal style="color:var(--gn);font-weight:700;">Find Attorney</a>
       <a href="/for-attorneys" style="color:var(--gd);font-weight:700;">For Attorneys</a>
       <a href="/auth_v2.html" class="cta-btn" id="nav-auth">Sign In</a>
       <a href="/account.html" class="cta-btn" id="nav-account" style="display:none;">My Account</a>
@@ -196,7 +205,7 @@ footer a{color:var(--txD);}
       <h1>Injured at work?<br>You're <span>not alone.</span></h1>
       <p class="sub">Comp Buddy is your free companion through every step of a New York workers' compensation case. Find an authorized doctor, never miss an IME, understand your rights, and connect with an experienced attorney — all in one app.</p>
       <div class="ctas">
-        <a href="/connect-with-attorney.html" class="cta-btn green">Find an Attorney</a>
+        <a href="/connect-with-attorney.html" data-connect-modal class="cta-btn green">Find an Attorney</a>
         <a href="/tools/find-doctor.html" class="cta-btn">Find a Doctor</a>
         <a href="#features" class="cta-btn outline">Explore Free Tools</a>
       </div>
@@ -246,7 +255,7 @@ footer a{color:var(--txD);}
         <p>Plain-language guides and videos that explain how workers' comp actually works in New York — what to file, what to expect, and what you're entitled to.</p>
         <span class="tag tag-free">Free</span>
       </a>
-      <a href="/connect-with-attorney.html" class="feat-card">
+      <a href="/connect-with-attorney.html" data-connect-modal class="feat-card">
         <div class="icon">⚖️</div>
         <h3>Find an Attorney</h3>
         <p>Connect with an experienced NYS Workers' Compensation attorney through our neutral, round-robin referral network. No paid placement, no spam — just real help.</p>
@@ -353,11 +362,19 @@ footer a{color:var(--txD);}
   </div>
 </section>
 
+<!-- Connect-with-Attorney iframe modal. The form lives on
+     /connect-with-attorney.html and is loaded inline via ?embed=1 so
+     injured workers stay on the home page. -->
+<div class="connect-modal-overlay" id="connectModal" role="dialog" aria-modal="true" aria-label="Connect with a Workers' Compensation Attorney">
+  <button type="button" class="connect-modal-close" id="connectModalClose" aria-label="Close">&times;</button>
+  <iframe id="connectModalFrame" title="Connect with a Workers' Compensation Attorney" allow="clipboard-write" referrerpolicy="same-origin"></iframe>
+</div>
+
 <footer>
   <div class="wrap">
     <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
     <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
-    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> · <a href="/connect-with-attorney.html">Find Attorney</a> · <a href="/for-attorneys" style="color:var(--gd);">For Attorneys</a> · <a href="/coming-soon" style="color:#2dd4a0;">Coming Soon</a> · <a href="/auth_v2.html">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
+    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> · <a href="/connect-with-attorney.html" data-connect-modal>Find Attorney</a> · <a href="/for-attorneys" style="color:var(--gd);">For Attorneys</a> · <a href="/coming-soon" style="color:#2dd4a0;">Coming Soon</a> · <a href="/auth_v2.html">Sign In</a> · <a href="mailto:support@thecompdesk.com">Contact</a></p>
   </div>
 </footer>
 
@@ -404,8 +421,85 @@ sb.auth.onAuthStateChange((event, session) => {
 
 initAuth();
 </script>
+
+<!-- Connect-with-Attorney modal controller. Intercepts clicks on
+     anchors marked with data-connect-modal and opens the wizard
+     inline. Falls back to normal navigation if JS is disabled. -->
+<script>
+(function(){
+  var overlay = document.getElementById('connectModal');
+  var frame   = document.getElementById('connectModalFrame');
+  var closeBtn = document.getElementById('connectModalClose');
+  if (!overlay || !frame || !closeBtn) return;
+
+  // Build the iframe URL — always carries embed=1, plus any UTM
+  // params from the parent page so attribution is preserved when the
+  // wizard submits.
+  function buildEmbedSrc(){
+    var qs = new URLSearchParams(window.location.search);
+    var out = new URLSearchParams();
+    out.set('embed', '1');
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function(k){
+      if (qs.get(k)) out.set(k, qs.get(k));
+    });
+    return '/connect-with-attorney.html?' + out.toString();
+  }
+
+  function openConnectModal(){
+    // Set src lazily so the wizard JS only boots when needed.
+    var src = buildEmbedSrc();
+    if (frame.getAttribute('src') !== src) {
+      frame.setAttribute('src', src);
+    }
+    overlay.classList.add('active');
+    document.body.classList.add('connect-modal-open');
+  }
+
+  function closeConnectModal(){
+    overlay.classList.remove('active');
+    document.body.classList.remove('connect-modal-open');
+    // Reset the iframe so a fresh wizard loads next time (clears any
+    // half-filled form state and re-runs Turnstile).
+    frame.setAttribute('src', 'about:blank');
+  }
+
+  // Expose for inline callers if needed elsewhere.
+  window.openConnectModal = openConnectModal;
+  window.closeConnectModal = closeConnectModal;
+
+  // Intercept all data-connect-modal links.
+  document.querySelectorAll('a[data-connect-modal]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      // Allow modifier-click (open in new tab) to navigate normally.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+      openConnectModal();
+    });
+  });
+
+  // Close button + ESC + backdrop click.
+  closeBtn.addEventListener('click', closeConnectModal);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeConnectModal();
+    }
+  });
+  overlay.addEventListener('click', function(e){
+    if (e.target === overlay) closeConnectModal();
+  });
+
+  // The embedded wizard posts a message when the user closes it from
+  // inside (X button, Done button on success, overlay click, ESC).
+  window.addEventListener('message', function(e){
+    if (e && e.data && e.data.type === 'compdesk:closeConnectModal') {
+      closeConnectModal();
+    }
+  });
+})();
+</script>
 <!-- Hero animation: Haring-style login loop video (MP4). Falls back to brand glyph for prefers-reduced-motion. -->
 <script src="/js/disclaimer.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
+  <script src="/js/footer-contact.js" defer></script>
 </body>
 </html>

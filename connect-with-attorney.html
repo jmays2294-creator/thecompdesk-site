@@ -192,6 +192,13 @@
     .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);justify-content:center;align-items:center;padding:20px;}
     .modal-overlay.active{display:flex;}
 
+    /* Embed mode — when loaded inside an iframe via ?embed=1.
+       Hides all page chrome so only the wizard modal shows, and makes
+       the body transparent so the parent page's backdrop shows through. */
+    html.embed,body.embed{background:transparent !important;}
+    body.embed > *:not(.modal-overlay):not(script):not(style):not(noscript){display:none !important;}
+    body.embed .modal-overlay{background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);}
+
     /* Modal */
     .modal{background:var(--card);border:1px solid var(--bd);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;animation:modalIn 0.25s ease;}
     @keyframes modalIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
@@ -1060,6 +1067,9 @@
     const doaField = document.querySelector('input[name="date_of_accident"]');
     if (doaField) doaField.max = new Date().toISOString().split('T')[0];
 
+    // ── Embed mode (loaded as iframe from index.html with ?embed=1) ──
+    const IS_EMBED = new URLSearchParams(window.location.search).get('embed') === '1';
+
     // ── Modal open/close ────────────────────────────────────────
     function openWizard() {
       document.getElementById('wizModal').classList.add('active');
@@ -1073,6 +1083,19 @@
     function closeWizard() {
       document.getElementById('wizModal').classList.remove('active');
       document.body.style.overflow = '';
+      // In embed mode, ask the parent page to close the iframe modal.
+      if (IS_EMBED && window.parent && window.parent !== window) {
+        try { window.parent.postMessage({ type: 'compdesk:closeConnectModal' }, '*'); } catch(e) {}
+      }
+    }
+
+    // In embed mode: hide page chrome and auto-open the wizard.
+    if (IS_EMBED) {
+      document.documentElement.classList.add('embed');
+      document.body.classList.add('embed');
+      // openWizard expects #wizModal to exist; this script block sits
+      // after the modal markup, so it's safe to call immediately.
+      openWizard();
     }
 
     // Close on overlay click
@@ -1406,5 +1429,6 @@
     });
   </script>
 
+  <script src="/js/footer-contact.js" defer></script>
 </body>
 </html>
