@@ -653,6 +653,7 @@ const PALETTE_ITEMS = [
   { type: 'Settlement',    name: 'Settlement',    icon: 'S32',  desc: 'Section 32 — settlement minus MSA, 15% fee on remainder' },
   { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', desc: 'Max + Min rate by date' },
   { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  desc: 'S11.4 point system + nerve-root caps', pro: true },
+  { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   desc: 'NYS WCB Medical Treatment Guidelines — keyword search w/ citations' },
 ];
 
 function Palette({ onAdd, onDragStart, isPro }) {
@@ -718,7 +719,7 @@ function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, p
   const Component = {
     SLU: SLUTile, LWEC: LWECTile, CCP: CCPTile,
     RateLookup: RateLookupTile, Radiculopathy: RadiculopathyTile,
-    Burns: BurnsTile, Settlement: SettlementTile,
+    Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGTile,
   }[tile.type];
 
   const transform = `perspective(800px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;

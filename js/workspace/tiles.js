@@ -13,7 +13,184 @@ const TILE_SPECS = {
   Radiculopathy: { w: 480, h: 720, name: 'Radiculopathy Scorer', pro: true },
   Burns:         { w: 460, h: 520, name: 'Burns Rate (3rd-Party Lien)' },
   Settlement:    { w: 420, h: 360, name: 'Section 32 Settlement' },
+  MTG:           { w: 480, h: 620, name: 'Medical Treatment Guidelines' },
 };
+
+// ====================================================================
+// MTG Tile — quick search across the 2021 NYS WCB Medical Treatment
+// Guidelines. Data lives at /data/mtg/{shoulder,low-back,knee}.json and
+// is cached in a module-scoped Map so multiple MTG tiles on one canvas
+// share a single fetch. The full 3D anatomy picker lives at
+// /tools/medical-treatment-guidelines.html — opened in a new tab.
+// ====================================================================
+const MTG_GUIDELINES = [
+  { slug: 'shoulder', name: 'Shoulder Injury' },
+  { slug: 'low-back', name: 'Mid and Low Back Injury' },
+  { slug: 'knee',     name: 'Knee Injury' },
+];
+const _mtgCache = {};       // slug -> parsed JSON or 'loading' or 'error'
+const _mtgPromises = {};    // slug -> in-flight Promise
+
+function mtgLoad(slug) {
+  if (_mtgCache[slug] && typeof _mtgCache[slug] === 'object') return Promise.resolve(_mtgCache[slug]);
+  if (_mtgPromises[slug]) return _mtgPromises[slug];
+  _mtgCache[slug] = 'loading';
+  _mtgPromises[slug] = fetch(`/data/mtg/${slug}.json`)
+    .then(r => { if (!r.ok) throw new Error('fetch ' + slug + ': ' + r.status); return r.json(); })
+    .then(d => { _mtgCache[slug] = d; return d; })
+    .catch(e => { console.warn('[MTG]', e); _mtgCache[slug] = 'error'; return null; });
+  return _mtgPromises[slug];
+}
+
+function mtgMakeExcerpt(body, keyword) {
+  if (!keyword) return body.slice(0, 220) + (body.length > 220 ? '…' : '');
+  const firstTok = keyword.toLowerCase().split(/\s+/)[0];
+  const idx = body.toLowerCase().indexOf(firstTok);
+  if (idx === -1) return body.slice(0, 220) + '…';
+  const start = Math.max(0, idx - 60);
+  const end = Math.min(body.length, idx + 180);
+  return (start > 0 ? '…' : '') + body.slice(start, end) + (end < body.length ? '…' : '');
+}
+
+function MTGTile({ tile, global, onUpdate }) {
+  const inputs = tile.inputs || {};
+  const keyword = inputs.keyword || '';
+  const guidelineFilter = inputs.guidelineFilter || ''; // '' = all, or one slug
+  const [ready, setReady] = useState(false);
+
+  // Trigger loads (kick off all three; we don't await — re-render when ready)
+  useEffect(() => {
+    let alive = true;
+    Promise.all(MTG_GUIDELINES.map(g => mtgLoad(g.slug))).then(() => {
+      if (alive) setReady(true);
+    });
+    return () => { alive = false; };
+  }, []);
+
+  const set = (patch) => onUpdate({ ...tile, inputs: { ...inputs, ...patch } });
+
+  const results = useMemo(() => {
+    if (!ready) return [];
+    const kwTokens = keyword.toLowerCase().split(/[^a-z0-9]+/).filter(t => t.length >= 2);
+    const slugs = guidelineFilter ? [guidelineFilter] : MTG_GUIDELINES.map(g => g.slug);
+    const out = [];
+    for (const slug of slugs) {
+      const data = _mtgCache[slug];
+      if (!data || typeof data !== 'object') continue;
+      for (const sec of data.sections) {
+        if (kwTokens.length) {
+          const hay = (sec.title + ' ' + sec.body_text).toLowerCase();
+          if (!kwTokens.every(t => hay.indexOf(t) !== -1)) continue;
+        }
+        out.push({ ...sec, guideline: data.guideline, slug });
+        if (out.length >= 200) break;
+      }
+      if (out.length >= 200) break;
+    }
+    return out;
+  }, [ready, keyword, guidelineFilter]);
+
+  return (
+    <div className="tile-body" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+        <input
+          type="search"
+          value={keyword}
+          placeholder='Keyword (e.g. "rotator cuff", "ACL", "epidural")'
+          onChange={(e) => set({ keyword: e.target.value })}
+          style={{
+            flex: 1, background: 'var(--bg-1, #0a0f1a)', border: '1px solid var(--bd, #1e3a5f)',
+            color: 'var(--tx, #e2e8f0)', padding: '7px 10px', borderRadius: 6, fontSize: 12,
+            fontFamily: 'inherit', outline: 'none',
+          }}
+        />
+      </div>
+      <select
+        value={guidelineFilter}
+        onChange={(e) => set({ guidelineFilter: e.target.value })}
+        style={{
+          width: '100%', background: 'var(--bg-1, #0a0f1a)', border: '1px solid var(--bd, #1e3a5f)',
+          color: 'var(--tx, #e2e8f0)', padding: '6px 8px', borderRadius: 6, fontSize: 12,
+          fontFamily: 'inherit', outline: 'none', marginBottom: 8,
+        }}>
+        <option value="">All guidelines ({ready ? MTG_GUIDELINES.length : '…'})</option>
+        {MTG_GUIDELINES.map(g => <option key={g.slug} value={g.slug}>{g.name}</option>)}
+      </select>
+
+      <div style={{
+        fontSize: 10, color: 'var(--tx-faint, #64748b)', letterSpacing: 0.4,
+        textTransform: 'uppercase', fontWeight: 700, marginBottom: 4,
+      }}>
+        {ready
+          ? `${results.length} matching section${results.length === 1 ? '' : 's'}`
+          : 'Loading guidelines…'}
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, paddingRight: 4 }}>
+        {ready && results.length === 0 && (
+          <div style={{
+            fontSize: 11, color: 'var(--tx-faint, #64748b)', fontStyle: 'italic',
+            padding: '20px 8px', textAlign: 'center',
+          }}>
+            {keyword || guidelineFilter
+              ? 'No matching sections. Try a broader keyword.'
+              : 'Enter a keyword to search across all loaded MTGs.'}
+          </div>
+        )}
+        {results.slice(0, 25).map((r, i) => (
+          <div key={r.slug + ':' + r.id + ':' + i} style={{
+            background: 'var(--tile-2, rgba(255,255,255,0.03))',
+            border: '1px solid var(--bd, #1e3a5f)',
+            borderLeft: '3px solid var(--ac, #3b82f6)',
+            borderRadius: 5, padding: '7px 9px', marginBottom: 6,
+          }}>
+            <div style={{
+              display: 'flex', gap: 6, alignItems: 'center', fontSize: 9,
+              color: 'var(--tx-faint, #64748b)', textTransform: 'uppercase',
+              fontWeight: 700, letterSpacing: 0.4, marginBottom: 3,
+            }}>
+              <span style={{ color: 'var(--ac, #3b82f6)' }}>{r.guideline}</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span style={{ fontFamily: 'var(--mono, ui-monospace, Menlo, monospace)', color: 'var(--tx-2, #94a3b8)' }}>{r.id}</span>
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--tx, #fff)', marginBottom: 4 }}>{r.title}</div>
+            <div style={{
+              fontSize: 11, color: 'var(--tx-2, #cbd5e1)', lineHeight: 1.5,
+              whiteSpace: 'pre-wrap', marginBottom: 4,
+            }}>{mtgMakeExcerpt(r.body_text, keyword)}</div>
+            <div style={{
+              fontSize: 9, fontFamily: 'var(--mono, ui-monospace, Menlo, monospace)',
+              color: 'var(--tx-faint, #64748b)', paddingTop: 4,
+              borderTop: '1px dashed var(--bd, #1e3a5f)',
+            }}>{r.citation}</div>
+          </div>
+        ))}
+        {results.length > 25 && (
+          <div style={{
+            fontSize: 10, color: 'var(--tx-faint, #64748b)', fontStyle: 'italic',
+            textAlign: 'center', padding: '6px 0',
+          }}>
+            Showing first 25 of {results.length} — refine your keyword to narrow.
+          </div>
+        )}
+      </div>
+
+      <a
+        href="/tools/medical-treatment-guidelines.html"
+        target="_blank"
+        rel="noopener"
+        style={{
+          display: 'block', textAlign: 'center', marginTop: 8,
+          padding: '8px 12px', background: 'var(--ac-soft, rgba(59,130,246,0.13))',
+          border: '1px solid var(--ac, #3b82f6)', color: 'var(--ac, #3b82f6)',
+          borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none',
+          letterSpacing: 0.3, textTransform: 'uppercase',
+        }}>
+        Open full 3D anatomy picker ↗
+      </a>
+    </div>
+  );
+}
 
 // ---------- Inherited rate strip ----------
 // `awwOverride` is true when AWW < statutory min for DOA — in that case TT
@@ -1411,6 +1588,6 @@ function buildEquation(tile, global) {
 
 Object.assign(window, {
   TILE_SPECS, SLUTile, LWECTile, CCPTile, RateLookupTile, RadiculopathyTile,
-  BurnsTile, SettlementTile,
+  BurnsTile, SettlementTile, MTGTile,
   buildEquation, weeksBetween, MUSCLE_WEAKNESS, DESIGNATIONS,
 });
