@@ -850,6 +850,35 @@ function roundWeeksDown(wks, mode) {
   return n;
 }
 
+// computeRangeReimbursement — for REIMB ER scope='specific'. The
+// reimbursement window has its own start/end; the dollar amount is auto-
+// calculated as Σ(overlap weeks × period rate) across every CCP period
+// (with a known rate) that overlaps the window. HIA periods contribute 0.
+// `rows` are the already-resolved CCPTile.computed.out entries that carry
+// the final per-period rate after bounds + amending + HIA handling.
+function computeRangeReimbursement(rows, rangeStart, rangeEnd, rounding) {
+  if (!rangeStart || !rangeEnd || !Array.isArray(rows) || rows.length === 0) return 0;
+  const rStart = new Date(rangeStart);
+  const rEnd   = new Date(rangeEnd);
+  if (isNaN(rStart.getTime()) || isNaN(rEnd.getTime()) || rEnd < rStart) return 0;
+  let total = 0;
+  for (const p of rows) {
+    if (p.isHia) continue;
+    if (!p.start || !p.end) continue;
+    const pStart = new Date(p.start);
+    const pEnd   = new Date(p.end);
+    if (isNaN(pStart.getTime()) || isNaN(pEnd.getTime())) continue;
+    const overlapStart = pStart > rStart ? pStart : rStart;
+    const overlapEnd   = pEnd   < rEnd   ? pEnd   : rEnd;
+    if (overlapEnd < overlapStart) continue;
+    const days = (overlapEnd - overlapStart) / (1000 * 60 * 60 * 24) + 1;
+    const overlapWksRaw = days / 7;
+    const overlapWks = roundWeeksDown(overlapWksRaw, rounding);
+    total += overlapWks * (Number(p.rate) || 0);
+  }
+  return total;
+}
+
 // Local-time ISO date strings (YYYY-MM-DD) so the Today / Day-After-Today
 // shortcuts on CCP period end-dates produce values compatible with
 // <input type="date">.
@@ -875,7 +904,17 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       { id: 1, start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
         rateMode: 'pct', // 'pct' | 'usd' — applies to TR and TP designations
         amending: false, priorMode: 'pct', priorVal: 0,
+        // Employer reimbursement fields:
+        //   reimbErOn       — master toggle for the whole REIMB ER block
+        //   reimbErAmount   — $ amount (used when scope='period' or 'all')
+        //   reimbErUnknown  — TBD flag; suppresses $ math regardless of scope
+        //   reimbErScope    — 'period' | 'all' | 'specific'
+        //                     'period'   = $ applies to this period only
+        //                     'all'      = $ is the case-level total (exclusive — only one period can hold it)
+        //                     'specific' = use reimbErRangeStart/End; amount AUTO-calculated from overlapping period rates
+        //   reimbErRangeStart/End — ISO date strings, only used when scope='specific'
         reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
+        reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
         endMode: null },
     ],
     ccpAmount: 0,
@@ -918,8 +957,24 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
     rateMode: 'pct',
     amending: false, priorMode: 'pct', priorVal: 0,
     reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
+    reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
     endMode: null,
   });
+
+  // setReimbErScope — picking 'all' is exclusive: it forces every OTHER
+  // period back to 'period' scope. 'period' and 'specific' allow multiple
+  // periods independently.
+  const setReimbErScope = (id, nextScope) => {
+    setInputs({
+      periods: inputs.periods.map(p => {
+        if (p.id === id) return { ...p, reimbErScope: nextScope };
+        if (nextScope === 'all' && p.reimbErScope === 'all') {
+          return { ...p, reimbErScope: 'period' };
+        }
+        return p;
+      }),
+    });
+  };
 
   const addPeriod = () => {
     // Default the new period's start date to the previous period's end
@@ -1043,20 +1098,37 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       return { ...p, wks, rawCurrentRate, currentRate, priorRate, rate, amount: wks * rate, isHia: false };
     });
     const totalAward = out.reduce((s, p) => s + p.amount, 0);
-    // Per-period employer reimbursements (REIMB ER). 5/19/26 refactor —
+    // Per-period employer reimbursements (REIMB ER). 5/19/26 + 5/19/26 v3 —
     // reimbursements no longer reduce the total award; instead they live in
     // a SEPARATE bucket of money moving back to the employer. Attorney fees
     // are taken at 15% from BOTH buckets (claimant + employer) and shown
     // separately in the equation / OC-400.1.
-    //   - reimbErKnown = sum of reimb amounts where amount is entered
-    //   - reimbErHasUnknown = at least one period flagged "Unknown Amount"
-    //     → equation gets a "REIMB ER — TBD" line; no $ math runs for those
+    //
+    // Scope handling (per-period):
+    //   - 'period'   → reimbErAmount applies to this period only
+    //   - 'all'      → reimbErAmount is the case-level total (exclusive — only one period carrier)
+    //   - 'specific' → amount auto-computed from rates of overlapping periods over a custom window
+    // Unknown Amount toggle suppresses $ math under ANY scope and surfaces as 'REIMB ER — TBD'.
     let reimbErKnown = 0;
     let reimbErHasUnknown = false;
     out.forEach(p => {
       if (!p.reimbErOn) return;
-      if (p.reimbErUnknown) { reimbErHasUnknown = true; return; }
-      reimbErKnown += Number(p.reimbErAmount) || 0;
+      if (p.reimbErUnknown) {
+        reimbErHasUnknown = true;
+        // Store 0 on the row so display code knows the period contributed nothing.
+        p.resolvedReimbErAmount = 0;
+        return;
+      }
+      const scope = p.reimbErScope || 'period';
+      let amt = 0;
+      if (scope === 'specific') {
+        amt = computeRangeReimbursement(out, p.reimbErRangeStart, p.reimbErRangeEnd, rounding);
+      } else {
+        // 'period' or 'all' — both read from reimbErAmount directly.
+        amt = Number(p.reimbErAmount) || 0;
+      }
+      p.resolvedReimbErAmount = amt;
+      reimbErKnown += amt;
     });
     const totalReimbEr = reimbErKnown; // known-amount sum only
     // Claimant bucket — money moving to the claimant
@@ -1225,9 +1297,11 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
               {/* REIMB ER (reimburse employer) — per-period toggle. When ON,
                   the period contributes a separate "money moving back to
                   employer" bucket to the case-level math. Fee runs at 15%
-                  on that bucket too. If "Unknown Amount" is toggled, no
-                  $ math runs for this period — equation just flags
-                  "REIMB ER — TBD". */}
+                  on that bucket too. Two sub-toggles control the input:
+                    • Amount status: Known Amount  /  Unknown Amount
+                    • Scope:         Just this period  /  Across all periods  /  Specific date range
+                  When scope=specific, the dollar amount is auto-calculated
+                  from the rates of overlapping CCP periods. */}
               <div className="f-group">
                 <button
                   type="button"
@@ -1236,34 +1310,95 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                   aria-pressed={!!p.reimbErOn}>
                   {p.reimbErOn ? '✓ REIMB ER' : '+ REIMB ER'}
                 </button>
-                {p.reimbErOn && (
-                  <div className="amending-block">
-                    <div className="reimb-er-head">
+                {p.reimbErOn && (() => {
+                  const scope = p.reimbErScope || 'period';
+                  const isUnknown = !!p.reimbErUnknown;
+                  const computedAmt = computed.rows.find(r => r.id === p.id)?.resolvedReimbErAmount;
+                  return (
+                    <div className="amending-block">
                       <label className="f-label" style={{margin:0}}>Reimbursement to Employer</label>
-                      <button
-                        type="button"
-                        className={'reimb-unknown-toggle ' + (p.reimbErUnknown ? 'on' : '')}
-                        onClick={() => updatePeriod(p.id, { reimbErUnknown: !p.reimbErUnknown })}
-                        aria-pressed={!!p.reimbErUnknown}
-                        title="When amount is unknown, equation flags 'REIMB ER — TBD' and no $ math runs">
-                        {p.reimbErUnknown ? '✓ Unknown Amount' : 'Unknown Amount'}
-                      </button>
-                    </div>
-                    {!p.reimbErUnknown && (
-                      <div className="f-input-wrap">
-                        <span className="prefix">$</span>
-                        <input className="f-input with-prefix" type="number" min="0"
-                          value={p.reimbErAmount || 0}
-                          onChange={e => updatePeriod(p.id, { reimbErAmount: Number(e.target.value) })}/>
+                      {/* Known / Unknown two-state segmented toggle */}
+                      <div className="reimb-mode-toggle" role="radiogroup" aria-label="Reimbursement amount status">
+                        <button type="button" role="radio"
+                          aria-checked={!isUnknown}
+                          className={'reimb-mode-pill ' + (!isUnknown ? 'on' : '')}
+                          onClick={() => updatePeriod(p.id, { reimbErUnknown: false })}>
+                          Known Amount
+                        </button>
+                        <button type="button" role="radio"
+                          aria-checked={isUnknown}
+                          className={'reimb-mode-pill ' + (isUnknown ? 'on' : '')}
+                          onClick={() => updatePeriod(p.id, { reimbErUnknown: true })}>
+                          Unknown Amount
+                        </button>
                       </div>
-                    )}
-                    <div className="amending-help">
-                      {p.reimbErUnknown
-                        ? 'Equation will flag REIMB ER as TBD until the amount is entered.'
-                        : 'Reimbursement bucket — fee taken at 15% from money moving back to employer, separate from claimant fee.'}
+                      {/* Scope three-state segmented toggle */}
+                      <div className="reimb-scope-toggle" role="radiogroup" aria-label="Reimbursement scope">
+                        <button type="button" role="radio"
+                          aria-checked={scope === 'period'}
+                          className={'reimb-scope-pill ' + (scope === 'period' ? 'on' : '')}
+                          onClick={() => setReimbErScope(p.id, 'period')}>
+                          Just this period
+                        </button>
+                        <button type="button" role="radio"
+                          aria-checked={scope === 'all'}
+                          className={'reimb-scope-pill ' + (scope === 'all' ? 'on' : '')}
+                          onClick={() => setReimbErScope(p.id, 'all')}
+                          title="Exclusive — only one period at a time can hold the case-wide reimbursement.">
+                          Across all periods
+                        </button>
+                        <button type="button" role="radio"
+                          aria-checked={scope === 'specific'}
+                          className={'reimb-scope-pill ' + (scope === 'specific' ? 'on' : '')}
+                          onClick={() => setReimbErScope(p.id, 'specific')}>
+                          Specific date range
+                        </button>
+                      </div>
+                      {/* Date range — only shown when scope = specific */}
+                      {scope === 'specific' && (
+                        <div className="reimb-range-row">
+                          <div className="f-group" style={{flex:1, margin:0}}>
+                            <label className="f-label">Reimb. Start</label>
+                            <input className="f-input" type="date"
+                              value={p.reimbErRangeStart || ''}
+                              onChange={e => updatePeriod(p.id, { reimbErRangeStart: e.target.value })}/>
+                          </div>
+                          <div className="f-group" style={{flex:1, margin:0}}>
+                            <label className="f-label">Reimb. End</label>
+                            <input className="f-input" type="date"
+                              value={p.reimbErRangeEnd || ''}
+                              onChange={e => updatePeriod(p.id, { reimbErRangeEnd: e.target.value })}/>
+                          </div>
+                        </div>
+                      )}
+                      {/* Amount input — shown for Known + (period or all); hidden when Unknown OR scope=specific (auto-calculated) */}
+                      {!isUnknown && scope !== 'specific' && (
+                        <div className="f-input-wrap">
+                          <span className="prefix">$</span>
+                          <input className="f-input with-prefix" type="number" min="0"
+                            value={p.reimbErAmount || 0}
+                            onChange={e => updatePeriod(p.id, { reimbErAmount: Number(e.target.value) })}/>
+                        </div>
+                      )}
+                      {/* Auto-calculated preview for specific-range + Known */}
+                      {!isUnknown && scope === 'specific' && (
+                        <div className="reimb-computed-preview">
+                          <span className="reimb-computed-label">Auto-calculated:</span>
+                          <span className="reimb-computed-value">{fmt$(computedAmt || 0)}</span>
+                        </div>
+                      )}
+                      <div className="amending-help">
+                        {isUnknown
+                          ? 'REIMB ER amount TBD.'
+                          : scope === 'all'
+                            ? 'Case-level total across all periods — fee at 15% taken from this employer bucket, separate from claimant fee.'
+                            : scope === 'specific'
+                              ? 'Amount is computed from the rates of CCP periods overlapping the window above.'
+                              : 'Period-specific reimbursement — fee at 15% taken from money moving back to employer, separate from claimant fee.'}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
               {/* Amending-Award control (Change 3). When ON, a prior-rate
                   input appears; the period $ amount uses the delta between
@@ -1401,10 +1536,18 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
             let reimbStr = '';
             if (p.reimbErOn) {
               if (p.reimbErUnknown) {
-                reimbStr = 'REIMB ER — TBD';
+                // Per Joel — terse: no further elaboration.
+                reimbStr = 'REIMB ER TBD';
               } else {
-                const reimbAmt = Number(p.reimbErAmount) || 0;
-                if (reimbAmt > 0) reimbStr = `REIMB ER −${fmt$(reimbAmt)}`;
+                // Use the resolved amount (handles scope='specific' auto-calc).
+                const resolved = Number(p.resolvedReimbErAmount) || 0;
+                if (resolved > 0) {
+                  const scope = p.reimbErScope || 'period';
+                  const scopeTag = scope === 'all' ? ' case-wide'
+                    : scope === 'specific' ? ' (specific range)'
+                    : '';
+                  reimbStr = `REIMB ER${scopeTag} −${fmt$(resolved)}`;
+                }
               }
             }
             // Single-space joiner per Joel's spec: dates  RATE  DESG  (%)  REIMB.
@@ -1995,27 +2138,20 @@ function buildEquation(tile, global) {
       }
       // Mirror the CCPTile.computed math 1:1 so the equation card at the
       // bottom of the workspace, the OC-400.1 fee-app prefill, and the
-      // tile's own results panel all agree. 5/19/26 — HIA periods
+      // tile's own results panel all agree. 5/19/26 v3 — HIA periods
       // contribute $0; REIMB ER lives in its own employer bucket with
-      // its own 15% fee; "Unknown Amount" REIMB ER skips $ math and
-      // surfaces as a "TBD" flag.
+      // its own 15% fee; Unknown / scope=specific honored.
       const ttBase = (Number(aww) || 0) * 2 / 3;
       const ccpRounding = inputs.rounding || 'none';
-      let reimbErKnown = 0;
-      let reimbErHasUnknown = false;
-      inputs.periods.forEach((p, i) => {
-        // HIA — period documented but contributes $0.
-        if (p.desg === 'HIA') {
-          lines.push(`P${i+1} HIA: ${p.start || '—'} to ${p.end || '—'} — Held in Abeyance ($0)`);
-          summary.push(`Period ${i+1} held in abeyance (${p.start || 'no start'} to ${p.end || 'no end'})`);
-          // Reimb still possible on HIA periods (unlikely but legal); honor it.
-          if (p.reimbErOn) {
-            if (p.reimbErUnknown) reimbErHasUnknown = true;
-            else reimbErKnown += Number(p.reimbErAmount) || 0;
-          }
-          return;
-        }
 
+      // Phase 1 — resolve each period's rate + amount (mirrors CCPTile.computed
+      // first pass). We need the resolved rates BEFORE we can compute any
+      // scope='specific' reimbursement (which depends on overlapping rates).
+      const rows = inputs.periods.map(p => {
+        if (p.desg === 'HIA') {
+          return { ...p, wks: 0, rate: 0, amount: 0, currentRate: 0, priorRate: 0,
+                   rawCurrentRate: 0, isHia: true };
+        }
         const wksRaw = weeksBetween(p.start, p.end);
         const wks = roundWeeksDown(wksRaw, ccpRounding);
         const rateMode = p.rateMode || 'pct';
@@ -2037,12 +2173,6 @@ function buildEquation(tile, global) {
         }
         else rawCurrentRate = Number(p.manualRate || 0);
         const currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
-        const adjusted = Math.abs(currentRate - rawCurrentRate) > 0.005;
-
-        // Amending-award delta — match CCPTile.computed exactly:
-        //   priorMode 'pct' → priorRate = priorVal% × ⅔ × AWW (uncapped base)
-        //   priorMode 'usd' → priorRate = (priorVal / ⅔×AWW × 100)% × ⅔ × AWW
-        // Period rate = max(0, currentRate − priorRate).
         let rate = currentRate;
         let priorRate = 0;
         if (p.amending) {
@@ -2056,41 +2186,53 @@ function buildEquation(tile, global) {
           }
           rate = Math.max(0, currentRate - priorRate);
         }
-
-        const amt = wks * rate;
-        totalAward += amt;
-
-        // REIMB ER bucketing — separate from total award now.
-        let reimbSuffix = '';
-        if (p.reimbErOn) {
-          if (p.reimbErUnknown) {
-            reimbErHasUnknown = true;
-            reimbSuffix = ' · REIMB ER — TBD';
-          } else {
-            const reimbAmt = Number(p.reimbErAmount) || 0;
-            if (reimbAmt > 0) {
-              reimbErKnown += reimbAmt;
-              reimbSuffix = ` · REIMB ER ${fmt$(reimbAmt)} → employer bucket`;
-            }
-          }
-        }
-        const amendSuffix = p.amending
-          ? ` (amending: ${fmt$(currentRate)} − ${fmt$(priorRate)} = ${fmt$(rate)}/wk)`
-          : '';
-        const adjustedSuffix = adjusted && !p.amending
-          ? ` (raw ${fmt$(rawCurrentRate)}, bounded by min/max for DOA)`
-          : '';
-        lines.push(`P${i+1} ${p.desg}: ${fmtN(wks, 2)} wks × ${fmt$(rate)}${adjustedSuffix}${amendSuffix} = ${fmt$(amt)}${reimbSuffix}`);
-        const summaryAmend = p.amending
-          ? `, amending — ${fmt$(currentRate)} − ${fmt$(priorRate)} = ${fmt$(rate)}/wk`
-          : '';
-        let reimbProse = '';
-        if (p.reimbErOn) {
-          if (p.reimbErUnknown) reimbProse = ', reimbursement to employer — amount TBD';
-          else if ((Number(p.reimbErAmount) || 0) > 0) reimbProse = `, reimbursement to employer of ${fmt$(Number(p.reimbErAmount))}`;
-        }
-        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted && !p.amending ? ` — adjusted from raw ${fmt$(rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(amt)}${reimbProse})`);
+        return { ...p, wks, rate, amount: wks * rate, currentRate, priorRate, rawCurrentRate, isHia: false };
       });
+
+      // Phase 2 — emit per-period lines + summary prose, and bucket REIMB ER.
+      let reimbErKnown = 0;
+      let reimbErHasUnknown = false;
+      rows.forEach((r, i) => {
+        // HIA period emission
+        if (r.isHia) {
+          lines.push(`P${i+1} HIA: ${r.start || '—'} to ${r.end || '—'} — Held in Abeyance ($0)`);
+          summary.push(`Period ${i+1} held in abeyance (${r.start || 'no start'} to ${r.end || 'no end'})`);
+        } else {
+          totalAward += r.amount;
+          const adjusted = Math.abs(r.currentRate - r.rawCurrentRate) > 0.005;
+          const amendSuffix = r.amending ? ` (amending: ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk)` : '';
+          const adjustedSuffix = adjusted && !r.amending ? ` (raw ${fmt$(r.rawCurrentRate)}, bounded by min/max for DOA)` : '';
+          lines.push(`P${i+1} ${r.desg}: ${fmtN(r.wks, 2)} wks × ${fmt$(r.rate)}${adjustedSuffix}${amendSuffix} = ${fmt$(r.amount)}`);
+          const summaryAmend = r.amending ? `, amending — ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk` : '';
+          summary.push(`Period ${i+1} (${r.desg}, ${fmtN(r.wks,2)} wks at ${fmt$(r.rate)}/wk${adjusted && !r.amending ? ` — adjusted from raw ${fmt$(r.rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(r.amount)})`);
+        }
+
+        // REIMB ER bucketing for this period
+        if (!r.reimbErOn) return;
+        if (r.reimbErUnknown) {
+          reimbErHasUnknown = true;
+          lines.push(`  REIMB ER (P${i+1}): amount of Reimbursement TBD`);
+          return;
+        }
+        const scope = r.reimbErScope || 'period';
+        let amt = 0;
+        let label = '';
+        if (scope === 'specific') {
+          amt = computeRangeReimbursement(rows, r.reimbErRangeStart, r.reimbErRangeEnd, ccpRounding);
+          label = `specific ${r.reimbErRangeStart || '—'} to ${r.reimbErRangeEnd || '—'}`;
+        } else if (scope === 'all') {
+          amt = Number(r.reimbErAmount) || 0;
+          label = 'case-wide';
+        } else {
+          amt = Number(r.reimbErAmount) || 0;
+          label = `P${i+1}`;
+        }
+        if (amt > 0) {
+          reimbErKnown += amt;
+          lines.push(`  REIMB ER (${label}): ${fmt$(amt)} → employer bucket`);
+        }
+      });
+
       // Buckets — claimant + employer + CCP
       const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown);
       const feeOnClaimant = claimantMoving * 0.15;
@@ -2104,7 +2246,7 @@ function buildEquation(tile, global) {
       lines.push(`Total Award: ${fmt$(totalAward)}`);
       lines.push(`Less Prior: (${fmt$(Number(inputs.priorPay || 0))})`);
       if (reimbErKnown > 0) lines.push(`Less Reimb to ER (to employer bucket): (${fmt$(reimbErKnown)})`);
-      if (reimbErHasUnknown) lines.push(`Reimb to ER: TBD (amount unknown — fee math will run once entered)`);
+      if (reimbErHasUnknown) lines.push(`Reimb to ER: TBD`);
       lines.push(`Moving to Claimant: ${fmt$(claimantMoving)}`);
       lines.push(`Fee from Claimant: ${fmt$(claimantMoving)} × 15% = ${fmt$(feeOnClaimant)}`);
       if (Number(inputs.ccpAmount || 0) > 0) {
@@ -2118,38 +2260,34 @@ function buildEquation(tile, global) {
       lines.push(`Net to Claimant: ${fmt$(netToClaimant)}`);
       if (employerMoving > 0) lines.push(`Net to Employer: ${fmt$(netToEmployer)}`);
 
+      // Plain prose — keep brief. Unknown amount becomes a short tag, no
+      // long explanation (per 5/19/26 v3 spec).
       const reimbClauseKnown = reimbErKnown > 0
-        ? ` Reimbursement to employer of ${fmt$(reimbErKnown)} moves to a separate employer bucket; attorney fee of 15% on that bucket = ${fmt$(feeOnEmployer)}.`
+        ? ` Reimbursement to employer of ${fmt$(reimbErKnown)} moves to a separate employer bucket; fee at 15% = ${fmt$(feeOnEmployer)}.`
         : '';
-      const reimbClauseUnknown = reimbErHasUnknown
-        ? ` A further reimbursement to employer is owed in an amount TBD — fee from that bucket will be calculated once the amount is entered.`
-        : '';
+      const reimbClauseUnknown = reimbErHasUnknown ? ' Amount of Reimbursement TBD.' : '';
       const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)}, less prior payments ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(claimantMoving)} moving to claimant. Fee from claimant is 15% of claimant moving (${fmt$(feeOnClaimant)})${Number(inputs.ccpAmount || 0) > 0 ? ` plus one-third of CCP (${fmt$(feeOnCCP)})` : ''}.${reimbClauseKnown}${reimbClauseUnknown} Total attorney fee = ${fmt$(totalFee)}. Net to claimant = ${fmt$(netToClaimant)}${employerMoving > 0 ? `; net to employer = ${fmt$(netToEmployer)}` : ''}.`;
       // Per OC-400.1 § A fee-reason checkboxes:
       //   FeeReason1 = "continuation of weekly compensation benefits"
       //   FeeReason2 = "increase in the amount of compensation awarded
       //                 or paid for a prior period"
       //
-      // Joel's rule: a CCP entry IS continuing compensation, so any
-      // non-zero ccpAmount fires FeeReason1 regardless of period dates.
-      // A future-dated/ongoing award period also fires FeeReason1.
-      // A past-dated period with an award fires FeeReason2.
-      //
-      // Result: a case with both a CCP amount and a back-due award
-      // period gets BOTH boxes auto-checked in the fee app modal.
+      // 5/19/26 v3 rule: FeeReason1 (continuation box) is checked ONLY
+      // when CCP Amount > 0. Future-dated/ongoing award periods and
+      // REIMB ER alone never trigger the continuation box.
+      // A past-dated period with an award still fires FeeReason2.
       const ccpToday = new Date(); ccpToday.setHours(0, 0, 0, 0);
       const ccpHasAmount = Number(inputs.ccpAmount || 0) > 0;
-      let ccpHasPrior = false, ccpHasContinuing = false;
+      let ccpHasPrior = false;
       inputs.periods.forEach(p => {
         if (!p.end) return;
         const endDate = new Date(p.end);
         if (isNaN(endDate.getTime())) return;
         if (endDate < ccpToday) ccpHasPrior = true;
-        else ccpHasContinuing = true;
       });
       const ccpFeeReasons = [];
-      if (ccpHasAmount || ccpHasContinuing) ccpFeeReasons.push('FeeReason1');
-      if (ccpHasPrior)                       ccpFeeReasons.push('FeeReason2');
+      if (ccpHasAmount) ccpFeeReasons.push('FeeReason1');
+      if (ccpHasPrior)  ccpFeeReasons.push('FeeReason2');
       return { plain, mono: lines.join('\n'), fee: totalFee, feeReasons: ccpFeeReasons };
     }
     case 'RateLookup': {

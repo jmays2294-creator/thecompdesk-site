@@ -5,6 +5,24 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-19 (later same day, third pass)
+
+### Workspace — CCP/Award Builder REIMB ER v3: scope toggle, range auto-calc, terse Unknown prose, CCP-only continuation box
+
+Three refinements to the employer-reimbursement experience that landed earlier today:
+
+- **Known / Unknown amount is now a two-state segmented toggle** (Known Amount / Unknown Amount) inside the REIMB ER block — replaces the single Unknown pill so the attorney explicitly picks which mode they're in.
+- **New three-state scope toggle** below it: **Just this period · Across all periods · Specific date range.**
+  - **Across all periods** is exclusive — clicking it on one period auto-reverts every other period's scope back to "Just this period" so the case-level total has exactly one carrier.
+  - **Specific date range** reveals start/end date inputs. The reimbursement amount is **auto-calculated** as Σ(overlap weeks × that period's rate) across every CCP period whose dates overlap the window (HIA periods contribute $0). The computed amount is shown inline as a preview.
+  - The two toggles compose: a period can be both "across all periods" + "Unknown Amount" to represent a case-wide reimbursement owed in a TBD amount.
+- **Unknown-amount prose is now terse.** The long "fee from that bucket will be calculated once the amount is entered" sentence is gone from both the equation card and the OC-400.1 plain-text prefill. All Unknown-amount surfaces now just say **"amount of Reimbursement TBD"** (period summary copy: `REIMB ER TBD`; equation mono: `Reimb to ER: TBD`).
+- **FeeReason1 (continuation box) is now triggered ONLY when CCP Amount > 0.** Future-dated/ongoing award periods and Employer Reimbursement alone never auto-check the continuation box on the OC-400.1. FeeReason2 (back-due award) is unchanged.
+
+**Files**: `js/workspace/tiles.js`, `js/workspace/workspace.css`, `changelog.md`.
+
+---
+
 ## 2026-05-19 (later same day)
 
 ### Workspace — CCP/Award Builder v2: HIA, employer-reimb bucket, DOI auto-fill, default rounding, intervening-period insert
