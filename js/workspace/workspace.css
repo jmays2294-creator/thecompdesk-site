@@ -1903,11 +1903,12 @@ footer.disclaimer {
   gap: 8px;
   margin-top: 2px;
 }
-/* Auto-calculated preview for scope=specific + Known. */
+/* Max-recoupable hint for scope=specific (informational; user can enter
+   any amount above or below this). */
 .reimb-computed-preview {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
   padding: 6px 8px;
   border: 1px solid var(--bd-soft);
@@ -1926,6 +1927,27 @@ footer.disclaimer {
 .reimb-computed-value {
   color: var(--tx);
   font-weight: 700;
+}
+.reimb-computed-hint {
+  color: var(--tx-faint);
+  font-size: 10px;
+  margin-left: auto;
+}
+
+/* 'RE ER' tag — appears on every period whose date range is overlapped by
+   a scope=specific REIMB ER window. Two surfaces: (1) inline in the
+   period-row footer next to the period amount, (2) in the Periods summary
+   copy after the desg/rate run. Same look in both places. */
+.reer-row-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 1px solid color-mix(in srgb, #f59e0b 60%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, #f59e0b 14%, var(--bg-1));
+  color: var(--tx);
+  font: 700 9px/1 var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 /* ----- Intervening period insert button (5/19/26) ----- */

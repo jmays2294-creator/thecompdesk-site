@@ -5,6 +5,20 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-19 (later same day, fourth pass)
+
+### Workspace — CCP/Award Builder REIMB ER v4: RE ER period tags, user-entered amount on specific range, terse equation prose
+
+Three refinements to how scope=Specific date range works in the REIMB ER block:
+
+- **'RE ER' tags on every overlapped period.** When a period has REIMB ER enabled with scope = Specific date range, every CCP period in the same tile whose dates fall inside (or partially inside) the reimbursement window is now tagged with a small **RE ER** badge — both in the per-period footer (next to the period's award amount) and in the Periods summary copy (next to the desg/rate run). The carrier period (where the toggle lives) gets the same tag for uniformity.
+- **User-entered amount on specific range.** Previously the dollar amount was auto-calculated and the input was hidden when scope=Specific. Now the $ amount input is shown for **any Known** scope — including specific range. Above the input on specific range, a **'Max recoupable: $X across N period(s)'** hint shows the auto-calculated maximum (Σ overlap weeks × rate across the overlapped periods); the attorney's typed number is what actually flows into the employer bucket math. This matches Joel's framing: "the auto-calculated amount is what can be recouped from that specific period, but the total reimbursement amount will extend across all periods that the reimbursement period encompasses."
+- **Terse equation prose for specific range.** The verbose `REIMB ER (specific 1/1/2025 to 6/30/2025): $X → employer bucket` line is gone. The equation card / OC-400.1 prefill now reads **`REIMB ER applies for N periods, total $X`** (or `..., amount TBD` when Unknown). Per-period attribution is handled visually by the RE ER tags in the tile UI rather than restated in the equation prose.
+
+**Files**: `js/workspace/tiles.js`, `js/workspace/workspace.css`, `changelog.md`.
+
+---
+
 ## 2026-05-19 (later same day, third pass)
 
 ### Workspace — CCP/Award Builder REIMB ER v3: scope toggle, range auto-calc, terse Unknown prose, CCP-only continuation box

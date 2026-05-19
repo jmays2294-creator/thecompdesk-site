@@ -850,6 +850,26 @@ function roundWeeksDown(wks, mode) {
   return n;
 }
 
+// countSpecificOverlaps — how many CCP periods (HIA or not, dated or not
+// only counts periods with valid start+end) the reimb window touches. Used
+// for the 'applies for N periods' equation prose and the 'Max recoupable
+// across N periods' UI hint.
+function countSpecificOverlaps(rows, rangeStart, rangeEnd) {
+  if (!rangeStart || !rangeEnd || !Array.isArray(rows) || rows.length === 0) return 0;
+  const rStart = new Date(rangeStart);
+  const rEnd   = new Date(rangeEnd);
+  if (isNaN(rStart.getTime()) || isNaN(rEnd.getTime()) || rEnd < rStart) return 0;
+  let n = 0;
+  for (const p of rows) {
+    if (!p.start || !p.end) continue;
+    const pStart = new Date(p.start);
+    const pEnd   = new Date(p.end);
+    if (isNaN(pStart.getTime()) || isNaN(pEnd.getTime())) continue;
+    if (pEnd >= rStart && pStart <= rEnd) n++;
+  }
+  return n;
+}
+
 // computeRangeReimbursement — for REIMB ER scope='specific'. The
 // reimbursement window has its own start/end; the dollar amount is auto-
 // calculated as Σ(overlap weeks × period rate) across every CCP period
@@ -1098,7 +1118,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       return { ...p, wks, rawCurrentRate, currentRate, priorRate, rate, amount: wks * rate, isHia: false };
     });
     const totalAward = out.reduce((s, p) => s + p.amount, 0);
-    // Per-period employer reimbursements (REIMB ER). 5/19/26 + 5/19/26 v3 —
+    // Per-period employer reimbursements (REIMB ER). 5/19/26 v3 + v4 —
     // reimbursements no longer reduce the total award; instead they live in
     // a SEPARATE bucket of money moving back to the employer. Attorney fees
     // are taken at 15% from BOTH buckets (claimant + employer) and shown
@@ -1107,28 +1127,53 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
     // Scope handling (per-period):
     //   - 'period'   → reimbErAmount applies to this period only
     //   - 'all'      → reimbErAmount is the case-level total (exclusive — only one period carrier)
-    //   - 'specific' → amount auto-computed from rates of overlapping periods over a custom window
+    //   - 'specific' → user-entered reimbErAmount is the total reimbursement; the auto-calc (Σ overlap wks × rate
+    //                  across overlapping periods) is shown only as a 'Max recoupable' hint. Each overlapped
+    //                  period is tagged with 'RE ER' in the period summary copy.
     // Unknown Amount toggle suppresses $ math under ANY scope and surfaces as 'REIMB ER — TBD'.
     let reimbErKnown = 0;
     let reimbErHasUnknown = false;
     out.forEach(p => {
+      // Pre-compute the max recoupable + overlap count for any specific-range
+      // reimb, regardless of Known/Unknown — used for hint display and
+      // equation prose ("applies for N periods").
+      if (p.reimbErOn && (p.reimbErScope || 'period') === 'specific') {
+        p._maxRecoupable = computeRangeReimbursement(out, p.reimbErRangeStart, p.reimbErRangeEnd, rounding);
+        p._overlapCount = countSpecificOverlaps(out, p.reimbErRangeStart, p.reimbErRangeEnd);
+      }
       if (!p.reimbErOn) return;
       if (p.reimbErUnknown) {
         reimbErHasUnknown = true;
-        // Store 0 on the row so display code knows the period contributed nothing.
         p.resolvedReimbErAmount = 0;
         return;
       }
       const scope = p.reimbErScope || 'period';
-      let amt = 0;
-      if (scope === 'specific') {
-        amt = computeRangeReimbursement(out, p.reimbErRangeStart, p.reimbErRangeEnd, rounding);
-      } else {
-        // 'period' or 'all' — both read from reimbErAmount directly.
-        amt = Number(p.reimbErAmount) || 0;
-      }
+      // All scopes (including specific) read the user-entered amount from
+      // reimbErAmount. Auto-calc is purely informational on scope=specific.
+      const amt = Number(p.reimbErAmount) || 0;
       p.resolvedReimbErAmount = amt;
       reimbErKnown += amt;
+    });
+    // Flag every period that's overlapped by any scope=specific reimb window.
+    // The 'RE ER' tag in the period summary copy is driven off this.
+    out.forEach(r => {
+      r.reimbErRecipient = false;
+      if (!r.start || !r.end) return;
+      const rStart = new Date(r.start);
+      const rEnd   = new Date(r.end);
+      if (isNaN(rStart.getTime()) || isNaN(rEnd.getTime())) return;
+      for (const carrier of out) {
+        if (!carrier.reimbErOn) continue;
+        if ((carrier.reimbErScope || 'period') !== 'specific') continue;
+        if (!carrier.reimbErRangeStart || !carrier.reimbErRangeEnd) continue;
+        const cStart = new Date(carrier.reimbErRangeStart);
+        const cEnd   = new Date(carrier.reimbErRangeEnd);
+        if (isNaN(cStart.getTime()) || isNaN(cEnd.getTime()) || cEnd < cStart) continue;
+        if (rEnd >= cStart && rStart <= cEnd) {
+          r.reimbErRecipient = true;
+          break;
+        }
+      }
     });
     const totalReimbEr = reimbErKnown; // known-amount sum only
     // Claimant bucket — money moving to the claimant
@@ -1313,7 +1358,9 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 {p.reimbErOn && (() => {
                   const scope = p.reimbErScope || 'period';
                   const isUnknown = !!p.reimbErUnknown;
-                  const computedAmt = computed.rows.find(r => r.id === p.id)?.resolvedReimbErAmount;
+                  const carrierRow = computed.rows.find(r => r.id === p.id);
+                  const maxRecoupable = carrierRow?._maxRecoupable || 0;
+                  const overlapCount = carrierRow?._overlapCount || 0;
                   return (
                     <div className="amending-block">
                       <label className="f-label" style={{margin:0}}>Reimbursement to Employer</label>
@@ -1371,20 +1418,27 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                           </div>
                         </div>
                       )}
-                      {/* Amount input — shown for Known + (period or all); hidden when Unknown OR scope=specific (auto-calculated) */}
-                      {!isUnknown && scope !== 'specific' && (
+                      {/* Max-recoupable hint — only on scope=specific (Known or Unknown).
+                          Informational only; computed from Σ(overlap wks × rate) across
+                          the periods that the reimb window touches. */}
+                      {scope === 'specific' && (
+                        <div className="reimb-computed-preview">
+                          <span className="reimb-computed-label">Max recoupable:</span>
+                          <span className="reimb-computed-value">{fmt$(maxRecoupable)}</span>
+                          {overlapCount > 0 && (
+                            <span className="reimb-computed-hint">across {overlapCount} period{overlapCount === 1 ? '' : 's'}</span>
+                          )}
+                        </div>
+                      )}
+                      {/* Amount input — shown for any Known scope (period / all / specific).
+                          On scope=specific, the user-entered amount is the actual total that
+                          flows into the employer bucket; the auto-calc above is just a hint. */}
+                      {!isUnknown && (
                         <div className="f-input-wrap">
                           <span className="prefix">$</span>
                           <input className="f-input with-prefix" type="number" min="0"
                             value={p.reimbErAmount || 0}
                             onChange={e => updatePeriod(p.id, { reimbErAmount: Number(e.target.value) })}/>
-                        </div>
-                      )}
-                      {/* Auto-calculated preview for specific-range + Known */}
-                      {!isUnknown && scope === 'specific' && (
-                        <div className="reimb-computed-preview">
-                          <span className="reimb-computed-label">Auto-calculated:</span>
-                          <span className="reimb-computed-value">{fmt$(computedAmt || 0)}</span>
                         </div>
                       )}
                       <div className="amending-help">
@@ -1393,7 +1447,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                           : scope === 'all'
                             ? 'Case-level total across all periods — fee at 15% taken from this employer bucket, separate from claimant fee.'
                             : scope === 'specific'
-                              ? 'Amount is computed from the rates of CCP periods overlapping the window above.'
+                              ? 'Total reimbursement across the periods the window touches; fee at 15% taken from the employer bucket.'
                               : 'Period-specific reimbursement — fee at 15% taken from money moving back to employer, separate from claimant fee.'}
                       </div>
                     </div>
@@ -1443,7 +1497,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                   </div>
                 )}
               </div>
-              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', fontFamily:'var(--mono)', fontSize:11, color:'var(--tx-dim)', borderTop:'1px solid var(--bd-soft)', paddingTop:8}}>
+              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', fontFamily:'var(--mono)', fontSize:11, color:'var(--tx-dim)', borderTop:'1px solid var(--bd-soft)', paddingTop:8, gap:8}}>
                 {p.desg === 'HIA' ? (
                   <span style={{fontStyle:'italic', color:'var(--tx-faint)'}}>
                     Held in Abeyance — contributes $0 to total award
@@ -1451,7 +1505,12 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 ) : (
                   <span>{fmtN(computed.rows.find(r => r.id === p.id)?.wks, 2)} wks × {fmt$(computed.rows.find(r => r.id === p.id)?.rate)}{p.amending ? ' (amending)' : ''}</span>
                 )}
-                <span style={{color:'var(--ac-2)'}}>{fmt$(computed.rows.find(r => r.id === p.id)?.amount)}</span>
+                <span style={{display:'flex', alignItems:'center', gap:6}}>
+                  <span style={{color:'var(--ac-2)'}}>{fmt$(computed.rows.find(r => r.id === p.id)?.amount)}</span>
+                  {computed.rows.find(r => r.id === p.id)?.reimbErRecipient && (
+                    <span className="reer-row-tag" title="This period overlaps with a specific-range REIMB ER">RE ER</span>
+                  )}
+                </span>
                 <button className="delete-row" onClick={() => removePeriod(p.id)}>×</button>
               </div>
             </div>
@@ -1533,25 +1592,30 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
               const wageLossPct = Math.max(0, Math.min(100, ((aww - Number(p.curEarn || 0)) / aww) * 100));
               pctStr = `(${wageLossPct.toFixed(1)}%)`;
             }
+            // REIMB ER display on the carrier period (where the toggle lives).
+            // For scope='specific', the carrier doesn't show a $ amount inline —
+            // the 'RE ER' tag added below (driven by the overlap flag) handles
+            // every overlapped period uniformly, including the carrier.
             let reimbStr = '';
             if (p.reimbErOn) {
-              if (p.reimbErUnknown) {
-                // Per Joel — terse: no further elaboration.
+              const scope = p.reimbErScope || 'period';
+              if (scope === 'specific') {
+                reimbStr = '';
+              } else if (p.reimbErUnknown) {
                 reimbStr = 'REIMB ER TBD';
               } else {
-                // Use the resolved amount (handles scope='specific' auto-calc).
                 const resolved = Number(p.resolvedReimbErAmount) || 0;
                 if (resolved > 0) {
-                  const scope = p.reimbErScope || 'period';
-                  const scopeTag = scope === 'all' ? ' case-wide'
-                    : scope === 'specific' ? ' (specific range)'
-                    : '';
+                  const scopeTag = scope === 'all' ? ' case-wide' : '';
                   reimbStr = `REIMB ER${scopeTag} −${fmt$(resolved)}`;
                 }
               }
             }
-            // Single-space joiner per Joel's spec: dates  RATE  DESG  (%)  REIMB.
-            return [dateStr, rateStr, p.desg, pctStr, reimbStr].filter(Boolean).join(' ');
+            // RE ER tag — applied to every period whose dates overlap any
+            // scope='specific' reimbursement window in this CCP tile.
+            const reTag = p.reimbErRecipient ? 'RE ER' : '';
+            // Single-space joiner per Joel's spec: dates  RATE  DESG  (%)  REIMB  RE-ER.
+            return [dateStr, rateStr, p.desg, pctStr, reimbStr, reTag].filter(Boolean).join(' ');
           };
           const plainText = computed.rows.map(buildRow).join('\n');
           const onCopySummary = async () => {
@@ -2209,24 +2273,31 @@ function buildEquation(tile, global) {
 
         // REIMB ER bucketing for this period
         if (!r.reimbErOn) return;
+        const scope = r.reimbErScope || 'period';
+
+        if (scope === 'specific') {
+          // Terse single-line emission for scope=specific. Per-period RE ER
+          // tags handle visual attribution in the tile summary; here we only
+          // emit one short equation line per carrier.
+          const overlapN = countSpecificOverlaps(rows, r.reimbErRangeStart, r.reimbErRangeEnd);
+          if (r.reimbErUnknown) {
+            reimbErHasUnknown = true;
+            lines.push(`  REIMB ER applies for ${overlapN} period${overlapN === 1 ? '' : 's'}, amount TBD`);
+          } else {
+            const amt = Number(r.reimbErAmount) || 0;
+            if (amt > 0) reimbErKnown += amt;
+            lines.push(`  REIMB ER applies for ${overlapN} period${overlapN === 1 ? '' : 's'}, total ${fmt$(amt)}`);
+          }
+          return;
+        }
+
         if (r.reimbErUnknown) {
           reimbErHasUnknown = true;
           lines.push(`  REIMB ER (P${i+1}): amount of Reimbursement TBD`);
           return;
         }
-        const scope = r.reimbErScope || 'period';
-        let amt = 0;
-        let label = '';
-        if (scope === 'specific') {
-          amt = computeRangeReimbursement(rows, r.reimbErRangeStart, r.reimbErRangeEnd, ccpRounding);
-          label = `specific ${r.reimbErRangeStart || '—'} to ${r.reimbErRangeEnd || '—'}`;
-        } else if (scope === 'all') {
-          amt = Number(r.reimbErAmount) || 0;
-          label = 'case-wide';
-        } else {
-          amt = Number(r.reimbErAmount) || 0;
-          label = `P${i+1}`;
-        }
+        const amt = Number(r.reimbErAmount) || 0;
+        const label = scope === 'all' ? 'case-wide' : `P${i+1}`;
         if (amt > 0) {
           reimbErKnown += amt;
           lines.push(`  REIMB ER (${label}): ${fmt$(amt)} → employer bucket`);
