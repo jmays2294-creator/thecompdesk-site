@@ -1827,6 +1827,105 @@ footer.disclaimer {
   color: var(--tx-faint);
 }
 
+/* ----- HIA designation (5/19/26) ----- */
+/* Designation pill for HIA — same shape as TT/RE/TR/TP, slightly muted
+   color so it visually telegraphs "no $ contribution" at a glance. */
+.desg-pill.desg-pill-hia.active {
+  background: color-mix(in srgb, var(--tx-faint) 18%, var(--bg-1));
+  border-color: var(--tx-faint);
+  color: var(--tx);
+}
+.hia-note {
+  font: italic 11px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+  color: var(--tx-faint);
+  padding: 4px 8px;
+  border-left: 2px solid var(--bd);
+}
+
+/* ----- REIMB ER expansion — Unknown Amount toggle (5/19/26) ----- */
+.reimb-er-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.reimb-unknown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  background: var(--bg-1);
+  color: var(--tx-dim);
+  font: 600 10px/1 var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+  white-space: nowrap;
+}
+.reimb-unknown-toggle:hover { border-color: var(--ac); color: var(--tx); }
+.reimb-unknown-toggle.on {
+  background: color-mix(in srgb, var(--tx-faint) 22%, var(--bg-1));
+  border-color: var(--tx-faint);
+  color: var(--tx);
+}
+
+/* ----- Intervening period insert button (5/19/26) ----- */
+/* Sits between two period-rows. Subtle by default, accent on hover so
+   the attorney sees the affordance without it screaming for attention. */
+.period-insert-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 0;
+  margin: -2px 0;
+}
+.period-insert-row::before {
+  content: '';
+  position: absolute;
+  left: 16px; right: 16px; top: 50%;
+  height: 1px;
+  background: var(--bd-soft);
+  z-index: 0;
+}
+.period-insert-btn {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-1);
+  border: 1px dashed var(--bd);
+  color: var(--tx-faint);
+  padding: 3px 12px;
+  border-radius: 12px;
+  font: 600 10px/1 var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 120ms, color 120ms, background 120ms;
+}
+.period-insert-btn:hover {
+  border-color: var(--ac);
+  border-style: solid;
+  color: var(--ac-2);
+  background: color-mix(in srgb, var(--ac) 8%, var(--bg-1));
+}
+
+/* ----- Employer-bucket result rows (5/19/26) ----- */
+/* Visually distinct treatment for employer-bucket lines so a WCLJ
+   scanning the breakdown can immediately tell claimant fee from
+   employer-reimb fee. Subtle indent + italic label. */
+.r-row.r-row-employer {
+  border-left: 2px solid color-mix(in srgb, #f59e0b 50%, transparent);
+  padding-left: 8px;
+}
+.r-row.r-row-employer .l {
+  font-style: italic;
+  color: var(--tx-dim);
+}
+.r-row.net.r-row-employer .l {
+  font-style: italic;
+}
+
 /* ----- OC-400.1 generator modal (Change 5) ----- */
 .feeapp-modal-backdrop {
   position: fixed; inset: 0;

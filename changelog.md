@@ -5,6 +5,26 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-19 (later same day)
+
+### Workspace — CCP/Award Builder v2: HIA, employer-reimb bucket, DOI auto-fill, default rounding, intervening-period insert
+
+Five-part CCP overhaul, all in the CCP / Award Builder tile:
+
+- **HIA designation pill** (Held in Abeyance) — added alongside TT/RE/TR/TP/NCLT/NME. An HIA period documents a start–end range for the record but contributes $0 to the total award. Equation card, period summary, and OC-400.1 prefill all surface the date range with the HIA label and no dollar amount.
+- **REIMB ER refactor — separate employer bucket, separate 15% fee, "Unknown Amount" toggle.**
+  - Reimbursements no longer reduce the total award. They now feed a separate "Moving to Employer (reimb)" bucket.
+  - Attorney fee is taken at 15% **from each bucket independently** — the results panel and equation card now show **"Fee from Claimant"** and **"Fee from Employer Reimb"** as two distinct lines.
+  - New **Unknown Amount** toggle inside the REIMB ER block: when on, no $ math runs for that period — equation flags **"REIMB ER — TBD"** until the amount is filled in.
+  - Both the in-tile results panel and `buildEquation('CCP')` (bottom equation card + OC-400.1 prefill) mirror this split.
+- **DOI auto-fill to first period start** — one-shot per CCP tile. The first time `global.doi` transitions from empty → set while a CCP tile is open (and period[0].start is empty), period[0].start is auto-set to the DOI. Won't overwrite a date the attorney already typed; won't re-fire on subsequent DOI changes.
+- **Round Weeks default → Nearest 1/10 wk (round down)** — was 'none'. Attorney can still toggle off or to 'whole'. Only affects newly created CCP tiles; existing saved tiles keep their saved value.
+- **Intervening "+ Add Period" buttons** — between every adjacent pair of periods, a small dashed-pill `+ Add Period` button appears centered on a divider line. Click inserts a fresh period at that position with start = previous period's end, end = next period's start, so the gap is pre-filled. Bottom "+ Add Period" button is unchanged.
+
+**Files**: `js/workspace/tiles.js`, `js/workspace/workspace.css`, `changelog.md`.
+
+---
+
 ## 2026-05-19
 
 ### Workspace — TR/TP $/% rate toggle + in-tile OC-400.1 button

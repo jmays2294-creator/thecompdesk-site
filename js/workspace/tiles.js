@@ -827,7 +827,10 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
 // ====================================================================
 // CCP / Award Tile
 // ====================================================================
-const DESIGNATIONS = ['TT', 'RE', 'TR', 'TP', 'NCLT', 'NME'];
+// 'HIA' = Held in Abeyance. Period is documented (date range) but
+// contributes $0 to total award. Equation/summary/OC-400.1 prefill all
+// show the date range + 'HIA' label with no $ amount.
+const DESIGNATIONS = ['TT', 'RE', 'TR', 'TP', 'NCLT', 'NME', 'HIA'];
 
 function weeksBetween(start, end) {
   if (!start || !end) return 0;
@@ -872,12 +875,15 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       { id: 1, start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
         rateMode: 'pct', // 'pct' | 'usd' — applies to TR and TP designations
         amending: false, priorMode: 'pct', priorVal: 0,
-        reimbErOn: false, reimbErAmount: 0,
+        reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
         endMode: null },
     ],
     ccpAmount: 0,
     priorPay: 0,
-    rounding: 'none', // 'none' | 'tenth' | 'whole'
+    // Default Round Weeks to Nearest 1/10 wk (round down) — Joel's spec
+    // 5/19/26. Attorneys can still toggle this off or to 'whole'.
+    rounding: 'tenth', // 'none' | 'tenth' | 'whole'
+    doiAutofilled: false, // one-shot flag for DOI → period[0].start
   };
   const tt = global.ttRate;
   const aww = global.aww;
@@ -886,19 +892,59 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
   // Local UI state — copy-confirmation chip on the Periods Copy button.
   const [copiedSummary, setCopiedSummary] = useState(false);
 
+  // DOI auto-fill — when global.doi transitions from empty → set and the
+  // first period's start is still empty AND we haven't auto-filled yet,
+  // populate period[0].start with the DOI. One-shot per tile instance:
+  // once `doiAutofilled` is true, we never overwrite the user's date again
+  // even if the DOI is later changed.
+  useEffect(() => {
+    if (!global.doi) return;
+    if (inputs.doiAutofilled) return;
+    const first = inputs.periods && inputs.periods[0];
+    if (!first || first.start) return;
+    const nextPeriods = inputs.periods.map((p, i) =>
+      i === 0 ? { ...p, start: global.doi } : p
+    );
+    setInputs({ periods: nextPeriods, doiAutofilled: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [global.doi]);
+
+  // Shape of a fresh period — used by both addPeriod (append) and
+  // insertPeriodAt (between two existing periods).
+  const makePeriod = (start, end) => ({
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    start: start || '', end: end || '',
+    desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
+    rateMode: 'pct',
+    amending: false, priorMode: 'pct', priorVal: 0,
+    reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
+    endMode: null,
+  });
+
   const addPeriod = () => {
     // Default the new period's start date to the previous period's end
     // date so chained periods can be built without retyping. Still
     // editable by the user once added.
     const prior = inputs.periods[inputs.periods.length - 1];
     const chainedStart = prior && prior.end ? prior.end : '';
-    setInputs({ periods: [...inputs.periods, {
-      id: Date.now(), start: chainedStart, end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
-      rateMode: 'pct',
-      amending: false, priorMode: 'pct', priorVal: 0,
-      reimbErOn: false, reimbErAmount: 0,
-      endMode: null,
-    }] });
+    setInputs({ periods: [...inputs.periods, makePeriod(chainedStart, '')] });
+  };
+
+  // insertPeriodAt(i) — splice a fresh period between periods[i] and
+  // periods[i+1]. Defaults: start = periods[i].end, end = periods[i+1].start
+  // so the new row literally fills the gap between the two siblings the
+  // attorney clicked between.
+  const insertPeriodAt = (i) => {
+    const left = inputs.periods[i];
+    const right = inputs.periods[i + 1];
+    const start = left && left.end ? left.end : '';
+    const end = right && right.start ? right.start : '';
+    const next = [
+      ...inputs.periods.slice(0, i + 1),
+      makePeriod(start, end),
+      ...inputs.periods.slice(i + 1),
+    ];
+    setInputs({ periods: next });
   };
 
   // "CCP same" — fills the CCP Amount field with the rate from the last
@@ -923,6 +969,13 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
     const ttBase = (Number(aww) || 0) * 2 / 3;
     const rounding = inputs.rounding || 'none';
     const out = inputs.periods.map(p => {
+      // HIA (Held in Abeyance) — period is documented in the date range
+      // for the record, but contributes $0 to the total award. No rate
+      // resolution, no min/max bounds, no amending math.
+      if (p.desg === 'HIA') {
+        return { ...p, wks: 0, rawCurrentRate: 0, currentRate: 0, priorRate: 0,
+                 rate: 0, amount: 0, isHia: true };
+      }
       // Raw week count from the dates, then floored to whatever rounding
       // mode is active on the tile. 'none' is the historical exact value.
       const wksRaw = weeksBetween(p.start, p.end);
@@ -987,23 +1040,51 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
         rate = Math.max(0, currentRate - priorRate);
       }
 
-      return { ...p, wks, rawCurrentRate, currentRate, priorRate, rate, amount: wks * rate };
+      return { ...p, wks, rawCurrentRate, currentRate, priorRate, rate, amount: wks * rate, isHia: false };
     });
     const totalAward = out.reduce((s, p) => s + p.amount, 0);
-    // Per-period employer reimbursements (REIMB ER). Total reimbursement is
-    // deducted from the moving amount before the 15% fee is computed, so the
-    // claimant's net + fee + reimbursements + prior payments reconcile back
-    // to the total award.
-    const totalReimbEr = out.reduce(
-      (s, p) => s + (p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0),
-      0,
-    );
-    const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - totalReimbEr);
-    const feeOnAward = moving * 0.15;
+    // Per-period employer reimbursements (REIMB ER). 5/19/26 refactor —
+    // reimbursements no longer reduce the total award; instead they live in
+    // a SEPARATE bucket of money moving back to the employer. Attorney fees
+    // are taken at 15% from BOTH buckets (claimant + employer) and shown
+    // separately in the equation / OC-400.1.
+    //   - reimbErKnown = sum of reimb amounts where amount is entered
+    //   - reimbErHasUnknown = at least one period flagged "Unknown Amount"
+    //     → equation gets a "REIMB ER — TBD" line; no $ math runs for those
+    let reimbErKnown = 0;
+    let reimbErHasUnknown = false;
+    out.forEach(p => {
+      if (!p.reimbErOn) return;
+      if (p.reimbErUnknown) { reimbErHasUnknown = true; return; }
+      reimbErKnown += Number(p.reimbErAmount) || 0;
+    });
+    const totalReimbEr = reimbErKnown; // known-amount sum only
+    // Claimant bucket — money moving to the claimant
+    const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown);
+    const feeOnClaimant = claimantMoving * 0.15;
+    // Employer bucket — money moving back to the employer as reimbursement
+    const employerMoving = reimbErKnown;
+    const feeOnEmployer = employerMoving * 0.15;
+    // CCP — § ÷3 fee on Continuing Compensation Pay
     const feeOnCCP = Number(inputs.ccpAmount || 0) / 3;
-    const totalFee = feeOnAward + feeOnCCP;
-    const net = moving - totalFee;
-    return { rows: out, totalAward, totalReimbEr, moving, feeOnAward, feeOnCCP, totalFee, net };
+    // Totals
+    const totalFee = feeOnClaimant + feeOnEmployer + feeOnCCP;
+    const netToClaimant = claimantMoving - feeOnClaimant - feeOnCCP;
+    const netToEmployer = employerMoving - feeOnEmployer;
+    return {
+      rows: out, totalAward,
+      totalReimbEr, reimbErKnown, reimbErHasUnknown,
+      claimantMoving, feeOnClaimant,
+      employerMoving, feeOnEmployer,
+      feeOnCCP, totalFee,
+      netToClaimant, netToEmployer,
+      // Back-compat aliases — other code (the bottom equation card via
+      // window.buildEquation) reads these names; keep them mirrored so the
+      // refactor is a no-op on the consumer side.
+      moving: claimantMoving,
+      feeOnAward: feeOnClaimant,
+      net: netToClaimant,
+    };
   }, [inputs, tt, aww, global.minRate, global.maxRate]);
 
   return (
@@ -1032,8 +1113,9 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       </div>
       <div className="tile-body">
         <div style={{display:'grid', gap:8}}>
-          {inputs.periods.map(p => (
-            <div className="period-row" key={p.id}>
+          {inputs.periods.map((p, i) => (
+            <React.Fragment key={p.id}>
+            <div className="period-row">
               <div className="row cols-2">
                 <div className="f-group">
                   <label className="f-label">Start</label>
@@ -1074,11 +1156,16 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 <label className="f-label">Designation</label>
                 <div className="desg-pills">
                   {DESIGNATIONS.map(d => (
-                    <button key={d} className={'desg-pill ' + (p.desg === d ? 'active' : '')}
+                    <button key={d} className={'desg-pill ' + (p.desg === d ? 'active' : '') + (d === 'HIA' ? ' desg-pill-hia' : '')}
                       onClick={() => updatePeriod(p.id, { desg: d })}>{d}</button>
                   ))}
                 </div>
               </div>
+              {p.desg === 'HIA' && (
+                <div className="hia-note">
+                  Held in Abeyance — date range is recorded; this period contributes $0 to the total award.
+                </div>
+              )}
               {p.desg === 'RE' && (
                 <div className="f-group">
                   <label className="f-label">Current Earnings (wk)</label>
@@ -1136,8 +1223,11 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 </div>
               )}
               {/* REIMB ER (reimburse employer) — per-period toggle. When ON,
-                  an amount field appears and that $ is deducted from the
-                  money moving to the claimant. */}
+                  the period contributes a separate "money moving back to
+                  employer" bucket to the case-level math. Fee runs at 15%
+                  on that bucket too. If "Unknown Amount" is toggled, no
+                  $ math runs for this period — equation just flags
+                  "REIMB ER — TBD". */}
               <div className="f-group">
                 <button
                   type="button"
@@ -1148,14 +1238,30 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 </button>
                 {p.reimbErOn && (
                   <div className="amending-block">
-                    <label className="f-label">Reimbursement to Employer</label>
-                    <div className="f-input-wrap">
-                      <span className="prefix">$</span>
-                      <input className="f-input with-prefix" type="number" min="0"
-                        value={p.reimbErAmount || 0}
-                        onChange={e => updatePeriod(p.id, { reimbErAmount: Number(e.target.value) })}/>
+                    <div className="reimb-er-head">
+                      <label className="f-label" style={{margin:0}}>Reimbursement to Employer</label>
+                      <button
+                        type="button"
+                        className={'reimb-unknown-toggle ' + (p.reimbErUnknown ? 'on' : '')}
+                        onClick={() => updatePeriod(p.id, { reimbErUnknown: !p.reimbErUnknown })}
+                        aria-pressed={!!p.reimbErUnknown}
+                        title="When amount is unknown, equation flags 'REIMB ER — TBD' and no $ math runs">
+                        {p.reimbErUnknown ? '✓ Unknown Amount' : 'Unknown Amount'}
+                      </button>
                     </div>
-                    <div className="amending-help">Deducted from the money moving to the claimant.</div>
+                    {!p.reimbErUnknown && (
+                      <div className="f-input-wrap">
+                        <span className="prefix">$</span>
+                        <input className="f-input with-prefix" type="number" min="0"
+                          value={p.reimbErAmount || 0}
+                          onChange={e => updatePeriod(p.id, { reimbErAmount: Number(e.target.value) })}/>
+                      </div>
+                    )}
+                    <div className="amending-help">
+                      {p.reimbErUnknown
+                        ? 'Equation will flag REIMB ER as TBD until the amount is entered.'
+                        : 'Reimbursement bucket — fee taken at 15% from money moving back to employer, separate from claimant fee.'}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1203,11 +1309,29 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 )}
               </div>
               <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', fontFamily:'var(--mono)', fontSize:11, color:'var(--tx-dim)', borderTop:'1px solid var(--bd-soft)', paddingTop:8}}>
-                <span>{fmtN(computed.rows.find(r => r.id === p.id)?.wks, 2)} wks × {fmt$(computed.rows.find(r => r.id === p.id)?.rate)}{p.amending ? ' (amending)' : ''}</span>
+                {p.desg === 'HIA' ? (
+                  <span style={{fontStyle:'italic', color:'var(--tx-faint)'}}>
+                    Held in Abeyance — contributes $0 to total award
+                  </span>
+                ) : (
+                  <span>{fmtN(computed.rows.find(r => r.id === p.id)?.wks, 2)} wks × {fmt$(computed.rows.find(r => r.id === p.id)?.rate)}{p.amending ? ' (amending)' : ''}</span>
+                )}
                 <span style={{color:'var(--ac-2)'}}>{fmt$(computed.rows.find(r => r.id === p.id)?.amount)}</span>
                 <button className="delete-row" onClick={() => removePeriod(p.id)}>×</button>
               </div>
             </div>
+            {i < inputs.periods.length - 1 && (
+              <div className="period-insert-row">
+                <button
+                  type="button"
+                  className="period-insert-btn"
+                  onClick={() => insertPeriodAt(i)}
+                  title="Insert a new period between these two">
+                  + Add Period
+                </button>
+              </div>
+            )}
+            </React.Fragment>
           ))}
         </div>
         <button className="btn tiny" onClick={addPeriod}>+ Add Period</button>
@@ -1260,6 +1384,10 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
             const startStr = fmtMDY(p.start);
             const endStr   = fmtMDY(p.end);
             const dateStr  = (startStr || endStr) ? `${startStr || '—'}-${endStr || '—'}` : '—';
+            // HIA — no rate, no %; just the date range + HIA label.
+            if (p.desg === 'HIA') {
+              return [dateStr, 'HIA'].join(' ');
+            }
             const showRate = p.desg !== 'NCLT' && p.desg !== 'NME';
             const rateStr  = showRate ? fmt$(p.rate) : '';
             let pctStr = '';
@@ -1270,8 +1398,15 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
               const wageLossPct = Math.max(0, Math.min(100, ((aww - Number(p.curEarn || 0)) / aww) * 100));
               pctStr = `(${wageLossPct.toFixed(1)}%)`;
             }
-            const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
-            const reimbStr = reimbAmt > 0 ? `REIMB ER −${fmt$(reimbAmt)}` : '';
+            let reimbStr = '';
+            if (p.reimbErOn) {
+              if (p.reimbErUnknown) {
+                reimbStr = 'REIMB ER — TBD';
+              } else {
+                const reimbAmt = Number(p.reimbErAmount) || 0;
+                if (reimbAmt > 0) reimbStr = `REIMB ER −${fmt$(reimbAmt)}`;
+              }
+            }
             // Single-space joiner per Joel's spec: dates  RATE  DESG  (%)  REIMB.
             return [dateStr, rateStr, p.desg, pctStr, reimbStr].filter(Boolean).join(' ');
           };
@@ -1315,14 +1450,33 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
 
         <div className="results">
           <div className="r-row big"><span className="l">Total Award</span><span className="v">{fmt$(computed.totalAward)}</span></div>
-          {computed.totalReimbEr > 0 && (
-            <div className="r-row"><span className="l">Less Reimb to ER</span><span className="v">−{fmt$(computed.totalReimbEr)}</span></div>
+          {Number(inputs.priorPay || 0) > 0 && (
+            <div className="r-row"><span className="l">Less Prior Payments</span><span className="v">−{fmt$(Number(inputs.priorPay || 0))}</span></div>
           )}
-          <div className="r-row"><span className="l">Moving</span><span className="v">{fmt$(computed.moving)}</span></div>
-          <div className="r-row"><span className="l">Fee on Award (15%)</span><span className="v">{fmt$(computed.feeOnAward)}</span></div>
-          <div className="r-row"><span className="l">Fee on CCP (÷3)</span><span className="v">{fmt$(computed.feeOnCCP)}</span></div>
+          {computed.reimbErKnown > 0 && (
+            <div className="r-row"><span className="l">Less Reimb to ER (to employer bucket)</span><span className="v">−{fmt$(computed.reimbErKnown)}</span></div>
+          )}
+          {computed.reimbErHasUnknown && (
+            <div className="r-row"><span className="l">Reimb to ER</span><span className="v" style={{fontStyle:'italic', color:'var(--tx-faint)'}}>TBD</span></div>
+          )}
+          {/* Claimant bucket */}
+          <div className="r-row"><span className="l">Moving to Claimant</span><span className="v">{fmt$(computed.claimantMoving)}</span></div>
+          <div className="r-row"><span className="l">Fee from Claimant (15%)</span><span className="v">{fmt$(computed.feeOnClaimant)}</span></div>
+          {Number(inputs.ccpAmount || 0) > 0 && (
+            <div className="r-row"><span className="l">Fee on CCP (÷3)</span><span className="v">{fmt$(computed.feeOnCCP)}</span></div>
+          )}
+          {/* Employer bucket — only shown when there's an employer reimbursement */}
+          {computed.employerMoving > 0 && (
+            <>
+              <div className="r-row r-row-employer"><span className="l">Moving to Employer (reimb)</span><span className="v">{fmt$(computed.employerMoving)}</span></div>
+              <div className="r-row r-row-employer"><span className="l">Fee from Employer Reimb (15%)</span><span className="v">{fmt$(computed.feeOnEmployer)}</span></div>
+            </>
+          )}
           <div className="r-row"><span className="l">Total Fee</span><span className="v">{fmt$(computed.totalFee)}</span></div>
-          <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(computed.net)}</span></div>
+          <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(computed.netToClaimant)}</span></div>
+          {computed.employerMoving > 0 && (
+            <div className="r-row net r-row-employer"><span className="l">Net to Employer</span><span className="v">{fmt$(computed.netToEmployer)}</span></div>
+          )}
         </div>
       </div>
     </>
@@ -1841,13 +1995,27 @@ function buildEquation(tile, global) {
       }
       // Mirror the CCPTile.computed math 1:1 so the equation card at the
       // bottom of the workspace, the OC-400.1 fee-app prefill, and the
-      // tile's own results panel all agree. Previously the equation card
-      // ignored Amending Award toggles and used the full current rate,
-      // which over-stated totalAward, moving, and totalFee.
+      // tile's own results panel all agree. 5/19/26 — HIA periods
+      // contribute $0; REIMB ER lives in its own employer bucket with
+      // its own 15% fee; "Unknown Amount" REIMB ER skips $ math and
+      // surfaces as a "TBD" flag.
       const ttBase = (Number(aww) || 0) * 2 / 3;
       const ccpRounding = inputs.rounding || 'none';
-      let totalReimbEr = 0;
+      let reimbErKnown = 0;
+      let reimbErHasUnknown = false;
       inputs.periods.forEach((p, i) => {
+        // HIA — period documented but contributes $0.
+        if (p.desg === 'HIA') {
+          lines.push(`P${i+1} HIA: ${p.start || '—'} to ${p.end || '—'} — Held in Abeyance ($0)`);
+          summary.push(`Period ${i+1} held in abeyance (${p.start || 'no start'} to ${p.end || 'no end'})`);
+          // Reimb still possible on HIA periods (unlikely but legal); honor it.
+          if (p.reimbErOn) {
+            if (p.reimbErUnknown) reimbErHasUnknown = true;
+            else reimbErKnown += Number(p.reimbErAmount) || 0;
+          }
+          return;
+        }
+
         const wksRaw = weeksBetween(p.start, p.end);
         const wks = roundWeeksDown(wksRaw, ccpRounding);
         const rateMode = p.rateMode || 'pct';
@@ -1891,9 +2059,21 @@ function buildEquation(tile, global) {
 
         const amt = wks * rate;
         totalAward += amt;
-        const reimbAmt = p.reimbErOn ? (Number(p.reimbErAmount) || 0) : 0;
-        totalReimbEr += reimbAmt;
-        const reimbSuffix = reimbAmt > 0 ? ` · REIMB ER −${fmt$(reimbAmt)}` : '';
+
+        // REIMB ER bucketing — separate from total award now.
+        let reimbSuffix = '';
+        if (p.reimbErOn) {
+          if (p.reimbErUnknown) {
+            reimbErHasUnknown = true;
+            reimbSuffix = ' · REIMB ER — TBD';
+          } else {
+            const reimbAmt = Number(p.reimbErAmount) || 0;
+            if (reimbAmt > 0) {
+              reimbErKnown += reimbAmt;
+              reimbSuffix = ` · REIMB ER ${fmt$(reimbAmt)} → employer bucket`;
+            }
+          }
+        }
         const amendSuffix = p.amending
           ? ` (amending: ${fmt$(currentRate)} − ${fmt$(priorRate)} = ${fmt$(rate)}/wk)`
           : '';
@@ -1904,25 +2084,47 @@ function buildEquation(tile, global) {
         const summaryAmend = p.amending
           ? `, amending — ${fmt$(currentRate)} − ${fmt$(priorRate)} = ${fmt$(rate)}/wk`
           : '';
-        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted && !p.amending ? ` — adjusted from raw ${fmt$(rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(amt)}${reimbAmt > 0 ? `, reimbursement to employer of ${fmt$(reimbAmt)}` : ''})`);
+        let reimbProse = '';
+        if (p.reimbErOn) {
+          if (p.reimbErUnknown) reimbProse = ', reimbursement to employer — amount TBD';
+          else if ((Number(p.reimbErAmount) || 0) > 0) reimbProse = `, reimbursement to employer of ${fmt$(Number(p.reimbErAmount))}`;
+        }
+        summary.push(`Period ${i+1} (${p.desg}, ${fmtN(wks,2)} wks at ${fmt$(rate)}/wk${adjusted && !p.amending ? ` — adjusted from raw ${fmt$(rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(amt)}${reimbProse})`);
       });
-      const moving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - totalReimbEr);
-      const feeOnAward = moving * 0.15;
+      // Buckets — claimant + employer + CCP
+      const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown);
+      const feeOnClaimant = claimantMoving * 0.15;
+      const employerMoving = reimbErKnown;
+      const feeOnEmployer = employerMoving * 0.15;
       const feeOnCCP = Number(inputs.ccpAmount || 0) / 3;
-      const totalFee = feeOnAward + feeOnCCP;
-      const net = moving - totalFee;
+      const totalFee = feeOnClaimant + feeOnEmployer + feeOnCCP;
+      const netToClaimant = claimantMoving - feeOnClaimant - feeOnCCP;
+      const netToEmployer = employerMoving - feeOnEmployer;
+
       lines.push(`Total Award: ${fmt$(totalAward)}`);
       lines.push(`Less Prior: (${fmt$(Number(inputs.priorPay || 0))})`);
-      if (totalReimbEr > 0) lines.push(`Less Reimb to ER: (${fmt$(totalReimbEr)})`);
-      lines.push(`Moving: ${fmt$(moving)}`);
-      lines.push(`Fee on Award: ${fmt$(moving)} × 15% = ${fmt$(feeOnAward)}`);
-      lines.push(`Fee on CCP: ${fmt$(Number(inputs.ccpAmount || 0))} ÷ 3 = ${fmt$(feeOnCCP)}`);
+      if (reimbErKnown > 0) lines.push(`Less Reimb to ER (to employer bucket): (${fmt$(reimbErKnown)})`);
+      if (reimbErHasUnknown) lines.push(`Reimb to ER: TBD (amount unknown — fee math will run once entered)`);
+      lines.push(`Moving to Claimant: ${fmt$(claimantMoving)}`);
+      lines.push(`Fee from Claimant: ${fmt$(claimantMoving)} × 15% = ${fmt$(feeOnClaimant)}`);
+      if (Number(inputs.ccpAmount || 0) > 0) {
+        lines.push(`Fee on CCP: ${fmt$(Number(inputs.ccpAmount || 0))} ÷ 3 = ${fmt$(feeOnCCP)}`);
+      }
+      if (employerMoving > 0) {
+        lines.push(`Moving to Employer (reimb): ${fmt$(employerMoving)}`);
+        lines.push(`Fee from Employer Reimb: ${fmt$(employerMoving)} × 15% = ${fmt$(feeOnEmployer)}`);
+      }
       lines.push(`Total Fee: ${fmt$(totalFee)}`);
-      lines.push(`Net: ${fmt$(net)}`);
-      const reimbClause = totalReimbEr > 0
-        ? ` and reimbursement to employer of ${fmt$(totalReimbEr)}`
+      lines.push(`Net to Claimant: ${fmt$(netToClaimant)}`);
+      if (employerMoving > 0) lines.push(`Net to Employer: ${fmt$(netToEmployer)}`);
+
+      const reimbClauseKnown = reimbErKnown > 0
+        ? ` Reimbursement to employer of ${fmt$(reimbErKnown)} moves to a separate employer bucket; attorney fee of 15% on that bucket = ${fmt$(feeOnEmployer)}.`
         : '';
-      const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)} less prior payments ${fmt$(Number(inputs.priorPay || 0))}${reimbClause} = ${fmt$(moving)} moving. Attorney fee is 15% of moving (${fmt$(feeOnAward)}) plus one-third of CCP (${fmt$(feeOnCCP)}) = ${fmt$(totalFee)} total fee. Net to claimant = ${fmt$(net)}.`;
+      const reimbClauseUnknown = reimbErHasUnknown
+        ? ` A further reimbursement to employer is owed in an amount TBD — fee from that bucket will be calculated once the amount is entered.`
+        : '';
+      const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)}, less prior payments ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(claimantMoving)} moving to claimant. Fee from claimant is 15% of claimant moving (${fmt$(feeOnClaimant)})${Number(inputs.ccpAmount || 0) > 0 ? ` plus one-third of CCP (${fmt$(feeOnCCP)})` : ''}.${reimbClauseKnown}${reimbClauseUnknown} Total attorney fee = ${fmt$(totalFee)}. Net to claimant = ${fmt$(netToClaimant)}${employerMoving > 0 ? `; net to employer = ${fmt$(netToEmployer)}` : ''}.`;
       // Per OC-400.1 § A fee-reason checkboxes:
       //   FeeReason1 = "continuation of weekly compensation benefits"
       //   FeeReason2 = "increase in the amount of compensation awarded
