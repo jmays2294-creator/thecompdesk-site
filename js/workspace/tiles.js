@@ -592,7 +592,7 @@ function Inherited({ ttRate, maxRate, minRate, aww, awwOverride, source = 'globa
 // ====================================================================
 // SLU Tile
 // ====================================================================
-function SLUTile({ tile, global, onUpdate }) {
+function SLUTile({ tile, global, onUpdate, onFeeApp }) {
   const inputs = tile.inputs || { rows: [{ id: 1, bp: 'Leg', pct: 0 }], priorPay: 0, priorTTRWks: 0, phpWks: 0 };
   const tt = global.ttRate;
 
@@ -716,6 +716,15 @@ function SLUTile({ tile, global, onUpdate }) {
           <div className="r-row"><span className="l">Moving (after prior)</span><span className="v">{fmt$(computed.moving)}</span></div>
           <div className="r-row"><span className="l">Attorney Fee (15%)</span><span className="v">{fmt$(computed.fee)}</span></div>
           <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(computed.net)}</span></div>
+          {typeof onFeeApp === 'function' && (
+            <div className="r-feeapp-row">
+              <button type="button" className="btn tiny primary tile-feeapp-btn"
+                onClick={() => onFeeApp(tile)}
+                title="Generate the OC-400.1 fee application from this SLU calculation">
+                Generate OC-400.1
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -725,7 +734,7 @@ function SLUTile({ tile, global, onUpdate }) {
 // ====================================================================
 // LWEC Tile
 // ====================================================================
-function LWECTile({ tile, global, onUpdate }) {
+function LWECTile({ tile, global, onUpdate, onFeeApp }) {
   const inputs = tile.inputs || { pct: 50, feePerWeek: 0, priorTTRWks: 0 };
   const tt = global.ttRate;
   const aww = global.aww;
@@ -800,6 +809,15 @@ function LWECTile({ tile, global, onUpdate }) {
           <div className="r-row big"><span className="l">Total Award</span><span className="v">{computed.isLifetime ? 'Lifetime' : fmt$(computed.totalAward)}</span></div>
           <div className="r-row"><span className="l">Atty Fee (15 wks)</span><span className="v">{fmt$(computed.fee)}</span></div>
           <div className="r-row net"><span className="l">Total Net</span><span className="v">{computed.isLifetime ? '—' : fmt$(computed.totalNet)}</span></div>
+          {typeof onFeeApp === 'function' && (
+            <div className="r-feeapp-row">
+              <button type="button" className="btn tiny primary tile-feeapp-btn"
+                onClick={() => onFeeApp(tile)}
+                title="Generate the OC-400.1 fee application from this LWEC calculation">
+                Generate OC-400.1
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -848,10 +866,11 @@ function tomorrowISO() {
   return `${y}-${m}-${dd}`;
 }
 
-function CCPTile({ tile, global, onUpdate }) {
+function CCPTile({ tile, global, onUpdate, onFeeApp }) {
   const inputs = tile.inputs || {
     periods: [
       { id: 1, start: '', end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
+        rateMode: 'pct', // 'pct' | 'usd' — applies to TR and TP designations
         amending: false, priorMode: 'pct', priorVal: 0,
         reimbErOn: false, reimbErAmount: 0,
         endMode: null },
@@ -875,6 +894,7 @@ function CCPTile({ tile, global, onUpdate }) {
     const chainedStart = prior && prior.end ? prior.end : '';
     setInputs({ periods: [...inputs.periods, {
       id: Date.now(), start: chainedStart, end: '', desg: 'TT', curEarn: 0, ratePct: 100, manualRate: 0,
+      rateMode: 'pct',
       amending: false, priorMode: 'pct', priorVal: 0,
       reimbErOn: false, reimbErAmount: 0,
       endMode: null,
@@ -908,17 +928,35 @@ function CCPTile({ tile, global, onUpdate }) {
       const wksRaw = weeksBetween(p.start, p.end);
       const wks = roundWeeksDown(wksRaw, rounding);
       // Resolve the "current" rate using the desg, exactly as v1.1 did.
+      // TR and TP each support a per-period $/% toggle (rateMode).
+      const rateMode = p.rateMode || 'pct';
       let rawCurrentRate = 0;
       if (p.desg === 'TT')         rawCurrentRate = tt;
       else if (p.desg === 'RE')    rawCurrentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
       else if (p.desg === 'TR') {
-        // TR percentage is applied to the UNCAPPED ⅔ × AWW first; the cap is
-        // applied below by applyRateBounds. Using the already-capped TT as the
-        // base understates TR any time ⅔ × AWW exceeds the max.
-        // Example: AWW $2,258.12, max $1,171.46 (DOI 10/10/24), TR @ 87.5%:
-        //   wrong: 0.875 × $1,171.46 = $1,025.03
-        //   right: min($1,171.46, 0.875 × ⅔ × $2,258.12) = $1,171.46
-        rawCurrentRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
+        if (rateMode === 'usd') {
+          // Attorney typed a $ rate directly. Treat as the raw rate; min/max
+          // bounds still apply below (same as TT/RE).
+          rawCurrentRate = Number(p.manualRate || 0);
+        } else {
+          // TR percentage is applied to the UNCAPPED ⅔ × AWW first; the cap is
+          // applied below by applyRateBounds. Using the already-capped TT as the
+          // base understates TR any time ⅔ × AWW exceeds the max.
+          // Example: AWW $2,258.12, max $1,171.46 (DOI 10/10/24), TR @ 87.5%:
+          //   wrong: 0.875 × $1,171.46 = $1,025.03
+          //   right: min($1,171.46, 0.875 × ⅔ × $2,258.12) = $1,171.46
+          rawCurrentRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
+        }
+      }
+      else if (p.desg === 'TP') {
+        if (rateMode === 'pct') {
+          // TP % is applied to the BOUNDED TT rate (per spec May 2026).
+          // Simpler mental model than TR — "50% TP" = half of TT rate.
+          const ttBounded = applyRateBounds((Number(aww) || 0) * (2 / 3), aww, global.minRate, global.maxRate);
+          rawCurrentRate = ttBounded * (Number(p.ratePct || 0) / 100);
+        } else {
+          rawCurrentRate = Number(p.manualRate || 0);
+        }
       }
       else                         rawCurrentRate = Number(p.manualRate || 0);
 
@@ -1051,14 +1089,43 @@ function CCPTile({ tile, global, onUpdate }) {
                   </div>
                 </div>
               )}
-              {p.desg === 'TR' && (
-                <div className="f-group">
-                  <label className="f-label">Rate %</label>
-                  <input className="f-input" type="number" min="0" max="100" value={p.ratePct}
-                    onChange={e => updatePeriod(p.id, { ratePct: e.target.value })}/>
-                </div>
-              )}
-              {(p.desg === 'TP' || p.desg === 'NCLT' || p.desg === 'NME') && (
+              {(p.desg === 'TR' || p.desg === 'TP') && (() => {
+                // TR/TP $/% toggle. Default mode is '%'. In % mode, the user
+                // types a percentage; in $ mode, the user types the actual
+                // weekly rate. Toggle pills mirror the Amending Award $/% pair
+                // for visual consistency.
+                const mode = p.rateMode || 'pct';
+                return (
+                  <div className="f-group">
+                    <div className="rate-toggle-row">
+                      <label className="f-label" style={{ margin: 0 }}>
+                        {mode === 'pct' ? 'Rate %' : 'Rate ($)'}
+                      </label>
+                      <div className="rate-mode-toggle" role="radiogroup" aria-label="Rate input mode">
+                        <button type="button" role="radio"
+                          aria-checked={mode === 'pct'}
+                          className={'rate-mode-pill ' + (mode === 'pct' ? 'on' : '')}
+                          onClick={() => updatePeriod(p.id, { rateMode: 'pct' })}>%</button>
+                        <button type="button" role="radio"
+                          aria-checked={mode === 'usd'}
+                          className={'rate-mode-pill ' + (mode === 'usd' ? 'on' : '')}
+                          onClick={() => updatePeriod(p.id, { rateMode: 'usd' })}>$</button>
+                      </div>
+                    </div>
+                    {mode === 'pct' ? (
+                      <input className="f-input" type="number" min="0" max="100" value={p.ratePct}
+                        onChange={e => updatePeriod(p.id, { ratePct: e.target.value })}/>
+                    ) : (
+                      <div className="f-input-wrap">
+                        <span className="prefix">$</span>
+                        <input className="f-input with-prefix" type="number" value={p.manualRate}
+                          onChange={e => updatePeriod(p.id, { manualRate: e.target.value })}/>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+              {(p.desg === 'NCLT' || p.desg === 'NME') && (
                 <div className="f-group">
                   <label className="f-label">Manual Rate</label>
                   <div className="f-input-wrap">
@@ -1196,7 +1263,8 @@ function CCPTile({ tile, global, onUpdate }) {
             const showRate = p.desg !== 'NCLT' && p.desg !== 'NME';
             const rateStr  = showRate ? fmt$(p.rate) : '';
             let pctStr = '';
-            if (p.desg === 'TR') {
+            const pMode = p.rateMode || 'pct';
+            if ((p.desg === 'TR' || p.desg === 'TP') && pMode === 'pct') {
               pctStr = `(${Number(p.ratePct) || 0}%)`;
             } else if (p.desg === 'RE' && aww > 0) {
               const wageLossPct = Math.max(0, Math.min(100, ((aww - Number(p.curEarn || 0)) / aww) * 100));
@@ -1222,11 +1290,21 @@ function CCPTile({ tile, global, onUpdate }) {
             <div className="ccp-summary">
               <div className="ccp-summary-head">
                 <span className="ccp-summary-title">Periods</span>
-                <button type="button" className="btn tiny ccp-summary-copy"
-                  onClick={onCopySummary}
-                  title="Copy these lines to the clipboard for paste into hearing notes">
-                  {copiedSummary ? 'Copied ✓' : 'Copy'}
-                </button>
+                <div className="ccp-summary-actions">
+                  <button type="button" className="btn tiny ccp-summary-copy"
+                    onClick={onCopySummary}
+                    title="Copy these lines to the clipboard for paste into hearing notes">
+                    {copiedSummary ? 'Copied ✓' : 'Copy'}
+                  </button>
+                  {typeof onFeeApp === 'function' && (
+                    <button type="button"
+                      className="btn tiny primary ccp-summary-feeapp"
+                      onClick={() => onFeeApp(tile)}
+                      title="Generate the OC-400.1 fee application from this calculation">
+                      Generate OC-400.1
+                    </button>
+                  )}
+                </div>
               </div>
               {computed.rows.map((p) => (
                 <div className="ccp-summary-row" key={p.id}>{buildRow(p)}</div>
@@ -1509,7 +1587,7 @@ function BurnsTile({ tile, global, onUpdate }) {
 //                  the formal WCMSA / indemnity split that CMS submissions
 //                  use.
 // ====================================================================
-function SettlementTile({ tile, global, onUpdate }) {
+function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
   const inputs = tile.inputs || { settlement: 0, msa: 0, msaType: 'none', msaMode: 'usd', msaPct: 5 };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
@@ -1639,6 +1717,15 @@ function SettlementTile({ tile, global, onUpdate }) {
         )}
         <div className="r-row"><span className="l">Atty Fee (15%)</span><span className="v">−{fmt$(c.fee)}</span></div>
         <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(c.net)}</span></div>
+        {typeof onFeeApp === 'function' && (
+          <div className="r-feeapp-row">
+            <button type="button" className="btn tiny primary tile-feeapp-btn"
+              onClick={() => onFeeApp(tile)}
+              title="Generate the OC-400.1 fee application from this Section 32 settlement">
+              Generate OC-400.1
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1763,10 +1850,23 @@ function buildEquation(tile, global) {
       inputs.periods.forEach((p, i) => {
         const wksRaw = weeksBetween(p.start, p.end);
         const wks = roundWeeksDown(wksRaw, ccpRounding);
+        const rateMode = p.rateMode || 'pct';
         let rawCurrentRate = 0;
         if (p.desg === 'TT') rawCurrentRate = tt;
         else if (p.desg === 'RE') rawCurrentRate = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
-        else if (p.desg === 'TR') rawCurrentRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
+        else if (p.desg === 'TR') {
+          rawCurrentRate = rateMode === 'usd'
+            ? Number(p.manualRate || 0)
+            : (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
+        }
+        else if (p.desg === 'TP') {
+          if (rateMode === 'pct') {
+            const ttBounded = applyRateBounds((Number(aww) || 0) * (2 / 3), aww, global.minRate, global.maxRate);
+            rawCurrentRate = ttBounded * (Number(p.ratePct || 0) / 100);
+          } else {
+            rawCurrentRate = Number(p.manualRate || 0);
+          }
+        }
         else rawCurrentRate = Number(p.manualRate || 0);
         const currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
         const adjusted = Math.abs(currentRate - rawCurrentRate) > 0.005;

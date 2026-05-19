@@ -5,6 +5,28 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-19
+
+### Workspace — TR/TP $/% rate toggle + in-tile OC-400.1 button
+
+Two UX improvements across the Pro Attorney Workspace so common fee-app workflows lose a scroll and lose a math step.
+
+- **CCP / Award Builder — TR & TP rate input mode toggle.** Both TR and TP designations now expose a per-period `$ / %` pill toggle above the rate input (mirrors the MSA $/% pattern in the Settlement tile). Default mode for both is `%`.
+  - **TR — %**: existing behavior — `pct × ⅔ × AWW`, then min/max bounded.
+  - **TR — $**: attorney types the actual weekly rate directly; bounds still applied.
+  - **TP — %**: `pct × bounded TT rate` (simpler mental model than TR — "50% TP" = half the TT rate).
+  - **TP — $**: legacy behavior — direct manual weekly rate.
+  - NCLT/NME unchanged (still $-only via Manual Rate).
+  - Mirrored in `buildEquation('CCP')` so the equation card, OC-400.1 prefill, and tile results all agree.
+- **In-tile "Generate OC-400.1" button.** Previously the only way to fire the fee app was scrolling to the bottom equation card. Button now appears in-context on every fee-generating tile:
+  - **CCP / Award Builder** — directly under the **Copy** button in the Periods summary, right where the attorney just finalized the calc.
+  - **SLU**, **LWEC**, **Section 32 Settlement** — inside the Results panel, immediately below the "Net to Claimant" row.
+  - `onFeeApp` is now plumbed Canvas → Tile → tile component so each tile can trigger the same prefilled OC-400.1 flow without scrolling.
+
+**Files**: `js/workspace/tiles.js`, `js/workspace/app.js`, `js/workspace/workspace.css`.
+
+---
+
 ## 2026-05-18 (later same day)
 
 ### Universal contact rollout — phone (786) 815-4612 + email contact@thecompdesk.com

@@ -1214,6 +1214,20 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .ccp-summary-copy {
   font-family: var(--mono, ui-monospace, monospace);
 }
+/* Right-side cluster in the .ccp-summary-head row: Copy on top,
+   Generate OC-400.1 directly below it so the attorney never has to
+   scroll to the bottom equation card to fire the fee app. */
+.ccp-summary-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.ccp-summary-feeapp {
+  font-family: var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 .ccp-summary-row {
   /* Plain-text-style line: one period per row, single-space joined. */
   font: 600 12.5px/1.4 var(--mono, ui-monospace, monospace);
@@ -1676,6 +1690,53 @@ footer.disclaimer {
 .msa-mode-pill.on {
   background: color-mix(in srgb, var(--ac) 22%, var(--bg-1));
   color: var(--tx);
+}
+
+/* CCP — inline $ / % mode switch for TR and TP rate inputs. Mirrors the
+   MSA $/% pill style so the workspace has one visual vocabulary for
+   "this number can be a $ or a %". */
+.rate-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.rate-mode-toggle {
+  display: inline-flex;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 1px;
+  background: var(--bg-1);
+}
+.rate-mode-pill {
+  border: 0;
+  background: transparent;
+  color: var(--tx-dim);
+  font: 700 11px/1 var(--mono, ui-monospace, monospace);
+  padding: 4px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 24px;
+}
+.rate-mode-pill:hover { color: var(--tx); }
+.rate-mode-pill.on {
+  background: color-mix(in srgb, var(--ac) 22%, var(--bg-1));
+  color: var(--tx);
+}
+
+/* In-tile "Generate OC-400.1" button. Lives inside the .results panel of
+   SLU / LWEC / Settlement tiles so the attorney can fire the fee app
+   without scrolling to the bottom equation card. */
+.r-feeapp-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.tile-feeapp-btn {
+  font-family: var(--mono, ui-monospace, monospace);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 /* "More Themes" selector — sits where the duplicate §14 citation used to

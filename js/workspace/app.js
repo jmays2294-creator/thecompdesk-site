@@ -727,7 +727,7 @@ function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
   );
 }
 
-function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, perspective }) {
+function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, perspective, onFeeApp }) {
   const tileRef = useRef(null);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
 
@@ -767,7 +767,7 @@ function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, p
         <span className="tile-name">{spec.name}<span className="tile-instance"> #{tile.instance}</span></span>
         <button className="tile-close" onClick={() => onRemove(tile.id)} title="Remove">×</button>
       </div>
-      <Component tile={tile} global={global} onUpdate={onUpdate} />
+      <Component tile={tile} global={global} onUpdate={onUpdate} onFeeApp={onFeeApp} />
     </div>
   );
 }
@@ -802,7 +802,7 @@ function findEmptySlot(tiles, w, h, preferX = 0, preferY = 0, snap = GRID) {
   return { x: 0, y: 0 };
 }
 
-function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspective, showGrid, snapSize }) {
+function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspective, showGrid, snapSize, onFeeApp }) {
   const canvasRef = useRef(null);
   const [drag, setDrag] = useState(null);
   const [dropPreview, setDropPreview] = useState(null);
@@ -888,7 +888,8 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
             onUpdate={onUpdate} onRemove={onRemove}
             onTilePointerDown={onTilePointerDown}
             isRecent={tile.id === mostRecentId}
-            perspective={perspective}/>
+            perspective={perspective}
+            onFeeApp={onFeeApp}/>
         ))}
       </div>
     </div>
@@ -1641,7 +1642,8 @@ function App() {
           mostRecentId={mostRecentId}
           perspective={tweaks.perspective}
           showGrid={tweaks.showGrid}
-          snapSize={tweaks.snapSize}/>
+          snapSize={tweaks.snapSize}
+          onFeeApp={onFeeApp}/>
       </div>
 
       {activeTab.tiles.length > 0 && (
