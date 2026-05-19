@@ -1118,42 +1118,103 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       return { ...p, wks, rawCurrentRate, currentRate, priorRate, rate, amount: wks * rate, isHia: false };
     });
     const totalAward = out.reduce((s, p) => s + p.amount, 0);
-    // Per-period employer reimbursements (REIMB ER). 5/19/26 v3 + v4 —
-    // reimbursements no longer reduce the total award; instead they live in
-    // a SEPARATE bucket of money moving back to the employer. Attorney fees
-    // are taken at 15% from BOTH buckets (claimant + employer) and shown
-    // separately in the equation / OC-400.1.
+    // Per-period employer reimbursements (REIMB ER). 5/19/26 v5 —
+    // CLAIM → CAP → ACTUAL model:
+    //   • The user-entered $ amount is what the EMPLOYER IS CLAIMING.
+    //   • Actual reimbursement to employer = min(claim, available_cap).
+    //   • Available cap per period = min(overlap-amount, period.remainingForReimb).
+    //     remainingForReimb starts at period.amount and decreases as prior
+    //     REIMB ER claims (in carrier-period order) allocate against it.
+    //   • The same period can't be claimed twice — multiple REIMB ER carriers
+    //     whose ranges overlap the same period share that period's award capacity.
+    // Reimbursements live in a SEPARATE bucket from claimant awards; 15% fee is
+    // taken from each bucket independently.
     //
-    // Scope handling (per-period):
-    //   - 'period'   → reimbErAmount applies to this period only
-    //   - 'all'      → reimbErAmount is the case-level total (exclusive — only one period carrier)
-    //   - 'specific' → user-entered reimbErAmount is the total reimbursement; the auto-calc (Σ overlap wks × rate
-    //                  across overlapping periods) is shown only as a 'Max recoupable' hint. Each overlapped
-    //                  period is tagged with 'RE ER' in the period summary copy.
-    // Unknown Amount toggle suppresses $ math under ANY scope and surfaces as 'REIMB ER — TBD'.
+    // Scope rules:
+    //   • 'period'   → cap = min(this period's amount, this period's remainingForReimb)
+    //   • 'all'      → cap = Σ min(p.amount, p.remainingForReimb) for all non-HIA periods (exclusive carrier)
+    //   • 'specific' → cap = Σ min(overlap-amount in p, p.remainingForReimb) for periods overlapping the window
+    // Unknown Amount → no $ math, no allocation, flag 'TBD'. HIA always contributes 0.
     let reimbErKnown = 0;
     let reimbErHasUnknown = false;
-    out.forEach(p => {
-      // Pre-compute the max recoupable + overlap count for any specific-range
-      // reimb, regardless of Known/Unknown — used for hint display and
-      // equation prose ("applies for N periods").
-      if (p.reimbErOn && (p.reimbErScope || 'period') === 'specific') {
-        p._maxRecoupable = computeRangeReimbursement(out, p.reimbErRangeStart, p.reimbErRangeEnd, rounding);
-        p._overlapCount = countSpecificOverlaps(out, p.reimbErRangeStart, p.reimbErRangeEnd);
+    // Initialize per-period remaining capacity (gross awards directed by WCB).
+    out.forEach(r => { r.remainingForReimb = r.isHia ? 0 : (Number(r.amount) || 0); });
+
+    // Helper — for a given carrier, compute the per-period contribution caps
+    // (overlap amount in that period, but ≤ that period's remainingForReimb).
+    const resolveContributions = (carrier) => {
+      const scope = carrier.reimbErScope || 'period';
+      const contribs = []; // [{ p, cap, overlapWks }]
+      if (scope === 'period') {
+        if (!carrier.isHia) {
+          contribs.push({ p: carrier, cap: Math.min(carrier.amount || 0, carrier.remainingForReimb) });
+        }
+      } else if (scope === 'all') {
+        out.forEach(p => {
+          if (p.isHia) return;
+          const cap = Math.min(p.amount || 0, p.remainingForReimb);
+          if (cap >= 0) contribs.push({ p, cap });
+        });
+      } else if (scope === 'specific') {
+        if (!carrier.reimbErRangeStart || !carrier.reimbErRangeEnd) return contribs;
+        const rStart = new Date(carrier.reimbErRangeStart);
+        const rEnd   = new Date(carrier.reimbErRangeEnd);
+        if (isNaN(rStart.getTime()) || isNaN(rEnd.getTime()) || rEnd < rStart) return contribs;
+        out.forEach(p => {
+          if (p.isHia) return;
+          if (!p.start || !p.end) return;
+          const pStart = new Date(p.start);
+          const pEnd   = new Date(p.end);
+          if (isNaN(pStart.getTime()) || isNaN(pEnd.getTime())) return;
+          if (pEnd < rStart || pStart > rEnd) return;
+          const oStart = pStart > rStart ? pStart : rStart;
+          const oEnd   = pEnd   < rEnd   ? pEnd   : rEnd;
+          const days = (oEnd - oStart) / (1000 * 60 * 60 * 24) + 1;
+          const overlapWks = roundWeeksDown(days / 7, rounding);
+          const overlapAmt = overlapWks * (Number(p.rate) || 0);
+          // Per-period cap = the smaller of (this overlap's award) and (remaining
+          // capacity left after any earlier REIMB ER claims drew from this period).
+          const cap = Math.min(overlapAmt, p.remainingForReimb);
+          contribs.push({ p, cap, overlapWks });
+        });
       }
-      if (!p.reimbErOn) return;
-      if (p.reimbErUnknown) {
+      return contribs;
+    };
+
+    // Process REIMB ER claims in carrier-period order so "prior claims reduce
+    // the available cap for later claims that include the same periods."
+    out.forEach(carrier => {
+      if (!carrier.reimbErOn) return;
+      if (carrier.reimbErUnknown) {
         reimbErHasUnknown = true;
-        p.resolvedReimbErAmount = 0;
+        carrier.resolvedReimbErAmount = 0;
+        carrier.reimbErClaim = Number(carrier.reimbErAmount) || 0;
+        carrier.reimbErAvailableCap = 0;
+        carrier.reimbErCapped = false;
         return;
       }
-      const scope = p.reimbErScope || 'period';
-      // All scopes (including specific) read the user-entered amount from
-      // reimbErAmount. Auto-calc is purely informational on scope=specific.
-      const amt = Number(p.reimbErAmount) || 0;
-      p.resolvedReimbErAmount = amt;
-      reimbErKnown += amt;
+      const contribs = resolveContributions(carrier);
+      const claim = Number(carrier.reimbErAmount) || 0;
+      const availableCap = contribs.reduce((s, c) => s + Math.max(0, c.cap), 0);
+      const actual = Math.min(claim, availableCap);
+
+      carrier.reimbErClaim = claim;
+      carrier.reimbErAvailableCap = availableCap;
+      carrier.reimbErOverlapCount = contribs.length;
+      carrier.resolvedReimbErAmount = actual;
+      carrier.reimbErCapped = claim > availableCap + 0.005;
+
+      // Deduct proportionally from each contributing period's remaining capacity.
+      if (availableCap > 0 && actual > 0) {
+        contribs.forEach(c => {
+          if (c.cap <= 0) return;
+          const share = (c.cap / availableCap) * actual;
+          c.p.remainingForReimb = Math.max(0, c.p.remainingForReimb - share);
+        });
+      }
+      reimbErKnown += actual;
     });
+
     // Flag every period that's overlapped by any scope=specific reimb window.
     // The 'RE ER' tag in the period summary copy is driven off this.
     out.forEach(r => {
@@ -1175,7 +1236,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
         }
       }
     });
-    const totalReimbEr = reimbErKnown; // known-amount sum only
+    const totalReimbEr = reimbErKnown; // actual contributions sum, after caps
     // Claimant bucket — money moving to the claimant
     const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown);
     const feeOnClaimant = claimantMoving * 0.15;
@@ -1359,8 +1420,11 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                   const scope = p.reimbErScope || 'period';
                   const isUnknown = !!p.reimbErUnknown;
                   const carrierRow = computed.rows.find(r => r.id === p.id);
-                  const maxRecoupable = carrierRow?._maxRecoupable || 0;
-                  const overlapCount = carrierRow?._overlapCount || 0;
+                  const availableCap = carrierRow?.reimbErAvailableCap || 0;
+                  const overlapCount = carrierRow?.reimbErOverlapCount || 0;
+                  const actualAmt = carrierRow?.resolvedReimbErAmount || 0;
+                  const claim = carrierRow?.reimbErClaim || 0;
+                  const isCapped = !!carrierRow?.reimbErCapped;
                   return (
                     <div className="amending-block">
                       <label className="f-label" style={{margin:0}}>Reimbursement to Employer</label>
@@ -1418,21 +1482,21 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                           </div>
                         </div>
                       )}
-                      {/* Max-recoupable hint — only on scope=specific (Known or Unknown).
-                          Informational only; computed from Σ(overlap wks × rate) across
-                          the periods that the reimb window touches. */}
-                      {scope === 'specific' && (
+                      {/* Max-recoupable hint — shown for any Known scope. Reflects the
+                          DYNAMIC cap (gross awards in scope minus prior REIMB ER allocations
+                          on overlapping periods). HIA periods contribute 0. */}
+                      {!isUnknown && (
                         <div className="reimb-computed-preview">
                           <span className="reimb-computed-label">Max recoupable:</span>
-                          <span className="reimb-computed-value">{fmt$(maxRecoupable)}</span>
+                          <span className="reimb-computed-value">{fmt$(availableCap)}</span>
                           {overlapCount > 0 && (
                             <span className="reimb-computed-hint">across {overlapCount} period{overlapCount === 1 ? '' : 's'}</span>
                           )}
                         </div>
                       )}
-                      {/* Amount input — shown for any Known scope (period / all / specific).
-                          On scope=specific, the user-entered amount is the actual total that
-                          flows into the employer bucket; the auto-calc above is just a hint. */}
+                      {/* Claim input — what the EMPLOYER IS CLAIMING. The actual reimbursement
+                          (the value that flows into the employer bucket) is capped at the
+                          available awards. Shown for any Known scope. */}
                       {!isUnknown && (
                         <div className="f-input-wrap">
                           <span className="prefix">$</span>
@@ -1441,14 +1505,21 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                             onChange={e => updatePeriod(p.id, { reimbErAmount: Number(e.target.value) })}/>
                         </div>
                       )}
+                      {/* "Capped at $X (claimed $Y)" — inline alert when the user's claim
+                          exceeds the available awards in scope. */}
+                      {!isUnknown && isCapped && (
+                        <div className="reimb-capped-banner">
+                          Capped at {fmt$(availableCap)} (claimed {fmt$(claim)}). Employer can't be reimbursed more than the awards directed by WCB in scope.
+                        </div>
+                      )}
                       <div className="amending-help">
                         {isUnknown
                           ? 'REIMB ER amount TBD.'
                           : scope === 'all'
-                            ? 'Case-level total across all periods — fee at 15% taken from this employer bucket, separate from claimant fee.'
+                            ? 'Case-wide claim across all periods; actual reimbursement capped at available awards. Fee at 15% taken from the employer bucket, separate from claimant fee.'
                             : scope === 'specific'
-                              ? 'Total reimbursement across the periods the window touches; fee at 15% taken from the employer bucket.'
-                              : 'Period-specific reimbursement — fee at 15% taken from money moving back to employer, separate from claimant fee.'}
+                              ? 'Total reimbursement claim across the periods the window touches; actual reimbursement capped at available awards (less anything already reimbursed via prior REIMB ER claims on the same periods).'
+                              : 'Period-specific reimbursement claim; actual reimbursement capped at that period\'s award. Fee at 15% taken from the employer bucket.'}
                       </div>
                     </div>
                   );
@@ -2253,11 +2324,8 @@ function buildEquation(tile, global) {
         return { ...p, wks, rate, amount: wks * rate, currentRate, priorRate, rawCurrentRate, isHia: false };
       });
 
-      // Phase 2 — emit per-period lines + summary prose, and bucket REIMB ER.
-      let reimbErKnown = 0;
-      let reimbErHasUnknown = false;
+      // Phase 2a — emit per-period award lines, accumulate totalAward.
       rows.forEach((r, i) => {
-        // HIA period emission
         if (r.isHia) {
           lines.push(`P${i+1} HIA: ${r.start || '—'} to ${r.end || '—'} — Held in Abeyance ($0)`);
           summary.push(`Period ${i+1} held in abeyance (${r.start || 'no start'} to ${r.end || 'no end'})`);
@@ -2270,37 +2338,88 @@ function buildEquation(tile, global) {
           const summaryAmend = r.amending ? `, amending — ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk` : '';
           summary.push(`Period ${i+1} (${r.desg}, ${fmtN(r.wks,2)} wks at ${fmt$(r.rate)}/wk${adjusted && !r.amending ? ` — adjusted from raw ${fmt$(r.rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(r.amount)})`);
         }
+      });
 
-        // REIMB ER bucketing for this period
+      // Phase 2b — REIMB ER bucketing with the same claim → cap → actual model
+      // CCPTile.computed uses. Per-period remainingForReimb starts at award and
+      // is reduced proportionally as REIMB ER claims allocate against it (in
+      // carrier order). Actual = min(claim, available_cap).
+      let reimbErKnown = 0;
+      let reimbErHasUnknown = false;
+      rows.forEach(r => { r.remainingForReimb = r.isHia ? 0 : (Number(r.amount) || 0); });
+      const resolveContribsEq = (carrier) => {
+        const scope = carrier.reimbErScope || 'period';
+        const out = [];
+        if (scope === 'period') {
+          if (!carrier.isHia) out.push({ p: carrier, cap: Math.min(carrier.amount || 0, carrier.remainingForReimb) });
+        } else if (scope === 'all') {
+          rows.forEach(p => {
+            if (p.isHia) return;
+            out.push({ p, cap: Math.min(p.amount || 0, p.remainingForReimb) });
+          });
+        } else if (scope === 'specific') {
+          if (!carrier.reimbErRangeStart || !carrier.reimbErRangeEnd) return out;
+          const rS = new Date(carrier.reimbErRangeStart);
+          const rE = new Date(carrier.reimbErRangeEnd);
+          if (isNaN(rS.getTime()) || isNaN(rE.getTime()) || rE < rS) return out;
+          rows.forEach(p => {
+            if (p.isHia) return;
+            if (!p.start || !p.end) return;
+            const pS = new Date(p.start);
+            const pE = new Date(p.end);
+            if (isNaN(pS.getTime()) || isNaN(pE.getTime())) return;
+            if (pE < rS || pS > rE) return;
+            const oS = pS > rS ? pS : rS;
+            const oE = pE < rE ? pE : rE;
+            const days = (oE - oS) / (1000 * 60 * 60 * 24) + 1;
+            const wks = roundWeeksDown(days / 7, ccpRounding);
+            const overlapAmt = wks * (Number(p.rate) || 0);
+            out.push({ p, cap: Math.min(overlapAmt, p.remainingForReimb) });
+          });
+        }
+        return out;
+      };
+
+      rows.forEach((r, i) => {
         if (!r.reimbErOn) return;
         const scope = r.reimbErScope || 'period';
 
-        if (scope === 'specific') {
-          // Terse single-line emission for scope=specific. Per-period RE ER
-          // tags handle visual attribution in the tile summary; here we only
-          // emit one short equation line per carrier.
-          const overlapN = countSpecificOverlaps(rows, r.reimbErRangeStart, r.reimbErRangeEnd);
-          if (r.reimbErUnknown) {
-            reimbErHasUnknown = true;
+        if (r.reimbErUnknown) {
+          reimbErHasUnknown = true;
+          if (scope === 'specific') {
+            const overlapN = countSpecificOverlaps(rows, r.reimbErRangeStart, r.reimbErRangeEnd);
             lines.push(`  REIMB ER applies for ${overlapN} period${overlapN === 1 ? '' : 's'}, amount TBD`);
           } else {
-            const amt = Number(r.reimbErAmount) || 0;
-            if (amt > 0) reimbErKnown += amt;
-            lines.push(`  REIMB ER applies for ${overlapN} period${overlapN === 1 ? '' : 's'}, total ${fmt$(amt)}`);
+            const lbl = scope === 'all' ? 'case-wide' : `P${i+1}`;
+            lines.push(`  REIMB ER (${lbl}): amount of Reimbursement TBD`);
           }
           return;
         }
 
-        if (r.reimbErUnknown) {
-          reimbErHasUnknown = true;
-          lines.push(`  REIMB ER (P${i+1}): amount of Reimbursement TBD`);
-          return;
+        const contribs = resolveContribsEq(r);
+        const claim = Number(r.reimbErAmount) || 0;
+        const cap = contribs.reduce((s, c) => s + Math.max(0, c.cap), 0);
+        const actual = Math.min(claim, cap);
+        const capped = claim > cap + 0.005;
+        // Deduct from remaining (proportionally) so subsequent claims see the
+        // reduced pool, just like CCPTile.computed.
+        if (cap > 0 && actual > 0) {
+          contribs.forEach(c => {
+            if (c.cap <= 0) return;
+            const share = (c.cap / cap) * actual;
+            c.p.remainingForReimb = Math.max(0, c.p.remainingForReimb - share);
+          });
         }
-        const amt = Number(r.reimbErAmount) || 0;
-        const label = scope === 'all' ? 'case-wide' : `P${i+1}`;
-        if (amt > 0) {
-          reimbErKnown += amt;
-          lines.push(`  REIMB ER (${label}): ${fmt$(amt)} → employer bucket`);
+        if (actual > 0) reimbErKnown += actual;
+
+        // Equation line — terse, but if capped we annotate with the claim too.
+        const cappedNote = capped ? ` (claim ${fmt$(claim)} capped at available)` : '';
+        if (scope === 'specific') {
+          const overlapN = contribs.length;
+          lines.push(`  REIMB ER applies for ${overlapN} period${overlapN === 1 ? '' : 's'}, total ${fmt$(actual)}${cappedNote}`);
+        } else {
+          const lbl = scope === 'all' ? 'case-wide' : `P${i+1}`;
+          lines.push(`  REIMB ER (${lbl}): ${fmt$(actual)} → employer bucket${cappedNote}`);
         }
       });
 

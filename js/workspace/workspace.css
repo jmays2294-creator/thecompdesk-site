@@ -1934,6 +1934,17 @@ footer.disclaimer {
   margin-left: auto;
 }
 
+/* Cap banner — shown when user-entered REIMB ER claim exceeds available
+   awards in scope (5/19/26 v5). Amber tone to match employer-bucket vocab. */
+.reimb-capped-banner {
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, #f59e0b 55%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, #f59e0b 12%, var(--bg-1));
+  color: var(--tx);
+  font: 600 11px/1.4 var(--ui, 'Inter', system-ui, sans-serif);
+}
+
 /* 'RE ER' tag — appears on every period whose date range is overlapped by
    a scope=specific REIMB ER window. Two surfaces: (1) inline in the
    period-row footer next to the period amount, (2) in the Periods summary

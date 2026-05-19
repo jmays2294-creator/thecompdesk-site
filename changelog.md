@@ -5,6 +5,23 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-19 (later same day, fifth pass)
+
+### Workspace — CCP/Award Builder REIMB ER v5: claim/cap/actual model
+
+Correction to the v4 math. The user-entered $ amount is now interpreted as the employer's CLAIM, not the actual reimbursement. The actual amount flowing into the employer bucket is capped at the gross awards directed by the WCB within the claim's scope, less anything already claimed by prior REIMB ER entries against the same overlapping periods.
+
+- **Per-period award capacity tracking.** Each period starts with `remainingForReimb = period.amount`. REIMB ER claims are processed in carrier order (the period they live on); each claim's available cap is the sum across its overlapping periods of `min(this-claim's overlap amount in that period, period.remainingForReimb)`. After capping, the actual contribution is deducted proportionally from each contributing period's remaining capacity so subsequent claims see the reduced pool.
+- **All three scopes get the cap.** `period` → capped at that period's award; `all` → capped at the sum of every non-HIA period's award; `specific` → capped at sum of overlap-amounts across overlapping periods. HIA periods always contribute $0.
+- **Inline "Capped at $X (claimed $Y)" banner.** Whenever the user's typed claim exceeds the available cap, an amber banner appears below the amount input on the carrier period explaining the reduction.
+- **"Max recoupable" hint now reflects the dynamic cap** (after prior REIMB ER deductions on overlapping periods), shown for all three scopes.
+- **Equation card / OC-400.1 prefill mirrors the same math.** When capped, a brief `(claim $Y capped at available)` annotation is appended to the equation line. The dollar amount shown in the line is always the post-cap actual, never the claim.
+- **Example.** Two periods totaling $22,000 in awards, REIMB ER on Period 2 with scope = Specific range covering both periods and a claim of $40,000 → employer bucket = $22,000, attorney fee on employer reimb = $3,300, net to employer = $18,700. The banner reads "Capped at $22,000 (claimed $40,000)."
+
+**Files**: `js/workspace/tiles.js`, `js/workspace/workspace.css`, `changelog.md`.
+
+---
+
 ## 2026-05-19 (later same day, fourth pass)
 
 ### Workspace — CCP/Award Builder REIMB ER v4: RE ER period tags, user-entered amount on specific range, terse equation prose
