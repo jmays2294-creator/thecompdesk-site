@@ -1097,7 +1097,11 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       // raw rate below the DOA min is bumped UP to the min, and any raw rate
       // above the DOA max is bumped DOWN to the max. When AWW < min, all rates
       // collapse to AWW.
-      const currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
+      let currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
+      // NCLT / NME OVERRIDE — these designations are non-compensable by
+      // definition. applyRateBounds would otherwise floor a $0 rate UP to the
+      // statutory min (e.g. $325), so we force back to $0 explicitly here.
+      if (p.desg === 'NCLT' || p.desg === 'NME') currentRate = 0;
 
       // Change 3 — Amending Award. If the period is amending, compute
       // delta vs. prior rate; the dollars-owed for the period are based
@@ -2309,7 +2313,11 @@ function buildEquation(tile, global) {
         // equation card and OC-400.1 fee-app prefill.
         else if (p.desg === 'NCLT' || p.desg === 'NME') rawCurrentRate = 0;
         else rawCurrentRate = Number(p.manualRate || 0);
-        const currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
+        let currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
+        // NCLT / NME OVERRIDE — applyRateBounds floors a $0 rate UP to the
+        // statutory min ($325); force back to $0 since these designations are
+        // non-compensable by definition.
+        if (p.desg === 'NCLT' || p.desg === 'NME') currentRate = 0;
         let rate = currentRate;
         let priorRate = 0;
         if (p.amending) {
