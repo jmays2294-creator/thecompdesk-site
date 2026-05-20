@@ -1102,6 +1102,15 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       // definition. applyRateBounds would otherwise floor a $0 rate UP to the
       // statutory min (e.g. $325), so we force back to $0 explicitly here.
       if (p.desg === 'NCLT' || p.desg === 'NME') currentRate = 0;
+      // RE OVERRIDE (5/20/26 per Joel) — the statutory min floor does NOT
+      // apply to RE. The reduced-earnings rate is whatever ⅔ × (AWW − curEarn)
+      // computes to, even if that's below the DOA min. The max cap still
+      // applies as a legal ceiling, but the AWW-collapse override is also
+      // skipped (RE is calculated against actual wage loss, not the floor).
+      if (p.desg === 'RE') {
+        const maxR = Number(global.maxRate) || 0;
+        currentRate = maxR > 0 ? Math.min(rawCurrentRate, maxR) : rawCurrentRate;
+      }
 
       // Change 3 — Amending Award. If the period is amending, compute
       // delta vs. prior rate; the dollars-owed for the period are based
@@ -1354,13 +1363,14 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 </div>
               )}
               {p.desg === 'RE' && (() => {
-                // RE rate formula: ⅔ × (AWW − current earnings), then bounded
-                // by the statutory min/max for the DOA. Show the live formula
-                // + resulting rate so the attorney sees the math directly.
+                // RE rate formula: ⅔ × (AWW − current earnings). The statutory
+                // MIN floor does NOT apply to RE — the reduced-earnings rate
+                // is whatever the math produces. Max cap still applies as a
+                // legal ceiling but rarely fires in practice.
                 const reRow = computed.rows.find(r => r.id === p.id);
                 const rawRE = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
-                const boundedRE = reRow?.currentRate;
-                const wasBounded = boundedRE != null && Math.abs(boundedRE - rawRE) > 0.005;
+                const finalRE = reRow?.currentRate;
+                const maxCapFired = finalRE != null && rawRE > finalRE + 0.005;
                 return (
                   <div className="f-group">
                     <label className="f-label">Current Earnings (wk)</label>
@@ -1374,9 +1384,9 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                       <span className="re-formula-body">
                         ⅔ × ({fmt$(aww)} − {fmt$(Number(p.curEarn) || 0)}) = {fmt$(rawRE)}/wk
                       </span>
-                      {wasBounded && boundedRE != null && (
+                      {maxCapFired && finalRE != null && (
                         <span className="re-formula-bounded">
-                          → bounded to {fmt$(boundedRE)}/wk (statutory min/max for DOA)
+                          → capped at {fmt$(finalRE)}/wk (DOA max rate)
                         </span>
                       )}
                     </div>
@@ -2363,6 +2373,12 @@ function buildEquation(tile, global) {
         // statutory min ($325); force back to $0 since these designations are
         // non-compensable by definition.
         if (p.desg === 'NCLT' || p.desg === 'NME') currentRate = 0;
+        // RE OVERRIDE (5/20/26) — statutory min floor doesn't apply to RE.
+        // Use raw ⅔ × (AWW − curEarn), capped only at max.
+        if (p.desg === 'RE') {
+          const maxR = Number(global.maxRate) || 0;
+          currentRate = maxR > 0 ? Math.min(rawCurrentRate, maxR) : rawCurrentRate;
+        }
         let rate = currentRate;
         let priorRate = 0;
         if (p.amending) {
