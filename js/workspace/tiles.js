@@ -1353,16 +1353,36 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                   Held in Abeyance — date range is recorded; this period contributes $0 to the total award.
                 </div>
               )}
-              {p.desg === 'RE' && (
-                <div className="f-group">
-                  <label className="f-label">Current Earnings (wk)</label>
-                  <div className="f-input-wrap">
-                    <span className="prefix">$</span>
-                    <input className="f-input with-prefix" type="number" value={p.curEarn}
-                      onChange={e => updatePeriod(p.id, { curEarn: e.target.value })}/>
+              {p.desg === 'RE' && (() => {
+                // RE rate formula: ⅔ × (AWW − current earnings), then bounded
+                // by the statutory min/max for the DOA. Show the live formula
+                // + resulting rate so the attorney sees the math directly.
+                const reRow = computed.rows.find(r => r.id === p.id);
+                const rawRE = Math.max(0, (Number(aww) - Number(p.curEarn || 0)) * 2 / 3);
+                const boundedRE = reRow?.currentRate;
+                const wasBounded = boundedRE != null && Math.abs(boundedRE - rawRE) > 0.005;
+                return (
+                  <div className="f-group">
+                    <label className="f-label">Current Earnings (wk)</label>
+                    <div className="f-input-wrap">
+                      <span className="prefix">$</span>
+                      <input className="f-input with-prefix" type="number" value={p.curEarn}
+                        onChange={e => updatePeriod(p.id, { curEarn: e.target.value })}/>
+                    </div>
+                    <div className="re-formula-hint">
+                      <span className="re-formula-label">Formula:</span>
+                      <span className="re-formula-body">
+                        ⅔ × ({fmt$(aww)} − {fmt$(Number(p.curEarn) || 0)}) = {fmt$(rawRE)}/wk
+                      </span>
+                      {wasBounded && boundedRE != null && (
+                        <span className="re-formula-bounded">
+                          → bounded to {fmt$(boundedRE)}/wk (statutory min/max for DOA)
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
               {(p.desg === 'TR' || p.desg === 'TP') && (() => {
                 // TR/TP $/% toggle. Default mode is '%'. In % mode, the user
                 // types a percentage; in $ mode, the user types the actual

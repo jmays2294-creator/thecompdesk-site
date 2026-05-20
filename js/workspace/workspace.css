@@ -1934,6 +1934,37 @@ footer.disclaimer {
   margin-left: auto;
 }
 
+/* RE rate formula hint — appears next to Current Earnings (wk) input when
+   desg=RE so the attorney sees the live ⅔ × (AWW − curEarn) math. If the
+   raw result was bounded by the statutory min/max, a second line shows
+   the bounded value with an explanation. (5/20/26) */
+.re-formula-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+  padding: 6px 8px;
+  border-left: 2px solid var(--bd);
+  background: color-mix(in srgb, var(--bg-1) 50%, transparent);
+  font: 500 11px/1.4 var(--mono, ui-monospace, monospace);
+}
+.re-formula-label {
+  color: var(--tx-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 9px;
+  margin-right: 4px;
+}
+.re-formula-body {
+  color: var(--tx);
+}
+.re-formula-bounded {
+  color: var(--tx-dim);
+  font-style: italic;
+  font-size: 10px;
+}
+
 /* Cap banner — shown when user-entered REIMB ER claim exceeds available
    awards in scope (5/19/26 v5). Amber tone to match employer-bucket vocab. */
 .reimb-capped-banner {
