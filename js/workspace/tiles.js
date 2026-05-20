@@ -1086,7 +1086,12 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
           rawCurrentRate = Number(p.manualRate || 0);
         }
       }
-      else                         rawCurrentRate = Number(p.manualRate || 0);
+      // NCLT (No Compensable Lost Time) and NME (No Medical Evidence) are
+      // both $0-comp designations by definition. The period is documented
+      // for the record (date range, weeks count) but contributes nothing
+      // to the total award. No manual-rate input is shown for either.
+      else if (p.desg === 'NCLT' || p.desg === 'NME') rawCurrentRate = 0;
+      else                                            rawCurrentRate = Number(p.manualRate || 0);
 
       // Universal min/max + AWW-override enforcement (May 2026). A 25% TR with
       // raw rate below the DOA min is bumped UP to the min, and any raw rate
@@ -1390,16 +1395,10 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                   </div>
                 );
               })()}
-              {(p.desg === 'NCLT' || p.desg === 'NME') && (
-                <div className="f-group">
-                  <label className="f-label">Manual Rate</label>
-                  <div className="f-input-wrap">
-                    <span className="prefix">$</span>
-                    <input className="f-input with-prefix" type="number" value={p.manualRate}
-                      onChange={e => updatePeriod(p.id, { manualRate: e.target.value })}/>
-                  </div>
-                </div>
-              )}
+              {/* NCLT (No Compensable Lost Time) and NME (No Medical Evidence)
+                  are $0-comp designations by definition — no manual rate
+                  input is rendered. The period is documented for the record
+                  (date range, weeks) but contributes $0 to the total award. */}
               {/* REIMB ER (reimburse employer) — per-period toggle. When ON,
                   the period contributes a separate "money moving back to
                   employer" bucket to the case-level math. Fee runs at 15%
@@ -2306,6 +2305,9 @@ function buildEquation(tile, global) {
             rawCurrentRate = Number(p.manualRate || 0);
           }
         }
+        // NCLT / NME are $0-comp designations — flow through as $0 in the
+        // equation card and OC-400.1 fee-app prefill.
+        else if (p.desg === 'NCLT' || p.desg === 'NME') rawCurrentRate = 0;
         else rawCurrentRate = Number(p.manualRate || 0);
         const currentRate = applyRateBounds(rawCurrentRate, aww, global.minRate, global.maxRate);
         let rate = currentRate;

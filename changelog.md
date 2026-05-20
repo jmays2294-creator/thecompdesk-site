@@ -5,6 +5,22 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-19 (later same day, sixth pass)
+
+### Workspace — CCP/Award Builder: NCLT & NME forced to $0
+
+The NCLT (No Compensable Lost Time) and NME (No Medical Evidence) designation pills are now true $0-comp designations by definition. Previously both still rendered a Manual Rate input where the attorney could type a dollar amount — that input is gone for both.
+
+- **Rate is forced to $0** for NCLT and NME periods. Weeks are still computed from the date range, but the period contributes $0 to the total award.
+- **Manual Rate input is hidden** for both designations. The period UI still shows the dates, designation pills, REIMB ER toggles, and Amending Award toggle as usual.
+- **Flows through to all surfaces**: the in-tile results panel, the bottom equation card, the Periods summary copy, and the OC-400.1 fee-app prefill (via `window.buildEquation`) all treat NCLT/NME periods as $0.
+
+Backward-compatible: existing saved CCP tiles with a non-zero `manualRate` on an NCLT/NME period will now ignore that stale value and use $0. The `manualRate` field itself is retained on the period schema (still used by TR/TP when in $ mode), it's just no longer read for NCLT/NME.
+
+**Files**: `js/workspace/tiles.js`, `changelog.md`.
+
+---
+
 ## 2026-05-19 (later same day, fifth pass)
 
 ### Workspace — CCP/Award Builder REIMB ER v5: claim/cap/actual model
