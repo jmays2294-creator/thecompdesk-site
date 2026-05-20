@@ -2179,13 +2179,19 @@ function buildEquation(tile, global) {
       const lines = [];
       const plain = [];
       const rowMeta = [];
+      // 5/19/26 — $0-omission rule: skip any line that contributes $0 to the
+      // OC-400.1 equation prose. Body part lines at 0%, prior payments of $0,
+      // $0 credit/moving/fee/net all collapse out so the form-field only shows
+      // what actually moved money.
       inputs.rows.forEach(r => {
         const bp = SLU_BP.find(b => b.n === r.bp) || SLU_BP[0];
         const sluWks = (Number(r.pct) / 100) * bp.w;
         sluWeeksTotal += sluWks;
         rowMeta.push({ bp, sluWks });
-        lines.push(`${bp.n}: ${r.pct}% × ${bp.w} = ${fmtN(sluWks, 2)} wks`);
-        plain.push(`${bp.n} at ${r.pct}%`);
+        if (sluWks > 0) {
+          lines.push(`${bp.n}: ${r.pct}% × ${bp.w} = ${fmtN(sluWks, 2)} wks`);
+          plain.push(`${bp.n} at ${r.pct}%`);
+        }
       });
       // PHP — single tile-level value, credited once against the longest hp
       // among the selected body parts (per WCL §15(4-a) — PHP doesn't stack
@@ -2193,7 +2199,7 @@ function buildEquation(tile, global) {
       const phpInput = Number(inputs.phpWks || 0);
       const maxHp = rowMeta.reduce((m, r) => Math.max(m, r.bp.hp || 0), 0);
       const phpCreditWks = Math.max(0, phpInput - maxHp);
-      if (phpInput > 0 || phpCreditWks > 0) {
+      if (phpCreditWks > 0) {
         lines.push(`PHP: max(0, ${fmtN(phpInput, 2)} − ${maxHp} hp) = ${fmtN(phpCreditWks, 2)} wks`);
       }
       const totalWeeks = sluWeeksTotal + phpCreditWks;
@@ -2202,25 +2208,36 @@ function buildEquation(tile, global) {
       const creditWks = priorTTRWks > 130 ? priorTTRWks - 130 : 0;
       const creditDollars = creditWks * tt;
       const total = Math.max(0, grossTotal - creditDollars);
-      const moving = Math.max(0, total - Number(inputs.priorPay || 0));
+      const priorPay = Number(inputs.priorPay || 0);
+      const moving = Math.max(0, total - priorPay);
       const fee = moving * 0.15;
       const net = moving - fee;
-      lines.push(`Gross Value: ${fmtN(totalWeeks, 2)} wks × ${fmt$(tt)} = ${fmt$(grossTotal)}`);
+      if (grossTotal > 0) lines.push(`Gross Value: ${fmtN(totalWeeks, 2)} wks × ${fmt$(tt)} = ${fmt$(grossTotal)}`);
       if (creditWks > 0) {
         lines.push(`§15(3)(w) Credit: (${fmtN(priorTTRWks, 2)} − 130) × ${fmt$(tt)} = −${fmt$(creditDollars)}`);
         lines.push(`Total After Credit: ${fmt$(total)}`);
       }
-      lines.push(`Less prior: (${fmt$(Number(inputs.priorPay || 0))})`);
-      lines.push(`Moving: ${fmt$(moving)}`);
-      lines.push(`Fee: ${fmt$(moving)} × 15% = ${fmt$(fee)}`);
-      lines.push(`Net: ${fmt$(net)}`);
+      if (priorPay > 0) lines.push(`Less prior: (${fmt$(priorPay)})`);
+      if (moving > 0) lines.push(`Moving: ${fmt$(moving)}`);
+      if (fee > 0)    lines.push(`Fee: ${fmt$(moving)} × 15% = ${fmt$(fee)}`);
+      if (net > 0)    lines.push(`Net: ${fmt$(net)}`);
+      // Plain prose — assembled from non-zero segments only. SLU at 0% across
+      // every body part returns an empty equation (the OC-400.1 field shows
+      // nothing rather than a meaningless "$0 gross, $0 moving, $0 net" string).
       const phpNote = phpCreditWks > 0
         ? ` PHP adds ${fmtN(phpCreditWks, 2)} weeks (${fmtN(phpInput, 2)} prior TT weeks − ${maxHp}-week healing period for the longest-hp part).`
         : '';
       const creditNote = creditWks > 0
         ? ` After §15(3)(w) credit of ${fmtN(creditWks, 2)} weeks at the TT rate (${fmt$(creditDollars)} deduction), total = ${fmt$(total)}.`
         : '';
-      const plainText = `SLU Award: ${plain.join(', ')}.${phpNote} Total ${fmtN(totalWeeks, 2)} weeks × ${fmt$(tt)}/wk = ${fmt$(grossTotal)} gross.${creditNote} Less prior payments of ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(moving)} moving. Attorney fee 15% of moving = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      const proseSegments = [];
+      if (plain.length > 0) proseSegments.push(`SLU Award: ${plain.join(', ')}.${phpNote}`);
+      if (grossTotal > 0) proseSegments.push(`Total ${fmtN(totalWeeks, 2)} weeks × ${fmt$(tt)}/wk = ${fmt$(grossTotal)} gross.${creditNote}`);
+      if (priorPay > 0)   proseSegments.push(`Less prior payments of ${fmt$(priorPay)} = ${fmt$(moving)} moving.`);
+      else if (moving > 0 && grossTotal > 0 && moving !== grossTotal) proseSegments.push(`Moving = ${fmt$(moving)}.`);
+      if (fee > 0)        proseSegments.push(`Attorney fee 15% of moving = ${fmt$(fee)}.`);
+      if (net > 0)        proseSegments.push(`Net to claimant = ${fmt$(net)}.`);
+      const plainText = proseSegments.join(' ');
       return { plain: plainText, mono: lines.join('\n'), fee, feeReasons: ['FeeReason3'] };
     }
     case 'LWEC': {
@@ -2245,24 +2262,32 @@ function buildEquation(tile, global) {
             : (rawClassRate > (global.maxRate || 0)
                 ? `raw class rate ${fmt$(rawClassRate)} above DOA max ${fmt$(global.maxRate)}`
                 : ''));
-      const lines = [
-        `LWEC: ${pct}% (${bracket.l})`,
-        `Raw Class Rate: ${fmt$(tt)} × ${pct}% = ${fmt$(rawClassRate)}/wk`,
-      ];
-      if (wasFloored) lines.push(`Adjusted Class Rate: ${fmt$(classRate)}/wk (${floorReason})`);
-      else lines.push(`Class Rate: ${fmt$(classRate)}/wk`);
-      lines.push(`Gross Weeks: ${isLifetime ? 'Lifetime' : bracket.mw}`);
-      if (!isLifetime && creditWks > 0) {
-        lines.push(`§15(3)(w) Credit: ${fmtN(priorWks, 2)} prior wks − 130 = ${fmtN(creditWks, 2)} wks credit`);
-        lines.push(`Adjusted Weeks: ${fmtN(grossWks, 2)} − ${fmtN(creditWks, 2)} = ${fmtN(adjustedWks, 2)}`);
+      // 5/19/26 — $0-omission rule: drop $0 lines. LWEC at 0% (or with class
+      // rate forced to $0 by AWW-below-min collapse) produces no equation.
+      const lines = [];
+      if (pct > 0 || classRate > 0) {
+        lines.push(`LWEC: ${pct}% (${bracket.l})`);
+        if (rawClassRate > 0) lines.push(`Raw Class Rate: ${fmt$(tt)} × ${pct}% = ${fmt$(rawClassRate)}/wk`);
+        if (wasFloored) lines.push(`Adjusted Class Rate: ${fmt$(classRate)}/wk (${floorReason})`);
+        else if (classRate > 0) lines.push(`Class Rate: ${fmt$(classRate)}/wk`);
+        lines.push(`Gross Weeks: ${isLifetime ? 'Lifetime' : bracket.mw}`);
+        if (!isLifetime && creditWks > 0) {
+          lines.push(`§15(3)(w) Credit: ${fmtN(priorWks, 2)} prior wks − 130 = ${fmtN(creditWks, 2)} wks credit`);
+          lines.push(`Adjusted Weeks: ${fmtN(grossWks, 2)} − ${fmtN(creditWks, 2)} = ${fmtN(adjustedWks, 2)}`);
+        }
+        if (isLifetime) lines.push(`Total Award: Lifetime`);
+        else if (totalAward > 0) lines.push(`Total Award: ${fmt$(classRate)} × ${fmtN(adjustedWks, 2)} = ${fmt$(totalAward)}`);
+        if (fee > 0) lines.push(`Atty Fee: ${fmt$(classRate)} × 15 wks = ${fmt$(fee)}`);
+        if (!isLifetime && totalNet > 0) lines.push(`Total Net: ${fmt$(totalNet)}`);
+        else if (isLifetime) lines.push(`Total Net: —`);
       }
-      lines.push(`Total Award: ${isLifetime ? 'Lifetime' : fmt$(classRate) + ' × ' + fmtN(adjustedWks, 2) + ' = ' + fmt$(totalAward)}`);
-      lines.push(`Atty Fee: ${fmt$(classRate)} × 15 wks = ${fmt$(fee)}`);
-      lines.push(`Total Net: ${isLifetime ? '—' : fmt$(totalNet)}`);
       const creditNote = (!isLifetime && creditWks > 0)
         ? ` After §15(3)(w) credit (${fmtN(creditWks, 2)} wks at the class rate), adjusted weeks = ${fmtN(adjustedWks, 2)}.`
         : '';
-      const plain = `LWEC Award: ${pct}% loss of wage earning capacity (${bracket.l}). Classification rate is ${fmt$(tt)} × ${pct}% = ${fmt$(classRate)}/wk over ${isLifetime ? 'lifetime' : bracket.mw + ' gross weeks'}.${creditNote}${isLifetime ? '' : ' Total award of ' + fmt$(totalAward) + '.'} Attorney fee is the first 15 weeks at the class rate = ${fmt$(fee)}${isLifetime ? '.' : ', leaving ' + fmt$(totalNet) + ' net to claimant.'}`;
+      let plain = '';
+      if (pct > 0 || classRate > 0) {
+        plain = `LWEC Award: ${pct}% loss of wage earning capacity (${bracket.l}). Classification rate is ${fmt$(tt)} × ${pct}% = ${fmt$(classRate)}/wk over ${isLifetime ? 'lifetime' : bracket.mw + ' gross weeks'}.${creditNote}${isLifetime ? '' : (totalAward > 0 ? ' Total award of ' + fmt$(totalAward) + '.' : '')}${fee > 0 ? ' Attorney fee is the first 15 weeks at the class rate = ' + fmt$(fee) : ''}${isLifetime ? '.' : (totalNet > 0 ? ', leaving ' + fmt$(totalNet) + ' net to claimant.' : '.')}`;
+      }
       return { plain, mono: lines.join('\n'), fee, feeReasons: ['FeeReason4'] };
     }
     case 'CCP': {
@@ -2335,19 +2360,23 @@ function buildEquation(tile, global) {
       });
 
       // Phase 2a — emit per-period award lines, accumulate totalAward.
+      // 5/19/26 $0-omission: HIA, NCLT, NME, and any period with $0 award
+      // amount (e.g. 0 weeks, 0 rate) are dropped from the OC-400.1 equation
+      // prose entirely. They still render in the tile UI for documentation;
+      // they just don't clutter the fee-app written explanation.
       rows.forEach((r, i) => {
         if (r.isHia) {
-          lines.push(`P${i+1} HIA: ${r.start || '—'} to ${r.end || '—'} — Held in Abeyance ($0)`);
-          summary.push(`Period ${i+1} held in abeyance (${r.start || 'no start'} to ${r.end || 'no end'})`);
-        } else {
-          totalAward += r.amount;
-          const adjusted = Math.abs(r.currentRate - r.rawCurrentRate) > 0.005;
-          const amendSuffix = r.amending ? ` (amending: ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk)` : '';
-          const adjustedSuffix = adjusted && !r.amending ? ` (raw ${fmt$(r.rawCurrentRate)}, bounded by min/max for DOA)` : '';
-          lines.push(`P${i+1} ${r.desg}: ${fmtN(r.wks, 2)} wks × ${fmt$(r.rate)}${adjustedSuffix}${amendSuffix} = ${fmt$(r.amount)}`);
-          const summaryAmend = r.amending ? `, amending — ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk` : '';
-          summary.push(`Period ${i+1} (${r.desg}, ${fmtN(r.wks,2)} wks at ${fmt$(r.rate)}/wk${adjusted && !r.amending ? ` — adjusted from raw ${fmt$(r.rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(r.amount)})`);
+          // HIA documented in tile UI; $0 → skip from equation per omission rule.
+          return;
         }
+        totalAward += r.amount;
+        if (r.amount <= 0) return; // NCLT, NME, 0-week periods — drop
+        const adjusted = Math.abs(r.currentRate - r.rawCurrentRate) > 0.005;
+        const amendSuffix = r.amending ? ` (amending: ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk)` : '';
+        const adjustedSuffix = adjusted && !r.amending ? ` (raw ${fmt$(r.rawCurrentRate)}, bounded by min/max for DOA)` : '';
+        lines.push(`P${i+1} ${r.desg}: ${fmtN(r.wks, 2)} wks × ${fmt$(r.rate)}${adjustedSuffix}${amendSuffix} = ${fmt$(r.amount)}`);
+        const summaryAmend = r.amending ? `, amending — ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk` : '';
+        summary.push(`Period ${i+1} (${r.desg}, ${fmtN(r.wks,2)} wks at ${fmt$(r.rate)}/wk${adjusted && !r.amending ? ` — adjusted from raw ${fmt$(r.rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(r.amount)})`);
       });
 
       // Phase 2b — REIMB ER bucketing with the same claim → cap → actual model
@@ -2443,30 +2472,54 @@ function buildEquation(tile, global) {
       const netToClaimant = claimantMoving - feeOnClaimant - feeOnCCP;
       const netToEmployer = employerMoving - feeOnEmployer;
 
-      lines.push(`Total Award: ${fmt$(totalAward)}`);
-      lines.push(`Less Prior: (${fmt$(Number(inputs.priorPay || 0))})`);
+      // 5/19/26 — $0-omission rule across the totals section. Anything
+      // calculated to $0 (Less Prior, Moving to Claimant, Fee from Claimant,
+      // Fee on CCP, Net to Claimant, Net to Employer, employer bucket lines)
+      // is dropped from the OC-400.1 equation entirely.
+      const priorPayAmt = Number(inputs.priorPay || 0);
+      const ccpAmt     = Number(inputs.ccpAmount || 0);
+      if (totalAward > 0) lines.push(`Total Award: ${fmt$(totalAward)}`);
+      if (priorPayAmt > 0) lines.push(`Less Prior: (${fmt$(priorPayAmt)})`);
       if (reimbErKnown > 0) lines.push(`Less Reimb to ER (to employer bucket): (${fmt$(reimbErKnown)})`);
       if (reimbErHasUnknown) lines.push(`Reimb to ER: TBD`);
-      lines.push(`Moving to Claimant: ${fmt$(claimantMoving)}`);
-      lines.push(`Fee from Claimant: ${fmt$(claimantMoving)} × 15% = ${fmt$(feeOnClaimant)}`);
-      if (Number(inputs.ccpAmount || 0) > 0) {
-        lines.push(`Fee on CCP: ${fmt$(Number(inputs.ccpAmount || 0))} ÷ 3 = ${fmt$(feeOnCCP)}`);
+      if (claimantMoving > 0) lines.push(`Moving to Claimant: ${fmt$(claimantMoving)}`);
+      if (feeOnClaimant > 0) lines.push(`Fee from Claimant: ${fmt$(claimantMoving)} × 15% = ${fmt$(feeOnClaimant)}`);
+      if (ccpAmt > 0 && feeOnCCP > 0) {
+        lines.push(`Fee on CCP: ${fmt$(ccpAmt)} ÷ 3 = ${fmt$(feeOnCCP)}`);
       }
       if (employerMoving > 0) {
         lines.push(`Moving to Employer (reimb): ${fmt$(employerMoving)}`);
-        lines.push(`Fee from Employer Reimb: ${fmt$(employerMoving)} × 15% = ${fmt$(feeOnEmployer)}`);
+        if (feeOnEmployer > 0) lines.push(`Fee from Employer Reimb: ${fmt$(employerMoving)} × 15% = ${fmt$(feeOnEmployer)}`);
       }
-      lines.push(`Total Fee: ${fmt$(totalFee)}`);
-      lines.push(`Net to Claimant: ${fmt$(netToClaimant)}`);
-      if (employerMoving > 0) lines.push(`Net to Employer: ${fmt$(netToEmployer)}`);
+      if (totalFee > 0) lines.push(`Total Fee: ${fmt$(totalFee)}`);
+      if (netToClaimant > 0) lines.push(`Net to Claimant: ${fmt$(netToClaimant)}`);
+      if (employerMoving > 0 && netToEmployer > 0) lines.push(`Net to Employer: ${fmt$(netToEmployer)}`);
 
       // Plain prose — keep brief. Unknown amount becomes a short tag, no
-      // long explanation (per 5/19/26 v3 spec).
-      const reimbClauseKnown = reimbErKnown > 0
-        ? ` Reimbursement to employer of ${fmt$(reimbErKnown)} moves to a separate employer bucket; fee at 15% = ${fmt$(feeOnEmployer)}.`
-        : '';
-      const reimbClauseUnknown = reimbErHasUnknown ? ' Amount of Reimbursement TBD.' : '';
-      const plain = `CCP / Award: ${summary.join('; ')}. Total award ${fmt$(totalAward)}, less prior payments ${fmt$(Number(inputs.priorPay || 0))} = ${fmt$(claimantMoving)} moving to claimant. Fee from claimant is 15% of claimant moving (${fmt$(feeOnClaimant)})${Number(inputs.ccpAmount || 0) > 0 ? ` plus one-third of CCP (${fmt$(feeOnCCP)})` : ''}.${reimbClauseKnown}${reimbClauseUnknown} Total attorney fee = ${fmt$(totalFee)}. Net to claimant = ${fmt$(netToClaimant)}${employerMoving > 0 ? `; net to employer = ${fmt$(netToEmployer)}` : ''}.`;
+      // 5/19/26 — $0-omission rule extended to plain prose. Assemble segments
+      // conditionally; if every segment is empty the prose is empty too.
+      const proseParts = [];
+      if (summary.length > 0) proseParts.push(`CCP / Award: ${summary.join('; ')}.`);
+      if (totalAward > 0) {
+        if (priorPayAmt > 0) {
+          proseParts.push(`Total award ${fmt$(totalAward)}, less prior payments ${fmt$(priorPayAmt)} = ${fmt$(claimantMoving)} moving to claimant.`);
+        } else {
+          proseParts.push(`Total award ${fmt$(totalAward)} moving to claimant.`);
+        }
+      }
+      if (feeOnClaimant > 0 || (ccpAmt > 0 && feeOnCCP > 0)) {
+        const ccpPart = (ccpAmt > 0 && feeOnCCP > 0) ? ` plus one-third of CCP (${fmt$(feeOnCCP)})` : '';
+        proseParts.push(`Fee from claimant is 15% of claimant moving (${fmt$(feeOnClaimant)})${ccpPart}.`);
+      }
+      if (reimbErKnown > 0) {
+        proseParts.push(`Reimbursement to employer of ${fmt$(reimbErKnown)} moves to a separate employer bucket; fee at 15% = ${fmt$(feeOnEmployer)}.`);
+      }
+      if (reimbErHasUnknown) proseParts.push('Amount of Reimbursement TBD.');
+      if (totalFee > 0) proseParts.push(`Total attorney fee = ${fmt$(totalFee)}.`);
+      if (netToClaimant > 0) {
+        proseParts.push(`Net to claimant = ${fmt$(netToClaimant)}${(employerMoving > 0 && netToEmployer > 0) ? `; net to employer = ${fmt$(netToEmployer)}` : ''}.`);
+      }
+      const plain = proseParts.join(' ');
       // Per OC-400.1 § A fee-reason checkboxes:
       //   FeeReason1 = "continuation of weekly compensation benefits"
       //   FeeReason2 = "increase in the amount of compensation awarded
@@ -2571,26 +2624,35 @@ function buildEquation(tile, global) {
       const fee = indemnity * 0.15;
       const net = Math.max(0, indemnity - fee);
 
-      const lines = [`Settlement: ${fmt$(settlement)}`];
-      if (msaType === 'medicare') {
-        lines.push(`Less Medicare MSA:  −${fmt$(msa)}`);
-        lines.push(`Indemnity:  ${fmt$(indemnity)}`);
-        lines.push(`Atty Fee:   ${fmt$(indemnity)} × 15% = ${fmt$(fee)}`);
-      } else if (msaType === 'msa') {
-        lines.push(`Less MSA:   −${fmt$(msa)}`);
-        lines.push(`Atty Fee:   ${fmt$(indemnity)} × 15% = ${fmt$(fee)}`);
-      } else {
-        lines.push(`Atty Fee:   ${fmt$(settlement)} × 15% = ${fmt$(fee)}`);
+      // 5/19/26 — $0-omission. A $0 settlement (no value entered) produces
+      // no equation at all. Otherwise drop any $0 lines from the mono/prose.
+      const lines = [];
+      if (settlement > 0) {
+        lines.push(`Settlement: ${fmt$(settlement)}`);
+        if (msaType === 'medicare') {
+          if (msa > 0) lines.push(`Less Medicare MSA:  −${fmt$(msa)}`);
+          if (indemnity > 0) lines.push(`Indemnity:  ${fmt$(indemnity)}`);
+          if (fee > 0) lines.push(`Atty Fee:   ${fmt$(indemnity)} × 15% = ${fmt$(fee)}`);
+        } else if (msaType === 'msa') {
+          if (msa > 0) lines.push(`Less MSA:   −${fmt$(msa)}`);
+          if (fee > 0) lines.push(`Atty Fee:   ${fmt$(indemnity)} × 15% = ${fmt$(fee)}`);
+        } else {
+          if (fee > 0) lines.push(`Atty Fee:   ${fmt$(settlement)} × 15% = ${fmt$(fee)}`);
+        }
+        if (net > 0) lines.push(`Net:        ${fmt$(net)}`);
       }
-      lines.push(`Net:        ${fmt$(net)}`);
 
-      let plain;
-      if (msaType === 'medicare') {
-        plain = `Section 32 Settlement of ${fmt$(settlement)} with a Medicare Set-Aside (WCMSA) of ${fmt$(msa)} funded separately. Indemnity portion to the claimant = ${fmt$(indemnity)}. Attorney fee of 15% on the indemnity = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
-      } else if (msaType === 'msa') {
-        plain = `Section 32 Settlement of ${fmt$(settlement)} with a non-Medicare Medical Set-Aside of ${fmt$(msa)} carved out. Attorney fee of 15% on the ${fmt$(indemnity)} remainder = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
-      } else {
-        plain = `Section 32 Settlement of ${fmt$(settlement)}. Attorney fee of 15% = ${fmt$(fee)}. Net to claimant = ${fmt$(net)}.`;
+      let plain = '';
+      if (settlement > 0) {
+        const feeClause = fee > 0 ? ` Attorney fee of 15% ${msaType !== 'none' ? `on the ${msaType === 'medicare' ? 'indemnity' : `${fmt$(indemnity)} remainder`} ` : ''}= ${fmt$(fee)}.` : '';
+        const netClause = net > 0 ? ` Net to claimant = ${fmt$(net)}.` : '';
+        if (msaType === 'medicare') {
+          plain = `Section 32 Settlement of ${fmt$(settlement)} with a Medicare Set-Aside (WCMSA) of ${fmt$(msa)} funded separately.${indemnity > 0 ? ` Indemnity portion to the claimant = ${fmt$(indemnity)}.` : ''}${feeClause}${netClause}`;
+        } else if (msaType === 'msa') {
+          plain = `Section 32 Settlement of ${fmt$(settlement)} with a non-Medicare Medical Set-Aside of ${fmt$(msa)} carved out.${feeClause}${netClause}`;
+        } else {
+          plain = `Section 32 Settlement of ${fmt$(settlement)}.${feeClause}${netClause}`;
+        }
       }
       return { plain, mono: lines.join('\n'), fee, feeReasons: ['FeeReason6'] };
     }

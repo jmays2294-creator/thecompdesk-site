@@ -247,13 +247,20 @@ const TILE_INPUT_DEFAULTS = {
     periods: [{
       id: Date.now(), start: '', end: '', desg: 'TT',
       curEarn: 0, ratePct: 100, manualRate: 0,
+      // TR/TP $/% rate mode (5/19/26 v1): 'pct' | 'usd'
+      rateMode: 'pct',
       amending: false, priorMode: 'pct', priorVal: 0,
-      reimbErOn: false, reimbErAmount: 0,
+      // REIMB ER (5/19/26 v2-v5): scope toggle + Known/Unknown + optional date range
+      reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
+      reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
       endMode: null,
     }],
     ccpAmount: 0,
     priorPay: 0,
-    rounding: 'none',
+    // Round Weeks default — 'tenth' (Nearest 1/10 wk, round down) per 5/19/26
+    // v2 spec. Attorneys can still toggle off or to 'whole' in the tile UI.
+    rounding: 'tenth',
+    doiAutofilled: false,
   }),
   RateLookup:    () => ({ date: '' }),
   Radiculopathy: () => ({
@@ -274,8 +281,12 @@ const TILE_ROW_DEFAULTS = {
   CCP_PERIOD: () => ({
     id: Date.now() + Math.random(), start: '', end: '', desg: 'TT',
     curEarn: 0, ratePct: 100, manualRate: 0,
+    // TR/TP $/% rate mode (5/19/26 v1): 'pct' | 'usd'
+    rateMode: 'pct',
     amending: false, priorMode: 'pct', priorVal: 0,
-    reimbErOn: false, reimbErAmount: 0,
+    // REIMB ER (5/19/26 v2-v5): scope + Known/Unknown + optional date range
+    reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
+    reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
     endMode: null,
   }),
 };

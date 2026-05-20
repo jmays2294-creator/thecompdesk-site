@@ -5,6 +5,20 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-20
+
+### Workspace — full audit fixes: $0-omission, rounding default, hydration coverage
+
+Comprehensive sweep of `js/workspace/*` surfaces three real bugs and applies the across-the-board $0-omission rule for the OC-400.1 fee-app equation.
+
+- **$0-omission rule applied to every fee tile.** SLU, LWEC, CCP, Settlement — every line in `buildEquation()` that computes to $0 (period at $0, prior pay at $0, employer bucket at $0, any fee at $0, net at $0, CCP at $0) is now dropped from both the mono equation text and the plain prose used in the OC-400.1 PDF. HIA, NCLT, NME, and any 0-week period collapse out of the equation entirely.
+- **BUG FIX: CCP Round Weeks default was still `'none'` in `constants.js`.** The 5/19/26 v2 changelog claimed `'tenth'` was the new default for new tiles, but the factory in `TILE_INPUT_DEFAULTS.CCP()` still defaulted to `'none'`. Fixed to `'tenth'` — new CCP tiles now boot with Nearest 1/10 wk rounding active.
+- **HYDRATION FIX: New CCP period fields backfilled in `TILE_ROW_DEFAULTS.CCP_PERIOD()`.** Saved CCP tiles created before the recent refactors were loading with `undefined` for `rateMode`, `reimbErUnknown`, `reimbErScope`, `reimbErRangeStart`, `reimbErRangeEnd`. The hydration factory now supplies defaults for all of these so reloaded older workspaces don't surprise the attorney with NaN math or `undefined` toggle states. Also added `doiAutofilled: false` to the tile-level CCP defaults.
+
+**Files**: `js/workspace/tiles.js`, `js/workspace/constants.js`, `changelog.md`.
+
+---
+
 ## 2026-05-19 (later same day, sixth pass)
 
 ### Workspace — CCP/Award Builder: NCLT & NME forced to $0
