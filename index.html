@@ -104,11 +104,11 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .hero .attr strong{color:var(--txD);}
 .hero-media{position:relative;width:100%;display:flex;justify-content:center;align-items:center;}
 .hero-media::after{content:'';position:absolute;inset:-8%;border-radius:24px;background:radial-gradient(circle,rgba(59,130,246,0.22) 0%,rgba(45,212,160,0.08) 55%,transparent 75%);pointer-events:none;z-index:-1;filter:blur(8px);animation:heroPulse 4s ease-in-out infinite;}
-.hero-video{width:100%;max-width:380px;aspect-ratio:9/16;background:#0a0f1a;border-radius:16px;overflow:hidden;display:block;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.45),0 0 0 1px rgba(59,130,246,0.20);}
-.hero-fallback{display:none;width:100%;max-width:280px;height:auto;}
+.hero-video{width:100%;max-width:560px;aspect-ratio:16/9;background:#0a0f1a;border-radius:16px;overflow:hidden;display:block;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.45),0 0 0 1px rgba(59,130,246,0.20);}
+.hero-fallback{display:none;width:100%;max-width:420px;height:auto;}
 @keyframes heroPulse{0%,100%{opacity:0.55;transform:scale(1);}50%{opacity:1;transform:scale(1.04);}}
 @media(min-width:900px){
-  .hero-grid{grid-template-columns:1fr 380px;text-align:left;gap:56px;}
+  .hero-grid{grid-template-columns:1fr 480px;text-align:left;gap:56px;}
   .hero-copy{align-items:flex-start;}
   .hero .sub{margin-left:0;margin-right:0;}
   .hero .ctas{justify-content:flex-start;}
@@ -235,6 +235,9 @@ body.connect-modal-open{overflow:hidden;}
       <p class="attr">Built by a practicing NYS Workers' Compensation attorney. <strong>Always free for injured workers.</strong></p>
     </div>
     <div class="hero-media" aria-label="The Comp Desk">
+      <video class="hero-video" autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true">
+        <source src="/assets/animations/intro_landscape.mp4" type="video/mp4">
+      </video>
       <img class="hero-fallback" src="assets/hero/comp-desk.png" alt="The Comp Desk" width="420" height="420" decoding="async">
     </div>
   </div>

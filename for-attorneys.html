@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" as="video" href="/assets/animations/attorneys_workspace_pullback.mp4" type="video/mp4" fetchpriority="high">
 <title>The Comp Desk for Attorneys — Pro Tools for NYS Workers' Compensation Practice</title>
 <meta name="description" content="The Comp Desk Pro gives WC attorneys SLU permanency checking, radiculopathy calculators, fee app equations, and more — all in one platform. Start your free trial today.">
 <meta name="keywords" content="workers compensation attorney tools, SLU calculator, permanency checker, WC attorney software, NYS workers comp, schedule loss of use, fee application, comp desk pro">
@@ -78,13 +79,29 @@ nav .links a:hover{color:var(--wh);text-decoration:none;}
 .cta-btn.gold{background:var(--gd);color:#1a1200;}
 
 /* HERO */
-.hero{padding:140px 0 80px;text-align:center;position:relative;overflow:hidden;}
+.hero{padding:140px 0 80px;position:relative;overflow:hidden;}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:32px;align-items:center;text-align:center;position:relative;}
+.hero-copy{display:flex;flex-direction:column;align-items:center;}
 .hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,0.10) 0%,rgba(240,160,48,0.06) 40%,transparent 70%);pointer-events:none;}
 .hero .badge{display:inline-block;background:rgba(240,160,48,0.12);border:1px solid rgba(240,160,48,0.25);color:var(--gd);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
 .hero h1{font-size:clamp(36px,6vw,56px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
 .hero h1 span{color:var(--ac);}
 .hero .sub{font-size:clamp(16px,2.5vw,20px);color:var(--txD);max-width:640px;margin:0 auto 32px;line-height:1.6;}
 .hero .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.hero-media{position:relative;width:100%;display:flex;justify-content:center;align-items:center;}
+.hero-video{width:100%;max-width:480px;aspect-ratio:16/9;background:#0a0f1a;border-radius:16px;overflow:hidden;display:block;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.45),0 0 0 1px rgba(240,160,48,0.20);}
+.hero-fallback{display:none;width:100%;max-width:360px;height:auto;color:var(--ac);}
+@media(min-width:900px){
+  .hero-grid{grid-template-columns:1fr 480px;text-align:left;gap:56px;}
+  .hero-copy{align-items:flex-start;}
+  .hero .sub{margin-left:0;margin-right:0;}
+  .hero .ctas{justify-content:flex-start;}
+  .hero-media{justify-content:flex-end;}
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-video{display:none;}
+  .hero-fallback{display:block;}
+}
 
 /* CALCULATORS SHOWCASE */
 .calcs{padding:80px 0;border-top:1px solid var(--bd);}
@@ -214,14 +231,27 @@ footer a{color:var(--txD);}
 
 <!-- HERO -->
 <section class="hero">
-  <div class="wrap">
-    <div class="badge">Free for every attorney</div>
-    <h1>The Pro Attorney <span>Workspace</span> — every calculator on one canvas.</h1>
-    <p class="sub">Free for every attorney. AWW once, every tile updates. Drag, drop, and switch between cases without losing your place. Upgrade to Pro or Firm to unlock advanced tiles + multi-device sync.</p>
-    <div class="ctas">
-      <a href="/workspace/" class="cta-btn">Open the Workspace — Free</a>
-      <a href="/workspace-tour" class="cta-btn outline">Take the Tour</a>
-      <a href="#pricing" class="cta-btn outline">See Pro & Firm Tiers</a>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="badge">Free for every attorney</div>
+      <h1>The Pro Attorney <span>Workspace</span> — every calculator on one canvas.</h1>
+      <p class="sub">Free for every attorney. AWW once, every tile updates. Drag, drop, and switch between cases without losing your place. Upgrade to Pro or Firm to unlock advanced tiles + multi-device sync.</p>
+      <div class="ctas">
+        <a href="/workspace/" class="cta-btn">Open the Workspace — Free</a>
+        <a href="/workspace-tour" class="cta-btn outline">Take the Tour</a>
+        <a href="#pricing" class="cta-btn outline">See Pro & Firm Tiers</a>
+      </div>
+    </div>
+    <div class="hero-media" aria-label="The Pro Attorney Workspace">
+      <video class="hero-video" autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true">
+        <source src="/assets/animations/attorneys_workspace_pullback.mp4" type="video/mp4">
+      </video>
+      <svg class="hero-fallback" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="3" width="16" height="18" rx="2"/>
+        <line x1="8" y1="7" x2="16" y2="7"/>
+        <line x1="8" y1="11" x2="16" y2="11"/>
+        <line x1="8" y1="15" x2="13" y2="15"/>
+      </svg>
     </div>
   </div>
 </section>
