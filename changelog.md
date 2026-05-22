@@ -7,18 +7,17 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ## 2026-05-20
 
-### Home hero + for-attorneys hero — Higgsfield Batch A2/A3 deployed
+### for-attorneys hero — Higgsfield Batch A3 deployed
 
-May 20 operating-calendar deliverable: compress A2/A3/A4 via media-asset-rollout, push A2 to home hero, push A3 to for-attorneys hero. Executed May 22 (caught up after Tuesday's content block was lost to Stripe/E2E work).
+May 20 operating-calendar deliverable: A3 → for-attorneys hero. Executed May 22 (caught up after Tuesday's content block was lost to Stripe/E2E work). A2 was also prepared and briefly pushed to the home hero in commit `c5b52d7`, but reverted in this commit — the home hero will keep its prior `<img>` composition.
 
-- **A2 → home hero (`index.html`)**: compressed `Clip A2.mp4` (1920×1080, 24fps, 8s, 2.75MB) → `assets/animations/intro_landscape.mp4` at **763KB** (CRF 26, audio stripped, +faststart, H.264 Main profile, 71% reduction, well under 2MB web tier). Added `<video class="hero-video" autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true">` element to the previously-image-only `.hero-media` block. Kept `comp-desk.png` as the `prefers-reduced-motion` fallback (existing CSS toggle preserved). Reshaped `.hero-video` from `aspect-ratio:9/16` (vertical) to `16/9` (landscape) to match the source; bumped desktop grid column from `380px` → `480px` for landscape presence. Preload link at line 6 was previously dead (no `<video>` element existed) — now live and properly wired.
-- **A3 → for-attorneys hero (`for-attorneys.html`)**: compressed `Clip A3.mp4` (1920×1080, 24fps, 8s, 7.1MB) → `assets/animations/attorneys_workspace_pullback.mp4` at **1.96MB** (CRF 26, motion-heavy pull-back doesn't compress as aggressively as A2's near-static composition; still under 2MB web tier). Built **new** `.hero-grid`/`.hero-copy`/`.hero-media`/`.hero-video`/`.hero-fallback` CSS scaffold mirroring the home-page pattern + `prefers-reduced-motion` block. Restructured the previously single-column centered hero to two-column on `min-width:900px` (copy left, video right) with mobile fallback to stacked single-column. Added preload `<link>` in `<head>`. Inline SVG document-glyph fallback (`stroke=currentColor; color=var(--ac)`) per skill §6 brand-glyph pattern — no PNG bundling needed.
-- **iOS-Safari attrs on both `<video>`s**: `autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true"` + `prefers-reduced-motion` fallback wired on both surfaces.
-- **md5 parity verified** across canonical `ops/marketing/animations/web/*.mp4` + `ops/website/assets/animations/*.mp4` for both clips.
+- **A3 → for-attorneys hero (`for-attorneys.html`)**: compressed `Clip A3.mp4` (1920×1080, 24fps, 8s, 7.1MB) → `assets/animations/attorneys_workspace_pullback.mp4` at **1.96MB** (CRF 26, motion-heavy pull-back doesn't compress as aggressively as a static composition would; still under 2MB web tier). Built **new** `.hero-grid`/`.hero-copy`/`.hero-media`/`.hero-video`/`.hero-fallback` CSS scaffold + `prefers-reduced-motion` block. Restructured the previously single-column centered hero to two-column on `min-width:900px` (copy left, video right) with mobile fallback to stacked single-column. Added preload `<link>` in `<head>`. Inline SVG document-glyph fallback (`stroke=currentColor; color=var(--ac)`) per skill §6 brand-glyph pattern — no PNG bundling needed.
+- **iOS-Safari attrs on the `<video>`**: `autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true"` + `prefers-reduced-motion` fallback wired.
+- **md5 parity verified** across canonical `ops/marketing/animations/web/attorneys_workspace_pullback.mp4` + `ops/website/assets/animations/attorneys_workspace_pullback.mp4`.
 
-**Files**: `index.html` (CSS reshape + `<video>` element in hero-media), `for-attorneys.html` (new `.hero-grid`/`.hero-copy`/`.hero-media` scaffold + preload link + hero markup restructure), `assets/animations/intro_landscape.mp4` (replaced, 1.4MB → 763KB), `assets/animations/attorneys_workspace_pullback.mp4` (new, 1.96MB), `changelog.md`.
+**Files**: `for-attorneys.html` (new `.hero-grid`/`.hero-copy`/`.hero-media` scaffold + preload link + hero markup restructure), `assets/animations/attorneys_workspace_pullback.mp4` (new, 1.96MB), `changelog.md`.
 
-**Next**: Lighthouse pass on `/` and `/for-attorneys` after Vercel deploys to confirm no perf regression from the new hero videos.
+**Next**: Lighthouse pass on `/for-attorneys` after Vercel deploys to confirm no perf regression from the new hero video. A2 home hero on hold pending a different home-page direction.
 
 ---
 
