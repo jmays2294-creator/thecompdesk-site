@@ -15,6 +15,10 @@ Bug fix in `tiles.js` CCP case. Previously the OC-400.1 § A "Increase in compen
 - **Legacy preserved**: a CCP=$0 fee app with a past-dated period and an award still fires FeeReason2 standalone (simple amending-award workflow unaffected).
 - HIA-only / NCLT-only / NME-only "periods" (which compute to $0) plus a CCP do NOT fire FeeReason2 — there's no real compensation award to increase.
 
+#### Follow-up: v4.1 — past-period check now requires a real award (caught by new regression skill)
+
+Smoke-testing the new `feeapp-field-map-regression` skill against current code surfaced 4 edge-case failures where HIA-only / NCLT-only / NME-only past periods (which compute to $0) were silently firing FeeReason2 anyway. The v3-stated intent was always "past-dated period **with an award**" but the original code only checked `endDate < today` without checking `r.amount > 0`. Tightened: the past-period branch now iterates over computed `rows` (not raw `inputs.periods`) and requires `r.amount > 0` before flipping the flag. Same semantic as the v4 rule above — $0-comp designations shouldn't trigger Increase. Regression skill now 14/14 green.
+
 **Files**: `js/workspace/tiles.js`, `changelog.md`.
 
 ---

@@ -2572,19 +2572,28 @@ function buildEquation(tile, global) {
       // it's both a continuation (FeeReason1) and an increase (FeeReason2)
       // in the compensation paid. The legacy past-dated-period check is
       // preserved so CCP=$0 amending-award fee apps still fire FeeReason2.
+      //
+      // 5/26/26 v4.1 (caught by feeapp-field-map-regression smoke test):
+      // the past-period check now requires the past period to have
+      // actually produced an award (r.amount > 0). The v3-stated intent
+      // was always "past-dated period WITH AN AWARD," but the original
+      // code never enforced the amount check — so HIA-only / NCLT-only /
+      // NME-only past periods (which compute to $0) were silently firing
+      // FeeReason2. Fixed.
       const ccpToday = new Date(); ccpToday.setHours(0, 0, 0, 0);
       const ccpHasAmount = Number(inputs.ccpAmount || 0) > 0;
       const ccpHasAward = totalAward > 0;
-      let ccpHasPastPeriod = false;
-      inputs.periods.forEach(p => {
-        if (!p.end) return;
-        const endDate = new Date(p.end);
+      let ccpHasPastAwardPeriod = false;
+      rows.forEach(r => {
+        if (!r.end) return;
+        if (!(Number(r.amount) > 0)) return;
+        const endDate = new Date(r.end);
         if (isNaN(endDate.getTime())) return;
-        if (endDate < ccpToday) ccpHasPastPeriod = true;
+        if (endDate < ccpToday) ccpHasPastAwardPeriod = true;
       });
       const ccpFeeReasons = [];
       if (ccpHasAmount) ccpFeeReasons.push('FeeReason1');
-      if ((ccpHasAmount && ccpHasAward) || ccpHasPastPeriod) {
+      if ((ccpHasAmount && ccpHasAward) || ccpHasPastAwardPeriod) {
         ccpFeeReasons.push('FeeReason2');
       }
       return { plain, mono: lines.join('\n'), fee: totalFee, feeReasons: ccpFeeReasons };
