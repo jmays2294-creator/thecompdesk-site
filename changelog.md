@@ -5,19 +5,34 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-26
+
+### Workspace — CCP Award Builder → OC-400.1: Increase box now fires alongside Continuation
+
+Bug fix in `tiles.js` CCP case. Previously the OC-400.1 § A "Increase in compensation paid for a prior period" (FeeReason2) checkbox only fired when at least one award period had an end date in the past. A common, valid scenario — single ongoing/future-dated TT (or any award) period plus a non-zero CCP — was checking only the Continuation box (FeeReason1) and leaving Increase blank, which understated what the attorney is doing on the form.
+
+- **New rule (v4)**: when `ccpAmount > $0` **and** `totalAward > $0`, BOTH FeeReason1 (Continuation) and FeeReason2 (Increase) check on the generated OC-400.1.
+- **Legacy preserved**: a CCP=$0 fee app with a past-dated period and an award still fires FeeReason2 standalone (simple amending-award workflow unaffected).
+- HIA-only / NCLT-only / NME-only "periods" (which compute to $0) plus a CCP do NOT fire FeeReason2 — there's no real compensation award to increase.
+
+**Files**: `js/workspace/tiles.js`, `changelog.md`.
+
+---
+
 ## 2026-05-20
 
-### for-attorneys hero — Higgsfield Batch A3 deployed
+### For-attorneys hero — Higgsfield Batch A3 deployed (A2 tried, reverted)
 
-May 20 operating-calendar deliverable: A3 → for-attorneys hero. Executed May 22 (caught up after Tuesday's content block was lost to Stripe/E2E work). A2 was also prepared and briefly pushed to the home hero in commit `c5b52d7`, but reverted in this commit — the home hero will keep its prior `<img>` composition.
+May 20 operating-calendar deliverable: compress A2/A3/A4 via media-asset-rollout, push A2 to home hero, push A3 to for-attorneys hero. Executed May 22. **Net live state: A3 only.** A2 was pushed in commit `c5b52d7` alongside A3, but Joel viewed the home-page hero on the live deploy and decided it looked wrong → A2 surface reverted in `32dfce5` while A3 was preserved. Home hero is back to pre-session static `comp-desk.png` state.
 
-- **A3 → for-attorneys hero (`for-attorneys.html`)**: compressed `Clip A3.mp4` (1920×1080, 24fps, 8s, 7.1MB) → `assets/animations/attorneys_workspace_pullback.mp4` at **1.96MB** (CRF 26, motion-heavy pull-back doesn't compress as aggressively as a static composition would; still under 2MB web tier). Built **new** `.hero-grid`/`.hero-copy`/`.hero-media`/`.hero-video`/`.hero-fallback` CSS scaffold + `prefers-reduced-motion` block. Restructured the previously single-column centered hero to two-column on `min-width:900px` (copy left, video right) with mobile fallback to stacked single-column. Added preload `<link>` in `<head>`. Inline SVG document-glyph fallback (`stroke=currentColor; color=var(--ac)`) per skill §6 brand-glyph pattern — no PNG bundling needed.
-- **iOS-Safari attrs on the `<video>`**: `autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true"` + `prefers-reduced-motion` fallback wired.
-- **md5 parity verified** across canonical `ops/marketing/animations/web/attorneys_workspace_pullback.mp4` + `ops/website/assets/animations/attorneys_workspace_pullback.mp4`.
+- **A3 → for-attorneys hero (`for-attorneys.html`) — LIVE**: compressed `Clip A3.mp4` (1920×1080, 24fps, 8s, 7.1MB) → `assets/animations/attorneys_workspace_pullback.mp4` at **1.96MB** (CRF 26, motion-heavy pull-back doesn't compress as aggressively as a near-static composition; still under 2MB web tier). Built **new** `.hero-grid`/`.hero-copy`/`.hero-media`/`.hero-video`/`.hero-fallback` CSS scaffold + `prefers-reduced-motion` block. Restructured the previously single-column centered hero to two-column on `min-width:900px` (copy left, video right) with mobile fallback to stacked single-column. Added preload `<link>` in `<head>`. Inline SVG document-glyph fallback (`stroke=currentColor; color=var(--ac)`) per skill §6 brand-glyph pattern — no PNG bundling needed. iOS-Safari attrs on `<video>` (autoplay muted loop playsinline preload=auto disableremoteplayback aria-hidden).
+- **A2 → home hero — REVERTED**: initial push in c5b52d7 swapped the static `comp-desk.png` for a `<video>` with the compressed 763KB `intro_landscape.mp4`, reshaped `.hero-video` from 9:16 vertical to 16:9 landscape, and bumped the desktop grid column 380→480px. After viewing live, Joel decided the home hero "looked wrong" — `32dfce5` reverted the markup and CSS but preserved the new compressed mp4 file alongside the existing one. Iteration decision needed: aspect-ratio mismatch? column width? clip tone? loop seam?
+- **A4** (Comp Buddy onboarding + IG/TikTok): compressed to app tier 611KB (111KB over 500KB budget — flagged) + social tier 1.1MB. Not deployed this week; deployment surfaces are separate streams (in-app + social).
+- **Tripwire surfaced (for future memory)**: local clone at `~/Code/thecompdesk-site` was 16 commits behind `origin/main` at the start of the session — looked like a 5-day backlog of unshipped work in the changelog diff, but was actually already live (the local checkout was just stale). Fix: always `git fetch origin && git log origin/main..main && git log main..origin/main` before reasoning about divergence between `ops/website/` (drafting space, no git) and `~/Code/thecompdesk-site` (deploy repo).
 
-**Files**: `for-attorneys.html` (new `.hero-grid`/`.hero-copy`/`.hero-media` scaffold + preload link + hero markup restructure), `assets/animations/attorneys_workspace_pullback.mp4` (new, 1.96MB), `changelog.md`.
+**Files (final on origin/main)**: `for-attorneys.html`, `assets/animations/attorneys_workspace_pullback.mp4`, `changelog.md`. `index.html` + `intro_landscape.mp4` reverted to pre-session state.
 
-**Next**: Lighthouse pass on `/for-attorneys` after Vercel deploys to confirm no perf regression from the new hero video. A2 home hero on hold pending a different home-page direction.
+**Next**: re-run Lighthouse on `/for-attorneys` only (the `/` audit numbers from the pre-revert pass stand since the home hero is unchanged). A2 iteration is a separate Engineering Wednesday / Sunday item once Joel locks the "what looked wrong" feedback.
 
 ---
 

@@ -2564,19 +2564,29 @@ function buildEquation(tile, global) {
       // 5/19/26 v3 rule: FeeReason1 (continuation box) is checked ONLY
       // when CCP Amount > 0. Future-dated/ongoing award periods and
       // REIMB ER alone never trigger the continuation box.
-      // A past-dated period with an award still fires FeeReason2.
+      //
+      // 5/26/26 v4 rule (Joel): when CCP Amount > 0 AND there is at least
+      // one period producing a real award (totalAward > 0), BOTH boxes
+      // fire — even if the only period is current/future-dated. Rationale:
+      // any time the attorney is securing a CCP plus moving award money,
+      // it's both a continuation (FeeReason1) and an increase (FeeReason2)
+      // in the compensation paid. The legacy past-dated-period check is
+      // preserved so CCP=$0 amending-award fee apps still fire FeeReason2.
       const ccpToday = new Date(); ccpToday.setHours(0, 0, 0, 0);
       const ccpHasAmount = Number(inputs.ccpAmount || 0) > 0;
-      let ccpHasPrior = false;
+      const ccpHasAward = totalAward > 0;
+      let ccpHasPastPeriod = false;
       inputs.periods.forEach(p => {
         if (!p.end) return;
         const endDate = new Date(p.end);
         if (isNaN(endDate.getTime())) return;
-        if (endDate < ccpToday) ccpHasPrior = true;
+        if (endDate < ccpToday) ccpHasPastPeriod = true;
       });
       const ccpFeeReasons = [];
       if (ccpHasAmount) ccpFeeReasons.push('FeeReason1');
-      if (ccpHasPrior)  ccpFeeReasons.push('FeeReason2');
+      if ((ccpHasAmount && ccpHasAward) || ccpHasPastPeriod) {
+        ccpFeeReasons.push('FeeReason2');
+      }
       return { plain, mono: lines.join('\n'), fee: totalFee, feeReasons: ccpFeeReasons };
     }
     case 'RateLookup': {
