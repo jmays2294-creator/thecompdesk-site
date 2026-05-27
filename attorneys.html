@@ -1,530 +1,492 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Workers' Comp Calculator for Attorneys — The Comp Desk Pro</title>
-<meta name="description" content="The Comp Desk Pro gives NYS Workers' Compensation attorneys free calculators, a Pro workspace with fee app generation, SLU permanency checker, LWEC lookup, and case management. Built by a practicing WC attorney.">
-<meta name="keywords" content="workers compensation calculator attorney, NYS workers comp attorney tools, WC attorney software, workers comp fee app generator, schedule loss of use calculator attorney, LWEC attorney calculator, workers compensation permanency calculator, NYS WC attorney software, workers comp award calculator attorney">
-<meta property="og:title" content="Workers' Comp Calculator for Attorneys — The Comp Desk Pro">
-<meta property="og:description" content="Free calculators + Pro workspace for NYS WC attorneys. Fee app generation, SLU checker, LWEC lookup. $9.99/mo.">
+<title>The Comp Desk for Attorneys — Pro Tools for NYS Workers' Compensation Practice</title>
+<meta name="description" content="The Comp Desk Pro gives WC attorneys SLU permanency checking, radiculopathy calculators, fee app equations, and more — all in one platform. Built by a practicing WC attorney.">
+<meta name="keywords" content="workers compensation attorney tools, SLU calculator, permanency checker, WC attorney software, NYS workers comp, schedule loss of use, fee application, comp desk pro, workers comp calculator attorney">
+
+<meta property="og:title" content="The Comp Desk for Attorneys — Pro Tools for NYS WC Practice">
+<meta property="og:description" content="SLU permanency, radiculopathy, fee equations, the workspace. Built by a practicing WC attorney.">
+<meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+<meta property="og:url" content="https://thecompdesk.com/attorneys">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Comp Desk">
-<meta property="og:url" content="https://thecompdesk.com/attorneys">
-<meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Workers' Comp Calculator for Attorneys — The Comp Desk Pro">
-<meta name="twitter:description" content="Free calculators + Pro workspace for NYS WC attorneys. Fee app generation, SLU checker, LWEC lookup. $9.99/mo.">
+<meta name="twitter:title" content="The Comp Desk for Attorneys">
+<meta name="twitter:description" content="SLU permanency, fee equations, the workspace.">
 <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
 
-<!-- JSON-LD Schema -->
+<link rel="canonical" href="https://thecompdesk.com/attorneys">
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "The Comp Desk Pro for Attorneys",
-  "description": "Professional-grade NYS workers' compensation tools for attorneys. SLU calculators, AWW & LWEC calculators, fee application generators, and case management workspace.",
-  "url": "https://thecompdesk.com/attorneys",
-  "applicationCategory": "FinanceApplication",
-  "operatingSystem": "Any",
+  "name": "The Comp Desk Pro",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web, iOS",
   "offers": [
-    { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free calculators" },
-    { "@type": "Offer", "price": "9.99", "priceCurrency": "USD", "name": "Pro workspace (monthly)" }
-  ],
-  "publisher": {
-    "@type": "Organization",
-    "name": "The Comp Desk",
-    "url": "https://thecompdesk.com/"
-  }
+    { "@type": "Offer", "name": "Pro", "price": "9.99", "priceCurrency": "USD", "description": "For practicing WC attorneys — SLU permanency, radiculopathy, fee equations, and advanced calculators" },
+    { "@type": "Offer", "name": "Firm", "price": "99.00", "priceCurrency": "USD", "description": "Multi-attorney access, Litify integration, case data export, and priority support" }
+  ]
 }
 </script>
 
-<link rel="canonical" href="https://thecompdesk.com/attorneys">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/skins.css">
+
 <style>
-:root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#3b82f6;--acG:rgba(59,130,246,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
-a{color:var(--ac);text-decoration:none;}
-a:hover{text-decoration:underline;}
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+/* ─── Attorney-home-local treatments */
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,8,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);}
-nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;}
-nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;white-space:nowrap;}
-nav .logo span{color:var(--ac);}
-nav .links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
-nav .links a{color:var(--txD);font-size:14px;font-weight:600;white-space:nowrap;}
-nav .links a:hover{color:var(--wh);text-decoration:none;}
-.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;white-space:nowrap;}
-.cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(59,130,246,0.35);text-decoration:none;}
-.cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
-.cta-btn.outline:hover{background:var(--acG);}
-.cta-btn.gold{background:var(--gd);color:#1a1200;}
-.cta-btn.gold:hover{box-shadow:0 4px 20px rgba(240,160,48,0.35);}
-.cta-btn.sm{padding:8px 16px;font-size:13px;}
-
-/* HERO */
-.hero{padding:140px 0 80px;text-align:center;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,0.07) 0%,transparent 70%);pointer-events:none;}
-.badge{display:inline-block;background:var(--acG);border:1px solid rgba(59,130,246,0.3);color:var(--ac);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:24px;}
-.hero h1{font-size:clamp(34px,6vw,54px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
-.hero h1 span{color:var(--ac);}
-.hero .sub{font-size:clamp(15px,2.5vw,19px);color:var(--txD);max-width:660px;margin:0 auto 32px;line-height:1.7;}
-.hero .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:36px;}
-.hero .trust{font-size:13px;color:var(--txM);}
-.hero .trust strong{color:var(--txD);}
-
-/* STATS */
-.stats-bar{padding:40px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
-.stats-bar .inner{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;}
-.stat{text-align:center;}
-.stat .num{font-size:30px;font-weight:800;color:var(--ac);font-family:'JetBrains Mono',monospace;}
-.stat .lbl{font-size:12px;color:var(--txD);margin-top:4px;}
-
-/* SECTION */
-.section{padding:80px 0;}
-.section.alt{background:var(--card);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
-.sec-head{text-align:center;margin-bottom:48px;}
-.sec-head h2{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:10px;}
-.sec-head p{font-size:16px;color:var(--txD);max-width:580px;margin:0 auto;}
-
-/* FEATURE CARDS */
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
-.feat-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:28px 24px;transition:border-color 0.2s,transform 0.2s;}
-.section.alt .feat-card{background:var(--bg);}
-.feat-card:hover{border-color:var(--ac);transform:translateY(-2px);}
-.feat-card .ico{font-size:28px;margin-bottom:12px;}
-.feat-card h3{font-size:16px;font-weight:700;color:var(--wh);margin-bottom:8px;}
-.feat-card p{font-size:14px;color:var(--txD);line-height:1.6;}
-.tag{display:inline-block;margin-top:14px;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
-.tag-free{background:rgba(45,212,160,0.12);color:var(--gn);}
-.tag-pro{background:rgba(240,160,48,0.12);color:var(--gd);}
-
-/* WORKSPACE PREVIEW */
-.preview-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center;}
-.preview-text h2{font-size:clamp(22px,3.5vw,32px);font-weight:800;color:var(--wh);margin-bottom:12px;letter-spacing:-0.5px;}
-.preview-text p{font-size:15px;color:var(--txD);line-height:1.7;margin-bottom:20px;}
-.feat-list{list-style:none;margin-bottom:28px;}
-.feat-list li{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(28,45,74,0.5);font-size:14px;color:var(--txD);}
-.feat-list li:last-child{border-bottom:none;}
-.feat-list .ck{color:var(--gn);font-weight:700;flex-shrink:0;margin-top:1px;}
-.preview-btns{display:flex;gap:10px;flex-wrap:wrap;}
-
-/* MOCK UI */
-.mock{background:var(--bg);border:1px solid var(--bd);border-radius:12px;overflow:hidden;font-family:'JetBrains Mono',monospace;}
-.mock-bar{background:rgba(59,130,246,0.06);border-bottom:1px solid var(--bd);padding:9px 14px;display:flex;align-items:center;gap:8px;}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.mock-label{color:var(--txM);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-left:4px;}
-.mock-tabs{display:flex;gap:2px;padding:8px 10px 0;border-bottom:1px solid var(--bd);overflow-x:auto;}
-.mtab{padding:5px 12px;border-radius:5px 5px 0 0;font-size:10px;color:var(--txM);background:rgba(0,0,0,0.3);border:1px solid var(--bd);border-bottom:none;white-space:nowrap;}
-.mtab.active{background:var(--card);color:var(--ac);border-color:var(--ac);}
-.mtab.add{color:var(--ac);background:transparent;border-color:transparent;}
-.mock-ci{display:flex;gap:16px;padding:8px 12px;background:rgba(0,0,0,0.25);border-bottom:1px solid var(--bd);font-size:9px;color:var(--txM);flex-wrap:wrap;}
-.mock-ci strong{color:var(--txD);}
-.mock-body{padding:10px;}
-.mock-widgets{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.mw{background:rgba(59,130,246,0.04);border:1px solid var(--bd);border-radius:6px;padding:10px;}
-.mw-title{font-size:9px;color:var(--ac);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;}
-.mw-field{background:var(--bg);border:1px solid var(--bd);border-radius:3px;padding:3px 7px;color:var(--txD);font-size:9px;margin-bottom:3px;}
-.mw-result{color:var(--gn);font-size:12px;font-weight:700;margin-top:5px;}
-.mw-sub{font-size:9px;color:var(--ac);margin-top:2px;}
-
-/* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:940px;margin:0 auto;}
-.price-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:36px 28px;text-align:center;position:relative;}
-.price-card.featured{border-color:var(--ac);box-shadow:0 0 40px rgba(59,130,246,0.12);}
-.price-card.featured::before{content:'MOST POPULAR';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--ac);color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 14px;border-radius:0 0 8px 8px;white-space:nowrap;}
-.price-card .tier-nm{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txD);margin-bottom:8px;}
-.price-card .price{font-size:40px;font-weight:900;color:var(--wh);font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:4px;}
-.price-card .price span{font-size:16px;font-weight:500;color:var(--txM);}
-.price-card .pdesc{font-size:13px;color:var(--txM);margin-bottom:24px;}
-.price-card ul{list-style:none;text-align:left;margin-bottom:28px;}
-.price-card li{font-size:13px;color:var(--txD);padding:7px 0;border-bottom:1px solid rgba(28,45,74,0.3);display:flex;align-items:flex-start;gap:8px;line-height:1.4;}
-.price-card li:last-child{border-bottom:none;}
-.price-card li::before{content:'✓';color:var(--gn);font-weight:700;font-size:12px;flex-shrink:0;margin-top:1px;}
-
-/* TESTIMONIALS */
-.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
-.testi-card{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:28px 24px;}
-.testi-q{font-size:15px;color:var(--txD);line-height:1.7;font-style:italic;margin-bottom:20px;}
-.testi-q::before{content:'"';color:var(--ac);font-size:24px;font-weight:700;font-style:normal;line-height:0;vertical-align:-8px;margin-right:4px;}
-.testi-author{display:flex;align-items:center;gap:12px;}
-.testi-av{width:40px;height:40px;border-radius:50%;background:var(--acG);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.testi-nm{font-size:14px;font-weight:700;color:var(--wh);}
-.testi-ttl{font-size:12px;color:var(--txM);}
-.testi-note{text-align:center;margin-top:24px;color:var(--txM);font-size:12px;font-style:italic;}
-
-/* FINAL CTA */
-.final-cta{padding:80px 0;text-align:center;}
-.final-cta h2{font-size:clamp(26px,5vw,42px);font-weight:900;color:var(--wh);margin-bottom:12px;letter-spacing:-1px;}
-.final-cta p{font-size:16px;color:var(--txD);max-width:500px;margin:0 auto 32px;}
-.final-cta .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-
-/* FOOTER */
-footer{padding:40px 0;border-top:1px solid var(--bd);text-align:center;}
-footer p{font-size:12px;color:var(--txM);margin-bottom:4px;}
-footer a{color:var(--txD);}
-
-/* RESPONSIVE */
-@media(max-width:900px){
-  .preview-layout{grid-template-columns:1fr;}
-  .mock-widgets{grid-template-columns:1fr;}
+.workspace-wash {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.16) 0%, rgba(107,143,168,0) 60%),
+    radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+    linear-gradient(180deg, #0F1B33 0%, #0B1426 100%);
 }
-@media(max-width:768px){
-  nav .links a:not(.cta-btn){display:none;}
-  .stats-bar .inner{gap:20px;}
+
+.hero { padding: clamp(48px, 8vh, 96px) 0 clamp(56px, 10vh, 120px); }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
 }
-@media(max-width:600px){
-  .pricing-grid{grid-template-columns:1fr;}
-  .preview-btns{flex-direction:column;}
+@media (max-width: 820px) { .hero-grid { grid-template-columns: 1fr; } }
+.hero h1 {
+  font-size: clamp(38px, 5.8vw, 64px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  margin: 16px 0 20px;
 }
+.hero h1 .accent { color: var(--skin-accent); }
+.hero .lede {
+  font-size: clamp(16px, 1.8vw, 19px);
+  color: var(--skin-text-soft);
+  line-height: 1.55;
+  max-width: 52ch;
+  margin: 0 0 28px;
+}
+.hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Stylized SLU UI mock — placeholder cinematic hero */
+.ui-mock {
+  position: relative;
+  background: linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
+  border: 1px solid rgba(240,235,224,0.10);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(232,119,34,0.12),
+    inset 0 1px 0 rgba(240,235,224,0.06);
+}
+.ui-mock::before {
+  content: "";
+  position: absolute;
+  top: -20%; right: -10%;
+  width: 220px; height: 220px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(232,119,34,0.45) 0%, rgba(232,119,34,0) 70%);
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 0;
+}
+.ui-mock .ui-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--skin-text-muted);
+  margin-bottom: 14px; position: relative; z-index: 1;
+}
+.ui-mock .ui-head .dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--skin-accent); margin-right: 8px;
+  box-shadow: 0 0 8px rgba(232,119,34,0.7);
+}
+.ui-mock .ui-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-bottom: 14px; position: relative; z-index: 1;
+}
+.ui-mock .field {
+  background: rgba(11,20,38,0.55);
+  border: 1px solid rgba(240,235,224,0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.ui-mock .field .label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--skin-text-muted); margin-bottom: 4px;
+}
+.ui-mock .field .value {
+  font-family: var(--font-numeric);
+  font-size: 16px; color: var(--skin-text); font-weight: 600;
+}
+.ui-mock .ui-result {
+  background: rgba(232,119,34,0.10);
+  border: 1px solid rgba(232,119,34,0.35);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  position: relative; z-index: 1;
+}
+.ui-mock .ui-result .label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--skin-accent);
+}
+.ui-mock .ui-result .value {
+  font-family: var(--font-numeric);
+  font-size: clamp(22px, 3vw, 30px);
+  color: var(--skin-text); font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.section-head { max-width: 720px; margin: 0 auto 40px; }
+.section-head h2 { margin-bottom: 12px; }
+.section-head p { font-size: 16px; color: var(--skin-text-soft); }
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.calc-card {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: 14px;
+  padding: 22px 22px;
+  transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+.calc-card:hover { transform: translateY(-3px); border-color: var(--skin-accent); }
+.calc-card .head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.calc-card .badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--skin-accent);
+  padding: 3px 8px; border-radius: 4px;
+  background: rgba(232,119,34,0.12);
+}
+.calc-card .badge.free { color: #5BC79A; background: rgba(91,199,154,0.10); }
+.calc-card .stat {
+  font-family: var(--font-numeric);
+  font-size: 28px; font-weight: 700;
+  color: var(--skin-text); letter-spacing: -0.02em;
+}
+.calc-card h3 {
+  font-size: 16px !important;
+  font-weight: 700;
+  color: var(--skin-text);
+  margin: 0 0 4px !important;
+}
+.calc-card p { font-size: 13.5px; color: var(--skin-text-muted); margin: 0; line-height: 1.5; }
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: clamp(28px, 4vw, 56px);
+  align-items: center;
+}
+@media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; text-align: center; } }
+.portrait {
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background:
+    radial-gradient(60% 60% at 40% 35%, rgba(244,194,140,0.35) 0%, rgba(244,194,140,0) 60%),
+    linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
+  border: 1px solid rgba(232,119,34,0.30);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 60px; font-weight: 800; color: var(--skin-text);
+  letter-spacing: -0.03em;
+  margin: 0 auto;
+}
+.about-copy h2 { font-size: clamp(24px, 3.2vw, 36px); margin-bottom: 14px; }
+.about-copy p { color: var(--skin-text-soft); margin-bottom: 12px; }
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.tier {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: 16px;
+  padding: 32px 28px;
+  position: relative;
+}
+.tier.featured {
+  border-color: var(--skin-accent);
+  box-shadow: 0 0 0 1px var(--skin-accent), 0 20px 60px rgba(232,119,34,0.18);
+}
+.tier.featured::before {
+  content: "Most Popular";
+  position: absolute; top: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--skin-accent); color: var(--tcd-navy);
+  padding: 4px 14px; border-radius: 999px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em;
+}
+.tier .name {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--skin-text-muted);
+  margin-bottom: 8px;
+}
+.tier .price {
+  font-family: var(--font-numeric);
+  font-size: 44px; font-weight: 800;
+  color: var(--skin-text); letter-spacing: -0.02em;
+}
+.tier .price .per {
+  font-size: 14px; color: var(--skin-text-muted); font-weight: 500;
+  letter-spacing: 0;
+}
+.tier .desc { font-size: 13px; color: var(--skin-text-muted); margin-bottom: 22px; }
+.tier ul { list-style: none; padding: 0; margin: 0 0 24px; }
+.tier li {
+  font-size: 13.5px; color: var(--skin-text-soft);
+  padding: 7px 0;
+  border-bottom: 1px solid var(--skin-divider);
+  display: flex; align-items: center; gap: 10px;
+}
+.tier li:last-child { border-bottom: 0; }
+.tier li::before {
+  content: "✓"; color: var(--skin-accent);
+  font-weight: 700; font-size: 13px; flex-shrink: 0;
+}
+.tier .btn { width: 100%; }
+
+.proof-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 28px 0;
+  border-top: 1px solid var(--skin-divider);
+  border-bottom: 1px solid var(--skin-divider);
+  margin: 32px 0 0;
+}
+.proof-strip .item { text-align: center; }
+.proof-strip .item .n {
+  font-family: var(--font-numeric);
+  font-size: 32px; font-weight: 700;
+  color: var(--skin-accent); letter-spacing: -0.02em;
+}
+.proof-strip .item .l {
+  font-size: 12px; color: var(--skin-text-muted);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px;
+}
+
+.cta-banner {
+  text-align: center;
+  background:
+    radial-gradient(60% 100% at 50% 0%, rgba(232,119,34,0.16) 0%, rgba(232,119,34,0) 60%),
+    var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: 24px;
+  padding: clamp(40px, 6vw, 64px);
+}
+.cta-banner h2 { margin-bottom: 14px; }
+.cta-banner p { max-width: 56ch; margin: 0 auto 24px; }
 </style>
-<!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
-<link rel="stylesheet" href="/css/brand-theme.css">
-<script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
+<body class="tcd-skinned">
 
-<nav>
-  <div class="inner">
-    <a href="/" style="text-decoration:none;"><div class="logo">The <span>Comp</span> Desk</div></a>
-    <div class="links">
-      <a href="/calculators/" style="color:var(--ac);font-weight:700;">Calculators</a>
-      <a href="/#features">Features</a>
-      <a href="#pricing">Pricing</a>
-      <a href="/workspace.html">Workspace</a>
-      <a href="/auth_v2.html" class="cta-btn outline sm" id="nav-signin" style="display:none;">Sign In</a>
-      <a href="/auth_v2.html?mode=signup" class="cta-btn sm" id="nav-signup">Create Free Account</a>
-      <a href="/account.html" class="cta-btn outline sm" id="nav-account" style="display:none;">My Account</a>
+<div class="workspace-wash" aria-hidden="true"></div>
+
+<nav class="tcd-nav" aria-label="Primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+    <div class="tcd-nav-links">
+      <a href="/calculators">Calculators</a>
+      <a href="/workspace/">Workspace</a>
+      <a href="/for-attorneys/credits">Credits</a>
+      <a href="/hire-attorney">Network</a>
+      <a href="/contact">Contact</a>
     </div>
+    <div data-audience-switch></div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="wrap">
-    <div class="badge">Pro Attorney Tools</div>
-    <h1>Built for Workers'<br>Comp <span>Attorneys.</span></h1>
-    <p class="sub">Every calculation you run at a hearing — AWW, SLU, LWEC, CCP awards, fee apps — in one professional workspace. Free forever for the essentials. Pro for the tools that win cases.</p>
-    <div class="ctas">
-      <a href="/calculators/" class="cta-btn">Try Calculators Free</a>
-      <a href="/auth_v2.html?mode=signup&next=pro" class="cta-btn gold" id="hero-pro-cta">Start Pro — $9.99/mo</a>
-    </div>
-    <p class="trust">Built for NYS Workers' Compensation practice &middot; No setup required</p>
-  </div>
-</section>
+<main>
 
-<!-- STATS BAR -->
-<section class="stats-bar">
-  <div class="inner">
-    <div class="stat"><div class="num">8</div><div class="lbl">Calculator modules</div></div>
-    <div class="stat"><div class="num">40+</div><div class="lbl">Years of statutory rates</div></div>
-    <div class="stat"><div class="num">2018</div><div class="lbl">NYS Permanency Guidelines</div></div>
-    <div class="stat"><div class="num">$0</div><div class="lbl">Free tier, always</div></div>
-  </div>
-</section>
-
-<!-- FEATURE CARDS -->
-<section class="section" id="features">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>The complete attorney toolkit.</h2>
-      <p>From AWW at the first hearing to fee app generation at the close — every tool you need, on any device.</p>
-    </div>
-    <div class="feat-grid">
-      <div class="feat-card">
-        <div class="ico">💰</div>
-        <h3>CCP &amp; Award Calculator</h3>
-        <p>Multi-period entries with TT/TP/TR/RE/NME/NCLT designations. Auto-rate lookup from AWW. One-click fee app equation with copy to clipboard.</p>
-        <span class="tag tag-free">Free</span>
-      </div>
-      <div class="feat-card">
-        <div class="ico">📊</div>
-        <h3>AWW Calculator</h3>
-        <p>4/5/6/7-day work weeks. Salary, hourly, or mixed. Concurrent employment with composite AWW. Amending AWW with differential award calculations built in.</p>
-        <span class="tag tag-free">Free</span>
-      </div>
-      <div class="feat-card">
-        <div class="ico">⚖️</div>
-        <h3>LWEC / Classification</h3>
-        <p>Enter the LWEC percentage → automatic bracket lookup, classification rate, statutory max weeks, projected total award, and attorney fee calculation.</p>
-        <span class="tag tag-free">Free</span>
-      </div>
-      <div class="feat-card">
-        <div class="ico">🦿</div>
-        <h3>SLU Permanency Checker</h3>
-        <p>Enter a doctor's ROM measurement → instant SLU percentage per the 2018 NYS Permanency Guidelines. Shoulder, elbow, wrist, knee, hip, and ankle all covered.</p>
-        <span class="tag tag-pro">Pro</span>
-      </div>
-      <div class="feat-card">
-        <div class="ico">🦴</div>
-        <h3>Spine &amp; Brain Checker</h3>
-        <p>2012 Impairment Guidelines — soft tissue, surgical, fracture classification. Full radiculopathy point calculator. Traumatic brain injury by Rancho scale.</p>
-        <span class="tag tag-pro">Pro</span>
-      </div>
-      <div class="feat-card">
-        <div class="ico">📋</div>
-        <h3>Statutory Rate Reference</h3>
-        <p>Complete history of NYS max and min weekly rates from 1985 to present. Auto-lookup by date of accident. Future-proofed with indexed minimums.</p>
-        <span class="tag tag-free">Free</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WORKSPACE PREVIEW -->
-<section class="section alt" id="workspace">
-  <div class="wrap">
-    <div class="preview-layout">
-      <div class="preview-text">
-        <div class="badge" style="margin-bottom:16px;">Pro Feature</div>
-        <h2>The Pro Attorney Workspace</h2>
-        <p>A dedicated multi-case workspace designed for how attorneys actually work — multiple open cases, instant calculations, metrics tracking, and fee app generation in one view.</p>
-        <ul class="feat-list">
-          <li><span class="ck">✓</span>Six calculator widgets in a single dashboard — no switching between tools mid-hearing</li>
-          <li><span class="ck">✓</span>Multi-tab case management — keep separate AWW and SLU calculations per open case</li>
-          <li><span class="ck">✓</span>Session metrics — track fee apps submitted, attorney fees generated, and active cases</li>
-          <li><span class="ck">✓</span>One-click fee app equation generation with copy to clipboard</li>
-          <li><span class="ck">✓</span>Case info bar — quick-access claimant name, case number, and date of injury per tab</li>
-        </ul>
-        <div class="preview-btns">
-          <a href="/workspace.html" class="cta-btn">Open Workspace</a>
-          <a href="/auth_v2.html?mode=signup&next=pro" class="cta-btn outline">Start Pro — $9.99/mo</a>
+  <!-- ─── Scene 1: Hero ─── -->
+  <section class="tcd-section hero scene">
+    <div class="wrap hero-grid">
+      <div class="hero-copy stagger">
+        <span class="eyebrow" style="--i:0;">Built by a practicing NYS WC attorney</span>
+        <h1 style="--i:1;">The <span class="accent">unfair advantage</span> in NY Workers' Compensation practice.</h1>
+        <p class="lede" style="--i:2;">SLU permanency checking, radiculopathy calculators, fee app equations, and the Pro Workspace. Everything the hearing room actually needs — done right, done fast, done correctly. Built by Joel Mays, Esq. at Shulman &amp; Hill, PLLC.</p>
+        <div class="ctas" style="--i:3;">
+          <a href="/subscribe" class="btn primary">Start free trial</a>
+          <a href="/calculators" class="btn ghost">See the calculators</a>
+        </div>
+        <div class="proof-strip stagger">
+          <div class="item" style="--i:0;"><div class="n">$9.99</div><div class="l">Pro · per month</div></div>
+          <div class="item" style="--i:1;"><div class="n">12+</div><div class="l">Calculators in Pro</div></div>
+          <div class="item" style="--i:2;"><div class="n">NY</div><div class="l">WC-focused, end-to-end</div></div>
         </div>
       </div>
 
-      <div class="mock">
-        <div class="mock-bar">
-          <div class="dot" style="background:#ef4444;"></div>
-          <div class="dot" style="background:#f59e0b;"></div>
-          <div class="dot" style="background:#10b981;"></div>
-          <span class="mock-label">Pro Attorney Workspace</span>
+      <div class="ui-mock" aria-hidden="true">
+        <div class="ui-head"><span><span class="dot"></span>SLU CALCULATOR · LEG</span><span>v2.4</span></div>
+        <div class="ui-grid">
+          <div class="field"><div class="label">Body part</div><div class="value">Right leg</div></div>
+          <div class="field"><div class="label">% Loss</div><div class="value">35%</div></div>
+          <div class="field"><div class="label">AWW</div><div class="value">$1,242.50</div></div>
+          <div class="field"><div class="label">Weeks</div><div class="value">288</div></div>
         </div>
-        <div class="mock-tabs">
-          <div class="mtab active">Smith, J. — 2024-012</div>
-          <div class="mtab">Garcia, M. — 2024-087</div>
-          <div class="mtab add">+ New Case</div>
-        </div>
-        <div class="mock-ci">
-          <span>Case: <strong>2024-012345</strong></span>
-          <span>&middot;</span>
-          <span>Claimant: <strong>John Smith</strong></span>
-          <span>&middot;</span>
-          <span>DOI: <strong>03/15/2024</strong></span>
-        </div>
-        <div class="mock-body">
-          <div class="mock-widgets">
-            <div class="mw">
-              <div class="mw-title">⚖ AWW</div>
-              <div class="mw-field">Wk 1: $1,240.00</div>
-              <div class="mw-field">Wk 2: $1,180.00</div>
-              <div class="mw-result">AWW: $1,210.00</div>
-              <div class="mw-sub">Rate: $806.67/wk</div>
-            </div>
-            <div class="mw">
-              <div class="mw-title">🦿 SLU Award</div>
-              <div class="mw-field">Shoulder · 20% SLU</div>
-              <div class="mw-field">Rate: $806.67</div>
-              <div class="mw-result">62.4 wks · $50,336</div>
-            </div>
-            <div class="mw">
-              <div class="mw-title">💰 CCP Period</div>
-              <div class="mw-field">TT × 26 weeks</div>
-              <div class="mw-field">Rate: $806.67</div>
-              <div class="mw-result">$20,973.42</div>
-            </div>
-            <div class="mw">
-              <div class="mw-title">📄 Fee App</div>
-              <div class="mw-field">Total: $71,309</div>
-              <div class="mw-result" style="color:var(--gd);">Fee: $11,741</div>
-              <div class="mw-sub" style="color:var(--gn);">✓ Equation copied</div>
-            </div>
-          </div>
+        <div class="ui-result">
+          <span class="label">Total SLU Award</span>
+          <span class="value">$238,557.60</span>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- PRICING -->
-<section class="section" id="pricing">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Simple, fair pricing.</h2>
-      <p>Start free. Upgrade when you need the Pro tools. Cancel anytime.</p>
-    </div>
-    <div class="pricing-grid">
-      <div class="price-card">
-        <div class="tier-nm">Free</div>
-        <div class="price">$0</div>
-        <div class="pdesc">For injured workers &amp; basic calculations</div>
-        <ul>
-          <li>CCP / Award calculator</li>
-          <li>AWW calculator &amp; rate lookup</li>
-          <li>LWEC classification lookup</li>
-          <li>Statutory rate reference (1985–present)</li>
-          <li>Educational resources</li>
-        </ul>
-        <a href="/calculators/" class="cta-btn outline" style="width:100%;justify-content:center;">Try Calculators Free</a>
-      </div>
-      <div class="price-card featured">
-        <div class="tier-nm" style="color:var(--ac);">Pro</div>
-        <div class="price">$9.99<span>/mo</span></div>
-        <div class="pdesc">For practicing WC attorneys</div>
-        <ul>
-          <li>Everything in Free</li>
-          <li>SLU Permanency Checker — all body parts</li>
-          <li>Spine &amp; Brain impairment checker</li>
-          <li>Radiculopathy point calculator</li>
-          <li>Fee app equation generator</li>
-          <li>Pro Attorney Workspace</li>
-          <li>Concurrent &amp; amended AWW</li>
-          <li>Reduced earnings calculator</li>
-        </ul>
-        <button class="cta-btn" style="width:100%;justify-content:center;" id="btn-start-pro">Start Pro — $9.99/mo</button>
-      </div>
-      <div class="price-card">
-        <div class="tier-nm" style="color:var(--gd);">Firm</div>
-        <div class="price">$99<span>/mo</span></div>
-        <div class="pdesc">For WC law firms &amp; practices</div>
-        <ul>
-          <li>Everything in Pro</li>
-          <li>Multi-attorney access</li>
-          <li>Salesforce / Litify integration</li>
-          <li>Case data export</li>
-          <li>Priority support</li>
-          <li>Custom branding option</li>
-        </ul>
-        <a href="mailto:contact@thecompdesk.com" class="cta-btn gold" style="width:100%;justify-content:center;">Contact Sales</a>
+  <!-- ─── Scene 2: About Joel ─── -->
+  <section class="tcd-section scene">
+    <div class="wrap about-grid">
+      <div class="portrait" aria-hidden="true">JM</div>
+      <div class="about-copy stagger">
+        <span class="eyebrow" style="--i:0;">Who built this</span>
+        <h2 style="--i:1;">Built by a workers' comp attorney. For workers' comp attorneys.</h2>
+        <p style="--i:2;">I'm Joel Mays, a NYS Workers' Compensation attorney at Shulman &amp; Hill, PLLC. The Comp Desk started where the need was most obvious — in the hearing room. AWW calculations done on scrap paper. SLU percentages pulled from memory. Fee application equations scribbled by hand. So I built the tools the room was missing.</p>
+        <p style="--i:3;">Every calculator in The Comp Desk Pro was built because I needed it for my own cases — and refined because the hearings I was preparing for couldn't tolerate "close enough."</p>
+        <p style="--i:4;margin-top:20px;"><a href="/learn" class="btn link">Read about the project</a></p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- TESTIMONIALS -->
-<section class="section alt" id="testimonials">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>What attorneys are saying.</h2>
-      <p>The Comp Desk is being used by WC attorneys across New York State.</p>
+  <!-- ─── Scene 3: Calculator showcase ─── -->
+  <section class="tcd-section scene">
+    <div class="wrap">
+      <div class="section-head stagger">
+        <span class="eyebrow" style="--i:0;">The tools</span>
+        <h2 style="--i:1;">Twelve calculators that pay for themselves the first time you use them.</h2>
+        <p style="--i:2;">Every calculator cites the underlying WCL section, IME guideline, or Board rule it implements — so the number you see has a defense.</p>
+      </div>
+
+      <div class="calc-grid stagger">
+        <a href="/calculators/slu" class="calc-card" style="--i:0;">
+          <div class="head"><div class="stat">SLU</div><span class="badge">Pro</span></div>
+          <h3>Schedule Loss of Use</h3>
+          <p>Permanency checker for every body part, with built-in comparison to the IME and treating physician opinions.</p>
+        </a>
+        <a href="/calculators/aww" class="calc-card" style="--i:1;">
+          <div class="head"><div class="stat">AWW</div><span class="badge free">Free</span></div>
+          <h3>Average Weekly Wage</h3>
+          <p>Multi-employer, concurrent, and seasonal scenarios. Outputs the indemnity rate and citation, every time.</p>
+        </a>
+        <a href="/calculators/radiculopathy" class="calc-card" style="--i:2;">
+          <div class="head"><div class="stat">RAD</div><span class="badge">Pro</span></div>
+          <h3>Radiculopathy</h3>
+          <p>Spine impairment with the IME-friendly radiculopathy chart. Cites the 2018 guidelines on every result.</p>
+        </a>
+        <a href="/calculators/lwec" class="calc-card" style="--i:3;">
+          <div class="head"><div class="stat">LWEC</div><span class="badge">Pro</span></div>
+          <h3>Loss of Wage-Earning Capacity</h3>
+          <p>Functional limitation × vocational factors, with the Board's matrix logic and a printable summary.</p>
+        </a>
+        <a href="/calculators/ccp-award" class="calc-card" style="--i:4;">
+          <div class="head"><div class="stat">CCP</div><span class="badge">Pro</span></div>
+          <h3>CCP Award</h3>
+          <p>Classification-tier permanent partial disability awards, with cap-week tracking and PPD vs SLU comparison.</p>
+        </a>
+        <a href="/calculators/spine-brain" class="calc-card" style="--i:5;">
+          <div class="head"><div class="stat">SB</div><span class="badge">Pro</span></div>
+          <h3>Spine &amp; Brain</h3>
+          <p>Non-schedule permanency for spine and brain injuries with the Board's severity-class scoring built in.</p>
+        </a>
+      </div>
+
+      <p style="text-align:center; margin-top:32px;"><a href="/calculators" class="btn link">See all twelve calculators</a></p>
     </div>
-    <div class="testi-grid">
-      <div class="testi-card">
-        <p class="testi-q">Finally a tool that gets how hearings actually work. I pull up the AWW and SLU checkers before the judge calls the case. It's changed how fast I can respond to the carrier's numbers.</p>
-        <div class="testi-author">
-          <div class="testi-av">⚖️</div>
-          <div>
-            <div class="testi-nm">Workers' Comp Attorney</div>
-            <div class="testi-ttl">Solo Practice, New York City</div>
-          </div>
+  </section>
+
+  <!-- ─── Scene 4: Pricing ─── -->
+  <section class="tcd-section scene" id="pricing">
+    <div class="wrap">
+      <div class="section-head stagger">
+        <span class="eyebrow" style="--i:0;">Simple pricing</span>
+        <h2 style="--i:1;">Two tiers. No surprises.</h2>
+        <p style="--i:2;">14-day free trial on Pro. Annual billing available with two months free.</p>
+      </div>
+
+      <div class="tier-grid stagger">
+        <div class="tier featured" style="--i:0;">
+          <div class="name">Pro</div>
+          <div class="price">$9.99 <span class="per">/ month</span></div>
+          <div class="desc">For the practicing WC attorney.</div>
+          <ul>
+            <li>All 12 calculators (SLU, AWW, LWEC, radiculopathy, CCP, more)</li>
+            <li>Fee Application Equation Generator</li>
+            <li>Pro Workspace with case save/sync</li>
+            <li>Cited results — every number, every time</li>
+            <li>iOS app + web</li>
+          </ul>
+          <a href="/subscribe" class="btn primary">Start 14-day free trial</a>
+        </div>
+
+        <div class="tier" style="--i:1;">
+          <div class="name">Firm</div>
+          <div class="price">$99 <span class="per">/ month</span></div>
+          <div class="desc">For practices of 3+ attorneys.</div>
+          <ul>
+            <li>Everything in Pro, firm-wide</li>
+            <li>Unlimited attorney seats</li>
+            <li>Litify / Salesforce integration</li>
+            <li>Case data export</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="/subscribe" class="btn ghost">Talk to us</a>
         </div>
       </div>
-      <div class="testi-card">
-        <p class="testi-q">The fee app equation generator alone is worth the Pro subscription. What used to take 10 minutes now takes 10 seconds — and I never have to wonder if the math is right.</p>
-        <div class="testi-author">
-          <div class="testi-av">💼</div>
-          <div>
-            <div class="testi-nm">Workers' Comp Attorney</div>
-            <div class="testi-ttl">Mid-Size Firm, Upstate New York</div>
-          </div>
-        </div>
-      </div>
-      <div class="testi-card">
-        <p class="testi-q">I caught a discrepancy in the carrier's SLU math at a hearing using this app. The case settled on the spot. That's the kind of edge this tool gives you.</p>
-        <div class="testi-author">
-          <div class="testi-av">🏛️</div>
-          <div>
-            <div class="testi-nm">Workers' Comp Attorney</div>
-            <div class="testi-ttl">Claimants' Practice, Long Island</div>
-          </div>
+    </div>
+  </section>
+
+  <!-- ─── Scene 5: Final CTA ─── -->
+  <section class="tcd-section scene">
+    <div class="wrap">
+      <div class="cta-banner">
+        <span class="eyebrow">Ready when you are</span>
+        <h2>Try it on tomorrow's hearing.</h2>
+        <p>Sign up in 90 seconds. Run your next AWW, SLU, or fee equation in the Pro Workspace. If it doesn't pay for itself the first week, cancel — no questions.</p>
+        <div class="ctas" style="justify-content:center; display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="/subscribe" class="btn primary">Start free trial</a>
+          <a href="/workspace/" class="btn ghost">Open the workspace</a>
         </div>
       </div>
     </div>
-    <p class="testi-note">* Testimonials represent composite experiences from early attorney users.</p>
-  </div>
-</section>
+  </section>
 
-<!-- FINAL CTA -->
-<section class="final-cta">
-  <div class="wrap">
-    <h2>Start calculating in 60 seconds.</h2>
-    <p>No credit card required for free calculators. Upgrade to Pro when you're ready for the full toolkit.</p>
-    <div class="ctas">
-      <a href="/calculators/" class="cta-btn">Try Calculators Free</a>
-      <a href="/auth_v2.html?mode=signup&next=pro" class="cta-btn gold" id="final-pro-cta">Start Pro — $9.99/mo</a>
-    </div>
-  </div>
-</section>
+</main>
 
-<footer>
+<footer class="tcd-footer">
   <div class="wrap">
     <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
-    <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
-    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> &middot; <a href="/calculators/">Calculators</a> &middot; <a href="/auth_v2.html">Sign In</a> &middot; <a href="/contact.html">Contact</a></p>
+    <p>
+      <a href="/privacy">Privacy</a>
+      <a href="/contact">Contact</a>
+      <a href="/?replay=1">Replay intro</a>
+    </p>
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const _sb = window.supabase.createClient(
-  'https://ltibymvlytodkemdeeox.supabase.co',
-  'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-'
-);
+<script src="/js/audience-switcher.js"></script>
 
-async function initNav() {
-  try {
-    const { data: { session } } = await _sb.auth.getSession();
-    if (session) {
-      document.getElementById('nav-signup').style.display = 'none';
-      document.getElementById('nav-signin').style.display = 'inline-flex';
-      document.getElementById('nav-account').style.display = 'inline-flex';
-    } else {
-      document.getElementById('nav-signin').style.display = 'none';
-      document.getElementById('nav-account').style.display = 'none';
-    }
-  } catch(e) { /* fail silently */ }
-}
-
-document.getElementById('btn-start-pro').addEventListener('click', async () => {
-  try {
-    const { data: { session } } = await _sb.auth.getSession();
-    if (!session) {
-      window.location.href = '/auth_v2.html?mode=signup&next=pro';
-      return;
-    }
-    const btn = document.getElementById('btn-start-pro');
-    btn.textContent = 'Loading...';
-    btn.disabled = true;
-    const res = await fetch('https://ltibymvlytodkemdeeox.supabase.co/functions/v1/create-checkout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + session.access_token,
-        'apikey': 'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-'
-      },
-      body: JSON.stringify({ tier: 'pro' })
-    });
-    const data = await res.json();
-    if (data.checkout_url) {
-      window.location.href = data.checkout_url;
-    } else {
-      btn.textContent = 'Start Pro — $9.99/mo';
-      btn.disabled = false;
-    }
-  } catch(err) {
-    const btn = document.getElementById('btn-start-pro');
-    btn.textContent = 'Start Pro — $9.99/mo';
-    btn.disabled = false;
-  }
-});
-
-initNav();
-</script>
-<script src="/js/disclaimer.js" defer></script>
-<script defer src="/_vercel/insights/script.js"></script>
-  <script src="/js/footer-contact.js" defer></script>
 </body>
 </html>

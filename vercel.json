@@ -25,6 +25,22 @@
       "source": "/terms",
       "destination": "/legal/terms.html",
       "permanent": true
+    },
+
+    {
+      "source": "/for-attorneys",
+      "destination": "/attorneys",
+      "permanent": true
+    },
+    {
+      "source": "/for-attorneys.html",
+      "destination": "/attorneys",
+      "permanent": true
+    },
+    {
+      "source": "/home-legacy.html",
+      "destination": "/home-legacy",
+      "permanent": false
     }
   ],
   "headers": [

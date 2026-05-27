@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" as="video" href="/assets/animations/intro_landscape.mp4" type="video/mp4" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hero/comp-desk.png">
+<title>The Comp Desk — Free Workers' Compensation Companion for Injured NY Workers</title>
+<meta name="description" content="Comp Buddy by The Comp Desk is the free companion app for injured New York workers. Find a WCB-authorized doctor, get IME reminders, understand your rights, and connect with an experienced attorney — all in one place.">
+<meta name="keywords" content="injured worker NY, workers compensation help New York, find workers comp doctor, IME reminder, free workers comp app, NYS workers comp, find a workers comp attorney, comp buddy">
+
+<!-- Open Graph -->
+<meta property="og:title" content="The Comp Desk — Free Workers' Compensation Companion for Injured NY Workers">
+<meta property="og:description" content="Comp Buddy is the free companion app for injured workers in New York. Find a doctor, get IME reminders, learn your rights, and connect with an attorney.">
+<meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+<meta property="og:url" content="https://thecompdesk.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Comp Desk">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Comp Desk — Free Workers' Compensation Companion for Injured NY Workers">
+<meta name="twitter:description" content="Comp Buddy is the free companion app for injured workers in New York. Find a doctor, get IME reminders, learn your rights, and connect with an attorney.">
+<meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://thecompdesk.com/">
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "The Comp Desk",
+  "url": "https://thecompdesk.com/",
+  "description": "Comp Buddy by The Comp Desk is the free companion app for injured New York workers — find a WCB-authorized doctor, get IME reminders, learn your rights, and connect with an experienced attorney.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://thecompdesk.com/learn/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<!-- JSON-LD: Organization + ContactPoint (surfaces phone/email in Google search) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "The Comp Desk",
+  "legalName": "NJJ Document Services, Inc.",
+  "url": "https://thecompdesk.com/",
+  "logo": "https://thecompdesk.com/assets/hero/comp-desk.png",
+  "sameAs": [
+    "https://thecompdesk.com/"
+  ],
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "telephone": "+1-786-815-4612",
+    "email": "contact@thecompdesk.com",
+    "contactType": "customer support",
+    "availableLanguage": ["English", "Spanish"],
+    "areaServed": "US"
+  }]
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#3b82f6;--acG:rgba(59,130,246,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+a{color:var(--ac);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,8,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);}
+nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;}
+nav .logo span{color:var(--ac);}
+nav .links{display:flex;gap:24px;align-items:center;}
+nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
+nav .links a:hover{color:var(--wh);text-decoration:none;}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+.cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(59,130,246,0.3);text-decoration:none;}
+.cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
+.cta-btn.outline:hover{background:var(--acG);}
+.cta-btn.gold{background:var(--gd);color:#1a1200;}
+.cta-btn.green{background:var(--gn);color:#0a1a14;}
+
+/* HERO */
+.hero{padding:140px 0 80px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,0.10) 0%,rgba(45,212,160,0.06) 40%,rgba(240,160,48,0.04) 65%,transparent 80%);pointer-events:none;}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:32px;align-items:center;text-align:center;position:relative;}
+.hero-copy{display:flex;flex-direction:column;align-items:center;}
+.hero .badge{display:inline-block;background:var(--acG);border:1px solid rgba(59,130,246,0.25);color:var(--ac);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
+.hero h1{font-size:clamp(36px,6vw,56px);font-weight:900;color:var(--wh);letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
+.hero h1 span{color:var(--ac);}
+.hero .sub{font-size:clamp(16px,2.5vw,20px);color:var(--txD);max-width:640px;margin:0 auto 32px;line-height:1.6;}
+.hero .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.hero .attr{margin-top:32px;font-size:13px;color:var(--txM);}
+.hero .attr strong{color:var(--txD);}
+.hero-media{position:relative;width:100%;display:flex;justify-content:center;align-items:center;}
+.hero-media::after{content:'';position:absolute;inset:-8%;border-radius:24px;background:radial-gradient(circle,rgba(59,130,246,0.22) 0%,rgba(45,212,160,0.08) 55%,transparent 75%);pointer-events:none;z-index:-1;filter:blur(8px);animation:heroPulse 4s ease-in-out infinite;}
+.hero-video{width:100%;max-width:560px;aspect-ratio:16/9;background:#0a0f1a;border-radius:16px;overflow:hidden;display:block;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.45),0 0 0 1px rgba(59,130,246,0.20);}
+.hero-fallback{display:none;width:100%;max-width:420px;height:auto;}
+@keyframes heroPulse{0%,100%{opacity:0.55;transform:scale(1);}50%{opacity:1;transform:scale(1.04);}}
+@media(min-width:900px){
+  .hero-grid{grid-template-columns:1fr 480px;text-align:left;gap:56px;}
+  .hero-copy{align-items:flex-start;}
+  .hero .sub{margin-left:0;margin-right:0;}
+  .hero .ctas{justify-content:flex-start;}
+  .hero-media{justify-content:flex-end;}
+}
+@media(max-width:600px){
+  .hero-video{max-width:100%;max-height:70vh;width:auto;}
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-video{display:none;}
+  .hero-fallback{display:block;}
+  .hero-media::after{animation:none;}
+}
+
+/* STATS */
+.stats{padding:40px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
+.stats .inner{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;}
+.stat{text-align:center;}
+.stat .num{font-size:32px;font-weight:800;color:var(--ac);font-family:'JetBrains Mono',monospace;}
+.stat .label{font-size:13px;color:var(--txD);margin-top:4px;}
+
+/* FEATURES */
+.features{padding:80px 0;}
+.features h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:12px;}
+.features .sub{text-align:center;color:var(--txD);font-size:16px;margin-bottom:48px;max-width:560px;margin-left:auto;margin-right:auto;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.feat-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:28px 24px;transition:border-color 0.2s,transform 0.2s;display:block;color:inherit;text-decoration:none;}
+.feat-card:hover{border-color:var(--ac);transform:translateY(-2px);text-decoration:none;}
+.feat-card .icon{font-size:28px;margin-bottom:12px;}
+.feat-card h3{font-size:16px;font-weight:700;color:var(--wh);margin-bottom:8px;}
+.feat-card p{font-size:14px;color:var(--txD);line-height:1.6;}
+.feat-card .tag{display:inline-block;margin-top:12px;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.tag-free{background:rgba(45,212,160,0.12);color:var(--gn);}
+.tag-dev{background:rgba(240,160,48,0.12);color:var(--gd);}
+
+/* TIERS */
+.tiers{padding:80px 0;background:var(--card);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
+.tiers h2{text-align:center;font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:12px;}
+.tiers .sub{text-align:center;color:var(--txD);font-size:16px;margin-bottom:48px;max-width:560px;margin-left:auto;margin-right:auto;}
+.tier-grid{display:grid;grid-template-columns:1fr;gap:20px;max-width:520px;margin:0 auto;}
+.tier-card{background:var(--bg);border:1px solid var(--bd);border-radius:16px;padding:40px 32px;text-align:center;}
+.tier-card.featured{border-color:var(--gn);box-shadow:0 0 40px rgba(45,212,160,0.18);position:relative;}
+.tier-card.featured::before{content:'Always Free';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gn);color:#0a1a14;padding:4px 16px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.tier-card .tier-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gn);margin-bottom:8px;}
+.tier-card .tier-price{font-size:48px;font-weight:900;color:var(--wh);margin-bottom:4px;font-family:'JetBrains Mono',monospace;}
+.tier-card .tier-price span{font-size:16px;color:var(--txD);font-weight:500;}
+.tier-card .tier-desc{font-size:14px;color:var(--txM);margin-bottom:24px;}
+.tier-card ul{list-style:none;text-align:left;margin-bottom:28px;}
+.tier-card li{font-size:14px;color:var(--txD);padding:8px 0;border-bottom:1px solid rgba(28,45,74,0.3);display:flex;align-items:center;gap:8px;}
+.tier-card li::before{content:'✓';color:var(--gn);font-weight:700;font-size:13px;flex-shrink:0;}
+.tier-card li.dev{color:var(--txM);}
+.tier-card li.dev::before{content:'🛠';color:var(--gd);}
+.tier-card li .dev-tag{margin-left:auto;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gd);background:rgba(240,160,48,0.12);padding:2px 8px;border-radius:4px;}
+
+/* ATTORNEY CALLOUT */
+.attorney-callout{padding:60px 0;border-top:1px solid var(--bd);}
+.callout-card{background:linear-gradient(135deg,rgba(240,160,48,0.08),rgba(59,130,246,0.06));border:1px solid rgba(240,160,48,0.25);border-radius:16px;padding:40px 32px;text-align:center;}
+.callout-card .eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gd);margin-bottom:8px;}
+.callout-card h2{font-size:clamp(22px,3.5vw,30px);font-weight:800;color:var(--wh);margin-bottom:12px;}
+.callout-card p{color:var(--txD);max-width:640px;margin:0 auto 24px;font-size:15px;}
+.callout-card .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+/* ABOUT */
+.about{padding:80px 0;}
+.about h2{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--wh);margin-bottom:16px;}
+.about p{font-size:15px;color:var(--txD);max-width:680px;line-height:1.7;margin-bottom:16px;}
+.about .sig{font-size:16px;font-weight:700;color:var(--wh);margin-top:24px;}
+.about .sig-title{font-size:13px;color:var(--txM);}
+
+/* FOOTER */
+footer{padding:40px 0;border-top:1px solid var(--bd);text-align:center;}
+footer p{font-size:12px;color:var(--txM);margin-bottom:4px;}
+footer a{color:var(--txD);}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  nav .links a:not(.cta-btn):not([href="/calculators/"]):not([href="/extension"]){display:none;}
+  .stats .inner{gap:24px;}
+  .stat .num{font-size:24px;}
+}
+
+/* CONNECT-WITH-ATTORNEY IFRAME MODAL — opens the intake wizard inline
+   so injured workers aren't navigated away from the home page. */
+.connect-modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);}
+.connect-modal-overlay.active{display:block;}
+.connect-modal-overlay iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;}
+.connect-modal-close{position:fixed;top:16px;right:16px;z-index:310;background:rgba(14,19,34,0.92);border:1px solid var(--bd);color:var(--wh);font-size:22px;line-height:1;cursor:pointer;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.connect-modal-close:hover{background:rgba(28,45,74,0.92);}
+body.connect-modal-open{overflow:hidden;}
+</style>
+<!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
+<link rel="stylesheet" href="/css/brand-theme.css">
+<script src="/js/brand-bg.js" defer></script>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <div class="logo">The <span>Comp</span> Desk</div>
+    <div class="links">
+      <a href="/learn">Learn</a>
+      <a href="#features">Tools</a>
+      <a href="/extension" style="color:var(--gn);font-weight:700;">Apps</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/connect-with-attorney.html" data-connect-modal style="color:var(--gn);font-weight:700;">Find Attorney</a>
+      <a href="/for-attorneys" style="color:var(--gd);font-weight:700;">For Attorneys</a>
+      <a href="/auth_v2.html" class="cta-btn" id="nav-auth">Sign In</a>
+      <a href="/account.html" class="cta-btn" id="nav-account" style="display:none;">My Account</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="badge">Always Free for Injured Workers</div>
+      <h1>Injured at work?<br>You're <span>not alone.</span></h1>
+      <p class="sub">Comp Buddy is your free companion through every step of a New York workers' compensation case. Find an authorized doctor, never miss an IME, understand your rights, and connect with an experienced attorney — all in one app.</p>
+      <div class="ctas">
+        <a href="/connect-with-attorney.html" data-connect-modal class="cta-btn green">Find an Attorney</a>
+        <a href="/tools/find-doctor.html" class="cta-btn">Find a Doctor</a>
+        <a href="#features" class="cta-btn outline">Explore Free Tools</a>
+      </div>
+      <p class="attr">Built by a practicing NYS Workers' Compensation attorney. <strong>Always free for injured workers.</strong></p>
+    </div>
+    <div class="hero-media" aria-label="The Comp Desk">
+      <video class="hero-video" autoplay muted loop playsinline preload="auto" disableremoteplayback aria-hidden="true">
+        <source src="/assets/animations/intro_landscape.mp4" type="video/mp4">
+      </video>
+      <img class="hero-fallback" src="assets/hero/comp-desk.png" alt="The Comp Desk" width="420" height="420" decoding="async">
+    </div>
+  </div>
+</section>
+
+<!-- UPL DISCLAIMER (prominent on injured-worker landing) -->
+<section style="padding:0 24px;">
+  <div style="max-width:880px;margin:0 auto;background:rgba(240,160,48,0.06);border:1px solid rgba(240,160,48,0.3);border-left:4px solid var(--gd);border-radius:10px;padding:16px 22px;color:var(--tx);font-size:13.5px;line-height:1.55;text-align:center;">
+    <strong style="color:var(--gd);">Important:</strong> The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney.
+  </div>
+</section>
+
+<section class="stats">
+  <div class="inner">
+    <div class="stat"><div class="num">$0</div><div class="label">Always free for workers</div></div>
+    <div class="stat"><div class="num">WCB</div><div class="label">Authorized provider search</div></div>
+    <div class="stat"><div class="num">24/7</div><div class="label">Help, in your pocket</div></div>
+    <div class="stat"><div class="num">NY</div><div class="label">Workers' Comp focused</div></div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="wrap">
+    <h2>Everything an injured worker needs.</h2>
+    <p class="sub">From the day you get hurt to the day your case closes — Comp Buddy walks with you, every step of the way.</p>
+    <div class="feat-grid">
+      <a href="/tools/find-doctor.html" class="feat-card">
+        <div class="icon">🏥</div>
+        <h3>Find a WCB-Authorized Doctor</h3>
+        <p>Search the New York Workers' Compensation Board's authorized provider directory by location, specialty, and body part. Get the right care, fast.</p>
+        <span class="tag tag-free">Free</span>
+      </a>
+      <a href="/tools/ime-reminders.html" class="feat-card">
+        <div class="icon">📅</div>
+        <h3>IME Reminders</h3>
+        <p>Never miss an Independent Medical Exam. Automatic notifications, directions to the appointment, and a "What to Bring" checklist so you arrive prepared.</p>
+        <span class="tag tag-free">Free</span>
+      </a>
+      <a href="/tools/medical-treatment-guidelines.html" class="feat-card">
+        <div class="icon">⚕️</div>
+        <h3>Medical Treatment Guidelines</h3>
+        <p>Search the 2021 NYS WCB Medical Treatment Guidelines by keyword, section, or 3D body-part picker. Every result cites the exact section and page so you can verify what care your case is entitled to.</p>
+        <span class="tag tag-free">Free</span>
+      </a>
+      <a href="/learn" class="feat-card">
+        <div class="icon">📚</div>
+        <h3>Learn Your Rights</h3>
+        <p>Plain-language guides and videos that explain how workers' comp actually works in New York — what to file, what to expect, and what you're entitled to.</p>
+        <span class="tag tag-free">Free</span>
+      </a>
+      <a href="/connect-with-attorney.html" data-connect-modal class="feat-card">
+        <div class="icon">⚖️</div>
+        <h3>Find an Attorney</h3>
+        <p>Connect with an experienced NYS Workers' Compensation attorney through our neutral, round-robin referral network. No paid placement, no spam — just real help.</p>
+        <span class="tag tag-free">Free</span>
+      </a>
+      <a href="/calculators/" class="feat-card">
+        <div class="icon">🧮</div>
+        <h3>Free Benefit Calculators</h3>
+        <p>Estimate your average weekly wage, indemnity rate, and award amounts using the same calculators built for attorneys. Understand the numbers in your case.</p>
+        <span class="tag tag-free">Free</span>
+      </a>
+      <div class="feat-card" style="opacity:0.85;cursor:default;">
+        <div class="icon">📍</div>
+        <h3>Case Tracker</h3>
+        <p>One place to see every hearing, decision, and deadline in your case. Get plain-English explanations of what each event means and what comes next.</p>
+        <span class="tag tag-dev">In Development</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tiers" id="pricing">
+  <div class="wrap">
+    <h2>Always free for injured workers.</h2>
+    <p class="sub">No subscriptions. No hidden fees. No pay-to-play attorney referrals. Comp Buddy is free, period.</p>
+    <div class="tier-grid">
+      <div class="tier-card featured">
+        <div class="tier-name">Comp Buddy</div>
+        <div class="tier-price">$0</div>
+        <div class="tier-desc">For every injured worker in New York State</div>
+        <ul>
+          <li>Find a WCB-authorized doctor near you</li>
+          <li>IME reminders, directions, and prep checklists</li>
+          <li>Plain-language learning portal &amp; videos</li>
+          <li>Free benefit calculators (AWW, rates, awards)</li>
+          <li>Connect with an experienced WC attorney</li>
+          <li class="dev">Case tracker &amp; status updates <span class="dev-tag">In Dev</span></li>
+        </ul>
+        <a href="https://apps.apple.com/app/the-comp-desk/id6761267639" class="cta-btn green" style="width:100%;justify-content:center;">Download Free on App Store</a>
+        <p style="font-size:12px;color:var(--txM);margin-top:12px;">Android &amp; desktop versions coming soon.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="attorney-callout">
+  <div class="wrap">
+    <div class="callout-card">
+      <div class="eyebrow">Are you a Workers' Comp Attorney?</div>
+      <h2>The Comp Desk Pro is built for you.</h2>
+      <p>SLU permanency checking, fee app equation generators, the Pro Attorney Workspace, multi-attorney firm access, Salesforce/Litify integration, and our neutral attorney referral network — everything practicing WC attorneys need to run faster, sharper, and more profitable cases.</p>
+      <div class="ctas">
+        <a href="/for-attorneys" class="cta-btn gold">Visit For Attorneys →</a>
+        <a href="/workspace/" class="cta-btn outline">Try the Free Workspace</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="wrap">
+    <h2>Built for the hearing room. Growing into your companion.</h2>
+    <p>The Comp Desk started where the need was most obvious — in the hearing room. AWW calculations done on scrap paper, SLU percentages pulled from memory, fee application equations scribbled by hand. We built the calculators that the room was missing, and attorneys started using them every day.</p>
+    <p>But a calculator was never the finish line. When you're injured at work, the confusion doesn't start at the hearing — it starts the moment you get hurt. What do I file? Where do I go for treatment? What's an IME, and how do I prepare? What am I actually entitled to? The system is complicated, and nobody hands you a guidebook.</p>
+    <p>That's why we built <strong style="color:var(--wh);">Comp Buddy</strong> — a free companion that walks with you from the moment of injury through treatment, hearings, and settlement. Find a Doctor connects you with WCB-authorized providers. IME Reminders make sure you never miss an appointment. The learning portal explains your rights in plain language. And our attorney network connects you with experienced WC attorneys who can fight for you.</p>
+    <p>The mission is making sure every injured worker in New York State has the information, the tools, and the support they deserve — without paying a dime.</p>
+    <p><strong style="color:var(--wh);">Know your comp. Fight for your rights.</strong></p>
+    <div class="sig">— The Comp Desk Team</div>
+  </div>
+</section>
+
+<section id="download" style="padding:60px 0;text-align:center;">
+  <div class="wrap">
+    <h2 style="font-size:28px;font-weight:800;color:var(--wh);margin-bottom:8px;">Available everywhere you work.</h2>
+    <p style="color:var(--txD);margin-bottom:32px;max-width:560px;margin-left:auto;margin-right:auto;">The Comp Desk meets you where the work happens — on your phone, in your browser, at your desk.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:820px;margin:0 auto;">
+
+      <!-- iOS — Live -->
+      <div style="background:var(--card);border:1px solid rgba(45,212,160,0.35);border-radius:14px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;">
+        <div style="font-size:28px;margin-bottom:8px;">📱</div>
+        <div style="font-size:11px;font-weight:700;color:var(--gn);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Available now</div>
+        <div style="font-size:16px;font-weight:800;color:var(--wh);margin-bottom:14px;">iOS App</div>
+        <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="cta-btn green" style="width:100%;justify-content:center;">Download on App Store</a>
+      </div>
+
+      <!-- Chrome — Coming Soon -->
+      <div style="background:var(--card);border:1px solid rgba(240,160,48,0.35);border-radius:14px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🧩</div>
+        <div style="font-size:11px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Coming Soon</div>
+        <div style="font-size:16px;font-weight:800;color:var(--wh);margin-bottom:14px;">Chrome Extension</div>
+        <a href="/extension#chrome" class="cta-btn gold" style="width:100%;justify-content:center;">Join the Waitlist</a>
+      </div>
+
+      <!-- Web — Live -->
+      <div style="background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🖥️</div>
+        <div style="font-size:11px;font-weight:700;color:var(--txD);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Open Now</div>
+        <div style="font-size:16px;font-weight:800;color:var(--wh);margin-bottom:14px;">Web Workspace</div>
+        <a href="/workspace/" class="cta-btn outline" style="width:100%;justify-content:center;">Open Workspace</a>
+      </div>
+
+    </div>
+    <p style="color:var(--txM);font-size:13px;margin-top:24px;">See every platform → <a href="/extension" style="color:var(--ac);">The Comp Desk Everywhere</a></p>
+  </div>
+</section>
+
+<!-- Connect-with-Attorney iframe modal. The form lives on
+     /connect-with-attorney.html and is loaded inline via ?embed=1 so
+     injured workers stay on the home page. -->
+<div class="connect-modal-overlay" id="connectModal" role="dialog" aria-modal="true" aria-label="Connect with a Workers' Compensation Attorney">
+  <button type="button" class="connect-modal-close" id="connectModalClose" aria-label="Close">&times;</button>
+  <iframe id="connectModalFrame" title="Connect with a Workers' Compensation Attorney" allow="clipboard-write" referrerpolicy="same-origin"></iframe>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+    <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
+    <p style="margin-top:8px;"><a href="/privacy">Privacy Policy</a> · <a href="/connect-with-attorney.html" data-connect-modal>Find Attorney</a> · <a href="/for-attorneys" style="color:var(--gd);">For Attorneys</a> · <a href="/coming-soon" style="color:#2dd4a0;">Coming Soon</a> · <a href="/auth_v2.html">Sign In</a> · <a href="/contact.html">Contact</a></p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    updateNav(true);
+  } else {
+    updateNav(false);
+  }
+}
+
+function updateNav(loggedIn) {
+  const navAuth = document.getElementById('nav-auth');
+  const navAccount = document.getElementById('nav-account');
+  if (loggedIn) {
+    if (navAuth) navAuth.style.display = 'none';
+    if (navAccount) navAccount.style.display = 'inline-flex';
+  } else {
+    if (navAuth) navAuth.style.display = 'inline-flex';
+    if (navAccount) navAccount.style.display = 'none';
+  }
+}
+
+// Listen for auth changes
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    currentUser = session.user;
+    updateNav(true);
+  } else if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    updateNav(false);
+  }
+});
+
+initAuth();
+</script>
+
+<!-- Connect-with-Attorney modal controller. Intercepts clicks on
+     anchors marked with data-connect-modal and opens the wizard
+     inline. Falls back to normal navigation if JS is disabled. -->
+<script>
+(function(){
+  var overlay = document.getElementById('connectModal');
+  var frame   = document.getElementById('connectModalFrame');
+  var closeBtn = document.getElementById('connectModalClose');
+  if (!overlay || !frame || !closeBtn) return;
+
+  // Build the iframe URL — always carries embed=1, plus any UTM
+  // params from the parent page so attribution is preserved when the
+  // wizard submits.
+  function buildEmbedSrc(){
+    var qs = new URLSearchParams(window.location.search);
+    var out = new URLSearchParams();
+    out.set('embed', '1');
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function(k){
+      if (qs.get(k)) out.set(k, qs.get(k));
+    });
+    return '/connect-with-attorney.html?' + out.toString();
+  }
+
+  function openConnectModal(){
+    // Set src lazily so the wizard JS only boots when needed.
+    var src = buildEmbedSrc();
+    if (frame.getAttribute('src') !== src) {
+      frame.setAttribute('src', src);
+    }
+    overlay.classList.add('active');
+    document.body.classList.add('connect-modal-open');
+  }
+
+  function closeConnectModal(){
+    overlay.classList.remove('active');
+    document.body.classList.remove('connect-modal-open');
+    // Reset the iframe so a fresh wizard loads next time (clears any
+    // half-filled form state and re-runs Turnstile).
+    frame.setAttribute('src', 'about:blank');
+  }
+
+  // Expose for inline callers if needed elsewhere.
+  window.openConnectModal = openConnectModal;
+  window.closeConnectModal = closeConnectModal;
+
+  // Intercept all data-connect-modal links.
+  document.querySelectorAll('a[data-connect-modal]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      // Allow modifier-click (open in new tab) to navigate normally.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+      openConnectModal();
+    });
+  });
+
+  // Close button + ESC + backdrop click.
+  closeBtn.addEventListener('click', closeConnectModal);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeConnectModal();
+    }
+  });
+  overlay.addEventListener('click', function(e){
+    if (e.target === overlay) closeConnectModal();
+  });
+
+  // The embedded wizard posts a message when the user closes it from
+  // inside (X button, Done button on success, overlay click, ESC).
+  window.addEventListener('message', function(e){
+    if (e && e.data && e.data.type === 'compdesk:closeConnectModal') {
+      closeConnectModal();
+    }
+  });
+})();
+</script>
+<!-- Hero animation: Haring-style login loop video (MP4). Falls back to brand glyph for prefers-reduced-motion. -->
+<script src="/js/disclaimer.js" defer></script>
+<script defer src="/_vercel/insights/script.js"></script>
+  <script src="/js/footer-contact.js" defer></script>
+</body>
+</html>

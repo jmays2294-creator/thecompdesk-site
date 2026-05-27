@@ -1,0 +1,447 @@
+/* The Comp Desk — Skin Token System (revamp 2026, phase 1)
+ * Layered ON TOP of brand-theme.css. Adds two audience-skin token sets
+ * that toggle by setting [data-audience="worker"|"attorney"] on <html>.
+ *
+ * Worker skin = "Dawn"      — Fraunces serif, cream surfaces, warm sunrise palette, slow motion.
+ * Attorney skin = "Workspace" — Geist sans, deep-navy surfaces, sharp orange, fast motion.
+ *
+ * Shared brand spine (#1B2A4A navy / #E87722 orange / #F8F6F1 cream + wordmark)
+ * is inherited from brand-theme.css and never overridden by the skins.
+ */
+
+/* ─── Font stack ─────────────────────────────────────────────────────
+ * DM Sans is already loaded by legacy pages; we don't re-request it.
+ * Fraunces (worker display serif) + Geist (attorney display sans) loaded here.
+ * Both are free, both variable, both load in one Google Fonts request.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Geist:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+/* ─── Default = Worker (Dawn) ────────────────────────────────────────
+ * The site loads Worker skin by default so first-paint of every page
+ * has SOMETHING coherent before the audience-switcher JS resolves.
+ * Cover page overrides this with its own neutral midnight skin.
+ */
+:root {
+  /* Shared brand spine — inherited from brand-theme.css but mirrored here for clarity */
+  --tcd-navy: #1B2A4A;
+  --tcd-orange: #E87722;
+  --tcd-orange-hot: #FF8B33;
+  --tcd-cream: #F8F6F1;
+  --tcd-cream-warm: #F0EBE0;
+
+  /* Worker — Dawn skin (default) */
+  --skin-surface: #F8F6F1;
+  --skin-surface-elev: #FFFFFF;
+  --skin-surface-warm: #F4EADB;
+  --skin-text: #2D3142;
+  --skin-text-soft: #4D5266;
+  --skin-text-muted: #7A8095;
+  --skin-accent: #E87722;
+  --skin-accent-soft: #F4C28C;
+  --skin-accent-deep: #C85F0F;
+  --skin-divider: rgba(45, 49, 66, 0.10);
+  --skin-card-shadow: 0 6px 30px rgba(45, 49, 66, 0.08), 0 2px 8px rgba(45, 49, 66, 0.04);
+  --skin-card-radius: 18px;
+  --skin-sky: #D6E6F2;
+
+  /* Worker type */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-numeric: 'DM Sans', system-ui, sans-serif;
+  --display-weight: 700;
+  --display-tracking: -0.015em;
+  --display-leading: 1.08;
+  --body-leading: 1.65;
+
+  /* Worker motion — slow, generous */
+  --rhythm-slow: 900ms;
+  --rhythm-base: 700ms;
+  --rhythm-fast: 400ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Worker grid */
+  --max-w: 1080px;
+  --gutter: 24px;
+  --section-y: clamp(72px, 10vh, 128px);
+}
+
+/* ─── Attorney — Workspace skin ──────────────────────────────────────
+ * Activated by [data-audience="attorney"] on <html> (or any ancestor).
+ * Designed to feel like operating a precision instrument: deep navy
+ * surfaces, sharp orange action color, monospaced numerics, fast motion.
+ */
+[data-audience="attorney"] {
+  --skin-surface: #0F1B33;
+  --skin-surface-elev: #16243F;
+  --skin-surface-warm: #1F2F4D;
+  --skin-text: #F0EBE0;
+  --skin-text-soft: #C9D1E0;
+  --skin-text-muted: #8693AD;
+  --skin-accent: #E87722;
+  --skin-accent-soft: #FF8B33;
+  --skin-accent-deep: #B85808;
+  --skin-divider: rgba(240, 235, 224, 0.12);
+  --skin-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(240, 235, 224, 0.06);
+  --skin-card-radius: 14px;
+  --skin-sky: #6B8FA8;
+
+  --font-display: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-numeric: 'JetBrains Mono', ui-monospace, monospace;
+  --display-weight: 800;
+  --display-tracking: -0.035em;
+  --display-leading: 1.02;
+  --body-leading: 1.55;
+
+  --rhythm-slow: 500ms;
+  --rhythm-base: 350ms;
+  --rhythm-fast: 180ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.6, 0.04, 0.98, 0.335);
+}
+
+/* ─── Cover skin (neutral midnight) ──────────────────────────────────
+ * The cover page is neither audience yet. It uses a midnight palette
+ * with both warm + cool accents present, foreshadowing both skins.
+ */
+[data-audience="cover"] {
+  --skin-surface: #0B1426;
+  --skin-surface-elev: #131F38;
+  --skin-text: #F0EBE0;
+  --skin-text-soft: #BAC1D1;
+  --skin-text-muted: #6E7791;
+  --skin-accent: #E87722;
+  --skin-accent-soft: #F4C28C;
+  --skin-divider: rgba(240, 235, 224, 0.10);
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+/* ─── Page-level base ────────────────────────────────────────────────
+ * Pages opting into the skin system set <body class="tcd-skinned">
+ * so we don't accidentally restyle legacy pages still on the old CSS.
+ */
+body.tcd-skinned {
+  margin: 0;
+  background: var(--skin-surface);
+  color: var(--skin-text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: var(--body-leading);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 600ms var(--ease-out), color 600ms var(--ease-out);
+}
+
+body.tcd-skinned * { box-sizing: border-box; }
+
+body.tcd-skinned .wrap {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+body.tcd-skinned h1,
+body.tcd-skinned h2,
+body.tcd-skinned h3,
+body.tcd-skinned .display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: var(--display-leading);
+  color: var(--skin-text);
+  margin: 0;
+}
+
+body.tcd-skinned h1 { font-size: clamp(40px, 6.5vw, 76px); }
+body.tcd-skinned h2 { font-size: clamp(30px, 4.2vw, 48px); }
+body.tcd-skinned h3 { font-size: clamp(20px, 2.4vw, 26px); }
+
+body.tcd-skinned p { color: var(--skin-text-soft); }
+body.tcd-skinned a  { color: var(--skin-accent); text-decoration: none; }
+body.tcd-skinned a:hover { color: var(--skin-accent-deep); }
+
+/* ─── Buttons ────────────────────────────────────────────────────────
+ * Single .btn primitive. .primary / .ghost / .link variants.
+ */
+body.tcd-skinned .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--rhythm-fast) var(--ease-out),
+    border-color var(--rhythm-fast) var(--ease-out),
+    color var(--rhythm-fast) var(--ease-out),
+    transform var(--rhythm-fast) var(--ease-out);
+}
+body.tcd-skinned .btn.primary {
+  background: var(--skin-accent);
+  color: var(--tcd-navy);
+  border-color: var(--skin-accent);
+}
+body.tcd-skinned .btn.primary:hover {
+  background: var(--skin-accent-soft);
+  border-color: var(--skin-accent-soft);
+  transform: translateY(-2px);
+}
+body.tcd-skinned .btn.ghost {
+  background: transparent;
+  color: var(--skin-text);
+  border-color: currentColor;
+}
+body.tcd-skinned .btn.ghost:hover {
+  background: var(--skin-text);
+  color: var(--skin-surface);
+}
+body.tcd-skinned .btn.link {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--skin-accent);
+  font-weight: 600;
+}
+body.tcd-skinned .btn.link::after {
+  content: " →";
+  transition: transform var(--rhythm-fast) var(--ease-out);
+  display: inline-block;
+}
+body.tcd-skinned .btn.link:hover::after { transform: translateX(4px); }
+
+/* ─── Cards ──────────────────────────────────────────────────────────*/
+body.tcd-skinned .card {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  padding: 28px 24px;
+  box-shadow: var(--skin-card-shadow);
+  transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+}
+body.tcd-skinned a.card:hover,
+body.tcd-skinned .card.interactive:hover {
+  transform: translateY(-4px);
+  border-color: var(--skin-accent);
+}
+
+/* ─── Universal Skinned Nav ──────────────────────────────────────────
+ * Used on all phase-1 pages. Translucent surface that picks up the
+ * underlying skin. The audience switcher pill sits in the right slot.
+ */
+body.tcd-skinned .tcd-nav {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px var(--gutter);
+  background: color-mix(in srgb, var(--skin-surface) 80%, transparent);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid var(--skin-divider);
+  transition: background 400ms var(--ease-out);
+}
+body.tcd-skinned .tcd-nav-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+body.tcd-skinned .tcd-wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  color: var(--skin-text);
+  text-decoration: none;
+}
+body.tcd-skinned .tcd-wordmark .accent { color: var(--skin-accent); }
+
+body.tcd-skinned .tcd-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+body.tcd-skinned .tcd-nav-links a {
+  color: var(--skin-text-soft);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color var(--rhythm-fast) var(--ease-out);
+}
+body.tcd-skinned .tcd-nav-links a:hover { color: var(--skin-text); }
+
+/* ─── Audience Switcher Pill (always-visible) ────────────────────────
+ * Lives in the nav. Click toggles between worker ↔ attorney.
+ * Built as two segments with a sliding indicator.
+ */
+body.tcd-skinned .tcd-switch {
+  display: inline-flex;
+  align-items: center;
+  background: var(--skin-surface-warm);
+  border: 1px solid var(--skin-divider);
+  border-radius: 999px;
+  padding: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 0;
+  position: relative;
+}
+body.tcd-skinned .tcd-switch button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 8px 16px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--skin-text-muted);
+  cursor: pointer;
+  border-radius: 999px;
+  z-index: 1;
+  transition: color var(--rhythm-fast) var(--ease-out);
+  white-space: nowrap;
+}
+body.tcd-skinned .tcd-switch button[aria-pressed="true"] {
+  color: var(--tcd-navy);
+}
+[data-audience="attorney"] body.tcd-skinned .tcd-switch button[aria-pressed="true"],
+body.tcd-skinned[data-audience="attorney"] .tcd-switch button[aria-pressed="true"] {
+  color: var(--tcd-navy);
+}
+body.tcd-skinned .tcd-switch::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  background: var(--skin-accent);
+  border-radius: 999px;
+  transition: transform var(--rhythm-base) var(--ease-out);
+  z-index: 0;
+}
+[data-audience="attorney"] .tcd-switch::after,
+body.tcd-skinned[data-audience="attorney"] .tcd-switch::after {
+  transform: translateX(100%);
+}
+
+/* ─── Scroll-driven scene reveals ────────────────────────────────────
+ * Native browser scroll-driven animations where supported (Chrome 115+,
+ * Edge 115+, soon-Safari). IntersectionObserver fallback handles the rest.
+ */
+@supports (animation-timeline: view()) {
+  body.tcd-skinned .scene {
+    animation: tcd-scene-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 25%;
+  }
+  @keyframes tcd-scene-in {
+    from { opacity: 0; transform: translateY(48px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+}
+@supports not (animation-timeline: view()) {
+  body.tcd-skinned .scene {
+    opacity: 0;
+    transform: translateY(48px);
+    transition:
+      opacity var(--rhythm-base) var(--ease-out),
+      transform var(--rhythm-base) var(--ease-out);
+  }
+  body.tcd-skinned .scene.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sub-element reveal — used inside a scene to stagger child items */
+body.tcd-skinned .scene .stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity var(--rhythm-base) var(--ease-out),
+    transform var(--rhythm-base) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+body.tcd-skinned .scene.in-view .stagger > *,
+body.tcd-skinned .scene .stagger > *.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Section primitive ─────────────────────────────────────────────*/
+body.tcd-skinned section.tcd-section {
+  padding: var(--section-y) 0;
+  position: relative;
+}
+body.tcd-skinned .eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  color: var(--skin-accent);
+  margin-bottom: 16px;
+}
+
+/* ─── Numeric (attorney-side prominent) ─────────────────────────────*/
+body.tcd-skinned .numeric,
+body.tcd-skinned .num {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Footer ────────────────────────────────────────────────────────*/
+body.tcd-skinned footer.tcd-footer {
+  border-top: 1px solid var(--skin-divider);
+  padding: 48px 0;
+  margin-top: 96px;
+  background: color-mix(in srgb, var(--skin-surface-warm) 60%, var(--skin-surface));
+}
+body.tcd-skinned footer.tcd-footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--skin-text-muted);
+}
+body.tcd-skinned footer.tcd-footer a {
+  color: var(--skin-text-soft);
+  margin-right: 16px;
+}
+
+/* ─── Reduced motion fallback ───────────────────────────────────────*/
+@media (prefers-reduced-motion: reduce) {
+  body.tcd-skinned .scene,
+  body.tcd-skinned .scene .stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  body.tcd-skinned .tcd-switch::after { transition: none; }
+}
+
+/* ─── Mobile ────────────────────────────────────────────────────────*/
+@media (max-width: 760px) {
+  body.tcd-skinned .tcd-nav-links { display: none; }
+  body.tcd-skinned .tcd-switch button { padding: 8px 12px; font-size: 12px; }
+  :root { --section-y: clamp(56px, 8vh, 96px); }
+}
