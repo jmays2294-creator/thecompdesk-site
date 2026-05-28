@@ -40,11 +40,49 @@
 <style>
 /* ─── Attorney-home-local treatments */
 
+/* ─── Cinematic skyline background (Higgsfield Piece A, repurposed
+       from the retired cover opener 2026-05-28). Fixed full-viewport
+       video sits at z-index -2; the workspace-wash above it is now a
+       semi-transparent darkening overlay so text contrast stays clean. */
+.skyline-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  background: #0F1B33;
+}
+.skyline-bg video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
 .workspace-wash {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.10) 0%, rgba(107,143,168,0) 60%),
+    radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+    linear-gradient(180deg, rgba(15,27,51,0.78) 0%, rgba(11,20,38,0.88) 100%);
+}
+/* Reduced-motion / no-autoplay fallback: hide the video, restore the
+   original opaque gradient so the page still reads cleanly. */
+@media (prefers-reduced-motion: reduce) {
+  .skyline-bg video { display: none !important; }
+  .workspace-wash {
+    background:
+      radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.16) 0%, rgba(107,143,168,0) 60%),
+      radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+      linear-gradient(180deg, #0F1B33 0%, #0B1426 100%);
+  }
+}
+body.no-skyline-bg .skyline-bg video { display: none; }
+body.no-skyline-bg .workspace-wash {
   background:
     radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.16) 0%, rgba(107,143,168,0) 60%),
     radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
@@ -420,6 +458,14 @@
 </head>
 <body class="tcd-skinned">
 
+<!-- Skyline cinematic background (Higgsfield Piece A, reused 2026-05-28). -->
+<div class="skyline-bg" aria-hidden="true">
+  <video id="attorney-skyline-vid"
+         autoplay muted playsinline preload="auto"
+         disableremoteplayback loop>
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_170959_7783c27b-fd19-4a80-9771-4577a820fb4f.mp4" type="video/mp4">
+  </video>
+</div>
 <div class="workspace-wash" aria-hidden="true"></div>
 
 <nav class="tcd-nav" aria-label="Primary">
@@ -710,6 +756,18 @@
 </footer>
 
 <script src="/js/audience-switcher.js"></script>
+<script>
+// If the skyline bg video fails to autoplay (some Safari configs), drop
+// the body into no-skyline-bg so the workspace-wash returns to opaque.
+(function skylineFallback() {
+  var v = document.getElementById('attorney-skyline-vid');
+  if (!v) return;
+  var p = v.play();
+  if (p && p.catch) p.catch(function () {
+    document.body.classList.add('no-skyline-bg');
+  });
+})();
+</script>
 
 </body>
 </html>
