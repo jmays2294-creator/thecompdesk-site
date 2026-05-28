@@ -271,29 +271,30 @@
 .lawyer-cta h2 { margin-bottom: 16px; }
 .lawyer-cta p { font-size: 18px; max-width: 56ch; margin: 0 auto 28px; }
 
-/* Scene 5 — Quiet close */
-.testimonial {
-  max-width: 720px;
-  margin: 0 auto;
+/* Close — founder note (signed, attributable, no fake testimonial) */
+.founder-note {
+  max-width: 640px;
+  margin: 56px auto 0;
   text-align: center;
 }
-.testimonial blockquote {
+.founder-note .founder-quote {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(22px, 3vw, 30px);
-  line-height: 1.4;
+  font-size: clamp(20px, 2.6vw, 26px);
+  line-height: 1.45;
   color: var(--skin-text);
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   letter-spacing: -0.01em;
 }
-.testimonial cite {
+.founder-note .founder-sig {
   font-style: normal;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--skin-text-muted);
+  margin: 0;
 }
 
 .section-head { text-align: center; max-width: 680px; margin: 0 auto 48px; }
@@ -489,30 +490,25 @@
     </div>
   </section>
 
-  <!-- ─── Scene 4: Connect with an attorney ─── -->
+  <!-- ─── Scene 4: Close — talk to a lawyer + founder note + download
+       (merged the lawyer-CTA scene and the testimonial close into a
+        single decisive close, replaced unattributed testimonial with
+        a real signed note from Joel.) ─── -->
   <section class="tcd-section scene">
     <div class="wrap">
-      <div class="lawyer-cta">
-        <span class="eyebrow">When you're ready to talk to a lawyer</span>
-        <h2>You don't pay a dime. The attorney does.</h2>
-        <p>In New York, claimant-side workers' comp attorneys are paid out of your award by the Workers' Compensation Board — never by you. Our neutral, round-robin referral network connects you with an experienced WC attorney who handles your kind of case. No paid placement, no spam, no pressure.</p>
-        <div class="ctas" style="justify-content:center; display:flex; gap:12px; flex-wrap:wrap;">
+      <div class="lawyer-cta stagger">
+        <span class="eyebrow" style="--i:0;">Ready to talk to a lawyer?</span>
+        <h2 style="--i:1;">You don't pay a dime. The attorney does.</h2>
+        <p style="--i:2;">In New York, claimant-side workers' comp attorneys are paid out of your award by the Workers' Compensation Board — never by you. Our neutral, round-robin network connects you with an experienced attorney who handles your kind of case. No paid placement, no spam.</p>
+        <div class="ctas" style="--i:3;justify-content:center; display:flex; gap:12px; flex-wrap:wrap;">
           <a href="/connect-with-attorney.html" data-connect-modal class="btn primary">Connect with an Attorney</a>
-          <a href="/learn" class="btn ghost">Learn more first</a>
+          <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="btn ghost">Download Comp Buddy</a>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ─── Scene 5: Quiet close ─── -->
-  <section class="tcd-section scene">
-    <div class="wrap">
-      <div class="testimonial stagger">
-        <blockquote style="--i:0;">"Built by a workers' compensation attorney who saw the same questions, the same confusion, the same broken steps — every single day. Comp Buddy is the answer."</blockquote>
-        <cite style="--i:1;">— The Comp Desk Team</cite>
-        <div style="margin-top:32px;" class="ctas stagger">
-          <p style="--i:2;"><a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="btn primary">Download free on the App Store</a></p>
-        </div>
+      <div class="founder-note">
+        <p class="founder-quote">"Workers' compensation in New York is built to be confusing — and the people most hurt by that confusion are the injured workers trying to navigate it alone. Comp Buddy is my answer."</p>
+        <p class="founder-sig">— Joel Mays, Esq. · NYS Workers' Compensation Attorney · Shulman &amp; Hill, PLLC</p>
       </div>
     </div>
   </section>

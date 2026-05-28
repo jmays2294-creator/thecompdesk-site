@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="worker">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,6 @@
 <meta name="description" content="Terms of Service for The Comp Desk — a lead distribution and connection service for New York workers' compensation attorneys and injured workers.">
 <meta name="robots" content="index,follow">
 
-<!-- Open Graph -->
 <meta property="og:title" content="Terms of Service — The Comp Desk">
 <meta property="og:description" content="Terms of Service for The Comp Desk.">
 <meta property="og:type" content="website">
@@ -15,35 +14,133 @@
 <meta property="og:url" content="https://thecompdesk.com/legal/terms.html">
 
 <link rel="canonical" href="https://thecompdesk.com/legal/terms.html">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/skins.css">
+
 <style>
-:root{--bg:#06080f;--card:#0e1322;--bd:#1c2d4a;--ac:#3b82f6;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.8;-webkit-font-smoothing:antialiased;}
-a{color:var(--ac);}
-a:hover{text-decoration:underline;}
-.wrap{max-width:720px;margin:0 auto;padding:80px 24px 80px;}
-.back{display:inline-block;margin-bottom:28px;font-size:14px;color:var(--txD);text-decoration:none;}
-.back:hover{color:var(--wh);text-decoration:none;}
-h1{font-size:32px;font-weight:800;color:var(--wh);margin-bottom:8px;letter-spacing:-0.5px;}
-.updated{font-size:13px;color:var(--txM);margin-bottom:36px;}
-h2{font-size:18px;font-weight:700;color:var(--wh);margin-top:36px;margin-bottom:10px;}
-h3{font-size:15px;font-weight:700;color:var(--wh);margin-top:22px;margin-bottom:8px;}
-p{font-size:15px;color:var(--txD);margin-bottom:14px;}
-.placeholder{font-size:13px;color:var(--txM);font-style:italic;padding:10px 14px;background:rgba(79,143,247,0.04);border-left:3px solid var(--bd);margin-bottom:20px;}
-.toc{background:rgba(14,19,34,0.5);border:1px solid var(--bd);border-radius:8px;padding:20px 24px;margin-bottom:40px;}
-.toc h3{margin-top:0;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--txD);}
-.toc ol{margin-left:20px;font-size:14px;}
-.toc li{margin-bottom:6px;}
-.toc a{color:var(--tx);text-decoration:none;}
-.toc a:hover{color:var(--ac);}
+/* Legal doc — narrow reading column. Same shell as /legal/privacy.html. */
+
+.legal-wash {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.35) 0%, rgba(214,230,242,0) 50%),
+    linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 100%);
+}
+[data-audience="attorney"] .legal-wash {
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.12) 0%, rgba(107,143,168,0) 60%),
+    linear-gradient(180deg, #0F1B33 0%, #0B1426 100%);
+}
+
+.legal-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 72px) 24px clamp(56px, 8vw, 96px);
+}
+.legal-wrap .back {
+  display: inline-block;
+  margin-bottom: 28px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--skin-text-muted);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.legal-wrap .back:hover { color: var(--skin-text); }
+
+.legal-wrap h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 44px);
+  font-weight: var(--display-weight);
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.legal-wrap .updated {
+  font-size: 13px;
+  color: var(--skin-text-muted);
+  margin-bottom: 36px;
+  letter-spacing: 0.04em;
+}
+
+.legal-wrap h2 {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 24px);
+  font-weight: 700;
+  margin-top: 44px;
+  margin-bottom: 12px;
+  letter-spacing: -0.015em;
+}
+.legal-wrap h3 {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--skin-text);
+  margin-top: 22px;
+  margin-bottom: 8px;
+  letter-spacing: -0.005em;
+}
+.legal-wrap p {
+  font-size: 15px;
+  color: var(--skin-text-soft);
+  line-height: 1.75;
+  margin-bottom: 14px;
+}
+
+.legal-wrap .placeholder {
+  font-size: 13px;
+  color: var(--skin-text-muted);
+  font-style: italic;
+  padding: 12px 16px;
+  background: var(--skin-surface-warm);
+  border-left: 3px solid var(--skin-divider);
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.legal-wrap .toc {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  padding: 22px 28px;
+  margin: 36px 0 44px;
+  box-shadow: var(--skin-card-shadow);
+}
+.legal-wrap .toc h3 {
+  margin-top: 0; margin-bottom: 14px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--skin-text-muted);
+}
+.legal-wrap .toc ol {
+  margin: 0; padding-left: 20px;
+  font-size: 14.5px;
+}
+.legal-wrap .toc li { margin-bottom: 8px; }
+.legal-wrap .toc a {
+  color: var(--skin-text);
+  text-decoration: none;
+}
+.legal-wrap .toc a:hover { color: var(--skin-accent); }
 </style>
-<!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
-<link rel="stylesheet" href="/css/brand-theme.css">
-<script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
-<div class="wrap">
+<body class="tcd-skinned">
+
+<div class="legal-wash" aria-hidden="true"></div>
+
+<nav class="tcd-nav" aria-label="Primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+    <div class="tcd-nav-links">
+      <a href="/worker">Worker</a>
+      <a href="/attorneys">Attorneys</a>
+      <a href="/calculators">Calculators</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <div data-audience-switch></div>
+  </div>
+</nav>
+
+<main class="legal-wrap">
   <a href="/" class="back">← Back to The Comp Desk</a>
   <h1>Terms of Service</h1>
   <p class="updated">Last updated: [DATE TBD — drafting May 15–30, 2026]</p>
@@ -116,7 +213,21 @@ p{font-size:15px;color:var(--txD);margin-bottom:14px;}
 
   <h2>8. Contact</h2>
   <p class="placeholder">Scope: Contact email for questions about these Terms.</p>
-</div>
+</main>
+
+<footer class="tcd-footer">
+  <div class="wrap">
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk.</p>
+    <p>
+      <a href="/">Home</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/contact">Contact</a>
+    </p>
+  </div>
+</footer>
+
+<script src="/js/audience-switcher.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
+
 </body>
 </html>
