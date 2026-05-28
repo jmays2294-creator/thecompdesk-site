@@ -466,15 +466,11 @@ body.no-video-bg .skyline { display: block; }
   <div class="cover-stage">
 
     <div class="video-bg" aria-hidden="true">
-      <!-- Piece A: aerial Manhattan skyline at dawn, descent through clouds. 8s. -->
-      <video id="cover-vid-a" class="active"
+      <!-- Transition: cloud-emerge to plaza-arrival. 5s. Plays once on load.
+           (Piece A — the skyline drift — was retired 2026-05-28 per Joel's
+           direction; the descent reads cleaner as the opener.) -->
+      <video id="cover-vid-t" class="active"
              autoplay muted playsinline preload="auto"
-             disableremoteplayback>
-        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_170959_7783c27b-fd19-4a80-9771-4577a820fb4f.mp4" type="video/mp4">
-      </video>
-      <!-- Transition: cloud-emerge to plaza-arrival. 5s. -->
-      <video id="cover-vid-t"
-             muted playsinline preload="auto"
              disableremoteplayback>
         <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181938_3a9ce9cb-8ccf-4d06-996a-e270b9b3371f.mp4" type="video/mp4">
       </video>
@@ -672,41 +668,29 @@ body.no-video-bg .skyline { display: block; }
 
 <script src="/js/audience-switcher.js"></script>
 <script>
-// ─── Cover cinematic chain (added 2026-05-28 with Higgsfield asset pass).
-//     A plays once → Transition plays once → B loops as the ambient bg.
-//     If autoplay is blocked, we surface the static skyline composition
-//     by adding body.no-video-bg, so the visitor still sees the cover.
+// ─── Cover cinematic chain (added 2026-05-28 with Higgsfield asset pass,
+//     revised same day per Joel's direction to retire Piece A and open
+//     with the transition).
+//     Transition plays once → Piece B loops as the ambient bg.
+//     If autoplay is blocked we surface the static skyline composition.
 (function chainCoverVideos() {
-  var a = document.getElementById('cover-vid-a');
   var t = document.getElementById('cover-vid-t');
   var b = document.getElementById('cover-vid-b');
-  if (!a || !t || !b) return;
+  if (!t || !b) return;
 
   function showB() {
-    a.classList.remove('active');
     t.classList.remove('active');
     b.classList.add('active');
     var p = b.play();
     if (p && p.catch) p.catch(function(){});
   }
 
-  a.addEventListener('ended', function () {
-    a.classList.remove('active');
-    t.classList.add('active');
-    var p = t.play();
-    if (p && p.catch) p.catch(showB);
-  });
+  t.addEventListener('ended', showB);
 
-  t.addEventListener('ended', function () {
-    t.classList.remove('active');
-    b.classList.add('active');
-    var p = b.play();
-    if (p && p.catch) p.catch(function(){});
-  });
-
-  // Best-effort kick off Piece A (autoplay attribute should handle it,
-  // but call play() too for browsers that need a script-level kick).
-  var p = a.play();
+  // Best-effort kick off the transition (the autoplay attribute should
+  // handle it; we call play() too for browsers that need a script-level
+  // kick like some Safari configs).
+  var p = t.play();
   if (p && p.catch) {
     p.catch(function () {
       // Autoplay blocked entirely → surface the static skyline fallback.
