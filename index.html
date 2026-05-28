@@ -248,6 +248,69 @@ body {
   background: rgba(248,246,241,0.6);
 }
 
+/* ─── Cycling content inside each door (the "glimpse")
+       Worker door cycles 8 occupation icons (the people coming through).
+       Attorney door cycles 8 calculator readouts (the tool at work).
+       Each item visible ~2s on a 24s loop with ~1s cross-fades. ─── */
+.door-stage {
+  position: absolute;
+  top: 12%;
+  left: 22%;
+  right: 22%;
+  height: 42%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.occ-icon,
+.calc-mock {
+  position: absolute;
+  opacity: 0;
+  animation-duration: 24s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-delay: calc(var(--n, 0) * -3s);
+}
+.occ-icon {
+  width: 86%;
+  height: 86%;
+  animation-name: occ-cycle;
+  filter: drop-shadow(0 6px 20px rgba(232,119,34,0.45));
+}
+.calc-mock {
+  text-align: center;
+  animation-name: calc-cycle;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  padding: 0 4px;
+}
+.calc-mock .calc-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #93B0C7;
+  margin-bottom: 8px;
+}
+.calc-mock .calc-value {
+  font-size: clamp(18px, 2.4vw, 28px);
+  font-weight: 700;
+  color: var(--skin-text);
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 28px rgba(232,119,34,0.55);
+  white-space: nowrap;
+}
+@keyframes occ-cycle {
+  0%, 4%    { opacity: 0; transform: scale(0.94); }
+  10%, 18%  { opacity: 1; transform: scale(1); }
+  24%, 100% { opacity: 0; transform: scale(1.06); }
+}
+@keyframes calc-cycle {
+  0%, 4%    { opacity: 0; transform: translateY(8px); }
+  10%, 18%  { opacity: 1; transform: translateY(0); }
+  24%, 100% { opacity: 0; transform: translateY(-8px); }
+}
+
 /* Door labels */
 .door .label {
   position: relative;
@@ -333,6 +396,13 @@ body {
 /* ─── Reduced motion ─── */
 @media (prefers-reduced-motion: reduce) {
   .door, .door::before { animation: none !important; transition: none !important; }
+  .occ-icon, .calc-mock {
+    opacity: 0 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .occ-icon:first-of-type,
+  .calc-mock:first-of-type { opacity: 1 !important; }
 }
 </style>
 </head>
@@ -391,7 +461,88 @@ body {
     <!-- Two doors -->
     <nav class="doors" aria-label="Choose your audience">
       <a class="door worker" href="/worker" data-audience-choice="worker" aria-label="Enter the injured-worker experience">
-        <div class="slab" aria-hidden="true"></div>
+        <div class="slab" aria-hidden="true">
+          <div class="door-stage">
+            <!-- Cycling occupation icons — the people coming through the door.
+                 8 icons on a 24s loop: construction, healthcare, trades,
+                 food service, transit, warehouse, painting, call center. -->
+            <svg class="occ-icon" style="--n:0;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <ellipse cx="100" cy="142" rx="78" ry="14" fill="url(#cw-g1)"/>
+              <path d="M30,140 Q30,68 100,60 Q170,68 170,140 Z" fill="url(#cw-g1)"/>
+              <path d="M100,60 Q102,100 100,140" stroke="rgba(0,0,0,0.18)" stroke-width="2" fill="none"/>
+              <ellipse cx="58" cy="118" rx="6" ry="2.5" fill="rgba(0,0,0,0.28)"/>
+              <ellipse cx="142" cy="118" rx="6" ry="2.5" fill="rgba(0,0,0,0.28)"/>
+              <path d="M60,82 Q90,68 130,80" stroke="rgba(255,255,255,0.45)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+            <svg class="occ-icon" style="--n:1;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <circle cx="58" cy="58" r="9" fill="url(#cw-g2)"/>
+              <circle cx="142" cy="58" r="9" fill="url(#cw-g2)"/>
+              <path d="M58,58 Q60,90 100,110 Q140,90 142,58" stroke="url(#cw-g2)" stroke-width="7" fill="none" stroke-linecap="round"/>
+              <path d="M100,110 L100,148" stroke="url(#cw-g2)" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="100" cy="160" r="14" fill="url(#cw-g2)"/>
+              <circle cx="100" cy="160" r="7" fill="rgba(255,255,255,0.55)"/>
+            </svg>
+            <svg class="occ-icon" style="--n:2;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <g transform="rotate(45 100 100)">
+                <rect x="92" y="60" width="16" height="100" rx="6" fill="url(#cw-g3)"/>
+                <path d="M70,40 L130,40 L130,75 L115,75 L115,65 L85,65 L85,75 L70,75 Z" fill="url(#cw-g3)"/>
+                <rect x="94" y="62" width="4" height="60" fill="rgba(255,255,255,0.35)"/>
+              </g>
+            </svg>
+            <svg class="occ-icon" style="--n:3;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <path d="M60,90 Q40,90 40,70 Q40,40 70,40 Q80,20 100,25 Q120,20 130,40 Q160,40 160,70 Q160,90 140,90 Z" fill="url(#cw-g4)"/>
+              <rect x="55" y="90" width="90" height="40" rx="6" fill="url(#cw-g4)"/>
+              <line x1="55" y1="95" x2="145" y2="95" stroke="rgba(0,0,0,0.2)" stroke-width="2"/>
+              <rect x="55" y="125" width="90" height="8" fill="url(#cw-g4)"/>
+            </svg>
+            <svg class="occ-icon" style="--n:4;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <circle cx="100" cy="100" r="65" fill="none" stroke="url(#cw-g5)" stroke-width="14"/>
+              <circle cx="100" cy="100" r="58" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>
+              <circle cx="100" cy="100" r="22" fill="url(#cw-g5)"/>
+              <line x1="100" y1="38" x2="100" y2="80" stroke="url(#cw-g5)" stroke-width="10" stroke-linecap="round"/>
+              <line x1="52" y1="138" x2="83" y2="115" stroke="url(#cw-g5)" stroke-width="10" stroke-linecap="round"/>
+              <line x1="148" y1="138" x2="117" y2="115" stroke="url(#cw-g5)" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+            <svg class="occ-icon" style="--n:5;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <path d="M40,90 L100,110 L100,170 L40,150 Z" fill="url(#cw-g6)"/>
+              <path d="M100,110 L160,90 L160,150 L100,170 Z" fill="url(#cw-g6)"/>
+              <path d="M100,110 L160,90 L160,150 L100,170 Z" fill="rgba(0,0,0,0.18)"/>
+              <path d="M40,90 L100,70 L160,90 L100,110 Z" fill="url(#cw-g6)"/>
+              <path d="M40,90 L100,70 L160,90 L100,110 Z" fill="rgba(255,255,255,0.18)"/>
+              <path d="M40,90 L100,70 L160,90" stroke="rgba(0,0,0,0.28)" stroke-width="3" fill="none"/>
+            </svg>
+            <svg class="occ-icon" style="--n:6;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <rect x="30" y="42" width="130" height="34" rx="6" fill="url(#cw-g7)"/>
+              <ellipse cx="30" cy="59" rx="6" ry="17" fill="url(#cw-g7)"/>
+              <ellipse cx="160" cy="59" rx="6" ry="17" fill="url(#cw-g7)"/>
+              <path d="M95,76 L95,100 L100,108 L100,170" stroke="url(#cw-g7)" stroke-width="10" fill="none" stroke-linecap="round"/>
+              <rect x="92" y="165" width="16" height="20" rx="4" fill="url(#cw-g7)"/>
+              <g fill="rgba(0,0,0,0.15)">
+                <ellipse cx="55" cy="59" rx="2" ry="10"/>
+                <ellipse cx="80" cy="59" rx="2" ry="10"/>
+                <ellipse cx="105" cy="59" rx="2" ry="10"/>
+                <ellipse cx="130" cy="59" rx="2" ry="10"/>
+              </g>
+            </svg>
+            <svg class="occ-icon" style="--n:7;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cw-g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4C28C"/><stop offset="1" stop-color="#E87722"/></linearGradient></defs>
+              <path d="M40,110 Q40,40 100,40 Q160,40 160,110" stroke="url(#cw-g8)" stroke-width="14" fill="none" stroke-linecap="round"/>
+              <ellipse cx="42" cy="118" rx="20" ry="28" fill="url(#cw-g8)"/>
+              <ellipse cx="42" cy="118" rx="11" ry="18" fill="rgba(0,0,0,0.25)"/>
+              <ellipse cx="158" cy="118" rx="20" ry="28" fill="url(#cw-g8)"/>
+              <ellipse cx="158" cy="118" rx="11" ry="18" fill="rgba(0,0,0,0.25)"/>
+              <path d="M62,135 Q90,170 110,160" stroke="url(#cw-g8)" stroke-width="7" fill="none" stroke-linecap="round"/>
+              <ellipse cx="115" cy="158" rx="10" ry="6" fill="url(#cw-g8)" transform="rotate(-15 115 158)"/>
+            </svg>
+          </div>
+        </div>
         <div class="label">
           <span class="eyebrow">For Injured Workers</span>
           <span class="title">I was hurt at work.</span>
@@ -400,7 +551,44 @@ body {
       </a>
 
       <a class="door attorney" href="/attorneys" data-audience-choice="attorney" aria-label="Enter the attorney experience">
-        <div class="slab" aria-hidden="true"></div>
+        <div class="slab" aria-hidden="true">
+          <div class="door-stage">
+            <!-- Cycling calculator readouts — the tool quietly at work.
+                 8 mocks on a 24s loop, matching the worker side's rhythm. -->
+            <div class="calc-mock" style="--n:0;">
+              <div class="calc-label">SLU Award</div>
+              <div class="calc-value">$238,557</div>
+            </div>
+            <div class="calc-mock" style="--n:1;">
+              <div class="calc-label">Avg Weekly Wage</div>
+              <div class="calc-value">$1,242.50</div>
+            </div>
+            <div class="calc-mock" style="--n:2;">
+              <div class="calc-label">LWEC</div>
+              <div class="calc-value">65%</div>
+            </div>
+            <div class="calc-mock" style="--n:3;">
+              <div class="calc-label">CCP Award</div>
+              <div class="calc-value">$94,830</div>
+            </div>
+            <div class="calc-mock" style="--n:4;">
+              <div class="calc-label">Radiculopathy</div>
+              <div class="calc-value">Grade II</div>
+            </div>
+            <div class="calc-mock" style="--n:5;">
+              <div class="calc-label">Attorney Fee</div>
+              <div class="calc-value">$35,783</div>
+            </div>
+            <div class="calc-mock" style="--n:6;">
+              <div class="calc-label">Indemnity Rate</div>
+              <div class="calc-value">$828.33</div>
+            </div>
+            <div class="calc-mock" style="--n:7;">
+              <div class="calc-label">SLU Weeks</div>
+              <div class="calc-value">288 wks</div>
+            </div>
+          </div>
+        </div>
         <div class="label">
           <span class="eyebrow">For Attorneys</span>
           <span class="title">I practice WC law.</span>

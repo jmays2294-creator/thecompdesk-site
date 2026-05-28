@@ -99,13 +99,6 @@
     0 30px 80px rgba(45,49,66,0.18),
     inset 0 -20px 60px rgba(45,49,66,0.06);
 }
-.still-life svg {
-  position: absolute;
-  inset: 18%;
-  width: 64%;
-  height: 64%;
-  opacity: 0.9;
-}
 .still-life::after {
   content: "";
   position: absolute;
@@ -113,6 +106,36 @@
   border-radius: 50%;
   border: 1px solid rgba(45,49,66,0.06);
   pointer-events: none;
+}
+
+/* ─── Occupation loop — cycles through 8 industries where injured
+       NY workers come from. The single hard hat was a stand-in;
+       this version honors the full range of people who walk through
+       the door. 32s loop, slow editorial pacing per the worker skin. */
+.occ-loop {
+  position: absolute;
+  inset: 18%;
+  width: 64%;
+  height: 64%;
+}
+.occ-loop svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  animation: occ-loop 32s ease-in-out infinite;
+  animation-delay: calc(var(--n, 0) * -4s);
+  filter: drop-shadow(0 8px 24px rgba(232,119,34,0.18));
+}
+@keyframes occ-loop {
+  0%, 4%    { opacity: 0; transform: scale(0.94); }
+  10%, 18%  { opacity: 0.95; transform: scale(1); }
+  24%, 100% { opacity: 0; transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .occ-loop svg { opacity: 0 !important; animation: none !important; transform: none !important; }
+  .occ-loop svg:first-of-type { opacity: 0.95 !important; }
 }
 
 /* Disclaimer strip (kept — important legal) */
@@ -312,32 +335,95 @@
 
       <div class="hero-art" aria-hidden="true">
         <div class="still-life">
-          <!-- Symbolic still-life: a hard hat. Placeholder for the
-               real photographic image in the asset pass. -->
-          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="hat-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0"   stop-color="#E87722"/>
-                <stop offset="1"   stop-color="#C85F0F"/>
-              </linearGradient>
-              <linearGradient id="hat-shade" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0"   stop-color="rgba(0,0,0,0)"/>
-                <stop offset="1"   stop-color="rgba(0,0,0,0.25)"/>
-              </linearGradient>
-            </defs>
-            <!-- Brim -->
-            <ellipse cx="100" cy="142" rx="78" ry="14" fill="url(#hat-fill)"/>
-            <ellipse cx="100" cy="140" rx="78" ry="14" fill="url(#hat-shade)" opacity="0.5"/>
-            <!-- Crown -->
-            <path d="M30,140 Q30,68 100,60 Q170,68 170,140 Z" fill="url(#hat-fill)"/>
-            <!-- Center ridge -->
-            <path d="M100,60 Q102,100 100,140" stroke="rgba(0,0,0,0.18)" stroke-width="2" fill="none"/>
-            <!-- Side air vents -->
-            <ellipse cx="58" cy="118" rx="6" ry="2.5" fill="rgba(0,0,0,0.25)"/>
-            <ellipse cx="142" cy="118" rx="6" ry="2.5" fill="rgba(0,0,0,0.25)"/>
-            <!-- Highlight -->
-            <path d="M60,82 Q90,68 130,80" stroke="rgba(255,255,255,0.45)" stroke-width="3" fill="none" stroke-linecap="round"/>
-          </svg>
+          <!-- Occupation loop — 8 industries where injured NY workers
+               come from. The single hard hat was a stand-in; this honors
+               the full range of people who walk through the door.
+               Cross-fades on a 32s slow editorial loop. -->
+          <div class="occ-loop">
+            <!-- 1. Construction — hard hat -->
+            <svg style="--n:0;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <ellipse cx="100" cy="142" rx="78" ry="14" fill="url(#wh-g1)"/>
+              <path d="M30,140 Q30,68 100,60 Q170,68 170,140 Z" fill="url(#wh-g1)"/>
+              <path d="M100,60 Q102,100 100,140" stroke="rgba(0,0,0,0.18)" stroke-width="2" fill="none"/>
+              <ellipse cx="58" cy="118" rx="6" ry="2.5" fill="rgba(0,0,0,0.25)"/>
+              <ellipse cx="142" cy="118" rx="6" ry="2.5" fill="rgba(0,0,0,0.25)"/>
+              <path d="M60,82 Q90,68 130,80" stroke="rgba(255,255,255,0.45)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+            <!-- 2. Healthcare — stethoscope -->
+            <svg style="--n:1;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <circle cx="58" cy="58" r="9" fill="url(#wh-g2)"/>
+              <circle cx="142" cy="58" r="9" fill="url(#wh-g2)"/>
+              <path d="M58,58 Q60,90 100,110 Q140,90 142,58" stroke="url(#wh-g2)" stroke-width="7" fill="none" stroke-linecap="round"/>
+              <path d="M100,110 L100,148" stroke="url(#wh-g2)" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="100" cy="160" r="14" fill="url(#wh-g2)"/>
+              <circle cx="100" cy="160" r="7" fill="rgba(255,255,255,0.55)"/>
+            </svg>
+            <!-- 3. Trades — wrench (plumbing, mechanical, electrical) -->
+            <svg style="--n:2;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <g transform="rotate(45 100 100)">
+                <rect x="92" y="60" width="16" height="100" rx="6" fill="url(#wh-g3)"/>
+                <path d="M70,40 L130,40 L130,75 L115,75 L115,65 L85,65 L85,75 L70,75 Z" fill="url(#wh-g3)"/>
+                <rect x="94" y="62" width="4" height="60" fill="rgba(255,255,255,0.35)"/>
+              </g>
+            </svg>
+            <!-- 4. Food service — chef hat (line cook, server, baker) -->
+            <svg style="--n:3;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <path d="M60,90 Q40,90 40,70 Q40,40 70,40 Q80,20 100,25 Q120,20 130,40 Q160,40 160,70 Q160,90 140,90 Z" fill="url(#wh-g4)"/>
+              <rect x="55" y="90" width="90" height="40" rx="6" fill="url(#wh-g4)"/>
+              <line x1="55" y1="95" x2="145" y2="95" stroke="rgba(0,0,0,0.2)" stroke-width="2"/>
+              <rect x="55" y="125" width="90" height="8" fill="url(#wh-g4)"/>
+            </svg>
+            <!-- 5. Transit — steering wheel (bus, taxi, livery, delivery driver) -->
+            <svg style="--n:4;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <circle cx="100" cy="100" r="65" fill="none" stroke="url(#wh-g5)" stroke-width="14"/>
+              <circle cx="100" cy="100" r="58" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>
+              <circle cx="100" cy="100" r="22" fill="url(#wh-g5)"/>
+              <line x1="100" y1="38" x2="100" y2="80" stroke="url(#wh-g5)" stroke-width="10" stroke-linecap="round"/>
+              <line x1="52" y1="138" x2="83" y2="115" stroke="url(#wh-g5)" stroke-width="10" stroke-linecap="round"/>
+              <line x1="148" y1="138" x2="117" y2="115" stroke="url(#wh-g5)" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+            <!-- 6. Warehouse — box (Amazon, UPS, fulfillment) -->
+            <svg style="--n:5;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <path d="M40,90 L100,110 L100,170 L40,150 Z" fill="url(#wh-g6)"/>
+              <path d="M100,110 L160,90 L160,150 L100,170 Z" fill="url(#wh-g6)"/>
+              <path d="M100,110 L160,90 L160,150 L100,170 Z" fill="rgba(0,0,0,0.18)"/>
+              <path d="M40,90 L100,70 L160,90 L100,110 Z" fill="url(#wh-g6)"/>
+              <path d="M40,90 L100,70 L160,90 L100,110 Z" fill="rgba(255,255,255,0.18)"/>
+              <path d="M40,90 L100,70 L160,90" stroke="rgba(0,0,0,0.28)" stroke-width="3" fill="none"/>
+            </svg>
+            <!-- 7. Painters & decorators — paint roller -->
+            <svg style="--n:6;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <rect x="30" y="42" width="130" height="34" rx="6" fill="url(#wh-g7)"/>
+              <ellipse cx="30" cy="59" rx="6" ry="17" fill="url(#wh-g7)"/>
+              <ellipse cx="160" cy="59" rx="6" ry="17" fill="url(#wh-g7)"/>
+              <path d="M95,76 L95,100 L100,108 L100,170" stroke="url(#wh-g7)" stroke-width="10" fill="none" stroke-linecap="round"/>
+              <rect x="92" y="165" width="16" height="20" rx="4" fill="url(#wh-g7)"/>
+              <g fill="rgba(0,0,0,0.15)">
+                <ellipse cx="55" cy="59" rx="2" ry="10"/>
+                <ellipse cx="80" cy="59" rx="2" ry="10"/>
+                <ellipse cx="105" cy="59" rx="2" ry="10"/>
+                <ellipse cx="130" cy="59" rx="2" ry="10"/>
+              </g>
+            </svg>
+            <!-- 8. Office & call center — headset -->
+            <svg style="--n:7;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="wh-g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
+              <path d="M40,110 Q40,40 100,40 Q160,40 160,110" stroke="url(#wh-g8)" stroke-width="14" fill="none" stroke-linecap="round"/>
+              <ellipse cx="42" cy="118" rx="20" ry="28" fill="url(#wh-g8)"/>
+              <ellipse cx="42" cy="118" rx="11" ry="18" fill="rgba(0,0,0,0.25)"/>
+              <ellipse cx="158" cy="118" rx="20" ry="28" fill="url(#wh-g8)"/>
+              <ellipse cx="158" cy="118" rx="11" ry="18" fill="rgba(0,0,0,0.25)"/>
+              <path d="M62,135 Q90,170 110,160" stroke="url(#wh-g8)" stroke-width="7" fill="none" stroke-linecap="round"/>
+              <ellipse cx="115" cy="158" rx="10" ry="6" fill="url(#wh-g8)" transform="rotate(-15 115 158)"/>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
