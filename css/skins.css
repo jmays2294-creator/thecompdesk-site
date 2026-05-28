@@ -76,8 +76,14 @@
   --skin-surface-elev: #16243F;
   --skin-surface-warm: #1F2F4D;
   --skin-text: #F0EBE0;
-  --skin-text-soft: #C9D1E0;
-  --skin-text-muted: #8693AD;
+  /* Brightened 2026-05-28 — the previous soft/muted tones sat at the WCAG
+     AA contrast floor on deep navy; small text (footer, disclaimers,
+     hero subheads, label captions) read as washed-out on /for-attorneys/
+     credits and other attorney-skinned surfaces. New values give roughly
+     7-8:1 contrast on var(--skin-surface) which is comfortable for
+     extended reading. */
+  --skin-text-soft: #DDE5F2;
+  --skin-text-muted: #B5BFD3;
   --skin-accent: #E87722;
   --skin-accent-soft: #FF8B33;
   --skin-accent-deep: #B85808;

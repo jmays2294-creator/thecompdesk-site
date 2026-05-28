@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Manage your workers' compensation cases. View saved calculations, filter by case name, AWW, DOA, and load into the Pro Calculator Suite for editing or fee application generation.">
   <link rel="stylesheet" href="../css/app.css">
+    <link rel="stylesheet" href="/css/skins.css">
   <style>
     /* ═══════════════════════════════════════
        LAYOUT: Sidebar + Main Panel
@@ -522,8 +523,19 @@
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
-  <div id="app-nav"></div>
+<body class="tcd-skinned" data-no-brand-bg="true">
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/attorneys">Attorneys</a>
+        <a href="/calculators">Calculators</a>
+        <a href="/workspace/">Workspace</a>
+        <a href="/subscribe">Subscribe</a>
+      </div>
+      <div data-audience-switch></div>
+    </div>
+  </nav>
 
   <!-- Pro Gate -->
   <div id="pro-gate-overlay" class="pro-gate-overlay">
@@ -1178,5 +1190,6 @@
 <script src="/js/disclaimer.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
   <script src="/js/footer-contact.js" defer></script>
+<script src="/js/audience-switcher.js"></script>
 </body>
 </html>
