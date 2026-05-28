@@ -437,8 +437,11 @@
     </div>
   </section>
 
-  <!-- For Attorneys -->
-  <section id="for-attorneys" style="padding-bottom:80px;">
+  <!-- For Attorneys — hidden on the worker-facing intake page (the lead-pricing
+       grid is for attorneys, not for the injured worker looking for help here).
+       Path for attorneys to join is preserved via the footer link "Join attorney
+       network" and on /hire-attorney. Markup kept in DOM for easy revert. -->
+  <section id="for-attorneys" style="display:none;padding-bottom:80px;">
     <div class="wrap">
       <div class="for-attorneys">
         <h2>Join the Network — Pay Only for Leads You Accept</h2>
@@ -1463,6 +1466,21 @@
         }
       });
     });
+
+    // ── Auto-open the intake wizard on standalone page load.
+    //    The intake form IS the point of this page — visitors shouldn't
+    //    have to click a "Get Connected" button to find it. Skip when
+    //    the page is loaded inside the worker-home iframe (?embed=1),
+    //    since that flow has its own modal lifecycle.
+    (function autoOpenWizard() {
+      try {
+        var qs = new URLSearchParams(window.location.search);
+        if (qs.has('embed')) return;
+        if (typeof openWizard === 'function') {
+          openWizard();
+        }
+      } catch (e) { /* fail silent — page still works via the hero CTA */ }
+    })();
   </script>
 
   <script src="/js/footer-contact.js" defer></script>
