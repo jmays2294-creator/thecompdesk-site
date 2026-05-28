@@ -301,6 +301,121 @@
 }
 .cta-banner h2 { margin-bottom: 14px; }
 .cta-banner p { max-width: 56ch; margin: 0 auto 24px; }
+
+/* Density override — tighter section padding so the page feels filled. */
+:root { --section-y: clamp(40px, 5vh, 64px); }
+.tcd-section.hero { padding: clamp(40px, 6vh, 72px) 0 clamp(28px, 3.5vh, 44px); }
+
+/* Hero proof strip (restored — kept lean, 3 stats) */
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--skin-divider);
+}
+.hero-stats .stat { text-align: left; }
+.hero-stats .stat .v {
+  font-family: var(--font-numeric);
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 800;
+  color: var(--skin-text);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.hero-stats .stat .l {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--skin-text-muted);
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* "Built for the hearing room" — 6 feature cards in a tight grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+.feature-card {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: 14px;
+  padding: 22px 22px;
+  transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+}
+.feature-card:hover { transform: translateY(-3px); border-color: var(--skin-accent); }
+.feature-card .ico {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: rgba(232,119,34,0.14);
+  color: var(--skin-accent);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-numeric);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+}
+.feature-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--skin-text);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.feature-card p {
+  font-size: 13.5px;
+  color: var(--skin-text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Tighter calculator grid (was 280px min, now 240px so 12 fit nicely) */
+.calc-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.calc-card { padding: 18px 18px; }
+.calc-card .stat { font-size: 24px; }
+.calc-card h3 { font-size: 15px !important; margin-bottom: 4px !important; }
+.calc-card p { font-size: 12.5px; }
+
+/* FAQ — same accordion as worker side */
+.faq-list { max-width: 760px; margin: 0 auto; }
+.faq-item {
+  border-bottom: 1px solid var(--skin-divider);
+  padding: 16px 0;
+}
+.faq-item summary {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--skin-text);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  letter-spacing: -0.01em;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "+";
+  font-size: 22px;
+  color: var(--skin-accent);
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 200ms ease;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item p {
+  font-size: 14.5px;
+  color: var(--skin-text-soft);
+  line-height: 1.65;
+  margin: 10px 0 0;
+  max-width: 64ch;
+}
 </style>
 </head>
 <body class="tcd-skinned">
@@ -323,16 +438,21 @@
 
 <main>
 
-  <!-- ─── Scene 1: Hero ─── -->
-  <section class="tcd-section hero scene">
+  <!-- ─── Hero (always visible — no .scene reveal so first paint is full) ─── -->
+  <section class="tcd-section hero">
     <div class="wrap hero-grid">
-      <div class="hero-copy stagger">
-        <span class="eyebrow" style="--i:0;">Built by a practicing NYS WC attorney</span>
-        <h1 style="--i:1;">The <span class="accent">unfair advantage</span> in NY Workers' Compensation practice.</h1>
-        <p class="lede" style="--i:2;">SLU permanency checking, radiculopathy calculators, fee app equations, and the Pro Workspace. Everything the hearing room actually needs — done right, done fast, done correctly. Built by Joel Mays, Esq. at Shulman &amp; Hill, PLLC.</p>
-        <div class="ctas" style="--i:3;">
-          <a href="/subscribe" class="btn primary">Start free trial</a>
+      <div class="hero-copy">
+        <span class="eyebrow">Built by a practicing NYS WC attorney</span>
+        <h1>The <span class="accent">unfair advantage</span> in NY Workers' Compensation practice.</h1>
+        <p class="lede">SLU permanency checking, radiculopathy chart, fee app equations, AWW with all four statutory methods, and the Pro Workspace. Everything the hearing room actually needs — done right, done fast, cited to the WCL section behind every number.</p>
+        <div class="ctas">
+          <a href="/subscribe" class="btn primary">Start 14-day free trial</a>
           <a href="/calculators" class="btn ghost">See the calculators</a>
+        </div>
+        <div class="hero-stats" aria-label="At a glance">
+          <div class="stat"><div class="v">12+</div><div class="l">Calculators in Pro</div></div>
+          <div class="stat"><div class="v">$9.99</div><div class="l">/mo · cancel anytime</div></div>
+          <div class="stat"><div class="v">NYS</div><div class="l">WC-focused, end-to-end</div></div>
         </div>
       </div>
 
@@ -374,40 +494,114 @@
         <p style="--i:2;">Every calculator cites the underlying WCL section, IME guideline, or Board rule it implements — so the number you see has a defense.</p>
       </div>
 
-      <div class="calc-grid stagger">
-        <a href="/calculators/slu" class="calc-card" style="--i:0;">
-          <div class="head"><div class="stat">SLU</div><span class="badge">Pro</span></div>
-          <h3>Schedule Loss of Use</h3>
-          <p>Permanency checker for every body part, with built-in comparison to the IME and treating physician opinions.</p>
-        </a>
-        <a href="/calculators/aww" class="calc-card" style="--i:1;">
+      <div class="calc-grid">
+        <a href="/calculators/aww" class="calc-card">
           <div class="head"><div class="stat">AWW</div><span class="badge free">Free</span></div>
           <h3>Average Weekly Wage</h3>
-          <p>Multi-employer, concurrent, and seasonal scenarios. Outputs the indemnity rate and citation, every time.</p>
+          <p>All four statutory methods under WCL §14. Multi-employer, concurrent, and seasonal scenarios.</p>
         </a>
-        <a href="/calculators/radiculopathy" class="calc-card" style="--i:2;">
+        <a href="/calculators/slu" class="calc-card">
+          <div class="head"><div class="stat">SLU</div><span class="badge">Pro</span></div>
+          <h3>Schedule Loss of Use</h3>
+          <p>Permanency checker for every body part with IME / treating physician comparison.</p>
+        </a>
+        <a href="/calculators/radiculopathy" class="calc-card">
           <div class="head"><div class="stat">RAD</div><span class="badge">Pro</span></div>
           <h3>Radiculopathy</h3>
-          <p>Spine impairment with the IME-friendly radiculopathy chart. Cites the 2018 guidelines on every result.</p>
+          <p>2012 Impairment Guidelines point system §S11.4–S11.7. Cited on every result.</p>
         </a>
-        <a href="/calculators/lwec" class="calc-card" style="--i:3;">
+        <a href="/calculators/lwec" class="calc-card">
           <div class="head"><div class="stat">LWEC</div><span class="badge">Pro</span></div>
           <h3>Loss of Wage-Earning Capacity</h3>
-          <p>Functional limitation × vocational factors, with the Board's matrix logic and a printable summary.</p>
+          <p>Functional limitation × vocational factors with the Board's matrix logic.</p>
         </a>
-        <a href="/calculators/ccp-award" class="calc-card" style="--i:4;">
+        <a href="/calculators/ccp-award" class="calc-card">
           <div class="head"><div class="stat">CCP</div><span class="badge">Pro</span></div>
-          <h3>CCP Award</h3>
-          <p>Classification-tier permanent partial disability awards, with cap-week tracking and PPD vs SLU comparison.</p>
+          <h3>CCP / Award Builder</h3>
+          <p>Classified PPD/PTD with cap-week tracking, REIMB ER, HIA, NCLT/NME designations.</p>
         </a>
-        <a href="/calculators/spine-brain" class="calc-card" style="--i:5;">
+        <a href="/calculators/spine-brain" class="calc-card">
           <div class="head"><div class="stat">SB</div><span class="badge">Pro</span></div>
           <h3>Spine &amp; Brain</h3>
-          <p>Non-schedule permanency for spine and brain injuries with the Board's severity-class scoring built in.</p>
+          <p>Non-schedule permanency with the Board's severity-class scoring built in.</p>
+        </a>
+        <a href="/calculators/rates" class="calc-card">
+          <div class="head"><div class="stat">RATE</div><span class="badge free">Free</span></div>
+          <h3>Rate Lookup</h3>
+          <p>Maximum compensation rates by date of injury, 1985 through present.</p>
+        </a>
+        <a href="/workspace/" class="calc-card">
+          <div class="head"><div class="stat">FEE</div><span class="badge">Pro</span></div>
+          <h3>Fee App Equation</h3>
+          <p>OC-400.1 fee equation generator with built-in CCP, SLU, LWEC, and Section 32 branches.</p>
+        </a>
+        <a href="/workspace/" class="calc-card">
+          <div class="head"><div class="stat">S32</div><span class="badge">Pro</span></div>
+          <h3>Section 32 Settlement</h3>
+          <p>Settlement modeling with Medicare set-aside considerations and net-to-claimant math.</p>
+        </a>
+        <a href="/calculators" class="calc-card">
+          <div class="head"><div class="stat">TR</div><span class="badge">Pro</span></div>
+          <h3>Temporary Reduced</h3>
+          <p>TR rate as a percentage of TT, with the per-period $/% toggle and Manual Rate fallback.</p>
+        </a>
+        <a href="/calculators" class="calc-card">
+          <div class="head"><div class="stat">TP</div><span class="badge">Pro</span></div>
+          <h3>Temporary Partial</h3>
+          <p>TP rate calc with the same per-period $/% toggle as TR. Mirrors the in-app workspace.</p>
+        </a>
+        <a href="/workspace/" class="calc-card">
+          <div class="head"><div class="stat">UTDM</div><span class="badge">Pro</span></div>
+          <h3>UTDM Tracker</h3>
+          <p>Unreasonable Term and Duration of Medical lookups with built-in MTG citation.</p>
         </a>
       </div>
 
-      <p style="text-align:center; margin-top:32px;"><a href="/calculators" class="btn link">See all twelve calculators</a></p>
+      <p style="text-align:center; margin-top:24px;"><a href="/calculators" class="btn link">Open the calculator index</a></p>
+    </div>
+  </section>
+
+  <!-- ─── Built for the hearing room — 6 feature highlights ─── -->
+  <section class="tcd-section scene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Built for the hearing room</span>
+        <h2>The features attorneys actually use.</h2>
+        <p>Every feature exists because a real case needed it the day before. No marketing fluff, no demo-only tools.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="ico">§</div>
+          <h3>Cited on every result</h3>
+          <p>Every number shows the WCL section, IME guideline, or Board rule it implements. The output is defensible without explaining where it came from.</p>
+        </div>
+        <div class="feature-card">
+          <div class="ico">⇄</div>
+          <h3>IME vs Treating side-by-side</h3>
+          <p>SLU and radiculopathy let you enter both opinions and see the spread. Negotiate the middle with the math already on screen.</p>
+        </div>
+        <div class="feature-card">
+          <div class="ico">↻</div>
+          <h3>Case save &amp; sync</h3>
+          <p>Pro Workspace saves your case state across devices. Pull it up on the courthouse iPad, finish on the office desktop. iOS + web.</p>
+        </div>
+        <div class="feature-card">
+          <div class="ico">PDF</div>
+          <h3>OC-400.1 fee app prefill</h3>
+          <p>Generate a filled OC-400.1 fee application directly from the CCP/Award Builder. Equation, periods, and fee reasons all flow through.</p>
+        </div>
+        <div class="feature-card">
+          <div class="ico">⌘</div>
+          <h3>Keyboard-first input</h3>
+          <p>Tab through every field. No mouse needed during a hearing. Designed for fast entry while you're listening to the WCLJ.</p>
+        </div>
+        <div class="feature-card">
+          <div class="ico">♿</div>
+          <h3>Litify / Salesforce export</h3>
+          <p>Firm tier exports calculator output and case data to your CMS. Built on the assumption your firm already lives in Litify.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -452,7 +646,43 @@
     </div>
   </section>
 
-  <!-- ─── Scene 5: Final CTA ─── -->
+  <!-- ─── FAQ — common attorney questions ─── -->
+  <section class="tcd-section scene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Frequently asked</span>
+        <h2>The questions attorneys ask before they switch.</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Will this replace my existing Litify workflow?</summary>
+          <p>No. The Comp Desk Pro lives alongside Litify, not instead of it. Firm tier exports calculator results, periods, fee equations, and case data to Litify so the work you do here flows into the system of record. Many attorneys keep both open during a hearing.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How is this different from doing the math in Excel?</summary>
+          <p>Three things: cited results (every output shows the WCL section it implements), correctness updates (statutory caps, IME guideline revisions, and rate-table changes are maintained in one place), and integration (the calculator output flows directly into the OC-400.1 fee application and the Pro Workspace case file). Excel doesn't update when the Board changes a rule.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is the Firm tier worth $99/month over three Pro seats?</summary>
+          <p>If you have three or more attorneys, yes — Firm is the same per-seat math as three Pro seats but includes Litify/Salesforce integration, case data export, unlimited seats, and priority support. The integration is what most firms switch for.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I trust the SLU and LWEC math in a hearing?</summary>
+          <p>Yes. Every calculator is built and maintained by Joel Mays, Esq. — a practicing NYS WC attorney at Shulman &amp; Hill — and used in real cases daily before it ships to the rest of the platform. Every result cites the WCL section, IME guideline, or Board rule behind it so you can defend the number on the record.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What does the 14-day free trial include?</summary>
+          <p>Everything in Pro: all 12 calculators, the Pro Workspace with case save/sync, OC-400.1 fee application generation, and iOS + web access. No credit card required to start. Cancel inside the trial and you pay nothing.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What about claimants? Can I send them here?</summary>
+          <p>Yes. The free calculators (AWW, Rate Lookup, plus all 7 on the public calculator index) are free for anyone. Workers can also use Comp Buddy on iOS to find a doctor, get IME reminders, and learn their rights. The free worker-side experience is at <a href="/worker">/worker</a>.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Final CTA ─── -->
   <section class="tcd-section scene">
     <div class="wrap">
       <div class="cta-banner">
