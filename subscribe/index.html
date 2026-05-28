@@ -1,10 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subscribe — The Comp Desk</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Subscribe to The Comp Desk Pro for advanced NYS workers' compensation calculators, case management, and fee application generation.">
+<link rel="canonical" href="https://thecompdesk.com/subscribe/">
+<meta property="og:title" content="Subscribe to Pro — The Comp Desk">
+<meta property="og:description" content="Unlock Pro calculators, case management, and fee app generation for NYS workers' comp attorneys. $9.99/mo.">
+<meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+<meta property="og:url" content="https://thecompdesk.com/subscribe/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Comp Desk">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Subscribe to Pro — The Comp Desk">
+<meta name="twitter:description" content="Unlock Pro calculators, case management, and fee app generation for NYS workers' comp attorneys.">
+<meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
     <link rel="stylesheet" href="../css/app.css">
+    <!-- Phase-2 attorney skin layer (adds skins.css for the audience-switcher pill + tcd-nav styling). -->
+    <link rel="stylesheet" href="/css/skins.css">
     <!-- Stripe checkout handled server-side via Supabase Edge Function -->
     <style>
         /* Subscription-Specific Styles */
@@ -453,8 +468,22 @@
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
-    <div id="app-nav"></div>
+<body class="tcd-skinned">
+    <!-- Audience-skinned nav (replaces the legacy renderNav() injection
+         target). The renderNav() call in the module script now no-ops
+         because #app-nav no longer exists in the DOM. -->
+    <nav class="tcd-nav" aria-label="Primary">
+      <div class="tcd-nav-inner">
+        <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+        <div class="tcd-nav-links">
+          <a href="/attorneys">Attorneys</a>
+          <a href="/calculators">Calculators</a>
+          <a href="/workspace-tour">Workspace</a>
+          <a href="/learn">Learn</a>
+        </div>
+        <div data-audience-switch></div>
+      </div>
+    </nav>
 
     <div class="page-content">
         <div class="plans-header">
@@ -772,8 +801,7 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializePage);
     </script>
-<script src="/js/disclaimer.js" defer></script>
-<script defer src="/_vercel/insights/script.js"></script>
   <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
 </body>
 </html>

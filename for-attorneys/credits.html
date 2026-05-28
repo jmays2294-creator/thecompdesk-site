@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" data-audience="attorney">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Lead Credits — The Comp Desk for Attorneys</title>
+<meta name="description" content="Purchase pre-paid lead credits for the NYS Workers' Compensation referral marketplace. Pay $79.90–$99 per exclusive lead. No commitment, no subscription.">
+<link rel="canonical" href="https://thecompdesk.com/for-attorneys/credits">
+<!-- Phase-2 attorney skin layer. -->
+<link rel="stylesheet" href="/css/skins.css">
+<style>
+:root{
+  --bg: var(--skin-surface);
+  --card: var(--skin-surface-elev);
+  --cardA: var(--skin-surface-warm);
+  --bd: var(--skin-divider);
+  --ac: var(--skin-accent);
+  --acG: rgba(232,119,34,0.12);
+  --gd: var(--skin-accent);
+  --gn: #5BC79A;
+  --rd: #ef5b5b;
+  --tx: var(--skin-text);
+  --txD: var(--skin-text-soft);
+  --txM: var(--skin-text-muted);
+  --wh: var(--skin-text);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--font-body, 'DM Sans', system-ui, sans-serif);line-height:1.7;-webkit-font-smoothing:antialiased;}
+a{color:var(--ac);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,8,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);}
+nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;}
+nav .logo span{color:var(--ac);}
+nav .links{display:flex;gap:24px;align-items:center;}
+nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
+nav .links a:hover{color:var(--wh);text-decoration:none;}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+.cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(59,130,246,0.3);text-decoration:none;}
+.cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
+.cta-btn.outline:hover{background:var(--acG);}
+.cta-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* HERO */
+.hero{padding:140px 0 40px;text-align:center;}
+.hero .badge{display:inline-block;background:rgba(45,212,160,0.12);border:1px solid rgba(45,212,160,0.25);color:var(--gn);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:20px;}
+.hero h1{font-size:clamp(32px,5vw,48px);font-weight:900;color:var(--wh);letter-spacing:-1px;line-height:1.1;margin-bottom:14px;}
+.hero h1 span{color:var(--ac);}
+.hero .sub{font-size:clamp(15px,2vw,18px);color:var(--txD);max-width:640px;margin:0 auto;line-height:1.6;}
+
+/* BALANCE BAR */
+.balance{margin:32px auto 0;max-width:680px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.balance .label{font-size:12px;color:var(--txD);text-transform:uppercase;letter-spacing:0.8px;font-weight:700;}
+.balance .value{font-size:32px;font-weight:900;color:var(--wh);font-family:'JetBrains Mono',monospace;}
+.balance .value .unit{font-size:14px;color:var(--txD);margin-left:4px;font-weight:600;font-family:'DM Sans',sans-serif;}
+.balance.signed-out{justify-content:center;text-align:center;color:var(--txD);}
+.balance.signed-out a{font-weight:700;}
+
+/* PACKAGES */
+.packages{padding:48px 0 80px;}
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+.pkg-card{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;transition:border-color 0.2s,transform 0.2s;display:flex;flex-direction:column;}
+.pkg-card:hover{border-color:var(--ac);transform:translateY(-2px);}
+.pkg-card.popular{border-color:var(--gd);}
+.pkg-card.popular::before{content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gd);color:#1a1200;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
+.pkg-name{font-size:14px;font-weight:700;color:var(--txD);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.pkg-credits{font-size:36px;font-weight:900;color:var(--wh);line-height:1;font-family:'JetBrains Mono',monospace;}
+.pkg-credits .unit{font-size:14px;color:var(--txD);margin-left:6px;font-weight:600;font-family:'DM Sans',sans-serif;}
+.pkg-price{font-size:24px;font-weight:800;color:var(--wh);margin-top:14px;}
+.pkg-per{font-size:13px;color:var(--txD);margin-top:2px;}
+.pkg-buy{margin-top:20px;width:100%;justify-content:center;}
+.pkg-buy.popular{background:var(--gd);color:#1a1200;}
+.pkg-buy.popular:hover{box-shadow:0 4px 20px rgba(240,160,48,0.3);}
+
+/* TX HISTORY */
+.history{padding:0 0 80px;}
+.history h2{font-size:24px;font-weight:800;color:var(--wh);margin-bottom:8px;}
+.history .sub{font-size:14px;color:var(--txD);margin-bottom:24px;}
+.tx-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;}
+.tx-table th,.tx-table td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--bd);font-size:14px;}
+.tx-table th{background:var(--cardA);color:var(--txD);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;}
+.tx-table td{color:var(--tx);}
+.tx-table tr:last-child td{border-bottom:none;}
+.tx-table .delta-pos{color:var(--gn);font-weight:700;font-family:'JetBrains Mono',monospace;}
+.tx-table .delta-neg{color:var(--rd);font-weight:700;font-family:'JetBrains Mono',monospace;}
+.tx-table .type-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.type-purchase{background:rgba(59,130,246,0.12);color:var(--ac);}
+.type-spend{background:rgba(240,160,48,0.12);color:var(--gd);}
+.type-refund{background:rgba(45,212,160,0.12);color:var(--gn);}
+.type-bonus{background:rgba(45,212,160,0.12);color:var(--gn);}
+.history-empty{padding:48px 24px;text-align:center;color:var(--txD);background:var(--card);border:1px solid var(--bd);border-radius:12px;}
+
+/* ALERT */
+.alert{margin:0 auto 24px;max-width:680px;border-radius:10px;padding:14px 18px;font-size:14px;border:1px solid;}
+.alert.error{background:rgba(239,91,91,0.08);border-color:rgba(239,91,91,0.35);color:#ffc5c5;}
+.alert.warn{background:rgba(240,160,48,0.08);border-color:rgba(240,160,48,0.35);color:#ffd99e;}
+.alert button{background:none;border:none;color:inherit;float:right;cursor:pointer;font-size:16px;line-height:1;opacity:0.7;}
+.alert button:hover{opacity:1;}
+
+/* DISCLAIMER */
+.disclaimer{padding:32px 0;text-align:center;color:var(--txM);font-size:12px;line-height:1.6;border-top:1px solid var(--bd);}
+
+/* FOOTER */
+footer{padding:40px 0;text-align:center;color:var(--txM);font-size:13px;}
+footer a{color:var(--txD);margin:0 12px;}
+</style>
+<!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
+<link rel="stylesheet" href="/css/brand-theme.css">
+<script src="/js/brand-bg.js" defer></script>
+</head>
+<body class="tcd-skinned">
+
+<nav class="tcd-nav" aria-label="Primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+    <div class="tcd-nav-links">
+      <a href="/attorneys">Attorneys</a>
+      <a href="/calculators">Calculators</a>
+      <a href="/workspace-tour">Workspace</a>
+      <a href="/subscribe">Subscribe</a>
+      <a href="/dashboard/" id="navDashboard" style="display:none;">Dashboard</a>
+      <a href="#" id="navAuth">Sign In</a>
+    </div>
+    <div data-audience-switch></div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="badge">Lead Credit Marketplace</span>
+    <h1>Buy <span>Pre-Paid Leads</span></h1>
+    <p class="sub">Each credit assigns one exclusive NYS Workers' Compensation injured-worker lead via round-robin distribution. No subscriptions, no monthly minimums. Credits never expire.</p>
+
+    <div id="alertBox"></div>
+
+    <div class="balance" id="balanceBar" style="display:none;">
+      <div>
+        <div class="label">Current Balance</div>
+        <div class="value"><span id="balanceCount">—</span><span class="unit">credits</span></div>
+      </div>
+      <div style="text-align:right;font-size:13px;color:var(--txD);">
+        <div id="balanceAttorneyName" style="font-weight:700;color:var(--wh);"></div>
+        <div id="balanceFirm"></div>
+      </div>
+    </div>
+    <div class="balance signed-out" id="signedOutBar">
+      <span>Already signed up? <a href="/auth_v2.html?redirect=%2Ffor-attorneys%2Fcredits">Sign in</a> to see your balance and purchase credits.</span>
+    </div>
+  </div>
+</section>
+
+<section class="packages">
+  <div class="wrap">
+    <div class="pkg-grid" id="pkgGrid">
+      <div style="grid-column:1/-1;text-align:center;color:var(--txD);padding:32px;">Loading packages…</div>
+    </div>
+  </div>
+</section>
+
+<section class="history" id="historySection" style="display:none;">
+  <div class="wrap">
+    <h2>Transaction History</h2>
+    <p class="sub">Last 20 credit movements on your account.</p>
+    <div id="historyBody"></div>
+  </div>
+</section>
+
+<div class="disclaimer">
+  <div class="wrap">
+    Credits are non-refundable except per the Data Integrity refund clause in our <a href="/legal/terms.html">Terms</a>. This tool is for informational purposes only and does not constitute legal advice. The Comp Desk is operated by NJJ Document Services, Inc.
+  </div>
+</div>
+
+<footer class="tcd-footer">
+  <div class="wrap" style="flex-direction:column; align-items:center; text-align:center;">
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk.</p>
+    <p style="margin-top:10px;">
+      <a href="/">Home</a>
+      <a href="/attorneys">Attorneys</a>
+      <a href="/legal/terms.html">Terms</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/contact">Contact</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module">
+import { supabase, getOptionalUser } from '/js/auth.js';
+
+const PROJECT_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+
+const $ = (id) => document.getElementById(id);
+
+function showAlert(message, level = 'error') {
+  const box = $('alertBox');
+  const div = document.createElement('div');
+  div.className = `alert ${level}`;
+  div.innerHTML = `<button onclick="this.parentElement.remove()">×</button>${message}`;
+  box.appendChild(div);
+}
+
+function fmtMoney(cents) {
+  if (cents == null) return '—';
+  return '$' + (cents / 100).toFixed(2);
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+async function loadPackages() {
+  const { data, error } = await supabase
+    .from('credit_packages')
+    .select('id, name, credits, price_cents, popular')
+    .eq('active', true)
+    .order('credits', { ascending: true });
+
+  const grid = $('pkgGrid');
+  if (error) {
+    console.error('[credits] PACKAGES_FETCH_FAILED', error);
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--rd);padding:32px;">Could not load credit packages. ${error.message}</div>`;
+    showAlert(`Could not load credit packages: ${error.message}`);
+    return;
+  }
+  if (!data || data.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--txD);padding:32px;">No credit packages available right now. Check back soon.</div>`;
+    return;
+  }
+
+  grid.innerHTML = data.map(pkg => {
+    const perCredit = (pkg.price_cents / pkg.credits / 100).toFixed(2);
+    const popularClass = pkg.popular ? 'popular' : '';
+    return `
+      <div class="pkg-card ${popularClass}">
+        <div class="pkg-name">${pkg.name}</div>
+        <div class="pkg-credits">${pkg.credits}<span class="unit">credit${pkg.credits === 1 ? '' : 's'}</span></div>
+        <div class="pkg-price">${fmtMoney(pkg.price_cents)}</div>
+        <div class="pkg-per">$${perCredit} per lead</div>
+        <button class="cta-btn pkg-buy ${popularClass}" data-pkg="${pkg.id}" data-name="${pkg.name}">Buy ${pkg.name}</button>
+      </div>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('button[data-pkg]').forEach(btn => {
+    btn.addEventListener('click', () => handleBuy(btn.dataset.pkg, btn.dataset.name, btn));
+  });
+}
+
+async function loadBalanceAndHistory(session) {
+  // Attorney row
+  const { data: atty, error: attyErr } = await supabase
+    .from('attorney_roster')
+    .select('id, attorney_name, firm_name, lead_credits')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  if (attyErr) {
+    console.error('[credits] ATTORNEY_FETCH_FAILED', attyErr);
+    showAlert(`Could not load your account: ${attyErr.message}`);
+    return;
+  }
+  if (!atty) {
+    showAlert(
+      `Your account isn't yet registered with the attorney referral network. <a href="/for-attorneys#apply">Apply to join</a> first, then come back here.`,
+      'warn',
+    );
+    return;
+  }
+
+  $('signedOutBar').style.display = 'none';
+  $('balanceBar').style.display = 'flex';
+  $('balanceCount').textContent = atty.lead_credits ?? 0;
+  $('balanceAttorneyName').textContent = atty.attorney_name ?? '';
+  $('balanceFirm').textContent = atty.firm_name ?? '';
+
+  // Transaction history (last 20)
+  const { data: txs, error: txErr } = await supabase
+    .from('credit_transactions')
+    .select('id, type, credits_delta, amount_cents, created_at, notes, lead_id')
+    .eq('attorney_id', atty.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (txErr) {
+    console.error('[credits] TX_FETCH_FAILED', txErr);
+    showAlert(`Could not load transaction history: ${txErr.message}`);
+    return;
+  }
+
+  $('historySection').style.display = 'block';
+  const body = $('historyBody');
+
+  if (!txs || txs.length === 0) {
+    body.innerHTML = `<div class="history-empty">No transactions yet. Your first purchase will appear here.</div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <table class="tx-table">
+      <thead>
+        <tr><th>Date</th><th>Type</th><th>Credits</th><th>Amount</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        ${txs.map(tx => `
+          <tr>
+            <td>${fmtDate(tx.created_at)}</td>
+            <td><span class="type-tag type-${tx.type}">${tx.type}</span></td>
+            <td class="${tx.credits_delta >= 0 ? 'delta-pos' : 'delta-neg'}">${tx.credits_delta >= 0 ? '+' : ''}${tx.credits_delta}</td>
+            <td>${tx.amount_cents != null ? fmtMoney(Math.abs(tx.amount_cents)) : '—'}</td>
+            <td style="color:var(--txD);font-size:13px;">${tx.notes ?? ''}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function handleBuy(packageId, packageName, btn) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = `/auth_v2.html?redirect=${encodeURIComponent('/for-attorneys/credits')}`;
+    return;
+  }
+
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Redirecting…';
+
+  try {
+    const resp = await fetch(`${PROJECT_URL}/functions/v1/create-credits-checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': ANON_KEY,
+      },
+      body: JSON.stringify({ package_id: packageId }),
+    });
+
+    if (!resp.ok) {
+      const body = await resp.json().catch(() => ({ error: `HTTP ${resp.status}` }));
+      throw new Error(body.error || `HTTP ${resp.status}`);
+    }
+    const { checkout_url } = await resp.json();
+    if (!checkout_url) throw new Error('No checkout URL returned');
+    window.location.href = checkout_url;
+  } catch (err) {
+    console.error('[credits] BUY_FAILED', err);
+    showAlert(`Could not start checkout for ${packageName}: ${err.message}`);
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+(async function init() {
+  await loadPackages();
+
+  const { session } = await getOptionalUser();
+  if (session) {
+    $('navAuth').textContent = 'Sign Out';
+    $('navAuth').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await supabase.auth.signOut();
+      window.location.reload();
+    });
+    $('navDashboard').style.display = 'inline';
+    await loadBalanceAndHistory(session);
+  } else {
+    $('navAuth').setAttribute('href', '/auth_v2.html?redirect=%2Ffor-attorneys%2Fcredits');
+  }
+})();
+</script>
+
+  <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
+</body>
+</html>

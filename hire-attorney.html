@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,13 +72,30 @@
   </script>
 
   <link rel="canonical" href="https://thecompdesk.com/hire-attorney.html">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Phase-2 attorney skin layer. Page palette vars remap to skin tokens. -->
+  <link rel="stylesheet" href="/css/skins.css">
 
   <style>
-    :root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--navy:#1B2A4A;--mono:'JetBrains Mono',monospace;}
+    :root{
+      --bg: var(--skin-surface);
+      --card: var(--skin-surface-elev);
+      --cardA: var(--skin-surface-warm);
+      --bd: var(--skin-divider);
+      --ac: var(--skin-accent);
+      --acG: rgba(232,119,34,0.12);
+      --gd: var(--skin-accent);
+      --gn: #5BC79A;
+      --tx: var(--skin-text);
+      --txD: var(--skin-text-soft);
+      --txM: var(--skin-text-muted);
+      --wh: var(--skin-text);
+      --navy: var(--tcd-navy);
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
     *{margin:0;padding:0;box-sizing:border-box;}
     html{scroll-behavior:smooth;}
-    body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--tx);font-family:var(--font-body, 'DM Sans', system-ui, sans-serif);line-height:1.7;-webkit-font-smoothing:antialiased;}
+    section h2, .hero h1 {font-family: var(--font-display, 'DM Sans', system-ui, sans-serif); letter-spacing: -0.02em;}
     a{color:var(--ac);text-decoration:none;}
     a:hover{text-decoration:underline;}
     .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
@@ -181,25 +198,20 @@
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
+<body class="tcd-skinned">
 
-  <!-- Navigation -->
-  <nav>
-    <div class="inner">
-      <a href="/" class="logo">The Comp <span>Desk</span></a>
-      <div class="links">
-        <a href="/calculators/">Calculators</a>
-        <a href="/tools/learning/">Learn</a>
-        <a href="/hire-attorney.html">Find Attorney</a>
-        <a href="/auth_v2.html" class="cta-btn" style="padding:8px 18px;font-size:13px;">Sign In</a>
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/attorneys">Attorneys</a>
+        <a href="/calculators">Calculators</a>
+        <a href="/workspace-tour">Workspace</a>
+        <a href="/learn">Learn</a>
       </div>
+      <div data-audience-switch></div>
     </div>
   </nav>
-
-  <!-- Breadcrumb -->
-  <div class="breadcrumb">
-    <a href="/">Home</a> &gt; <a href="#how-it-works">Find Attorney</a> &gt; <span>How It Works</span>
-  </div>
 
   <!-- Hero -->
   <section class="hero">
@@ -368,11 +380,15 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <div class="wrap">
-      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved. | <a href="/privacy.html">Privacy Policy</a></p>
-      <p style="margin-top:8px;font-size:11px;color:var(--txM);">The Comp Desk is a directory service only. No attorney-client relationship is created by using this directory. Consult directly with an attorney about your specific legal needs.</p>
+  <footer class="tcd-footer">
+    <div class="wrap" style="flex-direction:column; align-items:center; text-align:center;">
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+      <p style="margin-top:6px; font-size:11px;">The Comp Desk is a directory service only. No attorney-client relationship is created by using this directory. Consult directly with an attorney about your specific legal needs.</p>
+      <p style="margin-top:10px;">
+        <a href="/privacy">Privacy</a>
+        <a href="/contact">Contact</a>
+        <a href="/?replay=1">Replay intro</a>
+      </p>
     </div>
   </footer>
 
@@ -391,5 +407,6 @@
   </script>
 
   <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
 </body>
 </html>

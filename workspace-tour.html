@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,14 +21,28 @@
 
 <link rel="preload" as="video" href="/assets/animations/workspace-tour-hero.mp4" type="video/mp4" fetchpriority="high">
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Phase-2 attorney skin layer. Existing page palette vars are remapped to
+     skin tokens so all the dark-navy chrome + step cards inherit the
+     Workspace skin (orange accent) without rewriting every rule. The
+     light-theme calculator part mockups keep their own --part-* vars. -->
+<link rel="stylesheet" href="/css/skins.css">
 
 <style>
 :root{
-  --bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;
-  --ac:#3b82f6;--acG:rgba(59,130,246,0.12);
-  --gd:#f0a030;--gn:#2dd4a0;--rd:#ef4444;
-  --tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;
+  /* Map original page palette to attorney skin tokens. */
+  --bg: var(--skin-surface);
+  --card: var(--skin-surface-elev);
+  --cardA: var(--skin-surface-warm);
+  --bd: var(--skin-divider);
+  --ac: var(--skin-accent);
+  --acG: rgba(232,119,34,0.12);
+  --gd: var(--skin-accent-soft);
+  --gn: #5BC79A;
+  --rd: #ef4444;
+  --tx: var(--skin-text);
+  --txD: var(--skin-text-soft);
+  --txM: var(--skin-text-muted);
+  --wh: var(--skin-text);
 
   /* Light-theme calculator parts — match the workspace app's light theme. */
   --part-bg:#FBF9F3;
@@ -183,7 +197,7 @@ footer a{color:var(--txD);}
 }
 </style>
 </head>
-<body data-no-brand-bg="true">
+<body class="tcd-skinned" data-no-brand-bg="true">
 
 <!-- Fixed full-bleed background. Higgsfield plays once, freezes on final frame, stays as bg. -->
 <div id="tour-bg" aria-hidden="true">
@@ -195,16 +209,17 @@ footer a{color:var(--txD);}
   </video>
 </div>
 
-<nav>
-  <div class="inner">
-    <a href="/" class="logo">The <span>Comp</span> Desk</a>
-    <div class="links">
-      <a href="/learn">Learn</a>
+<!-- Audience-skinned nav (replaces the legacy nav). -->
+<nav class="tcd-nav" aria-label="Primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+    <div class="tcd-nav-links">
+      <a href="/attorneys">Attorneys</a>
+      <a href="/calculators">Calculators</a>
       <a href="/workspace/">Workspace</a>
-      <a href="/for-attorneys" style="color:var(--gd);font-weight:700;">For Attorneys</a>
-      <a href="/auth_v2.html" class="cta-btn" id="nav-auth">Sign In</a>
-      <a href="/account.html" class="cta-btn" id="nav-account" style="display:none;">My Account</a>
+      <a href="/subscribe">Subscribe</a>
     </div>
+    <div data-audience-switch></div>
   </div>
 </nav>
 
@@ -371,5 +386,6 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 </script>
 
   <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
 </body>
 </html>
