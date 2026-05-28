@@ -114,8 +114,44 @@ body.no-skyline-bg .workspace-wash {
 }
 .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 
-/* Stylized SLU UI mock — placeholder cinematic hero */
+/* Cinematic hero rotation — 5 stylized product compositions cross-fade.
+   Replaces the CSS-built SLU mock 2026-05-28 with the Higgsfield set
+   (SLU, fee equation, radiculopathy, LWEC, dashboard). */
+.hero-rotate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(232,119,34,0.12);
+  background: linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
+}
+.hero-rotate img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: hero-rotate-cycle 30s ease-in-out infinite;
+  animation-delay: calc(var(--n, 0) * -6s);
+}
+@keyframes hero-rotate-cycle {
+  0%, 3%    { opacity: 0; transform: scale(1.02); }
+  10%, 20%  { opacity: 1; transform: scale(1); }
+  27%, 100% { opacity: 0; transform: scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rotate img { opacity: 0; animation: none; transform: none; }
+  .hero-rotate img:first-of-type { opacity: 1; }
+}
+
+/* Legacy CSS UI mock — kept hidden as a graceful fallback if the
+   image CDN goes down. */
 .ui-mock {
+  display: none;
   position: relative;
   background: linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
   border: 1px solid rgba(240,235,224,0.10);
@@ -502,18 +538,20 @@ body.no-skyline-bg .workspace-wash {
         </div>
       </div>
 
-      <div class="ui-mock" aria-hidden="true">
-        <div class="ui-head"><span><span class="dot"></span>SLU CALCULATOR · LEG</span><span>v2.4</span></div>
-        <div class="ui-grid">
-          <div class="field"><div class="label">Body part</div><div class="value">Right leg</div></div>
-          <div class="field"><div class="label">% Loss</div><div class="value">35%</div></div>
-          <div class="field"><div class="label">AWW</div><div class="value">$1,242.50</div></div>
-          <div class="field"><div class="label">Weeks</div><div class="value">288</div></div>
-        </div>
-        <div class="ui-result">
-          <span class="label">Total SLU Award</span>
-          <span class="value">$238,557.60</span>
-        </div>
+      <!-- Cinematic hero rotation — 5 Higgsfield product visualizations
+           cross-fade on a 30s loop (6s offset per image). Replaces the
+           CSS-built SLU mock 2026-05-28. -->
+      <div class="hero-rotate" aria-hidden="true">
+        <img style="--n:0;" loading="eager" decoding="async" alt=""
+             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171027_7e8bd2a5-74d9-4fcb-87af-832e8597e0f0_min.webp">
+        <img style="--n:1;" loading="lazy" decoding="async" alt=""
+             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181654_d9d20299-e54f-49c7-805e-1885e1cd70b9_min.webp">
+        <img style="--n:2;" loading="lazy" decoding="async" alt=""
+             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181657_2e4c5196-a014-4c04-a562-71e4d60ffdc3_min.webp">
+        <img style="--n:3;" loading="lazy" decoding="async" alt=""
+             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181701_f45beeab-8f9d-4a82-b807-d9813c0bb30a_min.webp">
+        <img style="--n:4;" loading="lazy" decoding="async" alt=""
+             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181704_57b383eb-3fd9-4301-ab1a-243de000a7dd_min.webp">
       </div>
     </div>
   </section>

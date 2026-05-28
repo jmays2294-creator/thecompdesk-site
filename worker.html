@@ -118,7 +118,7 @@
   width: 64%;
   height: 64%;
 }
-.occ-loop svg {
+.occ-loop > * {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -126,16 +126,31 @@
   opacity: 0;
   animation: occ-loop 32s ease-in-out infinite;
   animation-delay: calc(var(--n, 0) * -4s);
-  filter: drop-shadow(0 8px 24px rgba(232,119,34,0.18));
 }
+.occ-loop img {
+  object-fit: cover;
+  border-radius: 50%;
+  filter: drop-shadow(0 12px 36px rgba(232,119,34,0.22));
+}
+/* SVG icons are kept in the markup as a graceful no-CDN fallback, but
+   hidden by default while the photographic loop runs. They surface in
+   reduced-motion mode (one symbolic shape, no animation). */
+.occ-loop svg { display: none; }
 @keyframes occ-loop {
   0%, 4%    { opacity: 0; transform: scale(0.94); }
   10%, 18%  { opacity: 0.95; transform: scale(1); }
   24%, 100% { opacity: 0; transform: scale(1.05); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .occ-loop svg { opacity: 0 !important; animation: none !important; transform: none !important; }
-  .occ-loop svg:first-of-type { opacity: 0.95 !important; }
+  .occ-loop img { display: none; }
+  .occ-loop svg {
+    display: block;
+    opacity: 0;
+    animation: none;
+    transform: none;
+    filter: drop-shadow(0 8px 24px rgba(232,119,34,0.18));
+  }
+  .occ-loop svg:first-of-type { opacity: 0.95; }
 }
 
 /* Disclaimer strip (kept — important legal) */
@@ -449,11 +464,28 @@
       <div class="hero-art" aria-hidden="true">
         <div class="still-life">
           <!-- Occupation loop — 8 industries where injured NY workers
-               come from. The single hard hat was a stand-in; this honors
-               the full range of people who walk through the door.
-               Cross-fades on a 32s slow editorial loop. -->
+               come from. Photographic still-lifes generated 2026-05-28 via
+               Higgsfield. Same 32s slow editorial cross-fade as before.
+               (Symbolic SVG icons below kept as the prefers-reduced-motion
+               fallback and as an extra safety net if any image fails.) -->
           <div class="occ-loop">
-            <!-- 1. Construction — hard hat -->
+            <img style="--n:0;" loading="eager" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_170142_db23cf46-e43d-4e66-9476-4c7d3c9c30e1_min.webp">
+            <img style="--n:1;" loading="lazy" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171008_9d9fe8b8-acb1-412a-a196-f4cbb53205ec_min.webp">
+            <img style="--n:2;" loading="lazy" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171010_dd2a0a19-cd70-4d92-8403-825c9009b12a_min.webp">
+            <img style="--n:3;" loading="lazy" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171012_bf148661-4dec-4f4c-aaa4-2f6e4f6fc398_min.webp">
+            <img style="--n:4;" loading="lazy" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171015_01d8a49f-f14b-470b-af27-2578ed29b0be_min.webp">
+            <img style="--n:5;" loading="lazy" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171017_9e0ae522-36ca-4dc4-b8d2-f22471a9fbd0_min.webp">
+            <img style="--n:6;" loading="lazy" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171021_c2393620-eafe-4a8d-82d8-6c01c635e412_min.webp">
+            <img style="--n:7;" loading="lazy" decoding="async" alt=""
+                 src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171023_40922841-9e76-4d10-b908-2adf4117f100_min.webp">
+            <!-- 1. Construction — hard hat (fallback SVG) -->
             <svg style="--n:0;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
               <defs><linearGradient id="wh-g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E87722"/><stop offset="1" stop-color="#C85F0F"/></linearGradient></defs>
               <ellipse cx="100" cy="142" rx="78" ry="14" fill="url(#wh-g1)"/>
