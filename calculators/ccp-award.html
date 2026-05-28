@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +34,7 @@
 
   <link rel="canonical" href="https://thecompdesk.com/calculators/ccp-award.html">
   <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="/css/skins.css">
   <style>
     /* Period row layout */
     .period-row {
@@ -211,8 +212,19 @@
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
-  <div id="app-nav"></div>
+<body class="tcd-skinned" data-no-brand-bg="true">
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/attorneys">Attorneys</a>
+        <a href="/calculators">Calculators</a>
+        <a href="/workspace-tour">Workspace</a>
+        <a href="/learn">Learn</a>
+      </div>
+      <div data-audience-switch></div>
+    </div>
+  </nav>
 
   <div class="container">
     <div class="breadcrumb">
@@ -265,34 +277,8 @@
             </div>
             <span class="field-hint" id="maxRateHint">Current: $1,222.42 (Jul 1, 2025)</span>
           </div>
-          <div class="field-group">
-            <label class="field-label">Statutory Min Rate (DOA)</label>
-            <div class="field-wrap">
-              <span class="field-prefix">$</span>
-              <input type="text" id="minRateDisplay" value="—" readonly
-                     style="background:var(--bgM);color:var(--tx);"
-                     aria-label="Statutory minimum weekly rate for date of accident">
-            </div>
-            <span class="field-hint" id="minRateHint">Floors benefit under WCL §204</span>
-          </div>
         </div>
 
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════
-         MINIMUM RATE REFERENCE
-    ═══════════════════════════════════════════ -->
-    <div class="calc-section">
-      <div class="calc-header"><span class="calc-header-title">NYS Statutory Minimum Rate Schedule (WCL §204)</span></div>
-      <div class="calc-body">
-        <p style="color:var(--txD);font-size:13px;margin-bottom:10px;">The weekly benefit rate cannot fall below the statutory minimum for the date of injury. If 2/3 AWW is below the minimum, the rate is raised to the minimum — unless the claimant's AWW is itself lower than the minimum, in which case the rate equals the full AWW. This calculator applies that floor automatically to all TT/RE/TR computations.</p>
-        <div style="overflow-x:auto;">
-          <table class="data-table">
-            <thead><tr><th>Period</th><th>Min Weekly Rate</th><th>Notes</th></tr></thead>
-            <tbody id="minRatesTableBody"></tbody>
-          </table>
-        </div>
       </div>
     </div>
 
@@ -571,16 +557,6 @@
       { s: "1985-07-01", e: "2007-06-30", l: "Jul 1, 1985 – Jun 30, 2007", max: 400.00  },
     ];
 
-    // ─── Statutory MIN rates (NYS WCL §204) — mirrors mobile app MIN_RATES ───
-    const MIN_RATES = [
-      { s:"2026-07-01", e:"2099-12-31", l:"Jul 1, 2026+",                 min:null, n:"1/5 NYSAWW (indexed)" },
-      { s:"2025-01-01", e:"2026-06-30", l:"Jan 1, 2025 – Jun 30, 2026",   min:325,  n:"" },
-      { s:"2024-01-01", e:"2024-12-31", l:"Jan 1, 2024 – Dec 31, 2024",   min:275,  n:"" },
-      { s:"2013-05-01", e:"2023-12-31", l:"May 1, 2013 – Dec 31, 2023",   min:150,  n:"" },
-      { s:"2007-07-01", e:"2013-04-30", l:"Jul 1, 2007 – Apr 30, 2013",   min:100,  n:"2007 Reform" },
-      { s:"1900-01-01", e:"2007-06-30", l:"Before Jul 1, 2007",           min:40,   n:"Pre-reform" },
-    ];
-
     const DESIGS = ['TT', 'RE', 'TR', 'TP', 'NCLT', 'NME'];
 
     // ─── State ───
@@ -611,36 +587,12 @@
       return MAX_RATES[MAX_RATES.length - 1];
     }
 
-    function getMinForDate(dateStr) {
-      if (!dateStr) return MIN_RATES[0];
-      const dt = new Date(dateStr + 'T00:00:00');
-      for (const r of MIN_RATES) {
-        const s = new Date(r.s + 'T00:00:00');
-        const e = new Date(r.e + 'T23:59:59');
-        if (dt >= s && dt <= e) return r;
-      }
-      return null;
-    }
-
     function getAWW()     { return pF(document.getElementById('awwInput').value); }
     function getMaxRate() { return pF(document.getElementById('maxRateInput').value); }
-    function getMinRate() {
-      const doa = document.getElementById('doaDate').value;
-      const r = getMinForDate(doa);
-      return r && r.min ? r.min : 0;
-    }
-    // Apply statutory floor (WCL §204): if 2/3 AWW < min, raise to min;
-    // but if AWW < min, benefit equals AWW (can't pay more than earned).
-    function applyMinFloor(rate, aww, minR) {
-      if (minR > 0 && rate < minR) return Math.min(minR, aww);
-      return rate;
-    }
     function getCappedTT() {
-      const aww = getAWW();
-      const tt = aww * 2 / 3;
+      const tt = getAWW() * 2 / 3;
       const mx = getMaxRate();
-      const capped = mx > 0 ? Math.min(tt, mx) : tt;
-      return applyMinFloor(capped, aww, getMinRate());
+      return mx > 0 ? Math.min(tt, mx) : tt;
     }
 
     // ─── Compute rate for a period based on designation ───
@@ -657,13 +609,10 @@
       const cappedTT = getCappedTT();
       const aww = getAWW();
       const mx = getMaxRate();
-      const mn = getMinRate();
       const tt23 = aww * 2 / 3;
       const capped = mx > 0 && tt23 > mx;
-      const floored = mn > 0 && tt23 < mn;
       let text = fC(cappedTT) + '/wk';
       if (capped) text += '  (2/3 AWW ' + fC(tt23) + ' → capped at ' + fC(mx) + ')';
-      else if (floored) text += '  (2/3 AWW ' + fC(tt23) + ' → floored at min ' + fC(mn) + (aww<mn?' · capped at AWW '+fC(aww):'') + ')';
       else text += '  (2/3 × ' + fC(aww) + ' = ' + fC(tt23) + ')';
       document.getElementById('ttRateDisplay').textContent = text;
     }
@@ -1098,27 +1047,8 @@
           'Max for DOA: $' + entry.max.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
           ' (' + entry.l + ')';
       }
-      updateMinRateDisplay();
       renderPeriods(); calculate();
     });
-
-    function updateMinRateDisplay() {
-      const m = getMinForDate(document.getElementById('doaDate').value);
-      const el = document.getElementById('minRateDisplay');
-      const hint = document.getElementById('minRateHint');
-      if (!m) { el.value = '—'; return; }
-      el.value = m.min ? m.min.toFixed(2) : 'Indexed';
-      hint.textContent = (m.min ? '$'+m.min.toFixed(2) : 'Indexed (1/5 NYSAWW)') + ' — ' + m.l + (m.n ? ' · '+m.n : '');
-    }
-    function buildMinRatesTable() {
-      const tbody = document.getElementById('minRatesTableBody');
-      if (!tbody) return;
-      MIN_RATES.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.l}</td><td style="font-family:var(--mono);">${r.min?fC(r.min):'Indexed'}</td><td style="color:var(--txM);font-size:11px;">${r.n||''}</td>`;
-        tbody.appendChild(tr);
-      });
-    }
     document.getElementById('ccpAmount').addEventListener('input', calculate);
     document.getElementById('priorPayments').addEventListener('input', calculate);
 
@@ -1140,14 +1070,11 @@
       currentUser = await getOptionalUser();
       renderPublicNav(currentUser);
       initFeeAppPaywall(currentUser);
-      buildMinRatesTable();
-      updateMinRateDisplay();
       renderPeriods();
       calculate();
     });
   </script>
-<script src="/js/disclaimer.js" defer></script>
-<script defer src="/_vercel/insights/script.js"></script>
   <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
 </body>
 </html>

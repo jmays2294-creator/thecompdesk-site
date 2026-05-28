@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,14 +12,20 @@
   <meta property="og:url" content="https://thecompdesk.com/calculators/slu.html">
   <meta property="og:image" content="https://thecompdesk.com/images/og-slu.png">
 
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Schedule Loss of Use (SLU) Calculator — NYS Workers' Comp">
+  <meta name="twitter:description" content="Free calculator for NYS Schedule Loss of Use benefits under WCL §15(3). Calculate SLU awards instantly.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-slu.png">
+
   <!-- JSON-LD: WebApplication -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "NYS Schedule Loss of Use Calculator",
+    "name": "NYS SLU Calculator",
     "url": "https://thecompdesk.com/calculators/slu.html",
-    "description": "Calculate Schedule Loss of Use (SLU) awards under NYS Workers' Compensation Law §15(3). Enter body part, degree of disability, DOI year, and weekly rate to compute your SLU benefit.",
+    "description": "Free NYS Schedule Loss of Use (SLU) calculator under WCL §15(3). Includes prior award deductions, attorney fee, and net to claimant.",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -28,12 +34,24 @@
 
   <link rel="canonical" href="https://thecompdesk.com/calculators/slu.html">
   <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="/css/skins.css">
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
-  <div id="app-nav"></div>
+<body class="tcd-skinned" data-no-brand-bg="true">
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/attorneys">Attorneys</a>
+        <a href="/calculators">Calculators</a>
+        <a href="/workspace-tour">Workspace</a>
+        <a href="/learn">Learn</a>
+      </div>
+      <div data-audience-switch></div>
+    </div>
+  </nav>
 
   <div class="container">
     <div class="breadcrumb">
@@ -509,8 +527,7 @@
     .result-row-label { color: var(--txD); }
     .result-row-val { font-family: var(--mono); color: var(--tx); font-weight: 600; }
   </style>
-<script src="/js/disclaimer.js" defer></script>
-<script defer src="/_vercel/insights/script.js"></script>
   <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
 </body>
 </html>

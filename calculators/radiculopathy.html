@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="attorney">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
     "@type": "WebApplication",
     "name": "NYS Radiculopathy Calculator",
     "url": "https://thecompdesk.com/calculators/radiculopathy.html",
-    "description": "Calculate radiculopathy add-on values for NYS Workers' Compensation schedule loss of use awards. EMG-confirmed deficits and clinical findings computation.",
+    "description": "Free NYS radiculopathy calculator using the 2012 Impairment Guidelines point system (Tables S11.4–S11.7).",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -29,6 +29,7 @@
   </script>
   <link rel="canonical" href="https://thecompdesk.com/calculators/radiculopathy.html">
   <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="/css/skins.css">
   <style>
     :root{--bg:#1a1a2e;--card:rgba(255,255,255,0.08);--cardA:rgba(255,255,255,0.05);--bd:rgba(255,255,255,0.12);--ac:#4CAF50;--acG:rgba(76,175,80,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#e0e0e0;--txD:#b0b0b0;--txM:#888;--wh:#fff;--mono:'JetBrains Mono',monospace;--red:#ef4444;}
 
@@ -123,8 +124,19 @@
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>
 </head>
-<body>
-  <div id="app-nav"></div>
+<body class="tcd-skinned" data-no-brand-bg="true">
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/attorneys">Attorneys</a>
+        <a href="/calculators">Calculators</a>
+        <a href="/workspace-tour">Workspace</a>
+        <a href="/learn">Learn</a>
+      </div>
+      <div data-audience-switch></div>
+    </div>
+  </nav>
 
   <div class="container">
     <div class="breadcrumb">
@@ -665,7 +677,7 @@
       recalculate();
     });
   </script>
-<script defer src="/_vercel/insights/script.js"></script>
   <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
 </body>
 </html>
