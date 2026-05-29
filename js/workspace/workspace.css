@@ -758,6 +758,122 @@ html body[data-theme] .beta-banner {
 .tt-display .sep { color: var(--tx-faint); font-size: 13px; }
 .tt-display .slu { font-family: var(--mono); font-size: 14px; color: var(--tx); }
 
+/* ────────────────────────────────────────────────────────────────────
+   AWW-row extras: "Common rates" quick list + Today/Deadline calc.
+   Full-width row inside the .aww-fields grid. Theme-matched via the same
+   --tile / --bd / --ac tokens the rest of the strip uses, so it inherits
+   onyx/eggshell/aurora and every team theme automatically.
+   ──────────────────────────────────────────────────────────────────── */
+.aww-extras {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: stretch;
+  margin-top: 4px;
+}
+.common-rates {
+  flex: 1 1 440px;
+  min-width: 0;
+  background: var(--tile-2);
+  border: 1px solid var(--bd-soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.common-rates .ce-label {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tx-faint);
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.common-rates .ce-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--tx-faint);
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.85;
+}
+.rate-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.rate-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--tile);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+.rate-chip .rc-pct {
+  font-size: 10px;
+  color: var(--tx-dim);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.rate-chip .rc-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ac-2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rate-chip .rc-wk {
+  font-size: 9px;
+  color: var(--tx-faint);
+  font-weight: 500;
+  margin-left: 1px;
+}
+.deadline-tool {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  background: var(--tile-2);
+  border: 1px solid var(--bd-soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.deadline-tool .dt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.deadline-tool .dt-readout {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--tx);
+  background: var(--tile);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+.deadline-tool .dt-deadline {
+  color: var(--ac-2);
+  font-weight: 600;
+  border-color: var(--ac);
+  background: var(--ac-soft);
+}
+.deadline-tool .dt-select {
+  padding-right: 26px;
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .rate-chips { grid-template-columns: repeat(2, 1fr); }
+  .deadline-tool { flex-wrap: wrap; align-items: stretch; }
+  .deadline-tool .dt-field { flex: 1 1 30%; }
+}
+
 .method-badge {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 8px; border: 1px solid var(--bd);

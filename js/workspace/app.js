@@ -24,6 +24,26 @@ const CANVAS_PAD = 10;
 // currently-active theme is "one of these" so the dropdown can echo it.
 const EXTRA_THEMES = new Set(['knicks', 'yankees', 'mets', 'heat', 'bills']);
 
+// Degree-of-disability percentages for the AWW strip "Common rates" quick list.
+// Each row's weekly rate = (2/3 × AWW) × pct, then bounded by the DOI statutory
+// max cap + min floor via applyRateBounds() (the same helper every award tile
+// uses). 66⅔% (200/3) is the full-TT fraction; 100% returns the uncapped-here
+// 2/3-AWW rate (still bounded by the statutory max/min). Recomputed on any AWW
+// or DOI change.
+const COMMON_RATE_PCTS = [
+  { label: '25%',   v: 25 },
+  { label: '50%',   v: 50 },
+  { label: '62.5%', v: 62.5 },
+  { label: '66⅔%',  v: 200 / 3 },
+  { label: '67.5%', v: 67.5 },
+  { label: '75%',   v: 75 },
+  { label: '87.5%', v: 87.5 },
+  { label: '100%',  v: 100 },
+];
+
+// Day-count options for the AWW strip "Deadline" quick-calc dropdown.
+const DEADLINE_DAY_OPTIONS = [10, 15, 30, 45, 60, 75, 90];
+
 // ============================================================================
 // SECTION 1 — AWW COMPUTATION (Task 1)
 // ============================================================================
@@ -200,6 +220,29 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
   const displayMin = awwOverride ? state.aww : (computed.minRate || 0);
   const badge = methodBadge(state.method, state.daysWeek);
 
+  // ── Common rates quick-list (degree-of-disability rate table) ──────────────
+  // Each row = (2/3 × AWW) × disability%, bounded by the DOI statutory max cap
+  // and min floor via applyRateBounds() — the universal helper every award tile
+  // uses. Recomputes on any AWW or DOI change (DOI flows in through
+  // computed.minRate / computed.maxRate).
+  const commonRates = useMemo(() => COMMON_RATE_PCTS.map(p => ({
+    label: p.label,
+    rate: applyRateBounds(state.aww * (2 / 3) * (p.v / 100), state.aww, computed.minRate, computed.maxRate),
+  })), [state.aww, computed.minRate, computed.maxRate]);
+
+  // ── Today / Deadline quick-calc ────────────────────────────────────────────
+  // Today is always the user's current date (read-only). Deadline = Today + N
+  // CALENDAR days, counting from the day AFTER today — so N=10 from a Monday
+  // lands on the following Thursday (Monday + 10 calendar days). Building the
+  // date as new Date(y, m, d + N) at local midnight handles month rollover and
+  // avoids any timezone off-by-one. N is a local scratch value (not saved case
+  // data), defaulting to 30.
+  const [deadlineDays, setDeadlineDays] = useState(30);
+  const _today = new Date();
+  const today = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate());
+  const deadlineDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + deadlineDays);
+  const fmtCalDate = (d) => d.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+
   // Re-compute preview whenever wizard inputs change (only while open)
   const wizardKey = JSON.stringify({
     method: state.method,
@@ -334,6 +377,44 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
             <div className="method-badge" tabIndex="0">
               {badge.badge}
               <div className="tooltip"><strong>AWW Method</strong>{badge.tip}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* AWW-row extras: Common rates quick list + Today/Deadline calc.
+            Full-width row inside the .aww-fields grid (grid-column 1/-1). */}
+        <div className="aww-extras">
+          <div className="common-rates">
+            <div className="ce-label">
+              Common rates <span className="ce-hint">⅔ AWW × disability % · DOI-bounded</span>
+            </div>
+            <div className="rate-chips">
+              {commonRates.map(r => (
+                <div className="rate-chip" key={r.label}>
+                  <span className="rc-pct">{r.label}</span>
+                  <span className="rc-val">{fmt$(r.rate)}<span className="rc-wk">/wk</span></span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="deadline-tool">
+            <div className="dt-field">
+              <label className="f-label">Today</label>
+              <div className="dt-readout">{fmtCalDate(today)}</div>
+            </div>
+            <div className="dt-field">
+              <label className="f-label">Term</label>
+              <select className="f-input dt-select" value={deadlineDays}
+                onChange={e => setDeadlineDays(Number(e.target.value))}
+                title="Calendar days, counting from the day after today">
+                {DEADLINE_DAY_OPTIONS.map(n => (
+                  <option key={n} value={n}>{n} days</option>
+                ))}
+              </select>
+            </div>
+            <div className="dt-field">
+              <label className="f-label">Deadline</label>
+              <div className="dt-readout dt-deadline">{fmtCalDate(deadlineDate)}</div>
             </div>
           </div>
         </div>
