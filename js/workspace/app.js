@@ -43,6 +43,7 @@ const TEAM_THEMES = [
 // or DOI change.
 const COMMON_RATE_PCTS = [
   { label: '25%',   v: 25 },
+  { label: '33⅓%',  v: 100 / 3 },
   { label: '50%',   v: 50 },
   { label: '62.5%', v: 62.5 },
   { label: '66⅔%',  v: 200 / 3 },

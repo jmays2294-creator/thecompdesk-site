@@ -769,7 +769,10 @@ html body[data-theme] .beta-banner {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 28px;
-  align-items: baseline;
+  /* flex-end so the single-line Today/Term/Deadline row drops to sit in line
+     with the rate values (the last line of .common-rates) rather than baseline-
+     aligning to the "Common rates" label above them. */
+  align-items: flex-end;
   margin-top: 2px;
 }
 /* Boxless: common rates render as a single inline run, ~12% smaller. */
