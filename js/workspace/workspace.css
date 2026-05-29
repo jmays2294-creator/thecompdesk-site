@@ -768,111 +768,157 @@ html body[data-theme] .beta-banner {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  align-items: stretch;
-  margin-top: 4px;
+  gap: 6px 28px;
+  align-items: baseline;
+  margin-top: 2px;
 }
+/* Boxless: common rates render as a single inline run, ~12% smaller. */
 .common-rates {
-  flex: 1 1 440px;
+  flex: 1 1 460px;
   min-width: 0;
-  background: var(--tile-2);
-  border: 1px solid var(--bd-soft);
-  border-radius: 8px;
-  padding: 10px 12px;
 }
 .common-rates .ce-label {
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-size: 9px;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--tx-faint);
   font-weight: 600;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
+  margin-right: 14px;
 }
 .common-rates .ce-hint {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--tx-faint);
   letter-spacing: 0;
   text-transform: none;
-  opacity: 0.85;
+  opacity: 0.8;
 }
 .rate-chips {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px 15px;
+  align-items: baseline;
 }
 .rate-chip {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  background: var(--tile);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  padding: 5px 8px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
 }
 .rate-chip .rc-pct {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--tx-dim);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 .rate-chip .rc-val {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 11.5px;
   color: var(--ac-2);
   font-weight: 600;
   white-space: nowrap;
 }
 .rate-chip .rc-wk {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--tx-faint);
   font-weight: 500;
   margin-left: 1px;
 }
+/* Boxless: Today / Term / Deadline lined up inline. */
 .deadline-tool {
   flex: 0 0 auto;
   display: flex;
-  gap: 10px;
-  align-items: flex-end;
-  background: var(--tile-2);
-  border: 1px solid var(--bd-soft);
-  border-radius: 8px;
-  padding: 10px 12px;
+  gap: 16px;
+  align-items: baseline;
 }
 .deadline-tool .dt-field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.deadline-tool .dt-field .f-label {
+  font-size: 9px;
 }
 .deadline-tool .dt-readout {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 11.5px;
   color: var(--tx);
-  background: var(--tile);
-  border: 1px solid var(--bd);
-  border-radius: 6px;
-  padding: 8px 10px;
   white-space: nowrap;
 }
 .deadline-tool .dt-deadline {
   color: var(--ac-2);
   font-weight: 600;
-  border-color: var(--ac);
-  background: var(--ac-soft);
 }
 .deadline-tool .dt-select {
-  padding-right: 26px;
+  font-size: 11.5px;
+  padding: 2px 22px 2px 7px;
   cursor: pointer;
 }
 @media (max-width: 760px) {
-  .rate-chips { grid-template-columns: repeat(2, 1fr); }
-  .deadline-tool { flex-wrap: wrap; align-items: stretch; }
-  .deadline-tool .dt-field { flex: 1 1 30%; }
+  .aww-extras { gap: 8px 16px; }
+  .deadline-tool { flex-wrap: wrap; }
 }
+
+/* Theme cluster — onyx/eggshell/aurora pills with a "More themes" button
+   stacked directly beneath them; the button toggles a small team-theme menu. */
+.theme-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: stretch;
+}
+.more-themes {
+  position: relative;
+}
+.more-themes-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--tile);
+  border: 1px solid var(--bd);
+  color: var(--tx-dim);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 120ms, color 120ms;
+}
+.more-themes-btn:hover { border-color: var(--ac); color: var(--tx); }
+.more-themes-btn.active { border-color: var(--ac); color: var(--ac-2); }
+.more-themes-btn .chev { font-size: 9px; }
+.more-themes-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 60;
+  min-width: 170px;
+  background: var(--tile);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.more-themes-menu button {
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--tx);
+  padding: 6px 9px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.more-themes-menu button:hover { background: var(--ac-soft); }
+.more-themes-menu button.active { background: var(--ac-soft); color: var(--ac-2); font-weight: 600; }
 
 .method-badge {
   display: inline-flex; align-items: center; gap: 6px;

@@ -24,6 +24,17 @@ const CANVAS_PAD = 10;
 // currently-active theme is "one of these" so the dropdown can echo it.
 const EXTRA_THEMES = new Set(['knicks', 'yankees', 'mets', 'heat', 'bills']);
 
+// Team theme variants surfaced by the "More themes" button under the
+// onyx/eggshell/aurora pills. Values must match the EXTRA_THEMES set above
+// and the [data-theme="…"] token blocks in workspace.css.
+const TEAM_THEMES = [
+  { v: 'knicks',  label: 'New York Knicks' },
+  { v: 'yankees', label: 'New York Yankees' },
+  { v: 'mets',    label: 'New York Mets' },
+  { v: 'heat',    label: 'Miami Heat' },
+  { v: 'bills',   label: 'Buffalo Bills' },
+];
+
 // Degree-of-disability percentages for the AWW strip "Common rates" quick list.
 // Each row's weekly rate = (2/3 × AWW) × pct, then bounded by the DOI statutory
 // max cap + min floor via applyRateBounds() (the same helper every award tile
@@ -238,6 +249,16 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
   // avoids any timezone off-by-one. N is a local scratch value (not saved case
   // data), defaulting to 30.
   const [deadlineDays, setDeadlineDays] = useState(30);
+  // "More themes" menu open/close, with outside-click + Escape to dismiss.
+  const [moreThemesOpen, setMoreThemesOpen] = useState(false);
+  useEffect(() => {
+    if (!moreThemesOpen) return;
+    const onDown = (e) => { if (!e.target.closest('.more-themes')) setMoreThemesOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setMoreThemesOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [moreThemesOpen]);
   const _today = new Date();
   const today = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate());
   const deadlineDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + deadlineDays);
@@ -306,10 +327,34 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
               : saveStatus === 'offline' ? 'Offline'
               : 'Saved'}
           </div>
-          <div className="theme-switch">
-            {['onyx','eggshell','aurora'].map(t => (
-              <button key={t} className={themeName === t ? 'active' : ''} onClick={() => setTheme(t)}>{t.toUpperCase()}</button>
-            ))}
+          <div className="theme-cluster">
+            <div className="theme-switch">
+              {['onyx','eggshell','aurora'].map(t => (
+                <button key={t} className={themeName === t ? 'active' : ''} onClick={() => setTheme(t)}>{t.toUpperCase()}</button>
+              ))}
+            </div>
+            {/* "More themes" — sports/anime team variants beyond the three
+                primary pills. A button that toggles a small menu, sitting
+                directly under the onyx/eggshell/aurora toggles. */}
+            <div className="more-themes">
+              <button type="button"
+                className={'more-themes-btn ' + (EXTRA_THEMES.has(themeName) ? 'active' : '')}
+                aria-expanded={moreThemesOpen}
+                onClick={() => setMoreThemesOpen(o => !o)}>
+                {EXTRA_THEMES.has(themeName)
+                  ? (TEAM_THEMES.find(t => t.v === themeName) || {}).label
+                  : 'More themes'} <span className="chev">▾</span>
+              </button>
+              {moreThemesOpen && (
+                <div className="more-themes-menu">
+                  {TEAM_THEMES.map(t => (
+                    <button key={t.v} type="button"
+                      className={themeName === t.v ? 'active' : ''}
+                      onClick={() => { setTheme(t.v); setMoreThemesOpen(false); }}>{t.label}</button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -417,25 +462,6 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
               <div className="dt-readout dt-deadline">{fmtCalDate(deadlineDate)}</div>
             </div>
           </div>
-        </div>
-        {/* "More Themes" dropdown — sports/anime variants beyond the
-            three primary onyx/eggshell/aurora pills. Sits where the
-            duplicate §14 citation used to render; the method-badge above
-            still shows the active citation on hover. */}
-        <div className="more-themes-row">
-          <label htmlFor="more-themes-select" className="more-themes-label">More Themes</label>
-          <select
-            id="more-themes-select"
-            className="more-themes-select"
-            value={EXTRA_THEMES.has(themeName) ? themeName : ''}
-            onChange={e => setTheme(e.target.value || 'eggshell')}>
-            <option value="">— pick a team theme —</option>
-            <option value="knicks">New York Knicks</option>
-            <option value="yankees">New York Yankees</option>
-            <option value="mets">New York Mets</option>
-            <option value="heat">Miami Heat</option>
-            <option value="bills">Buffalo Bills</option>
-          </select>
         </div>
         <button className={'expand-toggle ' + (open ? 'open' : '')} onClick={() => setOpen(!open)}>
           Configure AWW <span className="chev">▾</span>
