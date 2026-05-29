@@ -5,6 +5,24 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-05-29
+
+### Statutory rate update — Max $1,281.50 / Min $384.45 for DOI 7/1/2026 – 6/30/2027 (Subject No. 046-1805)
+
+Per NYS WCB **Subject No. 046-1805** (issued April 16, 2026): the NYS Average Weekly Wage for CY2025 is **$1,922.25**, so for dates of injury from **July 1, 2026 through June 30, 2027** the maximum weekly benefit rate is **$1,281.50** (2/3 NYSAWW) and the minimum is **$384.45** (1/5 NYSAWW). Loaded ahead of the July 1 effective date so every calculator is correct the moment a 2026–27 DOI is entered.
+
+- **MAX_RATES** (every calculator + shared engine): capped the prior open-ended $1,222.42 row at `e:"2026-06-30"` and added a new top row `{ s:"2026-07-01", e:"2099-12-31", l:"Jul 1, 2026+", max:1281.50 }`.
+- **MIN_RATES**: set the 2026-07-01 row to `min:384.45` (`"1/5 NYSAWW (2025)"`), capped at `e:"2027-06-30"`; added a new top indexed row `{ s:"2027-07-01", min:null, n:"1/5 NYSAWW (indexed)" }` (the Jul 2027 min re-indexes off the CY2026 NYSAWW, not yet published).
+- **Tooltip/source link** added on the Max/Min rate labels → the Subject No. 046-1805 page (opens in a new tab), themed with `var(--ac)`.
+
+**Surfaces:** `js/ny-rate-table.mjs` (shared engine behind benefit-rate.html + aww-share.html — MAX + MIN), `js/aww-engine.mjs` (DOI-unknown fallback $1,222.42 → $1,281.50), `calculators/{rates,slu,lwec,ccp-award,spine-brain,aww}.html` (MAX_RATES table + default input + "current max" hint + empty-field `|| 1222.42` fallback → `1281.50`), `settlement-calculator.html` (default comp-rate input + placeholder), `js/workspace/constants.js` (workspace MAX/MIN tables).
+
+**Verification:** all MAX tables resolve a 7/15/2026 DOI → $1,281.50 and 6/30/2026 → $1,222.42; MIN tables → $384.45 / $325 / indexed (2027). `node --test js/benefit-rate-engine.test.mjs` 26/26 and `js/aww-engine.test.mjs` 42/42 green (the forward-looking 2026-07-01 assertion was updated to the new rates). Figures reconciled against the live WCB Subject No. 046-1805 page.
+
+**Files**: `js/ny-rate-table.mjs`, `js/aww-engine.mjs`, `js/benefit-rate-engine.test.mjs`, `js/workspace/constants.js`, `calculators/rates.html`, `calculators/slu.html`, `calculators/lwec.html`, `calculators/ccp-award.html`, `calculators/spine-brain.html`, `calculators/aww.html`, `settlement-calculator.html`, `changelog.md`.
+
+---
+
 ## 2026-05-26
 
 ### Workspace — CCP Award Builder → OC-400.1: Increase box now fires alongside Continuation

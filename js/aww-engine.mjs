@@ -171,7 +171,7 @@ export function calculateAWW(inputs) {
 
   const maxRec = getMaxForDate(doi);
   const minRec = getMinForDate(doi);
-  const maxRate = maxRec ? maxRec.max : 1222.42;
+  const maxRate = maxRec ? maxRec.max : 1281.50;
   const minRate = (minRec && minRec.min != null) ? minRec.min : null;
 
   const awwFinal  = r2(adjustedAWW);

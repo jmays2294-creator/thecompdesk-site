@@ -78,7 +78,7 @@
         <!-- Result -->
         <div class="result-box">
           <div class="result-item" style="margin-bottom:10px;">
-            <span class="result-label">Applicable Maximum Rate</span>
+            <span class="result-label">Applicable Maximum Rate <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" title="Per NYS WCB Subject No. 046-1805 — max/min eff. 7/1/2026. Click for source." style="color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;">&#9432;</a></span>
             <span class="result-value" id="applicableRateResult" style="font-size:30px;">—</span>
           </div>
           <div class="result-meta" id="rateEffectiveDate">—</div>
@@ -104,7 +104,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Jul 1, 2025 – Present</td><td>$1,222.42</td></tr>
+            <tr><td>Jul 1, 2026 – Present</td><td>$1,281.50</td></tr>
+            <tr><td>Jul 1, 2025 – Jun 30, 2026</td><td>$1,222.42</td></tr>
             <tr><td>Jul 1, 2024 – Jun 30, 2025</td><td>$1,171.46</td></tr>
             <tr><td>Jul 1, 2023 – Jun 30, 2024</td><td>$1,145.43</td></tr>
             <tr><td>Jul 1, 2022 – Jun 30, 2023</td><td>$1,125.46</td></tr>
@@ -166,7 +167,8 @@
     <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#e0e0e0;font-family:sans-serif;margin:20px;">
       <h2>NYS Workers' Compensation Rate Lookup</h2>
       <ul>
-        <li>Jul 1, 2025+: $1,222.42</li>
+        <li>Jul 1, 2026+: $1,281.50</li>
+        <li>Jul 1, 2025 – Jun 30, 2026: $1,222.42</li>
         <li>Jul 1, 2024 – Jun 30, 2025: $1,171.46</li>
         <li>Jul 1, 2023 – Jun 30, 2024: $1,145.43</li>
         <li>Jul 1, 2022 – Jun 30, 2023: $1,125.46</li>
@@ -196,7 +198,8 @@
 
     // Matches MAX_RATES in aww.html / slu.html — range-based lookup
     const MAX_RATES = [
-      { s: "2025-07-01", e: "2099-12-31", l: "Jul 1, 2025 – Present",          max: 1222.42 },
+      { s: "2026-07-01", e: "2099-12-31", l: "Jul 1, 2026 – Present",     max: 1281.50 },
+      { s: "2025-07-01", e: "2026-06-30", l: "Jul 1, 2025 – Jun 30, 2026", max: 1222.42 },
       { s: "2024-07-01", e: "2025-06-30", l: "Jul 1, 2024 – Jun 30, 2025",     max: 1171.46 },
       { s: "2023-07-01", e: "2024-06-30", l: "Jul 1, 2023 – Jun 30, 2024",     max: 1145.43 },
       { s: "2022-07-01", e: "2023-06-30", l: "Jul 1, 2022 – Jun 30, 2023",     max: 1125.46 },

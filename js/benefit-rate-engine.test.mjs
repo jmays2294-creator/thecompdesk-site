@@ -152,11 +152,12 @@ test('2026-07-01 is treated as future date if today < 2026-07-01', () => {
     assert.ok(r.warnings.some(w => /future/i.test(w)));
     assert.strictEqual(r.maxRate, null);
   } else {
-    // Once past that date, it should return the indexed-min record
+    // Once past that date, it should return the new Jul 1, 2026 rates
+    // (max $1,281.50, min $384.45 = 1/5 NYSAWW 2025) per WCB Subject No. 046-1805.
     const r = getRatesForDOI('2026-07-01');
-    assert.strictEqual(r.maxRate, 1222.42);
-    assert.strictEqual(r.minRate, null);
-    assert.strictEqual(r.isIndexedMin, true);
+    assert.strictEqual(r.maxRate, 1281.50);
+    assert.strictEqual(r.minRate, 384.45);
+    assert.strictEqual(r.isIndexedMin, false);
   }
 });
 
