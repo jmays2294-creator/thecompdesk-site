@@ -11,11 +11,11 @@
  * that shouldn't get the injection (e.g., legal/terms full-screen
  * docs, auth modals).
  *
- * Phone: (786) 815-4612 · Email: contact@thecompdesk.com
+ * Phone: (929) 797-4797 · Email: contact@thecompdesk.com
  */
 (function injectContactFooter() {
-  const PHONE_DISPLAY = '(786) 815-4612';
-  const PHONE_TEL = '+17868154612';
+  const PHONE_DISPLAY = '(929) 797-4797';
+  const PHONE_TEL = '+19297974797';
   const EMAIL = 'contact@thecompdesk.com';
   const FRAMING = 'Questions? Call, text, or email us.';
   const UPL = 'The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney.';
