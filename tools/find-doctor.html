@@ -152,10 +152,14 @@
 
     /* Search bar */
     .search{padding:24px 0 16px;}
-    .search-grid{display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;}
+    .search-grid{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;}
     @media(max-width:700px){.search-grid{grid-template-columns:1fr;}}
     .search-grid select,.search-grid button{background:var(--cardA);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;color:var(--tx);font-size:14px;font-weight:600;font-family:inherit;}
     .search-grid select:focus,.search-grid button:focus{outline:2px solid var(--ac);outline-offset:1px;}
+    /* Primary Search button — the clear "go" action for ad traffic. */
+    .search-grid .search-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--ac);border-color:var(--ac);color:#fff;font-weight:800;letter-spacing:0.2px;padding:11px 26px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+    .search-grid .search-btn:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(79,143,247,0.35);}
+    .search-grid .search-btn svg{width:15px;height:15px;}
     .locate-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--wh);transition:background 0.15s;}
     .locate-btn:hover{background:var(--bd);}
     .locate-btn .pin{width:14px;height:14px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 3px rgba(79,143,247,0.25);flex:0 0 auto;}
@@ -163,7 +167,7 @@
     @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.3);opacity:0.6;}}
 
     /* Map */
-    .map-section{padding:8px 0 24px;}
+    .map-section{padding:8px 0 24px;scroll-margin-top:84px;}
     .map-shell{position:relative;border:1px solid var(--bd);border-radius:14px;overflow:hidden;background:#000;}
     #map{
       width:100%;height:520px;
@@ -315,6 +319,10 @@
             <option value="Podiatry">Podiatry</option>
             <option value="Primary Care">Primary Care</option>
           </select>
+          <button id="search-btn" class="search-btn" type="button" aria-label="Search doctors and show them on the map">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+            <span>Search</span>
+          </button>
         </div>
       </div>
     </section>
@@ -447,6 +455,15 @@
     ];
     const NYC_CENTER = [-73.9857, 40.7484]; // Midtown-ish, biased toward visible boroughs
     const NYC_ZOOM = 10.4;
+
+    // Per-borough bounding boxes so "Search" flies the map straight to the selection.
+    const BOROUGH_BOUNDS = {
+      'Manhattan':     [[-74.0200, 40.7000], [-73.9070, 40.8800]],
+      'Brooklyn':      [[-74.0450, 40.5700], [-73.8330, 40.7390]],
+      'Queens':        [[-73.9620, 40.5400], [-73.7000, 40.8010]],
+      'Bronx':         [[-73.9340, 40.7850], [-73.7650, 40.9170]],
+      'Staten Island': [[-74.2590, 40.4900], [-74.0490, 40.6520]]
+    };
 
     let map = null;
     let markers = [];           // {marker, doc}
@@ -611,6 +628,26 @@
       renderPins(docs);
     }
 
+    // ── Search: apply the chosen preferences, then bring the map into view
+    //    zoomed to the selection so results are immediately visible. ──────
+    function runSearch() {
+      applyFilters();
+      const b = document.getElementById('filter-borough').value;
+      if (map) {
+        if (userLoc) {
+          map.flyTo({ center: [userLoc.lng, userLoc.lat], zoom: 13, speed: 1.0, curve: 1.4, essential: true });
+        } else if (b && BOROUGH_BOUNDS[b]) {
+          map.fitBounds(BOROUGH_BOUNDS[b], { padding: 40, duration: 900, maxZoom: 14 });
+        } else if (markers.length) {
+          const bounds = new mapboxgl.LngLatBounds();
+          markers.forEach(m => bounds.extend([m.doc.lng, m.doc.lat]));
+          map.fitBounds(bounds, { padding: 50, duration: 900, maxZoom: 13 });
+        }
+      }
+      const mapSection = document.querySelector('.map-section');
+      if (mapSection) mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     // ── Geolocation ───────────────────────────────────────────────
     function locateMe() {
       const btn = document.getElementById('locate');
@@ -647,7 +684,10 @@
     // ── Doctor data load ──────────────────────────────────────────
     async function loadDoctors() {
       try {
-        const url = `${window.SUPABASE_URL}/rest/v1/wc_doctors?select=id,name,practice_name,specialty,subspecialty,borough,address,lat,lng,phone,website,languages,accepting_new_patients&lat=not.is.null&lng=not.is.null&order=name.asc`;
+        // Curated, NYC-focused set: balanced ~20 providers per borough × specialty.
+        // `specialty:specialty_group` aliases the clean bucket label (e.g. "Orthopedics")
+        // so it matches the filter dropdown values exactly.
+        const url = `${window.SUPABASE_URL}/rest/v1/wc_doctors?select=id,name,practice_name,specialty:specialty_group,subspecialty,borough,address,lat,lng,phone,website,languages,accepting_new_patients&featured=eq.true&lat=not.is.null&lng=not.is.null&order=name.asc&limit=1500`;
         const res = await fetch(url, {
           headers: { 'apikey': window.SUPABASE_ANON, 'Authorization': `Bearer ${window.SUPABASE_ANON}` }
         });
@@ -669,6 +709,7 @@
     document.getElementById('locate').addEventListener('click', locateMe);
     document.getElementById('filter-borough').addEventListener('change', applyFilters);
     document.getElementById('filter-specialty').addEventListener('change', applyFilters);
+    document.getElementById('search-btn').addEventListener('click', runSearch);
 
     initMap();
     loadDoctors();
