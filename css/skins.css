@@ -63,7 +63,7 @@
   /* Worker grid */
   --max-w: 1080px;
   --gutter: 24px;
-  --section-y: clamp(72px, 10vh, 128px);
+  --section-y: clamp(48px, 6vh, 88px);
 }
 
 /* ─── Attorney — Workspace skin ──────────────────────────────────────
@@ -344,48 +344,31 @@ body.tcd-skinned[data-audience="attorney"] .tcd-switch::after {
   transform: translateX(100%);
 }
 
-/* ─── Scroll-driven scene reveals ────────────────────────────────────
- * Native browser scroll-driven animations where supported (Chrome 115+,
- * Edge 115+, soon-Safari). IntersectionObserver fallback handles the rest.
+/* ─── Scene + content reveal ─────────────────────────────────────────
+ * Content is visible by DEFAULT. A gentle entrance plays once on load as
+ * a pure-CSS enhancement (animation-fill-mode: both holds the final,
+ * visible state). It is intentionally independent of scroll position and
+ * JS so text can never get stuck hidden.
+ *
+ * The prior implementation used `animation-timeline: view()` for the
+ * scene and an IntersectionObserver `.in-view` class for the staggered
+ * children. In every browser that supports view() (Chrome/Edge 115+,
+ * modern Safari) the observer was skipped AND the view() rule only
+ * animated `.scene` — never the `.stagger` children — so all staggered
+ * text + cards stayed permanently at opacity:0 and were invisible to
+ * nearly every visitor. Replaced 2026-06-01.
  */
-@supports (animation-timeline: view()) {
-  body.tcd-skinned .scene {
-    animation: tcd-scene-in linear both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 25%;
-  }
-  @keyframes tcd-scene-in {
-    from { opacity: 0; transform: translateY(48px); }
-    to   { opacity: 1; transform: translateY(0);    }
-  }
-}
-@supports not (animation-timeline: view()) {
-  body.tcd-skinned .scene {
-    opacity: 0;
-    transform: translateY(48px);
-    transition:
-      opacity var(--rhythm-base) var(--ease-out),
-      transform var(--rhythm-base) var(--ease-out);
-  }
-  body.tcd-skinned .scene.in-view {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+@keyframes tcd-scene-in   { from { opacity: 0; }                              to { opacity: 1; } }
+@keyframes tcd-stagger-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Sub-element reveal — used inside a scene to stagger child items */
-body.tcd-skinned .scene .stagger > * {
-  opacity: 0;
-  transform: translateY(20px);
-  transition:
-    opacity var(--rhythm-base) var(--ease-out),
-    transform var(--rhythm-base) var(--ease-out);
-  transition-delay: calc(var(--i, 0) * 80ms);
-}
-body.tcd-skinned .scene.in-view .stagger > *,
-body.tcd-skinned .scene .stagger > *.in-view {
-  opacity: 1;
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  body.tcd-skinned .scene {
+    animation: tcd-scene-in var(--rhythm-base) var(--ease-out) both;
+  }
+  body.tcd-skinned .scene .stagger > * {
+    animation: tcd-stagger-in var(--rhythm-base) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
 }
 
 /* ─── Section primitive ─────────────────────────────────────────────*/
@@ -449,5 +432,5 @@ body.tcd-skinned footer.tcd-footer a {
 @media (max-width: 760px) {
   body.tcd-skinned .tcd-nav-links { display: none; }
   body.tcd-skinned .tcd-switch button { padding: 8px 12px; font-size: 12px; }
-  :root { --section-y: clamp(56px, 8vh, 96px); }
+  :root { --section-y: clamp(40px, 5vh, 64px); }
 }

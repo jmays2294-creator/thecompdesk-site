@@ -273,6 +273,12 @@
             color: var(--tx);
             font-weight: 500;
         }
+
+        /* ── Readability fix (2026-06-01): brand-bg overlay (/css/brand-theme.css)
+           renders a light gradient behind content; backdrop text was washed out.
+           Darkened for contrast; dark cards/forms keep their light text. */
+        .account-header h1 { color: #16223d; }
+        .account-header p { color: #3a4a63; }
     </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

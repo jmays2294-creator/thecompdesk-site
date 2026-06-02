@@ -193,6 +193,34 @@
       .hero .cta-row{gap:12px;}
       .cta-btn{padding:8px 16px;font-size:13px;}
     }
+
+    /* Readability fix (2026-06-01): light brand-bg video shows behind content; backdrop text darkened. Dark cards keep skin text. */
+    /* Hero (sits directly on the light video backdrop) */
+    .hero .badge{color:#0c6e4f !important;}
+    .hero h1{color:#16223d !important;}
+    .hero h1 span{-webkit-text-fill-color:#b45309;background:none;color:#b45309;}
+    .hero .sub{color:#3a4a63 !important;}
+    /* Centered section headers + subtitles on the transparent sections */
+    section h2{color:#16223d !important;}
+    section .section-sub{color:#3a4a63 !important;}
+    /* "Join the Directory" panel — faint blue tint (rgba .06) reads as light backdrop, not a dark card */
+    .for-attorneys h2{color:#16223d !important;}
+    .for-attorneys .intro{color:#3a4a63 !important;}
+    .for-attorneys .feat-col h4{color:#16223d !important;}
+    .for-attorneys .feat-col li{color:#3a4a63 !important;border-bottom-color:rgba(22,34,61,0.14) !important;}
+    .for-attorneys .pricing-note{color:#55617a !important;}
+    .for-attorneys .pricing > p{color:#3a4a63 !important;}
+    .for-attorneys > p{color:#3a4a63 !important;}
+    /* FAQ questions/answers sit on the backdrop */
+    .faq-q{color:#16223d !important;}
+    .faq-a{color:#3a4a63 !important;}
+    .faq-item{border-bottom-color:rgba(22,34,61,0.14) !important;}
+    /* Footer CTA + footer */
+    .footer-cta{border-top-color:rgba(22,34,61,0.14) !important;}
+    .footer-cta p{color:#3a4a63 !important;}
+    footer.tcd-footer .wrap{color:#55617a !important;}
+    footer.tcd-footer .wrap p{color:#55617a !important;}
+    footer.tcd-footer a{color:#3a4a63 !important;}
   </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
@@ -228,8 +256,8 @@
 
   <!-- UPL DISCLAIMER (prominent on injured-worker page) -->
   <section style="padding:0 24px;">
-    <div style="max-width:880px;margin:0 auto;background:rgba(240,160,48,0.06);border:1px solid rgba(240,160,48,0.3);border-left:4px solid #f0a030;border-radius:10px;padding:16px 22px;color:#dce4f0;font-size:13.5px;line-height:1.55;text-align:center;">
-      <strong style="color:#f0a030;">Important:</strong> The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney.
+    <div style="max-width:880px;margin:0 auto;background:rgba(240,160,48,0.06);border:1px solid rgba(240,160,48,0.3);border-left:4px solid #f0a030;border-radius:10px;padding:16px 22px;color:#3a4a63;font-size:13.5px;line-height:1.55;text-align:center;">
+      <strong style="color:#b45309;">Important:</strong> The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney.
     </div>
   </section>
 

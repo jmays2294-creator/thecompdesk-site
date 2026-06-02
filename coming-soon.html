@@ -112,7 +112,31 @@
       .signup-form{flex-direction:column;align-items:stretch;}
       .signup-form input{min-width:auto;}
     }
-  </style>
+
+    /* ── Readability fix (2026-06-01): brand-bg overlay (/css/brand-theme.css)
+       renders a light gradient behind content; backdrop text was washed out.
+       Darkened for contrast; dark cards/sections keep their light text. */
+    .hero h1{color:#16223d;}
+    .hero .sub{color:#3a4a63;}
+    .hero .tagline{color:#b45309;}
+    .features h2{color:#16223d;}
+    .features .sub{color:#3a4a63;}
+    .signup h2{color:#16223d;}
+    .signup .sub{color:#3a4a63;}
+    .signup .note{color:#55617a;}
+    .roadmap{border-top-color:rgba(22,34,61,0.14);}
+    .roadmap h2{color:#16223d;}
+    /* Roadmap timeline items sit on the backdrop (no card bg) */
+    .tl-content .phase-label{color:#1d4ed8;}
+    .tl-content h3{color:#16223d;}
+    .tl-content p{color:#3a4a63;}
+    footer{border-top-color:rgba(22,34,61,0.14);}
+    footer p{color:#55617a;}
+    footer a{color:#3a4a63;}
+  
+/* Readability: darken the accent eyebrow badge on the light backdrop. */
+.hero .badge,.badge{color:#0c6e4f !important;background:rgba(13,148,107,0.14) !important;border-color:rgba(13,148,107,0.36) !important;}
+</style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>

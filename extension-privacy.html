@@ -49,6 +49,21 @@
   hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 36px 0; }
   footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); color: #999; font-size: 13px; }
   footer a { color: #999; }
+
+  /* ── Readability fix (2026-06-01): brand-bg overlay renders a light
+     gradient behind content; prose was washed out. Darkened.
+     Scoped to .container; the .code chips keep their own tinted bg. */
+  .container p, .container li { color: #3a4a63; }
+  .container h1, .container h2 { color: #16223d; }
+  .container strong { color: #16223d; }
+  .container .updated { color: #55617a; }
+  .container a { color: #1d4ed8; }
+  .container a:hover { color: #163fb8; }
+  .container header a { color: #1d4ed8; }
+  .container header a:hover { color: #163fb8; }
+  .container hr { border-top-color: rgba(22,34,61,0.14); }
+  .container footer { border-top-color: rgba(22,34,61,0.14); color: #55617a; }
+  .container footer a { color: #3a4a63; }
 </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

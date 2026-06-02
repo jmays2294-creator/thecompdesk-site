@@ -161,6 +161,43 @@ footer a{color:var(--txD);}
   .why-grid{grid-template-columns:1fr;}
   .hero{padding-top:120px;}
 }
+
+/* ── Readability fix (2026-06-01): brand-bg overlay (/css/brand-theme.css)
+   renders a light gradient behind content; backdrop text was washed out.
+   Darkened for contrast; dark cards/sections keep their light text. */
+.hero h1{color:#16223d;}
+.hero h1 span{color:#1d4ed8;}
+.hero .sub{color:#3a4a63;}
+/* PLATFORMS section is on the backdrop (only a border-top, no fill) */
+.platforms{border-top-color:rgba(22,34,61,0.14);}
+.platforms h2{color:#16223d;}
+.platforms .sub{color:#3a4a63;}
+/* .plat-card uses var(--card) (dark) → its inner text stays light (leave it). */
+/* .why section sets background:var(--card) (dark) → leave its text alone. */
+/* PREVIEW section is on the backdrop; its inner .preview-card is dark (leave). */
+.preview{border-top-color:rgba(22,34,61,0.14);}
+.preview h2{color:#16223d;}
+.preview > .wrap > .sub{color:#3a4a63;}
+.preview > .wrap > p[style*="var(--txM)"]{color:#55617a;}
+.preview > .wrap > p[style*="var(--txM)"] a{color:#1d4ed8;}
+/* FAQ section + items are on the backdrop (no fill) */
+.faq{border-top-color:rgba(22,34,61,0.14);}
+.faq h2{color:#16223d;}
+.faq-item{border-bottom-color:rgba(22,34,61,0.14);}
+.faq-item summary{color:#16223d;}
+.faq-item summary::after{color:#1d4ed8;}
+.faq-item p{color:#3a4a63;}
+.faq-item p a{color:#1d4ed8;}
+/* CTA BANNER is on the backdrop (only a border-top) */
+.cta-banner{border-top-color:rgba(22,34,61,0.14);}
+.cta-banner h2{color:#16223d;}
+.cta-banner p{color:#3a4a63;}
+footer{border-top-color:rgba(22,34,61,0.14);}
+footer p{color:#55617a;}
+footer a{color:#3a4a63;}
+
+/* Readability: darken the accent eyebrow badge on the light backdrop. */
+.hero .badge,.badge{color:#0c6e4f !important;background:rgba(13,148,107,0.14) !important;border-color:rgba(13,148,107,0.36) !important;}
 </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

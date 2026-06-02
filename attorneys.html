@@ -266,24 +266,10 @@ body.no-skyline-bg .workspace-wash {
 
 .about-grid {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 1fr;
   gap: clamp(28px, 4vw, 56px);
   align-items: center;
-}
-@media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; text-align: center; } }
-.portrait {
-  width: 240px; height: 240px;
-  border-radius: 50%;
-  background:
-    radial-gradient(60% 60% at 40% 35%, rgba(244,194,140,0.35) 0%, rgba(244,194,140,0) 60%),
-    linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
-  border: 1px solid rgba(232,119,34,0.30);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display);
-  font-size: 60px; font-weight: 800; color: var(--skin-text);
-  letter-spacing: -0.03em;
-  margin: 0 auto;
+  max-width: 760px;
 }
 .about-copy h2 { font-size: clamp(24px, 3.2vw, 36px); margin-bottom: 14px; }
 .about-copy p { color: var(--skin-text-soft); margin-bottom: 12px; }
@@ -559,7 +545,6 @@ body.no-skyline-bg .workspace-wash {
   <!-- ─── Scene 2: About Joel ─── -->
   <section class="tcd-section scene">
     <div class="wrap about-grid">
-      <div class="portrait" aria-hidden="true">JM</div>
       <div class="about-copy stagger">
         <span class="eyebrow" style="--i:0;">Who built this</span>
         <h2 style="--i:1;">Built by a workers' comp attorney. For workers' comp attorneys.</h2>

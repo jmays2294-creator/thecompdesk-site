@@ -195,6 +195,13 @@
         }
         .contact-note a { color: var(--ac); }
         #deleteForm { display: block; }
+
+        /* ── Readability fix (2026-06-01): brand-bg overlay (/css/brand-theme.css)
+           renders a light gradient behind content; backdrop text was washed out.
+           Darkened for contrast; dark cards/forms keep their light text.
+           NOTE: on this page all content lives inside the dark .delete-card
+           (background:var(--card)) or the dark nav, so no backdrop text needs
+           darkening. No overrides applied — touching card text would regress it. */
     </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

@@ -28,6 +28,18 @@ p{margin-bottom:14px;font-size:15px;}
 code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#0a1020;border:1px solid var(--bd);padding:1px 6px;border-radius:4px;color:var(--wh);}
 footer{padding:30px 0;border-top:1px solid var(--bd);text-align:center;font-size:12px;color:var(--txM);}
 footer a{color:var(--txD);}
+
+/* ── Readability fix (2026-06-01): brand-bg overlay (/css/brand-theme.css)
+   renders a light gradient behind content; backdrop text was washed out.
+   Darkened for contrast; dark cards/sections keep their light text. */
+h1{color:#16223d;}
+.lede{color:#3a4a63;}
+.page h2{color:#16223d;}
+.page p{color:#3a4a63;}
+.page a{color:#1d4ed8;}
+/* .callout has a dark card bg → its inner text stays light (leave it). */
+footer{border-top-color:rgba(22,34,61,0.14);color:#55617a;}
+footer a{color:#3a4a63;}
 </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

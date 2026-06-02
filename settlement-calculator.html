@@ -233,7 +233,32 @@
     .related-card p{font-size:12px;color:var(--txD);line-height:1.5;margin-bottom:12px;}
     .related-card a{display:inline-block;font-size:13px;font-weight:600;color:var(--ac);text-decoration:none;border:1px solid rgba(79,143,247,0.3);padding:6px 12px;border-radius:6px;transition:all 0.2s;}
     .related-card a:hover{background:rgba(79,143,247,0.1);border-color:var(--ac);text-decoration:none;}
-  </style>
+
+    /* ── Readability fix (2026-06-01): brand-bg overlay (/css/brand-theme.css)
+       renders a light gradient behind content; backdrop text was washed out.
+       Darkened for contrast; dark cards/sections keep their light text. */
+    .breadcrumb{color:#55617a;}
+    .breadcrumb a{color:#3a4a63;}
+    .breadcrumb a:hover{color:#16223d;}
+    .hero h1{color:#16223d;}
+    .hero .sub{color:#3a4a63;}
+    section h2{color:#16223d;}
+    section .section-sub{color:#3a4a63;}
+    /* Standalone backdrop paragraphs directly in .wrap (not inside dark cards) */
+    section > .wrap > p{color:#3a4a63;}
+    section > .wrap > p[style*="color:var(--txM)"]{color:#55617a !important;}
+    .timeline-step p{color:#3a4a63;}
+    .attorney-cta p{color:#3a4a63;}
+    .footer-cta{border-top-color:rgba(22,34,61,0.14);}
+    .footer-cta h2{color:#16223d;}
+    .footer-cta p{color:#3a4a63;}
+    footer{border-top-color:rgba(22,34,61,0.14);color:#55617a;}
+    footer a{color:#3a4a63;}
+    footer p[style*="color:var(--txM)"]{color:#55617a !important;}
+  
+/* Readability: darken the accent eyebrow badge on the light backdrop. */
+.hero .badge,.badge{color:#0c6e4f !important;background:rgba(13,148,107,0.14) !important;border-color:rgba(13,148,107,0.36) !important;}
+</style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>

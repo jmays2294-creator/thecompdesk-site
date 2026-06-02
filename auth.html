@@ -77,6 +77,13 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100
 .step-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);transition:all 0.2s;}
 .step-dot.active{background:var(--ac);width:24px;border-radius:4px;}
 .step-dot.done{background:var(--gn);}
+
+/* Readability fix (2026-06-01): light brand-bg video shows behind content; backdrop text darkened. The .auth-card (white in worker skin, navy in attorney skin) keeps its skin text — only the logo block + back link sit on the bare backdrop. */
+.logo .brand{color:#b45309 !important;}
+.logo h1{color:#16223d !important;}
+.logo .sub{color:#55617a !important;}
+.back-link{color:#3a4a63 !important;}
+.back-link a{color:#1d4ed8 !important;}
 </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

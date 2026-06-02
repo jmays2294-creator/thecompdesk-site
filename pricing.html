@@ -85,6 +85,29 @@ nav{background:var(--card);border-bottom:1px solid var(--bd);padding:14px 24px;d
 footer{border-top:1px solid var(--bd);padding:28px 24px;text-align:center;font-size:12px;color:var(--txM);}
 footer a{color:var(--txM);text-decoration:none;}
 footer a:hover{color:var(--ac);}
+
+/* ── Readability fix (2026-06-01) ───────────────────────────────────
+   The brand background overlay (#brand-bg, /css/brand-theme.css) renders
+   a light navy→cream gradient behind the page content. The hero, the
+   coming-soon banner, the FAQ, and the footer sit directly on that light
+   backdrop, so this page's original light-on-dark palette left their
+   text washed out. Darkened to brand navy / deep blue / slate for
+   contrast. The dark plan-cards keep their own light text. */
+.hero .eyebrow{color:#1d4ed8;}
+.hero h1{color:#16223d;}
+.hero h1 span{color:#1d4ed8;}
+.hero .sub{color:#3a4a63;}
+.coming-banner{color:#3a4a63;border-color:rgba(29,78,216,0.28);background:rgba(29,78,216,0.07);}
+.coming-banner strong{color:#1d4ed8;}
+.faq-title{color:#16223d;}
+.faq-item{border-top-color:rgba(22,34,61,0.14);}
+.faq-item:last-child{border-bottom-color:rgba(22,34,61,0.14);}
+.faq-q{color:#16223d;}
+.faq-q .chevron{color:#5a6680;}
+.faq-a{color:#3a4a63;}
+footer{border-top-color:rgba(22,34,61,0.14);color:#465268;}
+footer a{color:#3a4a63;}
+footer a:hover{color:#1d4ed8;}
 </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

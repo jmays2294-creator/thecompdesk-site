@@ -36,6 +36,12 @@
     color: #cbd5e1; line-height: 1.5;
   }
   .note code { background: #0b1220; padding: 2px 6px; border-radius: 4px; }
+
+  /* Readability fix (2026-06-01): the brand-bg overlay (/css/brand-theme.css)
+     renders a light gradient behind content; the page header sat on it and
+     was washed out. Darkened. Dark stat cards + note box keep their text. */
+  h1 { color: #16223d; }
+  .sub { color: #3a4a63; }
 </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">

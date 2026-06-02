@@ -560,6 +560,27 @@
       .hero { padding: 100px 0 36px; }
       .firms-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Readability fix (2026-06-01) ──────────────────────────────────
+       The brand background overlay (/css/brand-theme.css) renders a light
+       navy→cream gradient behind content. Text that sits on that backdrop
+       (hero, section headers, map caption, footer) was authored as light
+       text and was washed out; darkened for contrast. Dark cards/sections
+       (.form-card, .confirm-card, .firm-card, .disclaimer-text, nav) keep
+       their light text and are intentionally untouched. */
+    .hero h1        { color:#16223d; }
+    .hero-sub       { color:#3a4a63; }
+    .section-heading h2 { color:#16223d; }
+    .section-heading p  { color:#3a4a63; }
+    .map-label      { color:#55617a; }
+    footer p        { color:#55617a; }
+    footer a        { color:#3a4a63; }
+    /* Dark-navy section dividers (var(--bd) #1c2d4a) are invisible on the
+       light backdrop — soften to a faint navy hairline. */
+    #participating-firms,
+    #attorney-signup-section,
+    #disclaimer-block,
+    footer          { border-top-color:rgba(22,34,61,0.14); }
   </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
