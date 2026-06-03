@@ -438,8 +438,10 @@
 
   // ──────────────────────── SECTION 32 SETTLEMENT ────────────────────────
   // msaType: 'none' | 'msa' | 'medicare'. msaMode: 'usd' | 'pct'.
-  function computeSettlement({ settlement = 0, msa = 0, msaType = 'none', msaMode = 'usd', msaPct = 0, msaOn }) {
+  function computeSettlement({ settlement = 0, msa = 0, msaType, msaMode = 'usd', msaPct = 0, msaOn }) {
     const s = num(settlement);
+    // NOTE: msaType has NO default — a default of 'none' would short-circuit the
+    // msaOn back-compat fallback below (old saves stored msaOn:bool, not msaType).
     const type = msaType || (msaOn ? 'msa' : 'none');
     const hasMSA = type === 'msa' || type === 'medicare';
     const mode = msaMode || 'usd';
