@@ -609,40 +609,15 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
     setInputs({ rows: inputs.rows.filter(r => r.id !== id) });
   };
 
-  const computed = useMemo(() => {
-    // SLU weeks per row.
-    let sluWeeksTotal = 0;
-    const rowOut = inputs.rows.map(r => {
-      const bp = SLU_BP.find(b => b.n === r.bp) || SLU_BP[0];
-      const sluWks = (Number(r.pct) / 100) * bp.w;
-      sluWeeksTotal += sluWks;
-      return { ...r, bp, sluWks };
-    });
-    // PHP (Protracted Healing Period) — single tile-level input that applies
-    // ONCE for the whole SLU, against the body part with the highest
-    // statutory healing period. Per WCL §15(4-a): multi-part SLUs don't
-    // stack PHP — they share the longest healing-period requirement.
-    // Example: SLU for both leg (hp 40) and hand (hp 32) with 46 weeks of
-    // prior TT during healing → credit 6 PHP weeks (46 − 40), not 14.
-    const phpInput = Number(inputs.phpWks || 0);
-    const maxHp = rowOut.reduce((m, r) => Math.max(m, r.bp.hp || 0), 0);
-    const phpCreditWks = Math.max(0, phpInput - maxHp);
-    const totalWeeks = sluWeeksTotal + phpCreditWks;
-    const grossTotal = totalWeeks * tt;
-    // §15(3)(w) credit at TOTAL rate. When case-level prior TT/TR/TP weeks
-    // exceed 130, the carrier credits (priorWks − 130) × TT against gross.
-    const priorTTRWks = Number(inputs.priorTTRWks || 0);
-    const creditWks = priorTTRWks > 130 ? priorTTRWks - 130 : 0;
-    const creditDollars = creditWks * tt;
-    const total = Math.max(0, grossTotal - creditDollars);
-    const moving = Math.max(0, total - Number(inputs.priorPay || 0));
-    const fee = moving * 0.15;
-    const net = moving - fee;
-    return {
-      rowOut, sluWeeksTotal, phpInput, maxHp, phpCreditWks,
-      totalWeeks, grossTotal, creditWks, creditDollars, total, moving, fee, net,
-    };
-  }, [inputs, tt]);
+  // Single source of truth — shared calc-core (same module the app uses).
+  // PHP §15(4-a) multi-part shared healing period + §15(3)(w) credit live there.
+  const computed = useMemo(() => window.CD.Calc.computeSLU({
+    rows: inputs.rows.map(r => ({ bp: r.bp, pct: r.pct })),
+    tt,
+    priorTTRWks: inputs.priorTTRWks,
+    phpWks: inputs.phpWks,
+    priorPay: inputs.priorPay,
+  }), [inputs, tt]);
 
   return (
     <>
@@ -741,31 +716,14 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
 
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
-  const computed = useMemo(() => {
-    const pct = Number(inputs.pct) || 0;
-    const rawClassRate = tt * (pct / 100);
-    // Floor at min / cap at max for the DOA. AWW < min override fires here too —
-    // a 50% LWEC class rate of $66.67 with AWW=$200 collapses to $200 (AWW),
-    // not $325 (min), per Joel (May 2026).
-    const classRate = applyRateBounds(rawClassRate, aww, global.minRate, global.maxRate);
-    const bracket = lwecBracket(pct);
-    const isLifetime = bracket.mw === 'Lifetime';
-    // §15(3)(w) credit: when prior weeks of TT/TR/TP exceed 130, the carrier
-    // takes credit on the LWEC award by reducing the awarded weeks (not dollars
-    // — the credit is paid week-for-week at the classification rate).
-    const priorWks = Number(inputs.priorTTRWks || 0);
-    const creditWks = priorWks > 130 ? priorWks - 130 : 0;
-    const grossWks = isLifetime ? null : bracket.mw;
-    const adjustedWks = isLifetime ? null : Math.max(0, grossWks - creditWks);
-    const totalAward = isLifetime ? null : classRate * adjustedWks;
-    const grossAward = isLifetime ? null : classRate * grossWks;
-    const creditDollars = isLifetime ? null : classRate * creditWks;
-    const fee = classRate * 15;
-    const weeklyNet = classRate - Number(inputs.feePerWeek || 0);
-    const totalNet = isLifetime ? null : totalAward - fee;
-    return { pct, rawClassRate, classRate, bracket, isLifetime, grossWks, creditWks, adjustedWks,
-             grossAward, creditDollars, totalAward, fee, weeklyNet, totalNet };
-  }, [inputs, tt, aww, global.minRate, global.maxRate]);
+  // Single source of truth — shared calc-core. Class rate uses the BOUNDED TT
+  // (2/3 AWW capped at max / floored at min) × LWEC%; §15(3)(w) credit (weeks
+  // over 130, paid week-for-week at the class rate) handled inside computeLWEC.
+  const computed = useMemo(() => window.CD.Calc.computeLWEC({
+    pct: inputs.pct, aww,
+    minRate: global.minRate, maxRate: global.maxRate,
+    priorTTRWks: inputs.priorTTRWks, feePerWeek: inputs.feePerWeek,
+  }), [inputs, tt, aww, global.minRate, global.maxRate]);
 
   return (
     <>
@@ -1962,22 +1920,12 @@ function BurnsTile({ tile, global, onUpdate }) {
   };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
-  const c = useMemo(() => {
-    const indemnity = Number(inputs.indemnity) || 0;
-    const medical   = Number(inputs.medical)   || 0;
-    const gross     = Number(inputs.gross)     || 0;
-    const attyFee   = Number(inputs.attyFee)   || 0;
-    const disb      = Number(inputs.disbursements) || 0;
-    const grossLien = indemnity + medical;
-    const lienBase  = inputs.isMVA
-      ? Math.max(0, grossLien - (Number(inputs.mvaThreshold) || 0))
-      : grossLien;
-    const litCosts  = attyFee + disb;
-    const burnsRate = gross > 0 ? litCosts / gross : 0;
-    const netLien   = burnsRate * lienBase;
-    const netToPlaintiff = gross - litCosts - netLien;
-    return { grossLien, lienBase, litCosts, burnsRate, netLien, netToPlaintiff };
-  }, [inputs]);
+  // Single source of truth — shared calc-core.
+  const c = useMemo(() => window.CD.Calc.computeBurns({
+    indemnity: inputs.indemnity, medical: inputs.medical, gross: inputs.gross,
+    attyFee: inputs.attyFee, disbursements: inputs.disbursements,
+    isMVA: inputs.isMVA, mvaThreshold: inputs.mvaThreshold,
+  }), [inputs]);
 
   return (
     <div className="tile-body">
@@ -2066,27 +2014,11 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
     }
   };
 
-  const c = useMemo(() => {
-    const settlement = Number(inputs.settlement) || 0;
-    // Back-compat: older saves stored msaOn:bool. Treat msaOn:true as 'msa'.
-    const msaType =
-      inputs.msaType ||
-      (inputs.msaOn ? 'msa' : 'none');
-    const hasMSA = msaType === 'msa' || msaType === 'medicare';
-    const msaMode = inputs.msaMode || 'usd'; // 'usd' | 'pct'
-    const msaPct = Number(inputs.msaPct) || 0;
-    // Effective MSA in dollars — when in % mode, derive from settlement.
-    const msaUsd =
-      !hasMSA ? 0
-      : msaMode === 'pct' ? (settlement * msaPct / 100)
-      : (Number(inputs.msa) || 0);
-    // Indemnity = the portion of the settlement that goes to the claimant
-    // before fees, i.e. settlement net of any MSA carve-out.
-    const indemnity = Math.max(0, settlement - msaUsd);
-    const fee = indemnity * 0.15;
-    const net = Math.max(0, indemnity - fee);
-    return { settlement, msaType, hasMSA, msaMode, msaPct, msa: msaUsd, indemnity, fee, net };
-  }, [inputs]);
+  // Single source of truth — shared calc-core (handles msaOn back-compat).
+  const c = useMemo(() => window.CD.Calc.computeSettlement({
+    settlement: inputs.settlement, msa: inputs.msa, msaType: inputs.msaType,
+    msaMode: inputs.msaMode, msaPct: inputs.msaPct, msaOn: inputs.msaOn,
+  }), [inputs]);
 
   const MSA_TYPES = [
     { id: 'none',     label: 'None' },

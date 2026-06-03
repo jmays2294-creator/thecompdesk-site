@@ -1,4 +1,12 @@
-// Constants — verbatim from brief, do not modify
+// Constants. The statutory data tables + rate-bound helpers below are now the
+// FALLBACK only — at runtime they are superseded by js/calc-core.js (the single
+// source of truth shared with the mobile app), which workspace.html loads
+// immediately before this file. See the Object.assign at the bottom: window gets
+// calc-core's MAX_RATES / MIN_RATES / SLU_BP / LWEC_BR / NERVE_CAPS / ranks +
+// lookup & rate-bound helpers. DO NOT edit the rate tables here — edit
+// js/calc-core.js so the website and app stay in lockstep.
+const _CALC = (typeof window !== 'undefined' && window.CD && window.CD.Calc) || null;
+if (!_CALC) console.error('[workspace] CALC_CORE_MISSING — js/calc-core.js must load before constants.js');
 
 const MAX_RATES = [
   { s:"2026-07-01", e:"2099-12-31", l:"Jul 1, 2026+",                 max:1281.50 },
@@ -382,10 +390,23 @@ function hydrateWorkspaceData(raw) {
   };
 }
 
-Object.assign(window, {
+// Shared statutory data + rate-bound helpers come from calc-core (single source
+// of truth with the app); fall back to the local definitions above only if
+// calc-core failed to load (already logged loud).
+const _SHARED = _CALC ? {
+  MAX_RATES: _CALC.MAX_RATES, MIN_RATES: _CALC.MIN_RATES, SLU_BP: _CALC.SLU_BP,
+  LWEC_BR: _CALC.LWEC_BR, NERVE_CAPS: _CALC.NERVE_CAPS,
+  CERVICAL_RANKS: _CALC.CERVICAL_RANKS, LUMBAR_RANKS: _CALC.LUMBAR_RANKS,
+  lookupMax: _CALC.lookupMax, lookupMin: _CALC.lookupMin,
+  applyRateBounds: _CALC.applyRateBounds, isAwwBelowMin: _CALC.isAwwBelowMin,
+  getCappedTT: _CALC.getCappedTT, lwecBracket: _CALC.lwecBracket,
+} : {
   MAX_RATES, MIN_RATES, SLU_BP, LWEC_BR, NERVE_CAPS, CERVICAL_RANKS, LUMBAR_RANKS,
-  lookupMax, lookupMin, applyMinFloor, applyRateBounds, isAwwBelowMin,
-  getCappedTT, lwecBracket, fmt$, fmtN,
+  lookupMax, lookupMin, applyRateBounds, isAwwBelowMin, getCappedTT, lwecBracket,
+};
+Object.assign(window, {
+  ..._SHARED,
+  applyMinFloor, fmt$, fmtN,
   // Hydration contract — see ops/rd/specs/workspace_case_hydration.md
   WORKSPACE_FORMAT_VERSION,
   DEFAULT_AWW_STATE, DEFAULT_TWEAKS,

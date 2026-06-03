@@ -216,6 +216,11 @@
       await loadScript('/js/workspace/persistence.js');
       await loadScript('/js/workspace/sync.js');
     }
+    // calc-core.js — canonical NYS WC math + statutory constants, shared with
+    // the mobile app. MUST load before constants.js, which now sources its
+    // statutory data + rate-bound helpers from window.CD.Calc (single source of
+    // truth, so the website and app can't drift).
+    await loadScript('/js/calc-core.js');
     await loadScript('/js/workspace/constants.js');
     await loadAndTransform('/js/workspace/tiles.js');
     await loadAndTransform('/js/workspace/app.js');
