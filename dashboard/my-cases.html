@@ -537,8 +537,21 @@
     </div>
   </nav>
 
-  <!-- Pro Gate -->
-  <div id="pro-gate-overlay" class="pro-gate-overlay">
+  <!-- Verifying subscription (shown first, while the entitlement RPC resolves).
+       Starts visible so the page never flashes the paywall before the tier is
+       known. JS hides it once the tier is confirmed. -->
+  <div id="verify-overlay" class="pro-gate-overlay">
+    <div class="pro-gate-box">
+      <div style="font-size:40px;">🔄</div>
+      <h2>Verifying your subscription…</h2>
+      <p>One moment while we confirm your account.</p>
+    </div>
+  </div>
+
+  <!-- Pro Gate. Hidden by default — shown ONLY on a CONFIRMED non-Pro tier.
+       An unknown/failed entitlement read must NEVER reach this state (that was
+       the recurring false-paywall bug); on unknown we fail open to the layout. -->
+  <div id="pro-gate-overlay" class="pro-gate-overlay" style="display:none;">
     <div class="pro-gate-box">
       <div style="font-size:40px;">📁</div>
       <h2>My Cases — Pro Feature</h2>
@@ -609,7 +622,7 @@
   </div>
 
   <script type="module">
-    import { getUser, hasAccess, getUserCases, getCaseCalculations, deleteCalculation, TIERS, supabase } from '../js/auth.js';
+    import { getUser, hasAccess, getEffectiveTier, getUserCases, getCaseCalculations, deleteCalculation, TIERS, supabase } from '../js/auth.js';
     import { renderNav } from '../js/nav.js';
     import { startCalcHistorySync, stopCalcHistorySync } from '../js/calc-history-sync.js';
 
@@ -1028,65 +1041,38 @@
       window.location.href = '/workspace/?case=' + encodeURIComponent(selectedCase?.case_name || '') + '&load=' + calc.id;
     }
 
-    // ─── Resolve the user's effective access tier ───
-    // The shared getUserTier() in auth.js occasionally returns 'free' for a
-    // paying user when the supabase client's JWT hasn't fully hydrated yet
-    // (May 13, 2026 bug report: pro attorneys hitting the My Cases paywall).
-    // We re-query the canonical sources directly here, with maybeSingle() so a
-    // missing row doesn't throw, and we ALSO check firm_members so anyone on a
-    // firm seat gets through the gate even if their profile row hasn't been
-    // cascaded yet.
-    async function resolveEffectiveTier(session, fallbackTier) {
-      try {
-        const { data: prof, error: profErr } = await supabase
-          .from('profiles')
-          .select('subscription_tier, subscription_status, firm_id')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        if (profErr) {
-          console.warn('[my-cases] profile re-read failed:', profErr.message);
-        }
-        if (prof && prof.subscription_tier && prof.subscription_tier !== 'free') {
-          return prof.subscription_tier;
-        }
-        // Firm-member fallback — covers users invited onto a firm seat whose
-        // profile.subscription_tier hasn't been cascaded yet.
-        const { data: fm, error: fmErr } = await supabase
-          .from('firm_members')
-          .select('firm_id, status')
-          .eq('user_id', session.user.id)
-          .in('status', ['active', 'pending'])
-          .maybeSingle();
-        if (fmErr) {
-          console.warn('[my-cases] firm_members fetch failed:', fmErr.message);
-        }
-        if (fm && fm.firm_id) {
-          return 'firm';
-        }
-      } catch (err) {
-        console.warn('[my-cases] tier resolution error:', err);
-      }
-      return fallbackTier || 'free';
-    }
-
     // ─── Init ───
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await getUser();
       if (!user) return;
 
-      const effectiveTier = await resolveEffectiveTier(user.session, user.tier);
-      console.log('[my-cases] tier resolved:', { fromAuthJs: user.tier, effective: effectiveTier });
+      // Single source of truth: the get_my_entitlement() RPC (migration 026),
+      // resolved server-side and immune to the client JWT-hydration race that
+      // caused the recurring false paywall. Returns a CONFIRMED tier, or null
+      // when it genuinely couldn't be determined.
+      const effectiveTier = await getEffectiveTier(user.session);
+      console.log('[my-cases] tier resolved:', { effective: effectiveTier });
 
-      currentUser = { session: user.session, tier: effectiveTier };
-      renderNav(user.session, effectiveTier);
+      const verifyOverlay = document.getElementById('verify-overlay');
+      const proGate = document.getElementById('pro-gate-overlay');
 
-      // Check Pro access
-      if (!hasAccess(effectiveTier, ['pro', 'firm'])) {
-        return; // Gate stays visible
+      // Show the paywall ONLY on a CONFIRMED non-Pro tier. On null/unknown we
+      // FAIL OPEN to the layout — data is RLS-protected, so the worst case is a
+      // genuinely-free user briefly seeing an empty My Cases shell, which is far
+      // better than locking out a paying attorney.
+      if (effectiveTier != null && !hasAccess(effectiveTier, ['pro', 'firm'])) {
+        verifyOverlay.style.display = 'none';
+        proGate.style.display = 'flex';
+        renderNav(user.session, effectiveTier);
+        return;
       }
 
-      // Hide gate, show layout
-      document.getElementById('pro-gate-overlay').style.display = 'none';
+      currentUser = { session: user.session, tier: effectiveTier || user.tier || 'pro' };
+      renderNav(user.session, currentUser.tier);
+
+      // Hide both overlays, show layout
+      verifyOverlay.style.display = 'none';
+      proGate.style.display = 'none';
       document.getElementById('casesLayout').style.display = 'grid';
 
       // Load cases
