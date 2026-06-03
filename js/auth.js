@@ -90,52 +90,77 @@ async function requireAuth() {
 }
 
 /**
- * Fetch user tier from user_profiles table
+ * Canonical effective-tier resolver — the single source of truth for
+ * entitlement shared by the website and the native app.
+ *
+ * Calls the server-side `get_my_entitlement()` RPC (migration 026), which
+ * computes the tier under definer rights from firm_members + profiles. Running
+ * the rule on the server makes it immune to the client-side JWT-hydration /
+ * early-empty-read race that produced the recurring "My Cases" paywall: the
+ * RPC either returns a definitive tier or the call fails — it never silently
+ * degrades a paying user to 'free'.
+ *
+ * Returns a TRI-STATE so callers can tell "confirmed free" from "couldn't
+ * determine":
+ *   - 'free' | 'comp_buddy' | 'pro' | 'firm'  → a CONFIRMED tier
+ *   - null                                    → UNKNOWN (transient/RPC failure)
+ *
+ * Gates MUST treat null as "do not paywall" (fail open to the UI shell; data
+ * stays RLS-protected) rather than as "free".
+ *
  * @param {Object} session - Auth session object
- * @returns {Promise<string>} User's role/tier, defaults to 'free'
+ * @param {number} [retries=2] - retry attempts on transient failure
+ * @returns {Promise<string|null>}
  */
-async function getUserTier(session) {
+async function getEffectiveTier(session, retries = 2) {
+  // Not signed in is DEFINITIVELY free, not "unknown".
   if (!session || !session.user) {
     _lastTierFetchError = null;
     return TIERS.FREE;
   }
 
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('subscription_tier')
-      .eq('id', session.user.id)
-      .single();
-
-    if (error) {
-      // Fail LOUD. Apr 27, 2026 incident: RLS recursion (42P17) silently
-      // downgraded every Pro user to free. CLAUDE.md mandates: sentinel
-      // prefix in the console, CustomEvent dispatch, toast, and a getter
-      // so callers can distinguish "really free" from "couldn't determine".
-      _lastTierFetchError = error;
-      console.error('[auth] TIER_FETCH_FAILED', error);
-      if (typeof window !== 'undefined' && window.dispatchEvent) {
-        window.dispatchEvent(new CustomEvent('auth:tier-fetch-error', { detail: error }));
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const { data, error } = await supabase.rpc('get_my_entitlement');
+      if (!error && typeof data === 'string' && data) {
+        _lastTierFetchError = null;
+        return data;
       }
-      showNonBlockingToast(
-        "We couldn't verify your subscription. If a paid feature is locked, please reload."
-      );
-      return TIERS.FREE;
+      _lastTierFetchError = error || new Error('get_my_entitlement returned no tier');
+    } catch (err) {
+      _lastTierFetchError = err;
     }
-
-    _lastTierFetchError = null;
-    return data?.subscription_tier || TIERS.FREE;
-  } catch (err) {
-    _lastTierFetchError = err;
-    console.error('[auth] TIER_FETCH_FAILED', err);
-    if (typeof window !== 'undefined' && window.dispatchEvent) {
-      window.dispatchEvent(new CustomEvent('auth:tier-fetch-error', { detail: err }));
+    // Brief backoff — covers the JWT-not-yet-hydrated window after sign-in.
+    if (attempt < retries) {
+      await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
     }
-    showNonBlockingToast(
-      "We couldn't verify your subscription. If a paid feature is locked, please reload."
-    );
-    return TIERS.FREE;
   }
+
+  // Could not determine after retries. Fail LOUD per the Apr 27 playbook, but
+  // return null (UNKNOWN) — NOT 'free' — so the caller does not false-paywall.
+  console.error('[auth] ENTITLEMENT_FETCH_FAILED', _lastTierFetchError);
+  if (typeof window !== 'undefined' && window.dispatchEvent) {
+    window.dispatchEvent(new CustomEvent('auth:tier-fetch-error', { detail: _lastTierFetchError }));
+  }
+  showNonBlockingToast(
+    "We couldn't verify your subscription yet. Retrying — paid features will unlock automatically."
+  );
+  return null;
+}
+
+/**
+ * Fetch user tier (backward-compatible). Delegates to the canonical
+ * getEffectiveTier() RPC resolver. Preserves the legacy contract that every
+ * caller of getUserTier() expects: a concrete tier string, degrading to 'free'
+ * when the tier can't be determined (the loud failure already fired inside
+ * getEffectiveTier). New gates that must not false-paywall should call
+ * getEffectiveTier() directly and handle the null/unknown case.
+ * @param {Object} session - Auth session object
+ * @returns {Promise<string>} User's role/tier, defaults to 'free'
+ */
+async function getUserTier(session) {
+  const tier = await getEffectiveTier(session);
+  return tier == null ? TIERS.FREE : tier;
 }
 
 /**
@@ -346,6 +371,7 @@ export {
   supabase,
   requireAuth,
   getUserTier,
+  getEffectiveTier,
   getLastTierFetchError,
   hasAccess,
   getUser,
