@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en" data-audience="worker">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workers' Comp Settlement in New York: Section 32 Guide | The Comp Desk</title>
+  <meta name="description" content="How New York workers' comp settlements work: what a Section 32 is, how the Board approves it, lump sum vs structured, and how AWW and SLU set the number.">
+  <meta name="keywords" content="workers comp settlement New York, Section 32 settlement, Section 32 workers comp NY, workers compensation settlement amount NY, lump sum workers comp settlement">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Workers' Comp Settlement in New York (Section 32)">
+  <meta property="og:description" content="What a Section 32 settlement is, how it's valued, the Board approval process, lump sum vs structured, and the role of AWW and SLU in the number.">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="The Comp Desk">
+  <meta property="og:url" content="https://thecompdesk.com/learn/workers-comp-settlement-section-32-ny">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Workers' Comp Settlement in New York (Section 32)">
+  <meta name="twitter:description" content="How NY workers' comp settlements are valued, the Board approval process, lump sum vs structured, and the role of AWW and SLU in the number.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- JSON-LD Article -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Workers' Comp Settlement in New York (Section 32)",
+    "description": "A plain-English guide to New York workers' compensation settlements: what a Section 32 is, how settlements are valued, the Board approval process, lump sum vs structured payouts, and how AWW and SLU drive the number.",
+    "url": "https://thecompdesk.com/learn/workers-comp-settlement-section-32-ny",
+    "image": "https://thecompdesk.com/images/og-home.png",
+    "author": {
+      "@type": "Organization",
+      "name": "The Comp Desk",
+      "url": "https://thecompdesk.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "The Comp Desk",
+      "url": "https://thecompdesk.com"
+    },
+    "datePublished": "2026-06-04",
+    "keywords": "workers comp settlement New York, Section 32 settlement, lump sum, structured settlement, AWW, SLU, WCB"
+  }
+  </script>
+
+  <!-- JSON-LD FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is a Section 32 settlement in New York workers' comp?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A Section 32 settlement is a voluntary, binding agreement under Workers' Compensation Law Section 32 in which an injured worker and the insurance carrier agree to close all or part of a workers' compensation claim in exchange for a lump sum (or structured) payment. Once a Workers' Compensation Law Judge approves it, the agreement is final — in most cases you cannot reopen the claim later, even if your condition worsens."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is a workers' comp settlement amount calculated in New York?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There is no fixed formula. A Section 32 amount is built from the value of your future weekly indemnity benefits (driven by your average weekly wage and benefit rate), the value of any permanency award such as a schedule loss of use, the projected cost of future medical care, your age and life expectancy, the strength of the disputed issues, and a discount because you receive the money now instead of over years."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the Workers' Compensation Board have to approve my settlement?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. A Section 32 agreement is not final until a Workers' Compensation Law Judge reviews and approves it. The Board holds a hearing to confirm you understand the terms and that the agreement is fair and not unconscionable. There is a 10-day period after approval during which either side may withdraw before the settlement becomes binding."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I take a lump sum or a structured settlement?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A lump sum pays the entire amount at once; a structured settlement pays it out over time through an annuity. A lump sum gives you flexibility and control, while a structure provides guaranteed long-term income and can protect benefits like Medicaid or SSI. The right choice depends on your finances, your health, and whether you can manage a large one-time payment."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="canonical" href="https://thecompdesk.com/learn/workers-comp-settlement-section-32-ny">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{--bg:var(--skin-surface);--card:var(--skin-surface-elev);--cardA:var(--skin-surface-warm);--bd:var(--skin-divider);--ac:var(--skin-accent);--acG:rgba(232,119,34,0.12);--gd:var(--skin-accent);--gn:#5BC79A;--tx:var(--skin-text);--txD:var(--skin-text-soft);--txM:var(--skin-text-muted);--wh:var(--skin-text);--navy:var(--tcd-navy);--mono:'JetBrains Mono',ui-monospace,monospace;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--navy);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+    a{color:var(--ac);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+    .wrap{max-width:800px;margin:0 auto;padding:0 24px;}
+
+    /* Nav */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,42,74,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(79,143,247,0.15);}
+    nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+    nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;text-decoration:none;}
+    nav .logo span{color:var(--ac);}
+    nav .links{display:flex;gap:24px;align-items:center;}
+    nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
+    nav .links a:hover{color:var(--wh);text-decoration:none;}
+
+    /* CTA Buttons */
+    .cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;text-decoration:none;}
+    .cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,143,247,0.3);text-decoration:none;}
+    .cta-btn.outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac);}
+    .cta-btn.outline:hover{background:var(--acG);}
+
+    /* Breadcrumb */
+    .breadcrumb{font-size:13px;color:var(--txM);padding:100px 24px 0;max-width:800px;margin:0 auto;}
+    .breadcrumb a{color:var(--txD);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--wh);}
+
+    /* Article Header */
+    .article-header{padding:60px 0 40px;text-align:center;border-bottom:1px solid var(--bd);}
+    .article-header h1{font-size:clamp(28px,5vw,42px);font-weight:900;color:var(--wh);letter-spacing:-1px;line-height:1.2;margin-bottom:16px;}
+    .article-header .meta{font-size:13px;color:var(--txD);display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+
+    /* Article Content */
+    .article-content{padding:60px 0;}
+    .article-content h2{font-size:24px;font-weight:800;color:var(--wh);margin:48px 0 16px;line-height:1.3;}
+    .article-content h3{font-size:18px;font-weight:700;color:var(--wh);margin:32px 0 12px;line-height:1.3;}
+    .article-content p{font-size:15px;line-height:1.8;margin-bottom:16px;color:var(--tx);}
+    .article-content ul,.article-content ol{margin:16px 0 24px 24px;}
+    .article-content li{margin-bottom:12px;font-size:15px;line-height:1.7;}
+    .article-content strong{color:var(--wh);font-weight:700;}
+
+    /* Highlight Box */
+    .highlight-box{background:rgba(79,143,247,0.08);border-left:4px solid var(--ac);border-radius:8px;padding:20px;margin:32px 0;border-top:1px solid rgba(79,143,247,0.2);border-right:1px solid rgba(79,143,247,0.2);border-bottom:1px solid rgba(79,143,247,0.2);}
+    .highlight-box p{margin-bottom:0;}
+    .highlight-box strong{color:var(--ac);}
+    .highlight-box h4{color:var(--ac);font-weight:700;margin-bottom:8px;}
+
+    /* Warning Box */
+    .warning-box{background:rgba(240,160,48,0.08);border-left:4px solid var(--gd);border-radius:8px;padding:20px;margin:32px 0;border-top:1px solid rgba(240,160,48,0.2);border-right:1px solid rgba(240,160,48,0.2);border-bottom:1px solid rgba(240,160,48,0.2);}
+    .warning-box p{margin-bottom:0;}
+    .warning-box strong{color:var(--gd);}
+
+    /* Tips Box */
+    .tips-box{background:rgba(45,212,160,0.08);border-left:4px solid var(--gn);border-radius:8px;padding:20px;margin:32px 0;border-top:1px solid rgba(45,212,160,0.2);border-right:1px solid rgba(45,212,160,0.2);border-bottom:1px solid rgba(45,212,160,0.2);}
+    .tips-box h4{color:var(--gn);font-weight:700;margin-bottom:8px;}
+    .tips-box ul{margin-left:24px;}
+    .tips-box li{font-size:14px;}
+
+    /* Checklist Box */
+    .checklist-box{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:8px;padding:20px;margin:32px 0;}
+    .checklist-box h4{color:var(--wh);font-weight:700;margin-bottom:12px;}
+    .checklist-box ul{margin-left:24px;}
+    .checklist-box li{font-size:14px;margin-bottom:10px;}
+
+    /* FAQ */
+    .faq-item{border-bottom:1px solid var(--bd);padding:20px 0;}
+    .faq-item h3{margin:0 0 8px;font-size:17px;color:var(--wh);}
+    .faq-item p{margin:0;}
+
+    /* Disclaimer */
+    .disclaimer{background:rgba(240,160,48,0.08);border:1px solid rgba(240,160,48,0.2);border-radius:8px;padding:20px;margin:48px 0;font-size:13px;color:var(--txD);line-height:1.6;}
+
+    /* CTA Section */
+    .article-cta{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:12px;padding:40px 32px;text-align:center;margin:48px 0;}
+    .article-cta h3{margin:0 0 12px;font-size:20px;}
+    .article-cta p{margin-bottom:20px;}
+
+    /* Related */
+    .related-box{background:rgba(14,19,34,0.7);border:1px solid var(--bd);border-radius:12px;padding:28px 32px;margin:48px 0;}
+    .related-box h4{color:var(--wh);font-weight:700;margin-bottom:14px;font-size:16px;}
+    .related-box ul{margin:0 0 0 20px;}
+    .related-box li{font-size:14px;margin-bottom:10px;}
+
+    /* Footer */
+    footer{text-align:center;padding:32px 24px;border-top:1px solid var(--bd);font-size:12px;color:var(--txM);}
+    footer a{color:var(--txD);}
+
+    /* Responsive */
+    @media(max-width:768px){
+      .article-header{padding:40px 0 24px;}
+      .article-content{padding:40px 0;}
+      .article-content h2{font-size:20px;margin:32px 0 12px;}
+      .article-content h3{font-size:16px;margin:24px 0 10px;}
+    }
+  </style>
+<!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
+<link rel="stylesheet" href="/css/brand-theme.css">
+<link rel="stylesheet" href="/css/skins.css">
+<script src="/js/brand-bg.js" defer></script>
+</head>
+<body class="tcd-skinned">
+
+  <!-- Audience-skinned nav (replaces legacy article nav). -->
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/worker">Worker</a>
+        <a href="/attorneys">Attorneys</a>
+        <a href="/calculators">Calculators</a>
+        <a href="/learn">Learn</a>
+      </div>
+      <div data-audience-switch></div>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="/">Home</a> &gt; <a href="/learn">Learn</a> &gt; <span>Workers' Comp Settlement in New York (Section 32)</span>
+  </div>
+
+  <!-- Article Header -->
+  <section class="article-header">
+    <div class="wrap">
+      <h1>Workers' Comp Settlement in New York: The Section 32 Guide</h1>
+      <div class="meta">
+        <span>📋 Guide</span>
+        <span>•</span>
+        <span>11 min read</span>
+        <span>•</span>
+        <span>NY-specific</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Article Content -->
+  <section class="article-content">
+    <div class="wrap">
+      <p>At some point in almost every serious New York workers' compensation case, the question comes up: <em>should I settle?</em> In New York, settling a workers' comp claim usually means signing a <strong>Section 32 agreement</strong> — a one-time deal that closes your case in exchange for a payment. It can be the right move or a costly mistake, and the difference often comes down to understanding how the number is built and what you're giving up.</p>
+
+      <p>This guide explains what a Section 32 settlement is, how settlements are valued, the Workers' Compensation Board approval process, the choice between a lump sum and a structured payout, and how your <strong>Average Weekly Wage (AWW)</strong> and any <strong>Schedule Loss of Use (SLU)</strong> award drive the final figure.</p>
+
+      <div class="highlight-box">
+        <strong>The short version:</strong> A Section 32 settlement is a voluntary, binding agreement to close your workers' comp claim for a set amount. There's no fixed formula — the number is built from the value of your future weekly benefits, any permanency award, projected future medical costs, your age, and the strength of the disputed issues, then discounted to today's dollars. A Workers' Compensation Law Judge must approve it, and once approved (after a 10-day window), it's almost always final.
+      </div>
+
+      <h2>What Is a Section 32 Settlement?</h2>
+
+      <p>"Section 32" refers to <strong>Section 32 of the New York Workers' Compensation Law</strong>, which allows an injured worker and the insurance carrier to voluntarily agree to resolve a claim. Instead of leaving the case open and collecting weekly checks and medical coverage indefinitely, both sides agree on a sum that closes the case — in whole or in part.</p>
+
+      <p>A Section 32 settlement can cover:</p>
+
+      <ul>
+        <li><strong>Indemnity (lost-wage) benefits</strong> — the weekly checks you receive for your disability.</li>
+        <li><strong>Future medical benefits</strong> — the carrier's obligation to pay for treatment related to your injury. You can settle indemnity only and keep medical open, or close both.</li>
+        <li><strong>The entire claim</strong> — most full Section 32 agreements close both indemnity and medical, ending the carrier's obligations for good.</li>
+      </ul>
+
+      <div class="warning-box">
+        <strong>A Section 32 is final.</strong> Once a judge approves the agreement and the waiting period passes, you generally cannot reopen the claim — even if your injury gets worse or you need more surgery later. You are trading future uncertainty for a payment today. That permanence is exactly why the Board reviews every agreement before it becomes binding.
+      </div>
+
+      <h2>How Workers' Comp Settlements Are Valued</h2>
+
+      <p>There is <strong>no fixed formula</strong> for a New York workers' comp settlement. Two workers with the same injury can settle for very different amounts depending on their wages, age, and how strong each side's case is. That said, almost every Section 32 number is built from the same set of building blocks:</p>
+
+      <h3>1. The value of your future indemnity benefits</h3>
+
+      <p>This is usually the largest piece. The carrier estimates how many more weeks it would likely have to pay you, at what weekly rate, if the case stayed open. That depends directly on your <a href="/learn/average-weekly-wage-ny-workers-comp.html">Average Weekly Wage</a> and your degree of disability. A higher weekly benefit and a longer expected period of payments both push the settlement value up.</p>
+
+      <h3>2. The value of any permanency award</h3>
+
+      <p>If your injury qualifies for a <a href="/learn/schedule-loss-of-use-ny-workers-comp.html">Schedule Loss of Use (SLU)</a> award (for arms, legs, hands, feet, fingers, eyes, ears, etc.) or a <a href="/learn/lwec-loss-wage-earning-capacity.html">Loss of Wage Earning Capacity (LWEC)</a> classification (for the back, neck, and other non-schedule injuries), that award is a major anchor for the settlement. An SLU award has a defined dollar value; an LWEC classification translates into a stream of weekly payments — both feed directly into the negotiation.</p>
+
+      <h3>3. Projected future medical costs</h3>
+
+      <p>If you're settling medical benefits too, the carrier estimates what your future care — doctor visits, physical therapy, prescriptions, possible surgery, durable medical equipment — would cost over your lifetime. The more ongoing treatment your injury requires, the more this piece is worth.</p>
+
+      <h3>4. Your age and life expectancy</h3>
+
+      <p>A younger worker with a permanent disability has more years of potential benefits ahead, which generally increases settlement value. Because most New York wage-replacement benefits in permanency cases run toward age 65, age is a key variable on both the indemnity and medical sides.</p>
+
+      <h3>5. The strength of the disputed issues</h3>
+
+      <p>Settlement is a compromise of risk. If the carrier has a real chance of winning — disputing whether your injury is work-related, your degree of disability, or your wage rate — that uncertainty lowers the number, because you're trading the risk of getting nothing for the certainty of getting something. A clean, well-documented, established claim settles for more than a hotly contested one.</p>
+
+      <h3>6. A discount to present value</h3>
+
+      <p>Finally, because you receive the money now instead of spread out over years, the projected future value is discounted to a present-day lump sum. This is why a settlement is almost always less than the raw total of every benefit you could theoretically collect over a lifetime.</p>
+
+      <div class="tips-box">
+        <h4>What raises and lowers your number</h4>
+        <ul>
+          <li><strong>Raises it:</strong> a high AWW, a strong SLU or LWEC percentage, a young age, heavy future medical needs, and a well-established, undisputed claim.</li>
+          <li><strong>Lowers it:</strong> a low AWW, weak or contested permanency evidence, older age, minimal future treatment, and serious disputes the carrier might win.</li>
+        </ul>
+      </div>
+
+      <h2>The Role of AWW and SLU in the Number</h2>
+
+      <p>Two numbers do more to shape a New York settlement than any others: your <strong>Average Weekly Wage</strong> and your <strong>Schedule Loss of Use</strong> award. They're worth understanding on their own.</p>
+
+      <h3>Average Weekly Wage (AWW)</h3>
+
+      <p>Your AWW is the foundation of every dollar figure in your case. It's based on your earnings in the year before your injury (including overtime and, in some cases, a second job), and it sets your weekly benefit rate — generally two-thirds of your AWW, multiplied by your percentage of disability, up to the state maximum for your date of accident. Because the settlement starts from the value of those weekly checks, an AWW that's set too low quietly shrinks everything that follows. Confirming your AWW is correct is one of the highest-leverage things you can do before settling. Our <a href="/learn/average-weekly-wage-ny-workers-comp.html">guide to Average Weekly Wage</a> walks through how it's calculated.</p>
+
+      <h3>Schedule Loss of Use (SLU)</h3>
+
+      <p>For injuries to an extremity — arm, leg, hand, foot, finger, toe, eye, or ear — New York pays a <strong>Schedule Loss of Use</strong> award based on a fixed number of weeks for that body part, multiplied by your percentage of permanent loss and your weekly benefit rate. Because an SLU award already produces a concrete dollar figure, it often becomes the backbone of the settlement: the parties argue over the loss-of-use percentage, attach a number to it, and build the Section 32 around that. Our <a href="/learn/schedule-loss-of-use-ny-workers-comp.html">SLU guide</a> explains which body parts qualify and how the percentage is determined.</p>
+
+      <div class="highlight-box">
+        <strong>Why this matters before you settle:</strong> If your AWW is understated or your SLU percentage is undervalued, the carrier's settlement offer is built on a low base — and you may never know what you left on the table. Run the numbers yourself first so you can recognize a fair offer when you see one.
+      </div>
+
+      <h2>Lump Sum vs. Structured Settlement</h2>
+
+      <p>Once you've agreed on an amount, there's a second decision: how you receive it. A Section 32 can be paid as a <strong>lump sum</strong> or as a <strong>structured settlement</strong>.</p>
+
+      <h3>Lump sum</h3>
+
+      <p>A lump sum pays the entire net amount at once. The advantages are control and flexibility — you can pay off debt, cover immediate needs, or invest as you see fit. The risk is that a large one-time payment can be spent quickly or mismanaged, and once it's gone, the case is closed and there are no more checks coming.</p>
+
+      <h3>Structured settlement</h3>
+
+      <p>A structured settlement pays the amount out over time — monthly, annually, or in scheduled future installments — typically funded through an annuity purchased by the carrier. The advantages are guaranteed long-term income and protection against spending it all at once. A structure can also help preserve eligibility for needs-based benefits like Medicaid or SSI, where a large lump sum could otherwise push you over an asset limit.</p>
+
+      <div class="tips-box">
+        <h4>Which one fits you?</h4>
+        <ul>
+          <li><strong>Lean lump sum</strong> if you have immediate financial needs, you're comfortable managing a large sum, or you want maximum flexibility.</li>
+          <li><strong>Lean structured</strong> if you want guaranteed income over time, you're worried about spending it too fast, or you receive (or may need) needs-based government benefits.</li>
+          <li><strong>Watch for Medicare:</strong> if you're a Medicare beneficiary or likely to become one, the settlement may need a Medicare Set-Aside to protect future medical coverage. This is an area where professional guidance matters.</li>
+        </ul>
+      </div>
+
+      <h2>The Board Approval Process</h2>
+
+      <p>A Section 32 agreement is not a private contract you can simply sign — the <strong>Workers' Compensation Board must approve it</strong> before it takes effect. This is a built-in protection to make sure injured workers understand what they're signing and aren't being shortchanged.</p>
+
+      <h3>Step 1: The agreement is submitted</h3>
+
+      <p>The parties put the settlement terms in writing on the Board's Section 32 forms, including a stipulation describing exactly what's being settled (indemnity, medical, or both) and the amount. The package is submitted to the Board.</p>
+
+      <h3>Step 2: The Board schedules a hearing</h3>
+
+      <p>A <strong>Workers' Compensation Law Judge (WCLJ)</strong> reviews the agreement at a hearing. If you're represented, your attorney appears with you; if you're unrepresented, the judge takes extra care to explain the terms. The judge confirms on the record that you understand you are permanently closing your case and giving up future benefits.</p>
+
+      <h3>Step 3: The judge checks that it's fair</h3>
+
+      <p>The judge will not approve an agreement that is <strong>unfair or unconscionable</strong>. The Board looks at whether the amount is reasonable given the injury, your wage rate, your age, and the issues in the case. If the settlement looks far too low, the judge can decline to approve it.</p>
+
+      <h3>Step 4: The 10-day waiting period</h3>
+
+      <p>After the judge approves the agreement, there is a <strong>10-day period</strong> during which either party may withdraw from the settlement. Once those 10 days pass without a withdrawal, the Section 32 becomes <strong>binding and final</strong>, and the carrier issues payment (typically within a short period after that).</p>
+
+      <div class="warning-box">
+        <strong>Take the waiting period seriously.</strong> The 10 days after approval are your last chance to reconsider. Once that window closes, the agreement is locked in. If you have any doubt, use the time — review the numbers, ask questions, and be certain before it becomes irreversible.
+      </div>
+
+      <h2>Should You Settle? Questions to Ask First</h2>
+
+      <p>Settling can bring closure and a meaningful payment, but it's permanent. Before you agree to a Section 32, work through these questions:</p>
+
+      <div class="checklist-box">
+        <h4>Before you sign a Section 32</h4>
+        <ul>
+          <li>Is my <strong>Average Weekly Wage</strong> correct? If it's too low, every figure built on it is too low.</li>
+          <li>Has my <strong>permanency</strong> (SLU percentage or LWEC classification) been properly evaluated, or am I settling before I know what it's worth?</li>
+          <li>Am I closing <strong>medical</strong> benefits too — and if so, can I afford future treatment out of pocket or through the settlement?</li>
+          <li>Have I reached <strong>maximum medical improvement</strong>, or might I still need more treatment that could raise my case value?</li>
+          <li>Do I receive (or might I need) <strong>Medicaid, SSI, or Medicare</strong>? A lump sum can affect those benefits.</li>
+          <li>Would a <strong>structured</strong> payout protect me better than a lump sum?</li>
+          <li>Have I had the offer reviewed by someone who works in New York comp every day?</li>
+        </ul>
+      </div>
+
+      <h2>Should You Have an Attorney?</h2>
+
+      <p>You can negotiate a Section 32 on your own, but carriers settle cases for a living and you generally settle one once. An experienced New York workers' compensation attorney can press for the correct AWW, fight for a higher permanency percentage, structure the deal to protect government benefits, and recognize when an offer is below what the case is worth.</p>
+
+      <div class="highlight-box">
+        <strong>Good to know:</strong> In New York, you don't pay a workers' comp attorney out of pocket. Attorney fees are set and approved by the Workers' Compensation Law Judge and come out of the recovery — not your wallet up front. On a Section 32, the judge approves the fee as part of the settlement.
+      </div>
+
+      <p>If you'd like to be matched with a workers' compensation attorney in your area, you can <a href="/connect-with-attorney.html">connect with an attorney through The Comp Desk</a>.</p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <h3>What is a Section 32 settlement?</h3>
+        <p>A voluntary, binding agreement under Workers' Compensation Law § 32 in which you and the insurance carrier agree to close all or part of your claim for a set payment. Once a judge approves it and the 10-day window passes, it's almost always final.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How is a workers' comp settlement amount calculated in New York?</h3>
+        <p>There's no fixed formula. The number is built from the value of your future weekly benefits (driven by your AWW), any SLU or LWEC permanency award, projected future medical costs, your age, the strength of the disputed issues, and a discount to present-day value.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I reopen my case after a Section 32 settlement?</h3>
+        <p>Generally no. A Section 32 is designed to be final. Once approved and binding, you usually cannot reopen the claim even if your condition worsens — which is why the decision deserves careful thought before you sign.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How long does it take to get paid?</h3>
+        <p>After the judge approves the agreement, there's a 10-day period in which either side can withdraw. Once that passes, the settlement is binding and the carrier issues payment, typically within a short period afterward.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Lump sum or structured — which is better?</h3>
+        <p>It depends on your situation. A lump sum gives flexibility and control; a structure gives guaranteed income over time and can protect needs-based benefits like Medicaid or SSI. If you receive government benefits or worry about spending it too fast, a structure is worth considering.</p>
+      </div>
+
+      <!-- Related articles -->
+      <div class="related-box">
+        <h4>Related guides</h4>
+        <ul>
+          <li><a href="/learn/average-weekly-wage-ny-workers-comp.html">Average Weekly Wage (AWW)</a> — the foundation of every dollar figure in your settlement.</li>
+          <li><a href="/learn/schedule-loss-of-use-ny-workers-comp.html">Schedule Loss of Use (SLU)</a> — how permanency awards for arms, legs, and other extremities are valued.</li>
+          <li><a href="/learn/lwec-loss-wage-earning-capacity.html">Loss of Wage Earning Capacity (LWEC)</a> — permanency for the back, neck, and non-schedule injuries.</li>
+        </ul>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="article-cta">
+        <h3>Estimate Your Settlement Before You Negotiate</h3>
+        <p>The Comp Desk's free Settlement Calculator helps you ballpark what your New York workers' comp case may be worth — so you can recognize a fair Section 32 offer instead of guessing.</p>
+        <a href="/settlement-calculator" class="cta-btn">Try the Settlement Calculator →</a>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This article is for informational purposes only and does not constitute legal advice. It is not a substitute for consulting with a licensed workers' compensation attorney about your specific situation. Settlement values, the Section 32 process, and how the law applies depend on your individual circumstances and can change. A Section 32 settlement is generally permanent. For advice specific to your case, consult a qualified workers' compensation attorney in New York.
+      </div>
+    </div>
+  </section>
+
+  <footer class="tcd-footer">
+    <div class="wrap" style="flex-direction:column; align-items:center; text-align:center;">
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+      <p style="margin-top:6px;font-size:11px;">Educational content only — not legal advice. Consult a licensed attorney for advice specific to your case.</p>
+      <p style="margin-top:10px;">
+        <a href="/worker">Worker</a>
+        <a href="/learn">Learn</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/contact">Contact</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/audience-switcher.js"></script>
+</body>
+</html>
