@@ -13,17 +13,17 @@
     },
     {
       "source": "/privacy",
-      "destination": "/legal/privacy.html",
+      "destination": "/legal/privacy",
       "permanent": true
     },
     {
       "source": "/privacy.html",
-      "destination": "/legal/privacy.html",
+      "destination": "/legal/privacy",
       "permanent": true
     },
     {
       "source": "/terms",
-      "destination": "/legal/terms.html",
+      "destination": "/legal/terms",
       "permanent": true
     },
 
