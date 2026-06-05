@@ -212,7 +212,7 @@ function computeAWW(state) {
 // SECTION 2 — AWW STRIP (with Compute & Apply)
 // ============================================================================
 
-function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSaveCase, onDeleteCase, saveCaseStatus }) {
+function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSaveCase, onDeleteCase, saveCaseStatus, onOpenFormulas }) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null); // computed result, prior to apply
 
@@ -328,6 +328,7 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
               : saveStatus === 'offline' ? 'Offline'
               : 'Saved'}
           </div>
+          <button className="btn ghost formulas-btn" onClick={() => onOpenFormulas()} title="Formula reference">📐 Formulas</button>
           <div className="theme-cluster">
             <div className="theme-switch">
               {['onyx','eggshell','aurora'].map(t => (
@@ -1090,6 +1091,97 @@ function Paywall({ onClose, reason, tileName }) {
   );
 }
 
+// Formula reference modal — plain-language "how the math works" catalog.
+// Reads window.CD.Formulas.GROUPS (js/formulas-data.js, the single source of
+// truth shared with the mobile app), so NO formula text is duplicated here.
+// Modeled on Paywall (.modal-backdrop / stopPropagation). Pro-tier items are
+// blurred for free users with a "Pro" badge — informational gate only, no
+// paywall wiring (the formulas are reference material, not a tile).
+function FormulasModal({ onClose, tier }) {
+  const isPro = tier === 'pro' || tier === 'firm';
+  const F = (typeof window !== 'undefined' && window.CD && window.CD.Formulas) || null;
+  const groups = (F && Array.isArray(F.GROUPS)) ? F.GROUPS : [];
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal"
+        onClick={e => e.stopPropagation()}
+        style={{ maxWidth: 560, width: '92vw', maxHeight: '86vh', overflowY: 'auto', padding: 22 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <h3 style={{ flex: 1 }}>📐 Formula Reference</h3>
+          <button className="btn ghost" onClick={onClose} title="Close">✕</button>
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--tx-faint)', margin: '0 0 14px' }}>
+          Reference only — verify against the WCL and current WCB guidelines. Not legal advice.
+        </p>
+
+        {groups.length === 0 && (
+          <p>Formula reference is unavailable.</p>
+        )}
+
+        {groups.map(group => (
+          <div key={group.key}>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx)', margin: '18px 0 8px' }}>{group.title}</h4>
+            {(group.items || []).map(item => {
+              const locked = item.tier === 'pro' && !isPro;
+              return (
+                <div
+                  key={item.id}
+                  style={{ background: 'var(--bg)', border: '1px solid var(--bd-soft)', borderRadius: 10, padding: 14, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx)', flex: 1 }}>{item.name}</div>
+                    {item.tier === 'pro' && (
+                      <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: '#fff', background: 'var(--ac)', borderRadius: 5, padding: '2px 7px' }}>Pro</span>
+                    )}
+                  </div>
+
+                  <div
+                    style={{
+                      fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--tx)',
+                      background: 'var(--tile)', border: '1px solid var(--bd-soft)',
+                      borderRadius: 8, padding: '10px 12px', overflowX: 'auto',
+                      ...(locked ? { filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' } : null),
+                    }}>
+                    {item.formula}
+                  </div>
+
+                  {locked ? (
+                    <div style={{ fontSize: 11, color: 'var(--tx-faint)', fontStyle: 'italic', marginTop: 8 }}>
+                      🔒 Available on Pro
+                    </div>
+                  ) : (
+                    <>
+                      {Array.isArray(item.where) && item.where.length > 0 && (
+                        <div style={{ marginTop: 10 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--tx-dim)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>where:</div>
+                          {item.where.map((w, i) => (
+                            <div key={i} style={{ fontSize: 11, color: 'var(--tx-dim)', lineHeight: 1.6 }}>
+                              <span style={{ fontFamily: 'var(--mono)', color: 'var(--tx)', fontWeight: 600 }}>{w.symbol}</span>{' = ' + w.meaning}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {item.explanation && (
+                        <p style={{ fontSize: 12, color: 'var(--tx)', lineHeight: 1.6, margin: '10px 0 0' }}>{item.explanation}</p>
+                      )}
+                      {item.note && (
+                        <div style={{ fontSize: 10, color: 'var(--tx-dim)', fontStyle: 'italic', marginTop: 6 }}>{item.note}</div>
+                      )}
+                      {item.citation && (
+                        <div style={{ fontSize: 10, color: 'var(--tx-dim)', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--bd-soft)' }}>📎 {item.citation}</div>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ============================================================================
 // SECTION 5 — DEFAULTS, TAB FACTORY
 // ============================================================================
@@ -1146,6 +1238,7 @@ function App() {
   const [tweaks, setTweaks] = useState(() => ({ ...DEFAULT_TWEAKS }));
   const [mostRecentId, setMostRecentId] = useState(null);
   const [paywallState, setPaywallState] = useState(null); // null | { reason, tileName? }
+  const [formulasOpen, setFormulasOpen] = useState(false); // Formula reference modal
   const [saveStatus, setSaveStatus] = useState('saved'); // saved|saving|error|offline
   // Transient feedback for the Save to My Cases button (distinct from the
   // background workspace auto-save indicator). Resets to null after 2–3s so
@@ -1732,7 +1825,8 @@ function App() {
         saveStatus={saveStatus}
         onSaveCase={saveCaseAction}
         onDeleteCase={deleteCaseAction}
-        saveCaseStatus={saveCaseStatus}/>
+        saveCaseStatus={saveCaseStatus}
+        onOpenFormulas={() => setFormulasOpen(true)}/>
 
       <div className={'workspace' + (tweaks.paletteCollapsed ? ' palette-collapsed' : '')}>
         <Palette
@@ -1770,6 +1864,8 @@ function App() {
       </footer>
 
       {paywallState && <Paywall onClose={() => setPaywallState(null)} reason={paywallState.reason} tileName={paywallState.tileName} />}
+
+      {formulasOpen && <FormulasModal onClose={() => setFormulasOpen(false)} tier={tier} />}
 
       {conflictToast && (
         <div className="sync-toast" role="alert">

@@ -221,6 +221,9 @@
     // statutory data + rate-bound helpers from window.CD.Calc (single source of
     // truth, so the website and app can't drift).
     await loadScript('/js/calc-core.js');
+    // formulas-data.js — plain-language formula reference, shared with the app.
+    // Plain UMD module (attaches window.CD.Formulas), so loadScript not loadAndTransform.
+    await loadScript('/js/formulas-data.js');
     await loadScript('/js/workspace/constants.js');
     await loadAndTransform('/js/workspace/tiles.js');
     await loadAndTransform('/js/workspace/app.js');
