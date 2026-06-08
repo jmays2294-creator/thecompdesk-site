@@ -343,6 +343,25 @@
             </div>
         </div>
 
+        <!-- Passkeys Section (hidden when the browser lacks WebAuthn) -->
+        <div class="section hidden" id="passkeySection">
+            <h2 class="section-title">Passkeys</h2>
+            <p style="color:var(--txD);font-size:0.95rem;margin-bottom:1.25rem;">Sign in with Face ID, Touch ID, or Windows Hello instead of typing your password.</p>
+            <div id="passkeyList" style="margin-bottom:0.5rem;"></div>
+            <div class="button-group">
+                <button class="button button-primary" id="addPasskeyBtn">Add a passkey</button>
+            </div>
+        </div>
+
+        <!-- Two-Factor Authentication Section -->
+        <div class="section">
+            <h2 class="section-title">Two-factor authentication</h2>
+            <p style="color:var(--txD);font-size:0.95rem;margin-bottom:1.25rem;">Add a 6-digit code from an authenticator app as a second step when you sign in.</p>
+            <div id="mfaStatus" class="info-value loading">Loading…</div>
+            <div id="mfaEnrollArea" class="hidden"></div>
+            <div class="button-group" id="mfaButtons"></div>
+        </div>
+
         <!-- Account Actions Section -->
         <div class="section">
             <h2 class="section-title">Account Actions</h2>
@@ -355,6 +374,8 @@
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SimpleWebAuthn browser helper (passkeys) -->
+    <script src="https://unpkg.com/@simplewebauthn/browser@13/dist/bundle/index.umd.min.js"></script>
     <script>
         const SUPABASE_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_ge2qY18DqmRyBN3VU7kl2g_kMbzk-x-';
@@ -382,6 +403,10 @@
                 // Load user profile
                 await loadUserProfile();
                 await renderSubscriptionInfo();
+
+                // Biometric-grade auth surfaces (independent of subscription)
+                loadPasskeys();
+                loadMfa();
             } catch (error) {
                 console.error('Error initializing page:', error);
                 showMessage('Failed to load account information.', 'error');
@@ -540,8 +565,181 @@
             messageEl.className = `message ${type}`;
         }
 
+        // ──────────────────────────────────────────────────────────────
+        // Passkeys (WebAuthn) — the "Face ID equivalent". Listing + delete go
+        // straight to the RLS-protected webauthn_credentials table; the
+        // register ceremony runs through the webauthn-register Edge Function.
+        // ──────────────────────────────────────────────────────────────
+        async function loadPasskeys() {
+            if (!window.PublicKeyCredential) return; // section stays hidden — no WebAuthn support
+            document.getElementById('passkeySection').classList.remove('hidden');
+            const list = document.getElementById('passkeyList');
+            const { data, error } = await sb
+                .from('webauthn_credentials')
+                .select('id, created_at, transports')
+                .order('created_at', { ascending: false });
+            if (error) {
+                console.error('[account] PASSKEY_LIST_FAILED', error);
+                list.innerHTML = '<div class="info-value" style="color:#fca5a5;">Could not load your passkeys.</div>';
+                return;
+            }
+            if (!data || !data.length) {
+                list.innerHTML = '<div class="info-value loading">No passkeys yet.</div>';
+                return;
+            }
+            list.innerHTML = data.map(c => `
+                <div class="detail-row" style="align-items:center;">
+                    <span class="detail-label">🔑 Passkey · added ${new Date(c.created_at).toLocaleDateString()}</span>
+                    <button class="button button-danger" style="padding:0.4rem 0.9rem;font-size:0.85rem;" onclick="removePasskey('${c.id}')">Remove</button>
+                </div>`).join('');
+        }
+
+        async function addPasskey() {
+            const btn = document.getElementById('addPasskeyBtn');
+            btn.disabled = true; btn.textContent = 'Follow your device prompt…';
+            try {
+                const { data: opt, error: e1 } = await sb.functions.invoke('webauthn-register', { body: { action: 'options' } });
+                if (e1 || !opt || !opt.options) throw new Error((e1 && e1.message) || 'Could not start passkey setup.');
+                const attResp = await SimpleWebAuthnBrowser.startRegistration({ optionsJSON: opt.options });
+                const { data: ver, error: e2 } = await sb.functions.invoke('webauthn-register', { body: { action: 'verify', handle: opt.handle, response: attResp } });
+                if (e2 || !ver || !ver.verified) throw new Error((e2 && e2.message) || 'Could not verify the passkey.');
+                showMessage('Passkey added. You can now sign in with it.', 'success');
+                await loadPasskeys();
+            } catch (err) {
+                if (err && (err.name === 'NotAllowedError' || err.name === 'AbortError')) {
+                    showMessage('Passkey setup canceled.', 'info');
+                } else {
+                    console.error('[account] ADD_PASSKEY_FAILED', err);
+                    showMessage((err && err.message) || 'Could not add passkey.', 'error');
+                }
+            } finally {
+                btn.disabled = false; btn.textContent = 'Add a passkey';
+            }
+        }
+
+        async function removePasskey(id) {
+            if (!confirm('Remove this passkey? You can add it again later.')) return;
+            const { error } = await sb.from('webauthn_credentials').delete().eq('id', id);
+            if (error) {
+                console.error('[account] REMOVE_PASSKEY_FAILED', error);
+                showMessage('Could not remove passkey.', 'error');
+                return;
+            }
+            showMessage('Passkey removed.', 'success');
+            await loadPasskeys();
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // TOTP two-factor — Supabase built-in MFA (no server code needed).
+        // ──────────────────────────────────────────────────────────────
+        let _mfaEnrollId = null;
+
+        async function loadMfa() {
+            const statusEl = document.getElementById('mfaStatus');
+            const btns = document.getElementById('mfaButtons');
+            const enrollArea = document.getElementById('mfaEnrollArea');
+            enrollArea.classList.add('hidden'); enrollArea.innerHTML = ''; btns.innerHTML = '';
+            try {
+                const { data, error } = await sb.auth.mfa.listFactors();
+                if (error) throw error;
+                const verified = (data && data.totp ? data.totp : []).filter(f => f.status === 'verified');
+                statusEl.classList.remove('loading');
+                if (verified.length) {
+                    statusEl.innerHTML = '<span class="tier-badge active">Enabled</span>';
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'button button-danger';
+                    removeBtn.textContent = 'Remove 2FA';
+                    removeBtn.onclick = () => unenrollMfa(verified[0].id);
+                    btns.appendChild(removeBtn);
+                } else {
+                    statusEl.textContent = 'Not enabled.';
+                    const addBtn = document.createElement('button');
+                    addBtn.className = 'button button-primary';
+                    addBtn.textContent = 'Enable two-factor';
+                    addBtn.onclick = enrollMfa;
+                    btns.appendChild(addBtn);
+                }
+            } catch (err) {
+                statusEl.classList.remove('loading');
+                statusEl.textContent = 'Could not load two-factor status.';
+                console.error('[account] MFA_LOAD_FAILED', err);
+            }
+        }
+
+        async function enrollMfa() {
+            const enrollArea = document.getElementById('mfaEnrollArea');
+            const btns = document.getElementById('mfaButtons');
+            // Clear any stale unverified factor from an abandoned earlier attempt.
+            try {
+                const { data } = await sb.auth.mfa.listFactors();
+                for (const f of (data && data.all ? data.all : [])) {
+                    if (f.status === 'unverified') await sb.auth.mfa.unenroll({ factorId: f.id });
+                }
+            } catch (_) { /* best effort */ }
+
+            const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp' });
+            if (error) {
+                console.error('[account] MFA_ENROLL_FAILED', error);
+                showMessage(error.message || 'Could not start 2FA setup.', 'error');
+                return;
+            }
+            _mfaEnrollId = data.id;
+            btns.innerHTML = '';
+            enrollArea.classList.remove('hidden');
+            enrollArea.innerHTML = `
+                <div class="subscription-details" style="text-align:center;">
+                    <p style="color:var(--txD);font-size:0.9rem;margin-bottom:1rem;">Scan this with Google Authenticator, Authy, or 1Password — then enter the 6-digit code it shows.</p>
+                    <img src="${data.totp.qr_code}" alt="Two-factor QR code" style="width:200px;height:200px;background:#fff;border-radius:8px;padding:8px;"/>
+                    <div style="margin:1rem 0;font-size:0.85rem;color:var(--txM);">Or enter this key manually:<br><code style="color:var(--tx);font-size:0.95rem;word-break:break-all;">${data.totp.secret}</code></div>
+                    <input id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" style="width:170px;text-align:center;letter-spacing:5px;font-size:1.2rem;padding:0.6rem;border-radius:6px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);"/>
+                </div>`;
+            const verifyBtn = document.createElement('button');
+            verifyBtn.className = 'button button-primary';
+            verifyBtn.textContent = 'Verify & enable';
+            verifyBtn.onclick = verifyMfaEnroll;
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'button button-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = () => { _mfaEnrollId = null; loadMfa(); };
+            btns.appendChild(verifyBtn); btns.appendChild(cancelBtn);
+            const codeEl = document.getElementById('mfaCode');
+            codeEl.focus();
+            codeEl.addEventListener('keydown', e => { if (e.key === 'Enter') verifyMfaEnroll(); });
+        }
+
+        async function verifyMfaEnroll() {
+            const code = (document.getElementById('mfaCode').value || '').trim();
+            if (!/^\d{6}$/.test(code)) {
+                showMessage('Enter the 6-digit code from your authenticator app.', 'error');
+                return;
+            }
+            if (!_mfaEnrollId) return;
+            const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: _mfaEnrollId, code });
+            if (error) {
+                console.error('[account] MFA_VERIFY_FAILED', error);
+                showMessage(error.message || 'That code did not match. Try again.', 'error');
+                return;
+            }
+            _mfaEnrollId = null;
+            showMessage('Two-factor authentication enabled.', 'success');
+            await loadMfa();
+        }
+
+        async function unenrollMfa(factorId) {
+            if (!confirm('Remove two-factor authentication? Your account will be less protected.')) return;
+            const { error } = await sb.auth.mfa.unenroll({ factorId });
+            if (error) {
+                console.error('[account] MFA_UNENROLL_FAILED', error);
+                showMessage(error.message || 'Could not remove 2FA.', 'error');
+                return;
+            }
+            showMessage('Two-factor authentication removed.', 'success');
+            await loadMfa();
+        }
+
         // Event listeners
         document.getElementById('signOutButton').addEventListener('click', handleSignOut);
+        document.getElementById('addPasskeyBtn').addEventListener('click', addPasskey);
 
         // Initialize page
         initializePage();

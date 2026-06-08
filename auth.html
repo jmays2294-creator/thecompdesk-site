@@ -8,6 +8,7 @@
 <meta name="description" content="Sign in or create an account to access The Comp Desk Pro features.">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/@simplewebauthn/browser@13/dist/bundle/index.umd.min.js"></script>
 <style>
 :root{--bg:var(--skin-surface);--card:var(--skin-surface-elev);--cardA:var(--skin-surface-warm);--bd:var(--skin-divider);--ac:var(--skin-accent);--acD:var(--skin-accent-deep);--acG:rgba(232,119,34,0.12);--gd:var(--skin-accent);--gn:#5BC79A;--gnG:rgba(91,199,154,0.12);--rd:#ef4444;--tx:var(--skin-text);--txD:var(--skin-text-soft);--txM:var(--skin-text-muted);--wh:var(--skin-text);--font:var(--font-body,'DM Sans',system-ui,sans-serif);}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -117,12 +118,17 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 
 let state={
-  mode:'login',        // 'login' | 'signup_step1' | 'signup_step2'
+  mode:'login',        // 'login' | 'signup_step1' | 'signup_step2' | 'mfa'
   userType:'worker',   // 'attorney' | 'worker'
   connectProgram:false,
   email:'',
-  password:''
+  password:'',
+  mfaFactorId:null     // set after a password login that needs a TOTP step
 };
+
+// Passkeys (WebAuthn) require a platform authenticator. Hide the button where
+// the browser has no PublicKeyCredential at all.
+const hasWebAuthn = typeof window.PublicKeyCredential !== 'undefined';
 
 // Check if already logged in
 (async()=>{
@@ -135,6 +141,10 @@ function render(){
   if(state.mode==='login') card.innerHTML=renderLogin();
   else if(state.mode==='signup_step1') card.innerHTML=renderSignupStep1();
   else if(state.mode==='signup_step2') card.innerHTML=renderSignupStep2();
+  else if(state.mode==='mfa') card.innerHTML=renderMfaChallenge();
+  // Passkey sign-in needs an async handler bound after the markup is in the DOM.
+  const pk=document.getElementById('passkey-btn');
+  if(pk) pk.addEventListener('click',handlePasskeyLogin);
 }
 
 function renderLogin(){
@@ -151,8 +161,23 @@ function renderLogin(){
     <div class="forgot"><a href="#" onclick="handleForgot();return false;">Forgot password?</a></div>
     <button class="submit-btn" id="submit-btn" onclick="handleLogin()">Sign In</button>
     <div class="divider">or</div>
+    ${hasWebAuthn?`<button class="guest-btn" id="passkey-btn" style="margin-bottom:10px;">🔐 Sign in with a passkey</button>`:``}
     <button class="guest-btn" onclick="window.location.href='/'">Continue as Guest</button>
     <button class="switch-btn" onclick="state.mode='signup_step1';render()">Don't have an account? <b>Sign Up</b></button>
+  `;
+}
+
+function renderMfaChallenge(){
+  return `
+    <div class="msg" id="msg"></div>
+    <p style="font-size:14px;color:var(--tx);text-align:center;font-weight:700;margin-bottom:6px;">Two-factor authentication</p>
+    <p style="font-size:12px;color:var(--txD);text-align:center;margin-bottom:16px;">Enter the 6-digit code from your authenticator app to finish signing in.</p>
+    <div class="form-group">
+      <label>Authentication code</label>
+      <input type="text" id="mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" style="text-align:center;letter-spacing:6px;font-size:18px;">
+    </div>
+    <button class="submit-btn" id="submit-btn" onclick="handleMfaLogin()">Verify</button>
+    <button class="switch-btn" onclick="state.mfaFactorId=null;state.mode='login';render()">← Back to sign in</button>
   `;
 }
 
@@ -328,7 +353,63 @@ async function handleLogin(){
   btn.disabled=true;btn.textContent='Signing in...';msg.textContent='';
   const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Sign In';return;}
+  // If this account has a verified TOTP factor, password alone leaves the
+  // session at aal1 — prompt for the 6-digit code before proceeding.
+  try{
+    const{data:aal}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(aal&&aal.nextLevel==='aal2'&&aal.currentLevel!=='aal2'){
+      const{data:factors}=await sb.auth.mfa.listFactors();
+      const verified=(factors&&factors.totp?factors.totp:[]).filter(f=>f.status==='verified');
+      if(verified.length){
+        state.mfaFactorId=verified[0].id;
+        state.mode='mfa';
+        render();
+        setTimeout(()=>{const c=document.getElementById('mfa-code');if(c)c.focus();},0);
+        return;
+      }
+    }
+  }catch(err){console.error('[auth] MFA_CHECK_FAILED',err);}
   window.location.href='/account';
+}
+
+async function handleMfaLogin(){
+  const code=(document.getElementById('mfa-code').value||'').trim();
+  const msg=document.getElementById('msg');
+  if(!/^\d{6}$/.test(code)){msg.className='msg error';msg.textContent='Enter the 6-digit code from your authenticator app.';return;}
+  if(!state.mfaFactorId){state.mode='login';render();return;}
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Verifying...';msg.textContent='';
+  const{error}=await sb.auth.mfa.challengeAndVerify({factorId:state.mfaFactorId,code});
+  if(error){msg.className='msg error';msg.textContent=error.message||'That code did not match. Try again.';btn.disabled=false;btn.textContent='Verify';return;}
+  window.location.href='/account';
+}
+
+// Sign in with a passkey (usernameless WebAuthn). Options + verify run through
+// the webauthn-authenticate Edge Function, which returns a one-time token_hash
+// we exchange for a real Supabase session via verifyOtp.
+async function handlePasskeyLogin(){
+  const msg=document.getElementById('msg');
+  const btn=document.getElementById('passkey-btn');
+  if(msg){msg.className='msg';msg.textContent='';}
+  if(btn){btn.disabled=true;btn.textContent='Follow your device prompt…';}
+  try{
+    const{data:opt,error:e1}=await sb.functions.invoke('webauthn-authenticate',{body:{action:'options'}});
+    if(e1||!opt||!opt.options)throw new Error((e1&&e1.message)||'Could not start passkey sign-in.');
+    const asseResp=await SimpleWebAuthnBrowser.startAuthentication({optionsJSON:opt.options});
+    const{data:ver,error:e2}=await sb.functions.invoke('webauthn-authenticate',{body:{action:'verify',handle:opt.handle,response:asseResp}});
+    if(e2||!ver||!ver.token_hash)throw new Error((e2&&e2.message)||(ver&&ver.error)||'Passkey sign-in failed.');
+    const{error:e3}=await sb.auth.verifyOtp({type:'magiclink',token_hash:ver.token_hash});
+    if(e3)throw new Error(e3.message||'Could not establish your session.');
+    window.location.href='/account';
+  }catch(err){
+    if(err&&(err.name==='NotAllowedError'||err.name==='AbortError')){
+      if(btn){btn.disabled=false;btn.textContent='🔐 Sign in with a passkey';}
+      return; // user dismissed the platform prompt
+    }
+    console.error('[auth] PASSKEY_LOGIN_FAILED',err);
+    if(msg){msg.className='msg error';msg.textContent=(err&&err.message)||'Passkey sign-in failed.';}
+    if(btn){btn.disabled=false;btn.textContent='🔐 Sign in with a passkey';}
+  }
 }
 
 async function handleForgot(){
@@ -344,6 +425,7 @@ async function handleForgot(){
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
     if(state.mode==='login')handleLogin();
+    else if(state.mode==='mfa')handleMfaLogin();
     else if(state.mode==='signup_step1'&&state.userType==='worker')handleWorkerSignup();
     else if(state.mode==='signup_step1'&&state.userType==='attorney')goToStep2();
     else if(state.mode==='signup_step2')handleAttorneySignup();
