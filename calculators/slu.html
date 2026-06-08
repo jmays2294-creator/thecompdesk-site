@@ -77,7 +77,7 @@
             <label class="field-label" for="awwInput">Average Weekly Wage (AWW)</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="awwInput" value="1683.69" step="0.01" aria-label="Average weekly wage">
+              <input type="number" id="awwInput" data-fieldhelp="aww" value="1683.69" step="0.01" aria-label="Average weekly wage">
             </div>
             <span class="field-hint">Enter AWW — comp rate auto-calculated as 2/3 (capped)</span>
           </div>
@@ -91,7 +91,7 @@
           </div>
           <div class="field-group">
             <label class="field-label" for="doiDate">Date of Injury</label>
-            <input type="date" id="doiDate" aria-label="Date of injury — auto-fills max rate">
+            <input type="date" id="doiDate" data-fieldhelp="doa" aria-label="Date of injury — auto-fills max rate">
             <span class="field-hint">Auto-fills max rate</span>
           </div>
         </div>
@@ -533,6 +533,8 @@
   </style>
   <script src="/js/footer-contact.js" defer></script>
   <script src="/js/header-attorney-cta.js" defer></script>
+  <script src="/js/field-help-registry.js" defer></script>
+  <script src="/js/field-help.js" defer></script>
   <script src="/js/audience-switcher.js"></script>
 </body>
 </html>

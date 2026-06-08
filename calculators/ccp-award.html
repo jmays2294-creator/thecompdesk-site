@@ -252,7 +252,7 @@
             <div class="aww-hero-label">Average Weekly Wage (AWW)</div>
             <div class="field-wrap" style="margin-top:6px;max-width:200px;">
               <span class="field-prefix">$</span>
-              <input type="number" id="awwInput" value="1200.00" step="0.01"
+              <input type="number" id="awwInput" data-fieldhelp="aww" value="1200.00" step="0.01"
                      aria-label="Average weekly wage — used to auto-calculate all period rates"
                      min="0">
             </div>
@@ -268,7 +268,7 @@
         <div class="fields-row" style="margin-bottom:0;">
           <div class="field-group">
             <label class="field-label" for="doaDate">Date of Accident (DOA)</label>
-            <input type="date" id="doaDate" aria-label="Date of accident — auto-fills statutory max rate">
+            <input type="date" id="doaDate" data-fieldhelp="doa" aria-label="Date of accident — auto-fills statutory max rate">
             <span class="field-hint">Auto-fills statutory max rate</span>
           </div>
           <div class="field-group">
@@ -1080,6 +1080,8 @@
   </script>
   <script src="/js/footer-contact.js" defer></script>
   <script src="/js/header-attorney-cta.js" defer></script>
+  <script src="/js/field-help-registry.js" defer></script>
+  <script src="/js/field-help.js" defer></script>
   <script src="/js/audience-switcher.js"></script>
 </body>
 </html>
