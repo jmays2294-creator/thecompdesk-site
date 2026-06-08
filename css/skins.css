@@ -289,6 +289,40 @@ body.tcd-skinned .tcd-nav-links a {
 }
 body.tcd-skinned .tcd-nav-links a:hover { color: var(--skin-text); }
 
+/* ─── Nav right cluster + Sign In / Sign Up CTA ──────────────────────
+ * Groups the audience-switch pill with a highlighted (filled accent)
+ * auth CTA so it draws the eye, matching the app's amber accent.
+ */
+body.tcd-skinned .tcd-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+body.tcd-skinned .tcd-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--skin-accent);
+  color: var(--tcd-navy);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1.5px solid var(--skin-accent);
+  transition:
+    background var(--rhythm-fast) var(--ease-out),
+    border-color var(--rhythm-fast) var(--ease-out),
+    transform var(--rhythm-fast) var(--ease-out);
+}
+body.tcd-skinned .tcd-nav-cta:hover {
+  background: var(--skin-accent-soft);
+  border-color: var(--skin-accent-soft);
+  color: var(--tcd-navy);
+  transform: translateY(-1px);
+}
+
 /* ─── Audience Switcher Pill (always-visible) ────────────────────────
  * Lives in the nav. Click toggles between worker ↔ attorney.
  * Built as two segments with a sliding indicator.
