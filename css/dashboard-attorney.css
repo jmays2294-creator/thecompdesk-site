@@ -1,0 +1,408 @@
+/* ============================================================================
+ * dashboard-attorney.css — attorney dashboard (Attorney dashboard agent, Wave 2)
+ * ----------------------------------------------------------------------------
+ * OWNER: Attorney dashboard agent. See ops/dev/APP_REDESIGN_SPEC.md §7.
+ * Attorney (dark/navy) skin: consumes --skin-* tokens (never hardcoded hex),
+ * Geist display, JetBrains Mono numerics, fast/precise rhythm on --rhythm-*.
+ * All motion collapses under prefers-reduced-motion (rhythm tokens go to 1ms;
+ * JS also gates the gauge sweep). Scoped under .atty-dash so it never leaks.
+ * ==========================================================================*/
+
+.atty-dash {
+  font-family: var(--font-body);
+  color: var(--skin-text);
+  padding-bottom: 32px;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+.atty-hero {
+  padding: var(--space-5) var(--space-1) var(--space-4);
+}
+.atty-hero-eyebrow {
+  font-family: var(--font-numeric);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--skin-accent);
+  margin-bottom: var(--space-2);
+}
+.atty-hero-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: var(--display-leading);
+  font-size: clamp(26px, 7vw, 34px);
+  color: var(--skin-text);
+  margin: 0 0 var(--space-3);
+}
+.atty-hero-badges { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.atty-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-family: var(--font-numeric);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--skin-surface-warm);
+  color: var(--skin-text-soft);
+  border: 1px solid var(--skin-divider);
+}
+.atty-badge-pro { background: rgba(232,119,34,0.16); color: var(--skin-accent-soft); border-color: rgba(232,119,34,0.35); }
+.atty-badge-firm { background: rgba(232,119,34,0.22); color: var(--skin-accent-soft); border-color: rgba(232,119,34,0.45); }
+
+/* ── Section headers ──────────────────────────────────────────────────── */
+.atty-section-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--space-6) var(--space-1) var(--space-3);
+}
+.atty-section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: var(--display-tracking);
+  font-size: 15px;
+  color: var(--skin-text);
+}
+.atty-demo-tag {
+  font-family: var(--font-numeric);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--skin-surface-warm);
+  color: var(--skin-text-muted);
+  border: 1px dashed var(--skin-divider);
+}
+
+/* ── Metrics panel (gauges) ───────────────────────────────────────────── */
+.atty-metrics-panel {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  box-shadow: var(--skin-card-shadow);
+  padding: var(--space-4);
+  margin: 0 var(--space-1);
+}
+.atty-metrics-panel .atty-section-hd { margin: 0 0 var(--space-3); }
+
+.atty-gauge-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+.atty-gauge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.atty-gauge-card-title {
+  font-family: var(--font-numeric);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--skin-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* gauge = svg + centered readout overlay */
+.atty-gauge { position: relative; width: 168px; max-width: 100%; aspect-ratio: 1 / 1; }
+.atty-gauge-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.atty-gauge-track { stroke: var(--skin-surface-warm); }
+.atty-gauge-fill  { stroke: var(--skin-accent); filter: drop-shadow(0 0 6px rgba(232,119,34,0.35)); }
+.atty-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.atty-gauge-value {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 1;
+  color: var(--skin-text);
+  font-variant-numeric: tabular-nums;
+}
+.atty-gauge-sub {
+  font-family: var(--font-numeric);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--skin-text-muted);
+  margin-top: 4px;
+}
+.atty-conversion {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: var(--space-2);
+}
+.atty-conversion-num {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--skin-accent-soft);
+  font-variant-numeric: tabular-nums;
+}
+.atty-conversion-lbl {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--skin-text-muted);
+}
+
+/* metric editor */
+.atty-metric-editor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--skin-divider);
+}
+.atty-metric-field { display: flex; flex-direction: column; gap: 4px; }
+.atty-metric-field-lbl {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--skin-text-muted);
+}
+.atty-metric-input {
+  font-family: var(--font-numeric);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--skin-text);
+  background: var(--skin-surface-warm);
+  border: 1px solid var(--skin-divider);
+  border-radius: 10px;
+  padding: 9px 12px;
+  min-height: var(--tap-min);
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.atty-metric-input:focus-visible {
+  outline: 2px solid var(--skin-accent);
+  outline-offset: 1px;
+  border-color: var(--skin-accent);
+}
+
+/* ── Quick calc links ─────────────────────────────────────────────────── */
+.atty-quick-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 var(--space-1);
+}
+.atty-quick-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 12px var(--space-4);
+  text-align: left;
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  color: var(--skin-text);
+  cursor: pointer;
+  transition: transform var(--rhythm-fast) var(--ease-out),
+              border-color var(--rhythm-fast) var(--ease-out),
+              background var(--rhythm-fast) var(--ease-out);
+}
+.atty-quick-item:hover,
+.atty-quick-item:focus-visible {
+  border-color: var(--skin-accent);
+  background: var(--skin-surface-warm);
+  transform: translateX(3px);
+  outline: none;
+}
+.atty-quick-item:focus-visible { outline: 2px solid var(--skin-accent); outline-offset: 2px; }
+.atty-quick-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+.atty-quick-hint {
+  font-family: var(--font-numeric);
+  font-size: 11px;
+  color: var(--skin-text-muted);
+  letter-spacing: 0.04em;
+}
+.atty-quick-arrow {
+  margin-left: auto;
+  font-size: 16px;
+  color: var(--skin-accent);
+  transition: transform var(--rhythm-fast) var(--ease-out);
+}
+.atty-quick-item:hover .atty-quick-arrow { transform: translateX(3px); }
+
+/* ── Upgrade banner ───────────────────────────────────────────────────── */
+.atty-upgrade-banner {
+  margin: var(--space-5) var(--space-1) 0;
+  padding: var(--space-5);
+  border-radius: var(--skin-card-radius);
+  background: linear-gradient(135deg, rgba(232,119,34,0.18), rgba(232,119,34,0.06));
+  border: 1px solid rgba(232,119,34,0.30);
+}
+.atty-upgrade-banner h3 {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 18px;
+  margin: 0 0 var(--space-2);
+  color: var(--skin-text);
+}
+.atty-upgrade-banner p {
+  font-size: 13px;
+  color: var(--skin-text-soft);
+  margin: 0 0 var(--space-4);
+  line-height: var(--body-leading);
+}
+.atty-upgrade-btn {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  min-height: var(--tap-min);
+  padding: 11px var(--space-5);
+  border: none;
+  border-radius: 10px;
+  background: var(--skin-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--rhythm-fast) var(--ease-out);
+}
+.atty-upgrade-btn:hover { background: var(--skin-accent-soft); }
+.atty-upgrade-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ── Feature grid ─────────────────────────────────────────────────────── */
+.atty-feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: 0 var(--space-1);
+}
+.atty-feature-card {
+  position: relative;
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  padding: var(--space-4);
+  transition: transform var(--rhythm-fast) var(--ease-out),
+              border-color var(--rhythm-fast) var(--ease-out);
+}
+.atty-feature-card.atty-clickable { cursor: pointer; }
+.atty-feature-card.atty-clickable:hover,
+.atty-feature-card.atty-clickable:focus-visible {
+  border-color: var(--skin-accent);
+  transform: translateY(-2px);
+}
+.atty-feature-card.atty-locked { opacity: 0.72; }
+.atty-feature-flag,
+.atty-feature-lock {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  font-size: 10px;
+}
+.atty-feature-flag {
+  font-family: var(--font-numeric);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--skin-surface-warm);
+  color: var(--skin-text-muted);
+}
+.atty-feature-icon { font-size: 24px; margin-bottom: var(--space-2); }
+.atty-feature-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--skin-text);
+  margin-bottom: 3px;
+}
+.atty-feature-desc {
+  font-size: 12px;
+  color: var(--skin-text-muted);
+  line-height: 1.45;
+  margin-bottom: var(--space-3);
+}
+.atty-feature-foot { display: flex; }
+.atty-tier-badge {
+  font-family: var(--font-numeric);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.atty-tier-badge.is-free { background: var(--skin-surface-warm); color: var(--skin-text-muted); }
+.atty-tier-badge.is-paid { background: rgba(232,119,34,0.16); color: var(--skin-accent-soft); }
+
+/* ── Firm card ────────────────────────────────────────────────────────── */
+.atty-firm-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0 var(--space-1);
+  padding: var(--space-4);
+  background: var(--skin-surface-elev);
+  border: 1px solid rgba(232,119,34,0.30);
+  border-radius: var(--skin-card-radius);
+  cursor: pointer;
+  transition: transform var(--rhythm-fast) var(--ease-out),
+              border-color var(--rhythm-fast) var(--ease-out);
+}
+.atty-firm-card:hover,
+.atty-firm-card:focus-visible {
+  border-color: var(--skin-accent);
+  transform: translateX(3px);
+  outline: none;
+}
+.atty-firm-icon { font-size: 26px; }
+.atty-firm-body { flex: 1; }
+.atty-firm-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--skin-text);
+}
+.atty-firm-desc { font-size: 12px; color: var(--skin-text-muted); }
+
+/* ── Disclaimer ───────────────────────────────────────────────────────── */
+.atty-disclaimer {
+  margin-top: var(--space-6);
+  text-align: center;
+  font-size: 11px;
+  color: var(--skin-text-muted);
+}
+
+/* ── Narrow phones: stack gauges ──────────────────────────────────────── */
+@media (max-width: 360px) {
+  .atty-gauge-row { grid-template-columns: 1fr; gap: var(--space-5); }
+  .atty-feature-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Reduced motion: kill transitions/transforms (gauge JS also gates) ─── */
+@media (prefers-reduced-motion: reduce) {
+  .atty-quick-item,
+  .atty-quick-arrow,
+  .atty-feature-card,
+  .atty-firm-card,
+  .atty-gauge-fill { transition: none !important; }
+  .atty-quick-item:hover,
+  .atty-firm-card:hover,
+  .atty-feature-card.atty-clickable:hover { transform: none; }
+}

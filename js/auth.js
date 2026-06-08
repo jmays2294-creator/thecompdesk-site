@@ -354,6 +354,48 @@ async function deleteCalculation(calcId) {
 }
 
 /**
+ * Fetch the signed-in user's profile row — the fields the shared app dashboard
+ * needs to render and to route worker vs attorney.
+ *
+ * `designation` ('attorney' | 'worker') is the single source of truth for which
+ * dashboard to show, mirroring the native app's "designation bypass". It falls
+ * back to `user_type` (older rows) and finally 'worker' (the app's default).
+ *
+ * Fail LOUD per the Database Operations Playbook: a read error is surfaced
+ * (console + non-blocking toast) rather than silently degrading. We still
+ * return a best-effort object so the page renders the worker shell instead of a
+ * blank screen — but the failure is never hidden.
+ *
+ * @param {string} userId - authenticated user id
+ * @returns {Promise<Object>} profile-ish object (always defined)
+ */
+async function getProfile(userId) {
+  if (!userId) return { designation: 'worker' };
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('designation, user_type, full_name, current_aww, has_attorney')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      console.error('[auth] PROFILE_FETCH_FAILED', error);
+      showNonBlockingToast(
+        "We couldn't load your profile. Some dashboard details may be missing — retrying on refresh."
+      );
+      return { designation: 'worker' };
+    }
+    return data;
+  } catch (err) {
+    console.error('[auth] PROFILE_FETCH_FAILED', err);
+    showNonBlockingToast(
+      "We couldn't load your profile. Some dashboard details may be missing — retrying on refresh."
+    );
+    return { designation: 'worker' };
+  }
+}
+
+/**
  * Sign out user and redirect to home
  */
 async function signOut() {
@@ -376,6 +418,7 @@ export {
   hasAccess,
   getUser,
   getOptionalUser,
+  getProfile,
   saveCalculation,
   getUserCases,
   getCaseCalculations,
