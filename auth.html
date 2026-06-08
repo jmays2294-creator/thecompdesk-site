@@ -276,7 +276,7 @@ async function handleWorkerSignup(){
   if(pass!==pass2){msg.className='msg error';msg.textContent='Passwords do not match.';return;}
   const btn=document.querySelector('.submit-btn');
   btn.disabled=true;btn.textContent='Creating account...';
-  const{data,error}=await sb.auth.signUp({email,password:pass});
+  const{data,error}=await sb.auth.signUp({email,password:pass,options:{emailRedirectTo:'https://thecompdesk.com/confirmed.html'}});
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Create Account';return;}
   // Update profile with user_type
   if(data.user){
@@ -300,7 +300,7 @@ async function handleAttorneySignup(){
   if(!name||!firm){msg.className='msg error';msg.textContent='Please enter your name and firm name.';return;}
   const btn=document.querySelector('.submit-btn');
   btn.disabled=true;btn.textContent='Creating account...';
-  const{data,error}=await sb.auth.signUp({email:state.email,password:state.password});
+  const{data,error}=await sb.auth.signUp({email:state.email,password:state.password,options:{emailRedirectTo:'https://thecompdesk.com/confirmed.html'}});
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Create Attorney Account';return;}
   // Update profile with attorney details
   if(data.user){

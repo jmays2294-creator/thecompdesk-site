@@ -275,7 +275,7 @@ async function handleWorkerSignup(){
   btn.disabled=true;btn.textContent='Creating account...';
   const{data,error}=await sb.auth.signUp({
     email,password:pass,
-    options:{data:{user_type:'worker'}}
+    options:{data:{user_type:'worker'},emailRedirectTo:'https://thecompdesk.com/confirmed.html'}
   });
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Create Account';return;}
   if(data.user&&!data.session){
@@ -306,7 +306,7 @@ async function handleAttorneySignup(){
       r_number:rnumber,
       phone:phone,
       referral_enrolled:connectProgram // TODO: rename DB field to attorney_connect_enrolled (Dev coordination)
-    }}
+    },emailRedirectTo:'https://thecompdesk.com/confirmed.html'}
   });
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Create Attorney Account';return;}
   if(data.user&&!data.session){
