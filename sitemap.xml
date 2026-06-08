@@ -262,6 +262,16 @@
     <priority>0.2</priority>
   </url>
 
+  <!-- ==================== UTILITY ==================== -->
+
+  <!-- Email-confirmation landing page (Supabase emailRedirectTo target). Indexable, low priority. -->
+  <url>
+    <loc>https://thecompdesk.com/confirmed</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+
   <!-- ==========================================================
        EXCLUDED (noindex / auth-gated / private):
        /account.html, /auth.html, /auth_v2.html, /dashboard/,
