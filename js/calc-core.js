@@ -266,12 +266,41 @@
     return applyRateBounds(raw, awwN, minRate, maxRate);
   }
 
-  // Exact weeks between two YYYY-MM-DD dates (no rounding).
-  function weeksBetween(start, end) {
+  // ── Canonical date helpers (byte-identical across app + website + extension;
+  // do not let them drift — see ops/secretary/calculator_fixes_scope_and_prompts.md).
+  // Inclusive day span between two YYYY-MM-DD strings (both endpoints counted).
+  // UTC parse is DST-immune; Math.round guards float drift.
+  function inclusiveDays(start, end) {
     if (!start || !end) return 0;
-    const s = new Date(start + 'T00:00:00'), e = new Date(end + 'T00:00:00');
-    const wks = (e - s) / (864e5 * 7);
-    return wks > 0 ? wks : 0;
+    const s = new Date(start), e = new Date(end);
+    if (isNaN(s) || isNaN(e) || e < s) return 0;
+    return Math.round((e - s) / 86400000) + 1;
+  }
+  // Weeks for the period at index i within the periods array.
+  // FIX #2: drop the shared boundary day when this period is exactly consecutive
+  // to the immediately-prior non-HIA period (this.start === prev.end).
+  function periodWeeks(periods, i) {
+    const p = periods[i];
+    if (!p || p.desg === 'HIA') return 0;
+    let days = inclusiveDays(p.start, p.end);
+    const prev = i > 0 ? periods[i - 1] : null;
+    if (prev && prev.desg !== 'HIA' && p.start && prev.end && p.start === prev.end) {
+      days = Math.max(0, days - 1);            // count the boundary once
+    }
+    return days / 7;
+  }
+  // FIX #1 helper: day-after a YYYY-MM-DD date (UTC, DST-immune).
+  function dayAfter(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return '';
+    d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+  // Inclusive weeks between two YYYY-MM-DD dates (no rounding). Reconciled to the
+  // inclusive convention so the basic calc matches the workspace tile.
+  function weeksBetween(start, end) {
+    return inclusiveDays(start, end) / 7;
   }
   // Floor weeks to a rounding precision. 'none'=exact, 'tenth'=nearest 1/10 wk
   // rounded down (website CCP default), 'whole'=whole weeks rounded down.
@@ -333,12 +362,13 @@
     const ttBase = aww * 2 / 3;                                   // uncapped 2/3 AWW
     const ttBounded = applyRateBounds(ttBase, aww, minRate, maxRate);
 
-    const out = periods.map(p => {
+    const out = periods.map((p, i) => {
       const period = Object.assign({}, p);
       if (period.desg === 'HIA') {
         return Object.assign(period, { wks:0, rawCurrentRate:0, currentRate:0, priorRate:0, rate:0, amount:0, isHia:true });
       }
-      const wks = roundWeeksDown(weeksBetween(period.start, period.end), rounding);
+      // FIX #2 applied via periodWeeks (boundary day dropped before rounding).
+      const wks = roundWeeksDown(periodWeeks(periods, i), rounding);
       const rateMode = period.rateMode || 'pct';
       let rawCurrentRate = 0;
       if (period.desg === 'TT') rawCurrentRate = ttBounded;
@@ -480,6 +510,7 @@
     // lookups + helpers
     lookupMax, lookupMin, maxRateForDOA, minRateForDOA, findSLUPart,
     applyRateBounds, isAwwBelowMin, getCappedTT, lwecBracket, weeksBetween, roundWeeksDown,
+    inclusiveDays, periodWeeks, dayAfter,
     // calculators
     computeAWW, computeSLU, computeLWEC, ccpPeriodRate, computeCCP, computeBurns, computeSettlement,
     nerveCap, clampNerveScores, radRank,

@@ -1618,9 +1618,11 @@ function App() {
     const inputsFactory = window.TILE_INPUT_DEFAULTS && window.TILE_INPUT_DEFAULTS[type];
     let initialInputs = inputsFactory ? inputsFactory() : {};
     // CCP convenience: if the AWW section already has a DOA, prefill the
-    // first period's start date with it at tile-creation time. This only
-    // runs once, at creation — later edits to the DOA never reach back
-    // and rewrite an existing period's start.
+    // first period's start date at tile-creation time. FIX #1 — the start
+    // defaults to DOI+1 (dayAfter), since the date of injury itself is not a
+    // compensable lost-time day. Runs once, at creation only, and never when
+    // the first period already has a start — later DOA edits never reach back
+    // and rewrite a manually entered start.
     if (
       type === 'CCP'
       && awwState && awwState.doi
@@ -1628,10 +1630,11 @@ function App() {
       && initialInputs.periods[0]
       && !initialInputs.periods[0].start
     ) {
+      const da = (typeof dayAfter === 'function') ? dayAfter(awwState.doi) : awwState.doi;
       const [first, ...rest] = initialInputs.periods;
       initialInputs = {
         ...initialInputs,
-        periods: [{ ...first, start: awwState.doi }, ...rest],
+        periods: [{ ...first, start: da }, ...rest],
       };
     }
     const newT = {

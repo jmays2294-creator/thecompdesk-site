@@ -5,6 +5,24 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-06-11
+
+### CCP/Award Builder — two date fixes (DOI+1 prefill, drop duplicated boundary day) + basic-calc reconciliation
+
+Mirrors the app's two CCP date-handling fixes onto the public site so thecompdesk.com matches the app, and reconciles the basic CCP calculator's day-count engine to the inclusive convention. Full spec + locked decisions: `ops/secretary/calculator_fixes_scope_and_prompts.md`.
+
+- **Fix #1 — first period starts day-after-DOI.** When a DOA/DOI is set, the first CCP period's start now defaults to **DOI + 1** (the date of injury is not a compensable lost-time day), only when the start is empty, once, and never overwriting a manually typed date (one-time autofill guard). Applied to the workspace tile (`js/workspace/app.js`, tile-creation prefill) and the basic calculator (`calculators/ccp-award.html`, `doaDate` change listener).
+- **Fix #2 — drop the duplicated boundary day on consecutive periods.** When a period's start exactly equals the prior period's end, that shared calendar day was counted in both periods. The later period now drops one day so the boundary is counted once. **Math-only** — the displayed start stays contiguous (still shows e.g. `4/7`); only the week count changes.
+- **Reconciled the basic calculator to inclusive.** `calculators/ccp-award.html` counted days *exclusively* (one short, no boundary double-count); it now counts inclusive of both endpoints (matching the workspace tile) and applies Fix #2. `js/calc-core.js` (`weeksBetween`) likewise reconciled to inclusive and Fix #2 wired into `computeCCP`.
+
+**Canonical helpers** (`inclusiveDays` / `periodWeeks` / `dayAfter`) are byte-identical across `js/workspace/tiles.js`, `js/calc-core.js`, and the inline `calculators/ccp-award.html` script — kept identical to the app/extension copies; do not let them drift.
+
+**Verification:** acceptance fixture DOI 3/29/2026, AWW 1500, rounding none, both periods TT — P1 `3/20–4/7` = 2.7143 wks; P2 `4/7–6/11` (consecutive) = **9.2857 wks** (was 9.4286, one boundary day dropped); total **12.0000 wks** = the true `3/20→6/11` inclusive span. Non-consecutive `4/8` start → no drop. Standalone single period unchanged. `dayAfter(2026-03-29)` = `2026-03-30`. All three surfaces (workspace tile, basic calc, calc-core) produce identical week counts. SEO static pass clean of new issues (calculator page heads/sitemap untouched).
+
+**Files:** `js/workspace/tiles.js`, `js/workspace/app.js`, `js/calc-core.js`, `calculators/ccp-award.html`, `changelog.md`.
+
+---
+
 ## 2026-05-29
 
 ### Statutory rate update — Max $1,281.50 / Min $384.45 for DOI 7/1/2026 – 6/30/2027 (Subject No. 046-1805)

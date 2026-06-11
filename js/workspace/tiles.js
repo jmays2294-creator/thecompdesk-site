@@ -798,6 +798,37 @@ function weeksBetween(start, end) {
   return days / 7;
 }
 
+// ── Canonical date helpers (byte-identical across app + website + extension;
+// do not let them drift — see ops/secretary/calculator_fixes_scope_and_prompts.md).
+// Inclusive day span between two YYYY-MM-DD strings (both endpoints counted).
+function inclusiveDays(start, end) {
+  if (!start || !end) return 0;
+  const s = new Date(start), e = new Date(end);
+  if (isNaN(s) || isNaN(e) || e < s) return 0;
+  return Math.round((e - s) / 86400000) + 1;
+}
+// Weeks for the period at index i within the periods array.
+// FIX #2: drop the shared boundary day when this period is exactly consecutive
+// to the immediately-prior non-HIA period (this.start === prev.end).
+function periodWeeks(periods, i) {
+  const p = periods[i];
+  if (!p || p.desg === 'HIA') return 0;
+  let days = inclusiveDays(p.start, p.end);
+  const prev = i > 0 ? periods[i - 1] : null;
+  if (prev && prev.desg !== 'HIA' && p.start && prev.end && p.start === prev.end) {
+    days = Math.max(0, days - 1);            // count the boundary once
+  }
+  return days / 7;
+}
+// FIX #1 helper: day-after a YYYY-MM-DD date (UTC, DST-immune).
+function dayAfter(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return '';
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
 // Round-DOWN to a precision mode. 'tenth' floors to the nearest 0.1 wk,
 // 'whole' floors to the nearest 1 wk, anything else returns exact value.
 // Used by the CCP tile rounding toggles + mirrored in buildEquation.
@@ -1001,7 +1032,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
   const computed = useMemo(() => {
     const ttBase = (Number(aww) || 0) * 2 / 3;
     const rounding = inputs.rounding || 'none';
-    const out = inputs.periods.map(p => {
+    const out = inputs.periods.map((p, i) => {
       // HIA (Held in Abeyance) — period is documented in the date range
       // for the record, but contributes $0 to the total award. No rate
       // resolution, no min/max bounds, no amending math.
@@ -1011,7 +1042,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       }
       // Raw week count from the dates, then floored to whatever rounding
       // mode is active on the tile. 'none' is the historical exact value.
-      const wksRaw = weeksBetween(p.start, p.end);
+      const wksRaw = periodWeeks(inputs.periods, i);
       const wks = roundWeeksDown(wksRaw, rounding);
       // Resolve the "current" rate using the desg, exactly as v1.1 did.
       // TR and TP each support a per-period $/% toggle (rateMode).
@@ -2272,12 +2303,12 @@ function buildEquation(tile, global) {
       // Phase 1 — resolve each period's rate + amount (mirrors CCPTile.computed
       // first pass). We need the resolved rates BEFORE we can compute any
       // scope='specific' reimbursement (which depends on overlapping rates).
-      const rows = inputs.periods.map(p => {
+      const rows = inputs.periods.map((p, i) => {
         if (p.desg === 'HIA') {
           return { ...p, wks: 0, rate: 0, amount: 0, currentRate: 0, priorRate: 0,
                    rawCurrentRate: 0, isHia: true };
         }
-        const wksRaw = weeksBetween(p.start, p.end);
+        const wksRaw = periodWeeks(inputs.periods, i);
         const wks = roundWeeksDown(wksRaw, ccpRounding);
         const rateMode = p.rateMode || 'pct';
         let rawCurrentRate = 0;
@@ -2651,5 +2682,5 @@ function buildEquation(tile, global) {
 Object.assign(window, {
   TILE_SPECS, SLUTile, LWECTile, CCPTile, RateLookupTile, RadiculopathyTile,
   BurnsTile, SettlementTile, MTGTile,
-  buildEquation, weeksBetween, MUSCLE_WEAKNESS, DESIGNATIONS,
+  buildEquation, weeksBetween, inclusiveDays, periodWeeks, dayAfter, MUSCLE_WEAKNESS, DESIGNATIONS,
 });

@@ -566,6 +566,7 @@
     // ─── State ───
     let periods = [{ start: '', end: '', desig: 'TT', rate: '', ratePct: '', curEarn: '' }];
     let hasCalculated = false;
+    let doiAutofilled = false;   // FIX #1 one-time autofill guard
     let currentUser = null;
 
     // ─── Helpers ───
@@ -578,6 +579,36 @@
       if (!s) return '—';
       const [y, m, d] = s.split('-');
       return m + '/' + d + '/' + y;
+    }
+
+    // ─── Canonical date helpers (byte-identical with the workspace tile +
+    // calc-core + app + extension; see calculator_fixes_scope_and_prompts.md) ───
+    // Inclusive day span between two YYYY-MM-DD strings (both endpoints counted).
+    function inclusiveDays(start, end) {
+      if (!start || !end) return 0;
+      const s = new Date(start), e = new Date(end);
+      if (isNaN(s) || isNaN(e) || e < s) return 0;
+      return Math.round((e - s) / 86400000) + 1;
+    }
+    // Weeks for the period at index i. FIX #2: drop the shared boundary day when
+    // this period is exactly consecutive to the prior one (this.start === prev.end).
+    function periodWeeks(list, i) {
+      const p = list[i];
+      if (!p) return 0;
+      let days = inclusiveDays(p.start, p.end);
+      const prev = i > 0 ? list[i - 1] : null;
+      if (prev && p.start && prev.end && p.start === prev.end) {
+        days = Math.max(0, days - 1);
+      }
+      return days / 7;
+    }
+    // FIX #1 helper: day-after a YYYY-MM-DD date (UTC, DST-immune).
+    function dayAfter(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return '';
+      d.setUTCDate(d.getUTCDate() + 1);
+      return d.toISOString().slice(0, 10);
     }
 
     function getMaxForDate(dateStr) {
@@ -629,11 +660,9 @@
       // Compute weeks for display
       let weeksDisplay = '';
       if (p.start && p.end) {
-        const s = new Date(p.start + 'T00:00:00');
-        const e = new Date(p.end + 'T00:00:00');
-        const wks = (e - s) / (864e5 * 7);
+        const wks = periodWeeks(periods, i);   // inclusive + FIX #2 boundary drop
         if (wks > 0) weeksDisplay = fW(wks) + ' wks';
-        else if (wks <= 0) weeksDisplay = '⚠ end before start';
+        else weeksDisplay = '⚠ end before start';
       }
 
       const div = document.createElement('div');
@@ -886,11 +915,9 @@
       let total = 0;
       const details = [];
 
-      periods.forEach(p => {
+      periods.forEach((p, i) => {
         if (!p.start || !p.end) { details.push(null); return; }
-        const s = new Date(p.start + 'T00:00:00');
-        const e = new Date(p.end + 'T00:00:00');
-        const wks = (e - s) / (864e5 * 7);
+        const wks = periodWeeks(periods, i);   // inclusive + FIX #2 boundary drop
         if (wks <= 0) { details.push(null); return; }
 
         let rate = pF(p.rate);
@@ -1050,6 +1077,13 @@
         document.getElementById('maxRateHint').textContent =
           'Max for DOA: $' + entry.max.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
           ' (' + entry.l + ')';
+      }
+      // FIX #1 — default the first period's start to DOA+1 (the date of injury
+      // is not a compensable lost-time day). Only when empty, only once, and
+      // never overwriting a date the user already typed.
+      if (e.target.value && !doiAutofilled && periods[0] && !periods[0].start) {
+        periods[0].start = dayAfter(e.target.value);
+        doiAutofilled = true;
       }
       renderPeriods(); calculate();
     });
