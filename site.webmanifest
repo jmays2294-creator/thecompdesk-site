@@ -1,0 +1,11 @@
+{
+  "name": "The Comp Desk",
+  "short_name": "Comp Desk",
+  "icons": [
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ],
+  "theme_color": "#1B2A4A",
+  "background_color": "#1B2A4A",
+  "display": "standalone"
+}
