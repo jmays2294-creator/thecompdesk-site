@@ -1,10 +1,10 @@
-<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Comp Desk">
-  <rect width="64" height="64" rx="14" fill="#1B2A4A"/>
-  <g fill="none" stroke="#F8F6F1" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
-    <rect x="16" y="13" width="32" height="32"/>
-    <line x1="32" y1="13" x2="32" y2="45"/>
-    <line x1="16" y1="23.67" x2="48" y2="23.67"/>
-    <line x1="16" y1="34.33" x2="48" y2="34.33"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-label="The Comp Desk">
+  <title>The Comp Desk — favicon (32×32 viewBox, scales to any size)</title>
+  <!-- Cream rounded-square background -->
+  <rect width="32" height="32" rx="6" ry="6" fill="#F8F6F1"/>
+  <!-- Mark scaled to 32x32 viewBox. Geometry rescaled from 240->24 (0.1x) and centered -->
+  <g transform="translate(4, 4) scale(0.1)">
+    <path d="M 202.27 72.5 A 95 95 0 1 0 202.27 167.5 L 165.03 146 A 52 52 0 1 1 165.03 94 Z" fill="#1B2A4A"/>
+    <circle cx="120" cy="120" r="22" fill="#E87722"/>
   </g>
-  <rect x="14.5" y="45" width="35" height="6.5" rx="2" fill="#E87722"/>
 </svg>
