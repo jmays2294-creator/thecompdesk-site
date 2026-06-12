@@ -702,9 +702,36 @@ html body[data-theme] .beta-banner {
   position: sticky; top: 0; z-index: 30;
   background: linear-gradient(180deg, var(--bg-1), var(--bg));
   border-bottom: 1px solid var(--bd);
-  padding: 14px 22px 12px;
+  /* #6 — denser configure bar: ~40% less vertical padding. */
+  padding: 9px 18px 7px;
   backdrop-filter: blur(8px);
+  transition: padding 180ms cubic-bezier(0.2, 0.9, 0.3, 1);
 }
+/* #4 — collapsed header: hide the title banner, tighten the bar. The action
+   row (Save / Full Screen / Delete), theme cluster, sliders and the configure
+   fields all remain; only the large title block is dropped to reclaim space. */
+.aww-strip.hdr-collapsed { padding-top: 6px; padding-bottom: 6px; }
+.aww-strip.hdr-collapsed .aww-title-block { display: none; }
+/* #4 — drawer handle straddling the strip's bottom edge; always visible so the
+   user can expand/re-collapse at any time. */
+.hdr-collapse-handle {
+  position: absolute; left: 50%; bottom: 0;
+  transform: translate(-50%, 50%);
+  z-index: 41;
+  width: 52px; height: 16px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-1); border: 1px solid var(--bd);
+  border-radius: 0 0 8px 8px;
+  color: var(--tx-faint); cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+}
+.hdr-collapse-handle:hover { color: var(--ac-2); border-color: var(--ac); }
+.hdr-collapse-handle .chev {
+  display: inline-block; font-size: 11px; line-height: 1;
+  transform: rotate(180deg);          /* points up = "collapse" when expanded */
+  transition: transform 200ms;
+}
+.hdr-collapse-handle.collapsed .chev { transform: rotate(0deg); } /* down = "expand" */
 .aww-row { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; }
 .aww-title-block h1 {
   font-size: 14px; font-weight: 600; letter-spacing: 0.04em;
@@ -715,12 +742,21 @@ html body[data-theme] .beta-banner {
 }
 
 .aww-fields {
-  margin-top: 10px;
+  /* #6 — denser, left-to-right reading order: Case · AWW · DOI · Max ·
+     readout. The old layout wasted a full `1fr` spacer between the inputs and
+     the readout; folding that stretch into the readout column (last col) halves
+     the dead space. Fluid min/max columns so the bar never overflows. */
+  margin-top: 6px;
   display: grid;
-  grid-template-columns: 180px 180px 160px 160px 1fr auto;
-  gap: 10px;
+  grid-template-columns:
+    minmax(130px, 170px) minmax(110px, 150px) minmax(120px, 150px)
+    minmax(110px, 150px) minmax(240px, 1fr);
+  gap: 7px 10px;
   align-items: end;
 }
+/* #6 — tighten the label→input rhythm inside the configure bar only (global
+   .f-group is untouched, so tiles are unaffected). */
+.aww-fields .f-group { gap: 3px; }
 
 .f-group { display: flex; flex-direction: column; gap: 5px; }
 .f-label {
@@ -746,12 +782,14 @@ html body[data-theme] .beta-banner {
 }
 
 .tt-display {
-  display: flex; align-items: center; gap: 12px;
-  padding: 8px 14px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 12px;
   background: var(--ac-soft);
   border: 1px solid var(--ac);
   border-radius: 6px;
-  height: 38px;
+  /* #6 — was a fixed 38px height with a big empty `1fr` to its left; now the
+     readout occupies the final flexible column and sizes to its content. */
+  min-height: 34px;
 }
 .tt-display .lbl { font-size: 11px; color: var(--tx-dim); letter-spacing: 0.06em; text-transform: uppercase; }
 .tt-display .val { font-family: var(--mono); font-size: 15px; color: var(--ac-2); font-weight: 600; }
@@ -1160,6 +1198,12 @@ html body[data-theme] .beta-banner {
   min-height: 1200px;
   width: 100%;
   border-radius: 8px;
+  /* #5 — Workspace Size: zoom the whole canvas (tiles + spacing together) from
+     the top-left. Default --workspace-scale is 1, so this is a no-op until the
+     Zoom slider moves it. Drag math in app.js divides pointer deltas by this
+     scale to keep tile placement accurate. */
+  transform: scale(var(--workspace-scale, 1));
+  transform-origin: top left;
 }
 .canvas.show-grid {
   background-image:
@@ -1348,6 +1392,39 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   border-radius: 6px; padding: 10px;
   display: grid; gap: 8px;
   background: var(--bg-1);
+}
+
+/* CCP builder — CCP Amount (+ "CCP same" button) and Prior Payments aligned
+   onto a consistent grid: equal label-band height, equal input width, and a
+   shared baseline so the two columns read as a clean stack. The "CCP same"
+   button lives in the CCP Amount label row without throwing that input below
+   the Prior Payments input. */
+.ccp-builder-fields {
+  grid-template-columns: 1fr 1fr;
+  align-items: end;            /* bottom-align so both inputs share a baseline */
+  gap: 12px;
+}
+.ccp-builder-fields .f-group { gap: 6px; min-width: 0; }
+.ccp-builder-fields .f-label { margin: 0; }
+/* Equal-height label band on both columns: the CCP Amount header carries the
+   "CCP same" button; Prior Payments carries a bare label. Force both to the
+   same height so the inputs below them line up. */
+.ccp-builder-fields .ccp-amount-head,
+.ccp-builder-fields > .f-group > .f-label {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin: 0 0 2px;
+}
+.ccp-builder-fields .ccp-amount-head {
+  justify-content: space-between;
+  gap: 6px;
+}
+.ccp-builder-fields .ccp-amount-head .ccp-same-btn { flex: 0 0 auto; }
+.ccp-builder-fields .f-input-wrap { width: 100%; }
+.ccp-builder-fields .f-input { width: 100%; }
+@media (max-width: 480px) {
+  .ccp-builder-fields { grid-template-columns: 1fr; }
 }
 
 /* CCP — compact per-period summary table that sits between the
@@ -2402,4 +2479,71 @@ footer.disclaimer {
 .feeapp-radio-row input[type="radio"] {
   margin: 0;
   cursor: pointer;
+}
+
+/* ============================================================================
+ * June 2026 — workspace chrome: Full Screen button (#4), Tile/Workspace size
+ * sliders (#5), and fluid responsive layout (#5). The size sliders are driven
+ * by --tile-scale / --workspace-scale and are intentionally NOT persisted.
+ * ========================================================================== */
+
+/* #4 — Full Screen button sits in the action row, in line with Save to My
+   Cases. Inherits .btn.ghost.tiny; just keep it on one line. */
+.case-action-fullscreen { white-space: nowrap; }
+
+/* #5 — Tile Size + Workspace Size sliders, stacked in the themes/settings
+   cluster (top-right). Compact label + range on each row. */
+.size-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+}
+.size-slider {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tx-faint);
+  font-weight: 600;
+}
+.size-slider input[type="range"] {
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--ac);
+}
+
+/* #5 — Fluid responsive layout. The workspace shell, AWW configure bar, and
+   action row adapt to viewport width with sensible min/max so nothing
+   overflows at narrow widths. */
+@media (max-width: 980px) {
+  .workspace { grid-template-columns: 200px 1fr; }
+  .aww-fields {
+    grid-template-columns:
+      minmax(120px, 1fr) minmax(110px, 1fr) minmax(120px, 1fr) minmax(110px, 1fr);
+  }
+  .aww-fields .tt-display { grid-column: 1 / -1; }
+}
+@media (max-width: 720px) {
+  .aww-row { grid-template-columns: 1fr; gap: 10px; }
+  .right-cluster { flex-wrap: wrap; }
+  .aww-fields { grid-template-columns: 1fr 1fr; }
+  .aww-fields .tt-display { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .workspace { grid-template-columns: 1fr; }
+  /* Palette stops being a sticky side rail and becomes a scrollable strip on
+     top so the canvas gets full width. */
+  .palette {
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--bd);
+  }
+  .aww-fields { grid-template-columns: 1fr; }
 }

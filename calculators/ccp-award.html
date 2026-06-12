@@ -634,13 +634,24 @@
       const mx = getMaxRate();
       return mx > 0 ? Math.min(tt, mx) : tt;
     }
+    // TR rate (June 2026 fix) — percentage applied to the UNCAPPED ⅔ × AWW,
+    // then capped at the statutory max. Pre-capping (pct × cappedTT)
+    // understated TR whenever ⅔ × AWW exceeded the DOA max.
+    //   e.g. AWW $2,258.12, max $1,171.46, TR @ 87.5%:
+    //     wrong: 0.875 × $1,171.46 = $1,025.03
+    //     right: min($1,171.46, 0.875 × ⅔ × $2,258.12) = $1,171.46
+    function trRate(ratePct) {
+      const raw = (getAWW() * 2 / 3) * (pF(ratePct) / 100);
+      const mx = getMaxRate();
+      return mx > 0 ? Math.min(raw, mx) : raw;
+    }
 
     // ─── Compute rate for a period based on designation ───
     function computeRate(p) {
       const cappedTT = getCappedTT();
       if (p.desig === 'TT') return cappedTT;
       if (p.desig === 'RE') return (2 / 3) * (getAWW() - pF(p.curEarn));
-      if (p.desig === 'TR' && p.ratePct) return (pF(p.ratePct) / 100) * cappedTT;
+      if (p.desig === 'TR' && p.ratePct) return trRate(p.ratePct);
       return pF(p.rate);
     }
 
@@ -749,8 +760,8 @@
         pctInput.value = p.ratePct;
         pctInput.addEventListener('input', e => {
           periods[i].ratePct = e.target.value;
-          if (e.target.value && cappedTT > 0) {
-            periods[i].rate = (pF(e.target.value) / 100 * cappedTT).toFixed(2);
+          if (e.target.value && getAWW() > 0) {
+            periods[i].rate = trRate(e.target.value).toFixed(2);
           }
           renderPeriods(); calculate();
         });
@@ -873,7 +884,7 @@
         trNote.className = 'rate-note tr';
         trNote.style.marginTop = '6px';
         const pct = pF(p.ratePct || 0);
-        trNote.textContent = 'TR Rate = ' + pct.toFixed(1) + '% × ' + fC(cappedTT) + ' = ' + fC(pct / 100 * cappedTT) + '/wk';
+        trNote.textContent = 'TR Rate = ' + pct.toFixed(1) + '% × ⅔ AWW ' + fC(getAWW() * 2 / 3) + ' = ' + fC(trRate(p.ratePct)) + '/wk';
         div.appendChild(trNote);
       }
 
@@ -928,7 +939,7 @@
         let rate = pF(p.rate);
         if (p.desig === 'TT') rate = cappedTT;
         if (p.desig === 'RE') rate = (2 / 3) * (aww - pF(p.curEarn));
-        if (p.desig === 'TR' && p.ratePct) rate = pF(p.ratePct) / 100 * cappedTT;
+        if (p.desig === 'TR' && p.ratePct) rate = trRate(p.ratePct);
 
         const amt = wks * rate;
         const pct = cappedTT > 0 ? rate / cappedTT : 0;
@@ -1005,7 +1016,7 @@
           if (x.desig === 'RE') {
             label = 'RE (AWW ' + fC(aww) + ' − Earn ' + fC(pF(x.curEarn)) + ')';
           } else if (x.desig === 'TR' && x.ratePct) {
-            label = 'TR (' + pF(x.ratePct).toFixed(1) + '% of TT ' + fC(cappedTT) + ')';
+            label = 'TR (' + pF(x.ratePct).toFixed(1) + '% of ⅔ AWW ' + fC(getAWW() * 2 / 3) + ')';
           }
           eq += fW(x.wks) + ' wks × ' + fC(x.rate) + '/wk [' + label + '] = ' + fC(x.amt) + '\n';
         });

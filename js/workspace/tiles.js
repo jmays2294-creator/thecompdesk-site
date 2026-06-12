@@ -1067,10 +1067,14 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       }
       else if (p.desg === 'TP') {
         if (rateMode === 'pct') {
-          // TP % is applied to the BOUNDED TT rate (per spec May 2026).
-          // Simpler mental model than TR — "50% TP" = half of TT rate.
-          const ttBounded = applyRateBounds((Number(aww) || 0) * (2 / 3), aww, global.minRate, global.maxRate);
-          rawCurrentRate = ttBounded * (Number(p.ratePct || 0) / 100);
+          // TP % mirrors TR (June 2026 fix) — percentage applied to the
+          // UNCAPPED ⅔ × AWW; applyRateBounds below applies the max cap, min
+          // floor, and AWW-collapse. Pre-capping understated TP any time
+          // ⅔ × AWW exceeded the DOA max.
+          //   Example: AWW $2,258.12, max $1,171.46, TP @ 87.5%:
+          //     wrong: 0.875 × $1,171.46 = $1,025.03
+          //     right: min($1,171.46, 0.875 × ⅔ × $2,258.12) = $1,171.46
+          rawCurrentRate = (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
         } else {
           rawCurrentRate = Number(p.manualRate || 0);
         }
@@ -1623,9 +1627,9 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
         </div>
         <button className="btn tiny" onClick={addPeriod}>+ Add Period</button>
 
-        <div className="row cols-2">
+        <div className="row cols-2 ccp-builder-fields">
           <div className="f-group">
-            <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:6, marginBottom:4}}>
+            <div className="ccp-amount-head">
               <label className="f-label" style={{margin:0}}>CCP Amount</label>
               <button type="button"
                 className="btn tiny ccp-same-btn"
@@ -1676,7 +1680,15 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
               return [dateStr, 'HIA'].join(' ');
             }
             const showRate = p.desg !== 'NCLT' && p.desg !== 'NME';
-            const rateStr  = showRate ? fmt$(p.rate) : '';
+            // Amending rows display the full NEW amended rate (currentRate);
+            // the per-week delta is shown separately as a trailing
+            // "difference/wk" token. Non-amending rows show the rate as-is.
+            const rateStr  = showRate ? fmt$(p.amending ? p.currentRate : p.rate) : '';
+            let diffStr = '';
+            if (p.amending && showRate) {
+              const diff = (Number(p.currentRate) || 0) - (Number(p.priorRate) || 0);
+              diffStr = fmt$(diff) + ' difference/wk';
+            }
             let pctStr = '';
             const pMode = p.rateMode || 'pct';
             if ((p.desg === 'TR' || p.desg === 'TP') && pMode === 'pct') {
@@ -1708,7 +1720,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
             // scope='specific' reimbursement window in this CCP tile.
             const reTag = p.reimbErRecipient ? 'RE ER' : '';
             // Single-space joiner per Joel's spec: dates  RATE  DESG  (%)  REIMB  RE-ER.
-            return [dateStr, rateStr, p.desg, pctStr, reimbStr, reTag].filter(Boolean).join(' ');
+            return [dateStr, rateStr, p.desg, pctStr, reimbStr, reTag, diffStr].filter(Boolean).join(' ');
           };
           const plainText = computed.rows.map(buildRow).join('\n');
           const onCopySummary = async () => {
@@ -2320,12 +2332,11 @@ function buildEquation(tile, global) {
             : (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
         }
         else if (p.desg === 'TP') {
-          if (rateMode === 'pct') {
-            const ttBounded = applyRateBounds((Number(aww) || 0) * (2 / 3), aww, global.minRate, global.maxRate);
-            rawCurrentRate = ttBounded * (Number(p.ratePct || 0) / 100);
-          } else {
-            rawCurrentRate = Number(p.manualRate || 0);
-          }
+          // TP % mirrors TR (June 2026 fix) — percentage on the UNCAPPED
+          // ⅔ × AWW; applyRateBounds below applies the max cap / min floor.
+          rawCurrentRate = rateMode === 'usd'
+            ? Number(p.manualRate || 0)
+            : (Number(aww) || 0) * (2 / 3) * (Number(p.ratePct || 0) / 100);
         }
         // NCLT / NME are $0-comp designations — flow through as $0 in the
         // equation card and OC-400.1 fee-app prefill.

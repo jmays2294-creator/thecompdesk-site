@@ -212,9 +212,45 @@ function computeAWW(state) {
 // SECTION 2 — AWW STRIP (with Compute & Apply)
 // ============================================================================
 
-function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSaveCase, onDeleteCase, saveCaseStatus, onOpenFormulas }) {
+function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSaveCase, onDeleteCase, saveCaseStatus, viewScale, setViewScale, onOpenFormulas }) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null); // computed result, prior to apply
+
+  // #4 — collapsible top banner/menu bar. Auto-collapses 5s after mount (fixed
+  // timer from load — fires even if the user is mid-interaction). A persistent
+  // chevron handle in the action row lets the user expand / re-collapse at will.
+  const [hdrCollapsed, setHdrCollapsed] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setHdrCollapsed(true), 5000);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => {
+    // Collapse the external beta banner (lives outside React, in workspace.html)
+    // in sync so the workspace reclaims the vertical space.
+    const b = document.querySelector('.beta-banner');
+    if (b) b.style.display = hdrCollapsed ? 'none' : '';
+    return () => { if (b) b.style.display = ''; };
+  }, [hdrCollapsed]);
+
+  // #4 — Full Screen toggle via the browser Fullscreen API. Esc exits (handled
+  // by the browser); the button label/icon reflects the live state through the
+  // fullscreenchange event.
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+  const toggleFullscreen = () => {
+    try {
+      if (document.fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen();
+      } else {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+      }
+    } catch (e) { /* requestFullscreen can reject (e.g. blocked) — non-fatal */ }
+  };
 
   const max = lookupMax(state.doi);
   const min = lookupMin(state.doi);
@@ -293,7 +329,15 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
   };
 
   return (
-    <div className="aww-strip">
+    <div className={'aww-strip' + (hdrCollapsed ? ' hdr-collapsed' : '')}>
+      <button
+        type="button"
+        className={'hdr-collapse-handle' + (hdrCollapsed ? ' collapsed' : '')}
+        onClick={() => setHdrCollapsed(c => !c)}
+        aria-pressed={!hdrCollapsed}
+        title={hdrCollapsed ? 'Expand header' : 'Collapse header'}>
+        <span className="chev">▾</span>
+      </button>
       <div className="aww-row">
         <div className="aww-title-block">
           <h1>Pro Attorney Calculator Workspace</h1>
@@ -312,6 +356,13 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
                 : saveCaseStatus === 'error' ? 'Retry Save'
                 : saveCaseStatus === 'no-name' ? 'Enter Case Name'
                 : 'Save to My Cases'}
+            </button>
+            <button
+              type="button"
+              className="btn ghost tiny case-action-fullscreen"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Exit full screen (Esc)' : 'Enter full screen'}>
+              {isFullscreen ? '⤢ Exit Full Screen' : '⤢ Full Screen'}
             </button>
             <button
               type="button"
@@ -356,6 +407,24 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
                   ))}
                 </div>
               )}
+            </div>
+            {/* #5 — Tile Size + Workspace Size sliders. Drive --tile-scale /
+                --workspace-scale live; NOT persisted (reset to 1.0 on reload). */}
+            <div className="size-sliders" role="group" aria-label="Workspace sizing">
+              <label className="size-slider" title="Scale all tiles uniformly (not saved)">
+                <span>Tile</span>
+                <input type="range" min="0.7" max="1.4" step="0.05"
+                  value={viewScale.tile}
+                  aria-label="Tile size"
+                  onChange={e => setViewScale(s => ({ ...s, tile: Number(e.target.value) }))}/>
+              </label>
+              <label className="size-slider" title="Zoom the whole canvas — tiles and spacing (not saved)">
+                <span>Zoom</span>
+                <input type="range" min="0.6" max="1.5" step="0.05"
+                  value={viewScale.ws}
+                  aria-label="Workspace size"
+                  onChange={e => setViewScale(s => ({ ...s, ws: Number(e.target.value) }))}/>
+              </label>
             </div>
           </div>
         </div>
@@ -858,7 +927,10 @@ function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, p
     Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGTile,
   }[tile.type];
 
-  const transform = `perspective(800px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;
+  // #5 — Tile Size: scale(var(--tile-scale)) is prepended so the per-tile
+  // size slider applies via the CSS custom property. The 3D perspective tilt
+  // follows. Default --tile-scale is 1, so the rendered transform is unchanged.
+  const transform = `scale(var(--tile-scale, 1)) perspective(800px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;
 
   return (
     <div ref={tileRef}
@@ -916,12 +988,22 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
   const [drag, setDrag] = useState(null);
   const [dropPreview, setDropPreview] = useState(null);
 
+  // #5 — Workspace Size zoom: the .canvas is transform: scale(--workspace-scale)
+  // from its top-left, so pointer offsets measured against its (already-scaled)
+  // bounding rect must be divided back by the scale to recover logical canvas
+  // coordinates. Defaults to 1 (no scale) → math is identical to before.
+  const wsScale = () => {
+    const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--workspace-scale'));
+    return v > 0 ? v : 1;
+  };
+
   const onTilePointerDown = (e, id) => {
     if (e.button !== 0) return;
     const tile = tiles.find(t => t.id === id);
     if (!tile) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    setDrag({ id, offsetX: e.clientX - rect.left - tile.x, offsetY: e.clientY - rect.top - tile.y });
+    const z = wsScale();
+    setDrag({ id, offsetX: (e.clientX - rect.left) / z - tile.x, offsetY: (e.clientY - rect.top) / z - tile.y });
   };
 
   useEffect(() => {
@@ -931,8 +1013,9 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
       const tile = tiles.find(t => t.id === drag.id);
       if (!tile) return;
       const snap = snapSize || GRID;
-      let x = e.clientX - rect.left - drag.offsetX;
-      let y = e.clientY - rect.top - drag.offsetY;
+      const z = wsScale();
+      let x = (e.clientX - rect.left) / z - drag.offsetX;
+      let y = (e.clientY - rect.top) / z - drag.offsetY;
       x = Math.max(0, snap > 0 ? Math.round(x / snap) * snap : x);
       y = Math.max(0, snap > 0 ? Math.round(y / snap) * snap : y);
       onUpdate({ ...tile, x, y, _dragging: true });
@@ -961,8 +1044,9 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
     const type = e.dataTransfer.getData('application/x-tile-type') || sessionStorage.getItem('__dragType');
     const spec = TILE_SPECS[type] || TILE_SPECS.SLU;
     const snap = snapSize || GRID;
-    const px = Math.round((e.clientX - rect.left) / snap) * snap;
-    const py = Math.round((e.clientY - rect.top) / snap) * snap;
+    const z = wsScale();
+    const px = Math.round(((e.clientX - rect.left) / z) / snap) * snap;
+    const py = Math.round(((e.clientY - rect.top) / z) / snap) * snap;
     setDropPreview({ x: Math.max(0, px), y: Math.max(0, py), w: spec.w, h: spec.h });
   };
   const onDragLeave = () => setDropPreview(null);
@@ -973,8 +1057,9 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
     const rect = canvasRef.current.getBoundingClientRect();
     const spec = TILE_SPECS[type];
     const snap = snapSize || GRID;
-    const px = Math.max(0, Math.round((e.clientX - rect.left) / snap) * snap);
-    const py = Math.max(0, Math.round((e.clientY - rect.top) / snap) * snap);
+    const z = wsScale();
+    const px = Math.max(0, Math.round(((e.clientX - rect.left) / z) / snap) * snap);
+    const py = Math.max(0, Math.round(((e.clientY - rect.top) / z) / snap) * snap);
     onAdd(type, { preferX: px, preferY: py });
     setDropPreview(null);
   };
@@ -1246,6 +1331,20 @@ function App() {
   const [saveCaseStatus, setSaveCaseStatus] = useState(null); // null|'saving'|'saved'|'error'|'no-name'
   const [conflictToast, setConflictToast] = useState(null); // {remoteData, remoteVersion}
   const [tier, setTier] = useState(() => window.currentTier || 'free');
+
+  // #5 — non-persisted view scale (Tile Size + Workspace Size sliders). Driven
+  // as CSS custom properties on :root; intentionally NOT saved — both reset to
+  // 1.0 on reload (no localStorage, not part of `tweaks`/persisted state).
+  const [viewScale, setViewScale] = useState({ tile: 1, ws: 1 });
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--tile-scale', String(viewScale.tile));
+    root.style.setProperty('--workspace-scale', String(viewScale.ws));
+    return () => {
+      root.style.removeProperty('--tile-scale');
+      root.style.removeProperty('--workspace-scale');
+    };
+  }, [viewScale]);
 
   // Loaded flag — until true we don't auto-save (otherwise the seed tab
   // would clobber the user's persisted workspace immediately on mount).
@@ -1829,6 +1928,8 @@ function App() {
         onSaveCase={saveCaseAction}
         onDeleteCase={deleteCaseAction}
         saveCaseStatus={saveCaseStatus}
+        viewScale={viewScale}
+        setViewScale={setViewScale}
         onOpenFormulas={() => setFormulasOpen(true)}/>
 
       <div className={'workspace' + (tweaks.paletteCollapsed ? ' palette-collapsed' : '')}>
