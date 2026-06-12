@@ -508,12 +508,19 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
               AWW &lt; min · AWW is floor
             </div>
           )}
-          <div style={{marginLeft:'auto'}}>
-            <div className="method-badge" tabIndex="0">
-              {badge.badge}
-              <div className="tooltip"><strong>AWW Method</strong>{badge.tip}</div>
-            </div>
+        </div>
+
+        {/* §14 method badge + Configure AWW, paired (Option B): both describe
+            how the AWW is derived. Sits right after the readout in row 1, so
+            there's no dead space between the Min stat and the citation. */}
+        <div className="aww-method-config">
+          <div className="method-badge" tabIndex="0">
+            {badge.badge}
+            <div className="tooltip"><strong>AWW Method</strong>{badge.tip}</div>
           </div>
+          <button className={'expand-toggle ' + (open ? 'open' : '')} onClick={() => setOpen(!open)}>
+            Configure AWW <span className="chev">▾</span>
+          </button>
         </div>
 
         {/* AWW-row extras: Common rates quick list + Today/Deadline calc.
@@ -553,9 +560,6 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
             </div>
           </div>
         </div>
-        <button className={'expand-toggle ' + (open ? 'open' : '')} onClick={() => setOpen(!open)}>
-          Configure AWW <span className="chev">▾</span>
-        </button>
       </div>
 
       {open && (

@@ -785,21 +785,35 @@ html body[data-theme] .beta-banner {
 }
 
 .aww-fields {
-  /* #6 — denser, left-to-right reading order: Case · AWW · DOI · Max ·
-     readout. The old layout wasted a full `1fr` spacer between the inputs and
-     the readout; folding that stretch into the readout column (last col) halves
-     the dead space. Fluid min/max columns so the bar never overflows. */
+  /* Reading order: Case · AWW · DOI · Max · readout · [§14 + Configure].
+     Inputs sit in fixed min/max columns; the readout and the method/Configure
+     cluster are content-width (auto) so nothing stretches — the blue readout
+     wraps tightly to AWW·TT·SLU·Min and the §14 badge + Configure follow it
+     immediately, with no dead gap. */
   margin-top: 6px;
   display: grid;
   grid-template-columns:
-    minmax(130px, 170px) minmax(110px, 150px) minmax(120px, 150px)
-    minmax(110px, 150px) minmax(240px, 1fr);
-  gap: 7px 10px;
+    minmax(130px, 170px) minmax(120px, 150px) minmax(120px, 150px)
+    minmax(120px, 150px) auto auto;
+  gap: 8px 16px;
   align-items: end;
 }
-/* #6 — tighten the label→input rhythm inside the configure bar only (global
+/* Tighten the label→input rhythm inside the configure bar only (global
    .f-group is untouched, so tiles are unaffected). */
-.aww-fields .f-group { gap: 3px; }
+.aww-fields .f-group { gap: 3px; min-width: 0; }
+/* Fix overlap: the $-prefixed inputs (AWW, Statutory Max) have an intrinsic
+   ~171px width that overflowed their 150px grid cell into the next field. Pin
+   every configure-bar input to fill its cell with border-box sizing. */
+.aww-fields .f-input,
+.aww-fields .f-select { width: 100%; box-sizing: border-box; }
+.aww-fields .f-input-wrap { display: block; width: 100%; }
+.aww-fields .f-input-wrap .f-input { width: 100%; }
+
+/* §14 method badge + Configure AWW cluster (Option B). */
+.aww-method-config {
+  display: flex; align-items: center; gap: 8px;
+  align-self: end; white-space: nowrap;
+}
 
 .f-group { display: flex; flex-direction: column; gap: 5px; }
 .f-label {
@@ -849,16 +863,17 @@ html body[data-theme] .beta-banner {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 28px;
-  /* flex-end so the single-line Today/Term/Deadline row drops to sit in line
-     with the rate values (the last line of .common-rates) rather than baseline-
-     aligning to the "Common rates" label above them. */
+  /* Pack left so the Today/Term/Deadline cluster sits right after the Common
+     rates list instead of being pushed to the far right with an empty middle. */
+  justify-content: flex-start;
+  gap: 6px 20px;
   align-items: flex-end;
   margin-top: 2px;
 }
-/* Boxless: common rates render as a single inline run, ~12% smaller. */
+/* Boxless: common rates render as a single inline run, ~12% smaller. Don't
+   grow — let the deadline cluster pack in immediately after it. */
 .common-rates {
-  flex: 1 1 460px;
+  flex: 0 1 auto;
   min-width: 0;
 }
 .common-rates .ce-label {
