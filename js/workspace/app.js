@@ -216,21 +216,28 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null); // computed result, prior to apply
 
-  // #4 — collapsible top banner/menu bar. Auto-collapses 5s after mount (fixed
-  // timer from load — fires even if the user is mid-interaction). A persistent
-  // chevron handle in the action row lets the user expand / re-collapse at will.
+  // Auto-hide toolbar (Option C). The whole compact toolbar row folds into a
+  // slim drawer handle a few seconds after mount (fixed timer from load — fires
+  // even mid-interaction). The handle reveals/re-hides it at any time. The AWW
+  // configure fields stay visible; only the toolbar (actions + settings) hides.
+  // The site beta banner + nav are collapsed separately by workspace.html.
   const [hdrCollapsed, setHdrCollapsed] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setHdrCollapsed(true), 5000);
     return () => clearTimeout(t);
   }, []);
+
+  // Settings popover (Option B) — gear button gathers themes, size sliders,
+  // Formulas, and Delete Case so the toolbar stays a single dense row.
+  const [settingsOpen, setSettingsOpen] = useState(false);
   useEffect(() => {
-    // Collapse the external beta banner (lives outside React, in workspace.html)
-    // in sync so the workspace reclaims the vertical space.
-    const b = document.querySelector('.beta-banner');
-    if (b) b.style.display = hdrCollapsed ? 'none' : '';
-    return () => { if (b) b.style.display = ''; };
-  }, [hdrCollapsed]);
+    if (!settingsOpen) return;
+    const onDown = (e) => { if (!e.target.closest('.ws-settings-wrap')) setSettingsOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setSettingsOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [settingsOpen]);
 
   // #4 — Full Screen toggle via the browser Fullscreen API. Esc exits (handled
   // by the browser); the button label/icon reflects the live state through the
@@ -335,13 +342,14 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
         className={'hdr-collapse-handle' + (hdrCollapsed ? ' collapsed' : '')}
         onClick={() => setHdrCollapsed(c => !c)}
         aria-pressed={!hdrCollapsed}
-        title={hdrCollapsed ? 'Expand header' : 'Collapse header'}>
+        aria-label={hdrCollapsed ? 'Show workspace toolbar' : 'Hide workspace toolbar'}
+        title={hdrCollapsed ? 'Show toolbar (Save, Full Screen, Settings)' : 'Hide toolbar'}>
         <span className="chev">▾</span>
+        <span className="hdr-handle-label">{hdrCollapsed ? 'Toolbar' : ''}</span>
       </button>
       <div className="aww-row">
-        <div className="aww-title-block">
-          <h1>Pro Attorney Calculator Workspace</h1>
-          <div className="sub">All calculators in one canvas. Set AWW & DOI once — every tile updates automatically.</div>
+        <div className="ws-title-label" title="Pro Attorney Calculator Workspace — set AWW &amp; DOI once; every tile updates.">
+          Pro Attorney Workspace
         </div>
         <div className="right-cluster">
           <div className="case-actions">
@@ -364,13 +372,6 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
               title={isFullscreen ? 'Exit full screen (Esc)' : 'Enter full screen'}>
               {isFullscreen ? '⤢ Exit Full Screen' : '⤢ Full Screen'}
             </button>
-            <button
-              type="button"
-              className="btn ghost tiny case-action-delete"
-              onClick={onDeleteCase}
-              title="Delete this case tab. If it's the only tab open, it will be replaced with a fresh blank tab.">
-              Delete Case
-            </button>
           </div>
           <div className={'save-indicator ' + (saveStatus === 'saving' ? 'saving' : saveStatus === 'error' ? 'error' : '')}>
             <span className="dot"></span>
@@ -379,53 +380,71 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
               : saveStatus === 'offline' ? 'Offline'
               : 'Saved'}
           </div>
-          <button className="btn ghost formulas-btn" onClick={() => onOpenFormulas()} title="Formula reference">📐 Formulas</button>
-          <div className="theme-cluster">
-            <div className="theme-switch">
-              {['onyx','eggshell','aurora'].map(t => (
-                <button key={t} className={themeName === t ? 'active' : ''} onClick={() => setTheme(t)}>{t.toUpperCase()}</button>
-              ))}
-            </div>
-            {/* "More themes" — sports/anime team variants beyond the three
-                primary pills. A button that toggles a small menu, sitting
-                directly under the onyx/eggshell/aurora toggles. */}
-            <div className="more-themes">
-              <button type="button"
-                className={'more-themes-btn ' + (EXTRA_THEMES.has(themeName) ? 'active' : '')}
-                aria-expanded={moreThemesOpen}
-                onClick={() => setMoreThemesOpen(o => !o)}>
-                {EXTRA_THEMES.has(themeName)
-                  ? (TEAM_THEMES.find(t => t.v === themeName) || {}).label
-                  : 'More themes'} <span className="chev">▾</span>
-              </button>
-              {moreThemesOpen && (
-                <div className="more-themes-menu">
-                  {TEAM_THEMES.map(t => (
-                    <button key={t.v} type="button"
-                      className={themeName === t.v ? 'active' : ''}
-                      onClick={() => { setTheme(t.v); setMoreThemesOpen(false); }}>{t.label}</button>
-                  ))}
+          {/* Settings gear (Option B) — themes, size sliders, Formulas, and
+              Delete Case live here so the toolbar stays one dense row. */}
+          <div className="ws-settings-wrap">
+            <button type="button"
+              className={'btn ghost tiny ws-settings-btn' + (settingsOpen ? ' active' : '')}
+              aria-expanded={settingsOpen}
+              aria-haspopup="true"
+              onClick={() => setSettingsOpen(o => !o)}
+              title="Settings — theme, sizing, formulas">
+              <span className="gear">⚙</span> Settings
+            </button>
+            {settingsOpen && (
+              <div className="ws-settings-menu" role="menu">
+                <div className="ws-settings-section">
+                  <div className="ws-settings-label">Theme</div>
+                  <div className="theme-switch">
+                    {['onyx','eggshell','aurora'].map(t => (
+                      <button key={t} className={themeName === t ? 'active' : ''} onClick={() => setTheme(t)}>{t.toUpperCase()}</button>
+                    ))}
+                  </div>
+                  <div className="more-themes">
+                    <button type="button"
+                      className={'more-themes-btn ' + (EXTRA_THEMES.has(themeName) ? 'active' : '')}
+                      aria-expanded={moreThemesOpen}
+                      onClick={() => setMoreThemesOpen(o => !o)}>
+                      {EXTRA_THEMES.has(themeName)
+                        ? (TEAM_THEMES.find(t => t.v === themeName) || {}).label
+                        : 'More themes'} <span className="chev">▾</span>
+                    </button>
+                    {moreThemesOpen && (
+                      <div className="more-themes-menu">
+                        {TEAM_THEMES.map(t => (
+                          <button key={t.v} type="button"
+                            className={themeName === t.v ? 'active' : ''}
+                            onClick={() => { setTheme(t.v); setMoreThemesOpen(false); }}>{t.label}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-            {/* #5 — Tile Size + Workspace Size sliders. Drive --tile-scale /
-                --workspace-scale live; NOT persisted (reset to 1.0 on reload). */}
-            <div className="size-sliders" role="group" aria-label="Workspace sizing">
-              <label className="size-slider" title="Scale all tiles uniformly (not saved)">
-                <span>Tile</span>
-                <input type="range" min="0.7" max="1.4" step="0.05"
-                  value={viewScale.tile}
-                  aria-label="Tile size"
-                  onChange={e => setViewScale(s => ({ ...s, tile: Number(e.target.value) }))}/>
-              </label>
-              <label className="size-slider" title="Zoom the whole canvas — tiles and spacing (not saved)">
-                <span>Zoom</span>
-                <input type="range" min="0.6" max="1.5" step="0.05"
-                  value={viewScale.ws}
-                  aria-label="Workspace size"
-                  onChange={e => setViewScale(s => ({ ...s, ws: Number(e.target.value) }))}/>
-              </label>
-            </div>
+                <div className="ws-settings-section">
+                  <div className="ws-settings-label">Size · resets on reload</div>
+                  <div className="size-sliders" role="group" aria-label="Workspace sizing">
+                    <label className="size-slider" title="Scale all tiles uniformly (not saved)">
+                      <span>Tile</span>
+                      <input type="range" min="0.7" max="1.4" step="0.05"
+                        value={viewScale.tile}
+                        aria-label="Tile size"
+                        onChange={e => setViewScale(s => ({ ...s, tile: Number(e.target.value) }))}/>
+                    </label>
+                    <label className="size-slider" title="Zoom the whole canvas — tiles and spacing (not saved)">
+                      <span>Zoom</span>
+                      <input type="range" min="0.6" max="1.5" step="0.05"
+                        value={viewScale.ws}
+                        aria-label="Workspace size"
+                        onChange={e => setViewScale(s => ({ ...s, ws: Number(e.target.value) }))}/>
+                    </label>
+                  </div>
+                </div>
+                <div className="ws-settings-section ws-settings-actions">
+                  <button className="btn ghost tiny" onClick={() => { onOpenFormulas(); setSettingsOpen(false); }} title="Formula reference">📐 Formulas</button>
+                  <button className="btn ghost tiny case-action-delete" onClick={() => { onDeleteCase(); setSettingsOpen(false); }} title="Delete this case tab.">Delete Case</button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

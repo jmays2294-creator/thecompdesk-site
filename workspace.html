@@ -96,11 +96,50 @@
       color: var(--site-txD); padding: 0 20px;
     }
     .ws-not-signed-in a { color: var(--site-ac); }
+
+    /* Site menu bar (beta banner + nav) — auto-collapsing with a slim toggle. */
+    #ws-chrome-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 3px 16px;
+      background: var(--site-card); border-bottom: 1px solid var(--site-bd);
+      font-family: var(--site-font);
+    }
+    #ws-chrome-toggle .wct-brand {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--site-txD);
+    }
+    #ws-chrome-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--site-bd);
+      border-radius: 6px; padding: 2px 10px; cursor: pointer;
+      color: var(--site-txD); font: inherit; font-size: 11px;
+      letter-spacing: 0.04em; transition: color 120ms, border-color 120ms;
+    }
+    #ws-chrome-btn:hover { color: var(--site-tx); border-color: var(--site-ac); }
+    #ws-chrome-btn .wct-chev { display: inline-block; font-size: 10px; transition: transform 200ms; }
+    #ws-chrome-btn[aria-expanded="false"] .wct-chev { transform: rotate(180deg); }
+    #ws-site-chrome {
+      overflow: hidden;
+      max-height: 320px; opacity: 1;
+      transition: max-height 320ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 220ms;
+    }
+    #ws-site-chrome.ws-collapsed { max-height: 0; opacity: 0; }
   </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
 </head>
 <body data-theme="eggshell" data-iridescence="subtle" data-density="comfortable" data-no-brand-bg="true">
+
+<!-- Slim always-visible toggle for the site menu bar (beta banner + nav).
+     The site chrome auto-collapses a few seconds after load to reclaim vertical
+     space; this strip lets the user re-open / re-close it at any time. -->
+<div id="ws-chrome-toggle">
+  <span class="wct-brand">The Comp&nbsp;Desk</span>
+  <button type="button" id="ws-chrome-btn" aria-expanded="true" aria-controls="ws-site-chrome">
+    <span class="wct-label">Hide menu</span><span class="wct-chev">▾</span>
+  </button>
+</div>
+<div id="ws-site-chrome">
 
 <!-- Beta launch banner — workspace is live but in active development.
      Non-sticky so it scrolls out of view after the user has seen it once. -->
@@ -111,6 +150,7 @@
 </div>
 
 <div id="app-nav"></div>
+</div><!-- /#ws-site-chrome -->
 
 <!-- Upgrade wall — RETAINED but no longer activated. Workspace is now
      a public demo (2026-05-07); the per-tab paywall in /js/workspace/app.js
@@ -252,6 +292,26 @@
   })();
 </script>
 
+<script>
+  // Site menu bar (beta banner + nav) auto-collapse + toggle. The strip itself
+  // (#ws-chrome-toggle) stays visible so the user can reopen/close at any time.
+  (function () {
+    var chrome = document.getElementById('ws-site-chrome');
+    var btn = document.getElementById('ws-chrome-btn');
+    if (!chrome || !btn) return;
+    var label = btn.querySelector('.wct-label');
+    function setCollapsed(collapsed) {
+      chrome.classList.toggle('ws-collapsed', collapsed);
+      btn.setAttribute('aria-expanded', String(!collapsed));
+      if (label) label.textContent = collapsed ? 'Show menu' : 'Hide menu';
+    }
+    btn.addEventListener('click', function () {
+      setCollapsed(!chrome.classList.contains('ws-collapsed'));
+    });
+    // Auto-collapse a few seconds after load (fixed timer from load).
+    setTimeout(function () { setCollapsed(true); }, 4000);
+  })();
+</script>
 <script src="/js/disclaimer.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
   <script src="/js/footer-contact.js" defer></script>

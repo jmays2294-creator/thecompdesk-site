@@ -710,16 +710,19 @@ html body[data-theme] .beta-banner {
 /* #4 — collapsed header: hide the title banner, tighten the bar. The action
    row (Save / Full Screen / Delete), theme cluster, sliders and the configure
    fields all remain; only the large title block is dropped to reclaim space. */
-.aww-strip.hdr-collapsed { padding-top: 6px; padding-bottom: 6px; }
-.aww-strip.hdr-collapsed .aww-title-block { display: none; }
-/* #4 — drawer handle straddling the strip's bottom edge; always visible so the
-   user can expand/re-collapse at any time. */
+/* Option C auto-hide: when collapsed the ENTIRE compact toolbar row folds away
+   into the drawer handle; the AWW configure fields below stay visible. */
+.aww-strip.hdr-collapsed { padding-top: 4px; padding-bottom: 6px; }
+.aww-strip.hdr-collapsed .aww-row { display: none; }
+/* Drawer handle straddling the strip's bottom edge; always visible so the user
+   can reveal/re-hide the toolbar at any time. When collapsed it also shows a
+   small "Toolbar" label so the affordance is obvious. */
 .hdr-collapse-handle {
   position: absolute; left: 50%; bottom: 0;
   transform: translate(-50%, 50%);
   z-index: 41;
-  width: 52px; height: 16px; padding: 0;
-  display: inline-flex; align-items: center; justify-content: center;
+  height: 16px; padding: 0 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
   background: var(--bg-1); border: 1px solid var(--bd);
   border-radius: 0 0 8px 8px;
   color: var(--tx-faint); cursor: pointer;
@@ -732,7 +735,47 @@ html body[data-theme] .beta-banner {
   transition: transform 200ms;
 }
 .hdr-collapse-handle.collapsed .chev { transform: rotate(0deg); } /* down = "expand" */
-.aww-row { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; }
+.hdr-handle-label {
+  font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase;
+  font-weight: 600; line-height: 1;
+}
+
+/* Compact single-row toolbar (Option B): small title label on the left, the
+   action buttons + settings gear on the right. */
+.aww-row { display: flex; align-items: center; gap: 14px; min-height: 30px; }
+.ws-title-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--tx-dim);
+  white-space: nowrap; flex: 0 0 auto;
+}
+@media (max-width: 640px) { .ws-title-label { display: none; } }
+.aww-row .right-cluster { margin-left: auto; }
+
+/* Settings gear + popover (Option B) — gathers themes, size sliders, Formulas,
+   and Delete so the toolbar stays one line. */
+.ws-settings-wrap { position: relative; }
+.ws-settings-btn { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.ws-settings-btn.active { border-color: var(--ac); color: var(--ac-2); }
+.ws-settings-btn .gear { font-size: 13px; line-height: 1; }
+.ws-settings-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 70;
+  min-width: 230px;
+  background: var(--tile); border: 1px solid var(--bd);
+  border-radius: 10px; box-shadow: var(--shadow);
+  padding: 10px; display: flex; flex-direction: column; gap: 12px;
+}
+.ws-settings-section { display: flex; flex-direction: column; gap: 8px; }
+.ws-settings-section + .ws-settings-section { border-top: 1px solid var(--bd-soft); padding-top: 12px; }
+.ws-settings-label {
+  font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tx-faint); font-weight: 600;
+}
+.ws-settings-actions { flex-direction: row; gap: 8px; flex-wrap: wrap; }
+.ws-settings-actions .btn { flex: 1 1 auto; justify-content: center; }
+.ws-settings-menu .more-themes { position: relative; }
+.ws-settings-menu .more-themes-menu { top: calc(100% + 4px); left: 0; right: auto; }
+.ws-settings-menu .size-sliders { margin-top: 0; }
+.ws-settings-menu .size-slider { grid-template-columns: 34px 1fr; }
 .aww-title-block h1 {
   font-size: 14px; font-weight: 600; letter-spacing: 0.04em;
   text-transform: uppercase; margin: 0; color: var(--tx);
