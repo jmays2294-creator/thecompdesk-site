@@ -928,7 +928,7 @@ function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
   );
 }
 
-function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, perspective, onFeeApp }) {
+function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerDown, isRecent, perspective, onFeeApp }) {
   const tileRef = useRef(null);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
 
@@ -950,19 +950,22 @@ function Tile({ tile, global, onUpdate, onRemove, onTilePointerDown, isRecent, p
     Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGTile,
   }[tile.type];
 
-  // #5 — Tile Size: scale(var(--tile-scale)) is prepended so the per-tile
-  // size slider applies via the CSS custom property. The 3D perspective tilt
-  // follows. Default --tile-scale is 1, so the rendered transform is unchanged.
-  const transform = `scale(var(--tile-scale, 1)) perspective(800px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;
+  // Tile Size now scales the actual footprint (cell.w / cell.h come from the
+  // auto-arrange packer, already multiplied by tile-scale), so the grid
+  // re-flows to fit instead of tiles overlapping their original boxes. The
+  // transform is just the 3D perspective tilt.
+  const transform = `perspective(800px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;
+  const c = cell || { x: tile.x, y: tile.y, w: spec.w, h: spec.h };
 
   return (
     <div ref={tileRef}
-      className={'tile ' + (isRecent ? 'recent' : '')}
+      className={'tile ' + (isRecent ? 'recent ' : '') + (dragging ? 'dragging' : '')}
       style={{
-        left: tile.x, top: tile.y,
-        width: spec.w, height: spec.h,
+        left: c.x, top: c.y,
+        width: c.w, height: c.h,
         transform,
-        transition: tilt.rx === 0 && tilt.ry === 0 ? 'transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 200ms' : 'box-shadow 200ms',
+        transition: dragging ? 'none'
+          : (tilt.rx === 0 && tilt.ry === 0 ? 'left 200ms cubic-bezier(0.2,0.9,0.3,1), top 200ms cubic-bezier(0.2,0.9,0.3,1), width 200ms, height 200ms, box-shadow 200ms' : 'box-shadow 200ms'),
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}>
@@ -1006,10 +1009,68 @@ function findEmptySlot(tiles, w, h, preferX = 0, preferY = 0, snap = GRID) {
   return { x: 0, y: 0 };
 }
 
-function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspective, showGrid, snapSize, onFeeApp }) {
+// Flow order: row-major by current position (y then x), tiebroken by id
+// (creation order). Dragging a tile changes its y/x live, so the order — and
+// therefore the packed layout — updates as you drag, giving live re-insertion.
+function tileOrder(tiles) {
+  return [...tiles].sort((a, b) =>
+    ((a.y || 0) - (b.y || 0)) || ((a.x || 0) - (b.x || 0)) || ((a.id || 0) - (b.id || 0)));
+}
+// Auto-arrange packer — left-to-right shelves, wrapping to a new row when the
+// next tile would exceed the container width. Footprints scale with tileScale
+// so the grid re-flows to fit when Tile Size changes. Returns { id: {x,y,w,h} }
+// in canvas (pre-zoom) coordinates, plus __contentHeight for canvas sizing.
+function packGrid(ordered, tileScale, containerW, gap) {
+  const s = tileScale > 0 ? tileScale : 1;
+  const W = containerW > 0 ? containerW : 1200;
+  const g = gap > 0 ? gap : GRID;
+  const pos = {};
+  let x = 0, y = 0, rowH = 0, maxBottom = 0;
+  for (const t of ordered) {
+    const spec = TILE_SPECS[t.type] || { w: 320, h: 220 };
+    const w = spec.w * s, h = spec.h * s;
+    if (x > 0 && x + w > W + 0.5) { x = 0; y += rowH + g; rowH = 0; }
+    pos[t.id] = { x, y, w, h };
+    x += w + g;
+    if (h > rowH) rowH = h;
+    if (y + h > maxBottom) maxBottom = y + h;
+  }
+  pos.__contentHeight = maxBottom;
+  return pos;
+}
+
+function Canvas({ tiles, tileScale, global, onUpdate, onRemove, onAdd, mostRecentId, perspective, showGrid, snapSize, onFeeApp }) {
   const canvasRef = useRef(null);
   const [drag, setDrag] = useState(null);
   const [dropPreview, setDropPreview] = useState(null);
+  const [containerW, setContainerW] = useState(1200);
+  const packedRef = useRef({});
+
+  // Measure the canvas's (pre-zoom) layout width and keep it current — the
+  // packer wraps tiles against this width, so it must react to palette
+  // collapse, window resize, etc.
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const measure = () => setContainerW(el.clientWidth || 1200);
+    measure();
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(measure);
+      ro.observe(el);
+    } else {
+      window.addEventListener('resize', measure);
+    }
+    return () => { if (ro) ro.disconnect(); else window.removeEventListener('resize', measure); };
+  }, []);
+
+  const ts = tileScale > 0 ? tileScale : 1;
+  const packed = useMemo(
+    () => packGrid(tileOrder(tiles), ts, containerW, snapSize || GRID),
+    [tiles, ts, containerW, snapSize],
+  );
+  packedRef.current = packed;
+  const contentHeight = packed.__contentHeight || 0;
 
   // #5 — Workspace Size zoom: the .canvas is transform: scale(--workspace-scale)
   // from its top-left, so pointer offsets measured against its (already-scaled)
@@ -1026,7 +1087,12 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
     if (!tile) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const z = wsScale();
-    setDrag({ id, offsetX: (e.clientX - rect.left) / z - tile.x, offsetY: (e.clientY - rect.top) / z - tile.y });
+    // Start the drag from the tile's CURRENT packed position so it doesn't
+    // jump. Seed its stored x/y to that cell; the offset is from the cell
+    // origin to the pointer.
+    const cell = packedRef.current[id] || { x: tile.x, y: tile.y };
+    setDrag({ id, offsetX: (e.clientX - rect.left) / z - cell.x, offsetY: (e.clientY - rect.top) / z - cell.y });
+    onUpdate({ ...tile, x: cell.x, y: cell.y, _dragging: true });
   };
 
   useEffect(() => {
@@ -1035,21 +1101,18 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
       const rect = canvasRef.current.getBoundingClientRect();
       const tile = tiles.find(t => t.id === drag.id);
       if (!tile) return;
-      const snap = snapSize || GRID;
       const z = wsScale();
-      let x = (e.clientX - rect.left) / z - drag.offsetX;
-      let y = (e.clientY - rect.top) / z - drag.offsetY;
-      x = Math.max(0, snap > 0 ? Math.round(x / snap) * snap : x);
-      y = Math.max(0, snap > 0 ? Math.round(y / snap) * snap : y);
+      // Free-follow in canvas coordinates; the dragged tile renders at this
+      // raw position while the others re-pack around its live order slot.
+      const x = Math.max(0, (e.clientX - rect.left) / z - drag.offsetX);
+      const y = Math.max(0, (e.clientY - rect.top) / z - drag.offsetY);
       onUpdate({ ...tile, x, y, _dragging: true });
     };
     const onUp = () => {
       const tile = tiles.find(t => t.id === drag.id);
-      if (tile) {
-        const spec = TILE_SPECS[tile.type];
-        const slot = findEmptySlot(tiles.filter(t => t.id !== drag.id), spec.w, spec.h, tile.x, tile.y, snapSize || GRID);
-        onUpdate({ ...tile, x: slot.x, y: slot.y, _dragging: false });
-      }
+      // Keep the drop position as the new order seed (row-major); the packer
+      // tidies everything — including the dropped tile — into the grid.
+      if (tile) onUpdate({ ...tile, _dragging: false });
       setDrag(null);
     };
     window.addEventListener('pointermove', onMove);
@@ -1058,7 +1121,7 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
     };
-  }, [drag, tiles, snapSize, onUpdate]);
+  }, [drag, tiles, onUpdate]);
 
   const onDragOver = (e) => {
     if (!e.dataTransfer.types.includes('application/x-tile-type')) return;
@@ -1066,11 +1129,10 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
     const rect = canvasRef.current.getBoundingClientRect();
     const type = e.dataTransfer.getData('application/x-tile-type') || sessionStorage.getItem('__dragType');
     const spec = TILE_SPECS[type] || TILE_SPECS.SLU;
-    const snap = snapSize || GRID;
     const z = wsScale();
-    const px = Math.round(((e.clientX - rect.left) / z) / snap) * snap;
-    const py = Math.round(((e.clientY - rect.top) / z) / snap) * snap;
-    setDropPreview({ x: Math.max(0, px), y: Math.max(0, py), w: spec.w, h: spec.h });
+    const px = Math.max(0, (e.clientX - rect.left) / z);
+    const py = Math.max(0, (e.clientY - rect.top) / z);
+    setDropPreview({ x: px, y: py, w: spec.w * ts, h: spec.h * ts });
   };
   const onDragLeave = () => setDropPreview(null);
   const onDrop = (e) => {
@@ -1078,11 +1140,11 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
     const type = e.dataTransfer.getData('application/x-tile-type') || sessionStorage.getItem('__dragType');
     if (!type || !TILE_SPECS[type]) { setDropPreview(null); return; }
     const rect = canvasRef.current.getBoundingClientRect();
-    const spec = TILE_SPECS[type];
-    const snap = snapSize || GRID;
     const z = wsScale();
-    const px = Math.max(0, Math.round(((e.clientX - rect.left) / z) / snap) * snap);
-    const py = Math.max(0, Math.round(((e.clientY - rect.top) / z) / snap) * snap);
+    const px = Math.max(0, (e.clientX - rect.left) / z);
+    const py = Math.max(0, (e.clientY - rect.top) / z);
+    // Seed the new tile's order at the drop location; the packer snaps it into
+    // the grid near there.
     onAdd(type, { preferX: px, preferY: py });
     setDropPreview(null);
   };
@@ -1091,6 +1153,7 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
     <div className="canvas-wrap">
       <div ref={canvasRef}
         className={'canvas ' + (showGrid ? 'show-grid' : '')}
+        style={{ minHeight: Math.max(1200, Math.ceil(contentHeight) + 40) }}
         onDragOver={onDragOver}
         onDrop={onDrop}
         onDragLeave={onDragLeave}>
@@ -1100,14 +1163,21 @@ function Canvas({ tiles, global, onUpdate, onRemove, onAdd, mostRecentId, perspe
         {dropPreview && (
           <div className="drop-indicator" style={{ left: dropPreview.x, top: dropPreview.y, width: dropPreview.w, height: dropPreview.h }}/>
         )}
-        {tiles.map(tile => (
-          <Tile key={tile.id} tile={tile} global={global}
-            onUpdate={onUpdate} onRemove={onRemove}
-            onTilePointerDown={onTilePointerDown}
-            isRecent={tile.id === mostRecentId}
-            perspective={perspective}
-            onFeeApp={onFeeApp}/>
-        ))}
+        {tiles.map(tile => {
+          const isDragging = !!drag && drag.id === tile.id;
+          const spec = TILE_SPECS[tile.type] || { w: 320, h: 220 };
+          const cell = isDragging
+            ? { x: tile.x, y: tile.y, w: spec.w * ts, h: spec.h * ts }
+            : (packed[tile.id] || { x: tile.x, y: tile.y, w: spec.w * ts, h: spec.h * ts });
+          return (
+            <Tile key={tile.id} tile={tile} cell={cell} dragging={isDragging} global={global}
+              onUpdate={onUpdate} onRemove={onRemove}
+              onTilePointerDown={onTilePointerDown}
+              isRecent={tile.id === mostRecentId}
+              perspective={perspective}
+              onFeeApp={onFeeApp}/>
+          );
+        })}
       </div>
     </div>
   );
@@ -1731,7 +1801,15 @@ function App() {
       setPaywallState({ reason: 'pro-tile', tileName: spec.name });
       return;
     }
-    const slot = findEmptySlot(activeTab.tiles, spec.w, spec.h, opts.preferX || 20, opts.preferY || 20, tweaks.snapSize || GRID);
+    // Auto-arrange: positions are derived by the packer from row-major order,
+    // so a new tile only needs an order SEED. A palette drop seeds at the drop
+    // point; a palette click appends last (largest y) so it flows in after the
+    // existing tiles — to the right, wrapping down.
+    const isDrop = (opts.preferX != null && opts.preferY != null);
+    const maxY = activeTab.tiles.reduce((m, t) => Math.max(m, t.y || 0), 0);
+    const slot = isDrop
+      ? { x: opts.preferX, y: opts.preferY }
+      : { x: 0, y: maxY + 1 };
     const sameTypeCount = activeTab.tiles.filter(t => t.type === type).length + 1;
     const id = Date.now() + Math.random();
     // Initialize inputs from the canonical default factory so new tiles enter
@@ -1964,6 +2042,7 @@ function App() {
           onToggleCollapsed={() => setTweaks(prev => ({ ...prev, paletteCollapsed: !prev.paletteCollapsed }))}/>
         <Canvas
           tiles={activeTab.tiles}
+          tileScale={viewScale.tile}
           global={global}
           onUpdate={updateTile}
           onRemove={removeTile}
