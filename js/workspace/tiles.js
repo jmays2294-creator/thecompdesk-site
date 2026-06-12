@@ -81,7 +81,35 @@ function mtgLoad(slug) {
   return _mtgPromises[slug];
 }
 
+// Normalize MTG body text for display. The guideline JSON is extracted from
+// the WCB PDFs, which carry hard line breaks every ~80 characters — rendering
+// that raw with `white-space: pre-wrap` chops sentences onto random new lines.
+// This collapses those mid-paragraph hard wraps to spaces, preserves real
+// paragraph breaks (blank lines), and rejoins words hyphenated across a line
+// break ("treat-\nment" -> "treatment"). Bullet/numbered list lines are kept
+// on their own line so lists stay readable.
+function mtgNormalizeBody(text) {
+  if (!text || typeof text !== 'string') return text || '';
+  let t = text.replace(/\r\n?/g, '\n');
+  t = t.replace(/(\w)-\n(\w)/g, '$1$2');                 // de-hyphenate across breaks
+  const isListLine = (ln) => /^\s*(?:[-\u2022*]|\(?[A-Za-z0-9]{1,3}[.)])\s/.test(ln);
+  // Split into paragraphs on blank lines; within a paragraph join wrapped lines
+  // into one flowing line — except lines that begin a list item, which keep
+  // their own line so numbered/lettered lists stay readable.
+  return t.split(/\n[ \t]*\n+/).map((p) => {
+    let acc = '';
+    p.split('\n').forEach((ln) => {
+      const s2 = ln.trim();
+      if (!acc) acc = s2;
+      else if (isListLine(ln)) acc += '\n' + s2;
+      else acc += ' ' + s2;
+    });
+    return acc.replace(/[ \t]{2,}/g, ' ').trim();
+  }).filter(Boolean).join('\n\n');
+}
+
 function mtgMakeExcerpt(body, keyword, anchorRef) {
+  body = mtgNormalizeBody(body);
   // If the query named a section ref like "C.2.a" that appears in body,
   // pull the excerpt from around it (so the card preview shows the right
   // chunk, not the start of the parent section).
@@ -534,7 +562,7 @@ function MTGOverlay({ overlay, onClose, onLock }) {
           maxHeight: locked ? 'none' : 180,
           WebkitMaskImage: locked ? 'none' : 'linear-gradient(180deg, #000 70%, transparent 100%)',
           maskImage: locked ? 'none' : 'linear-gradient(180deg, #000 70%, transparent 100%)',
-        }}>{renderBodyMaybeHighlighted(r.body_text, r._anchorRef, locked)}</div>
+        }}>{renderBodyMaybeHighlighted(mtgNormalizeBody(r.body_text), r._anchorRef, locked)}</div>
         {locked && (
           <div style={{
             fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
