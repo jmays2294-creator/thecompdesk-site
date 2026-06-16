@@ -924,6 +924,25 @@ function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
           </button>
         );
       })}
+      {(window.PUBLISHED_PALETTE || []).length > 0 && !collapsed && (
+        <div className="palette-section" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '.06em', opacity: .6, margin: '10px 8px 4px' }}>Published</div>
+      )}
+      {(window.PUBLISHED_PALETTE || []).map(item => (
+        <button key={item.type} className="palette-card" draggable
+          onDragStart={(e) => onDragStart(e, item.type)}
+          onClick={() => onAdd(item.type)}
+          title={item.name + ' — ' + item.desc}>
+          {collapsed ? (
+            <span className="pc-short">{item.icon}</span>
+          ) : (
+            <>
+              <div className="pc-icon">{item.icon}</div>
+              <div className="pc-name">{item.name}</div>
+              <div className="pc-desc">{item.desc}</div>
+            </>
+          )}
+        </button>
+      ))}
     </aside>
   );
 }
@@ -943,12 +962,12 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
   };
   const handleMouseLeave = () => setTilt({ rx: 0, ry: 0 });
 
-  const spec = TILE_SPECS[tile.type];
+  const spec = TILE_SPECS[tile.type] || (window.PUBLISHED_SPECS && window.PUBLISHED_SPECS[tile.type]);
   const Component = {
     SLU: SLUTile, LWEC: LWECTile, CCP: CCPTile,
     RateLookup: RateLookupTile, Radiculopathy: RadiculopathyTile,
     Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGTile,
-  }[tile.type];
+  }[tile.type] || (tile.type && tile.type.indexOf('pub_') === 0 ? window.PublishedTile : undefined);
 
   // Tile Size now scales the actual footprint (cell.w / cell.h come from the
   // auto-arrange packer, already multiplied by tile-scale), so the grid
@@ -1463,6 +1482,14 @@ function App() {
     let cancelled = false;
     (async () => {
       try {
+        // Owner-approved tiles from the admin platform's published_calculators registry.
+        // Fully additive + guarded: no-op if the module/registry isn't present or readable.
+        if (window.loadPublishedCalculators) {
+          try {
+            await window.loadPublishedCalculators(window.supa, window.currentTier);
+            Object.assign(TILE_SPECS, window.PUBLISHED_SPECS || {});
+          } catch (e) { console.warn('[workspace] published tiles skipped:', e && e.message); }
+        }
         if (!window.WorkspacePersistence) {
           // Bootstrap not finished — defer
           setSaveStatus('offline');

@@ -271,6 +271,8 @@
     await loadScript('/js/formulas-data.js');
     await loadScript('/js/workspace/constants.js');
     await loadAndTransform('/js/workspace/tiles.js');
+    // Owner-approved tiles from the admin platform (additive; no-op if none published).
+    await loadAndTransform('/js/workspace/published-tiles.js');
     await loadAndTransform('/js/workspace/app.js');
     // v1.2 — OC-400.1 fee-app generator. Loads pdf-lib lazily on first open.
     await loadAndTransform('/js/workspace/feeapp.js');
