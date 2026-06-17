@@ -326,6 +326,7 @@ function renderNav(session, tier) {
         <li><a href="/workspace/" class="nav-link" style="color:#4CAF50;">Workspace</a></li>
         <li><a href="/extension" class="nav-link" style="color:#4CAF50;">Apps</a></li>
         <li><a href="/for-attorneys" class="nav-link" style="color:#f59e0b;">For Attorneys</a></li>
+        <li><a href="/marketplace" class="nav-link" style="color:#f0a030;">Marketplace</a></li>
         <li><a href="/learn/" class="nav-link">Learn</a></li>
         <li><a href="/dashboard/my-cases.html" class="nav-link" style="color:#3b82f6;">My Cases</a></li>
         <li class="nav-dropdown">
@@ -616,6 +617,7 @@ function renderPublicNav(userState) {
         <li><a href="/workspace/" class="nav-link" style="color:#4CAF50;">Workspace</a></li>
         <li><a href="/extension" class="nav-link" style="color:#4CAF50;">Apps</a></li>
         <li><a href="/for-attorneys" class="nav-link" style="color:#f59e0b;">For Attorneys</a></li>
+        <li><a href="/marketplace" class="nav-link" style="color:#f0a030;">Marketplace</a></li>
         <li><a href="/learn/" class="nav-link">Learn</a></li>
         <li class="nav-dropdown">
           <button class="nav-dropdown-toggle">Tools <span>▼</span></button>
