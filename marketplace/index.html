@@ -101,9 +101,26 @@ footer p{font-size:12px;color:var(--txM);margin-bottom:4px;}
 footer a{color:var(--txD);}
 @media(max-width:760px){.grid3,.steps{grid-template-columns:1fr;}.grid2{grid-template-columns:1fr;}}
 @media(max-width:600px){nav .links a:not(.cta-btn){display:none;}.ev-form .field-row{flex-direction:column;}}
+
+/* ── Readability pass: cream surface + dark text on the background ───────────
+   The page sits on the uniform brand cream (data-no-brand-bg). Text that is
+   directly on the background is darkened to navy so it reads everywhere; the
+   dark cards (.card/.step/.feature-card) keep white text and pop on cream. */
+body{background:#F8F6F1;}
+.hero h1,.section h2,.faq-item h3{color:#14213d;}
+.hero h1 span{color:#c25e15;}
+.hero .sub,.section .lead,.faq-item p,footer a{color:#3b4252;}
+.compliance{color:#5a647a;}
+footer p{color:#5a647a;}
+footer,.section{border-top-color:rgba(27,42,74,0.10);}
+.badge{background:rgba(240,160,48,0.18);color:#b45309;border-color:rgba(240,160,48,0.5);}
+.waitlist{background:#ffffff;border-color:rgba(27,42,74,0.12);box-shadow:0 8px 30px rgba(27,42,74,0.07);}
+.ev-form .privacy-note{color:#7a8298;}
+.ev-form input[type="email"]{background:#ffffff;border-color:rgba(27,42,74,0.20);color:#14213d;}
+.ev-form input[type="email"]::placeholder{color:#9aa3b5;}
 </style>
 </head>
-<body>
+<body data-no-brand-bg="true">
 
 <nav>
   <div class="inner">
