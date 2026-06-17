@@ -1,0 +1,48 @@
+<svg viewBox="0 0 680 440" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="The Claude spark and The Comp Desk mark together">
+<defs>
+<radialGradient id="coral" cx="38%" cy="32%" r="75%">
+  <stop offset="0%" stop-color="#F4A98C"/>
+  <stop offset="45%" stop-color="#E0825F"/>
+  <stop offset="100%" stop-color="#C2410C"/>
+</radialGradient>
+<linearGradient id="navy" x1="0" y1="0" x2="0.35" y2="1">
+  <stop offset="0%" stop-color="#33507E"/>
+  <stop offset="55%" stop-color="#1B2A4A"/>
+  <stop offset="100%" stop-color="#0E1A33"/>
+</linearGradient>
+<radialGradient id="dot" cx="36%" cy="30%" r="75%">
+  <stop offset="0%" stop-color="#FFD9A8"/>
+  <stop offset="40%" stop-color="#FF9E3D"/>
+  <stop offset="100%" stop-color="#D9621A"/>
+</radialGradient>
+</defs>
+<g transform="translate(232,225)">
+  <g transform="translate(6,8)" fill="#7A2B0E" opacity="0.55">
+    <g id="raysB"><rect x="-15" y="-118" width="30" height="92" rx="15"/></g>
+    <use href="#raysB" transform="rotate(30)"/><use href="#raysB" transform="rotate(60)"/>
+    <use href="#raysB" transform="rotate(90)"/><use href="#raysB" transform="rotate(120)"/>
+    <use href="#raysB" transform="rotate(150)"/><use href="#raysB" transform="rotate(180)"/>
+    <use href="#raysB" transform="rotate(210)"/><use href="#raysB" transform="rotate(240)"/>
+    <use href="#raysB" transform="rotate(270)"/><use href="#raysB" transform="rotate(300)"/>
+    <use href="#raysB" transform="rotate(330)"/>
+  </g>
+  <g fill="url(#coral)">
+    <g id="rays"><rect x="-15" y="-118" width="30" height="92" rx="15"/></g>
+    <use href="#rays" transform="rotate(30)"/><use href="#rays" transform="rotate(60)"/>
+    <use href="#rays" transform="rotate(90)"/><use href="#rays" transform="rotate(120)"/>
+    <use href="#rays" transform="rotate(150)"/><use href="#rays" transform="rotate(180)"/>
+    <use href="#rays" transform="rotate(210)"/><use href="#rays" transform="rotate(240)"/>
+    <use href="#rays" transform="rotate(270)"/><use href="#rays" transform="rotate(300)"/>
+    <use href="#rays" transform="rotate(330)"/>
+  </g>
+  <circle r="40" fill="url(#coral)"/>
+  <ellipse cx="-13" cy="-15" rx="18" ry="12" fill="#FBD3C0" opacity="0.55"/>
+</g>
+<g transform="translate(452,225)">
+  <path d="M 70.6 45.3 A 81.5 81.5 0 1 1 70.6 -45.3" fill="none" stroke="#0B1426" stroke-width="47" stroke-linecap="butt" transform="translate(6,8)" opacity="0.55"/>
+  <path d="M 70.6 45.3 A 81.5 81.5 0 1 1 70.6 -45.3" fill="none" stroke="url(#navy)" stroke-width="47" stroke-linecap="butt"/>
+  <path d="M 64 41 A 75 75 0 0 0 64 -41" fill="none" stroke="#4A6699" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+  <circle r="23" fill="url(#dot)"/>
+  <ellipse cx="-7" cy="-8" rx="9" ry="6" fill="#FFF1DD" opacity="0.7"/>
+</g>
+</svg>

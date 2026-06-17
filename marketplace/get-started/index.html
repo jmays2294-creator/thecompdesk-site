@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+<title>Get Started with Claude — Run the Comp Desk Skills Marketplace | The Comp Desk</title>
+<meta name="description" content="A plain-English guide for NYS workers' comp attorneys: install Claude (Anthropic's AI assistant) on your computer and add a skill from the Comp Desk Skills Marketplace. No technical setup.">
+<meta name="keywords" content="get started claude, install claude, anthropic ai assistant, claude code, claude skills, workers comp AI, the comp desk marketplace, NYS WC attorney AI">
+
+<meta property="og:title" content="Get Started with Claude — The Comp Desk Skills Marketplace">
+<meta property="og:description" content="Install Claude on your computer and add a skill from the Comp Desk marketplace. A plain-English guide for NYS workers' comp attorneys.">
+<meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+<meta property="og:url" content="https://thecompdesk.com/marketplace/get-started">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="The Comp Desk">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Get Started with Claude — The Comp Desk Skills Marketplace">
+<meta name="twitter:description" content="Install Claude on your computer and add a skill from the Comp Desk marketplace. A plain-English guide for NYS workers' comp attorneys.">
+<meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+<link rel="canonical" href="https://thecompdesk.com/marketplace/get-started">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Get started with Claude and the Comp Desk Skills Marketplace",
+  "description": "How a NYS workers' compensation attorney installs Claude (Anthropic's AI assistant) and adds a skill from the Comp Desk marketplace.",
+  "url": "https://thecompdesk.com/marketplace/get-started",
+  "step": [
+    { "@type": "HowToStep", "name": "Get Claude", "text": "Open Claude in your browser at claude.ai, or download the desktop app." },
+    { "@type": "HowToStep", "name": "Get the skill", "text": "Pick up a skill from the Comp Desk Skills Marketplace." },
+    { "@type": "HowToStep", "name": "Add it to Claude", "text": "Drop the skill into Claude in one step — no setup." },
+    { "@type": "HowToStep", "name": "Just ask", "text": "Tell Claude what you need in plain English and it runs the skill." }
+  ],
+  "publisher": { "@type": "Organization", "name": "The Comp Desk", "legalName": "NJJ Document Services, Inc." }
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/brand-theme.css">
+<style>
+:root{--bg:#06080f;--card:#0e1322;--cardA:#151d30;--bd:#1c2d4a;--ac:#3b82f6;--acG:rgba(59,130,246,0.12);--gd:#f0a030;--gn:#2dd4a0;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--navy:#1B2A4A;--orange:#E87722;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+a{color:var(--ac);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+/* ─── Cinematic skyline background (Higgsfield Piece A, reused verbatim from
+       the live attorneys.html). Fixed full-viewport video sits at z-index -2;
+       the workspace-wash above it is a semi-transparent darkening overlay so
+       text contrast stays clean. */
+.skyline-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  background: #0F1B33;
+}
+.skyline-bg video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+.workspace-wash {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.10) 0%, rgba(107,143,168,0) 60%),
+    radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+    linear-gradient(180deg, rgba(15,27,51,0.78) 0%, rgba(11,20,38,0.88) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .skyline-bg video { display: none !important; }
+  .workspace-wash {
+    background:
+      radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.16) 0%, rgba(107,143,168,0) 60%),
+      radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+      linear-gradient(180deg, #0F1B33 0%, #0B1426 100%);
+  }
+}
+body.no-skyline-bg .skyline-bg video { display: none; }
+body.no-skyline-bg .workspace-wash {
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.16) 0%, rgba(107,143,168,0) 60%),
+    radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+    linear-gradient(180deg, #0F1B33 0%, #0B1426 100%);
+}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,8,15,0.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);}
+nav .inner{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+nav .logo{font-size:18px;font-weight:800;color:var(--wh);letter-spacing:-0.5px;}
+nav .logo span{color:var(--ac);}
+nav .links{display:flex;gap:24px;align-items:center;}
+nav .links a{color:var(--txD);font-size:14px;font-weight:600;}
+nav .links a:hover{color:var(--wh);text-decoration:none;}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+.cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(59,130,246,0.3);text-decoration:none;}
+.cta-btn.gold{background:var(--gd);color:#1a1200;}
+.cta-btn.gold:hover{box-shadow:0 4px 20px rgba(240,160,48,0.32);}
+.cta-btn.outline{background:transparent;border:1.5px solid rgba(244,246,250,0.45);color:var(--wh);}
+.cta-btn.outline:hover{background:rgba(244,246,250,0.08);}
+
+.hero{padding:150px 0 64px;}
+.hero-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:clamp(28px,5vw,56px);align-items:center;}
+.badge{display:inline-block;background:rgba(240,160,48,0.14);color:var(--gd);border:1px solid rgba(240,160,48,0.38);padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;}
+.hero h1{font-size:clamp(34px,5.4vw,56px);font-weight:900;color:var(--wh);letter-spacing:-1.2px;line-height:1.06;margin-bottom:18px;}
+.hero h1 span{color:var(--gd);}
+.hero .sub{font-size:clamp(16px,2vw,20px);color:var(--tx);max-width:560px;margin:0 0 28px;}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;}
+.hero-art{position:relative;}
+.hero-art img{width:100%;max-width:460px;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 24px 60px rgba(0,0,0,0.5));}
+@media(max-width:820px){.hero-grid{grid-template-columns:1fr;}.hero-art{order:-1;}.hero-art img{max-width:320px;}}
+
+.section{padding:60px 0;border-top:1px solid var(--bd);}
+.section h2{font-size:clamp(24px,3.4vw,34px);font-weight:800;color:var(--wh);letter-spacing:-0.6px;text-align:center;margin-bottom:12px;}
+.section .lead{text-align:center;color:var(--txD);max-width:680px;margin:0 auto 40px;font-size:16px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.card{background:rgba(14,19,34,0.78);border:1px solid var(--bd);border-radius:14px;padding:24px;backdrop-filter:blur(6px);}
+.card .icon{font-size:26px;margin-bottom:12px;}
+.card h3{font-size:17px;font-weight:800;color:var(--wh);margin-bottom:8px;letter-spacing:-0.2px;}
+.card p{font-size:14px;color:var(--txD);line-height:1.65;}
+.card a.card-link{display:inline-block;margin-top:14px;font-size:13px;font-weight:700;color:var(--gd);}
+.card a.card-link:hover{text-decoration:underline;}
+.card .sub-link{display:block;margin-top:6px;font-size:12px;color:var(--txD);}
+.card .sub-link a{color:var(--ac);}
+
+.about{background:rgba(14,19,34,0.72);border:1px solid var(--bd);border-radius:16px;padding:32px clamp(22px,4vw,40px);max-width:820px;margin:0 auto;text-align:center;backdrop-filter:blur(6px);}
+.about p{font-size:clamp(15px,1.9vw,18px);color:var(--tx);line-height:1.7;}
+.about p + p{margin-top:14px;color:var(--txD);font-size:15px;}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.step{background:rgba(14,19,34,0.78);border:1px solid var(--bd);border-radius:14px;padding:24px;position:relative;backdrop-filter:blur(6px);}
+.step .n{width:30px;height:30px;border-radius:8px;background:var(--ac);color:#fff;font-weight:800;font-family:'JetBrains Mono',monospace;display:grid;place-items:center;margin-bottom:14px;}
+.step h3{font-size:16px;font-weight:800;color:var(--wh);margin-bottom:6px;}
+.step p{font-size:14px;color:var(--txD);}
+
+.cta-band{background:linear-gradient(135deg,rgba(59,130,246,0.16),rgba(240,160,48,0.10));border:1px solid var(--bd);border-radius:18px;padding:44px 28px;text-align:center;backdrop-filter:blur(6px);}
+.cta-band h2{margin-bottom:10px;}
+.cta-band p{color:var(--txD);max-width:600px;margin:0 auto 24px;font-size:16px;}
+
+.compliance{text-align:center;color:var(--txM);font-size:13px;max-width:760px;margin:0 auto;}
+footer{padding:40px 0;border-top:1px solid var(--bd);text-align:center;}
+footer p{font-size:12px;color:var(--txM);margin-bottom:4px;}
+footer a{color:var(--txD);}
+@media(max-width:760px){.grid3,.steps{grid-template-columns:1fr;}}
+@media(max-width:600px){nav .links a:not(.cta-btn){display:none;}}
+</style>
+</head>
+<body>
+
+<!-- Skyline cinematic background (Higgsfield Piece A) — reused verbatim from the live attorneys.html. -->
+<div class="skyline-bg" aria-hidden="true">
+  <video id="skyline-vid"
+         autoplay muted playsinline preload="auto"
+         disableremoteplayback loop>
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_170959_7783c27b-fd19-4a80-9771-4577a820fb4f.mp4" type="video/mp4">
+  </video>
+</div>
+<div class="workspace-wash" aria-hidden="true"></div>
+
+<nav>
+  <div class="inner">
+    <a href="/" class="logo" style="text-decoration:none;">The <span>Comp</span> Desk</a>
+    <div class="links">
+      <a href="/" style="color:var(--txD);">Home</a>
+      <a href="/calculators/" style="color:var(--ac);font-weight:700;">Calculators</a>
+      <a href="/workspace/" style="color:var(--gn);font-weight:700;">Workspace</a>
+      <a href="/marketplace" style="color:var(--gd);font-weight:700;">Marketplace</a>
+      <a href="/attorneys">For Attorneys</a>
+      <a href="/marketplace#waitlist" class="cta-btn">Get Early Access</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="badge">Marketplace · Getting Started</span>
+        <h1>Use <span>Claude</span> on your computer.</h1>
+        <p class="sub">The Comp Desk Skills Marketplace runs inside Claude — Anthropic's AI assistant. Here's the short, plain-English version of getting Claude set up so you can start using your skills. No engineering required.</p>
+        <div class="ctas">
+          <a href="https://claude.ai" target="_blank" rel="noopener" class="cta-btn gold">Open Claude</a>
+          <a href="#install" class="cta-btn outline">How a skill installs</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <img src="/assets/marketplace/claude-compdesk.svg" alt="The Claude spark and The Comp Desk mark together" width="460" height="298">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="what">
+  <div class="wrap">
+    <h2>What is Claude?</h2>
+    <div class="about">
+      <p>Claude is the AI assistant built by Anthropic. You talk to it in plain English — the same way you'd ask a sharp associate — and it does the work.</p>
+      <p>The Comp Desk's marketplace skills run <em>inside</em> Claude. Once Claude is on your computer, adding a skill is a one-step drop-in. After that, you just ask.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="get-claude">
+  <div class="wrap">
+    <h2>Get Claude.</h2>
+    <p class="lead">There are a few ways to run Claude. Most attorneys start with the web or desktop app — pick whichever fits how you work.</p>
+    <div class="grid3">
+      <div class="card">
+        <div class="icon">💻</div>
+        <h3>Claude (web &amp; desktop)</h3>
+        <p>The simplest start. Use it right in your browser, or install the desktop app for Mac or Windows. This is where most attorneys run their skills.</p>
+        <a class="card-link" href="https://claude.ai" target="_blank" rel="noopener">Open claude.ai →</a>
+        <span class="sub-link">Desktop apps: <a href="https://claude.ai/download" target="_blank" rel="noopener">download from claude.ai</a></span>
+      </div>
+      <div class="card">
+        <div class="icon">⌨️</div>
+        <h3>Claude Code (terminal)</h3>
+        <p>For the power users. Claude Code runs in your computer's terminal and is built for heavier, multi-step work across files and tools.</p>
+        <a class="card-link" href="https://www.anthropic.com/claude-code" target="_blank" rel="noopener">About Claude Code →</a>
+      </div>
+      <div class="card">
+        <div class="icon">🌐</div>
+        <h3>Cowork &amp; Claude Code in the browser</h3>
+        <p>Run Claude Code from a browser window — no terminal needed. A friendly middle ground between the chat app and the full developer tool.</p>
+        <a class="card-link" href="https://claude.ai/code" target="_blank" rel="noopener">Open Cowork →</a>
+      </div>
+    </div>
+    <p class="lead" style="margin:28px auto 0;font-size:14px;">Not sure which to pick? Start at <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a> — you can always add the others later.</p>
+  </div>
+</section>
+
+<section class="section" id="install">
+  <div class="wrap">
+    <h2>Install a skill.</h2>
+    <p class="lead">Once Claude is running, adding a Comp Desk skill takes three simple steps — no setup, no jargon.</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Get the skill</h3><p>Pick up a skill from the Comp Desk Skills Marketplace. You'll get a small file that teaches Claude one job in your practice.</p></div>
+      <div class="step"><div class="n">2</div><h3>Drop it into Claude</h3><p>Add the skill to Claude in one step. It now lives in your own workspace, ready whenever you need it.</p></div>
+      <div class="step"><div class="n">3</div><h3>Ask in plain English</h3><p>Tell Claude what you need — "pull the history on this WCB case" — and the skill runs and hands you the result.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta-band">
+      <span class="badge">Early Access</span>
+      <h2>Ready when the marketplace opens?</h2>
+      <p>Join the early-access list and we'll email you the day the Comp Desk Skills Marketplace goes live — plus a founding-member offer for attorneys who sign up now.</p>
+      <a href="/marketplace#waitlist" class="cta-btn gold">Join the early-access list</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <p class="compliance">The Comp Desk is a document-preparation and information platform operated by NJJ Document Services, Inc. — not a law firm, and not legal advice. Marketplace skills are software tools licensed by NJJ; they do not provide legal advice or create an attorney-client relationship. Claude is a product of Anthropic; The Comp Desk is not affiliated with Anthropic.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+    <p>This application is for informational purposes only and does not constitute legal advice. Prior results do not guarantee a similar outcome.</p>
+    <p style="margin-top:8px;"><a href="/">Home</a> · <a href="/for-attorneys">For Attorneys</a> · <a href="/workspace/">Workspace</a> · <a href="/privacy">Privacy Policy</a> · <a href="/contact.html">Contact</a></p>
+  </div>
+</footer>
+
+<script defer src="/_vercel/insights/script.js"></script>
+
+<script>
+// If the skyline bg video fails to autoplay (some Safari configs), drop
+// the body into no-skyline-bg so the workspace-wash returns to opaque.
+(function skylineFallback() {
+  var v = document.getElementById('skyline-vid');
+  if (!v) return;
+  var p = v.play();
+  if (p && p.catch) p.catch(function () {
+    document.body.classList.add('no-skyline-bg');
+  });
+})();
+</script>
+
+</body>
+</html>
