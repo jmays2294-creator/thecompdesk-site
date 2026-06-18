@@ -4,6 +4,7 @@
 .cd-jb-hd { margin-bottom: 14px; }
 .cd-jb-eyebrow { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted, #6b7280); font-weight: 600; }
 .cd-jb-title { font-size: 26px; font-weight: 800; margin: 2px 0 4px; }
+.cd-jb-beta { display: inline-block; vertical-align: middle; font-size: 11px; font-weight: 800; letter-spacing: .06em; color: #fff; background: var(--accent, #2563eb); border-radius: 999px; padding: 2px 8px; transform: translateY(-3px); }
 .cd-jb-sub { font-size: 14px; color: var(--muted, #6b7280); line-height: 1.45; margin: 0; }
 
 .cd-jb-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line, #e5e7eb); margin: 14px 0 16px; flex-wrap: wrap; }

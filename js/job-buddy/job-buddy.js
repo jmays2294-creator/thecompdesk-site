@@ -333,8 +333,8 @@
     var state = { tab: 'restrictions' };
 
     root.appendChild(H('header', { className: 'cd-jb-hd' }, [
-      H('div', { className: 'cd-jb-eyebrow' }, 'Comp Buddy · The Comp Desk'),
-      H('h1', { className: 'cd-jb-title' }, 'Job Buddy'),
+      H('div', { className: 'cd-jb-eyebrow' }, 'Free Beta · The Comp Desk'),
+      H('h1', { className: 'cd-jb-title' }, ['Job Buddy ', H('span', { className: 'cd-jb-beta' }, 'BETA')]),
       H('p', { className: 'cd-jb-sub' },
         'Find work within your medical restrictions and keep a hearing-ready record of your job search. You apply on the employer’s site — we never apply for you.')
     ]));

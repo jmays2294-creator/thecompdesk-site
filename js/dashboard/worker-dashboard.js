@@ -230,7 +230,7 @@
       { icon: '🛠️', title: 'My Injury Tools', desc: 'SLU estimator, radiculopathy & more', tier: 'comp_buddy', screen: 'advanced_tools' },
       { icon: '📋', title: 'UTDM Monitoring', desc: 'Track medical updates', tier: 'comp_buddy', soon: true },
       { icon: '🚗', title: 'Mileage & Travel', desc: 'Log travel expenses', tier: 'comp_buddy', soon: true },
-      { icon: '🎯', title: 'Job Buddy', desc: 'Find work within your restrictions + C-258.1 log', tier: 'comp_buddy', screen: 'job_buddy' },
+      { icon: '🎯', title: 'Job Buddy (Beta)', desc: 'Free beta — find work within your restrictions + C-258.1 log', tier: 'free', screen: 'job_buddy' },
       { icon: '📝', title: 'Claim Filing', desc: 'Auto-fill C-3 forms', tier: 'comp_buddy', soon: true }
     ];
     var buddyGrid = h('div', { className: 'wd-grid' });
