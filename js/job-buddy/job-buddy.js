@@ -26,6 +26,14 @@
   var CD = global.CD = global.CD || {};
   var h = CD.h || function () { /* h() comes from ui-components.js; guarded below */ };
 
+  // Base URL of this script's own folder — used to fetch bundled form-template assets so they
+  // resolve correctly whether the module loads at the app root or under the website /dashboard/ mount.
+  var _ASSET_BASE = (function () {
+    try { var s = document.currentScript && document.currentScript.src; if (s) return s.replace(/[?#].*$/, '').replace(/[^/]*$/, ''); }
+    catch (e) {}
+    return 'js/job-buddy/';
+  })();
+
   var DISCLAIMER = 'This tool is for informational purposes only and does not constitute legal advice.';
 
   // ─── helpers ──────────────────────────────────────────────────────────────
@@ -221,14 +229,97 @@
   JB.generateLMAPacket = function () {
     if (!global.PDFLib) return Promise.reject(new Error('PDF engine not loaded.'));
     return Promise.all([JB.listLedger(), JB.getEnrollment()]).then(function (res) {
-      var ledger = res[0], vr = res[1];
-      return JB._buildPacketPdf(ledger, vr, CD.currentProfile || {});
+      var ledger = res[0], vr = res[1], profile = CD.currentProfile || {};
+      // Packet = genuine fillable Form C-258 (cover / labor-market-attachment summary)
+      //          followed by Form C-258.1 (the detailed independent job-search log).
+      return JB.fillC258(profile, ledger, vr).then(function (c258) {
+        return JB._buildPacketPdf(ledger, vr, profile).then(function (c2581) {
+          return JB._mergePdfs([c258, c2581]);
+        });
+      });
     }).then(function (bytes) {
       // Open in the system viewer (native) / browser (web). User can save/share from there.
       var blob = new Blob([bytes], { type: 'application/pdf' });
       var url = URL.createObjectURL(blob);
       _openExternal(url);
       return url;
+    });
+  };
+
+  // Concatenate several PDFs (as Uint8Arrays) into one document.
+  JB._mergePdfs = function (byteArrays) {
+    var P = global.PDFLib;
+    return P.PDFDocument.create().then(function (out) {
+      var chain = Promise.resolve();
+      (byteArrays || []).forEach(function (b) {
+        if (!b) return;
+        chain = chain.then(function () {
+          return P.PDFDocument.load(b).then(function (src) {
+            return out.copyPages(src, src.getPageIndices()).then(function (pages) {
+              pages.forEach(function (pg) { out.addPage(pg); });
+            });
+          });
+        });
+      });
+      return chain.then(function () { return out.save(); });
+    });
+  };
+
+  // Lazily fetch + cache the bundled genuine WCB Form C-258 (fillable AcroForm) template.
+  JB._c258TemplateBytes = null;
+  JB._loadC258Template = function () {
+    if (JB._c258TemplateBytes) return Promise.resolve(JB._c258TemplateBytes);
+    return fetch(_ASSET_BASE + 'c258-form.pdf').then(function (r) {
+      if (!r.ok) throw new Error('Could not load the C-258 form template (' + r.status + ').');
+      return r.arrayBuffer();
+    }).then(function (buf) { JB._c258TemplateBytes = new Uint8Array(buf); return JB._c258TemplateBytes; });
+  };
+
+  // Fills the genuine NYS WCB Form C-258 "Claimant's Record of Job Search Efforts/Contacts"
+  // (a real fillable AcroForm) with the worker's labor-market-attachment data, flattens it, and
+  // returns the PDF bytes. The detailed independent job-search log lives on Form C-258.1
+  // (see _buildPacketPdf) — C-258 §2 defers to it.
+  JB.fillC258 = function (profile, ledger, vr) {
+    var P = global.PDFLib;
+    if (!P) return Promise.reject(new Error('PDF engine not loaded.'));
+    profile = profile || {};
+    return JB._loadC258Template().then(function (bytes) {
+      return P.PDFDocument.load(bytes);
+    }).then(function (doc) {
+      var form = doc.getForm();
+      function setT(name, val) {
+        if (val == null || val === '') return;
+        try { var f = form.getTextField(name); f.setText(String(val)); } catch (e) {}
+      }
+      function check(name) { try { form.getCheckBox(name).check(); } catch (e) {} }
+
+      // ── Header ──
+      var fullName = String(profile.full_name || profile.display_name || '').trim();
+      var np = fullName ? fullName.split(/\s+/) : [];
+      var last = np.length ? np[np.length - 1] : '', first = np.length > 1 ? np[0] : '', mi = np.length > 2 ? np[1].charAt(0) : '';
+      if (np.length === 1) { last = np[0]; first = ''; }
+      setT('Last Name', last);
+      setT('First Name', first);
+      setT('Middle Initial', mi);
+      setT('WCB Case#', profile.wcb_case_number || '');
+      var stats = JB.computeStats(ledger);
+      setT('Date To', stats.firstDate ? _dateStr(stats.firstDate) : '');     // "For the Period:" (start)
+      setT('Date From 2', stats.lastDate ? _dateStr(stats.lastDate) : '');    // "to:" (end)
+
+      // ── §2 Independent job search (detail on the attached C-258.1) ──
+      if ((ledger || []).length) check('Check Box 2');
+
+      // ── §3 ACCES-VR / vocational rehab, when enrolled ──
+      if (vr && vr.status && vr.status !== 'not_enrolled') {
+        check('Check Box 3');
+        setT('Name of Career Center or Program', 'ACCES-VR (NYS Adult Career & Continuing Education Services – Vocational Rehabilitation)');
+        var vd = vr.enrolled_at || vr.created_at || vr.updated_at;
+        if (vd) setT('Dates of Contact', _dateStr(vd));
+        setT('Result', 'Enrollment status: ' + String(vr.status).replace(/_/g, ' '));
+      }
+
+      try { form.flatten(); } catch (e) {}
+      return doc.save();
     });
   };
 
