@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Geist:wght@500;600;700;800&display=swap">
     <link rel="stylesheet" href="/css/dashboard-worker.css">
     <link rel="stylesheet" href="/css/dashboard-attorney.css">
+    <link rel="stylesheet" href="/css/job-buddy.css">
     <style>
       /* The shared dashboard owns its own surface; give it room and let its skin
          (worker cream / attorney navy, set via <html data-audience>) show. */
@@ -71,6 +72,11 @@
   <script src="/js/dashboard/worker-dashboard.js" defer></script>
   <script src="/js/dashboard/attorney-dashboard.js" defer></script>
   <script src="/js/dashboard-host.js" defer></script>
+  <!-- Job Buddy screens (worker + firm), mounted in-place by dashboard-host showScreen -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+  <script src="/js/calc-core.js" defer></script>
+  <script src="/js/job-buddy/job-buddy.js" defer></script>
+  <script src="/js/job-buddy/firm-job-buddy.js" defer></script>
 
   <!-- Page bootstrap: keep the web's Supabase auth + tier gating; only the
        dashboard RENDER layer is shared. -->

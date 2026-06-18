@@ -320,7 +320,7 @@
         { icon: '🔔', title: 'IME Reminders', desc: 'Never miss an IME appointment', tier: 'comp_buddy', screen: 'ime' },
         { icon: '🛠️', title: 'Injury Tools', desc: 'SLU estimator, radiculopathy & more', tier: 'comp_buddy', screen: 'advanced_tools' },
         { icon: '📋', title: 'UTDM Monitoring', desc: 'Track medical updates', tier: 'comp_buddy', screen: null, comingSoon: true },
-        { icon: '🤖', title: 'Work Search Agent', desc: 'AI-powered job search', tier: 'comp_buddy', screen: null, comingSoon: true }
+        { icon: '🎯', title: 'Client Work Search', desc: 'Clients’ C-258.1 logs + LMA packets', tier: 'firm', screen: 'firm_job_buddy' }
       ];
       var grid = h('div', { className: 'atty-feature-grid' });
       features.forEach(function (f) {

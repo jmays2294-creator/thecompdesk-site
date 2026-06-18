@@ -1,0 +1,104 @@
+/* job-buddy.css — Comp Buddy "Job Buddy" screen. Self-contained; uses fallbacks
+   so it renders on the worker skin without depending on specific tokens. */
+.cd-jb { max-width: 760px; margin: 0 auto; padding: 16px 14px 40px; color: var(--ink, #0a0f1a); }
+.cd-jb-hd { margin-bottom: 14px; }
+.cd-jb-eyebrow { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted, #6b7280); font-weight: 600; }
+.cd-jb-title { font-size: 26px; font-weight: 800; margin: 2px 0 4px; }
+.cd-jb-sub { font-size: 14px; color: var(--muted, #6b7280); line-height: 1.45; margin: 0; }
+
+.cd-jb-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line, #e5e7eb); margin: 14px 0 16px; flex-wrap: wrap; }
+.cd-jb-tab { appearance: none; background: none; border: 0; padding: 9px 12px; font-size: 14px; font-weight: 600; color: var(--muted, #6b7280); cursor: pointer; border-bottom: 2px solid transparent; }
+.cd-jb-tab.is-active { color: var(--accent, #2563eb); border-bottom-color: var(--accent, #2563eb); }
+
+.cd-jb-card { background: var(--surface, #fff); border: 1px solid var(--line, #e5e7eb); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+.cd-jb-card-hd { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+.cd-jb-help { font-size: 13px; color: var(--muted, #6b7280); line-height: 1.5; margin: 0 0 12px; }
+
+.cd-jb-upload { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.cd-jb-upstatus { font-size: 12.5px; color: var(--muted, #6b7280); }
+
+.cd-jb-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 12px; }
+@media (max-width: 520px) { .cd-jb-grid { grid-template-columns: 1fr; } }
+.cd-jb-fld { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+.cd-jb-fld-lbl { font-size: 12.5px; font-weight: 600; color: var(--muted, #6b7280); }
+.cd-jb-fld-in { display: flex; align-items: center; gap: 6px; }
+.cd-jb-fld-suf { font-size: 13px; color: var(--muted, #6b7280); }
+.cd-jb-input { width: 100%; box-sizing: border-box; padding: 9px 10px; font-size: 14px; border: 1px solid var(--line, #d1d5db); border-radius: 9px; background: var(--surface, #fff); color: inherit; }
+.cd-jb-ta { min-height: 64px; resize: vertical; font-family: inherit; }
+
+.cd-jb-confirm { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0 4px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.cd-jb-confirm input { margin-top: 2px; }
+.cd-jb-actions { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.cd-jb-savemsg { font-size: 12.5px; color: var(--muted, #6b7280); }
+
+.cd-jb-btn { appearance: none; border: 1px solid var(--line, #d1d5db); background: var(--surface, #fff); color: inherit; padding: 9px 14px; font-size: 13.5px; font-weight: 600; border-radius: 10px; cursor: pointer; }
+.cd-jb-btn:hover { border-color: var(--accent, #2563eb); }
+.cd-jb-btn.primary { background: var(--accent, #2563eb); border-color: var(--accent, #2563eb); color: #fff; }
+.cd-jb-btn.ghost { background: transparent; }
+.cd-jb-btn:disabled { opacity: .55; cursor: default; }
+
+.cd-jb-loading, .cd-jb-empty { text-align: center; color: var(--muted, #6b7280); padding: 26px 12px; }
+.cd-jb-empty-icon { font-size: 34px; }
+.cd-jb-empty h3 { margin: 8px 0 4px; color: var(--ink, #0a0f1a); }
+.cd-jb-empty p { font-size: 13.5px; line-height: 1.5; max-width: 440px; margin: 0 auto; }
+
+.cd-jb-feedbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.cd-jb-ext { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.cd-jb-ext-lbl { font-size: 12.5px; color: var(--muted, #6b7280); }
+.cd-jb-chip { appearance: none; border: 1px solid var(--line, #d1d5db); background: var(--surface, #fff); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: inherit; }
+
+.cd-jb-job { border: 1px solid var(--line, #e5e7eb); border-radius: 13px; padding: 14px; margin-bottom: 12px; background: var(--surface, #fff); }
+.cd-jb-job-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.cd-jb-job-title { font-size: 15.5px; font-weight: 700; }
+.cd-jb-job-meta { font-size: 12.5px; color: var(--muted, #6b7280); margin-top: 2px; }
+.cd-jb-job-rat { font-size: 13px; color: var(--ink, #374151); margin: 8px 0 0; }
+.cd-jb-fit { font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; background: #eef2ff; color: #4338ca; }
+.cd-jb-fit-strong { background: #dcfce7; color: #166534; }
+.cd-jb-fit-moderate { background: #fef9c3; color: #854d0e; }
+.cd-jb-fit-weak { background: #fee2e2; color: #991b1b; }
+.cd-jb-fit-unknown { background: #f1f5f9; color: #475569; }
+.cd-jb-re { display: flex; flex-direction: column; gap: 2px; margin: 10px 0; padding: 9px 11px; background: var(--subtle, #f8fafc); border-radius: 9px; font-size: 13px; }
+.cd-jb-re-calc { font-size: 11.5px; color: var(--muted, #6b7280); }
+.cd-jb-flags { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; color: #b45309; }
+.cd-jb-flags li { margin: 2px 0; }
+.cd-jb-job-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+.cd-jb-stats { display: flex; gap: 10px; margin-bottom: 14px; }
+.cd-jb-stat { flex: 1; text-align: center; border: 1px solid var(--line, #e5e7eb); border-radius: 12px; padding: 12px 8px; background: var(--surface, #fff); }
+.cd-jb-stat-n { font-size: 24px; font-weight: 800; color: var(--accent, #2563eb); }
+.cd-jb-stat-l { font-size: 11.5px; color: var(--muted, #6b7280); text-transform: uppercase; letter-spacing: .03em; }
+.cd-jb-packet { width: 100%; margin-bottom: 14px; }
+
+.cd-jb-vr { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; padding: 10px 12px; border: 1px dashed var(--line, #d1d5db); border-radius: 11px; }
+.cd-jb-vr .cd-jb-input { width: auto; }
+
+.cd-jb-addform { border: 1px solid var(--line, #e5e7eb); border-radius: 12px; padding: 4px 14px; margin-bottom: 14px; background: var(--surface, #fff); }
+.cd-jb-addform summary { cursor: pointer; font-weight: 600; font-size: 13.5px; padding: 10px 0; color: var(--accent, #2563eb); }
+
+.cd-jb-ledger { display: flex; flex-direction: column; gap: 8px; }
+.cd-jb-lrow { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line, #e5e7eb); border-radius: 11px; padding: 11px 13px; background: var(--surface, #fff); }
+.cd-jb-lrow-main { flex: 1; min-width: 0; }
+.cd-jb-lrow-top { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+.cd-jb-lrow-date { font-size: 12px; color: var(--muted, #6b7280); white-space: nowrap; }
+.cd-jb-lrow-sub { font-size: 12.5px; color: var(--muted, #6b7280); margin-top: 2px; }
+.cd-jb-resp { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted, #6b7280); white-space: nowrap; }
+.cd-jb-del { appearance: none; border: 0; background: none; font-size: 20px; line-height: 1; color: var(--muted, #9ca3af); cursor: pointer; padding: 0 4px; }
+.cd-jb-del:hover { color: #dc2626; }
+
+.cd-jb-disclaimer { font-size: 11px; color: var(--muted, #9ca3af); text-align: center; margin-top: 22px; line-height: 1.5; }
+
+/* ── Firm Tier "Client Work Search" view ─────────────────────────────────── */
+.cd-fjb-summary { font-size: 12.5px; color: var(--muted, #6b7280); margin-bottom: 12px; }
+.cd-fjb-row { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line, #e5e7eb); border-radius: 12px; padding: 12px 14px; margin-bottom: 9px; background: var(--surface, #fff); cursor: pointer; }
+.cd-fjb-row:hover { border-color: var(--accent, #2563eb); }
+.cd-fjb-row.has-alert { border-left: 3px solid #dc2626; }
+.cd-fjb-row-main { flex: 1; min-width: 0; }
+.cd-fjb-row-name { font-size: 15px; font-weight: 700; }
+.cd-fjb-badge { font-size: 12px; font-weight: 700; color: #991b1b; background: #fee2e2; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+.cd-jb-quick-arrow { color: var(--muted, #9ca3af); font-size: 16px; }
+.cd-fjb-chead { margin-bottom: 10px; }
+.cd-fjb-alerts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cd-fjb-alert { font-size: 12px; font-weight: 600; color: #991b1b; background: #fee2e2; border-radius: 8px; padding: 5px 10px; }
+.cd-fjb-ledger { margin-top: 14px; }
+
+/* Dark worker skin tolerance: surfaces inherit when the app sets dark tokens. */

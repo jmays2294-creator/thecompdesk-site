@@ -374,7 +374,7 @@ async function getProfile(userId) {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('designation, user_type, full_name, current_aww, has_attorney')
+      .select('designation, user_type, full_name, current_aww, has_attorney, doa, wcb_case_number, home_city, occupation, job_buddy_enabled')
       .eq('id', userId)
       .single();
 

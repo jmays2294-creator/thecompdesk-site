@@ -132,7 +132,25 @@
     CD.handleUpgrade = function () { window.location.href = '/subscribe'; };
     CD.openAttorneyIntake = function () { window.location.href = '/find-attorney'; };
 
+    // Job Buddy screens render IN-PLACE on the website (no dedicated page), with a
+    // back-to-dashboard control. Falls through to URL routing if the module/deps
+    // didn't load (graceful — the tile then simply no-ops rather than erroring).
+    function renderScreenInPlace(node) {
+      if (!node) return false;
+      var wrap = CD.h('div', { className: 'cd-jb-host' });
+      wrap.appendChild(CD.h('button', {
+        className: 'cd-jb-btn ghost', style: { margin: '6px 0 10px' },
+        onclick: function () { CD.render(); }
+      }, '← Back to dashboard'));
+      wrap.appendChild(node);
+      root.innerHTML = '';
+      root.appendChild(wrap);
+      try { window.scrollTo(0, 0); } catch (e) {}
+      return true;
+    }
     function showScreen(screen) {
+      if (screen === 'job_buddy' && CD.renderJobBuddy) { renderScreenInPlace(CD.renderJobBuddy()); return; }
+      if (screen === 'firm_job_buddy' && CD.renderFirmJobBuddy) { renderScreenInPlace(CD.renderFirmJobBuddy()); return; }
       var url = SCREEN_URLS[screen];
       if (url) window.location.href = url;
     }
