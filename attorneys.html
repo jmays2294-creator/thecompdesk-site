@@ -481,6 +481,13 @@ body.no-skyline-bg .workspace-wash {
   margin: 10px 0 0;
   max-width: 64ch;
 }
+.tcd-nav-signin {
+  display: inline-flex; align-items: center; padding: 7px 17px;
+  border: 1.5px solid var(--skin-accent, #E87722); border-radius: 999px;
+  color: var(--skin-accent, #E87722) !important; font-weight: 700; font-size: 14px;
+  text-decoration: none; transition: background .2s ease, color .2s ease;
+}
+.tcd-nav-signin:hover { background: var(--skin-accent, #E87722); color: #fff !important; }
 </style>
 </head>
 <body class="tcd-skinned">
@@ -505,6 +512,7 @@ body.no-skyline-bg .workspace-wash {
       <a href="/for-attorneys/credits">Credits</a>
       <a href="/hire-attorney">Network</a>
       <a href="/contact">Contact</a>
+      <a href="/auth_v2.html" class="tcd-nav-signin">Sign In</a>
     </div>
     <div data-audience-switch></div>
   </div>

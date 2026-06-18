@@ -426,6 +426,76 @@
   margin: 10px 0 0;
   max-width: 64ch;
 }
+
+/* ── Sign-in pill in the primary nav ───────────────────────────────────── */
+.tcd-nav-signin {
+  display: inline-flex; align-items: center; padding: 7px 17px;
+  border: 1.5px solid var(--skin-accent, #E87722); border-radius: 999px;
+  color: var(--skin-accent, #E87722) !important; font-weight: 700; font-size: 14px;
+  text-decoration: none; transition: background .2s ease, color .2s ease;
+}
+.tcd-nav-signin:hover { background: var(--skin-accent, #E87722); color: #fff !important; }
+
+/* ── Job Buddy — Free Beta spotlight ───────────────────────────────────── */
+.jb-spot .jb-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 52px; align-items: center; }
+@media (max-width: 880px) { .jb-spot .jb-grid { grid-template-columns: 1fr; gap: 34px; } }
+.jb-copy .eyebrow { color: var(--skin-accent, #E87722); }
+.jb-copy h2 { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; margin: 8px 0 14px; }
+.jb-badge {
+  font-size: 13px; font-weight: 800; letter-spacing: .09em; color: #fff;
+  background: linear-gradient(100deg, #E87722, #ff9d4d); border-radius: 999px;
+  padding: 4px 13px; position: relative; overflow: hidden;
+}
+.jb-badge::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 32%, rgba(255,255,255,.6) 50%, transparent 68%);
+  transform: translateX(-130%);
+}
+.jb-copy .lede { font-size: 17px; color: var(--skin-text-soft, #4b5563); line-height: 1.6; max-width: 52ch; }
+.jb-points { list-style: none; padding: 0; margin: 22px 0 28px; display: flex; flex-direction: column; gap: 15px; }
+.jb-points li { display: flex; gap: 13px; align-items: flex-start; font-size: 15.5px; color: var(--skin-text-soft, #4b5563); line-height: 1.5; }
+.jb-points strong { color: var(--skin-text, #16223a); }
+.jb-ico { flex: none; width: 36px; height: 36px; display: grid; place-items: center; background: rgba(232,119,34,.1); border-radius: 11px; font-size: 18px; }
+
+.jb-art { position: relative; }
+.jb-feed {
+  background: var(--skin-surface, #fff); border: 1px solid rgba(20,30,60,.08); border-radius: 22px;
+  padding: 18px 18px 20px; box-shadow: 0 26px 64px -30px rgba(20,30,60,.45);
+}
+.jb-feed-head { display: flex; align-items: center; gap: 7px; margin-bottom: 15px; }
+.jb-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(20,30,60,.13); }
+.jb-feed-title { margin-left: 9px; font-size: 12.5px; font-weight: 800; color: var(--skin-text-soft, #6b7280); letter-spacing: .03em; text-transform: uppercase; }
+.jb-card { border: 1px solid rgba(20,30,60,.08); border-radius: 15px; padding: 13px 15px; margin-bottom: 11px; background: #fff; }
+.jb-card:last-of-type { margin-bottom: 0; }
+.jb-card-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.jb-card-title { font-weight: 700; font-size: 15px; color: var(--skin-text, #16223a); }
+.jb-fit { position: relative; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 999px; white-space: nowrap; background: #dcfce7; color: #166534; }
+.jb-card-meta { font-size: 12.5px; color: var(--skin-text-soft, #6b7280); margin-top: 4px; }
+.jb-card-re { font-size: 12.5px; color: var(--skin-accent, #E87722); font-weight: 700; margin-top: 8px; }
+.jb-restrictions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+.jb-chip { font-size: 12px; font-weight: 600; color: var(--skin-text-soft, #4b5563); background: rgba(20,30,60,.045); border: 1px solid rgba(20,30,60,.07); border-radius: 999px; padding: 6px 13px; }
+
+/* motion — only when the user hasn't asked to reduce it */
+@media (prefers-reduced-motion: no-preference) {
+  .jb-badge::after { animation: jb-shimmer 3.6s ease-in-out 1.4s infinite; }
+  @keyframes jb-shimmer { 0% { transform: translateX(-130%); } 55%, 100% { transform: translateX(150%); } }
+  .jb-feed { animation: jb-bob 6.5s ease-in-out 1.2s infinite; }
+  @keyframes jb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  /* Cards/chips animate in on load with `both` fill so they ALWAYS end visible
+     (no dependency on a scroll-reveal class that may not have fired yet). */
+  .jb-card { animation: jb-rise .7s cubic-bezier(.16,1,.3,1) both; }
+  .jb-c1 { animation-delay: .15s; }
+  .jb-c2 { animation-delay: .32s; }
+  .jb-c3 { animation-delay: .49s; }
+  @keyframes jb-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .jb-fit::before { content: ""; position: absolute; inset: -3px; border-radius: 999px; border: 2px solid #22c55e; opacity: 0; }
+  .jb-c1 .jb-fit::before { animation: jb-ping 2.8s ease-out 1.3s infinite; }
+  @keyframes jb-ping { 0% { opacity: .55; transform: scale(.92); } 70%, 100% { opacity: 0; transform: scale(1.55); } }
+  .jb-chip { animation: jb-rise .6s ease both; }
+  .jb-chip:nth-child(1) { animation-delay: .6s; }
+  .jb-chip:nth-child(2) { animation-delay: .72s; }
+  .jb-chip:nth-child(3) { animation-delay: .84s; }
+}
 </style>
 </head>
 <body class="tcd-skinned">
@@ -440,6 +510,7 @@
       <a href="/tools/find-doctor">Find a Doctor</a>
       <a href="/calculators">Calculators</a>
       <a href="/contact">Contact</a>
+      <a href="/auth_v2.html" class="tcd-nav-signin">Sign In</a>
     </div>
     <div data-audience-switch></div>
   </div>
@@ -581,6 +652,55 @@
     <div class="wrap" style="margin-top:32px;">
       <div class="upl">
         <strong>Important:</strong> The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── NEW: Job Buddy — Free Beta spotlight ─── -->
+  <section class="tcd-section scene jb-spot" id="job-buddy">
+    <div class="wrap jb-grid">
+      <div class="jb-copy">
+        <span class="eyebrow">New · Always free for injured workers</span>
+        <h2>Job Buddy <span class="jb-badge">BETA</span></h2>
+        <p class="lede">On work restrictions from your doctor? Job Buddy finds real jobs you can actually do — and keeps a hearing-ready record of your search so you can prove you're looking.</p>
+        <ul class="jb-points">
+          <li><span class="jb-ico" aria-hidden="true">🎯</span><div><strong>Matched to your restrictions.</strong> We read your IME or C-4.3 and only surface work within your physical limits.</div></li>
+          <li><span class="jb-ico" aria-hidden="true">📝</span><div><strong>Automatic C-258.1 log.</strong> Every job you apply to is logged for your labor-market-attachment record.</div></li>
+          <li><span class="jb-ico" aria-hidden="true">📄</span><div><strong>One-click hearing packet.</strong> Generate a clean LMA work-search exhibit for your next hearing.</div></li>
+        </ul>
+        <div class="ctas">
+          <a href="/auth_v2.html?redirect=%2Fdashboard%2F%3Fscreen%3Djob_buddy" class="btn primary">Try Job Buddy — Free Beta</a>
+          <a href="/connect-with-attorney.html" data-connect-modal class="btn ghost">Talk to an attorney</a>
+        </div>
+      </div>
+
+      <div class="jb-art" aria-hidden="true">
+        <div class="jb-feed">
+          <div class="jb-feed-head">
+            <span class="jb-dot"></span><span class="jb-dot"></span><span class="jb-dot"></span>
+            <span class="jb-feed-title">Your matched jobs</span>
+          </div>
+          <div class="jb-card jb-c1">
+            <div class="jb-card-top"><span class="jb-card-title">Office Assistant (Seated)</span><span class="jb-fit">Within your limits ✓</span></div>
+            <div class="jb-card-meta">Bronx, NY · light clerical</div>
+            <div class="jb-card-re">≈ $240/wk reduced-earnings benefit</div>
+          </div>
+          <div class="jb-card jb-c2">
+            <div class="jb-card-top"><span class="jb-card-title">Security Desk Attendant</span><span class="jb-fit">Good fit ✓</span></div>
+            <div class="jb-card-meta">Queens, NY · mostly seated</div>
+            <div class="jb-card-re">≈ $205/wk reduced-earnings benefit</div>
+          </div>
+          <div class="jb-card jb-c3">
+            <div class="jb-card-top"><span class="jb-card-title">Dispatcher</span><span class="jb-fit">Good fit ✓</span></div>
+            <div class="jb-card-meta">Manhattan, NY · no lifting</div>
+            <div class="jb-card-re">≈ $180/wk reduced-earnings benefit</div>
+          </div>
+        </div>
+        <div class="jb-restrictions">
+          <span class="jb-chip">Lift ≤ 10 lbs</span>
+          <span class="jb-chip">No overhead reach</span>
+          <span class="jb-chip">Sit-friendly</span>
+        </div>
       </div>
     </div>
   </section>

@@ -526,6 +526,16 @@ body {
    if Piece A can't autoplay; we surface the skyline composition instead. */
 body.no-video-bg .video-bg video { display: none; }
 body.no-video-bg .skyline { display: block; }
+.cover-top .cover-signin {
+  position: absolute; right: 28px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; padding: 8px 18px;
+  border: 1px solid rgba(255,255,255,.34); border-radius: 999px;
+  color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .01em;
+  text-decoration: none; background: rgba(255,255,255,.06);
+  backdrop-filter: blur(4px); transition: background .2s ease, border-color .2s ease;
+}
+.cover-top .cover-signin:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.6); }
+@media (max-width: 560px) { .cover-top .cover-signin { right: 16px; padding: 7px 14px; font-size: 13px; } }
 </style>
 </head>
 <body>
@@ -539,6 +549,7 @@ body.no-video-bg .skyline { display: block; }
       </a>
       <p class="founder-credit">Joel Mays, Esq. <span class="sep">·</span> <span class="role">Founder</span></p>
     </div>
+    <a class="cover-signin" href="/auth_v2.html">Sign In</a>
   </header>
 
   <!-- Cinematic intro: 3-piece Higgsfield sequence

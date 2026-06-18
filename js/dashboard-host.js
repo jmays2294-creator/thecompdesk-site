@@ -194,6 +194,14 @@
     CD.render = render;
 
     render();
+
+    // Deep-link: /dashboard/?screen=job_buddy opens that screen immediately
+    // (used by the website "Try Job Buddy — Free Beta" CTA on the worker home).
+    try {
+      var wanted = new URLSearchParams(window.location.search).get('screen');
+      if (wanted === 'job_buddy' && CD.renderJobBuddy) showScreen('job_buddy');
+      else if (wanted === 'firm_job_buddy' && CD.renderFirmJobBuddy) showScreen('firm_job_buddy');
+    } catch (e) {}
   }
 
   window.CDDashboardHost = { mount: mount };
