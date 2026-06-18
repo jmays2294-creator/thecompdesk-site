@@ -237,86 +237,108 @@
     return P.PDFDocument.create().then(function (doc) {
       return doc.embedFont(P.StandardFonts.Helvetica).then(function (font) {
         return doc.embedFont(P.StandardFonts.HelveticaBold).then(function (bold) {
+          // ── Reproduces the official NYS WCB Form C-258.1 (7-17) "Claimant's Record of
+          //    Independent Job Search Efforts" layout + exact field labels. The official PDF is an
+          //    XFA (Adobe LiveCycle) form that pdf-lib cannot fill or render, so we redraw it. ──
           var stats = JB.computeStats(ledger);
-          var PAGE_W = 612, PAGE_H = 792, M = 48;
-          var page = doc.addPage([PAGE_W, PAGE_H]);
-          var y = PAGE_H - M;
-          var ink = rgb(0.09, 0.11, 0.16), gray = rgb(0.42, 0.45, 0.5), line = rgb(0.82, 0.84, 0.88);
-
-          function text(s, x, yy, size, f, color) {
-            var str = String(s == null ? '' : s);
-            var opts = { x: x, y: yy, size: size || 10, font: f || font, color: color || ink };
-            try { page.drawText(str, opts); }
-            catch (e) {
-              // Helvetica/WinAnsi can't encode some user-entered glyphs — fall back to ASCII.
-              try { page.drawText(str.replace(/[^\x20-\x7E]/g, '?'), opts); } catch (e2) { /* skip */ }
-            }
-          }
-          function hr(yy) { page.drawLine({ start: { x: M, y: yy }, end: { x: PAGE_W - M, y: yy }, thickness: 0.75, color: line }); }
-          function newPageIfNeeded(need) {
-            if (y - (need || 0) < M + 24) { page = doc.addPage([PAGE_W, PAGE_H]); y = PAGE_H - M; }
-          }
-
-          // Header
-          text('LABOR MARKET ATTACHMENT — WORK-SEARCH EXHIBIT', M, y, 13, bold); y -= 16;
-          text('Documentation of independent job search (Form C-258.1 record)', M, y, 9, font, gray); y -= 14;
-          hr(y); y -= 18;
-
-          // Claimant block
-          var name = profile.full_name || profile.display_name || '';
-          var caseNo = profile.wcb_case_number || '';
-          text('Claimant: ' + (name || '____________________'), M, y, 10, bold);
-          text('WCB Case #: ' + (caseNo || '____________'), PAGE_W - M - 200, y, 10, bold); y -= 14;
-          text('Date of accident: ' + (_dateStr(profile.doa) || '__________'), M, y, 9, font, gray);
-          text('Prepared: ' + _dateStr(_todayISO()), PAGE_W - M - 200, y, 9, font, gray); y -= 20;
-
-          // Summary stats
-          text('SUMMARY', M, y, 11, bold); y -= 15;
-          var summary = stats.total + ' application' + (stats.total === 1 ? '' : 's') +
-            (stats.days ? (' over ' + stats.days + ' day' + (stats.days === 1 ? '' : 's')) : '') +
-            ' · ' + stats.responses + ' response' + (stats.responses === 1 ? '' : 's');
-          text(summary, M, y, 10, font); y -= 13;
-          if (stats.firstDate) { text('Search period: ' + _dateStr(stats.firstDate) + ' – ' + _dateStr(stats.lastDate), M, y, 9, font, gray); y -= 13; }
-          var vrLabel = vr && vr.status ? vr.status.replace(/_/g, ' ') : 'not enrolled';
-          text('ACCES-VR (vocational rehab): ' + vrLabel, M, y, 9, font, gray); y -= 20;
-
-          // Ledger table
-          text('WORK-SEARCH LOG (C-258.1)', M, y, 11, bold); y -= 15;
-          var cols = [
-            { k: 'date_applied', label: 'Date', w: 62, fmt: _dateStr },
-            { k: 'employer_name', label: 'Employer', w: 130 },
-            { k: 'job_title', label: 'Position', w: 120 },
-            { k: 'apply_method', label: 'Method', w: 60 },
-            { k: 'response_received', label: 'Resp?', w: 42, fmt: function (v) { return v ? 'Yes' : 'No'; } }
-          ];
-          function drawRow(vals, f, size, color) {
-            var x = M;
-            for (var i = 0; i < cols.length; i++) {
-              var raw = vals[i] == null ? '' : String(vals[i]);
-              if (raw.length > 26 && cols[i].w < 100) raw = raw.slice(0, 25) + '…';
-              if (raw.length > 30) raw = raw.slice(0, 29) + '…';
-              text(raw, x + 2, y, size || 8.5, f || font, color);
-              x += cols[i].w;
-            }
-          }
-          drawRow(cols.map(function (c) { return c.label; }), bold, 8.5, gray); y -= 4; hr(y); y -= 11;
-
           var rows = ledger || [];
-          if (!rows.length) { text('No applications logged yet.', M + 2, y, 9, font, gray); y -= 13; }
-          rows.forEach(function (r) {
-            newPageIfNeeded(16);
-            drawRow(cols.map(function (c) { return c.fmt ? c.fmt(r[c.k]) : r[c.k]; }));
-            y -= 13;
-            if (r.notes) { text('    - ' + String(r.notes).slice(0, 95), M + 2, y, 7.5, font, gray); y -= 11; }
+          var PAGE_W = 612, PAGE_H = 792, M = 46, RX = M + 286; // RX = right-column x
+          var ink = rgb(0.09, 0.11, 0.16), gray = rgb(0.42, 0.45, 0.5), line = rgb(0.78, 0.80, 0.84);
+          var page, y;
+
+          function rawText(p, s, x, yy, size, f, color) {
+            var opts = { x: x, y: yy, size: size || 10, font: f || font, color: color || ink };
+            try { p.drawText(String(s == null ? '' : s), opts); }
+            catch (e) { try { p.drawText(String(s == null ? '' : s).replace(/[^\x20-\x7E]/g, '?'), opts); } catch (e2) {} }
+          }
+          function text(s, x, yy, size, f, color) { rawText(page, s, x, yy, size, f, color); }
+          function hr(yy, x0, x1) { page.drawLine({ start: { x: x0 || M, y: yy }, end: { x: x1 || (PAGE_W - M), y: yy }, thickness: 0.6, color: line }); }
+          function trunc(s, n) { s = String(s == null ? '' : s); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+          // label (gray) + value (ink) on one baseline
+          function lv(label, value, x, yy, maxChars) {
+            text(label, x, yy, 8, font, gray);
+            var lw = font.widthOfTextAtSize(label + ' ', 8);
+            text(value == null || value === '' ? '—' : trunc(value, maxChars || 60), x + lw, yy, 9, font, ink);
+          }
+          function methodCode(m) {
+            return m === 'in_person' ? 'P (in person)' : m === 'phone' ? 'T (telephone)'
+              : m === 'mail' ? 'M (mail)' : (m === 'email' || m === 'online') ? 'O (online/email)' : (m || '—');
+          }
+          function resultStr(r) {
+            var b = [r.response_received ? ('Response received' + (r.response_date ? (' ' + _dateStr(r.response_date)) : '')) : 'No response yet'];
+            if (r.notes) b.push(String(r.notes));
+            return b.join(' — ');
+          }
+
+          // Claimant name split into the form's Last / First / MI fields.
+          var fullName = String(profile.full_name || profile.display_name || '').trim();
+          var np = fullName ? fullName.split(/\s+/) : [];
+          var nLast = np.length ? np[np.length - 1] : '', nFirst = np.length > 1 ? np[0] : (np[0] || ''), nMI = np.length > 2 ? np[1].charAt(0) : '';
+          if (np.length === 1) { nLast = np[0]; nFirst = ''; }
+          var caseNo = profile.wcb_case_number || '';
+
+          function newPage(full) {
+            page = doc.addPage([PAGE_W, PAGE_H]);
+            y = PAGE_H - M;
+            // Title
+            text('Claimant’s Record of Independent Job Search Efforts', M, y, 13.5, bold);
+            text('Form C-258.1 (7-17)', PAGE_W - M - 96, y + 1, 8.5, font, gray); y -= 17;
+            text('New York State Workers’ Compensation Board · www.wcb.ny.gov', M, y, 8.5, font, gray); y -= 14;
+            hr(y); y -= 16;
+            // Claimant identity row
+            lv('Last Name:', nLast || '____________', M, y, 26);
+            lv('First Name:', nFirst || '__________', M + 188, y, 18);
+            lv('MI:', nMI || '__', M + 360, y, 3);
+            lv('WCB Case #:', caseNo || '____________', M + 420, y, 14); y -= 16;
+            var periodStr = stats.firstDate ? (_dateStr(stats.firstDate) + '   to:   ' + _dateStr(stats.lastDate)) : '__________   to:   __________';
+            lv('For the Period:', periodStr, M, y, 60); y -= 15;
+            // Method legend (verbatim from the form)
+            text('* Method of Contact:  P = in person   ·   T = telephone   ·   M = mail   ·   O = online or email', M, y, 8, font, gray);
+            y -= 8; hr(y); y -= 16;
+          }
+
+          newPage(true);
+
+          // ── Job-search entries (one labeled block per contact) ──
+          var ENTRY_H = 92;
+          if (!rows.length) { text('No job search efforts logged for this period.', M, y, 9.5, font, gray); y -= 16; }
+          rows.forEach(function (r, i) {
+            if (y - ENTRY_H < M + 40) newPage(false);
+            text('Job Search Effort #' + (i + 1), M, y, 8.5, bold, gray); y -= 14;
+            lv('Date of Contact:', _dateStr(r.date_applied), M, y, 14);
+            lv('Method of Contact*:', methodCode(r.apply_method), M + 168, y, 18);
+            lv('Position Applied For:', r.job_title, M + 350, y, 24); y -= 14;
+            lv('Employer Name:', r.employer_name, M, y, 36);
+            lv('Daytime Phone #:', r.contact_phone, RX, y, 18); y -= 14;
+            lv('Mailing Address:', r.employer_address, M, y, 92); y -= 14;
+            lv('Name & Title of Person Contacted:', r.contact_name, M, y, 30);
+            lv('Employer Website:', '', RX, y, 22); y -= 14;
+            lv('Confirmation #:', '', M, y, 18);
+            lv('Result:', resultStr(r), M + 168, y, 60); y -= 10;
+            hr(y); y -= 14;
           });
 
-          // Footer / attestation
-          newPageIfNeeded(60);
-          y -= 6; hr(y); y -= 16;
-          text('I attest that the above is a true record of my independent search for work within my medical restrictions.', M, y, 8.5, font, gray); y -= 22;
-          text('Claimant signature: ______________________________', M, y, 9, font);
-          text('Date: ____________', PAGE_W - M - 130, y, 9, font); y -= 18;
+          // ── Supplemental summary (not part of C-258.1; aids the hearing exhibit) ──
+          if (y - 70 < M + 24) newPage(false);
+          y -= 6;
+          text('Summary of Job Search', M, y, 10, bold); y -= 14;
+          var summary = stats.total + ' independent job search effort' + (stats.total === 1 ? '' : 's') +
+            (stats.days ? (' over ' + stats.days + ' day' + (stats.days === 1 ? '' : 's')) : '') +
+            ' · ' + stats.responses + ' response' + (stats.responses === 1 ? '' : 's');
+          text(summary, M, y, 9.5, font); y -= 13;
+          var vrLabel = vr && vr.status ? vr.status.replace(/_/g, ' ') : 'not enrolled';
+          text('ACCES-VR (NYS vocational rehabilitation): ' + vrLabel, M, y, 9, font, gray); y -= 20;
+          text('Claimant signature: ______________________________', M, y, 9.5, font);
+          text('Date: ____________', PAGE_W - M - 132, y, 9.5, font); y -= 18;
           text(DISCLAIMER, M, y, 7.5, font, gray);
+
+          // ── Page footers (Page X of Y) on every page ──
+          var pages = doc.getPages(), N = pages.length;
+          for (var pi = 0; pi < N; pi++) {
+            rawText(pages[pi], 'C-258.1 (7-17)', M, 30, 7.5, font, gray);
+            rawText(pages[pi], 'Page ' + (pi + 1) + ' of ' + N, PAGE_W / 2 - 26, 30, 7.5, font, gray);
+            rawText(pages[pi], 'www.wcb.ny.gov', PAGE_W - M - 70, 30, 7.5, font, gray);
+          }
 
           return doc.save();
         });
