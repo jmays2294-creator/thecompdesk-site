@@ -124,7 +124,11 @@ body.no-skyline-bg .workspace-wash {
    mid-play to frame its tile. Replaced the AI image rotation 2026-06-19. */
 .hero-reel {
   position: relative;
-  width: 100%;
+  /* ~33% larger than a half-column: keep the headline put and let the reel
+     bleed into the page's right margin, clamped so it never overflows on
+     smaller screens (and collapses once the layout stacks). 2026-06-19. */
+  --reel-bleed: clamp(0px, (100vw - 1080px) / 2 - 16px, 150px);
+  width: calc(100% + var(--reel-bleed));
   aspect-ratio: 16/9;
   border-radius: 16px;
   overflow: hidden;
