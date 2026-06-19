@@ -119,10 +119,10 @@ body.no-skyline-bg .workspace-wash {
 }
 .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 
-/* Cinematic hero rotation — 5 stylized product compositions cross-fade.
-   Replaces the CSS-built SLU mock 2026-05-28 with the Higgsfield set
-   (SLU, fee equation, radiculopathy, LWEC, dashboard). */
-.hero-rotate {
+/* Hero product reel — two workspace screen recordings (CCP Award Builder,
+   then Schedule Loss of Use) play back-to-back on a loop. Each clip zooms
+   mid-play to frame its tile. Replaced the AI image rotation 2026-06-19. */
+.hero-reel {
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
@@ -133,53 +133,27 @@ body.no-skyline-bg .workspace-wash {
     0 0 0 1px rgba(232,119,34,0.12);
   background: linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
 }
-.hero-rotate img {
+.hero-clip {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  animation: hero-rotate-cycle 30s ease-in-out infinite;
-  animation-delay: calc(var(--n, 0) * -6s);
+  transition: opacity 0.8s ease;
+  transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+  will-change: opacity, transform;
 }
-@keyframes hero-rotate-cycle {
-  0%, 3%    { opacity: 0; transform: scale(1.02); }
-  10%, 20%  { opacity: 1; transform: scale(1); }
-  27%, 100% { opacity: 0; transform: scale(1.03); }
+.hero-clip.is-active { opacity: 1; }
+.hero-clip.is-zooming {
+  animation: hero-clip-zoom var(--clip-dur, 15s) ease-in-out forwards;
 }
-@media (prefers-reduced-motion: reduce) {
-  .hero-rotate img { opacity: 0; animation: none; transform: none; }
-  .hero-rotate img:first-of-type { opacity: 1; }
-}
-
-/* Product demo video (Screen Record 1A) — sits just below the hero AI
-   rotation and smoothly rises into view on load (added 2026-06-18). */
-.demo-stage {
-  position: relative;
-  max-width: 980px;
-  margin: 0 auto;
-  border-radius: 16px;
-  overflow: hidden;
-  background: linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
-  box-shadow:
-    0 30px 80px rgba(0,0,0,0.55),
-    0 0 0 1px rgba(232,119,34,0.12);
-  opacity: 0;
-  transform: translateY(26px) scale(0.985);
-  animation: demo-rise 1.2s cubic-bezier(.21,.6,.35,1) 0.45s forwards;
-}
-@keyframes demo-rise {
-  to { opacity: 1; transform: none; }
-}
-.demo-video {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 16px;
+@keyframes hero-clip-zoom {
+  0%, 40%   { transform: scale(1); }
+  68%, 100% { transform: scale(var(--zoom-scale, 1.45)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .demo-stage { opacity: 1; transform: none; animation: none; }
+  .hero-clip { transition: none; animation: none; transform: none; }
 }
 
 /* Legacy CSS UI mock — kept hidden as a graceful fallback if the
@@ -567,40 +541,21 @@ body.no-skyline-bg .workspace-wash {
         </div>
       </div>
 
-      <!-- Cinematic hero rotation — 5 Higgsfield product visualizations
-           cross-fade on a 30s loop (6s offset per image). Replaces the
-           CSS-built SLU mock 2026-05-28. -->
-      <div class="hero-rotate" aria-hidden="true">
-        <img style="--n:0;" loading="eager" decoding="async" alt=""
-             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_171027_7e8bd2a5-74d9-4fcb-87af-832e8597e0f0_min.webp">
-        <img style="--n:1;" loading="lazy" decoding="async" alt=""
-             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181654_d9d20299-e54f-49c7-805e-1885e1cd70b9_min.webp">
-        <img style="--n:2;" loading="lazy" decoding="async" alt=""
-             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181657_2e4c5196-a014-4c04-a562-71e4d60ffdc3_min.webp">
-        <img style="--n:3;" loading="lazy" decoding="async" alt=""
-             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181701_f45beeab-8f9d-4a82-b807-d9813c0bb30a_min.webp">
-        <img style="--n:4;" loading="lazy" decoding="async" alt=""
-             src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181704_57b383eb-3fd9-4301-ab1a-243de000a7dd_min.webp">
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── Product demo (Screen Record 1A) — fades in below the hero 2026-06-18.
-       Autoplays muted + looped so it starts on its own; controls let visitors
-       unmute/scrub. Compressed 720p clip served from the deploy repo. ─── -->
-  <section class="tcd-section demo" aria-label="Product demo">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">See it in action</span>
-        <h2>The Comp Desk, in real time.</h2>
-        <p>A quick look at the Pro Workspace — calculators, the case canvas, and everything synced in one place.</p>
-      </div>
-      <div class="demo-stage">
-        <video class="demo-video"
-               autoplay muted loop playsinline preload="metadata"
-               disableremoteplayback controls
-               poster="/assets/animations/workspace-demo-1a-poster.jpg">
-          <source src="/assets/animations/workspace-demo-1a.mp4" type="video/mp4">
+      <!-- Hero product reel — CCP Award Builder + Schedule Loss of Use
+           recordings loop back-to-back; each zooms to its tile mid-clip.
+           Driven by the heroReel controller near </body>. 2026-06-19. -->
+      <div class="hero-reel" aria-hidden="true">
+        <video class="hero-clip is-active" muted playsinline preload="auto"
+               disableremoteplayback
+               style="--zoom-x:40%; --zoom-y:56%; --zoom-scale:1.42;"
+               poster="/assets/animations/workspace-demo-ccp-poster.jpg">
+          <source src="/assets/animations/workspace-demo-ccp.mp4" type="video/mp4">
+        </video>
+        <video class="hero-clip" muted playsinline preload="auto"
+               disableremoteplayback
+               style="--zoom-x:30%; --zoom-y:56%; --zoom-scale:1.5;"
+               poster="/assets/animations/workspace-demo-slu-poster.jpg">
+          <source src="/assets/animations/workspace-demo-slu.mp4" type="video/mp4">
         </video>
       </div>
     </div>
@@ -884,6 +839,47 @@ body.no-skyline-bg .workspace-wash {
   if (p && p.catch) p.catch(function () {
     document.body.classList.add('no-skyline-bg');
   });
+})();
+
+// Hero reel: play the two workspace clips back-to-back on a loop, restarting
+// each clip's mid-play zoom as it becomes active. Honors reduced motion by
+// holding the first clip's poster, static.
+(function heroReel() {
+  var reel = document.querySelector('.hero-reel');
+  if (!reel) return;
+  var clips = Array.prototype.slice.call(reel.querySelectorAll('.hero-clip'));
+  if (!clips.length) return;
+  var reduce = window.matchMedia &&
+               window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return; // first clip stays .is-active (poster shown), no playback
+
+  var i = 0;
+  function activate(n) {
+    clips.forEach(function (c, idx) {
+      var on = idx === n;
+      c.classList.toggle('is-active', on);
+      if (!on) { c.classList.remove('is-zooming'); }
+    });
+    var cur = clips[n];
+    cur.classList.remove('is-zooming');
+    void cur.offsetWidth; // reflow so the zoom animation restarts each loop
+    if (cur.duration && isFinite(cur.duration)) {
+      cur.style.setProperty('--clip-dur', cur.duration + 's');
+    }
+    cur.classList.add('is-zooming');
+    try { cur.currentTime = 0; } catch (e) {}
+    var pr = cur.play();
+    if (pr && pr.catch) pr.catch(function () {});
+  }
+  function next() { i = (i + 1) % clips.length; activate(i); }
+
+  clips.forEach(function (c) {
+    c.muted = true;
+    c.addEventListener('ended', next);
+  });
+
+  if (clips[0].readyState >= 1) activate(0);
+  else clips[0].addEventListener('loadedmetadata', function () { activate(0); }, { once: true });
 })();
 </script>
 
