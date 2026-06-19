@@ -153,6 +153,35 @@ body.no-skyline-bg .workspace-wash {
   .hero-rotate img:first-of-type { opacity: 1; }
 }
 
+/* Product demo video (Screen Record 1A) — sits just below the hero AI
+   rotation and smoothly rises into view on load (added 2026-06-18). */
+.demo-stage {
+  position: relative;
+  max-width: 980px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(232,119,34,0.12);
+  opacity: 0;
+  transform: translateY(26px) scale(0.985);
+  animation: demo-rise 1.2s cubic-bezier(.21,.6,.35,1) 0.45s forwards;
+}
+@keyframes demo-rise {
+  to { opacity: 1; transform: none; }
+}
+.demo-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-stage { opacity: 1; transform: none; animation: none; }
+}
+
 /* Legacy CSS UI mock — kept hidden as a graceful fallback if the
    image CDN goes down. */
 .ui-mock {
@@ -552,6 +581,27 @@ body.no-skyline-bg .workspace-wash {
              src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181701_f45beeab-8f9d-4a82-b807-d9813c0bb30a_min.webp">
         <img style="--n:4;" loading="lazy" decoding="async" alt=""
              src="https://d8j0ntlcm91z4.cloudfront.net/user_3DE59SGsXZceN1MVPi6PynVC4fS/hf_20260528_181704_57b383eb-3fd9-4301-ab1a-243de000a7dd_min.webp">
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Product demo (Screen Record 1A) — fades in below the hero 2026-06-18.
+       Autoplays muted + looped so it starts on its own; controls let visitors
+       unmute/scrub. Compressed 720p clip served from the deploy repo. ─── -->
+  <section class="tcd-section demo" aria-label="Product demo">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">See it in action</span>
+        <h2>The Comp Desk, in real time.</h2>
+        <p>A quick look at the Pro Workspace — calculators, the case canvas, and everything synced in one place.</p>
+      </div>
+      <div class="demo-stage">
+        <video class="demo-video"
+               autoplay muted loop playsinline preload="metadata"
+               disableremoteplayback controls
+               poster="/assets/animations/workspace-demo-1a-poster.jpg">
+          <source src="/assets/animations/workspace-demo-1a.mp4" type="video/mp4">
+        </video>
       </div>
     </div>
   </section>
