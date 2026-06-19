@@ -139,30 +139,64 @@
   }
   function normLoc(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
 
-  // Geocode one query string → {lat,lng} | null, cached forever.
+  // fetch() with a hard timeout so a stalled request can never hang the page.
+  function fetchTimeout(url, opts, ms) {
+    opts = opts || {};
+    var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    if (ctrl) opts.signal = ctrl.signal;
+    var to = global.setTimeout(function () { try { if (ctrl) ctrl.abort(); } catch (e) {} }, ms || 7000);
+    return fetch(url, opts).then(function (r) { global.clearTimeout(to); return r; },
+                               function (e) { global.clearTimeout(to); throw e; });
+  }
+
+  // Geocode one query string → {lat,lng} | null. Successful lookups (incl. "no match")
+  // are cached; transient failures/timeouts return null WITHOUT caching (so they retry later)
+  // and never throw — geocoding can only refine results, never block them.
   function geocodeOne(token, query, cache) {
     var key = normLoc(query);
     if (!key) return Promise.resolve(null);
     if (Object.prototype.hasOwnProperty.call(cache, key)) return Promise.resolve(cache[key]);
     var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
       encodeURIComponent(query) + '.json?limit=1&country=us&access_token=' + encodeURIComponent(token);
-    return fetch(url).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-      var f = j && j.features && j.features[0];
-      var pt = (f && f.center && f.center.length === 2) ? { lat: f.center[1], lng: f.center[0] } : null;
-      cache[key] = pt; saveGeoCache(cache);
-      return pt;
-    }).catch(function () { cache[key] = null; saveGeoCache(cache); return null; });
+    return fetchTimeout(url, {}, 7000).then(function (r) {
+      if (!r.ok) return null;            // 4xx/5xx (e.g. token restriction) → don't cache, just skip
+      return r.json().then(function (j) {
+        var f = j && j.features && j.features[0];
+        var pt = (f && f.center && f.center.length === 2) ? { lat: f.center[1], lng: f.center[0] } : null;
+        cache[key] = pt; saveGeoCache(cache);   // cache resolved lookups (point or genuine no-match)
+        return pt;
+      });
+    }).catch(function () { return null; });
   }
 
-  // Geocode many UNIQUE strings (dedup so "New York, NY" hits the API once).
+  // Bounded-concurrency async map — never serial, never unbounded.
+  function mapLimit(items, limit, fn) {
+    return new Promise(function (resolve) {
+      var i = 0, done = 0, active = 0, out = [];
+      if (!items.length) return resolve(out);
+      function pump() {
+        while (active < limit && i < items.length) {
+          (function (idx) {
+            active++;
+            Promise.resolve(fn(items[idx], idx)).then(function (r) { out[idx] = r; }, function () { out[idx] = null; })
+              .then(function () { active--; done++; (done === items.length) ? resolve(out) : pump(); });
+          })(i++);
+        }
+      }
+      pump();
+    });
+  }
+
+  // Geocode many UNIQUE strings (dedup so "New York, NY" hits the API once), in parallel with a
+  // concurrency cap and a hard cap on total lookups so this is fast and bounded.
   function geocodeUnique(token, queries, cache) {
     var uniq = {}; queries.forEach(function (q) { var k = normLoc(q); if (k) uniq[k] = q; });
-    var keys = Object.keys(uniq);
-    return keys.reduce(function (chain, k) {
-      return chain.then(function (acc) {
-        return geocodeOne(token, uniq[k], cache).then(function (pt) { acc[k] = pt; return acc; });
-      });
-    }, Promise.resolve({}));
+    var keys = Object.keys(uniq).slice(0, 40);
+    return mapLimit(keys, 6, function (k) {
+      return geocodeOne(token, uniq[k], cache).then(function (pt) { return { k: k, pt: pt }; });
+    }).then(function (arr) {
+      var byLoc = {}; arr.forEach(function (x) { if (x) byLoc[x.k] = x.pt; }); return byLoc;
+    });
   }
 
   // ════════════════════════════════════════════════════════════════════════
@@ -291,54 +325,84 @@
       if (v === 'map') ensureMap();
     }
 
-    // ── search pipeline ──
-    function runSearch(btn, msg) {
-      btn.disabled = true; msg.textContent = 'Searching the freshest listings…';
-      var ppdMax = (calc && state.doa) ? calc.maxRateForDOA(state.doa) : 0;
+    // Sort by fit (good→maybe→poor), then by distance when known.
+    function sortResults(arr) {
+      var rank = { good: 0, maybe: 1, poor: 2 };
+      arr.sort(function (a, b) {
+        if (rank[a.fit.score] !== rank[b.fit.score]) return rank[a.fit.score] - rank[b.fit.score];
+        var am = a.miles == null ? 1e9 : a.miles, bm = b.miles == null ? 1e9 : b.miles;
+        return am - bm;
+      });
+      return arr;
+    }
 
-      supa.from('job_listings')
+    // Read the freshest listings (anon). Hard timeout + error surfaced — never a silent hang.
+    function fetchListings() {
+      var q = supa.from('job_listings')
         .select('id, source, external_id, title, employer, location, salary_min, salary_max, salary_is_predicted, apply_url, description, geo')
         .order('fetched_at', { ascending: false })
         .limit(80)
         .then(function (res) {
-          var rows = (res && res.data) || [];
-          state.rawCount = rows.length;
-          if (res && res.error) { msg.textContent = 'Could not load listings right now. Please try again shortly.'; btn.disabled = false; return; }
-          if (!rows.length) { msg.textContent = 'No fresh listings are cached right now — check back soon.'; btn.disabled = false; finish([], ppdMax); return; }
-
-          // Geocode home + unique listing locations (only if a home location was given).
-          var needGeo = !!normLoc(state.home);
-          var geoStep = needGeo
-            ? geocodeOne(mapboxToken, state.home, geoCache).then(function (homePt) {
-                state.homePt = homePt;
-                var locs = rows.filter(function (r) { return !r.geo; }).map(function (r) { return r.location; });
-                return geocodeUnique(mapboxToken, locs, geoCache).then(function (byLoc) { return { homePt: homePt, byLoc: byLoc }; });
-              })
-            : Promise.resolve({ homePt: null, byLoc: {} });
-
-          geoStep.then(function (g) {
-            var enriched = rows.map(function (r) {
-              var pt = r.geo && typeof r.geo.lat === 'number' ? r.geo : (g.byLoc[normLoc(r.location)] || null);
-              var re = computeRE(state.aww, ppdMax, r.salary_min, r.salary_max);
-              var fit = fitFor(r, state.r);
-              var miles = (g.homePt && pt) ? milesBetween(g.homePt, pt) : null;
-              return { row: r, pt: pt, re: re, fit: fit, miles: miles, ppdMax: ppdMax };
-            });
-
-            // Distance filter: only when we have a home point. Keep unknown-distance jobs (don't hide).
-            if (g.homePt) enriched = enriched.filter(function (j) { return j.miles == null || j.miles <= state.maxMiles; });
-
-            // Drop "poor" fits to the bottom; sort by fit then distance.
-            var rank = { good: 0, maybe: 1, poor: 2 };
-            enriched.sort(function (a, b) {
-              if (rank[a.fit.score] !== rank[b.fit.score]) return rank[a.fit.score] - rank[b.fit.score];
-              var am = a.miles == null ? 1e9 : a.miles, bm = b.miles == null ? 1e9 : b.miles;
-              return am - bm;
-            });
-            msg.textContent = ''; btn.disabled = false;
-            finish(enriched, ppdMax);
-          });
+          if (res && res.error) throw new Error(res.error.message || 'database error');
+          return (res && res.data) || [];
         });
+      var timeout = new Promise(function (_, rej) {
+        global.setTimeout(function () { rej(new Error('timed out — please try again')); }, 15000);
+      });
+      return Promise.race([q, timeout]);
+    }
+
+    // ── search pipeline ──
+    // PHASE 1 (always): read listings → render jobs immediately (no distance gate).
+    // PHASE 2 (only if a location was entered, non-blocking): geocode + distance-filter + map.
+    // Geocoding can ONLY refine results; it can never block or hide the job list.
+    function runSearch(btn, msg) {
+      btn.disabled = true; msg.textContent = 'Searching the freshest listings…';
+      state.homePt = null;
+      var ppdMax = (calc && state.doa) ? calc.maxRateForDOA(state.doa) : 0;
+
+      fetchListings().then(function (rows) {
+        state.rawCount = rows.length;
+        btn.disabled = false;
+        if (!rows.length) { msg.textContent = 'No fresh job listings are cached right now — please check back soon.'; finish([], ppdMax); return; }
+
+        // Phase 1 — show every job now, using only coords that ship with the listing (Adzuna).
+        var base = rows.map(function (r) {
+          return {
+            row: r,
+            pt: (r.geo && typeof r.geo.lat === 'number') ? r.geo : null,
+            re: computeRE(state.aww, ppdMax, r.salary_min, r.salary_max),
+            fit: fitFor(r, state.r),
+            miles: null, ppdMax: ppdMax
+          };
+        });
+        sortResults(base);
+        msg.textContent = '';
+        finish(base, ppdMax);
+
+        // Phase 2 — distance + map, only when a location is given and Mapbox is available.
+        if (!normLoc(state.home) || !mapboxToken) return;
+        msg.textContent = 'Sorting by distance from you…';
+        geocodeOne(mapboxToken, state.home, geoCache).then(function (homePt) {
+          if (!homePt) { msg.textContent = 'Couldn’t locate that ZIP/city — showing all matches.'; return; }
+          state.homePt = homePt;
+          var locs = base.filter(function (j) { return !j.pt; }).map(function (j) { return j.row.location; });
+          return geocodeUnique(mapboxToken, locs, geoCache).then(function (byLoc) {
+            base.forEach(function (j) {
+              if (!j.pt) j.pt = byLoc[normLoc(j.row.location)] || null;
+              j.miles = j.pt ? milesBetween(homePt, j.pt) : null;
+            });
+            // Keep unknown-distance jobs (don't hide a job just because its city wouldn't geocode).
+            var within = base.filter(function (j) { return j.miles == null || j.miles <= state.maxMiles; });
+            sortResults(within);
+            msg.textContent = '';
+            finish(within, ppdMax);
+          });
+        }).catch(function () { msg.textContent = ''; /* distance is best-effort */ });
+      }).catch(function (e) {
+        btn.disabled = false;
+        msg.textContent = 'Couldn’t load listings (' + ((e && e.message) || 'network error') + '). Please check your connection and try again.';
+      });
     }
 
     function finish(enriched, ppdMax) {

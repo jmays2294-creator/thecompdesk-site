@@ -14,6 +14,16 @@ lived only inside the auth-gated `/dashboard/` and hard-required AWW + DOA from 
 before showing anything). Website-only; the logged-in dashboard version is unchanged except the
 gate relaxation noted below.
 
+**Reliability fix (same day):** searching could hang on "Searching…" and show **no jobs** —
+geocoding ran sequentially with no timeout, and `finish()` waited for ALL geocoding before
+rendering anything, so one stalled/failed Mapbox call (rate-limit/referrer/transient on prod)
+froze the whole search. Reworked into two phases: the job list renders **immediately** after the
+~0.8s `job_listings` read (Phase 1), and geocoding → distance filter → map markers run as a
+**non-blocking** Phase 2 that can only refine results, never gate them. Geocoding is now parallel
+(concurrency 6, hard cap 40 unique lookups), each request has a 7s `AbortController` timeout and
+fails to `null` without caching (retries later), and the listings read has a 15s timeout race plus
+a clear, retryable error message instead of a silent hang.
+
 - **No account, no profile gate.** New `job-buddy.html` + `js/job-buddy-public.js` read the
   anon-readable `job_listings` table directly (RLS public-read of fresh rows) — no edge function,
   no login. Restrictions, AWW, DOA, and home location are entered **inline** and never saved.
