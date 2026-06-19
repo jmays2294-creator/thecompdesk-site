@@ -332,6 +332,7 @@ function renderNav(session, tier) {
         <li class="nav-dropdown">
           <button class="nav-dropdown-toggle">Tools <span>▼</span></button>
           <div class="nav-dropdown-menu">
+            <a href="/job-buddy" class="nav-dropdown-item">Job Buddy <span style="color:#E87722;font-size:10px;font-weight:700;">BETA</span></a>
             <a href="/tools/settlement.html" class="nav-dropdown-item">Settlement Comparison</a>
             <a href="/tools/learning/" class="nav-dropdown-item">Learning Portal</a>
             <a href="/tools/find-doctor.html" class="nav-dropdown-item">Find a Doctor</a>
@@ -622,6 +623,7 @@ function renderPublicNav(userState) {
         <li class="nav-dropdown">
           <button class="nav-dropdown-toggle">Tools <span>▼</span></button>
           <div class="nav-dropdown-menu">
+            <a href="/job-buddy" class="nav-dropdown-item">Job Buddy <span style="color:#E87722;font-size:10px;font-weight:700;">BETA</span></a>
             <a href="/tools/settlement.html" class="nav-dropdown-item">Settlement Comparison</a>
             <a href="/tools/find-doctor.html" class="nav-dropdown-item">Find a Doctor</a>
             <a href="/tools/medical-treatment-guidelines.html" class="nav-dropdown-item">Medical Treatment Guidelines</a>

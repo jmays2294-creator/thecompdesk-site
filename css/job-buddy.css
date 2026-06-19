@@ -44,6 +44,7 @@
 .cd-jb-empty p { font-size: 13.5px; line-height: 1.5; max-width: 440px; margin: 0 auto; }
 
 .cd-jb-feedbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.cd-jb-input-sm { width: auto; max-width: 130px; padding: 7px 9px; font-size: 13px; }
 .cd-jb-ext { display: flex; align-items: center; gap: 6px; margin-left: auto; }
 .cd-jb-ext-lbl { font-size: 12.5px; color: var(--muted, #6b7280); }
 .cd-jb-chip { appearance: none; border: 1px solid var(--line, #d1d5db); background: var(--surface, #fff); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: inherit; }

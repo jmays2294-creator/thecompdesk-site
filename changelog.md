@@ -5,6 +5,62 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-06-18
+
+### Job Buddy — public, no-account beta page (`/job-buddy`) with map + list and eggshell theme
+
+New standalone public page so the Job Buddy beta works for logged-out visitors (it previously
+lived only inside the auth-gated `/dashboard/` and hard-required AWW + DOA from the user's profile
+before showing anything). Website-only; the logged-in dashboard version is unchanged except the
+gate relaxation noted below.
+
+- **No account, no profile gate.** New `job-buddy.html` + `js/job-buddy-public.js` read the
+  anon-readable `job_listings` table directly (RLS public-read of fresh rows) — no edge function,
+  no login. Restrictions, AWW, DOA, and home location are entered **inline** and never saved.
+  Jobs render from restrictions alone; AWW/DOA are optional and only add the reduced-earnings
+  estimate. Fixes the "add your AWW and DOA to your profile first" blocker for beta users.
+- **Reduced-earnings parity.** RE math mirrors `_shared/job-buddy/re_math.ts` exactly
+  (⅔ × (AWW − est. weekly pay), floored at $0, capped at the DOA PPD max via
+  `CD.Calc.maxRateForDOA`); SGA red-flag wording reused. Restriction *fit* is a transparent
+  client-side heuristic (no model call for anonymous traffic).
+- **Location + travel distance.** Home ZIP/city geocoded via Mapbox; each listing's location
+  geocoded (Adzuna coords used directly, others geocoded by unique string and memoized in
+  `localStorage`); results filtered by a 10–60 mi slider via haversine distance.
+- **Map ⇄ List.** New Mapbox map view (light-v11) with a colored pin per geocoded job
+  (fit-scored) + home pin, popups deep-linking to the employer apply URL; toggles with the list.
+- **Eggshell theme + readability.** `css/job-buddy-public.css` puts every text block in a solid
+  cream "box" with dark ink over a warm eggshell tint, fixing the faint muted-gray-on-light
+  problem. An aerial NYC-dawn still (`assets/animations/job-buddy-bg.jpg`) sits behind the tint
+  with a slow CSS Ken Burns "boomerang" (zoom in → reverse out → loop via
+  `animation-direction: alternate`, 44s); honors `prefers-reduced-motion`.
+- **Dashboard gate relaxed.** `js/job-buddy/job-buddy.js` Feed tab now offers inline AWW + DOA
+  inputs (passed to `matchNow(override)`, not saved) instead of bouncing logged-in users to the
+  profile editor.
+- Nav: "Job Buddy BETA" added to the Tools dropdown (public + app nav); `sitemap.xml` entry added.
+- Verified locally: anon search returns matches with no account, RE math floors/caps correctly,
+  SGA flag fires, distance filter works, map renders 64 markers, exactly one `job_listings` read
+  with deduped/memoized geocoding, responsive at 375px.
+
+---
+
+## 2026-06-12
+
+### Pro Attorney Workspace — CCP rate-formula fix, UI density/chrome overhaul, auto-arrange canvas + MTG modal formatting
+
+Five deploys to `main` (`3b6b5c2`, `c4fa92b`, `5825055`, `7de36be`, `bfb8548`), all READY/production and live-verified in-browser. Website-only (no app/native). Full detail in `SESSION_HANDOFF.md`.
+
+- **CCP/Award TP rate fix (correctness).** TP (and the inline calculator's TR) now apply the percentage to the **uncapped** ⅔×AWW, then `applyRateBounds` caps — was multiplying the already-capped TT, which understated the rate whenever ⅔×AWW exceeded the DOA max. Acceptance: AWW $2,258.12, max $1,171.46, @87.5% → **$1,171.46** (was $1,025.03). TP and TR pct-mode are now identical. Files: `js/workspace/tiles.js` (both compute sites), `calculators/ccp-award.html` (TR via one `trRate()` helper).
+- **Amending-award display** shows the full new amended rate + a trailing `$X difference/wk` token (award math unchanged).
+- **AWW configure bar** — fixed field overlap (`$`-prefixed inputs were overflowing their grid cells), removed the dead space before the §14 badge (readout is now content-width, not a `1fr` stretch), and relocated the **Configure AWW** button into a cluster paired with the §14 method badge. Second line (Common rates + Today/Term/Deadline) packs left.
+- **Top-chrome collapse** — the Comp Desk site menu bar auto-collapses ~4s after load with a Show/Hide toggle; the workspace toolbar condensed to a small title + Save + Full Screen + a ⚙ Settings gear (themes, Tile/Zoom sliders, Formulas, Delete moved into the popover), and the toolbar auto-hides into a drawer handle that reveals on click.
+- **Auto-arrange canvas** — tiles flow into a tidy grid that re-flows when Tile Size changes (bigger tiles → fewer per row); new tiles land adjacent (right, wrapping down); dragging reorders within the grid. Workspace Zoom stays a canvas magnify on top.
+- **MTG section modal** — added `mtgNormalizeBody()` so PDF-extracted guideline text no longer breaks sentences onto random lines: paragraphs flow, lists and paragraph breaks preserved, hyphenated words rejoined.
+- **Earlier in this pass (first versions, since superseded):** initial collapse/fullscreen, Tile/Workspace size sliders (`--tile-scale`/`--workspace-scale`, not persisted), denser AWW bar, CCP-builder grid alignment.
+
+**Files:** `js/workspace/tiles.js`, `js/workspace/app.js`, `js/workspace/workspace.css`, `workspace.html`, `calculators/ccp-award.html`, `SESSION_HANDOFF.md`, `changelog.md`.
+
+---
+
 ## 2026-06-11
 
 ### CCP/Award Builder — two date fixes (DOI+1 prefill, drop duplicated boundary day) + basic-calc reconciliation

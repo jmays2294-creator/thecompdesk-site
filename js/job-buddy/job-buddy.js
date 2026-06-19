@@ -62,11 +62,15 @@
   }
 
   // Worker's pre-injury AWW + the statutory PPD max for their DOA (from calc-core).
-  function _awwAndPpd() {
+  // `override` lets the Feed tab supply AWW/DOA inline (entered there, not saved to the
+  // profile) so a worker isn't forced into the profile editor just to estimate benefits.
+  function _awwAndPpd(override) {
     var p = CD.currentProfile || {};
-    var aww = parseFloat(p.current_aww);
-    var ppd = (CD.Calc && p.doa) ? CD.Calc.maxRateForDOA(p.doa) : 0;
-    return { aww: (aww > 0 ? aww : null), ppd: (ppd > 0 ? ppd : null), doa: p.doa || null };
+    var awwSrc = (override && override.aww != null && override.aww !== '') ? override.aww : p.current_aww;
+    var doaSrc = (override && override.doa) ? override.doa : p.doa;
+    var aww = parseFloat(awwSrc);
+    var ppd = (CD.Calc && doaSrc) ? CD.Calc.maxRateForDOA(doaSrc) : 0;
+    return { aww: (aww > 0 ? aww : null), ppd: (ppd > 0 ? ppd : null), doa: doaSrc || null };
   }
 
   // Authenticated edge-function POST (mirrors advisor-module.js).
@@ -151,10 +155,11 @@
   };
 
   // On-demand live match against the freshest cached listings (when the feed is empty).
-  JB.matchNow = function () {
+  // `override` (optional) = { aww, doa } entered inline on the Feed tab.
+  JB.matchNow = function (override) {
     if (!_loggedIn()) return Promise.reject(new Error('Sign in first.'));
-    var ap = _awwAndPpd();
-    if (!ap.aww || !ap.ppd) return Promise.reject(new Error('Add your AWW and date of accident in your profile first.'));
+    var ap = _awwAndPpd(override);
+    if (!ap.aww || !ap.ppd) return Promise.reject(new Error('Enter your AWW and date of accident to estimate benefits.'));
     return Promise.all([
       JB.getRestriction(),
       CD.supa.from('job_listings').select('*').order('fetched_at', { ascending: false }).limit(8)
@@ -641,9 +646,23 @@
       var bar = H('div', { className: 'cd-jb-feedbar' });
       var refreshBtn = H('button', { className: 'cd-jb-btn ghost' }, '↻ Refresh feed');
       var status = H('span', { className: 'cd-jb-upstatus' }, '');
+
+      // If AWW/DOA aren't on the profile, let the worker enter them right here (not saved)
+      // instead of being bounced to the profile editor just to estimate reduced-earnings.
+      var override = {};
+      var ap0 = _awwAndPpd();
+      if (!ap0.aww || !ap0.ppd) {
+        var awwIn = H('input', { className: 'cd-jb-input cd-jb-input-sm', type: 'number', placeholder: 'AWW $' });
+        awwIn.oninput = function () { override.aww = awwIn.value; };
+        var doaIn = H('input', { className: 'cd-jb-input cd-jb-input-sm', type: 'date', title: 'Date of accident' });
+        doaIn.oninput = function () { override.doa = doaIn.value; };
+        bar.appendChild(H('span', { className: 'cd-jb-fld-lbl' }, 'Estimate benefits:'));
+        bar.appendChild(awwIn); bar.appendChild(doaIn);
+      }
+
       refreshBtn.onclick = function () {
         status.textContent = 'Matching the newest listings…';
-        JB.matchNow().then(function () { renderFeedReload(mount); })
+        JB.matchNow(override).then(function () { renderFeedReload(mount); })
           .catch(function (e) { status.textContent = (e && e.message) || 'Nothing new to match yet.'; });
       };
       bar.appendChild(refreshBtn); bar.appendChild(status);

@@ -1,0 +1,179 @@
+/* ============================================================================
+ * job-buddy-public.css — public /job-buddy page (worker "Dawn" eggshell theme).
+ * Readability fix: the page sits on a warm eggshell tint over a looping video,
+ * and EVERY text block lives in a solid "box" (.jb-box) with dark ink — nothing
+ * relies on faint muted gray over a busy background.
+ * Tokens come from css/skins.css (worker skin is the page default).
+ * ==========================================================================*/
+
+.jb-public {
+  margin: 0;
+  font-family: var(--font-body, 'DM Sans', system-ui, sans-serif);
+  color: var(--skin-text, #2D3142);
+  background: var(--skin-surface, #F8F6F1);
+  min-height: 100vh;
+}
+
+/* ── Background: NYC-dawn still with a slow Ken Burns boomerang, under an eggshell tint ── */
+.jb-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--skin-surface, #F8F6F1); }
+.jb-bg-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 42%; opacity: 0.92;
+  transform-origin: center 42%; will-change: transform;
+  /* Forward (zoom/pan in) → reverse (out) → loop, very slowly. 'alternate' = the boomerang. */
+  animation: jb-kenburns 44s ease-in-out infinite alternate;
+}
+@keyframes jb-kenburns {
+  from { transform: scale(1.05) translate3d(0, 0, 0); }
+  to   { transform: scale(1.18) translate3d(0, -2.2%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jb-bg-img { animation: none; transform: scale(1.05); }
+}
+/* Eggshell wash so the video reads as a warm texture, never competing with text.
+   Layered: warm cream veil + soft sunrise vignette tuned to the worker palette. */
+.jb-bg-tint {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(130% 95% at 50% 0%, rgba(244, 234, 219, 0.34), rgba(248, 246, 241, 0.70) 58%, rgba(248, 246, 241, 0.88) 100%),
+    linear-gradient(180deg, rgba(248, 246, 241, 0.48) 0%, rgba(244, 234, 219, 0.62) 100%);
+}
+
+/* ── Layout ────────────────────────────────────────────────────────────── */
+.jb-root { display: block; }
+.jb-wrap {
+  max-width: 920px; margin: 0 auto;
+  padding: 28px 18px 64px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+/* The "box": solid surface so text is always legible over the video. */
+.jb-box {
+  background: var(--skin-surface-elev, #fff);
+  border: 1px solid var(--skin-divider, rgba(45,49,66,0.10));
+  border-radius: var(--skin-card-radius, 18px);
+  box-shadow: var(--skin-card-shadow, 0 6px 30px rgba(45,49,66,0.08));
+  padding: 22px 22px;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+.jb-hero { text-align: left; }
+.jb-eyebrow {
+  font-size: 12.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--skin-accent-deep, #C85F0F); margin-bottom: 8px;
+}
+.jb-title {
+  font-family: var(--font-display, 'Fraunces', Georgia, serif);
+  font-weight: 800; font-size: clamp(30px, 5vw, 44px); line-height: 1.05;
+  margin: 0 0 10px; color: var(--skin-text, #2D3142);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.jb-beta {
+  font-family: var(--font-body); font-size: 12px; font-weight: 800; letter-spacing: .08em;
+  background: var(--skin-accent, #E87722); color: #fff; padding: 3px 9px; border-radius: 999px;
+  position: relative; top: -2px;
+}
+.jb-sub { font-size: 16px; line-height: 1.6; color: var(--skin-text-soft, #4D5266); margin: 0; max-width: 62ch; }
+
+/* ── Form ──────────────────────────────────────────────────────────────── */
+.jb-h2 { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin: 0 0 4px; color: var(--skin-text); }
+.jb-h2-mt { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--skin-divider); }
+.jb-help { font-size: 13.5px; color: var(--skin-text-soft, #4D5266); margin: 0 0 14px; line-height: 1.5; }
+
+.jb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.jb-fld { display: flex; flex-direction: column; gap: 6px; }
+.jb-fld-wide { grid-column: span 2; }
+.jb-lbl { font-size: 12.5px; font-weight: 700; color: var(--skin-text, #2D3142); }
+
+.jb-input {
+  width: 100%; box-sizing: border-box;
+  font-family: var(--font-body); font-size: 15px; color: var(--skin-text, #2D3142);
+  background: #fff; border: 1.5px solid var(--skin-divider, rgba(45,49,66,0.14));
+  border-radius: 11px; padding: 10px 12px; transition: border-color .15s ease, box-shadow .15s ease;
+}
+.jb-input:focus { outline: none; border-color: var(--skin-accent, #E87722); box-shadow: 0 0 0 3px rgba(232,119,34,0.15); }
+.jb-ta { min-height: 64px; resize: vertical; line-height: 1.45; }
+
+.jb-in-suf { position: relative; display: flex; align-items: center; }
+.jb-suf { position: absolute; right: 12px; font-size: 12.5px; color: var(--skin-text-muted, #7A8095); pointer-events: none; }
+.jb-suf-pre { position: absolute; left: 12px; right: auto; font-weight: 600; color: var(--skin-text-soft); }
+.jb-in-suf .jb-suf-pre + .jb-input, .jb-fld .jb-suf-pre ~ .jb-input { padding-left: 24px; }
+
+.jb-range { width: 100%; accent-color: var(--skin-accent, #E87722); }
+.jb-dist-val { font-weight: 700; color: var(--skin-accent-deep, #C85F0F); }
+
+.jb-actions { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+.jb-msg { font-size: 13px; color: var(--skin-text-soft); }
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+.jb-btn {
+  font-family: var(--font-body); font-size: 15px; font-weight: 700; cursor: pointer;
+  border: 1.5px solid var(--skin-divider); background: #fff; color: var(--skin-text);
+  border-radius: 12px; padding: 12px 18px; transition: transform .12s ease, box-shadow .15s ease, opacity .15s ease;
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+}
+.jb-btn:hover { transform: translateY(-1px); }
+.jb-btn-primary { background: var(--skin-accent, #E87722); border-color: var(--skin-accent, #E87722); color: #fff; box-shadow: 0 6px 18px rgba(232,119,34,0.28); }
+.jb-btn-primary:hover { background: var(--skin-accent-deep, #C85F0F); }
+.jb-btn-sm { padding: 9px 14px; font-size: 14px; }
+.jb-btn.is-disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+
+/* ── Results bar + toggle ──────────────────────────────────────────────── */
+.jb-results { display: flex; flex-direction: column; gap: 14px; }
+.jb-resultsbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; flex-wrap: wrap; }
+.jb-count { font-size: 14px; font-weight: 600; color: var(--skin-text-soft, #4D5266); }
+.jb-toggle { display: inline-flex; background: var(--skin-surface-warm, #F4EADB); border-radius: 999px; padding: 3px; gap: 2px; }
+.jb-tg {
+  border: none; background: transparent; cursor: pointer; font-family: var(--font-body);
+  font-size: 14px; font-weight: 700; color: var(--skin-text-soft, #4D5266);
+  padding: 7px 18px; border-radius: 999px; transition: background .15s ease, color .15s ease;
+}
+.jb-tg.is-active { background: #fff; color: var(--skin-accent-deep, #C85F0F); box-shadow: 0 1px 4px rgba(45,49,66,0.12); }
+
+/* ── List + cards ──────────────────────────────────────────────────────── */
+.jb-list { display: flex; flex-direction: column; gap: 14px; }
+.jb-card { padding: 18px 20px; }
+.jb-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.jb-card-title { font-family: var(--font-display); font-size: 17.5px; font-weight: 700; color: var(--skin-text, #2D3142); line-height: 1.25; }
+.jb-card-meta { font-size: 13px; color: var(--skin-text-soft, #4D5266); margin-top: 3px; }
+.jb-card-rat { font-size: 13.5px; color: var(--skin-text-soft, #4D5266); margin-top: 10px; line-height: 1.5; }
+.jb-card-dist { font-size: 13px; font-weight: 600; color: var(--skin-text, #2D3142); margin-top: 8px; }
+
+.jb-fit { flex: none; font-size: 12px; font-weight: 800; letter-spacing: .02em; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+.jb-fit-good { background: #E4F2E5; color: #2E7D32; }
+.jb-fit-maybe { background: #FBEBD9; color: #B5651A; }
+.jb-fit-poor { background: #EEF0F2; color: #6B7280; }
+
+.jb-re { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--skin-divider); }
+.jb-re strong { color: var(--skin-accent-deep, #C85F0F); font-size: 16px; }
+.jb-re-calc { font-size: 12.5px; color: var(--skin-text-soft, #4D5266); }
+
+.jb-flags { margin: 10px 0 0; padding-left: 18px; }
+.jb-flags li { font-size: 12.5px; color: #9A3412; line-height: 1.45; }
+
+.jb-card-actions { margin-top: 14px; }
+
+/* ── Map ───────────────────────────────────────────────────────────────── */
+.jb-map { width: 100%; height: 520px; border-radius: var(--skin-card-radius, 18px); overflow: hidden; border: 1px solid var(--skin-divider); box-shadow: var(--skin-card-shadow); }
+.mapboxgl-popup-content { font-family: var(--font-body); font-size: 13px; border-radius: 12px; padding: 12px 14px; }
+.mapboxgl-popup-content a { color: var(--skin-accent-deep, #C85F0F); font-weight: 700; }
+
+/* ── Empty + disclaimer ────────────────────────────────────────────────── */
+.jb-empty { text-align: center; padding: 36px 24px; }
+.jb-empty-i { font-size: 34px; margin-bottom: 8px; }
+.jb-empty h3 { font-family: var(--font-display); margin: 0 0 6px; color: var(--skin-text); }
+.jb-empty p { font-size: 14px; color: var(--skin-text-soft); margin: 0; }
+.jb-disclaimer { font-size: 12px; color: var(--skin-text-soft, #4D5266); line-height: 1.5; padding: 14px 18px; }
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .jb-grid { grid-template-columns: 1fr 1fr; }
+  .jb-fld-wide { grid-column: span 2; }
+  .jb-map { height: 400px; }
+}
+@media (max-width: 460px) {
+  .jb-grid { grid-template-columns: 1fr; }
+  .jb-fld-wide { grid-column: span 1; }
+  .jb-box { padding: 18px 16px; }
+  .jb-card-head { flex-direction: column; }
+}
