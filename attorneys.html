@@ -495,13 +495,104 @@ body.no-skyline-bg .workspace-wash {
   margin: 10px 0 0;
   max-width: 64ch;
 }
-.tcd-nav-signin {
-  display: inline-flex; align-items: center; padding: 7px 17px;
-  border: 1.5px solid var(--skin-accent, #E87722); border-radius: 999px;
-  color: var(--skin-accent, #E87722) !important; font-weight: 700; font-size: 14px;
-  text-decoration: none; transition: background .2s ease, color .2s ease;
+
+/* ─── Pillar showcase rows (Network · Marketplace) — copy beside a
+       "what it looks like" mock panel in the attorney skin. Mock
+       micro-motion is gated to prefers-reduced-motion: no-preference. */
+.split {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(28px, 4vw, 60px);
+  align-items: center;
 }
-.tcd-nav-signin:hover { background: var(--skin-accent, #E87722); color: #fff !important; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+.split .copyside h2 { font-size: clamp(24px, 3.2vw, 34px); margin-bottom: 14px; }
+.split .copyside p { color: var(--skin-text-soft); margin-bottom: 14px; max-width: 52ch; }
+.split .copyside .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.split .pts { list-style: none; padding: 0; margin: 18px 0 0; }
+.split .pts li {
+  font-size: 14px; color: var(--skin-text-soft);
+  padding: 7px 0; display: flex; align-items: flex-start; gap: 10px;
+}
+.split .pts li::before { content: "✓"; color: var(--skin-accent); font-weight: 700; flex-shrink: 0; }
+
+.atty-mock {
+  position: relative;
+  background: linear-gradient(160deg, #1F2F4D 0%, #16243F 100%);
+  border: 1px solid rgba(240,235,224,0.10);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,119,34,0.10);
+  overflow: hidden;
+}
+.atty-mock::before {
+  content: ""; position: absolute; top: -20%; right: -10%;
+  width: 220px; height: 220px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(232,119,34,0.4) 0%, rgba(232,119,34,0) 70%);
+  filter: blur(22px); pointer-events: none; z-index: 0;
+}
+.atty-mock > * { position: relative; z-index: 1; }
+.atty-mock .mhd {
+  display: flex; justify-content: space-between; align-items: center;
+  font: 700 11px/1 var(--font-body); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--skin-text-muted); margin-bottom: 14px;
+}
+.atty-mock .mhd .live { display: inline-flex; align-items: center; gap: 7px; color: var(--skin-accent); }
+.atty-mock .mhd .live .d { width: 7px; height: 7px; border-radius: 50%; background: var(--skin-accent); box-shadow: 0 0 8px rgba(232,119,34,0.8); }
+.atty-mock .lead {
+  background: rgba(11,20,38,0.55);
+  border: 1px solid rgba(240,235,224,0.08);
+  border-radius: 10px;
+  padding: 13px 14px; margin-bottom: 10px;
+}
+.atty-mock .lead .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 9px; }
+.atty-mock .lead .who { font: 700 14px/1 var(--font-body); color: var(--skin-text); }
+.atty-mock .lead .meta { font: 700 10.5px/1 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--skin-text-muted); }
+.atty-mock .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 11px; }
+.atty-mock .chip {
+  font: 700 10.5px/1 var(--font-body);
+  padding: 5px 9px; border-radius: 7px;
+  background: rgba(232,119,34,0.12); color: var(--skin-accent-soft);
+  border: 1px solid rgba(232,119,34,0.22);
+}
+.atty-mock .chip.n { background: rgba(240,235,224,0.06); color: var(--skin-text-muted); border-color: rgba(240,235,224,0.10); }
+.atty-mock .acts { display: flex; gap: 8px; }
+.atty-mock .b {
+  flex: 1; text-align: center;
+  font: 800 12px/1 var(--font-body);
+  padding: 9px 0; border-radius: 8px;
+}
+.atty-mock .b.accept { background: var(--skin-accent); color: var(--tcd-navy); }
+.atty-mock .b.pass { background: transparent; color: var(--skin-text-muted); border: 1px solid rgba(240,235,224,0.16); }
+/* Skill row (marketplace mock) */
+.atty-mock .skill {
+  display: flex; align-items: center; gap: 11px;
+  background: rgba(11,20,38,0.55);
+  border: 1px solid rgba(240,235,224,0.08);
+  border-radius: 10px; padding: 11px 12px; margin-bottom: 9px;
+}
+.atty-mock .skill .si {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  background: rgba(232,119,34,0.16); color: var(--skin-accent);
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.atty-mock .skill .sg { flex: 1; min-width: 0; }
+.atty-mock .skill .sn { display: block; font: 700 13px/1.2 var(--font-body); color: var(--skin-text); }
+.atty-mock .skill .sd { display: block; font: 600 11px/1.3 var(--font-body); color: var(--skin-text-muted); margin-top: 3px; }
+.atty-mock .skill .install {
+  font: 800 10.5px/1 var(--font-body); letter-spacing: 0.04em;
+  padding: 7px 11px; border-radius: 7px;
+  background: rgba(232,119,34,0.14); color: var(--skin-accent-soft);
+  border: 1px solid rgba(232,119,34,0.28);
+}
+.atty-mock .skill .install.done { background: rgba(91,199,154,0.12); color: #5BC79A; border-color: rgba(91,199,154,0.3); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .atty-mock .mhd .live .d { animation: atty-blink 2s ease-in-out infinite; }
+  @keyframes atty-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .atty-mock .lead.fresh { animation: lead-in 0.7s var(--ease-out) both; }
+  @keyframes lead-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+}
 </style>
 </head>
 <body class="tcd-skinned">
@@ -526,9 +617,11 @@ body.no-skyline-bg .workspace-wash {
       <a href="/for-attorneys/credits">Credits</a>
       <a href="/hire-attorney">Network</a>
       <a href="/contact">Contact</a>
-      <a href="/auth_v2.html" class="tcd-nav-signin">Sign In</a>
     </div>
-    <div data-audience-switch></div>
+    <div class="tcd-nav-right">
+      <div data-audience-switch></div>
+      <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+    </div>
   </div>
 </nav>
 
@@ -735,6 +828,79 @@ body.no-skyline-bg .workspace-wash {
     </div>
   </section>
 
+  <!-- ─── Pillar 2: The referral network ─── -->
+  <section class="tcd-section scene" id="network">
+    <div class="wrap split">
+      <div class="copyside stagger">
+        <span class="eyebrow" style="--i:0;">The referral network</span>
+        <h2 style="--i:1;">Claimant leads, matched to you by county.</h2>
+        <p style="--i:2;">Injured workers using Comp Buddy connect with a licensed NYS WC attorney through a neutral, round-robin network. No paid placement, no auction — just the next worker in your county, routed to you.</p>
+        <ul class="pts" style="--i:3;">
+          <li>Pay only for leads you accept — no monthly fee, no referral percentage</li>
+          <li>Round-robin and neutral — placement is never sold</li>
+          <li>Accept or pass in one tap; expired leads re-route automatically</li>
+        </ul>
+        <div class="ctas" style="--i:4;">
+          <button type="button" class="btn primary" onclick="openAttorneyApplication()">Apply to the network</button>
+          <a href="/hire-attorney#how-it-works" class="btn ghost">How the network works</a>
+        </div>
+      </div>
+
+      <div class="atty-mock" aria-hidden="true">
+        <div class="mhd"><span>Lead inbox</span><span class="live"><span class="d"></span>Live</span></div>
+        <div class="lead fresh">
+          <div class="top"><span class="who">New claimant · Kings County</span><span class="meta">2m ago</span></div>
+          <div class="chips"><span class="chip">Back injury</span><span class="chip n">Construction</span><span class="chip n">DOI 6/12/26</span></div>
+          <div class="acts"><span class="b accept">Accept lead</span><span class="b pass">Pass</span></div>
+        </div>
+        <div class="lead">
+          <div class="top"><span class="who">New claimant · Queens County</span><span class="meta">18m ago</span></div>
+          <div class="chips"><span class="chip">Shoulder</span><span class="chip n">Warehouse</span></div>
+          <div class="acts"><span class="b accept">Accept lead</span><span class="b pass">Pass</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Pillar 3: Skills Marketplace — agents for WC attorneys ─── -->
+  <section class="tcd-section scene" id="skills">
+    <div class="wrap split">
+      <div class="atty-mock" aria-hidden="true">
+        <div class="mhd"><span>Comp Desk Skills</span><span>in Claude</span></div>
+        <div class="skill">
+          <span class="si">📜</span>
+          <span class="sg"><span class="sn">Case Background</span><span class="sd">Pull the full WCB procedural history</span></span>
+          <span class="install done">Installed</span>
+        </div>
+        <div class="skill">
+          <span class="si">✍️</span>
+          <span class="sg"><span class="sn">Summation Drafter</span><span class="sd">Case record → formatted summation</span></span>
+          <span class="install">Install</span>
+        </div>
+        <div class="skill">
+          <span class="si">⚖️</span>
+          <span class="sg"><span class="sn">Hearing Prep</span><span class="sd">Calendar + files → a prep brief</span></span>
+          <span class="install">Install</span>
+        </div>
+      </div>
+
+      <div class="copyside stagger">
+        <span class="eyebrow" style="--i:0;">Skills Marketplace</span>
+        <h2 style="--i:1;">Agents for WC attorneys — your expertise, packaged.</h2>
+        <p style="--i:2;">Installable AI skills that do the repetitive parts of a workers' comp practice for you — pulling case history, drafting summations, prepping hearings — running right inside Claude, on your own machine. Built by a practicing NYS WC attorney.</p>
+        <ul class="pts" style="--i:3;">
+          <li>Hours back every week on history, summations, and prep</li>
+          <li>Built for NYS WC — not a generic legal bot</li>
+          <li>Works where you work; your case data stays yours</li>
+        </ul>
+        <div class="ctas" style="--i:4;">
+          <a href="/marketplace" class="btn primary">Get early access →</a>
+          <a href="/marketplace/get-started" class="btn ghost">How it works</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── Scene 4: Pricing ─── -->
   <section class="tcd-section scene" id="pricing">
     <div class="wrap">
@@ -840,6 +1006,7 @@ body.no-skyline-bg .workspace-wash {
 </footer>
 
 <script src="/js/audience-switcher.js"></script>
+<script defer src="/js/attorney-network-modal.js"></script>
 <script>
 // If the skyline bg video fails to autoplay (some Safari configs), drop
 // the body into no-skyline-bg so the workspace-wash returns to opaque.

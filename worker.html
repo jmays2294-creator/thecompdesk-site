@@ -3,11 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon / app icons -->
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
 <title>The Comp Desk — Free Workers' Compensation Companion for Injured NY Workers</title>
 <meta name="description" content="Comp Buddy is the free companion app for injured New York workers. Find a WCB-authorized doctor, get IME reminders, understand your rights, and connect with an experienced attorney — all in one place.">
 <meta name="keywords" content="injured worker NY, workers compensation help New York, find workers comp doctor, IME reminder, free workers comp app, NYS workers comp, find a workers comp attorney, comp buddy">
@@ -427,74 +422,156 @@
   max-width: 64ch;
 }
 
-/* ── Sign-in pill in the primary nav ───────────────────────────────────── */
-.tcd-nav-signin {
-  display: inline-flex; align-items: center; padding: 7px 17px;
-  border: 1.5px solid var(--skin-accent, #E87722); border-radius: 999px;
-  color: var(--skin-accent, #E87722) !important; font-weight: 700; font-size: 14px;
-  text-decoration: none; transition: background .2s ease, color .2s ease;
+/* ─── Inside Comp Buddy — feature walkthrough showcase
+       Each card pairs a short benefit blurb with a small "what it looks
+       like" mock drawn in CSS. The card grid reveals on the shared
+       .stagger; the per-mock micro-motion below is gated to
+       prefers-reduced-motion: no-preference with a legible static state. */
+.showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
-.tcd-nav-signin:hover { background: var(--skin-accent, #E87722); color: #fff !important; }
+.show-card {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  box-shadow: var(--skin-card-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+}
+a.show-card:hover { transform: translateY(-4px); border-color: var(--skin-accent); }
 
-/* ── Job Buddy — Free Beta spotlight ───────────────────────────────────── */
-.jb-spot .jb-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 52px; align-items: center; }
-@media (max-width: 880px) { .jb-spot .jb-grid { grid-template-columns: 1fr; gap: 34px; } }
-.jb-copy .eyebrow { color: var(--skin-accent, #E87722); }
-.jb-copy h2 { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; margin: 8px 0 14px; }
-.jb-badge {
-  font-size: 13px; font-weight: 800; letter-spacing: .09em; color: #fff;
-  background: linear-gradient(100deg, #E87722, #ff9d4d); border-radius: 999px;
-  padding: 4px 13px; position: relative; overflow: hidden;
+/* The mock "screen" — a soft device frame with an inner card. */
+.show-card .mock {
+  position: relative;
+  height: 176px;
+  padding: 16px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--skin-divider);
+  background:
+    radial-gradient(120% 90% at 50% -20%, rgba(214,230,242,0.65), rgba(214,230,242,0) 62%),
+    linear-gradient(160deg, #FFFFFF 0%, #F4EADB 100%);
 }
-.jb-badge::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg, transparent 32%, rgba(255,255,255,.6) 50%, transparent 68%);
-  transform: translateX(-130%);
+.show-card .scr {
+  position: absolute;
+  inset: 16px;
+  border-radius: 12px;
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  box-shadow: 0 12px 30px rgba(45,49,66,0.12);
+  padding: 13px 14px;
+  overflow: hidden;
 }
-.jb-copy .lede { font-size: 17px; color: var(--skin-text-soft, #4b5563); line-height: 1.6; max-width: 52ch; }
-.jb-points { list-style: none; padding: 0; margin: 22px 0 28px; display: flex; flex-direction: column; gap: 15px; }
-.jb-points li { display: flex; gap: 13px; align-items: flex-start; font-size: 15.5px; color: var(--skin-text-soft, #4b5563); line-height: 1.5; }
-.jb-points strong { color: var(--skin-text, #16223a); }
-.jb-ico { flex: none; width: 36px; height: 36px; display: grid; place-items: center; background: rgba(232,119,34,.1); border-radius: 11px; font-size: 18px; }
+.scr .hd {
+  display: flex; align-items: center; justify-content: space-between;
+  font: 700 10.5px/1 var(--font-body);
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--skin-text-muted);
+  margin-bottom: 11px;
+}
+.scr .ln { height: 9px; border-radius: 5px; background: var(--skin-divider); margin: 8px 0; }
+.scr .ln.w70 { width: 70%; } .scr .ln.w55 { width: 55%; } .scr .ln.w85 { width: 85%; } .scr .ln.w40 { width: 40%; }
+.scr .ln.accent { background: linear-gradient(90deg, var(--skin-accent-soft), var(--skin-accent)); }
+.scr .pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 800 11px/1 var(--font-body);
+  padding: 6px 11px; border-radius: 999px;
+  background: rgba(232,119,34,0.12); color: var(--skin-accent-deep);
+}
+.scr .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--skin-accent); }
+.scr .big {
+  font: 800 27px/1 var(--font-display);
+  color: var(--skin-text); letter-spacing: -0.02em;
+}
+.scr .big .cur { font-size: 16px; vertical-align: 6px; color: var(--skin-text-muted); }
+.scr .sub { font: 600 11px/1.4 var(--font-body); color: var(--skin-text-muted); margin-top: 5px; }
+.scr .chiprow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.scr .chip {
+  font: 700 10px/1 var(--font-body); letter-spacing: 0.04em;
+  padding: 5px 8px; border-radius: 7px;
+  background: var(--skin-surface-warm); color: var(--skin-text-soft);
+  border: 1px solid var(--skin-divider);
+}
+.scr .rowcard {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 9px; border-radius: 9px;
+  background: var(--skin-surface-warm); border: 1px solid var(--skin-divider);
+  margin-top: 8px;
+}
+.scr .av {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+}
+.scr .grow { flex: 1; }
+.scr .check {
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  background: #5BB97F; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font: 800 11px/1 var(--font-body);
+}
 
-.jb-art { position: relative; }
-.jb-feed {
-  background: var(--skin-surface, #fff); border: 1px solid rgba(20,30,60,.08); border-radius: 22px;
-  padding: 18px 18px 20px; box-shadow: 0 26px 64px -30px rgba(20,30,60,.45);
+/* Find-a-Doctor mock — map field with a bobbing pin. */
+.mock.map { background: linear-gradient(160deg, #E7F0E4 0%, #D6E6F2 100%); }
+.mock.map .scr { background: linear-gradient(160deg, #F3F8F1 0%, #E4EFF6 100%); }
+.mock.map .road { position: absolute; background: rgba(45,49,66,0.08); border-radius: 3px; }
+.mock.map .pin {
+  position: absolute; left: 50%; top: 46%;
+  width: 20px; height: 20px; margin-left: -10px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--skin-accent);
+  transform: rotate(-45deg);
+  box-shadow: 0 8px 16px rgba(232,119,34,0.4);
 }
-.jb-feed-head { display: flex; align-items: center; gap: 7px; margin-bottom: 15px; }
-.jb-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(20,30,60,.13); }
-.jb-feed-title { margin-left: 9px; font-size: 12.5px; font-weight: 800; color: var(--skin-text-soft, #6b7280); letter-spacing: .03em; text-transform: uppercase; }
-.jb-card { border: 1px solid rgba(20,30,60,.08); border-radius: 15px; padding: 13px 15px; margin-bottom: 11px; background: #fff; }
-.jb-card:last-of-type { margin-bottom: 0; }
-.jb-card-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.jb-card-title { font-weight: 700; font-size: 15px; color: var(--skin-text, #16223a); }
-.jb-fit { position: relative; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 999px; white-space: nowrap; background: #dcfce7; color: #166534; }
-.jb-card-meta { font-size: 12.5px; color: var(--skin-text-soft, #6b7280); margin-top: 4px; }
-.jb-card-re { font-size: 12.5px; color: var(--skin-accent, #E87722); font-weight: 700; margin-top: 8px; }
-.jb-restrictions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
-.jb-chip { font-size: 12px; font-weight: 600; color: var(--skin-text-soft, #4b5563); background: rgba(20,30,60,.045); border: 1px solid rgba(20,30,60,.07); border-radius: 999px; padding: 6px 13px; }
+.mock.map .pin::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: #fff; }
 
-/* motion — only when the user hasn't asked to reduce it */
+/* IME reminder bell pulse + Job Buddy beta badge */
+.scr .bell { font-size: 15px; }
+.badge-beta {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  font: 800 9.5px/1 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 999px;
+  background: var(--skin-accent); color: #fff;
+}
+
+.show-card .body { padding: 22px 22px 24px; flex: 1; display: flex; flex-direction: column; }
+.show-card .ftag {
+  font: 700 10.5px/1 var(--font-body); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--skin-accent); margin-bottom: 9px;
+}
+.show-card h3 { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; }
+.show-card .body p { color: var(--skin-text-soft); font-size: 14.5px; line-height: 1.55; margin: 0 0 14px; }
+.show-card .go {
+  margin-top: auto;
+  font: 700 13px/1 var(--font-body); color: var(--skin-accent);
+}
+.show-card .go::after { content: " →"; }
+
+/* Showcase close — create-account band */
+.showcase-cta { text-align: center; margin-top: 36px; }
+
 @media (prefers-reduced-motion: no-preference) {
-  .jb-badge::after { animation: jb-shimmer 3.6s ease-in-out 1.4s infinite; }
-  @keyframes jb-shimmer { 0% { transform: translateX(-130%); } 55%, 100% { transform: translateX(150%); } }
-  .jb-feed { animation: jb-bob 6.5s ease-in-out 1.2s infinite; }
-  @keyframes jb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-  /* Cards/chips animate in on load with `both` fill so they ALWAYS end visible
-     (no dependency on a scroll-reveal class that may not have fired yet). */
-  .jb-card { animation: jb-rise .7s cubic-bezier(.16,1,.3,1) both; }
-  .jb-c1 { animation-delay: .15s; }
-  .jb-c2 { animation-delay: .32s; }
-  .jb-c3 { animation-delay: .49s; }
-  @keyframes jb-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-  .jb-fit::before { content: ""; position: absolute; inset: -3px; border-radius: 999px; border: 2px solid #22c55e; opacity: 0; }
-  .jb-c1 .jb-fit::before { animation: jb-ping 2.8s ease-out 1.3s infinite; }
-  @keyframes jb-ping { 0% { opacity: .55; transform: scale(.92); } 70%, 100% { opacity: 0; transform: scale(1.55); } }
-  .jb-chip { animation: jb-rise .6s ease both; }
-  .jb-chip:nth-child(1) { animation-delay: .6s; }
-  .jb-chip:nth-child(2) { animation-delay: .72s; }
-  .jb-chip:nth-child(3) { animation-delay: .84s; }
+  .mock.map .pin { animation: pin-bob 2.8s var(--ease-out) infinite; }
+  @keyframes pin-bob {
+    0%, 100% { transform: rotate(-45deg) translateY(0); }
+    50%      { transform: rotate(-45deg) translateY(-5px); }
+  }
+  .scr .bell { display: inline-block; transform-origin: 50% 0; animation: bell-ring 3.2s ease-in-out infinite; }
+  @keyframes bell-ring {
+    0%, 70%, 100% { transform: rotate(0); }
+    76% { transform: rotate(14deg); } 82% { transform: rotate(-11deg); }
+    88% { transform: rotate(7deg); } 94% { transform: rotate(-4deg); }
+  }
+  .scr.scan::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 38px;
+    background: linear-gradient(180deg, rgba(232,119,34,0.18), rgba(232,119,34,0));
+    animation: scan-sweep 2.6s var(--ease-out) infinite;
+  }
+  @keyframes scan-sweep { 0% { transform: translateY(-40px); } 100% { transform: translateY(180px); } }
 }
 </style>
 </head>
@@ -510,9 +587,11 @@
       <a href="/tools/find-doctor">Find a Doctor</a>
       <a href="/calculators">Calculators</a>
       <a href="/contact">Contact</a>
-      <a href="/auth_v2.html" class="tcd-nav-signin">Sign In</a>
     </div>
-    <div data-audience-switch></div>
+    <div class="tcd-nav-right">
+      <div data-audience-switch></div>
+      <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+    </div>
   </div>
 </nav>
 
@@ -656,95 +735,156 @@
     </div>
   </section>
 
-  <!-- ─── NEW: Job Buddy — Free Beta spotlight ─── -->
-  <section class="tcd-section scene jb-spot" id="job-buddy">
-    <div class="wrap jb-grid">
-      <div class="jb-copy">
-        <span class="eyebrow">New · Always free for injured workers</span>
-        <h2>Job Buddy <span class="jb-badge">BETA</span></h2>
-        <p class="lede">On work restrictions from your doctor? Job Buddy finds real jobs you can actually do — and keeps a hearing-ready record of your search so you can prove you're looking.</p>
-        <ul class="jb-points">
-          <li><span class="jb-ico" aria-hidden="true">🎯</span><div><strong>Matched to your restrictions.</strong> We read your IME or C-4.3 and only surface work within your physical limits.</div></li>
-          <li><span class="jb-ico" aria-hidden="true">📝</span><div><strong>Automatic C-258.1 log.</strong> Every job you apply to is logged for your labor-market-attachment record.</div></li>
-          <li><span class="jb-ico" aria-hidden="true">📄</span><div><strong>One-click hearing packet.</strong> Generate a clean LMA work-search exhibit for your next hearing.</div></li>
-        </ul>
-        <div class="ctas">
-          <a href="/auth_v2.html?redirect=%2Fdashboard%2F%3Fscreen%3Djob_buddy" class="btn primary">Try Job Buddy — Free Beta</a>
-          <a href="/connect-with-attorney.html" data-connect-modal class="btn ghost">Talk to an attorney</a>
-        </div>
-      </div>
-
-      <div class="jb-art" aria-hidden="true">
-        <div class="jb-feed">
-          <div class="jb-feed-head">
-            <span class="jb-dot"></span><span class="jb-dot"></span><span class="jb-dot"></span>
-            <span class="jb-feed-title">Your matched jobs</span>
-          </div>
-          <div class="jb-card jb-c1">
-            <div class="jb-card-top"><span class="jb-card-title">Office Assistant (Seated)</span><span class="jb-fit">Within your limits ✓</span></div>
-            <div class="jb-card-meta">Bronx, NY · light clerical</div>
-            <div class="jb-card-re">≈ $240/wk reduced-earnings benefit</div>
-          </div>
-          <div class="jb-card jb-c2">
-            <div class="jb-card-top"><span class="jb-card-title">Security Desk Attendant</span><span class="jb-fit">Good fit ✓</span></div>
-            <div class="jb-card-meta">Queens, NY · mostly seated</div>
-            <div class="jb-card-re">≈ $205/wk reduced-earnings benefit</div>
-          </div>
-          <div class="jb-card jb-c3">
-            <div class="jb-card-top"><span class="jb-card-title">Dispatcher</span><span class="jb-fit">Good fit ✓</span></div>
-            <div class="jb-card-meta">Manhattan, NY · no lifting</div>
-            <div class="jb-card-re">≈ $180/wk reduced-earnings benefit</div>
-          </div>
-        </div>
-        <div class="jb-restrictions">
-          <span class="jb-chip">Lift ≤ 10 lbs</span>
-          <span class="jb-chip">No overhead reach</span>
-          <span class="jb-chip">Sit-friendly</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── What Comp Buddy does — 6 benefit cards (was 3) ─── -->
+  <!-- ─── Inside Comp Buddy — animated feature walkthrough.
+       Seven free worker tools, each with a short benefit blurb and a
+       "what it looks like" mock. Cards reveal on the shared .stagger;
+       per-mock micro-motion is gated to no-preference (see <style>).
+       Funnels to a free account → /dashboard/. ─── -->
   <section class="tcd-section scene" id="features">
     <div class="wrap">
       <div class="section-head">
         <span class="eyebrow">Meet Comp Buddy</span>
         <h2>Everything an injured worker needs, in one calm place.</h2>
-        <p>From the day you get hurt to the day your case closes — Comp Buddy walks with you, every step of the way.</p>
+        <p>From the day you get hurt to the day your case closes — Comp Buddy walks with you, every step of the way. Free, always.</p>
       </div>
 
-      <div class="benefits">
-        <a href="/tools/find-doctor" class="benefit" style="text-decoration:none;color:inherit;">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M19 8h-3V5a3 3 0 0 0-3-3h-2a3 3 0 0 0-3 3v3H5a1 1 0 0 0-1 1v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V9a1 1 0 0 0-1-1zm-9-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h-4V5zm5 9h-2v2a1 1 0 0 1-2 0v-2H9a1 1 0 0 1 0-2h2v-2a1 1 0 0 1 2 0v2h2a1 1 0 0 1 0 2z"/></svg></div>
-          <h3>Find a WCB-authorized doctor</h3>
-          <p>Search the NYS WCB's authorized provider directory by location, specialty, and body part. Get the right care, fast.</p>
+      <div class="showcase stagger">
+
+        <!-- 1 · Find a Doctor -->
+        <a class="show-card" href="/tools/find-doctor" style="--i:0;">
+          <div class="mock map" aria-hidden="true">
+            <i class="road" style="left:0;top:38%;width:100%;height:6px;"></i>
+            <i class="road" style="left:30%;top:0;width:6px;height:100%;"></i>
+            <i class="road" style="left:0;top:74%;width:100%;height:5px;"></i>
+            <span class="pin"></span>
+            <div class="scr" style="inset:auto 14px 14px 14px;top:auto;height:auto;padding:9px 11px;">
+              <div class="rowcard" style="margin:0;background:var(--skin-surface-elev);">
+                <span class="av"></span>
+                <span class="grow"><span class="ln w70" style="margin:2px 0;"></span><span class="ln w40" style="margin:4px 0 2px;"></span></span>
+                <span class="pill">0.8 mi</span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <span class="ftag">Find a Doctor</span>
+            <h3>The right care, authorized.</h3>
+            <p>Search the NYS WCB's authorized-provider directory by location, specialty, and body part — so your treatment actually counts toward your claim.</p>
+            <span class="go">Search providers</span>
+          </div>
         </a>
-        <a href="/tools/ime-reminders" class="benefit" style="text-decoration:none;color:inherit;">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M19 4h-1V3a1 1 0 0 0-2 0v1H8V3a1 1 0 1 0-2 0v1H5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm1 15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11h16v8zm0-10H4V7a1 1 0 0 1 1-1h1v1a1 1 0 0 0 2 0V6h8v1a1 1 0 1 0 2 0V6h1a1 1 0 0 1 1 1v2z"/></svg></div>
-          <h3>Never miss an IME</h3>
-          <p>Automatic reminders, directions, and a "What to Bring" checklist so you arrive prepared. One missed IME can derail your whole case.</p>
+
+        <!-- 2 · IME Reminders -->
+        <a class="show-card" href="/tools/ime-reminders" style="--i:1;">
+          <div class="mock" aria-hidden="true">
+            <div class="scr">
+              <div class="hd"><span>Upcoming exam</span><span class="bell">🔔</span></div>
+              <div class="pill" style="margin-bottom:9px;">IME in 3 days</div>
+              <div class="rowcard"><span class="check">✓</span><span class="grow"><span class="ln w70" style="margin:2px 0;"></span></span></div>
+              <div class="sub" style="margin-top:10px;">Dr. Chen · Tue 9:30 AM · directions + prep ready</div>
+            </div>
+          </div>
+          <div class="body">
+            <span class="ftag">IME Reminders</span>
+            <h3>Never miss an IME.</h3>
+            <p>The moment an exam is scheduled, it's on your calendar — with reminders, directions, and a "what to bring" checklist. One missed IME can suspend your benefits.</p>
+            <span class="go">See how reminders work</span>
+          </div>
         </a>
-        <a href="/learn" class="benefit" style="text-decoration:none;color:inherit;">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M21 4h-7a2.99 2.99 0 0 0-2 .78A2.99 2.99 0 0 0 10 4H3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6a2 2 0 0 1 2 2 1 1 0 0 0 2 0 2 2 0 0 1 2-2h6a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM10 17H4V6h6a1 1 0 0 1 1 1v10a3 3 0 0 0-1-.18zm10 0h-6a3 3 0 0 0-1 .18V7a1 1 0 0 1 1-1h6v11z"/></svg></div>
-          <h3>Learn your rights</h3>
-          <p>Plain-language guides that explain how workers' comp actually works in New York — what to file, what to expect, what you're entitled to.</p>
+
+        <!-- 3 · C-3 filing -->
+        <a class="show-card" href="/tools/claim-filing" style="--i:2;">
+          <div class="mock" aria-hidden="true">
+            <div class="scr">
+              <div class="hd"><span>Form C-3 · Claim</span><span class="pill" style="padding:4px 9px;">Step 3 / 4</span></div>
+              <div class="ln w85"></div><div class="ln w70"></div>
+              <div class="ln accent w55"></div>
+              <div class="rowcard" style="margin-top:11px;"><span class="check">✓</span><span class="grow"><span class="ln w85" style="margin:2px 0;background:rgba(91,185,127,0.35);"></span></span><span class="pill" style="background:rgba(91,185,127,0.14);color:#3f9c6a;">Ready to file</span></div>
+            </div>
+          </div>
+          <div class="body">
+            <span class="ftag">C-3 Filing</span>
+            <h3>File your claim, guided.</h3>
+            <p>The C-3 is what opens your WCB case — and the deadlines are strict. Comp Buddy walks you through it field by field in plain English, so nothing gets missed.</p>
+            <span class="go">Start your C-3</span>
+          </div>
         </a>
-        <a href="/calculators" class="benefit" style="text-decoration:none;color:inherit;">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M17,2H7A2,2,0,0,0,5,4V20a2,2,0,0,0,2,2H17a2,2,0,0,0,2-2V4A2,2,0,0,0,17,2ZM8,5h8a1,1,0,0,1,1,1V8a1,1,0,0,1-1,1H8A1,1,0,0,1,7,8V6A1,1,0,0,1,8,5ZM8,11H10v2H8Zm0,4H10v2H8Zm3-4h2v2H11Zm0,4h2v2H11Zm3-4h2v6H14Z"/></svg></div>
-          <h3>Free benefit calculators</h3>
-          <p>Estimate your AWW, weekly comp rate, SLU award, and settlement value using the same calculators attorneys use — every cited to the WCL section it implements.</p>
+
+        <!-- 4 · AWW help -->
+        <a class="show-card" href="/calculators/aww" style="--i:3;">
+          <div class="mock" aria-hidden="true">
+            <div class="scr">
+              <div class="hd"><span>Average Weekly Wage</span><span>WCL §14</span></div>
+              <div class="big"><span class="cur">$</span>1,142<span class="cur">.50</span></div>
+              <div class="sub">Your AWW across 52 weeks</div>
+              <div class="rowcard" style="margin-top:12px;"><span class="grow"><span class="sub" style="margin:0;">Weekly comp rate (⅔)</span></span><span class="big" style="font-size:18px;"><span class="cur" style="vertical-align:3px;">$</span>761.67</span></div>
+            </div>
+          </div>
+          <div class="body">
+            <span class="ftag">AWW Help</span>
+            <h3>Know what you're owed.</h3>
+            <p>Your weekly check is two-thirds of your Average Weekly Wage. Our free calculator runs all four statutory methods under WCL §14 — and shows the number, cited.</p>
+            <span class="go">Estimate your AWW</span>
+          </div>
         </a>
-        <a href="/connect-with-attorney.html" data-connect-modal class="benefit" style="text-decoration:none;color:inherit;">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Zm1-13H11v6l5.25,3.15.75-1.23-4.5-2.67Z"/></svg></div>
-          <h3>Connect with an attorney</h3>
-          <p>Neutral round-robin matching with a licensed NYS WC attorney in your county. No paid placement, no fees from you — attorneys are paid out of your eventual award by the Board.</p>
+
+        <!-- 5 · Job Buddy (beta) -->
+        <a class="show-card" href="/job-buddy" style="--i:4;">
+          <div class="mock" aria-hidden="true">
+            <span class="badge-beta">Beta</span>
+            <div class="scr">
+              <div class="hd"><span>Light-duty matches</span></div>
+              <div class="rowcard" style="margin-top:0;"><span class="av"></span><span class="grow"><span class="ln w85" style="margin:2px 0;"></span><span class="ln w55" style="margin:4px 0 2px;"></span></span></div>
+              <div class="chiprow" style="margin-top:9px;"><span class="chip">Fits restrictions</span><span class="chip">2.1 mi</span><span class="chip" style="color:var(--skin-accent-deep);border-color:var(--skin-accent-soft);">+$214/wk est.</span></div>
+            </div>
+          </div>
+          <div class="body">
+            <span class="ftag">Job Buddy <span style="color:var(--skin-text-muted);font-weight:600;">· free beta</span></span>
+            <h3>Work search, made simple.</h3>
+            <p>Real openings that fit your medical restrictions, near you — with a transparent reduced-earnings estimate and a tidy work-search ledger for the Board.</p>
+            <span class="go">Open Job Buddy</span>
+          </div>
         </a>
-        <div class="benefit" style="opacity:0.85;">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm5,15H7a1,1,0,0,1,0-2H17a1,1,0,0,1,0,2Zm0-4H7a1,1,0,0,1,0-2H17a1,1,0,0,1,0,2Zm0-4H7A1,1,0,0,1,7,7H17a1,1,0,0,1,0,2Z"/></svg></div>
-          <h3>Case tracker <span style="display:inline-block;margin-left:6px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--skin-accent);background:rgba(232,119,34,0.12);padding:3px 8px;border-radius:4px;vertical-align:middle;">In Dev</span></h3>
-          <p>One view of every hearing, decision, and deadline in your case, with plain-English explanations of what each event means and what comes next.</p>
-        </div>
+
+        <!-- 6 · Learn Your Rights -->
+        <a class="show-card" href="/learn" style="--i:5;">
+          <div class="mock" aria-hidden="true">
+            <div class="scr">
+              <div class="hd"><span>Learn your rights</span></div>
+              <div class="rowcard" style="margin-top:0;"><span class="dot"></span><span class="grow"><span class="ln w70" style="margin:2px 0;"></span></span></div>
+              <div class="rowcard"><span class="dot"></span><span class="grow"><span class="ln w85" style="margin:2px 0;"></span></span></div>
+              <div class="rowcard"><span class="dot"></span><span class="grow"><span class="ln w55" style="margin:2px 0;"></span></span></div>
+            </div>
+          </div>
+          <div class="body">
+            <span class="ftag">Learn Your Rights</span>
+            <h3>The system, in plain English.</h3>
+            <p>Short, honest guides for every stage of a New York claim — what to file, what to expect, and what you're entitled to. Written by a practicing WC attorney.</p>
+            <span class="go">Browse the guides</span>
+          </div>
+        </a>
+
+        <!-- 7 · Find an Attorney -->
+        <a class="show-card" href="/connect-with-attorney.html" data-connect-modal style="--i:6;">
+          <div class="mock" aria-hidden="true">
+            <div class="scr scan">
+              <div class="hd"><span>Matching · your county</span></div>
+              <div class="rowcard" style="margin-top:0;"><span class="av"></span><span class="grow"><span class="ln w70" style="margin:2px 0;"></span><span class="ln w40" style="margin:4px 0 2px;"></span></span><span class="check">✓</span></div>
+              <div class="sub" style="margin-top:10px;">Neutral round-robin · no fee from you</div>
+            </div>
+          </div>
+          <div class="body">
+            <span class="ftag">Find an Attorney</span>
+            <h3>A lawyer, on your side.</h3>
+            <p>Neutral, round-robin matching with a licensed NYS WC attorney in your county. No paid placement — and attorneys are paid out of your award by the Board, never by you.</p>
+            <span class="go">Connect with an attorney</span>
+          </div>
+        </a>
+
+      </div>
+
+      <div class="showcase-cta">
+        <p style="font-size:16px;color:var(--skin-text-soft);max-width:52ch;margin:0 auto 18px;">Create a free account to keep your case, doctors, exams, and reminders in one place.</p>
+        <a href="/auth_v2.html?redirect=%2Fdashboard%2F" class="btn primary">Create your free account</a>
       </div>
     </div>
   </section>
