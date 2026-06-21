@@ -583,13 +583,13 @@
         return;
       }
       mapboxgl.accessToken = window.MAPBOX_TOKEN;
-      // Origin-open basemap (identical to the app's Find a Doctor map): CartoDB
-      // dark raster tiles + OpenMapTiles glyphs instead of mapbox:// style/glyphs,
-      // so the map + cluster-count labels render without depending on the Mapbox
-      // token's URL allowlist. Keeps Mapbox GL + native clustering.
+      // Origin-open basemap (CartoDB Voyager — the normal, colorful street map with
+      // clear road/park/water outlines) + OpenMapTiles glyphs, instead of mapbox://
+      // style/glyphs, so the map + cluster-count labels render without depending on
+      // the Mapbox token's URL allowlist. Keeps Mapbox GL + native clustering.
       const cartoStyle = { version: 8, glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
         sources: { carto: { type: 'raster', tileSize: 256, attribution: '© OpenStreetMap contributors © CARTO',
-          tiles: ['a','b','c','d'].map(s => 'https://' + s + '.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png') } },
+          tiles: ['a','b','c','d'].map(s => 'https://' + s + '.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png') } },
         layers: [{ id: 'carto-base', type: 'raster', source: 'carto' }] };
       map = new mapboxgl.Map({
         container: 'map',
