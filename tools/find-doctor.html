@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon / app icons -->
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
+  <!-- Favicon / app icons -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <title>Find a Workers' Comp Doctor in NYC | NYS Workers' Compensation | The Comp Desk</title>
   <meta name="description" content="Find a workers' compensation doctor in New York City. Interactive map covering all five boroughs, helping injured workers find WCB-authorized providers experienced with New York workers' comp cases.">
   <meta name="keywords" content="find workers comp doctor NYC, NYS workers compensation doctor, workers comp physician Manhattan Brooklyn Queens Bronx Staten Island, occupational medicine NYC, WC provider directory, workers comp treatment NY">
@@ -234,9 +234,20 @@
     .step-card p{font-size:13px;color:var(--txD);line-height:1.6;}
 
     .body-parts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
-    .body-part-item{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center;}
+    .body-part-item{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center;cursor:pointer;font-family:inherit;transition:border-color .15s ease,box-shadow .15s ease,transform .08s ease;}
+    .body-part-item:hover{border-color:var(--ac);box-shadow:0 4px 16px rgba(0,0,0,.12);}
+    .body-part-item:active{transform:translateY(1px);}
+    .body-part-item:focus-visible{outline:2px solid var(--ac);outline-offset:2px;}
+    .body-part-item.active{border-color:var(--ac);background:var(--cardA);box-shadow:0 0 0 2px var(--ac) inset;}
     .body-part-item h4{font-size:13px;font-weight:700;color:var(--wh);margin-bottom:4px;}
     .body-part-item p{font-size:11px;color:var(--txD);}
+    /* Active full-WCB-list filter banner above the results */
+    .filter-banner{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--cardA);border:1px solid var(--ac);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
+    .filter-banner.show{display:flex;}
+    .filter-banner .fb-text{font-size:13px;color:var(--tx);}
+    .filter-banner .fb-text strong{color:var(--wh);}
+    .filter-banner .fb-clear{margin-left:auto;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .filter-banner .fb-clear:hover{border-color:var(--ac);color:var(--wh);}
 
     .faq-container{max-width:720px;margin:0 auto;}
     .faq-item{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-bottom:12px;overflow:hidden;}
@@ -350,6 +361,10 @@
           <h2 id="results-heading">Doctors near you</h2>
           <span class="count" id="results-count" aria-live="polite">Loading directory…</span>
         </div>
+        <div class="filter-banner" id="filter-banner">
+          <span class="fb-text" id="filter-banner-text"></span>
+          <button class="fb-clear" id="filter-banner-clear" type="button">Show curated picks</button>
+        </div>
         <div id="doc-grid" class="doc-grid" hidden></div>
         <div id="empty-state" class="empty-state">
           <h3>Directory is being built</h3>
@@ -385,21 +400,21 @@
 
     <section class="info">
       <div class="wrap">
-        <h2>Specialties commonly needed for work injuries</h2>
-        <p class="section-sub">Pick what matches your injury. Most WC claims start with orthopedics, PT, or occupational medicine.</p>
-        <div class="body-parts-grid">
-          <div class="body-part-item"><h4>Head &amp; Brain</h4><p>Neurology, neurosurgery</p></div>
-          <div class="body-part-item"><h4>Neck &amp; Spine</h4><p>Orthopedics, neurology</p></div>
-          <div class="body-part-item"><h4>Shoulder &amp; Arm</h4><p>Orthopedics, PT</p></div>
-          <div class="body-part-item"><h4>Wrist &amp; Hand</h4><p>Hand surgery, orthopedics</p></div>
-          <div class="body-part-item"><h4>Back &amp; Lumbar</h4><p>Orthopedics, neurology, PT</p></div>
-          <div class="body-part-item"><h4>Hip &amp; Pelvis</h4><p>Orthopedics, PT</p></div>
-          <div class="body-part-item"><h4>Knee</h4><p>Orthopedics, PT</p></div>
-          <div class="body-part-item"><h4>Ankle &amp; Foot</h4><p>Orthopedics, podiatry</p></div>
-          <div class="body-part-item"><h4>Lung &amp; Respiratory</h4><p>Pulmonology, occupational medicine</p></div>
-          <div class="body-part-item"><h4>Pain Management</h4><p>Pain specialists, PM&amp;R</p></div>
-          <div class="body-part-item"><h4>Multiple Injuries</h4><p>Primary care, occupational medicine</p></div>
-          <div class="body-part-item"><h4>Stress / Mental</h4><p>Psychiatry, psychology</p></div>
+        <h2>Find by injured body part or condition</h2>
+        <p class="section-sub">Tap your injury to pull every WCB-authorized provider for it — the full Workers' Compensation Board list, narrowed to your area. Use "Use my location" or pick a borough first to sort by distance.</p>
+        <div class="body-parts-grid" id="body-parts-grid">
+          <button class="body-part-item" type="button" data-bp="Head & Brain"><h4>Head &amp; Brain</h4><p>Neurology, neurosurgery</p></button>
+          <button class="body-part-item" type="button" data-bp="Neck & Spine"><h4>Neck &amp; Spine</h4><p>Orthopedics, neurology</p></button>
+          <button class="body-part-item" type="button" data-bp="Shoulder & Arm"><h4>Shoulder &amp; Arm</h4><p>Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Wrist & Hand"><h4>Wrist &amp; Hand</h4><p>Hand surgery, orthopedics</p></button>
+          <button class="body-part-item" type="button" data-bp="Back & Lumbar"><h4>Back &amp; Lumbar</h4><p>Orthopedics, neurology, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Hip & Pelvis"><h4>Hip &amp; Pelvis</h4><p>Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Knee"><h4>Knee</h4><p>Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Ankle & Foot"><h4>Ankle &amp; Foot</h4><p>Orthopedics, podiatry</p></button>
+          <button class="body-part-item" type="button" data-bp="Lung & Respiratory"><h4>Lung &amp; Respiratory</h4><p>Pulmonology, occupational medicine</p></button>
+          <button class="body-part-item" type="button" data-bp="Pain Management"><h4>Pain Management</h4><p>Pain specialists, PM&amp;R</p></button>
+          <button class="body-part-item" type="button" data-bp="Multiple Injuries"><h4>Multiple Injuries</h4><p>Primary care, occupational medicine</p></button>
+          <button class="body-part-item" type="button" data-bp="Stress / Mental"><h4>Stress / Mental</h4><p>Psychiatry, psychology</p></button>
         </div>
       </div>
     </section>
@@ -471,10 +486,71 @@
     };
 
     let map = null;
-    let markers = [];           // {marker, doc}
     let userMarker = null;
-    let allDocs = [];           // raw doctor list from Supabase
+    let docsOnMap = [];         // docs currently plotted (for list-card click + bounds)
+    let mapReady = false;       // cluster source + layers added (after style load)
+    let pendingFc = null;       // GeoJSON staged before the style finished loading
+    let allDocs = [];           // curated featured doctor list from Supabase
     let userLoc = null;         // {lat, lng}
+    let selectedBodyPart = '';  // active injury filter ('' = curated mode)
+    const MAX_LIST = 200;       // cap rendered cards (the map clusters the full set)
+
+    // Injured body part / condition → relevant specialties. Mirrors
+    // www/js/wc-doctors.js BODY_PART_SPECIALTIES (kept in sync by hand). `groups`
+    // match wc_doctors.specialty_group; `raw` are substrings matched against the
+    // raw wc_doctors.specialty column (covers the ~27k rows with no group).
+    const BP_SPEC = {
+      'Head & Brain':       { groups: ['Neurology'], raw: ['neurosurg'] },
+      'Neck & Spine':       { groups: ['Orthopedics','Neurology','Pain Management','Chiropractic','Physical Therapy'], raw: [] },
+      'Shoulder & Arm':     { groups: ['Orthopedics','Physical Therapy','Pain Management'], raw: [] },
+      'Wrist & Hand':       { groups: ['Hand Surgery','Orthopedics','Physical Therapy'], raw: [] },
+      'Back & Lumbar':      { groups: ['Orthopedics','Neurology','Physical Therapy','Pain Management','Chiropractic'], raw: [] },
+      'Hip & Pelvis':       { groups: ['Orthopedics','Physical Therapy','Pain Management'], raw: [] },
+      'Knee':               { groups: ['Orthopedics','Physical Therapy','Pain Management'], raw: [] },
+      'Ankle & Foot':       { groups: ['Orthopedics','Podiatry','Physical Therapy'], raw: [] },
+      'Lung & Respiratory': { groups: ['Pulmonology','Occupational Medicine'], raw: [] },
+      'Pain Management':    { groups: ['Pain Management','Neurology'], raw: ['anesthesiolog'] },
+      'Multiple Injuries':  { groups: ['Primary Care','Occupational Medicine','Orthopedics'], raw: [] },
+      'Stress / Mental':    { groups: [], raw: ['psycholog','psychiatr'] }
+    };
+    function qIn(v){ return /[ ,()"']/.test(v) ? '"' + v.replace(/"/g,'\\"') + '"' : v; }
+
+    // Full WCB-list query (the entire 54k geocoded directory, not just featured),
+    // narrowed by body part / specialty, scoped to a borough and/or a bounding
+    // box around the user. Returns rows sorted by distance when a location is set.
+    async function searchFullWeb(opts) {
+      opts = opts || {};
+      const p = new URLSearchParams();
+      p.append('select', 'id,name,practice_name,specialty:specialty_group,raw_specialty:specialty,subspecialty,borough,address,city,zip,lat,lng,phone,website,languages,accepting_new_patients');
+      p.append('lat', 'not.is.null'); p.append('lng', 'not.is.null');
+      if (opts.borough) p.append('borough', 'eq.' + opts.borough);
+      if (opts.userLoc) {
+        const miles = opts.radiusMiles || 25;
+        const dLat = miles / 69;
+        const dLng = miles / (69 * Math.max(0.2, Math.cos(opts.userLoc.lat * Math.PI / 180)));
+        p.append('lat', 'gte.' + (opts.userLoc.lat - dLat)); p.append('lat', 'lte.' + (opts.userLoc.lat + dLat));
+        p.append('lng', 'gte.' + (opts.userLoc.lng - dLng)); p.append('lng', 'lte.' + (opts.userLoc.lng + dLng));
+      }
+      let groups = [], raw = [];
+      if (opts.specialty) { groups = [opts.specialty]; }
+      else if (opts.bodyPart && BP_SPEC[opts.bodyPart]) { groups = BP_SPEC[opts.bodyPart].groups.slice(); raw = BP_SPEC[opts.bodyPart].raw.slice(); }
+      const ors = [];
+      if (groups.length) ors.push('specialty_group.in.(' + groups.map(qIn).join(',') + ')');
+      raw.forEach(r => ors.push('specialty.ilike.*' + r + '*'));
+      if (ors.length) p.append('or', '(' + ors.join(',') + ')');
+      p.append('order', 'name.asc');
+      p.append('limit', '500');
+      const url = `${window.SUPABASE_URL}/rest/v1/wc_doctors?` + p.toString();
+      const res = await fetch(url, { headers: { 'apikey': window.SUPABASE_ANON, 'Authorization': `Bearer ${window.SUPABASE_ANON}` } });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      let rows = await res.json();
+      rows.forEach(d => { if (!d.specialty && d.raw_specialty) d.specialty = d.raw_specialty; });
+      if (opts.userLoc) {
+        rows.sort((a, b) => (haversineMiles(opts.userLoc, { lat: a.lat, lng: a.lng }) ?? 1e9)
+                          - (haversineMiles(opts.userLoc, { lat: b.lat, lng: b.lng }) ?? 1e9));
+      }
+      return rows;
+    }
 
     // ── Apple vs Google Maps detection ─────────────────────────────
     function isApplePlatform() {
@@ -507,9 +583,17 @@
         return;
       }
       mapboxgl.accessToken = window.MAPBOX_TOKEN;
+      // Origin-open basemap (identical to the app's Find a Doctor map): CartoDB
+      // dark raster tiles + OpenMapTiles glyphs instead of mapbox:// style/glyphs,
+      // so the map + cluster-count labels render without depending on the Mapbox
+      // token's URL allowlist. Keeps Mapbox GL + native clustering.
+      const cartoStyle = { version: 8, glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        sources: { carto: { type: 'raster', tileSize: 256, attribution: '© OpenStreetMap contributors © CARTO',
+          tiles: ['a','b','c','d'].map(s => 'https://' + s + '.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png') } },
+        layers: [{ id: 'carto-base', type: 'raster', source: 'carto' }] };
       map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/dark-v11',
+        style: cartoStyle,
         center: NYC_CENTER,
         zoom: NYC_ZOOM,
         minZoom: 9.5,
@@ -525,37 +609,63 @@
         trackUserLocation: false,
         showUserHeading: false
       }), 'top-right');
+      // Native GeoJSON clustering (matches the app's Find a Doctor map) — added
+      // once the base style is ready, then fed via getSource('docs').setData().
+      map.on('load', addClusterLayers);
     }
 
-    // ── Pin rendering ─────────────────────────────────────────────
-    function clearMarkers() {
-      markers.forEach(m => m.marker.remove());
-      markers = [];
+    // ── Pin rendering (native Mapbox GL clustering — matches the app) ──────────
+    function docsToFC(docs) {
+      return { type: 'FeatureCollection', features: (docs || [])
+        .filter(d => d.lat != null && d.lng != null)
+        .map(d => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [Number(d.lng), Number(d.lat)] },
+          properties: {
+            name: d.name || 'Provider', specialty: d.specialty || '',
+            address: (d.address || '') + (d.borough ? ' · ' + d.borough : ''),
+            phone: d.phone ? String(d.phone).replace(/\D/g, '') : '', maps: mapsDeepLink(d)
+          } })) };
+    }
+    // Add the clustered source + layers once (on style load). Hundreds of NYC
+    // providers overlap badly as raw markers, so we cluster them; clusters expand
+    // on click and single providers show a popup. Same layout as the app.
+    function addClusterLayers() {
+      const accent = '#E87722'; // brand orange
+      map.addSource('docs', { type: 'geojson', data: pendingFc || { type: 'FeatureCollection', features: [] },
+        cluster: true, clusterMaxZoom: 14, clusterRadius: 48 });
+      map.addLayer({ id: 'doc-clusters', type: 'circle', source: 'docs', filter: ['has', 'point_count'], paint: {
+        'circle-color': accent, 'circle-opacity': 0.9,
+        'circle-radius': ['step', ['get', 'point_count'], 16, 10, 20, 25, 26, 100, 32],
+        'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff' } });
+      map.addLayer({ id: 'doc-cluster-count', type: 'symbol', source: 'docs', filter: ['has', 'point_count'],
+        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Open Sans Bold'], 'text-size': 13 },
+        paint: { 'text-color': '#ffffff' } });
+      map.addLayer({ id: 'doc-unclustered', type: 'circle', source: 'docs', filter: ['!', ['has', 'point_count']], paint: {
+        'circle-color': accent, 'circle-radius': 8, 'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff' } });
+      map.on('click', 'doc-clusters', e => {
+        const f = map.queryRenderedFeatures(e.point, { layers: ['doc-clusters'] });
+        if (!f.length) return;
+        map.getSource('docs').getClusterExpansionZoom(f[0].properties.cluster_id, (err, z) => {
+          if (err) return; map.easeTo({ center: f[0].geometry.coordinates, zoom: z });
+        });
+      });
+      map.on('click', 'doc-unclustered', e => {
+        const p = e.features[0].properties, c = e.features[0].geometry.coordinates.slice();
+        const pop = `<strong>${escapeHtml(p.name)}</strong><div class="meta">${p.specialty ? escapeHtml(p.specialty) + '<br>' : ''}${p.address ? escapeHtml(p.address) : ''}</div><div class="actions"><a href="${escapeHtml(p.maps)}" target="_blank" rel="noopener">Open in Maps</a>${p.phone ? `<a href="tel:${escapeHtml(p.phone)}">Call</a>` : ''}</div>`;
+        new mapboxgl.Popup({ offset: 14, closeButton: false }).setLngLat(c).setHTML(pop).addTo(map);
+      });
+      ['doc-clusters', 'doc-unclustered'].forEach(ly => {
+        map.on('mouseenter', ly, () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', ly, () => { map.getCanvas().style.cursor = ''; });
+      });
+      mapReady = true;
+      if (pendingFc) { map.getSource('docs').setData(pendingFc); pendingFc = null; }
     }
     function renderPins(docs) {
       if (!map) return;
-      clearMarkers();
-      docs.forEach(doc => {
-        if (doc.lat == null || doc.lng == null) return;
-        const el = document.createElement('div');
-        el.className = 'doc-pin';
-        const popupHtml = `
-          <strong>${escapeHtml(doc.name)}</strong>
-          <div class="meta">
-            ${doc.specialty ? escapeHtml(doc.specialty) + '<br>' : ''}
-            ${doc.address ? escapeHtml(doc.address) : ''}
-          </div>
-          <div class="actions">
-            <a href="${mapsDeepLink(doc)}" target="_blank" rel="noopener">Open in Maps</a>
-            ${doc.phone ? `<a href="tel:${escapeHtml(doc.phone)}">Call</a>` : ''}
-          </div>
-        `;
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([doc.lng, doc.lat])
-          .setPopup(new mapboxgl.Popup({ offset: 16, closeButton: false }).setHTML(popupHtml))
-          .addTo(map);
-        markers.push({ marker, doc });
-      });
+      docsOnMap = (docs || []).filter(d => d.lat != null && d.lng != null);
+      const fc = docsToFC(docsOnMap);
+      if (mapReady && map.getSource('docs')) map.getSource('docs').setData(fc);
+      else pendingFc = fc; // staged until the style finishes loading
     }
 
     // ── List rendering ────────────────────────────────────────────
@@ -605,26 +715,80 @@
         `;
       }).join('');
 
-      // Clicking a card on desktop pans the map to that doctor.
+      // Clicking a card on desktop pans the map to that doctor + opens a popup.
       grid.querySelectorAll('.doc-card').forEach(card => {
         card.addEventListener('click', () => {
           const id = card.getAttribute('data-id');
-          const hit = markers.find(m => m.doc.id === id);
-          if (hit && map) {
-            map.flyTo({ center: [hit.doc.lng, hit.doc.lat], zoom: 14, speed: 1.2, curve: 1.4 });
-            hit.marker.togglePopup();
+          const hit = docsOnMap.find(d => String(d.id) === id);
+          if (hit && map && hit.lat != null && hit.lng != null) {
+            map.flyTo({ center: [hit.lng, hit.lat], zoom: 14, speed: 1.2, curve: 1.4 });
+            const pop = `<strong>${escapeHtml(hit.name)}</strong><div class="meta">${hit.specialty ? escapeHtml(hit.specialty) + '<br>' : ''}${hit.address ? escapeHtml(hit.address) : ''}</div><div class="actions"><a href="${escapeHtml(mapsDeepLink(hit))}" target="_blank" rel="noopener">Open in Maps</a>${hit.phone ? `<a href="tel:${escapeHtml(String(hit.phone).replace(/\D/g, ''))}">Call</a>` : ''}</div>`;
+            new mapboxgl.Popup({ offset: 14, closeButton: false }).setLngLat([hit.lng, hit.lat]).setHTML(pop).addTo(map);
           }
         });
       });
     }
 
     // ── Filtering ─────────────────────────────────────────────────
-    function applyFilters() {
+    // Two modes: CURATED (default) filters the ~900 featured picks in-memory and
+    // keeps the map clean; FULL kicks in when an injury or specialty is chosen and
+    // queries the entire WCB directory server-side, tailored to the area.
+    function inFullMode() { return !!(selectedBodyPart || document.getElementById('filter-specialty').value); }
+
+    function setActiveBodyPartUI() {
+      document.querySelectorAll('#body-parts-grid .body-part-item').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-bp') === selectedBodyPart);
+      });
+    }
+    function updateBanner() {
+      const banner = document.getElementById('filter-banner');
+      const text = document.getElementById('filter-banner-text');
+      if (!inFullMode()) { banner.classList.remove('show'); return; }
+      const parts = [];
+      if (selectedBodyPart) parts.push('<strong>' + escapeHtml(selectedBodyPart) + '</strong>');
+      const s = document.getElementById('filter-specialty').value;
+      if (s) parts.push('<strong>' + escapeHtml(s) + '</strong>');
+      const b = document.getElementById('filter-borough').value;
+      const where = b ? ('in <strong>' + escapeHtml(b) + '</strong>')
+                      : (userLoc ? 'near you' : 'across all five boroughs');
+      text.innerHTML = 'Full WCB-authorized list for ' + (parts.join(' · ') || 'all specialties') + ' ' + where + '.';
+      banner.classList.add('show');
+    }
+
+    async function applyFilters() {
+      setActiveBodyPartUI();
+      updateBanner();
+      if (!inFullMode()) { applyFeatured(); return; }
+
       const b = document.getElementById('filter-borough').value;
       const s = document.getElementById('filter-specialty').value;
+      const count = document.getElementById('results-count');
+      count.textContent = 'Searching the WCB directory…';
+      try {
+        const rows = await searchFullWeb({ bodyPart: selectedBodyPart, specialty: s, borough: b, userLoc });
+        const total = rows.length;
+        renderPins(rows);                    // clustering handles the full set (≤500)
+        renderList(rows.slice(0, MAX_LIST)); // list stays capped for readability
+        if (total > MAX_LIST) {
+          count.textContent = `${total} providers — showing the first ${MAX_LIST}${userLoc ? ' by distance' : ''}. Narrow by borough or share your location.`;
+        } else {
+          count.textContent = `${total} provider${total === 1 ? '' : 's'}${userLoc ? ' · sorted by distance' : ''}`;
+        }
+      } catch (e) {
+        console.warn('Full WCB search failed:', e);
+        selectedBodyPart = '';
+        document.getElementById('filter-specialty').value = '';
+        setActiveBodyPartUI(); updateBanner();
+        applyFeatured();
+        count.textContent = 'Search unavailable right now — showing curated picks.';
+      }
+    }
+
+    // CURATED mode — filter the featured set in memory (original behavior).
+    function applyFeatured() {
+      const b = document.getElementById('filter-borough').value;
       let docs = allDocs.slice();
       if (b) docs = docs.filter(d => d.borough === b);
-      if (s) docs = docs.filter(d => d.specialty === s || (d.subspecialty && d.subspecialty === s));
       if (userLoc) {
         docs.sort((x, y) => (haversineMiles(userLoc, { lat: x.lat, lng: x.lng }) ?? 1e9)
                           - (haversineMiles(userLoc, { lat: y.lat, lng: y.lng }) ?? 1e9));
@@ -633,22 +797,26 @@
       renderPins(docs);
     }
 
+    // Fit the map to the current markers / selection.
+    function fitMapToResults() {
+      if (!map) return;
+      const b = document.getElementById('filter-borough').value;
+      if (userLoc) {
+        map.flyTo({ center: [userLoc.lng, userLoc.lat], zoom: 12.5, speed: 1.0, curve: 1.4, essential: true });
+      } else if (b && BOROUGH_BOUNDS[b]) {
+        map.fitBounds(BOROUGH_BOUNDS[b], { padding: 40, duration: 900, maxZoom: 14 });
+      } else if (docsOnMap.length) {
+        const bounds = new mapboxgl.LngLatBounds();
+        docsOnMap.forEach(d => bounds.extend([d.lng, d.lat]));
+        map.fitBounds(bounds, { padding: 50, duration: 900, maxZoom: 13 });
+      }
+    }
+
     // ── Search: apply the chosen preferences, then bring the map into view
     //    zoomed to the selection so results are immediately visible. ──────
-    function runSearch() {
-      applyFilters();
-      const b = document.getElementById('filter-borough').value;
-      if (map) {
-        if (userLoc) {
-          map.flyTo({ center: [userLoc.lng, userLoc.lat], zoom: 13, speed: 1.0, curve: 1.4, essential: true });
-        } else if (b && BOROUGH_BOUNDS[b]) {
-          map.fitBounds(BOROUGH_BOUNDS[b], { padding: 40, duration: 900, maxZoom: 14 });
-        } else if (markers.length) {
-          const bounds = new mapboxgl.LngLatBounds();
-          markers.forEach(m => bounds.extend([m.doc.lng, m.doc.lat]));
-          map.fitBounds(bounds, { padding: 50, duration: 900, maxZoom: 13 });
-        }
-      }
+    async function runSearch() {
+      await applyFilters();
+      fitMapToResults();
       const mapSection = document.querySelector('.map-section');
       if (mapSection) mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -715,6 +883,21 @@
     document.getElementById('filter-borough').addEventListener('change', applyFilters);
     document.getElementById('filter-specialty').addEventListener('change', applyFilters);
     document.getElementById('search-btn').addEventListener('click', runSearch);
+
+    // Injury grid → pull the full WCB list for that body part, tailored to the area.
+    document.querySelectorAll('#body-parts-grid .body-part-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const bp = btn.getAttribute('data-bp');
+        selectedBodyPart = (selectedBodyPart === bp) ? '' : bp; // toggle off if re-tapped
+        runSearch();
+      });
+    });
+    // Banner "Show curated picks" → clear all full-list filters, back to featured.
+    document.getElementById('filter-banner-clear').addEventListener('click', () => {
+      selectedBodyPart = '';
+      document.getElementById('filter-specialty').value = '';
+      applyFilters();
+    });
 
     initMap();
     loadDoctors();

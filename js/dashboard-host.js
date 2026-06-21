@@ -151,6 +151,16 @@
     function showScreen(screen) {
       if (screen === 'job_buddy' && CD.renderJobBuddy) { renderScreenInPlace(CD.renderJobBuddy()); return; }
       if (screen === 'firm_job_buddy' && CD.renderFirmJobBuddy) { renderScreenInPlace(CD.renderFirmJobBuddy()); return; }
+      // IME Reminders renders IN-PLACE on the website (same pattern as Job Buddy).
+      // The shared dashboards emit screen ids 'ime'/'appointments'; the module
+      // carries its own UI + notification seam (browser Notifications + foreground
+      // timers + countdown badges). Find a Doctor stays on /tools/find-doctor.
+      if ((screen === 'ime' || screen === 'ime_reminders' || screen === 'appointments') && CD.renderIMEReminders) {
+        renderScreenInPlace(CD.renderIMEReminders({
+          supabase: CD.supa, user: CD.currentUser, profile: CD.currentProfile, isNative: false
+        }));
+        return;
+      }
       var url = SCREEN_URLS[screen];
       if (url) window.location.href = url;
     }
