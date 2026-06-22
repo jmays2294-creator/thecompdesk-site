@@ -109,6 +109,11 @@
   .legal-disclaimer{max-width:880px;margin:32px auto 8px;background:var(--skin-surface-elev);border:1px solid var(--skin-divider);border-radius:14px;padding:20px 22px;box-shadow:var(--skin-card-shadow);}
   .legal-disclaimer p{font-size:12.5px;color:var(--skin-text-muted);line-height:1.7;margin:0;}
   .legal-disclaimer strong{color:var(--skin-text-soft);}
+
+  /* Wizard mount. The wizard ships its own scoped .c3fw skin (js/tools/c3-filing-wizard.js). */
+  #c3start{padding-top:8px;scroll-margin-top:84px;}
+  #c3-wizard-mount{max-width:680px;margin:0 auto;}
+  .c3fw-loading{text-align:center;color:var(--skin-text-muted);font-size:15px;padding:60px 20px;}
   </style>
 </head>
 <body class="tcd-skinned">
@@ -137,18 +142,27 @@
     <section class="tcd-section hero">
       <div class="wrap">
         <div class="badges">
-          <span class="badge soon">Coming soon</span>
           <span class="badge free">Free for injured workers</span>
+          <span class="badge free">No login required</span>
         </div>
         <h1>File your <em>C-3</em> claim, guided.</h1>
-        <p class="lede">A step-by-step wizard that walks you through the WCB Form C-3 — the form that opens your New York workers' compensation case — in plain English, field by field. No attorney required to start, no login to try.</p>
+        <p class="lede">A step-by-step wizard that walks you through the WCB Form C-3 — the form that opens your New York workers' compensation case — in plain English, field by field. Answer simple questions and we build your signed, filing-ready PDF.</p>
         <div class="ctas">
-          <a href="#notify" class="btn primary">Notify me when it launches</a>
+          <a href="#c3start" class="btn primary">Start my C-3 →</a>
           <a href="/worker" class="btn ghost">Explore Comp Buddy</a>
         </div>
 
         <div class="upl">
           <strong>Important:</strong> The Comp Desk is a software platform, not a law firm. This wizard helps you complete and understand the C-3 — it does not give legal advice or file on your behalf.
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── The wizard ─── -->
+    <section class="tcd-section scene" id="c3start">
+      <div class="wrap">
+        <div id="c3-wizard-mount">
+          <div id="c3fw-loading" class="c3fw-loading">Loading the C-3 wizard…</div>
         </div>
       </div>
     </section>
@@ -162,7 +176,7 @@
             Why the C-3 is the form that matters
           </h3>
           <p>The <strong>C-3 — Employee Claim</strong> is what actually opens your case with the New York Workers' Compensation Board. Until it's filed, the Board has no record of your claim. In most cases you have <strong>two years from the date of injury</strong> (or from when you knew the injury was work-related) to file — and incomplete or inconsistent answers can slow your claim down or invite a dispute.</p>
-          <p>The Claim Filing Wizard will walk you through every section in plain English, explain what each question is really asking, and help you file it right the first time.</p>
+          <p>The Claim Filing Wizard walks you through every section in plain English, explains what each question is really asking, and helps you file it right the first time.</p>
         </div>
       </div>
     </section>
@@ -210,49 +224,6 @@
       </div>
     </section>
 
-    <!-- ─── How it will work ─── -->
-    <section class="tcd-section scene">
-      <div class="wrap">
-        <div class="section-head">
-          <span class="eyebrow">How it will work</span>
-          <h2>Three steps, plain English.</h2>
-        </div>
-        <div class="steps-grid stagger">
-          <div class="step-card" style="--i:0;">
-            <div class="step-num">1</div>
-            <h3>Answer simple questions</h3>
-            <p>Tell us what happened in everyday language — when, where, how, and what got hurt.</p>
-          </div>
-          <div class="step-card" style="--i:1;">
-            <div class="step-num">2</div>
-            <h3>We build your C-3</h3>
-            <p>Your answers fill the official WCB Form C-3 correctly, with checks for blanks and inconsistencies.</p>
-          </div>
-          <div class="step-card" style="--i:2;">
-            <div class="step-num">3</div>
-            <h3>Review &amp; file</h3>
-            <p>Review the finished form, then follow clear instructions to file it with the Workers' Compensation Board.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Notify ─── -->
-    <section class="tcd-section scene" id="notify">
-      <div class="wrap">
-        <div class="notify-band">
-          <span class="eyebrow">Coming soon</span>
-          <h2>Be first to file with the wizard.</h2>
-          <p>We'll email you the moment the Claim Filing Wizard goes live. No spam — just the launch.</p>
-          <form class="email-form" id="notifyForm">
-            <input type="email" placeholder="Enter your email" aria-label="Email address" required>
-            <button type="submit" class="btn primary">Notify me</button>
-          </form>
-          <div class="success-message" id="successMessage">Thanks! You'll be notified when the Claim Filing Wizard launches.</div>
-        </div>
-      </div>
-    </section>
-
     <!-- ─── Comp Buddy band ─── -->
     <section class="tcd-section scene">
       <div class="wrap">
@@ -282,20 +253,70 @@
     </div>
   </footer>
 
-  <script>
-    // Notify-form: lightweight client-side confirmation (no backend wired yet — Coming Soon).
-    (function () {
-      var form = document.getElementById('notifyForm');
-      var ok = document.getElementById('successMessage');
-      if (!form) return;
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var input = form.querySelector('input[type="email"]');
-        if (input) input.value = '';
-        ok.style.display = 'block';
-        setTimeout(function () { ok.style.display = 'none'; }, 4000);
+  <!-- C-3 wizard: warm pdf-lib, load the scoped module (IIFE → CD.C3FilingWizard). -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+  <script src="/js/tools/c3-filing-wizard.js" defer></script>
+
+  <!-- Mount: anonymous-capable. Signed-in Comp Buddy users get the 14-field
+       prefill + a saved filing; everyone else completes + downloads with no
+       account. The wizard module owns all UI; this only supplies ctx. -->
+  <script type="module">
+    import { getOptionalUser, supabase } from '/js/auth.js';
+
+    // C-3 prefill columns (mirrors the production app wizard's profile reads).
+    const PROFILE_COLS = [
+      'full_name', 'dob', 'phone', 'home_address', 'home_city', 'wcb_case_number',
+      'employer_name', 'doa', 'body_parts', 'work_status', 'occupation', 'language_pref',
+      'treating_doctor_name', 'treating_doctor_address', 'treating_doctor_phone',
+      'has_attorney', 'attorney_name', 'attorney_phone', 'attorney_email'
+    ].join(', ');
+
+    function whenWizardReady() {
+      return new Promise((resolve) => {
+        if (window.CD && window.CD.C3FilingWizard) return resolve(window.CD.C3FilingWizard);
+        let tries = 0;
+        const t = setInterval(() => {
+          if ((window.CD && window.CD.C3FilingWizard) || tries++ > 200) { // ~4s ceiling
+            clearInterval(t);
+            resolve(window.CD && window.CD.C3FilingWizard ? window.CD.C3FilingWizard : null);
+          }
+        }, 20);
       });
-    })();
+    }
+
+    async function loadProfile(userId) {
+      try {
+        const { data, error } = await supabase.from('profiles').select(PROFILE_COLS).eq('id', userId).single();
+        if (error || !data) { console.error('[c3] PROFILE_FETCH_FAILED', error); return null; }
+        return data;
+      } catch (err) { console.error('[c3] PROFILE_FETCH_FAILED', err); return null; }
+    }
+
+    async function mount() {
+      const mountEl = document.getElementById('c3-wizard-mount');
+      if (!mountEl) return;
+
+      // Optional session — never redirects. Anonymous visitors fall through cleanly.
+      let session = null;
+      try { ({ session } = await getOptionalUser()); } catch (_) { session = null; }
+
+      const ctx = { supabase, user: null, profile: null };
+      if (session && session.user) {
+        ctx.user = { id: session.user.id, email: session.user.email };
+        ctx.profile = await loadProfile(session.user.id); // null on failure → download-only
+      }
+
+      const wiz = await whenWizardReady();
+      if (!wiz) {
+        mountEl.innerHTML = '<div class="c3fw-loading">The wizard failed to load. Please refresh the page.</div>';
+        console.error('[c3] wizard module never appeared on window.CD');
+        return;
+      }
+      mountEl.innerHTML = '';
+      mountEl.appendChild(wiz.render(ctx));
+    }
+
+    mount().catch((err) => { console.error('[c3] mount failed', err); });
   </script>
 
   <script src="/js/audience-switcher.js"></script>

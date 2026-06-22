@@ -36,7 +36,8 @@
     { test: /^\/connect-with-attorney/i,  audience: 'worker'  },
     { test: /^\/learn(\b|\/)/i,           audience: 'worker'  },
     { test: /^\/tools\/find-doctor/i,     audience: 'worker'  },
-    { test: /^\/tools\/ime/i,             audience: 'worker'  }
+    { test: /^\/tools\/ime/i,             audience: 'worker'  },
+    { test: /^\/tools\/claim-filing/i,    audience: 'worker'  }
   ];
 
   function readSaved() {
