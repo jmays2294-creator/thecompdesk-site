@@ -1,13 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-audience="worker">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon / app icons -->
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
     <title>NYS WCB Medical Treatment Guidelines — Searchable Tool | The Comp Desk</title>
     <meta name="description" content="Search the 2021 NYS Workers' Compensation Board Medical Treatment Guidelines by keyword, section, or 3D body-part picker. Citations to specific guideline sections, page-cited.">
     <link rel="canonical" href="https://thecompdesk.com/tools/medical-treatment-guidelines">
@@ -28,8 +23,52 @@
       "publisher": { "@type": "Organization", "name": "The Comp Desk", "url": "https://thecompdesk.com" }
     }
     </script>
-    <link rel="stylesheet" href="../css/app.css">
+
+    <link rel="stylesheet" href="/css/skins.css">
+
     <style>
+        /* ─── Dawn chrome (nav / hero / footer) layered over the worker skin.
+               The MTG tool itself keeps its own dark, purpose-built styling
+               below — it sits on a dark "stage" framed inside the Dawn page. */
+
+        /* Sunrise wash behind the page (matches the worker home). */
+        .dawn-wash {
+          position: fixed; inset: 0; z-index: -1; pointer-events: none;
+          background:
+            radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.55) 0%, rgba(214,230,242,0) 50%),
+            linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 30%, #F4EADB 70%, #F0E0CB 100%);
+        }
+
+        /* Hero. */
+        .hero { padding: clamp(36px, 5vh, 64px) 0 clamp(12px, 2vh, 24px); }
+        .hero .eyebrow { margin-bottom: 14px; }
+        .hero h1 {
+          font-size: clamp(34px, 5vw, 56px); font-weight: 700;
+          letter-spacing: -0.02em; line-height: 1.07; margin: 0 0 16px; max-width: 18ch;
+        }
+        .hero h1 em { font-style: italic; color: var(--skin-accent); font-weight: 500; }
+        .hero .lede {
+          font-size: clamp(15px, 1.8vw, 18px); color: var(--skin-text-soft);
+          line-height: 1.6; max-width: 70ch; margin: 0;
+        }
+        .hero .lede strong { color: var(--skin-text); }
+        .hero .coverage {
+          margin-top: 16px; display: inline-block;
+          background: rgba(232,119,34,0.07); border: 1px solid rgba(232,119,34,0.25);
+          border-left: 4px solid var(--skin-accent); border-radius: 12px;
+          padding: 12px 18px; color: var(--skin-text-soft); font-size: 14px; line-height: 1.55;
+        }
+        .hero .coverage strong { color: var(--skin-accent-deep); }
+
+        /* Dark stage that frames the tool so its purpose-built dark panels
+           render as designed against the cream page. */
+        .mtg-stage {
+          background: #0d1421; border: 1px solid var(--skin-divider);
+          border-radius: var(--skin-card-radius); box-shadow: var(--skin-card-shadow);
+          padding: 16px;
+        }
+
+        /* ─── MTG tool (unchanged, dark, purpose-built) ─── */
         /* Page layout */
         .mtg-page { color: #e0e0e0; }
         .mtg-page-header { margin-bottom: 16px; padding: 0 4px; }
@@ -180,6 +219,12 @@
         @keyframes mtgOverlayFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes mtgOverlaySlideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
 
+        /* Reduced motion — disable overlay entrance animations. */
+        @media (prefers-reduced-motion: reduce) {
+            .mtg-overlay-root.peek .mtg-overlay-card,
+            .mtg-overlay-root.locked .mtg-overlay-card { animation: none; }
+        }
+
         /* Responsive */
         @media (max-width: 640px) {
             .mtg-anatomy-canvas-wrap { height: 440px; }
@@ -190,30 +235,66 @@
         }
     </style>
 </head>
-<body>
-    <div id="app-nav"></div>
+<body class="tcd-skinned">
 
-    <main class="container mtg-page">
-        <nav class="mb-6 text-sm text-gray-400" style="margin-bottom: 16px; font-size: 13px; color: #94a3b8;">
-            <a href="/" style="color: inherit; text-decoration: none;">Home</a> ›
-            <a href="/tools/" style="color: inherit; text-decoration: none;">Tools</a> ›
-            <span style="color: #cbd5e1;">Medical Treatment Guidelines</span>
-        </nav>
+    <div class="dawn-wash" aria-hidden="true"></div>
 
-        <header class="mtg-page-header">
-            <h1 class="mtg-page-title">Medical Treatment Guidelines</h1>
-            <p class="mtg-page-sub">
-                Search the 2021 NYS Workers' Compensation Board Medical Treatment Guidelines (MTGs) by keyword,
-                section number, or by clicking body regions on the interactive 3D figure. Every result is anchored
-                to a specific section and page in the official guideline.
-                <br><br>
-                <strong>v1 coverage:</strong> Shoulder Injury, Mid and Low Back Injury, Knee Injury (152 sections,
-                fully cited). Remaining 14 guidelines coming soon.
-            </p>
-        </header>
+    <nav class="tcd-nav" aria-label="Primary">
+      <div class="tcd-nav-inner">
+        <a class="tcd-wordmark" href="/worker" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+        <div class="tcd-nav-links">
+          <a href="/learn">Learn</a>
+          <a href="/tools/find-doctor">Find a Doctor</a>
+          <a href="/calculators">Calculators</a>
+          <a href="/contact">Contact</a>
+        </div>
+        <div class="tcd-nav-right">
+          <div data-audience-switch></div>
+          <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+        </div>
+      </div>
+    </nav>
 
-        <div id="mtg-tool-root" class="mtg-tool-root"></div>
+    <main>
+
+      <!-- ─── Hero ─── -->
+      <section class="tcd-section hero">
+        <div class="wrap">
+          <span class="eyebrow">Reference tool</span>
+          <h1>Search the <em>Medical Treatment Guidelines</em>.</h1>
+          <p class="lede">
+            Search the 2021 NYS Workers' Compensation Board Medical Treatment Guidelines (MTGs) by keyword,
+            section number, or by clicking body regions on the interactive 3D figure. Every result is anchored
+            to a specific section and page in the official guideline.
+          </p>
+          <div class="coverage">
+            <strong>v1 coverage:</strong> Shoulder Injury, Mid and Low Back Injury, Knee Injury (152 sections,
+            fully cited). Remaining 14 guidelines coming soon.
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Tool ─── -->
+      <section class="tcd-section" style="padding-top: 8px;">
+        <div class="wrap mtg-page">
+          <div class="mtg-stage">
+            <div id="mtg-tool-root" class="mtg-tool-root"></div>
+          </div>
+        </div>
+      </section>
+
     </main>
+
+    <footer class="tcd-footer">
+      <div class="wrap">
+        <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+        <p>
+          <a href="/privacy">Privacy</a>
+          <a href="/contact">Contact</a>
+          <a href="/disclaimer.html">Disclaimer</a>
+        </p>
+      </div>
+    </footer>
 
     <!-- Three.js ESM import map. The anatomy scene module imports `three`
          and `three/addons/loaders/GLTFLoader.js`; the import map below
@@ -245,7 +326,9 @@
             if (window.MTGTool && root) window.MTGTool.init(root);
         });
     </script>
-  <script src="/js/footer-contact.js" defer></script>
-  <script src="/js/header-attorney-cta.js" defer></script>
+    <script src="/js/audience-switcher.js"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script src="/js/footer-contact.js" defer></script>
+    <script src="/js/header-attorney-cta.js" defer></script>
 </body>
 </html>
