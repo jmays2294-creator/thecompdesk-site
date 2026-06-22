@@ -33,6 +33,10 @@
 
   var DISCLAIMER = 'This tool is for informational purposes only and does not constitute legal advice.';
   var LS_PREFIX = 'cd_worker_dash_v1::';
+  var WORK_STATUS_LABELS = {
+    working: 'Working (full duty)', light_duty: 'Light duty',
+    not_working: 'Not working', terminated: 'Terminated'
+  };
 
   // ── local-state helpers (self-entered values not yet in the DB) ───────────
   function _lsKey() {
@@ -65,21 +69,29 @@
     return 'there';
   }
 
-  // 2/3 weekly rate capped at the statutory max for the period. Uses the live
-  // calc data (CD.getMax / CD.MAX_RATES) when reachable; falls back to a plain
-  // 2/3 if not. NOTE: current_aww may be a STRING — Number() before any math.
+  // 2/3 weekly rate capped at the statutory max for the DOA. Uses the shared
+  // calc-core (CD.Calc.maxRateForDOA — single source of truth) when reachable;
+  // falls back to the current-period max. NOTE: current_aww may be a STRING —
+  // Number() before any math.
+  function _maxForDOA(doa) {
+    try {
+      if (doa && CD.Calc && CD.Calc.maxRateForDOA) { var m = CD.Calc.maxRateForDOA(doa); if (m) return m; }
+    } catch (e) {}
+    return _cap();
+  }
   function _cap() {
     try {
       var today = new Date().toISOString().slice(0, 10);
+      if (CD.Calc && CD.Calc.maxRateForDOA) { var mc = CD.Calc.maxRateForDOA(today); if (mc) return mc; }
       if (CD.getMax) { var r = CD.getMax(today); if (r && r.max) return r.max; }
       if (CD.MAX_RATES && CD.MAX_RATES[0]) return CD.MAX_RATES[0].max;
     } catch (e) {}
     return 1281.50; // sane fallback = current-period max
   }
-  function _weeklyRate(aww) {
+  function _weeklyRate(aww, doa) {
     var n = Number(aww);                       // coerce string AWW (bug fix)
     if (!isFinite(n) || n <= 0) return 0;
-    return Math.min((n * 2) / 3, _cap());
+    return Math.min((n * 2) / 3, _maxForDOA(doa));
   }
 
   // ── public entry ──────────────────────────────────────────────────────────
@@ -130,39 +142,45 @@
       recMount.appendChild(_recoveryFallback(h, showScreen));
     }
 
-    // ── 3 + 4. BENEFIT TRACKER + DISABILITY GAUGE (linked) ────────────────
-    // The gauge's % scales the estimated weekly figure shown in the tracker.
-    var awwRaw = (profile && profile.current_aww != null && String(profile.current_aww).trim() !== '')
-      ? profile.current_aww
-      : (local.self_aww != null ? local.self_aww : null);
-    var awwDemo = false;
-    if (awwRaw == null || Number(awwRaw) <= 0) { awwRaw = 1200; awwDemo = true; } // polished demo AWW
+    // ── 3 + 4. BENEFIT TRACKER + DISABILITY GAUGE (true-state) ────────────
+    // AWW is read ONLY from the real profile column — no placeholder/demo value
+    // is ever shown. Missing → actionable empty-state that launches the AWW
+    // Wizard. Present → the real AWW + the weekly rate it drives (⅔ × AWW capped
+    // at the DOA max via CD.Calc.maxRateForDOA(doa)).
+    var doa = (profile && profile.doa) || null;
+    var awwRaw = (profile && profile.current_aww != null && String(profile.current_aww).trim() !== '' && Number(profile.current_aww) > 0)
+      ? Number(profile.current_aww) : null;
 
-    var disPct = (local.disability_pct != null) ? Number(local.disability_pct) : null;
-    var disDemo = false;
-    if (disPct == null || !isFinite(disPct)) { disPct = 50; disDemo = true; } // demo: 50%
-    disPct = Math.max(0, Math.min(100, disPct));
+    var benefit = null, gauge = null;
+    if (awwRaw == null) {
+      cont.appendChild(h('section', { className: 'wd-section' }, _awwEmptyState(h, reduced, showScreen)));
+    } else {
+      // Self-entered degree of disability refines the estimate; defaults to 100%
+      // (total disability) — that's the real statutory ⅔ rate, not a sample.
+      var disPct = (local.disability_pct != null && isFinite(Number(local.disability_pct))) ? Number(local.disability_pct) : 100;
+      disPct = Math.max(0, Math.min(100, disPct));
 
-    var fullRate = _weeklyRate(awwRaw);                  // 2/3 capped (total disability)
-    var estWeekly = fullRate * (disPct / 100);          // scaled by disability %
+      var fullRate = _weeklyRate(awwRaw, doa);             // 2/3 capped (total disability)
+      var trackerGauge = h('div', { className: 'wd-tg-grid' });
+      var moneyState = { fullRate: fullRate, disPct: disPct, awwRaw: awwRaw, awwDemo: false, disDemo: false, doa: doa };
 
-    var trackerGauge = h('div', { className: 'wd-tg-grid' });
+      benefit = _benefitTracker(h, card, f$, moneyState, reduced, showScreen, local);
+      gauge = _disabilityGauge(h, f$, moneyState, reduced, function (newPct) {
+        // user changed the gauge → persist + relink the tracker figure
+        moneyState.disPct = newPct;
+        _writeLocal({ disability_pct: newPct });
+        benefit.update();
+      });
 
-    // shared live-update hook so the gauge can repaint the tracker figure
-    var moneyState = { fullRate: fullRate, disPct: disPct, awwRaw: awwRaw, awwDemo: awwDemo, disDemo: disDemo };
+      trackerGauge.appendChild(benefit.node);
+      trackerGauge.appendChild(gauge.node);
+      cont.appendChild(h('section', { className: 'wd-section' }, trackerGauge));
+    }
 
-    var benefit = _benefitTracker(h, card, f$, moneyState, reduced, showScreen, local);
-    var gauge = _disabilityGauge(h, f$, moneyState, reduced, function (newPct) {
-      // user changed the gauge → persist + relink the tracker figure
-      moneyState.disPct = newPct;
-      moneyState.disDemo = false;
-      _writeLocal({ disability_pct: newPct });
-      benefit.update();
-    });
-
-    trackerGauge.appendChild(benefit.node);
-    trackerGauge.appendChild(gauge.node);
-    cont.appendChild(h('section', { className: 'wd-section' }, trackerGauge));
+    // ── 4b. CASE SNAPSHOT + NEXT STEPS (true-state adaptive) ──────────────
+    // Each row is driven off a real profile field: present values render as a
+    // snapshot, missing values render as actionable empty-state next-steps.
+    cont.appendChild(h('section', { className: 'wd-section' }, _caseStatus(h, profile, showScreen, openAttorneyIntake)));
 
     // ── 5. APPOINTMENTS SUMMARY ───────────────────────────────────────────
     var apptCard = h('div', { className: 'wd-card wd-appts' });
@@ -210,8 +228,9 @@
     cont.appendChild(h('div', { className: 'wd-section-label' }, 'Free tools'));
     var freeGrid = h('div', { className: 'wd-grid' });
     [
-      { icon: '🧮', title: 'Quick Calc', desc: 'Check your AWW & weekly rate', screen: 'calculator' },
-      { icon: '📚', title: 'Learning Portal', desc: 'WC glossary, FAQ, timeline', screen: 'learning' },
+      { icon: '📊', title: 'Average Weekly Wage', desc: 'Calculate your AWW & weekly rate', screen: 'aww' },
+      { icon: '🧮', title: 'Quick Calc', desc: 'Benefits & rate calculators', screen: 'calculator' },
+      { icon: '📚', title: 'Learn Your Rights', desc: 'WC glossary, FAQ, timeline', screen: 'learning' },
       { icon: '🏥', title: 'Find a Doctor', desc: 'Find WCB-authorized doctors', screen: 'doctor' }
     ].forEach(function (ft) {
       freeGrid.appendChild(_featureCard(h, {
@@ -223,26 +242,32 @@
 
     // ── 6c. Comp Buddy features grid ──────────────────────────────────────
     cont.appendChild(h('div', { className: 'wd-section-label' }, 'Comp Buddy features'));
+    // Surface ALL Comp Buddy features so an injured worker sees everything
+    // available — honest tier gating (locked/Pro) + truthful "Coming soon".
     var buddy = [
       { icon: '🛣️', title: 'Road to Recovery', desc: 'See every step of your case', tier: 'comp_buddy', screen: 'recovery' },
       { icon: '🔔', title: 'IME Reminders', desc: 'Never miss an IME appointment', tier: 'comp_buddy', screen: 'ime' },
       { icon: '⚖️', title: 'Settlement Calculator', desc: 'Estimate your SLU value', tier: 'comp_buddy', screen: 'settlement' },
       { icon: '🛠️', title: 'My Injury Tools', desc: 'SLU estimator, radiculopathy & more', tier: 'comp_buddy', screen: 'advanced_tools' },
-      { icon: '📋', title: 'UTDM Monitoring', desc: 'Track medical updates', tier: 'comp_buddy', soon: true },
-      { icon: '🚗', title: 'Mileage & Travel', desc: 'Log travel expenses', tier: 'comp_buddy', soon: true },
       { icon: '🎯', title: 'Job Buddy (Beta)', desc: 'Free beta — find work within your restrictions + C-258.1 log', tier: 'free', screen: 'job_buddy' },
-      { icon: '📝', title: 'Claim Filing', desc: 'Auto-fill C-3 forms', tier: 'comp_buddy', soon: true }
+      { icon: '📝', title: 'File a C-3 Claim', desc: 'Generate & file your Employee Claim', tier: 'comp_buddy', screen: 'c3' },
+      { icon: '⚖️', title: 'Find an Attorney', desc: 'Get matched — free, no obligation', tier: 'free', attorney: true },
+      { icon: '🤖', title: 'AI Case Advisor', desc: 'Ask questions about your claim', tier: 'pro', soon: true },
+      { icon: '📋', title: 'UTDM Monitoring', desc: 'Track medical updates', tier: 'comp_buddy', soon: true },
+      { icon: '🚗', title: 'Mileage & Travel', desc: 'Log travel expenses', tier: 'comp_buddy', soon: true }
     ];
     var buddyGrid = h('div', { className: 'wd-grid' });
     buddy.forEach(function (f) {
       var locked = !hasAccess(f.tier);
       var onClick = null;
-      if (!f.soon && !locked) onClick = function () { showScreen(f.screen); };
-      else if (!f.soon && locked) onClick = function () { handleUpgrade('comp_buddy'); };
+      if (!f.soon && f.attorney) onClick = function () { openAttorneyIntake(); };
+      else if (!f.soon && !locked) onClick = function () { showScreen(f.screen); };
+      else if (!f.soon && locked) onClick = function () { handleUpgrade(f.tier === 'pro' ? 'pro' : 'comp_buddy'); };
       buddyGrid.appendChild(_featureCard(h, {
         icon: f.icon, title: f.title, desc: f.desc,
-        badge: 'Comp Buddy', badgeCls: 'is-buddy',
-        soon: f.soon, locked: locked && !f.soon, onClick: onClick
+        badge: f.tier === 'free' ? 'Free' : (f.tier === 'pro' ? 'Pro' : 'Comp Buddy'),
+        badgeCls: f.tier === 'free' ? 'is-free' : (f.tier === 'pro' ? 'is-pro' : 'is-buddy'),
+        soon: f.soon, locked: locked && !f.soon && !f.attorney, onClick: onClick
       }));
     });
     cont.appendChild(h('section', { className: 'wd-section' }, buddyGrid));
@@ -269,10 +294,10 @@
     // we also kick the gauge sweep on the next frame here.
     if (!reduced) {
       window.requestAnimationFrame(function () {
-        try { benefit.play(); gauge.play(); } catch (e) {}
+        try { if (benefit) benefit.play(); if (gauge) gauge.play(); } catch (e) {}
       });
     } else {
-      try { benefit.play(); gauge.play(); } catch (e) {}
+      try { if (benefit) benefit.play(); if (gauge) gauge.play(); } catch (e) {}
     }
 
     return cont;
@@ -291,9 +316,8 @@
         : null
     ]));
 
-    // next payment date — self-entered (localStorage) or a demo (next Friday).
-    var nextDate = local.next_payment_date ? new Date(local.next_payment_date) : _nextFriday();
-    var dateDemo = !local.next_payment_date;
+    // next payment date — self-entered (localStorage) only; never a fake date.
+    var nextDate = local.next_payment_date ? new Date(local.next_payment_date + 'T00:00:00') : null;
 
     // money visual
     var moneyArt = h('div', { className: 'wd-money', 'aria-hidden': 'true' });
@@ -316,9 +340,12 @@
         ' · ' + (money.disPct) + '% of ' + f$(money.fullRate) + ' full rate'));
       dateEl.innerHTML = '';
       dateEl.appendChild(h('span', { className: 'wd-benefit-date-lbl' }, 'Next payment'));
-      dateEl.appendChild(h('span', { className: 'wd-benefit-date-val' },
-        nextDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })));
-      if (dateDemo) dateEl.appendChild(h('span', { className: 'wd-demo-tag wd-demo-inline' }, 'Sample'));
+      if (nextDate) {
+        dateEl.appendChild(h('span', { className: 'wd-benefit-date-val' },
+          nextDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })));
+      } else {
+        dateEl.appendChild(h('span', { className: 'wd-benefit-date-val wd-muted' }, 'Add your date'));
+      }
     }
     paintFigures();
 
@@ -348,7 +375,7 @@
       });
       var dateIn = h('input', {
         className: 'wd-input', type: 'date',
-        value: _toDateInput(nextDate)
+        value: nextDate ? _toDateInput(nextDate) : ''
       });
       editorWrap.appendChild(_field(h, 'Average weekly wage ($)', awwIn));
       editorWrap.appendChild(_field(h, 'Next payment date', dateIn));
@@ -358,12 +385,11 @@
           var newAww = Number(awwIn.value);
           if (isFinite(newAww) && newAww > 0) {
             money.awwRaw = newAww; money.awwDemo = false;
-            money.fullRate = _weeklyRate(newAww);
-            _writeLocal({ self_aww: newAww });
+            money.fullRate = _weeklyRate(newAww, money.doa);
             _persistAww(newAww);
           }
           if (dateIn.value) {
-            nextDate = new Date(dateIn.value + 'T00:00:00'); dateDemo = false;
+            nextDate = new Date(dateIn.value + 'T00:00:00');
             _writeLocal({ next_payment_date: dateIn.value });
           }
           editorWrap.setAttribute('hidden', 'hidden');
@@ -557,6 +583,93 @@
       h('span', { className: 'wd-recovery-fallback-ico' }, '🛣️'),
       h('span', null, 'Open your Road to Recovery →')
     ]);
+  }
+
+  // ── AWW EMPTY-STATE ─────────────────────────────────────────────────────
+  // Shown when profiles.current_aww is null. Friendly animated card explaining
+  // AWW drives the weekly check; CTA launches the AWW Wizard (screen 'aww').
+  function _awwEmptyState(h, reduced, showScreen) {
+    var cardEl = h('div', { className: 'wd-card wd-aww-empty' + (reduced ? '' : ' wd-aww-empty-anim') });
+    cardEl.appendChild(h('div', { className: 'wd-aww-empty-art', 'aria-hidden': 'true' }, [
+      h('span', { className: 'wd-aww-coin' }, '💵'),
+      h('span', { className: 'wd-aww-spark wd-aww-spark-1' }, '＋'),
+      h('span', { className: 'wd-aww-spark wd-aww-spark-2' }, '✓')
+    ]));
+    cardEl.appendChild(h('h2', { className: 'wd-card-title wd-aww-empty-title' }, 'Set your Average Weekly Wage'));
+    cardEl.appendChild(h('p', { className: 'wd-aww-empty-sub' },
+      'Your weekly check is two-thirds of your Average Weekly Wage, up to the state maximum. ' +
+      'Tell us how you were paid and we’ll calculate it — then your real weekly rate shows up right here.'));
+    cardEl.appendChild(h('button', {
+      type: 'button', className: 'wd-btn wd-btn-primary wd-aww-empty-cta',
+      onclick: function () { showScreen('aww'); }
+    }, 'Calculate my AWW →'));
+    return cardEl;
+  }
+
+  // ── CASE SNAPSHOT + NEXT STEPS ──────────────────────────────────────────
+  // Every row is driven off a REAL profile field. Present values render as a
+  // read-only snapshot; missing values render as actionable next-step tiles.
+  function _caseStatus(h, profile, showScreen, openAttorneyIntake) {
+    profile = profile || {};
+    var wrap = h('div', { className: 'wd-card wd-casestatus' });
+    wrap.appendChild(h('div', { className: 'wd-card-hd' }, [
+      h('h2', { className: 'wd-card-title' }, '🧭 Your case at a glance')
+    ]));
+
+    // present-value snapshot — ONLY real values
+    var snap = h('div', { className: 'wd-snap' });
+    function snapRow(label, value) {
+      snap.appendChild(h('div', { className: 'wd-snap-row' }, [
+        h('span', { className: 'wd-snap-lbl' }, label),
+        h('span', { className: 'wd-snap-val' }, value)
+      ]));
+    }
+    if (profile.wcb_case_number) snapRow('WCB case #', String(profile.wcb_case_number));
+    if (profile.doa) snapRow('Date of accident', _fmtDate(profile.doa));
+    var parts = Array.isArray(profile.body_parts) ? profile.body_parts : [];
+    if (parts.length) snapRow('Injury', parts.map(_titleCase).join(', '));
+    if (profile.work_status) snapRow('Work status', WORK_STATUS_LABELS[profile.work_status] || profile.work_status);
+    if (profile.treating_doctor) snapRow('Treating doctor', String(profile.treating_doctor));
+    if (snap.children.length) wrap.appendChild(snap);
+
+    // next-step tiles for each MISSING real field (actionable empty-states)
+    var steps = [];
+    if (!profile.wcb_case_number) steps.push({ icon: '📝', title: 'File your claim (C-3)', desc: 'Generate & file your Employee Claim with the WCB.', screen: 'c3' });
+    if (!profile.treating_doctor) steps.push({ icon: '🏥', title: 'Find a treating doctor', desc: 'Find a WCB-authorized doctor near you.', screen: 'doctor' });
+    if (!profile.has_attorney) steps.push({ icon: '⚖️', title: 'Find an attorney', desc: 'Get matched with a workers’ comp attorney — free.', attorney: true });
+    steps.push({ icon: '🔔', title: 'Add your IME / appointment', desc: 'Track IME & appointment dates so you never miss one.', screen: 'ime' });
+    if (!profile.oc110a_signed) steps.push({ icon: '🖊️', title: 'Complete your medical authorization', desc: 'Sign your OC-110a so we can monitor your case.', screen: 'onboarding' });
+
+    if (steps.length) {
+      wrap.appendChild(h('div', { className: 'wd-steps-label' }, 'Next steps'));
+      var list = h('div', { className: 'wd-steps' });
+      steps.forEach(function (s) {
+        var go = s.attorney ? function () { openAttorneyIntake(); } : function () { showScreen(s.screen); };
+        var row = h('div', { className: 'wd-step', role: 'button', tabIndex: '0' });
+        row.onclick = go;
+        row.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+        row.appendChild(h('span', { className: 'wd-step-ico' }, s.icon));
+        row.appendChild(h('div', { className: 'wd-step-txt' }, [
+          h('div', { className: 'wd-step-title' }, s.title),
+          h('div', { className: 'wd-step-desc' }, s.desc)
+        ]));
+        row.appendChild(h('span', { className: 'wd-step-chev' }, '→'));
+        list.appendChild(row);
+      });
+      wrap.appendChild(list);
+    }
+    return wrap;
+  }
+
+  function _titleCase(s) {
+    return String(s || '').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  function _fmtDate(d) {
+    try {
+      var p = String(d).split('-');
+      if (p.length === 3) return new Date(p[0], Number(p[1]) - 1, p[2]).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch (e) {}
+    return String(d || '');
   }
 
   function _nextFriday() {

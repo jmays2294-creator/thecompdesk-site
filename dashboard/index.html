@@ -3,11 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon / app icons -->
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
     <meta name="description" content="Your personal dashboard for workers compensation tools and features.">
     <title>Dashboard — The Comp Desk</title>
 <meta name="robots" content="noindex, nofollow">
@@ -32,8 +27,19 @@
     <link rel="stylesheet" href="/css/job-buddy.css">
     <style>
       /* The shared dashboard owns its own surface; give it room and let its skin
-         (worker cream / attorney navy, set via <html data-audience>) show. */
-      #dashRoot { min-height: 60vh; }
+         (worker cream / attorney navy, set via <html data-audience>) show.
+         The .wd-*/.atty-* skins are sized for the app's narrow phone webview, so
+         on a wide desktop browser we constrain the mount to a comfortable,
+         centered reading column instead of letting it stretch edge-to-edge
+         (which reads as oversized/aggressive). App is unaffected — this lives in
+         the web-only mount page, not the shared dashboard CSS. */
+      #dashRoot {
+        min-height: 60vh;
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 28px 24px 56px;
+      }
+      @media (max-width: 640px) { #dashRoot { padding: 16px 16px 40px; } }
       #dashLoading {
         max-width: 680px; margin: 64px auto; padding: 0 20px; text-align: center;
         color: var(--skin-text-muted, #7A8095);
@@ -69,10 +75,16 @@
   <!-- Shared dashboard modules (vendored from www/ — classic IIFEs on window.CD).
        Order: data-store (CD.S + statutory MAX_RATES) → dashboards → host. -->
   <script src="/js/dashboard/data-store.js" defer></script>
+  <script src="/js/dashboard/comp-buddy-intake.js" defer></script>
+  <script src="/js/dashboard/c3-wizard.js" defer></script>
+  <!-- Session 2: AWW Wizard (single source in www/js/dashboard/, vendored here
+       by sync-dashboard.sh; host mounts CD.AWWWizard in-place) -->
+  <script src="/js/dashboard/aww-wizard.js" defer></script>
+  <!-- Feature Web Port: IME Reminders (single source in www/js/, vendored here
+       by sync-dashboard.sh; host mounts CD.renderIMEReminders in-place) -->
+  <script src="/js/dashboard/ime-reminders.js" defer></script>
   <script src="/js/dashboard/worker-dashboard.js" defer></script>
   <script src="/js/dashboard/attorney-dashboard.js" defer></script>
-  <!-- IME Reminders (vendored from www/js/; host mounts CD.renderIMEReminders in-place) -->
-  <script src="/js/dashboard/ime-reminders.js" defer></script>
   <script src="/js/dashboard-host.js" defer></script>
   <!-- Job Buddy screens (worker + firm), mounted in-place by dashboard-host showScreen -->
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>

@@ -151,13 +151,33 @@
     function showScreen(screen) {
       if (screen === 'job_buddy' && CD.renderJobBuddy) { renderScreenInPlace(CD.renderJobBuddy()); return; }
       if (screen === 'firm_job_buddy' && CD.renderFirmJobBuddy) { renderScreenInPlace(CD.renderFirmJobBuddy()); return; }
-      // IME Reminders renders IN-PLACE on the website (same pattern as Job Buddy).
-      // The shared dashboards emit screen ids 'ime'/'appointments'; the module
-      // carries its own UI + notification seam (browser Notifications + foreground
-      // timers + countdown badges). Find a Doctor stays on /tools/find-doctor.
+      // IME Reminders renders IN-PLACE on the website (same pattern as Job
+      // Buddy / C-3). The shared dashboards emit screen ids 'ime'/'appointments';
+      // the module carries its own UI + notification seam (browser Notifications
+      // + foreground timers + countdown badges). Find a Doctor stays on its
+      // dedicated /tools/find-doctor page (routed via SCREEN_URLS below).
       if ((screen === 'ime' || screen === 'ime_reminders' || screen === 'appointments') && CD.renderIMEReminders) {
         renderScreenInPlace(CD.renderIMEReminders({
           supabase: CD.supa, user: CD.currentUser, profile: CD.currentProfile, isNative: false
+        }));
+        return;
+      }
+      // Phase F — C-3 filing wizard renders IN-PLACE on the website (no dedicated
+      // page), same pattern as Job Buddy. Fail-loud profile prefill happens inside.
+      if (screen === 'c3' && CD.C3Wizard) {
+        renderScreenInPlace(CD.C3Wizard.render({
+          supabase: CD.supa, user: CD.currentUser, profile: CD.currentProfile, isNative: false,
+          onComplete: function () { CD.render(); }, goToDashboard: function () { CD.render(); }
+        }));
+        return;
+      }
+      // Session 2 — AWW Wizard renders IN-PLACE on the website (same pattern as
+      // the C-3 wizard). On save it writes profiles.current_aww, then CD.render()
+      // re-mounts the dashboard which now shows the real AWW + weekly rate.
+      if (screen === 'aww' && CD.AWWWizard) {
+        renderScreenInPlace(CD.AWWWizard.render({
+          supabase: CD.supa, user: CD.currentUser, profile: CD.currentProfile, isNative: false,
+          onComplete: function () { CD.render(); }, goToDashboard: function () { CD.render(); }
         }));
         return;
       }
@@ -184,7 +204,31 @@
       goToCalc: goToCalc
     };
 
+    // Phase D — Comp Buddy intake gate. A worker without a DOB hasn't completed
+    // intake (the handoff sentinel); render the shared intake module instead of
+    // the dashboard. Identical flow + columns + single upsert as the app.
+    function renderIntakeIfNeeded() {
+      if (!isWorker) return false;
+      if (profile && profile.dob) return false;
+      if (!CD.CompBuddyIntake || typeof CD.CompBuddyIntake.render !== 'function') return false;
+      var node = null;
+      try {
+        node = CD.CompBuddyIntake.render({
+          supabase: CD.supa,
+          user: CD.currentUser,
+          profile: profile,
+          tier: CD.currentTier,
+          isNative: false,
+          onComplete: function () { try { window.location.reload(); } catch (e) {} },
+          goToDashboard: function () { try { window.location.reload(); } catch (e) {} }
+        });
+      } catch (e) { console.error('[dashboard-host] CBI_RENDER_FAILED', e); }
+      if (node) { root.innerHTML = ''; root.appendChild(node); return true; }
+      return false;
+    }
+
     function render() {
+      if (renderIntakeIfNeeded()) return;
       var mod = isWorker ? CD.WorkerDashboard : CD.AttorneyDashboard;
       if (!mod || typeof mod.render !== 'function') {
         console.error('[dashboard-host] shared dashboard module not loaded for designation=' + designation);
@@ -204,14 +248,6 @@
     CD.render = render;
 
     render();
-
-    // Deep-link: /dashboard/?screen=job_buddy opens that screen immediately
-    // (used by the website "Try Job Buddy — Free Beta" CTA on the worker home).
-    try {
-      var wanted = new URLSearchParams(window.location.search).get('screen');
-      if (wanted === 'job_buddy' && CD.renderJobBuddy) showScreen('job_buddy');
-      else if (wanted === 'firm_job_buddy' && CD.renderFirmJobBuddy) showScreen('firm_job_buddy');
-    } catch (e) {}
   }
 
   window.CDDashboardHost = { mount: mount };

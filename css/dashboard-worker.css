@@ -245,6 +245,7 @@
 }
 .wd-tier-badge.is-free { background: var(--skin-surface-warm); color: var(--skin-text-muted); }
 .wd-tier-badge.is-buddy { background: rgba(232,119,34,.14); color: var(--skin-accent-deep); }
+.wd-tier-badge.is-pro { background: rgba(124,58,237,.14); color: #7c3aed; }
 .wd-fcard-flag, .wd-fcard-lock {
   position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700;
 }
@@ -388,10 +389,71 @@
  * (--rhythm-* already go to 1ms in experience-tokens.css; this neutralizes the
  *  decorative loops + tilt for the strictest safety.)
  * ══════════════════════════════════════════════════════════════════════ */
+/* ── AWW empty-state (current_aww null) ───────────────────────────────── */
+.wd-aww-empty { text-align: center; padding: 26px 22px; }
+.wd-aww-empty-art {
+  position: relative; width: 84px; height: 84px; margin: 0 auto 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.wd-aww-coin {
+  font-size: 46px; display: inline-block;
+  animation: wdAwwBob var(--rhythm-slow, 900ms) var(--ease-out, ease) infinite alternate;
+}
+.wd-aww-spark {
+  position: absolute; font-size: 18px; font-weight: 800; color: var(--skin-accent);
+  opacity: 0; animation: wdAwwSpark 2.4s ease-in-out infinite;
+}
+.wd-aww-spark-1 { top: 2px; right: 6px; animation-delay: .2s; }
+.wd-aww-spark-2 { bottom: 6px; left: 4px; color: var(--skin-accent-deep); animation-delay: 1.1s; }
+@keyframes wdAwwBob { from { transform: translateY(0); } to { transform: translateY(-7px); } }
+@keyframes wdAwwSpark {
+  0%, 100% { opacity: 0; transform: scale(.5); }
+  40%, 60% { opacity: 1; transform: scale(1); }
+}
+.wd-aww-empty-title { margin-top: 8px; }
+.wd-aww-empty-sub {
+  font-size: 14px; color: var(--skin-text-soft); line-height: 1.55;
+  max-width: 420px; margin: 8px auto 16px;
+}
+.wd-aww-empty-cta { margin: 0 auto; min-width: 220px; }
+
+/* ── Case snapshot + next steps ───────────────────────────────────────── */
+.wd-casestatus { padding: 18px 20px; }
+.wd-snap { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.wd-snap-row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--skin-divider);
+}
+.wd-snap-row:last-child { border-bottom: none; padding-bottom: 0; }
+.wd-snap-lbl { font-size: 13px; color: var(--skin-text-muted); flex-shrink: 0; }
+.wd-snap-val { font-size: 14px; font-weight: 700; color: var(--skin-text); text-align: right; }
+.wd-steps-label {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--skin-text-muted); margin: 16px 0 8px;
+}
+.wd-steps { display: flex; flex-direction: column; gap: 8px; }
+.wd-step {
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  background: var(--skin-surface-warm); border-radius: 12px; padding: 12px 14px;
+  transition: transform var(--rhythm-fast, 400ms) var(--ease-out, ease),
+              filter var(--rhythm-fast, 400ms) var(--ease-out, ease);
+}
+.wd-step:hover { filter: brightness(.98); transform: translateX(2px); }
+.wd-step:active { transform: scale(.99); }
+.wd-step:focus-visible { outline: 2px solid var(--skin-accent); outline-offset: 2px; }
+.wd-step-ico { font-size: 22px; flex-shrink: 0; }
+.wd-step-txt { flex: 1; min-width: 0; }
+.wd-step-title { font-size: 14px; font-weight: 700; color: var(--skin-text); }
+.wd-step-desc { font-size: 12.5px; color: var(--skin-text-muted); margin-top: 1px; line-height: 1.4; }
+.wd-step-chev { font-size: 18px; color: var(--skin-accent); flex-shrink: 0; }
+.wd-muted { color: var(--skin-text-muted); font-weight: 400; }
+
 @media (prefers-reduced-motion: reduce) {
   .wd-benefit .wd-bill, .wd-benefit .wd-coin { opacity: 1 !important; transform: none !important; transition: none !important; }
   .cd-rrmini-halo, .cd-rrmini-avatar { animation: none !important; }
   .cd-rrmini-avatar { transform: none !important; }
   .cd-rrmini-card { transform: none !important; transition: none !important; }
   .wd-gauge-needle, .wd-fcard, .wd-btn { transition: none !important; }
+  .wd-aww-coin, .wd-aww-spark { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .wd-step { transition: none !important; }
 }
