@@ -451,17 +451,20 @@
     var p = String(iso).slice(0, 10).split('-');
     return p.length === 3 ? (p[1] + '/' + p[2] + '/' + p[0]) : String(iso);
   }
-  function _docMailto(profile, hasC33) {
+  function _docMailto(profile, hasC3, hasC33) {
     profile = profile || {};
     var name = profile.full_name || '';
-    var pkg = hasC33
+    var pkg = (hasC3 && hasC33)
       ? 'my completed Form C-3 (Employee Claim) and Form C-3.3 (Limited Release of Health Information)'
-      : 'my completed Form C-3 (Employee Claim)';
-    var plural = hasC33 ? 's' : '';
-    var subject = 'C-3 Employee Claim' + (name ? ' — ' + name : '');
+      : hasC3
+        ? 'my completed Form C-3 (Employee Claim)'
+        : 'my completed Form C-3.3 (Limited Release of Health Information)';
+    var plural = (hasC3 && hasC33) ? 's' : '';
+    var lead = hasC3 ? 'I am filing my own Employee Claim. Attached is ' : 'Attached is ';
+    var subject = (hasC3 ? 'C-3 Employee Claim' : 'C-3.3 Limited Release of Health Information') + (name ? ' — ' + name : '');
     var body = [
       'To the New York State Workers’ Compensation Board:', '',
-      'I am filing my own Employee Claim. Attached is ' + pkg + '.', '',
+      lead + pkg + '.', '',
       'Claimant: ' + name,
       'Date of birth: ' + (_fmtUSDate(profile.dob) || '—'),
       'Date of injury: ' + (_fmtUSDate(profile.doa) || '—'),
@@ -470,14 +473,21 @@
     ].join('\n');
     return 'mailto:' + WCB_FILING_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   }
-  function _storageKey(p) { return String(p || '').replace(/^c3-filings\//, ''); }
+  // Stored doc paths are durable "bucket/key" strings (c3-filings/{uid}/…,
+  // oc110a-signed/{uid}/…). Split into the bucket + object key for signing.
+  function _bucketAndKey(p) {
+    p = String(p || ''); var i = p.indexOf('/');
+    return i > 0 ? { bucket: p.slice(0, i), key: p.slice(i + 1) } : null;
+  }
   // Pre-open a tab synchronously (within the click gesture) so popup blockers
   // don't eat it, then point it at the freshly minted signed URL.
   function _openSignedDoc(path) {
     if (!CD.supa || !path) return;
+    var bk = _bucketAndKey(path);
+    if (!bk) { console.warn('[worker-dash] DOC_BAD_PATH', path); return; }
     var w = null;
     try { w = window.open('about:blank', '_blank'); } catch (e) {}
-    CD.supa.storage.from('c3-filings').createSignedUrl(_storageKey(path), 300)
+    CD.supa.storage.from(bk.bucket).createSignedUrl(bk.key, 300)
       .then(function (r) {
         var url = r && r.data && r.data.signedUrl;
         if (url) { if (w) w.location.href = url; else window.location.href = url; }
@@ -485,22 +495,43 @@
       })
       .catch(function (e) { if (w) w.close(); console.warn('[worker-dash] DOC_SIGNED_URL_FAILED', e); });
   }
-  function _docRow(h, r, profile) {
-    var when = _fmtUSDate(r.generated_at || r.created_at);
-    var hasC33 = !!r.c33_path;
-    var statusLabel = ({ draft: 'Draft', generated: 'Generated', filed_self: 'Filed (self-reported)', e_filed: 'E-filed' })[r.status] || r.status || '';
+  // Generic document row used for every source (C-3 filings, OC-110a, …).
+  function _genericDocRow(h, opts) {
     var row = h('div', { className: 'wd-doc-row', style: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', padding: '12px 0', borderTop: '1px solid var(--skin-divider)' } });
     row.appendChild(h('div', { style: { flex: '1 1 200px', minWidth: '0' } }, [
-      h('div', { style: { fontWeight: '600', color: 'var(--skin-text)' } }, 'C-3 Employee Claim' + (hasC33 ? ' + C-3.3' : '')),
-      h('div', { className: 'wd-doc-sub', style: { fontSize: '12.5px', color: 'var(--skin-text-muted)' } }, (when ? 'Generated ' + when : 'Generated') + ' · ' + statusLabel)
+      h('div', { style: { fontWeight: '600', color: 'var(--skin-text)' } }, opts.title),
+      h('div', { className: 'wd-doc-sub', style: { fontSize: '12.5px', color: 'var(--skin-text-muted)' } }, opts.sub)
     ]));
-    var actions = h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, [
-      h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.storage_path); } }, '⬇ C-3'),
-      hasC33 ? h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.c33_path); } }, '⬇ C-3.3') : null,
-      h('a', { className: 'wd-btn wd-btn-ghost', href: _docMailto(profile, hasC33), style: { textDecoration: 'none' } }, '✉️ Email to WCB')
-    ]);
-    row.appendChild(actions);
+    row.appendChild(h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, (opts.actions || []).filter(Boolean)));
     return row;
+  }
+  // One c3_filings row → a documents entry. Handles C-3-only, C-3+C-3.3 bundles,
+  // and standalone C-3.3-only filings (storage_path null) without a broken button.
+  function _docRow(h, r, profile) {
+    var when = _fmtUSDate(r.generated_at || r.created_at);
+    var hasC3 = !!r.storage_path, hasC33 = !!r.c33_path;
+    var statusLabel = ({ draft: 'Draft', generated: 'Generated', filed_self: 'Filed (self-reported)', e_filed: 'E-filed' })[r.status] || r.status || '';
+    var title = hasC3 ? ('C-3 Employee Claim' + (hasC33 ? ' + C-3.3' : '')) : (hasC33 ? 'C-3.3 Limited Release (HIPAA)' : 'C-3 filing');
+    return _genericDocRow(h, {
+      title: title,
+      sub: (when ? 'Generated ' + when : 'Generated') + ' · ' + statusLabel,
+      actions: [
+        hasC3 ? h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.storage_path); } }, '⬇ C-3') : null,
+        hasC33 ? h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.c33_path); } }, '⬇ C-3.3') : null,
+        h('a', { className: 'wd-btn wd-btn-ghost', href: _docMailto(profile, hasC3, hasC33), style: { textDecoration: 'none' } }, '✉️ Email to WCB')
+      ]
+    });
+  }
+  // OC-110a (Authorization for Medical Records) — signed during Comp Buddy intake,
+  // stored at profile.oc110a_doc_url (bucket/key in oc110a-signed).
+  function _oc110aRow(h, profile) {
+    if (!profile || !profile.oc110a_signed || !profile.oc110a_doc_url) return null;
+    var when = _fmtUSDate(profile.oc110a_signed_date);
+    return _genericDocRow(h, {
+      title: 'OC-110a Medical Authorization',
+      sub: (when ? 'Signed ' + when : 'Signed') + ' · Authorization for Medical Records',
+      actions: [h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(profile.oc110a_doc_url); } }, '⬇ Download')]
+    });
   }
   function _documentsCard(h, showScreen) {
     if (!CD.currentUser || !CD.supa) return null;   // signed-in + configured client only
@@ -510,36 +541,36 @@
       h('h2', { className: 'wd-card-title' }, '📄 My documents'),
       h('button', { type: 'button', className: 'wd-link-btn', onclick: function () { showScreen('c3'); } }, 'File a C-3 →')
     ]));
+    // OC-110a renders synchronously from the profile (no extra query); the C-3
+    // filings load async below and append beneath it.
+    var ocRow = _oc110aRow(h, profile);
+    if (ocRow) node.appendChild(ocRow);
+    var hasStatic = !!ocRow;
+
     var mount = h('div', { className: 'wd-docs-mount' });
     node.appendChild(mount);
     mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Loading your filings…'));
+    function emptyOrNone(msg) {
+      mount.innerHTML = '';
+      // Don't show "no documents" if OC-110a is already listed above.
+      if (!hasStatic) mount.appendChild(h('div', { className: 'wd-appts-empty' }, msg));
+    }
     try {
       CD.supa.from('c3_filings')
         .select('id,status,storage_path,c33_path,wcb_case_number,generated_at,created_at')
         .eq('user_id', CD.currentUser.id)
         .order('created_at', { ascending: false })
         .then(function (res) {
-          mount.innerHTML = '';
-          if (res && res.error) {
-            console.warn('[worker-dash] DOCS_FETCH_FAILED', res.error);
-            mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Your filings are unavailable right now.'));
-            return;
-          }
+          if (res && res.error) { console.warn('[worker-dash] DOCS_FETCH_FAILED', res.error); emptyOrNone('Your filings are unavailable right now.'); return; }
           var rows = (res && res.data) || [];
-          if (!rows.length) {
-            mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'No filings yet. Generate your C-3 and it’ll be saved here.'));
-            return;
-          }
+          mount.innerHTML = '';
+          if (!rows.length) { if (!hasStatic) mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'No filings yet. Generate your C-3 and it’ll be saved here.')); return; }
           rows.forEach(function (r) { mount.appendChild(_docRow(h, r, profile)); });
         }, function (e) {
-          mount.innerHTML = '';
-          console.warn('[worker-dash] DOCS_FETCH_FAILED', e);
-          mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Your filings are unavailable right now.'));
+          console.warn('[worker-dash] DOCS_FETCH_FAILED', e); emptyOrNone('Your filings are unavailable right now.');
         });
     } catch (e) {
-      mount.innerHTML = '';
-      console.warn('[worker-dash] DOCS_FETCH_FAILED', e);
-      mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Your filings are unavailable right now.'));
+      console.warn('[worker-dash] DOCS_FETCH_FAILED', e); emptyOrNone('Your filings are unavailable right now.');
     }
     return node;
   }
