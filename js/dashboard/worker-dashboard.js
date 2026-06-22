@@ -209,6 +209,13 @@
       apptMount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Appointments unavailable right now.'));
     }
 
+    // ── 5b. MY DOCUMENTS / FILINGS ────────────────────────────────────────
+    // Surfaces the claimant's generated C-3 (and C-3.3) filings from c3_filings
+    // so they're not stranded in the table — download via short-TTL signed URL
+    // + an honest "email it to the WCB yourself" path. Signed-in users only.
+    var docsCard = _documentsCard(h, showScreen);
+    if (docsCard) cont.appendChild(h('section', { className: 'wd-section' }, docsCard));
+
     // ── 6a. Free-tier upgrade banner ──────────────────────────────────────
     if (tier === 'free') {
       var ban = h('div', { className: 'wd-card wd-upgrade' }, [
@@ -430,6 +437,111 @@
           .catch(function (e) { console.warn('[worker-dash] AWW_SAVE_FAILED', e); });
       }
     } catch (e) { console.warn('[worker-dash] AWW_SAVE_FAILED', e); }
+  }
+
+  // ── MY DOCUMENTS / FILINGS ──────────────────────────────────────────────
+  // Lists the signed-in claimant's c3_filings rows (owner-RLS) — each generated
+  // C-3 (and C-3.3 when present) with a status, a short-TTL signed-URL download,
+  // and an honest "email it to the WCB yourself" mailto (the claimant attaches +
+  // sends; we never file on their behalf). Loads async after first paint, like
+  // appointments. Returns null (hidden) for anonymous or unconfigured clients.
+  var WCB_FILING_EMAIL = 'wcbclaimsfiling@wcb.ny.gov';
+  function _fmtUSDate(iso) {
+    if (!iso) return '';
+    var p = String(iso).slice(0, 10).split('-');
+    return p.length === 3 ? (p[1] + '/' + p[2] + '/' + p[0]) : String(iso);
+  }
+  function _docMailto(profile, hasC33) {
+    profile = profile || {};
+    var name = profile.full_name || '';
+    var pkg = hasC33
+      ? 'my completed Form C-3 (Employee Claim) and Form C-3.3 (Limited Release of Health Information)'
+      : 'my completed Form C-3 (Employee Claim)';
+    var plural = hasC33 ? 's' : '';
+    var subject = 'C-3 Employee Claim' + (name ? ' — ' + name : '');
+    var body = [
+      'To the New York State Workers’ Compensation Board:', '',
+      'I am filing my own Employee Claim. Attached is ' + pkg + '.', '',
+      'Claimant: ' + name,
+      'Date of birth: ' + (_fmtUSDate(profile.dob) || '—'),
+      'Date of injury: ' + (_fmtUSDate(profile.doa) || '—'),
+      'WCB case number: ' + (profile.wcb_case_number || 'Not yet assigned'), '',
+      'IMPORTANT: please attach the PDF' + plural + ' I downloaded before sending this email.'
+    ].join('\n');
+    return 'mailto:' + WCB_FILING_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+  function _storageKey(p) { return String(p || '').replace(/^c3-filings\//, ''); }
+  // Pre-open a tab synchronously (within the click gesture) so popup blockers
+  // don't eat it, then point it at the freshly minted signed URL.
+  function _openSignedDoc(path) {
+    if (!CD.supa || !path) return;
+    var w = null;
+    try { w = window.open('about:blank', '_blank'); } catch (e) {}
+    CD.supa.storage.from('c3-filings').createSignedUrl(_storageKey(path), 300)
+      .then(function (r) {
+        var url = r && r.data && r.data.signedUrl;
+        if (url) { if (w) w.location.href = url; else window.location.href = url; }
+        else { if (w) w.close(); console.warn('[worker-dash] DOC_SIGNED_URL_FAILED', r && r.error); }
+      })
+      .catch(function (e) { if (w) w.close(); console.warn('[worker-dash] DOC_SIGNED_URL_FAILED', e); });
+  }
+  function _docRow(h, r, profile) {
+    var when = _fmtUSDate(r.generated_at || r.created_at);
+    var hasC33 = !!r.c33_path;
+    var statusLabel = ({ draft: 'Draft', generated: 'Generated', filed_self: 'Filed (self-reported)', e_filed: 'E-filed' })[r.status] || r.status || '';
+    var row = h('div', { className: 'wd-doc-row', style: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', padding: '12px 0', borderTop: '1px solid var(--skin-divider)' } });
+    row.appendChild(h('div', { style: { flex: '1 1 200px', minWidth: '0' } }, [
+      h('div', { style: { fontWeight: '600', color: 'var(--skin-text)' } }, 'C-3 Employee Claim' + (hasC33 ? ' + C-3.3' : '')),
+      h('div', { className: 'wd-doc-sub', style: { fontSize: '12.5px', color: 'var(--skin-text-muted)' } }, (when ? 'Generated ' + when : 'Generated') + ' · ' + statusLabel)
+    ]));
+    var actions = h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, [
+      h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.storage_path); } }, '⬇ C-3'),
+      hasC33 ? h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.c33_path); } }, '⬇ C-3.3') : null,
+      h('a', { className: 'wd-btn wd-btn-ghost', href: _docMailto(profile, hasC33), style: { textDecoration: 'none' } }, '✉️ Email to WCB')
+    ]);
+    row.appendChild(actions);
+    return row;
+  }
+  function _documentsCard(h, showScreen) {
+    if (!CD.currentUser || !CD.supa) return null;   // signed-in + configured client only
+    var profile = CD.currentProfile || {};
+    var node = h('div', { className: 'wd-card wd-docs' });
+    node.appendChild(h('div', { className: 'wd-card-hd' }, [
+      h('h2', { className: 'wd-card-title' }, '📄 My documents'),
+      h('button', { type: 'button', className: 'wd-link-btn', onclick: function () { showScreen('c3'); } }, 'File a C-3 →')
+    ]));
+    var mount = h('div', { className: 'wd-docs-mount' });
+    node.appendChild(mount);
+    mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Loading your filings…'));
+    try {
+      CD.supa.from('c3_filings')
+        .select('id,status,storage_path,c33_path,wcb_case_number,generated_at,created_at')
+        .eq('user_id', CD.currentUser.id)
+        .order('created_at', { ascending: false })
+        .then(function (res) {
+          mount.innerHTML = '';
+          if (res && res.error) {
+            console.warn('[worker-dash] DOCS_FETCH_FAILED', res.error);
+            mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Your filings are unavailable right now.'));
+            return;
+          }
+          var rows = (res && res.data) || [];
+          if (!rows.length) {
+            mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'No filings yet. Generate your C-3 and it’ll be saved here.'));
+            return;
+          }
+          rows.forEach(function (r) { mount.appendChild(_docRow(h, r, profile)); });
+        }, function (e) {
+          mount.innerHTML = '';
+          console.warn('[worker-dash] DOCS_FETCH_FAILED', e);
+          mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Your filings are unavailable right now.'));
+        });
+    } catch (e) {
+      mount.innerHTML = '';
+      console.warn('[worker-dash] DOCS_FETCH_FAILED', e);
+      mount.appendChild(h('div', { className: 'wd-appts-empty' }, 'Your filings are unavailable right now.'));
+    }
+    return node;
   }
 
   // ── DISABILITY GAUGE ────────────────────────────────────────────────────
