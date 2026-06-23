@@ -952,6 +952,11 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
         //   reimbErRangeStart/End — ISO date strings, only used when scope='specific'
         reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
         reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
+        // alreadyPaid — period stays in the formal award + Total Award, but its
+        // dollars are removed from money moving (and therefore the fee, the
+        // equation card, and the OC-400.1 fee-app prefill). Reimbursement
+        // capacity is intentionally NOT affected.
+        alreadyPaid: false,
         endMode: null },
     ],
     ccpAmount: 0,
@@ -995,6 +1000,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
     amending: false, priorMode: 'pct', priorVal: 0,
     reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
     reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
+    alreadyPaid: false,
     endMode: null,
   });
 
@@ -1276,8 +1282,14 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       }
     });
     const totalReimbEr = reimbErKnown; // actual contributions sum, after caps
+    // Already-Paid periods — sum the awards of any non-HIA period the attorney
+    // flagged as already paid. These stay in Total Award (the formal award
+    // still lists them) but drop out of money moving, the fee, and the
+    // equation/fee-app prefill. Reimbursement capacity is untouched by design.
+    const alreadyPaidSum = out.reduce(
+      (s, p) => s + ((!p.isHia && p.alreadyPaid) ? (Number(p.amount) || 0) : 0), 0);
     // Claimant bucket — money moving to the claimant
-    const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown);
+    const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown - alreadyPaidSum);
     const feeOnClaimant = claimantMoving * 0.15;
     // Employer bucket — money moving back to the employer as reimbursement
     const employerMoving = reimbErKnown;
@@ -1291,6 +1303,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
     return {
       rows: out, totalAward,
       totalReimbEr, reimbErKnown, reimbErHasUnknown,
+      alreadyPaidSum,
       claimantMoving, feeOnClaimant,
       employerMoving, feeOnEmployer,
       feeOnCCP, totalFee,
@@ -1303,6 +1316,15 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
       net: netToClaimant,
     };
   }, [inputs, tt, aww, global.minRate, global.maxRate]);
+
+  // CCP as a percentage of the claimant's FULL weekly rate (⅔ × AWW, capped
+  // for the DOA — i.e. global.ttRate). Surfaced as a small read-only field
+  // between CCP Amount and Prior Payments so the attorney can see at a glance
+  // what disability rate the entered CCP implies (e.g. $367.33 ÷ $552.37 =
+  // 66.5%). Null when there's no CCP amount or no resolvable rate.
+  const ccpPctOfRate = (Number(inputs.ccpAmount) > 0 && Number(tt) > 0)
+    ? (Number(inputs.ccpAmount) / Number(tt)) * 100
+    : null;
 
   return (
     <>
@@ -1655,7 +1677,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
         </div>
         <button className="btn tiny" onClick={addPeriod}>+ Add Period</button>
 
-        <div className="row cols-2 ccp-builder-fields">
+        <div className="row ccp-builder-fields">
           <div className="f-group">
             <div className="ccp-amount-head">
               <label className="f-label" style={{margin:0}}>CCP Amount</label>
@@ -1671,6 +1693,13 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
               <span className="prefix">$</span>
               <input className="f-input with-prefix" type="number" value={inputs.ccpAmount}
                 onChange={e => setInputs({ ccpAmount: e.target.value })}/>
+            </div>
+          </div>
+          <div className="f-group ccp-pct-group">
+            <label className="f-label">% of Rate</label>
+            <div className="ccp-pct-display"
+              title="CCP as a percentage of the claimant's full weekly rate (⅔ × AWW, capped for the date of accident).">
+              {ccpPctOfRate != null ? ccpPctOfRate.toFixed(1) + '%' : '—'}
             </div>
           </div>
           <div className="f-group">
@@ -1781,9 +1810,26 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                   )}
                 </div>
               </div>
-              {computed.rows.map((p) => (
-                <div className="ccp-summary-row" key={p.id}>{buildRow(p)}</div>
-              ))}
+              {computed.rows.map((p) => {
+                const isPaid = !!p.alreadyPaid;
+                // Only periods that actually produce an award can be "already
+                // paid" — HIA / NCLT / NME / $0 rows have nothing to deduct.
+                const canPay = !p.isHia && Number(p.amount) > 0;
+                return (
+                  <div className={'ccp-summary-row' + (isPaid ? ' is-paid' : '')} key={p.id}>
+                    <span className="ccp-summary-row-text">{buildRow(p)}</span>
+                    {canPay && (
+                      <button type="button"
+                        className={'ccp-paid-toggle' + (isPaid ? ' on' : '')}
+                        aria-pressed={isPaid}
+                        onClick={() => updatePeriod(p.id, { alreadyPaid: !isPaid })}
+                        title="Mark this period as already paid — it stays in the formal award and Total Award, but its dollars are removed from money moving, the fee, and the OC-400.1.">
+                        {isPaid ? '✓ Already Paid' : 'Already Paid'}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
         })()}
@@ -1792,6 +1838,9 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
           <div className="r-row big"><span className="l">Total Award</span><span className="v">{fmt$(computed.totalAward)}</span></div>
           {Number(inputs.priorPay || 0) > 0 && (
             <div className="r-row"><span className="l">Less Prior Payments</span><span className="v">−{fmt$(Number(inputs.priorPay || 0))}</span></div>
+          )}
+          {computed.alreadyPaidSum > 0 && (
+            <div className="r-row"><span className="l">Less Already-Paid Periods</span><span className="v">−{fmt$(computed.alreadyPaidSum)}</span></div>
           )}
           {computed.reimbErKnown > 0 && (
             <div className="r-row"><span className="l">Less Reimb to ER (to employer bucket)</span><span className="v">−{fmt$(computed.reimbErKnown)}</span></div>
@@ -2412,7 +2461,8 @@ function buildEquation(tile, global) {
         const adjusted = Math.abs(r.currentRate - r.rawCurrentRate) > 0.005;
         const amendSuffix = r.amending ? ` (amending: ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk)` : '';
         const adjustedSuffix = adjusted && !r.amending ? ` (raw ${fmt$(r.rawCurrentRate)}, bounded by min/max for DOA)` : '';
-        lines.push(`P${i+1} ${r.desg}: ${fmtN(r.wks, 2)} wks × ${fmt$(r.rate)}${adjustedSuffix}${amendSuffix} = ${fmt$(r.amount)}`);
+        const paidSuffix = r.alreadyPaid ? ' — already paid (excluded from money moving)' : '';
+        lines.push(`P${i+1} ${r.desg}: ${fmtN(r.wks, 2)} wks × ${fmt$(r.rate)}${adjustedSuffix}${amendSuffix} = ${fmt$(r.amount)}${paidSuffix}`);
         const summaryAmend = r.amending ? `, amending — ${fmt$(r.currentRate)} − ${fmt$(r.priorRate)} = ${fmt$(r.rate)}/wk` : '';
         summary.push(`Period ${i+1} (${r.desg}, ${fmtN(r.wks,2)} wks at ${fmt$(r.rate)}/wk${adjusted && !r.amending ? ` — adjusted from raw ${fmt$(r.rawCurrentRate)}` : ''}${summaryAmend} = ${fmt$(r.amount)})`);
       });
@@ -2500,8 +2550,13 @@ function buildEquation(tile, global) {
         }
       });
 
+      // Already-Paid periods — mirror CCPTile.computed. Periods flagged
+      // alreadyPaid stay in totalAward (formal award lists them) but their
+      // dollars leave money moving, the fee, and this fee-app prefill.
+      const alreadyPaidSum = rows.reduce(
+        (s, r) => s + ((!r.isHia && r.alreadyPaid) ? (Number(r.amount) || 0) : 0), 0);
       // Buckets — claimant + employer + CCP
-      const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown);
+      const claimantMoving = Math.max(0, totalAward - Number(inputs.priorPay || 0) - reimbErKnown - alreadyPaidSum);
       const feeOnClaimant = claimantMoving * 0.15;
       const employerMoving = reimbErKnown;
       const feeOnEmployer = employerMoving * 0.15;
@@ -2518,6 +2573,7 @@ function buildEquation(tile, global) {
       const ccpAmt     = Number(inputs.ccpAmount || 0);
       if (totalAward > 0) lines.push(`Total Award: ${fmt$(totalAward)}`);
       if (priorPayAmt > 0) lines.push(`Less Prior: (${fmt$(priorPayAmt)})`);
+      if (alreadyPaidSum > 0) lines.push(`Less Already-Paid Periods: (${fmt$(alreadyPaidSum)})`);
       if (reimbErKnown > 0) lines.push(`Less Reimb to ER (to employer bucket): (${fmt$(reimbErKnown)})`);
       if (reimbErHasUnknown) lines.push(`Reimb to ER: TBD`);
       if (claimantMoving > 0) lines.push(`Moving to Claimant: ${fmt$(claimantMoving)}`);
@@ -2539,8 +2595,11 @@ function buildEquation(tile, global) {
       const proseParts = [];
       if (summary.length > 0) proseParts.push(`CCP / Award: ${summary.join('; ')}.`);
       if (totalAward > 0) {
-        if (priorPayAmt > 0) {
-          proseParts.push(`Total award ${fmt$(totalAward)}, less prior payments ${fmt$(priorPayAmt)} = ${fmt$(claimantMoving)} moving to claimant.`);
+        if (priorPayAmt > 0 || alreadyPaidSum > 0) {
+          const ded = [];
+          if (priorPayAmt > 0) ded.push(`prior payments ${fmt$(priorPayAmt)}`);
+          if (alreadyPaidSum > 0) ded.push(`already-paid periods ${fmt$(alreadyPaidSum)}`);
+          proseParts.push(`Total award ${fmt$(totalAward)}, less ${ded.join(' and ')} = ${fmt$(claimantMoving)} moving to claimant.`);
         } else {
           proseParts.push(`Total award ${fmt$(totalAward)} moving to claimant.`);
         }

@@ -1458,11 +1458,26 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
    button lives in the CCP Amount label row without throwing that input below
    the Prior Payments input. */
 .ccp-builder-fields {
-  grid-template-columns: 1fr 1fr;
-  align-items: end;            /* bottom-align so both inputs share a baseline */
+  /* CCP Amount (condensed) · % of Rate (compact read-only) · Prior Payments */
+  grid-template-columns: 1fr 0.62fr 1fr;
+  align-items: end;            /* bottom-align so all inputs share a baseline */
   gap: 12px;
 }
 .ccp-builder-fields .f-group { gap: 6px; min-width: 0; }
+/* Read-only "% of Rate" box — matches input height/border but isn't editable. */
+.ccp-pct-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 37px;
+  padding: 8px 6px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg-1) 60%, transparent);
+  font: 600 13px/1 var(--mono, ui-monospace, monospace);
+  color: var(--ac-2);
+  white-space: nowrap;
+}
 .ccp-builder-fields .f-label { margin: 0; }
 /* Equal-height label band on both columns: the CCP Amount header carries the
    "CCP same" button; Prior Payments carries a bare label. Force both to the
@@ -1529,14 +1544,51 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   white-space: nowrap;
 }
 .ccp-summary-row {
-  /* Plain-text-style line: one period per row, single-space joined. */
+  /* Plain-text-style line: one period per row, single-space joined.
+     Now a flex row so the per-period "Already Paid" toggle sits to the
+     right of the period text. */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   font: 600 12.5px/1.4 var(--mono, ui-monospace, monospace);
   color: var(--tx);
   padding: 2px 0;
+}
+.ccp-summary-row-text {
+  flex: 1 1 auto;
   white-space: pre-wrap;
   word-break: break-word;
 }
+/* When a period is flagged already-paid, dim + strike the text so it reads
+   as "still on the award, but not part of money moving." */
+.ccp-summary-row.is-paid .ccp-summary-row-text {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
 .ccp-summary-row + .ccp-summary-row { border-top: 1px dashed var(--bd-soft); padding-top: 4px; margin-top: 2px; }
+
+/* Per-period "Already Paid" pill — neutral when off, accent when on. */
+.ccp-paid-toggle {
+  flex: 0 0 auto;
+  font: 600 9.5px/1 var(--ui, 'Inter', system-ui, sans-serif);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--bd-soft);
+  background: transparent;
+  color: var(--tx-dim);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.ccp-paid-toggle:hover { border-color: var(--ac); color: var(--tx); }
+.ccp-paid-toggle.on {
+  background: color-mix(in srgb, var(--ac) 18%, transparent);
+  border-color: var(--ac);
+  color: var(--ac);
+}
 
 .ccp-same-btn {
   font-size: 10px;
