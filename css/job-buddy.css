@@ -6,6 +6,8 @@
 .cd-jb-title { font-size: 26px; font-weight: 800; margin: 2px 0 4px; }
 .cd-jb-beta { display: inline-block; vertical-align: middle; font-size: 11px; font-weight: 800; letter-spacing: .06em; color: #fff; background: var(--accent, #2563eb); border-radius: 999px; padding: 2px 8px; transform: translateY(-3px); }
 .cd-jb-sub { font-size: 14px; color: var(--muted, #6b7280); line-height: 1.45; margin: 0; }
+.cd-jb-hd-actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+.cd-jb-input-sm { width: auto; max-width: 130px; padding: 7px 9px; font-size: 13px; }
 
 .cd-jb-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line, #e5e7eb); margin: 14px 0 16px; flex-wrap: wrap; }
 .cd-jb-tab { appearance: none; background: none; border: 0; padding: 9px 12px; font-size: 14px; font-weight: 600; color: var(--muted, #6b7280); cursor: pointer; border-bottom: 2px solid transparent; }
@@ -44,7 +46,6 @@
 .cd-jb-empty p { font-size: 13.5px; line-height: 1.5; max-width: 440px; margin: 0 auto; }
 
 .cd-jb-feedbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-.cd-jb-input-sm { width: auto; max-width: 130px; padding: 7px 9px; font-size: 13px; }
 .cd-jb-ext { display: flex; align-items: center; gap: 6px; margin-left: auto; }
 .cd-jb-ext-lbl { font-size: 12.5px; color: var(--muted, #6b7280); }
 .cd-jb-chip { appearance: none; border: 1px solid var(--line, #d1d5db); background: var(--surface, #fff); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: inherit; }

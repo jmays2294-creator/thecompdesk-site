@@ -44,6 +44,7 @@
   <link rel="stylesheet" href="/css/brand-theme.css">
   <link rel="stylesheet" href="/css/skins.css">
   <link rel="stylesheet" href="/css/job-buddy-public.css">
+  <link rel="stylesheet" href="/css/job-buddy-wizard.css">
 
   <!-- Mapbox GL (same version as Find a Doctor / Find an Attorney) -->
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
@@ -70,6 +71,8 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
   <!-- The public Job Buddy controller (IIFE → window.JobBuddyPublic) -->
   <script src="/js/job-buddy-public.js"></script>
+  <!-- The first-run Work Profile wizard (IIFE → window.JobBuddyWizard) -->
+  <script src="/js/job-buddy/job-buddy-wizard.js"></script>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -81,6 +84,8 @@
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
     const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
 
+    var calc = (window.CD && window.CD.Calc) || null;
+
     // Nav: render logged-in nav when a session exists, public nav otherwise. Never block the
     // page on it — getOptionalUser() never redirects guests to login (getUser() would).
     getOptionalUser().then(function (user) {
@@ -88,7 +93,33 @@
         if (user && user.session) renderNav(user.session, user.tier);
         else renderPublicNav(null);
       } catch (e) { try { renderPublicNav(null); } catch (e2) {} }
-    }).catch(function () { try { renderPublicNav(null); } catch (e) {} });
+
+      // Wizard wiring — logged-in writes to Supabase under RLS; anon → localStorage only.
+      var uid = user && user.session && user.session.user && user.session.user.id;
+      var wizardOpts = uid
+        ? { supabase: supa, user: { id: uid }, calc: calc }
+        : { calc: calc };
+
+      // Boot the public Job Buddy controller (passes the wizard opts for the "Edit my work profile" launcher).
+      window.JobBuddyPublic.init({
+        supabase: supa,
+        mount: document.getElementById('jb-root'),
+        calc: calc,
+        mapboxToken: window.MAPBOX_TOKEN || null,
+        wizardOpts: wizardOpts
+      });
+
+      // First-run: open once (logged-in: when job_buddy_onboarded is false; anon: once per session).
+      // On sign-in with a device-saved profile, maybeAutoOpen() prefills it and offers to save it up.
+      try { if (window.JobBuddyWizard) window.JobBuddyWizard.maybeAutoOpen(wizardOpts); } catch (e) {}
+    }).catch(function () {
+      try { renderPublicNav(null); } catch (e) {}
+      window.JobBuddyPublic.init({
+        supabase: supa, mount: document.getElementById('jb-root'),
+        calc: calc, mapboxToken: window.MAPBOX_TOKEN || null, wizardOpts: { calc: calc }
+      });
+      try { if (window.JobBuddyWizard) window.JobBuddyWizard.maybeAutoOpen({ calc: calc }); } catch (e) {}
+    });
 
     // Footer disclaimer
     try {
@@ -96,14 +127,6 @@
         document.createRange().createContextualFragment(renderFooterDisclaimer())
       );
     } catch (e) {}
-
-    // Boot Job Buddy
-    window.JobBuddyPublic.init({
-      supabase: supa,
-      mount: document.getElementById('jb-root'),
-      calc: (window.CD && window.CD.Calc) || null,
-      mapboxToken: window.MAPBOX_TOKEN || null
-    });
   </script>
 
   <script src="/js/footer-contact.js" defer></script>

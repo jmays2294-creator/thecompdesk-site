@@ -466,6 +466,31 @@
     });
   };
 
+  // ─── First-run Work Profile wizard (vocational + restrictions, one front door) ──
+  // The wizard module (CD.JobBuddyWizard) is loaded alongside this screen. It writes
+  // vocational_profiles + restriction_profiles under RLS and flips job_buddy_onboarded.
+  function _wizardOpts(extra) {
+    var o = { calc: CD.Calc || null };
+    if (CD.supa) o.supabase = CD.supa;
+    if (CD.currentUser && CD.currentUser.id) o.user = { id: CD.currentUser.id };
+    if (CD.currentProfile) o.profile = CD.currentProfile;
+    return Object.assign(o, extra || {});
+  }
+  function _onWizardDone(onDone) {
+    return function (data) {
+      if (CD.currentProfile) CD.currentProfile.job_buddy_onboarded = true;  // don't reopen this session
+      if (typeof onDone === 'function') onDone(data);
+    };
+  }
+  function _openWizard(onDone) {
+    if (!CD.JobBuddyWizard) { _toast('The work-profile wizard isn’t available right now.'); return; }
+    CD.JobBuddyWizard.open(_wizardOpts({ onComplete: _onWizardDone(onDone) }));
+  }
+  function _maybeAutoOpenWizard(onDone) {
+    if (!CD.JobBuddyWizard || !_loggedIn()) return;            // anon app shell has no first-run gate
+    try { CD.JobBuddyWizard.maybeAutoOpen(_wizardOpts({ onComplete: _onWizardDone(onDone) })); } catch (e) {}
+  }
+
   // ════════════════════════════════════════════════════════════════════════
   // SCREEN
   // ════════════════════════════════════════════════════════════════════════
@@ -478,7 +503,10 @@
       H('div', { className: 'cd-jb-eyebrow' }, 'Free Beta · The Comp Desk'),
       H('h1', { className: 'cd-jb-title' }, ['Job Buddy ', H('span', { className: 'cd-jb-beta' }, 'BETA')]),
       H('p', { className: 'cd-jb-sub' },
-        'Find work within your medical restrictions and keep a hearing-ready record of your job search. You apply on the employer’s site — we never apply for you.')
+        'Find work within your medical restrictions and keep a hearing-ready record of your job search. You apply on the employer’s site — we never apply for you.'),
+      H('div', { className: 'cd-jb-hd-actions' }, [
+        H('button', { className: 'jbw-launcher', type: 'button', onclick: function () { _openWizard(function () { paintBody(); }); } }, '✎ Edit my work profile')
+      ])
     ]));
 
     var tabs = H('div', { className: 'cd-jb-tabs' });
@@ -506,6 +534,10 @@
     }
     paintTabs(); root.appendChild(tabs); root.appendChild(body); paintBody();
     root.appendChild(H('p', { className: 'cd-jb-disclaimer' }, DISCLAIMER));
+
+    // First-run: open the Work Profile wizard once (logged-in & job_buddy_onboarded === false).
+    // Deferred a tick so the caller can attach the screen first; the wizard mounts on <body>.
+    global.setTimeout(function () { _maybeAutoOpenWizard(function () { paintBody(); }); }, 0);
     return root;
   }
 

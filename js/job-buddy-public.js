@@ -205,7 +205,12 @@
   JBP.init = function (opts) {
     var supa = opts.supabase, mount = opts.mount;
     var calc = opts.calc, mapboxToken = opts.mapboxToken;
+    var wizardOpts = opts.wizardOpts || {};
     if (!mount) return;
+
+    // refs to the restriction inputs so the wizard can keep the quick-search form in sync.
+    var refs = {};
+    var REST_KEYS = ['lifting_limit_lbs', 'stand_minutes', 'sit_minutes', 'bend_twist', 'overhead_reach', 'can_drive', 'other_restrictions'];
 
     // Background motion (slow Ken Burns "boomerang": zoom in → reverse out → loop) is pure CSS
     // on .jb-bg-img — no JS needed, and it honors prefers-reduced-motion.
@@ -217,6 +222,28 @@
     };
     var geoCache = loadGeoCache();
 
+    // Prefill restrictions from a saved Work Profile (wizard → localStorage), if present, so the
+    // quick-search form reflects what the worker already entered in the wizard. Nothing server-side.
+    try {
+      var _wp = (global.JobBuddyWizard && global.JobBuddyWizard.loadLocal) ? global.JobBuddyWizard.loadLocal() : null;
+      if (_wp && _wp.rest) REST_KEYS.forEach(function (k) { if (_wp.rest[k] != null) state.r[k] = _wp.rest[k]; });
+    } catch (e) {}
+
+    // When the wizard saves, mirror its restrictions into the live quick-search inputs.
+    function applyRestrictions(rest) {
+      if (!rest) return;
+      REST_KEYS.forEach(function (k) {
+        state.r[k] = rest[k];
+        var ref = refs[k]; if (!ref) return;
+        if (k === 'can_drive') ref.value = rest[k] === true ? 'true' : (rest[k] === false ? 'false' : '');
+        else ref.value = (rest[k] == null ? '' : rest[k]);
+      });
+    }
+    global.addEventListener('jobbuddy:profile-updated', function (ev) {
+      try { applyRestrictions(ev && ev.detail && ev.detail.rest); } catch (e) {}
+    });
+    function openWizard() { try { if (global.JobBuddyWizard) global.JobBuddyWizard.open(wizardOpts); } catch (e) {} }
+
     mount.innerHTML = '';
     var wrap = el('div', { class: 'jb-wrap' });
     mount.appendChild(wrap);
@@ -226,7 +253,10 @@
       el('div', { class: 'jb-eyebrow' }, 'Free Beta · The Comp Desk'),
       el('h1', { class: 'jb-title' }, ['Job Buddy ', el('span', { class: 'jb-beta' }, 'BETA')]),
       el('p', { class: 'jb-sub' },
-        'Find real openings that fit your medical work restrictions, near you — with a clear reduced-earnings benefit estimate. No account needed. You apply on the employer’s site; we never apply for you.')
+        'Find real openings that fit your medical work restrictions, near you — with a clear reduced-earnings benefit estimate. No account needed. You apply on the employer’s site; we never apply for you.'),
+      el('div', { class: 'jb-hero-actions' }, [
+        el('button', { class: 'jbw-launcher', type: 'button', onclick: openWizard }, '✎ Edit my work profile')
+      ])
     ]));
 
     // ── Form ──
@@ -238,6 +268,7 @@
     function field(label, key, suffix, ph) {
       var inp = el('input', { class: 'jb-input', type: 'number', inputmode: 'numeric', placeholder: ph || '', value: state.r[key] == null ? '' : state.r[key] });
       inp.addEventListener('input', function () { state.r[key] = intOrNull(inp.value); });
+      refs[key] = inp;
       return el('label', { class: 'jb-fld' }, [el('span', { class: 'jb-lbl' }, label),
         el('div', { class: 'jb-in-suf' }, [inp, suffix ? el('span', { class: 'jb-suf' }, suffix) : null])]);
     }
@@ -245,6 +276,7 @@
       var sel = el('select', { class: 'jb-input' });
       optsArr.forEach(function (o) { var op = el('option', { value: o.v }, o.l); if (String(state.r[key]) === String(o.v)) op.selected = true; sel.appendChild(op); });
       sel.addEventListener('change', function () { state.r[key] = sel.value || null; });
+      refs[key] = sel;
       return el('label', { class: 'jb-fld' }, [el('span', { class: 'jb-lbl' }, label), sel]);
     }
     var freq = [{ v: '', l: '—' }, { v: 'none', l: 'None' }, { v: 'occasional', l: 'Occasional' }, { v: 'frequent', l: 'Frequent' }, { v: 'unrestricted', l: 'Unrestricted' }];
