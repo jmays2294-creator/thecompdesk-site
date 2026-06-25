@@ -67,14 +67,14 @@
     wcb: P1 + 'WCB_Case_Number_if_you_know_it[0]',
     name: P1 + '_1_Name[0]',
     dobM: P1 + '_2_Date_of_Birth[0]', dobD: P1 + 'undefined[0]', dobY: P1 + 'undefined_2[0]',
-    mailing: P1 + '_3_Mailing_address[0]', mailing2: P1 + 'undefined_3[0]',
+    mailing: P1 + '_3_Mailing_address[0]',
     ssn: P1 + 'Social_Security_Number[0]',
-    phone: P1 + '_5_Phone_Number[0]',
+    phone: P1 + '_5_Phone_Number[0]', phone2: P1 + 'undefined_3[0]',   // A5: area-code box + rest (undefined_3 was mis-mapped as mailing line 2)
     genderM: P1 + 'Check_Box2[0]', genderF: P1 + 'Check_Box3[0]',
     translatorY: P1 + 'Check_Box4[0]', translatorN: P1 + 'Check_Box5[0]',
     language: P1 + 'If_yes_for_what_language[0]',
     employer: P1 + '_1_Employer_when_injured[0]',
-    employerPhone: P1 + '_2_Phone_Number[0]',
+    employerPhone: P1 + '_2_Phone_Number[0]', employerPhone2: P1 + 'undefined_4[0]',   // B2: area-code box + rest
     workAddress: P1 + '_3_Your_work_address[0]',
     supervisor: P1 + '_5_Your_supervisors_name[0]',
     otherEmployers: P1 + '_6_List_namesaddresses_of_any_other_employers_at_the_time_of_your_injuryillness[0]',
@@ -103,13 +103,13 @@
     mvCarrier2: P2 + 'If_your_vehicle_was_involved_give_name_and_address_of_your_motor_vehicle_insurance_carrier_2[0]',
     noticeTo: P2 + 'If_yes_notice_was_given_to[0]', orally: P2 + 'orally[0]', inWriting: P2 + 'in_writing[0]',
     witnessNames: P2 + 'If_yes_list_names[0]',
-    stopWorkDate: P2 + 'on_what_date[0]',
-    returnedDate: P2 + 'If_yes_on_what_date[0]',
+    stopWorkDate: P2 + 'on_what_date[0]', stopWorkD: P2 + 'undefined_15[0]', stopWorkY: P2 + 'undefined_16[0]',
+    returnedDate: P2 + 'If_yes_on_what_date[0]', returnedD: P2 + 'undefined_17[0]', returnedY: P2 + 'undefined_18[0]',
     regularDuty: P2 + 'regular_duty[0]', limitedDuty: P2 + 'limited_duty[0]',
     sameEmployer: P2 + 'Same_employer[0]', newEmployer: P2 + 'New_employer[0]', selfEmployed: P2 + 'Self_employed[0]',
     grossPay2: P2 + '_4_What_is_your_gross_pay_before_taxes_per_pay_period[0]',
     payFreq2: P2 + 'How_often_are_you_paid[0]',
-    firstTreatDate: P2 + '_1_What_was_the_date_of_your_first_treatment[0]',
+    firstTreatDate: P2 + '_1_What_was_the_date_of_your_first_treatment[0]', firstTreatD: P2 + 'undefined_19[0]', firstTreatY: P2 + 'undefined_20[0]',
     noneReceived: P2 + 'None_received_skip_to_question_F5[0]',
     firstTreatName1: P2 + 'Name_and_address_where_you_were_first_treated_1[0]',
     firstTreatName2: P2 + 'Name_and_address_where_you_were_first_treated_2[0]',
@@ -118,7 +118,7 @@
     treatingDoctors2: P2 + 'Give_the_name_and_address_of_the_doctors_treating_you_for_this_injuryillness_2[0]',
     treatingDoctorsPhone: P2 + 'Phone_Number_2[0]',
     printName: P2 + 'Print_Name[0]',
-    certDate: P2 + 'Date[0]'
+    certDate: P2 + 'Date[0]', certDateD: P2 + 'undefined_23[0]', certDateY: P2 + 'undefined_24[0]'
   };
   var TREAT_FIELDS = {
     Emergency_Room: P2 + 'Emergency_Room[0]', Doctors_office: P2 + 'Doctors_office[0]',
@@ -306,6 +306,20 @@
   function fmtDate(d) { if (!d) return ''; var p = d.split('-'); return p.length === 3 ? p[1] + '/' + p[2] + '/' + p[0] : d; }
   function dateParts(d) { if (!d) return ['', '', '']; var p = d.split('-'); return p.length === 3 ? [p[1], p[2], p[0]] : ['', '', '']; }
   function todayISO() { return new Date().toISOString().split('T')[0]; }
+  // Split a phone into [areaCode, rest] for the form's "(___) ______" two-box layout.
+  function phoneParts(s) { var d = String(s || '').replace(/[^0-9]/g, ''); if (d.length < 4) return [d, '']; var a = d.slice(0, 3), rest = d.slice(3); if (rest.length === 7) rest = rest.slice(0, 3) + '-' + rest.slice(3); return [a, rest]; }
+  // Word-wrap `text` across N lines whose char capacities are given by `caps`
+  // (one per line). Any overflow is appended to the final line so nothing is lost.
+  function wrapFields(text, caps) {
+    var words = String(text || '').trim().split(/\s+/).filter(Boolean), out = [], i = 0;
+    for (var c = 0; c < caps.length; c++) {
+      var line = '';
+      while (i < words.length) { var cand = line ? line + ' ' + words[i] : words[i]; if (line && cand.length > caps[c]) break; line = cand; i++; if (line.length >= caps[c]) break; }
+      out.push(line);
+    }
+    if (i < words.length) out[out.length - 1] = (out[out.length - 1] + ' ' + words.slice(i).join(' ')).trim();
+    return out;
+  }
   function capWords(s) { return (s || '').split(' ').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' '); }
   function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
 
@@ -862,16 +876,20 @@
         var form = pdf.getForm();
         function setT(name, v) { try { if (v != null && v !== '') form.getTextField(name).setText(String(v)); } catch (e) {} }
         function setC(name) { try { form.getCheckBox(name).check(); } catch (e) {} }
+        function setSz(name, sz) { try { form.getTextField(name).setFontSize(sz); } catch (e) {} }
+        // Spread long text across the form's existing continuation-line fields so it
+        // uses every ruled line instead of clipping in the first (stub) box.
+        function setMulti(names, widths, text) { if (!text) return; var caps = widths.map(function (w) { return Math.max(6, Math.floor(w / 5)); }); var parts = wrapFields(text, caps); for (var k = 0; k < names.length; k++) { setT(names[k], parts[k] || ''); setSz(names[k], 9); } }
         var dobP = dateParts(state.dob), doiP = dateParts(state.doi);
         setT(F.wcb, profile.wcb_case_number || '');
         setT(F.name, state.name);
         setT(F.dobM, dobP[0]); setT(F.dobD, dobP[1]); setT(F.dobY, dobP[2]);
-        setT(F.mailing, state.mailing); setT(F.mailing2, state.mailing2);
+        setT(F.mailing, [state.mailing, state.mailing2].filter(Boolean).join(' '));
         setT(F.ssn, state.ssn);
-        setT(F.phone, state.phone);
+        var phP = phoneParts(state.phone); setT(F.phone, phP[0]); setT(F.phone2, phP[1]);
         if (state.gender === 'M') setC(F.genderM); else if (state.gender === 'F') setC(F.genderF);
         if (state.translator === 'yes') { setC(F.translatorY); setT(F.language, state.language); } else if (state.translator === 'no') setC(F.translatorN);
-        setT(F.employer, state.employer); setT(F.employerPhone, state.employerPhone);
+        setT(F.employer, state.employer); var ephP = phoneParts(state.employerPhone); setT(F.employerPhone, ephP[0]); setT(F.employerPhone2, ephP[1]);
         setT(F.workAddress, state.workAddress); setT(F.supervisor, state.supervisor); setT(F.otherEmployers, state.otherEmployers);
         setT(F.jobTitle, state.jobTitle); setT(F.activities, state.activities);
         if (state.jobTime && JOBTIME_FIELDS[state.jobTime]) setC(JOBTIME_FIELDS[state.jobTime]);
@@ -879,25 +897,28 @@
         setT(F.grossPay, state.grossPay); setT(F.payFreq, state.payFreq);
         setT(F.doiM, doiP[0]); setT(F.doiD, doiP[1]); setT(F.doiY, doiP[2]);
         setT(F.timeOfInjury, state.timeOfInjury); if (state.ampm === 'AM') setC(F.am); else if (state.ampm === 'PM') setC(F.pm);
-        setT(F.whereHappened, state.whereHappened);
-        setT(F.whatDoing, state.whatDoing);
-        setT(F.howHappened, state.howHappened);
+        setMulti([F.whereHappened, F.whereHappened2], [190, 506], state.whereHappened);
+        setMulti([F.whatDoing, F.whatDoing2], [141, 503], state.whatDoing);
+        setMulti([F.howHappened, F.howHappened2, F.howHappened3], [204, 506, 506], state.howHappened);
         var natureText = state.nature + (state.bodyParts.length ? ('  [Body parts: ' + state.bodyParts.map(function (p) { return BODY_LABELS[p] || p; }).join(', ') + ']') : '');
-        setT(F.nature, natureText);
+        setMulti([F.nature, F.nature2, F.nature3], [100, 506, 506], natureText);
         setT(F.nameP2, state.name); setT(F.doiP2M, doiP[0]); setT(F.doiP2D, doiP[1]); setT(F.doiP2Y, doiP[2]);
         if (state.objectInvolved === 'yes') setT(F.objectWhat, state.objectWhat);
         if (state.motorVehicle === 'yes') { if (state.vehicleType === 'your_vehicle') setC(F.yourVehicle); else if (state.vehicleType === 'employers_vehicle') setC(F.employersVehicle); else if (state.vehicleType === 'other_vehicle') setC(F.otherVehicle); setT(F.licensePlate, state.licensePlate); setT(F.mvCarrier1, state.mvCarrier); }
         if (state.gaveNotice === 'yes') { setT(F.noticeTo, state.noticeTo); if (state.noticeMethod === 'orally') setC(F.orally); else if (state.noticeMethod === 'in_writing') setC(F.inWriting); }
         if (state.witnessed === 'yes') setT(F.witnessNames, state.witnessNames);
-        if (state.stoppedWork === 'yes') setT(F.stopWorkDate, fmtDate(state.stopWorkDate));
-        if (state.returnedWork === 'yes') { setT(F.returnedDate, fmtDate(state.returnDate)); if (state.returnDuty === 'regular') setC(F.regularDuty); else if (state.returnDuty === 'limited') setC(F.limitedDuty); }
-        setT(F.firstTreatDate, fmtDate(state.firstTreatDate));
+        if (state.stoppedWork === 'yes') { var swP = dateParts(state.stopWorkDate); setT(F.stopWorkDate, swP[0]); setT(F.stopWorkD, swP[1]); setT(F.stopWorkY, swP[2]); }
+        if (state.returnedWork === 'yes') { var rdP = dateParts(state.returnDate); setT(F.returnedDate, rdP[0]); setT(F.returnedD, rdP[1]); setT(F.returnedY, rdP[2]); if (state.returnDuty === 'regular') setC(F.regularDuty); else if (state.returnDuty === 'limited') setC(F.limitedDuty); }
+        var ftP = dateParts(state.firstTreatDate); setT(F.firstTreatDate, ftP[0]); setT(F.firstTreatD, ftP[1]); setT(F.firstTreatY, ftP[2]);
         if (state.treatType && TREAT_FIELDS[state.treatType]) setC(TREAT_FIELDS[state.treatType]);
         if (state.treatType === 'none_received') setC(F.noneReceived);
         setT(F.firstTreatName1, state.firstTreatName);
         setT(F.treatingDoctors1, state.treatingDoctors); setT(F.treatingDoctorsPhone, state.treatingDoctorsPhone);
         setT(F.printName, state.certName || state.name);
-        setT(F.certDate, fmtDate(todayISO()));
+        var cdP = dateParts(todayISO()); setT(F.certDate, cdP[0]); setT(F.certDateD, cdP[1]); setT(F.certDateY, cdP[2]);
+        // Shrink every narrow date/phone box so the year (or area code) can't clip.
+        ['dobM', 'dobD', 'dobY', 'doiM', 'doiD', 'doiY', 'doiP2M', 'doiP2D', 'doiP2Y', 'stopWorkDate', 'stopWorkD', 'stopWorkY', 'returnedDate', 'returnedD', 'returnedY', 'firstTreatDate', 'firstTreatD', 'firstTreatY', 'certDate', 'certDateD', 'certDateY', 'phone', 'phone2', 'employerPhone', 'employerPhone2'].forEach(function (k) { setSz(F[k], 9); });
+        // signature image on page 2 (no AcroForm field for the ink line)
         return embedSig(pdf, PDFLib).then(function () { deXFA(pdf); return pdf.save(); });
       });
     }
@@ -907,8 +928,11 @@
         var dataUrl = sig.canvas.toDataURL('image/png');
         return pdf.embedPng(dataUrl).then(function (png) {
           var pages = pdf.getPages(); var page2 = pages[1]; if (!page2) return;
-          var w = 220, h = Math.min(w * (png.height / png.width), 28);
-          page2.drawImage(png, { x: 70, y: 70, width: w, height: h });
+          // EMPLOYEE'S Signature line — same row as the employee "Date" box (y≈129),
+          // to the right of the "Employee's Signature:" label. (NOT the attorney row
+          // lower down.) Render-verified 2026-06-25.
+          var w = 150, h = Math.min(w * (png.height / png.width), 22);
+          page2.drawImage(png, { x: 150, y: 132, width: w, height: h });
         });
       } catch (e) { console.warn('[C3] SIG_EMBED_SKIPPED', e); return Promise.resolve(); }
     }
@@ -920,8 +944,8 @@
         var dataUrl = sig.canvas.toDataURL('image/png');
         return pdf.embedPng(dataUrl).then(function (png) {
           var page = pdf.getPages()[0]; if (!page) return;
-          var w = 200, h = Math.min(w * (png.height / png.width), 26);
-          page.drawImage(png, { x: 80, y: 116, width: w, height: h });
+          var w = 200, h = Math.min(w * (png.height / png.width), 22);
+          page.drawImage(png, { x: 80, y: 104, width: w, height: h });
         });
       } catch (e) { console.warn('[C3] C33_SIG_SKIPPED', e); return Promise.resolve(); }
     }
