@@ -81,6 +81,63 @@
 }
 .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 
+/* Hero action boxes — four explainer cards; "Start Your Claim" leads (primary).
+   4-up on desktop, 2-up on tablet, 1-up on mobile. */
+.hero-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 1080px) { .hero-actions { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .hero-actions { grid-template-columns: 1fr; } }
+.action-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 16px 16px;
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--skin-card-shadow);
+  transition: transform var(--rhythm-fast) var(--ease-out),
+              border-color var(--rhythm-fast) var(--ease-out),
+              box-shadow var(--rhythm-fast) var(--ease-out);
+}
+.action-card:hover { transform: translateY(-3px); border-color: var(--skin-accent); }
+.action-card .label {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--skin-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.action-card .label::after {
+  content: "→";
+  margin-left: auto;
+  color: var(--skin-accent);
+  font-weight: 700;
+  transition: transform var(--rhythm-fast) var(--ease-out);
+}
+.action-card:hover .label::after { transform: translateX(3px); }
+.action-card p { font-size: 12.5px; color: var(--skin-text-muted); line-height: 1.5; margin: 0; }
+/* Primary — Start Your Claim is the first, most prominent box */
+.action-card.primary {
+  background: linear-gradient(150deg, var(--skin-accent) 0%, var(--skin-accent-deep) 100%);
+  border-color: var(--skin-accent);
+}
+.action-card.primary .label,
+.action-card.primary .label::after { color: var(--tcd-navy); }
+.action-card.primary p { color: rgba(45, 49, 66, 0.85); }
+.action-card.primary:hover {
+  border-color: var(--skin-accent-deep);
+  box-shadow: 0 12px 32px rgba(232, 119, 34, 0.35);
+}
+
 /* Symbolic still-life placeholder.
    A circular vignette with a soft inner gradient and a symbolic SVG.
    This is the placeholder for the real photographic still-life in the
@@ -604,9 +661,23 @@ a.show-card:hover { transform: translateY(-4px); border-color: var(--skin-accent
         <span class="eyebrow">Free workers' compensation companion</span>
         <h1>After a work injury, you shouldn't have to figure this out <em>alone.</em></h1>
         <p class="lede">Find an authorized doctor, never miss an IME, understand your rights, and connect with an experienced New York Workers' Comp attorney — all in one place. Always free for injured workers.</p>
-        <div class="ctas">
-          <a href="/connect-with-attorney.html" data-connect-modal class="btn primary">Find an Attorney</a>
-          <a href="/tools/find-doctor" class="btn ghost">Find a Doctor</a>
+        <div class="hero-actions">
+          <a href="/tools/claim-filing" class="action-card primary">
+            <span class="label">Start Your Claim</span>
+            <p>File your Form C-3 — the form that opens your WCB case — guided field by field.</p>
+          </a>
+          <a href="/connect-with-attorney.html" data-connect-modal class="action-card">
+            <span class="label">Find an Attorney</span>
+            <p>Get matched with an experienced NY workers' comp attorney in your county — free.</p>
+          </a>
+          <a href="/tools/find-doctor" class="action-card">
+            <span class="label">Find a Doctor</span>
+            <p>Search the WCB-authorized provider directory so your treatment counts toward your claim.</p>
+          </a>
+          <a href="/job-buddy" class="action-card">
+            <span class="label">Job Buddy</span>
+            <p>Find light-duty work that fits your medical restrictions, with a Board-ready work log.</p>
+          </a>
         </div>
         <div class="hero-stats" aria-label="At a glance">
           <div class="stat"><div class="v">$0</div><div class="l">Always free</div></div>
