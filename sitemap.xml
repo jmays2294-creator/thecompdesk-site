@@ -186,6 +186,13 @@
   </url>
 
   <url>
+    <loc>https://thecompdesk.com/tools/medical-travel</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://thecompdesk.com/tools/utdm</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
