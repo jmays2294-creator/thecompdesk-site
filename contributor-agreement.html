@@ -50,8 +50,12 @@
   .hide{display:none}
   .muted{color:var(--muted);font-size:13px}
   .callout{background:#11203a;border:1px solid var(--green);border-radius:12px;padding:18px 20px;margin:16px 0}
+  .callout.flat{border-color:var(--line)}
   .split{display:flex;gap:10px;margin-top:12px}.split>div{flex:1;text-align:center;border-radius:8px;padding:12px 8px;color:var(--bg);font-weight:700}
   .split .you{background:var(--green)}.split .tcd{background:var(--orange)}.split .pct{font-size:24px;line-height:1}.split .lbl{font-size:11px;margin-top:3px}
+  .typenav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .typenav a{font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--panel2)}
+  .typenav a.on{border-color:var(--orange);color:#fff}
 </style>
 </head>
 <body>
@@ -74,39 +78,45 @@ let state = { name:"", address:"", signedName:"", ack:false };
 const esc = s => String(s==null?"":s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
 const fmtDate = d => new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
 
-// ---- Full agreement body (merge: NAME, ADDRESS, DATE) -------------------
-function agreementHTML(name, address, dateLabel){
+// ---- party preamble shared by all three docs ---------------------------------
+function partyBox(name, address, dateLabel, contributorWord){
   const N = `<span class="merge">${esc(name)||'[Contributor name]'}</span>`;
   const A = `<span class="merge">${esc(address)||'[Contributor address]'}</span>`;
   const D = `<span class="merge">${esc(dateLabel)}</span>`;
-  return `
-  <div class="doc">
-  <div style="background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:18px;font-size:14px">
+  return `<div style="background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:18px;font-size:14px">
     Entered into and effective as of ${D} (the "Effective Date") between <b style="color:#fff">NJJ Document Services, Inc.</b>,
     a New York corporation, 26 Post Avenue, 4, New York, New York (the "Company"), and ${N}, ${A}, an attorney admitted in New York
-    (the "Contributor"). A software/services contract — <b>not</b> an agreement for the practice of law; The Comp Desk Law / Mays Law PLLC is not a party.
-  </div>
+    (the "${contributorWord}"). A software/services contract — <b>not</b> an agreement for the practice of law; The Comp Desk Law / Mays Law PLLC is not a party.
+  </div>`;
+}
+
+// ============================================================================
+// DOC 1 — SKILLS (90/10 revenue share)
+// ============================================================================
+function bodySkill(name, address, dateLabel){
+  return `<div class="doc">
+  ${partyBox(name,address,dateLabel,'Contributor')}
   <h2>Recitals</h2>
   <p><b>A.</b> The Company operates The Comp Desk, a software platform for NYS workers' compensation professionals and injured workers.
-  <b>B.</b> It operates a sandboxed Builder Platform for approved contributors to build calculators/tiles and Claude skills.
-  <b>C.</b> The Contributor wishes to build such contributions and the Company will grant access on these terms.
-  <b>D.</b> This is a software/services contract; it creates no partnership and no sharing of legal fees, and nothing here affects either Party's obligations under the NY Rules of Professional Conduct ("RPC").</p>
+  <b>B.</b> It operates a sandboxed Builder Platform for approved contributors to build Claude skills.
+  <b>C.</b> This Agreement governs <b>Skills</b>; calculators are governed by a separate Calculators Contributor Agreement.
+  <b>D.</b> Software/services contract; no partnership and no sharing of legal fees; nothing here affects either Party's obligations under the NY Rules of Professional Conduct ("RPC").</p>
 
   <h2>1. Definitions</h2>
-  <p><span class="sec">1.1–1.9</span> "Calculator," "Skill," "Contribution," "Work Product," "Intellectual Property Rights," "Approved Skill" (a Skill the Company has published and that is generating revenue), "Confidential Information," "PHI / Client Data," and "Net Skill Profit" (Section 5.2) have the meanings given them in this Agreement.</p>
+  <p><span class="sec">1.1–1.9</span> "Skill," "Calculator," "Contribution," "Work Product," "Intellectual Property Rights," "Approved Skill" (a Skill the Company has published and that is generating revenue), "Confidential Information," "PHI / Client Data," and "Net Skill Profit" (Section 5.2) have the meanings given them in this Agreement.</p>
 
   <h2>2. Scope; Sandbox Use; Access</h2>
   <p><span class="sec">2.1</span> Personal, non-exclusive, revocable right to use the Builder Platform to create Contributions; the Company issues a unique API key the Contributor keeps confidential and is liable for. <span class="sec">2.2</span> Sandbox only — no access to production systems, live data, PHI/Client Data, or another contributor's work. <span class="sec">2.3</span> No authority to bind the Company.</p>
-  <p><span class="sec">2.4 Original work only; own professional experience.</span> The Contributor shall build only original, license-clean material drawn from the Contributor's <b>own professional knowledge and experience</b>, and shall not incorporate, replicate, adapt, or derive any Contribution from the proprietary, confidential, or trade-secret intellectual property, materials, code, tools, or work product of any other organization, including any current or former employer or client. No third-party/open-source code except as disclosed to and approved by the Company in advance, in writing.</p>
+  <p><span class="sec">2.4 Original work only; own professional experience.</span> The Contributor shall build only original, license-clean material drawn from the Contributor's <b>own professional knowledge and experience</b>, and shall not incorporate, replicate, adapt, or derive any Contribution from the proprietary, confidential, or trade-secret IP, materials, code, tools, or work product of any other organization, including any current or former employer or client. No third-party/open-source code except as disclosed to and approved by the Company in advance, in writing.</p>
 
   <h2>3. Ownership of Work Product</h2>
   <p><span class="sec">3.1</span> All Work Product is work made for hire for the Company. <span class="sec">3.2</span> To the extent it is not, the Contributor hereby irrevocably <b>assigns to the Company</b> all right, title, and interest in it, including derivative/improvement rights. <span class="sec">3.3</span> Moral rights waived where permitted. <span class="sec">3.4</span> Further-assurances + attorney-in-fact. <span class="sec">3.5</span> No license-back except as separately granted in writing.</p>
 
-  <h2>4. Approval, Publication & Removal</h2>
+  <h2>4. Approval, Publication &amp; Removal</h2>
   <p><span class="sec">4.1</span> The Company may approve, reject, modify, delay, publish, decline to publish, or remove any Contribution at its sole discretion. <span class="sec">4.2</span> Nothing reaches production without the Company's approval. <span class="sec">4.3</span> No compensation accrues on rejected/unpublished/removed work except as Section 5 states.</p>
 
   <h2>5. Compensation — Skill Revenue Share</h2>
-  <p><span class="sec">5.1</span> As sole compensation, the Company pays the Contributor <b>90% of the Net Skill Profit</b> generated each month by the Contributor's Approved Skills and retains <b>10%</b>. <b>Calculators are not revenue-shared.</b></p>
+  <p><span class="sec">5.1</span> As sole compensation, the Company pays the Contributor <b>90% of the Net Skill Profit</b> generated each month by the Contributor's Approved Skills and retains <b>10%</b>. <b>Calculators are not revenue-shared under this Agreement.</b></p>
   <p><span class="sec">5.2 Net Skill Profit</span> = that Skill's gross revenue actually received by the Company and attributable to it, less its pro-rata share (by its share of total Approved-Skill gross revenue that month) of: (a) domain &amp; operating costs; (b) payment-processing fees; (c) infrastructure (The Comp Desk memory/storage + apportioned Claude API tokens).</p>
   <p><span class="sec">5.3</span> Statement + payment within 30 days of month-end; optional $25 minimum payout threshold. <span class="sec">5.4 Software revenue only; no legal fees or referral fees</span> — these amounts are for software/services and are <b>not</b> a share of legal fees, attorney compensation, referral fees, or proceeds of the practice of law, and are not contingent on or derived from any client/matter of The Comp Desk Law, PLLC, Mays Law PLLC, or any law firm, or any client referral. <span class="sec">5.5</span> Taxes are the Contributor's. <span class="sec">5.6</span> Prospective changes only; this Section controls over any summary.</p>
   <div class="callout">
@@ -115,10 +125,10 @@ function agreementHTML(name, address, dateLabel){
     <div class="split"><div class="you"><div class="pct">90%</div><div class="lbl">to you (builder)</div></div><div class="tcd"><div class="pct">10%</div><div class="lbl">to The Comp Desk</div></div></div>
   </div>
 
-  <h2>6. Confidentiality & PHI Prohibition</h2>
+  <h2>6. Confidentiality &amp; PHI Prohibition</h2>
   <p><span class="sec">6.1</span> The Contributor shall <b>not</b> access, request, store, use, or incorporate any PHI/Client Data, and shall not use real client/case/injured-worker data to build or test — only synthetic or properly de-identified, license-clean data. <span class="sec">6.2</span> Confidentiality of the Company's non-public information survives termination. <span class="sec">6.3</span> Prompt incident reporting.</p>
 
-  <h2>7. Representations & Warranties</h2>
+  <h2>7. Representations &amp; Warranties</h2>
   <p>The Contributor warrants: (a) each Contribution is original, from the Contributor's own professional experience; (b) none infringes third-party IP / is free of undisclosed open-source encumbrances; (c) none contains PHI/Client Data; (d) authority to enter and assign; (e) no conflict with any agreement, offer letter, or policy of the Contributor's employer; (f) no Contribution incorporates or derives from the proprietary IP of any other organization (current/former employer or client).</p>
 
   <h2>8. Relationship of the Parties</h2>
@@ -129,15 +139,133 @@ function agreementHTML(name, address, dateLabel){
 
   <h2>Exhibit A — Skill Revenue Share Calculation</h2>
   <p class="muted">For explanation only; Section 5 controls.</p>
-  <p>Gross revenue → less the skill's pro-rata program costs (domain/operating, processing, infrastructure) → Net Skill Profit → <b style="color:var(--green)">90% to you</b>, <b style="color:var(--orange)">10% to the Company</b>. Example: $1,000 gross − $200 costs = $800 → $720 to you / $80 to the Company. Calculators earn no revenue share.</p>
+  <p>Gross revenue → less the skill's pro-rata program costs (domain/operating, processing, infrastructure) → Net Skill Profit → <b style="color:var(--green)">90% to you</b>, <b style="color:var(--orange)">10% to the Company</b>. Example: $1,000 gross − $200 costs = $800 → $720 to you / $80 to the Company. Calculators earn no revenue share under this Agreement.</p>
   </div>`;
 }
 
-function signatureBlock(name, dateLabel){
+// ============================================================================
+// DOC 2 — CALCULATORS (no revenue share)
+// ============================================================================
+function bodyCalculator(name, address, dateLabel){
+  return `<div class="doc">
+  ${partyBox(name,address,dateLabel,'Contributor')}
+  <h2>Recitals</h2>
+  <p><b>A.</b> The Company operates The Comp Desk, a software platform for NYS workers' compensation professionals and injured workers.
+  <b>B.</b> It operates a sandboxed Builder Platform for approved contributors to build calculators and workspace tiles.
+  <b>C.</b> This Agreement governs <b>Calculators</b>; Claude skills are governed by a separate Skills Contributor Agreement. <b>This Agreement provides no revenue share for Calculators</b> (Section 5).
+  <b>D.</b> Software/services contract; no partnership and no sharing of legal fees; nothing here affects either Party's obligations under the NY Rules of Professional Conduct ("RPC").</p>
+
+  <h2>1. Definitions</h2>
+  <p><span class="sec">1.1–1.6</span> "Calculator," "Contribution," "Work Product," "Intellectual Property Rights," "Confidential Information," and "PHI / Client Data" have the meanings given them in this Agreement.</p>
+
+  <h2>2. Scope; Sandbox Use; Access</h2>
+  <p><span class="sec">2.1</span> Personal, non-exclusive, revocable right to use the Builder Platform to create Contributions; the Company issues a unique API key the Contributor keeps confidential and is liable for. <span class="sec">2.2</span> Sandbox only — no access to production systems, live data, PHI/Client Data, or another contributor's work. <span class="sec">2.3</span> No authority to bind the Company.</p>
+  <p><span class="sec">2.4 Original work only; own professional experience.</span> Only original, license-clean material drawn from the Contributor's <b>own professional knowledge and experience</b>; no proprietary, confidential, or trade-secret IP, materials, code, tools, or work product of any other organization (current/former employer or client). No third-party/open-source code except as disclosed to and approved in advance, in writing.</p>
+
+  <h2>3. Ownership of Work Product</h2>
+  <p><span class="sec">3.1</span> All Work Product is work made for hire for the Company. <span class="sec">3.2</span> To the extent it is not, the Contributor hereby irrevocably <b>assigns to the Company</b> all right, title, and interest in it, including derivative/improvement rights. <span class="sec">3.3</span> Moral rights waived where permitted. <span class="sec">3.4</span> Further-assurances + attorney-in-fact. <span class="sec">3.5</span> No license-back except as separately granted in writing.</p>
+
+  <h2>4. Approval, Publication &amp; Removal</h2>
+  <p><span class="sec">4.1</span> The Company may approve, reject, modify, delay, publish, decline to publish, or remove any Contribution at its sole discretion. <span class="sec">4.2</span> Nothing reaches production without the Company's approval.</p>
+
+  <h2>5. Compensation — No Revenue Share for Calculators</h2>
+  <p><span class="sec">5.1</span> <b>Calculators carry no revenue share.</b> This Agreement provides <b>no</b> compensation, royalty, revenue share, or profit share of any kind for any Calculator or other Contribution, whether or not it is approved, published, used, or generates revenue. The Contributor's consideration is the access and opportunity this Agreement provides.</p>
+  <p><span class="sec">5.2 Any calculator compensation is separate.</span> Any compensation relating to Calculators is <b>separate from this Agreement</b> and effective only under a distinct written instrument signed by both Parties. None is created or implied here, and nothing entitles the Contributor to any calculator arrangement the Company may have with another person.</p>
+  <p><span class="sec">5.3</span> Software, not legal fees — see Section 8.2. <span class="sec">5.4</span> Taxes are the Contributor's on any amounts received under any separate arrangement.</p>
+  <div class="callout flat">
+    <div style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Compensation</div>
+    <p style="margin:0;color:var(--body)"><b style="color:#fff">Calculators carry no revenue share under this Agreement.</b> Any calculator compensation, if any, is handled in a separate written agreement.</p>
+  </div>
+
+  <h2>6. Confidentiality &amp; PHI Prohibition</h2>
+  <p><span class="sec">6.1</span> The Contributor shall <b>not</b> access, request, store, use, or incorporate any PHI/Client Data, and shall not use real client/case/injured-worker data to build or test — only synthetic or properly de-identified, license-clean data. <span class="sec">6.2</span> Confidentiality survives termination. <span class="sec">6.3</span> Prompt incident reporting.</p>
+
+  <h2>7. Representations &amp; Warranties</h2>
+  <p>The Contributor warrants: (a) each Contribution is original, from the Contributor's own professional experience; (b) none infringes third-party IP / is free of undisclosed open-source encumbrances; (c) none contains PHI/Client Data; (d) authority to enter and assign; (e) no conflict with any agreement, offer letter, or policy of the Contributor's employer; (f) no Contribution derives from the proprietary IP of any other organization.</p>
+
+  <h2>8. Relationship of the Parties</h2>
+  <p><span class="sec">8.1</span> Independent contractor; no employment, partnership, or agency. <span class="sec">8.2 No fee-sharing; outside the practice of law (emphasized).</span> The Contributor and Joel Mays, Esq. are presently at the same firm (Shulman &amp; Hill, PLLC); this activity is a software contribution outside the practice of law. Nothing constitutes (a) sharing/division of legal fees, a referral fee, a law partnership, or non-lawyer ownership of any law practice; (b) any amount paid by, contingent on, or derived from The Comp Desk Law, PLLC, Mays Law PLLC, Shulman &amp; Hill, PLLC, or any law firm, client, matter, settlement, recovery, or client referral; and (c) the Company holds no interest in any law firm. Construed to comply with RPC 5.4 and 1.5. <span class="sec">8.3</span> No attorney-client relationship is created.</p>
+
+  <h2>9–14. Term, Materials, Indemnity, Liability, Governing Law, Misc.</h2>
+  <p><span class="sec">9</span> Either Party may terminate any time on written notice; the Company may suspend access immediately for suspected breach; Sections 3, 6, 7, 8, 10–14 survive. <span class="sec">10</span> Return/delete materials on termination. <span class="sec">11</span> Contributor indemnifies for breach of §2.4, §6, §7. <span class="sec">12</span> Platform "as is"; liability cap = $100. <span class="sec">13</span> Governed by New York law; exclusive venue <b>New York County, New York</b>; RPC controls where implicated. <span class="sec">14</span> Entire agreement; amendments in writing; Contributor may not assign; severability; counterparts/e-signature.</p>
+  </div>`;
+}
+
+// ============================================================================
+// DOC 3 — REVIEWER CONFIDENTIALITY (no IP assignment, no compensation)
+// ============================================================================
+function bodyReviewer(name, address, dateLabel){
+  return `<div class="doc">
+  ${partyBox(name,address,dateLabel,'Reviewer')}
+  <h2>Recitals</h2>
+  <p><b>A.</b> The Company operates The Comp Desk and a sandboxed Builder Platform where contributors submit calculators and Claude skills for review before any are approved or published.
+  <b>B.</b> The Company engages the Reviewer to <b>review and recommend</b> on submissions, exposing the Reviewer to other contributors' <b>unpublished</b> work and the Company's Confidential Information.
+  <b>C.</b> This Agreement governs confidentiality and conduct only. It involves <b>no assignment of intellectual property</b> and <b>no compensation</b>, and is not an agreement for the practice of law; nothing here affects either Party's obligations under the NY Rules of Professional Conduct ("RPC").</p>
+
+  <h2>1. Definitions</h2>
+  <p><span class="sec">1.1 Submission</span> — any contributor work product the Reviewer accesses in the review queue, at any stage, whether or not approved/published. <span class="sec">1.2 Confidential Information</span> — every Submission and the contributor's identity/notes; reviewers' notes, recommendations, and deliberations; and the Platform's non-public code, roadmap, pricing, user data, and trade secrets. <span class="sec">1.3 PHI / Client Data</span> — any protected health or injured-worker/claimant/case information.</p>
+
+  <h2>2. The Review Function; Scope of Access</h2>
+  <p><span class="sec">2.1</span> Personal, non-exclusive, revocable right to view Submissions in the Reviewer's domain and record non-binding recommendations (approve / request changes / reject) with a written reason. <span class="sec">2.2 Advisory only</span> — the Company retains sole discretion over every decision; the Reviewer cannot approve, publish, deploy, or release anything and cannot bind the Company. <span class="sec">2.3</span> Access and use Submissions and Confidential Information <b>only</b> to perform the review function.</p>
+
+  <h2>3. Confidentiality</h2>
+  <p><span class="sec">3.1</span> Hold all Confidential Information in strict confidence; do not disclose, copy, retain, export, or remove it except as the Company directs. <span class="sec">3.2 Other contributors' unpublished work</span> — do not disclose, discuss, publish, or characterize any Submission to anyone but the Company, and do not share a contributor's identity or any Submission's existence, contents, status, or outcome. <span class="sec">3.3 No appropriation</span> — do not use, adopt, replicate, adapt, or derive any element of any Submission for the Reviewer's own benefit or any third party, including to build any competing or similar calculator, skill, product, or service; reviewing grants no license. <span class="sec">3.4</span> Survives termination for as long as the information stays confidential.</p>
+
+  <h2>4. Conflicts of Interest</h2>
+  <p><span class="sec">4.1</span> Do not review any Submission in which the Reviewer has a financial, personal, professional, or competitive interest, or that the Reviewer authored; disclose any conflict and recuse. <span class="sec">4.2</span> No self-review (in addition to the platform's controls). <span class="sec">4.3</span> Honest, good-faith, impartial recommendations on the merits.</p>
+
+  <h2>5. PHI Prohibition</h2>
+  <p><span class="sec">5.1</span> The review function uses only synthetic/de-identified material; the Reviewer shall not introduce, request, store, or transmit any PHI/Client Data. <span class="sec">5.2</span> Promptly report any suspected unauthorized access/disclosure, account compromise, or Submission that appears to contain PHI or third-party proprietary material.</p>
+
+  <h2>6. No IP Assignment; No Compensation</h2>
+  <p><span class="sec">6.1</span> This Agreement effects <b>no</b> assignment or license of intellectual property by the Reviewer; the Reviewer is not creating Contributions and acquires no right, title, or interest in any Submission. <span class="sec">6.2</span> This Agreement provides <b>no</b> compensation, fee, or revenue share of any kind; the consideration is access to the review function and the mutual promises here.</p>
+
+  <h2>7. Relationship of the Parties</h2>
+  <p><span class="sec">7.1</span> Independent contractor; no employment, partnership, or agency. <span class="sec">7.2 No fee-sharing; outside the practice of law.</span> Software review outside the practice of law; nothing constitutes sharing of legal fees, a referral fee, a law partnership, or non-lawyer ownership of any law practice; the Reviewer receives nothing paid by, contingent on, or derived from any law firm, client, matter, settlement, recovery, or client referral; the Company holds no interest in any law firm. Construed to comply with RPC 5.4 and 1.5. <span class="sec">7.3</span> No attorney-client relationship is created.</p>
+
+  <h2>8–11. Term, Materials, Indemnity/Remedies, Governing Law, Misc.</h2>
+  <p><span class="sec">8</span> Either Party may terminate any time on written notice; the Company may suspend access immediately for suspected breach; Sections 1, 3, 4, 5, 6, 7, 9–11 survive. <span class="sec">9</span> Return/delete materials on termination. <span class="sec">10</span> Indemnity for breach of §3–§5; the Company may seek injunctive relief for breach of §3 or §4. <span class="sec">11</span> Governed by New York law; exclusive venue <b>New York County, New York</b>; "as is"; entire agreement; amendments in writing; no assignment without consent; severability; counterparts/e-signature; RPC controls where implicated.</p>
+  </div>`;
+}
+
+// ---- agreement-type config (driven by ?type=) ---------------------------------
+const TYPES = {
+  skill: {
+    dbType:'skill_builder', body:bodySkill, role:'Contributor', pill:'Skills',
+    title:'Skills Contributor &amp; Intellectual-Property Agreement',
+    need:g=>g.some(x=>x.capability==='build'&&x.domain==='skill'),
+    needLabel:'skill-builder', grantWord:'build skills',
+    ackExtra:'I understand my contributions are assigned to NJJ Document Services, Inc. and that this is not the sharing of legal fees.'
+  },
+  calculator: {
+    dbType:'calculator_builder', body:bodyCalculator, role:'Contributor', pill:'Calculators',
+    title:'Calculators Contributor &amp; Intellectual-Property Agreement',
+    need:g=>g.some(x=>x.capability==='build'&&x.domain==='calculator'),
+    needLabel:'calculator-builder', grantWord:'build calculators',
+    ackExtra:'I understand my contributions are assigned to NJJ Document Services, Inc., that calculators carry no revenue share under this agreement, and that this is not the sharing of legal fees.'
+  },
+  reviewer: {
+    dbType:'reviewer_nda', body:bodyReviewer, role:'Reviewer', pill:'Reviewer',
+    title:'Reviewer Confidentiality Agreement',
+    need:g=>g.some(x=>x.capability==='review'),
+    needLabel:'reviewer', grantWord:'review submissions',
+    ackExtra:'I will keep all contributor submissions and Company information confidential, will not appropriate any submission, and understand this involves no IP assignment and no compensation.'
+  }
+};
+const rawType = (new URLSearchParams(location.search).get('type')||'skill').toLowerCase();
+const T = TYPES[rawType] || TYPES.skill;
+const shortTitle = T.title.replace(' &amp; Intellectual-Property',' &amp; IP');
+
+function typeNav(){
+  const item=(k,lbl)=>`<a href="?type=${k}" class="${k===Object.keys(TYPES).find(x=>TYPES[x]===T)?'on':''}">${lbl}</a>`;
+  return `<div class="typenav">${item('skill','Skills')}${item('calculator','Calculators')}${item('reviewer','Reviewer')}</div>`;
+}
+
+function signatureBlock(name, dateLabel, roleWord){
   return `<div class="sig">
     <div class="block"><div class="lab">Company</div><div class="ln">NJJ Document Services, Inc.</div>
       <div class="lab">By: Joel Mays · CEO / President</div></div>
-    <div class="block"><div class="lab">Contributor</div><div class="ln">${esc(name)||'—'}</div>
+    <div class="block"><div class="lab">${esc(roleWord)}</div><div class="ln">${esc(name)||'—'}</div>
       <div class="lab">Effective date: ${esc(dateLabel)}</div></div>
   </div>`;
 }
@@ -148,7 +276,7 @@ function render(html){ wrap.innerHTML = html; }
 function viewLogin(msg){
   whoEl.textContent = "";
   render(`<div class="card" style="max-width:440px;margin:30px auto">
-    <span class="pill">Builder Platform</span>
+    <span class="pill">Builder Platform · ${T.pill}</span>
     <h1 style="font-size:22px">Sign in to review your agreement</h1>
     <p class="lede">Use your Comp Desk login. Your signed agreement is saved to your account, so you can return and read it anytime.</p>
     ${msg?`<div class="banner err">${esc(msg)}</div>`:""}
@@ -168,15 +296,28 @@ async function doLogin(){
   boot();
 }
 
+function viewGate(){
+  render(`<div class="card" style="max-width:560px;margin:24px auto">
+    ${typeNav()}
+    <span class="pill">Builder Platform · ${T.pill}</span>
+    <h1 style="font-size:22px">You're not set up to ${esc(T.grantWord)} yet</h1>
+    <p class="lede">This is the <b>${shortTitle}</b>. To sign it you need an active <b>${esc(T.needLabel)}</b> grant on your account. Ask Joel to grant you ${esc(T.grantWord)}, then return here to sign.</p>
+    <p class="muted">If you signed a different agreement, switch type above. Already have the grant and still see this? Sign out and back in to refresh.</p>
+    <div class="row"><button class="btn btn-ghost" id="out">Sign out</button></div>
+  </div>`);
+  document.getElementById('out').onclick=async()=>{await sb.auth.signOut();boot();};
+}
+
 function viewSigned(rec){
   const dateLabel = fmtDate(rec.effective_date);
   render(`<div class="card">
-    <div class="banner ok">✓ You signed the Contributor &amp; IP Agreement (${esc(rec.agreement_version)}) on <b>${esc(fmtDate(rec.signed_at))}</b>. This is your saved copy — read it anytime.</div>
-    <span class="pill">Executed copy</span>
-    <h1>Contributor &amp; Intellectual-Property Agreement</h1>
+    ${typeNav()}
+    <div class="banner ok">✓ You signed the ${shortTitle} (${esc(rec.agreement_version)}) on <b>${esc(fmtDate(rec.signed_at))}</b>. This is your saved copy — read it anytime.</div>
+    <span class="pill">Executed copy · ${T.pill}</span>
+    <h1>${T.title}</h1>
     <p class="lede">Signed by ${esc(rec.full_legal_name)} · Effective ${esc(dateLabel)}</p>
-    ${agreementHTML(rec.full_legal_name, rec.mailing_address, dateLabel)}
-    <h2>Signatures</h2>${signatureBlock(rec.signed_name, dateLabel)}
+    ${T.body(rec.full_legal_name, rec.mailing_address, dateLabel)}
+    <h2>Signatures</h2>${signatureBlock(rec.signed_name, dateLabel, T.role)}
     <div class="row"><button class="btn btn-ghost" onclick="window.print()">Print / Save PDF</button>
       <button class="btn btn-ghost" id="out">Sign out</button></div>
   </div>`);
@@ -185,10 +326,11 @@ function viewSigned(rec){
 
 function viewStep1(){
   render(`<div class="card">
+    ${typeNav()}
     <div class="steps"><div class="s on"></div><div class="s"></div><div class="s"></div></div>
-    <span class="pill">Step 1 of 3 · Your details</span>
+    <span class="pill">Step 1 of 3 · Your details · ${T.pill}</span>
     <h1>Before you review the agreement</h1>
-    <p class="lede">Enter your legal name and mailing address as they should appear on the executed agreement. The effective date will be the day you sign.</p>
+    <p class="lede">Enter your legal name and mailing address as they should appear on the executed <b>${shortTitle}</b>. The effective date will be the day you sign.</p>
     <label>Full legal name</label><input id="f_name" type="text" placeholder="Jane Q. Attorney" value="${esc(state.name)}">
     <label>Mailing address</label><textarea id="f_addr" placeholder="Street, City, State ZIP">${esc(state.address)}</textarea>
     <div class="row"><button class="btn btn-primary" id="next1">Continue to review</button></div>
@@ -205,11 +347,11 @@ function viewStep2(){
   const dateLabel = fmtDate(new Date());
   render(`<div class="card">
     <div class="steps"><div class="s on"></div><div class="s on"></div><div class="s"></div></div>
-    <span class="pill">Step 2 of 3 · Review</span>
+    <span class="pill">Step 2 of 3 · Review · ${T.pill}</span>
     <h1>Review the full agreement</h1>
     <p class="lede">Read it in full. Your details are merged below; the effective date is today, ${esc(dateLabel)}.</p>
-    ${agreementHTML(state.name, state.address, dateLabel)}
-    <h2>Signatures</h2>${signatureBlock(state.name, dateLabel)}
+    ${T.body(state.name, state.address, dateLabel)}
+    <h2>Signatures</h2>${signatureBlock(state.name, dateLabel, T.role)}
     <div class="row"><button class="btn btn-ghost" id="back2">Back</button>
       <button class="btn btn-primary" id="next2">Continue to sign</button></div>
   </div>`);
@@ -221,11 +363,11 @@ function viewStep3(err){
   const dateLabel = fmtDate(new Date());
   render(`<div class="card" style="max-width:560px;margin:0 auto">
     <div class="steps"><div class="s on"></div><div class="s on"></div><div class="s on"></div></div>
-    <span class="pill">Step 3 of 3 · Sign</span>
+    <span class="pill">Step 3 of 3 · Sign · ${T.pill}</span>
     <h1>Sign &amp; save</h1>
     <p class="lede">Signing creates your executed copy, effective today (${esc(dateLabel)}).</p>
     ${err?`<div class="banner err">${esc(err)}</div>`:""}
-    <label class="ack"><input type="checkbox" id="ack"> I have read the Contributor &amp; IP Agreement in full, I am ${esc(state.name)}, and I agree to be bound by it. I understand my contributions are assigned to NJJ Document Services, Inc. and that this is not the sharing of legal fees.</label>
+    <label class="ack"><input type="checkbox" id="ack"> I have read the ${shortTitle} in full, I am ${esc(state.name)}, and I agree to be bound by it. ${esc(T.ackExtra)}</label>
     <label>Type your full legal name to sign</label><input id="sig" type="text" placeholder="${esc(state.name)}">
     <div class="row"><button class="btn btn-ghost" id="back3">Back</button>
       <button class="btn btn-primary" id="signBtn">Sign &amp; save agreement</button></div>
@@ -241,11 +383,12 @@ async function doSign(){
   if(!sig){viewStep3("Type your full legal name to sign.");return;}
   const btn=document.getElementById('signBtn'); btn.disabled=true; btn.textContent="Saving…";
   const {data,error}=await sb.rpc('sign_contributor_agreement',{
-    p_full_name:state.name, p_address:state.address, p_signed_name:sig, p_version:AGREEMENT_VERSION
+    p_full_name:state.name, p_address:state.address, p_signed_name:sig,
+    p_agreement_type:T.dbType, p_version:AGREEMENT_VERSION
   });
   if(error){
     let m=error.message||"Could not save.";
-    if(/builder/i.test(m)) m="Your account isn't an active builder yet. Ask Joel to grant you builder access, then return here to sign.";
+    if(/grant required/i.test(m)) m="Your account doesn't have the "+T.needLabel+" grant required to sign this agreement. Ask Joel to grant you access, then return here.";
     viewStep3(m); return;
   }
   viewSigned(Array.isArray(data)?data[0]:data);
@@ -256,11 +399,18 @@ async function boot(){
   const {data:{session}}=await sb.auth.getSession();
   if(!session){ viewLogin(); return; }
   whoEl.textContent = session.user.email;
-  // prefill name from metadata if present
   state.name = state.name || session.user.user_metadata?.full_name || "";
-  const {data,error}=await sb.from('contributor_agreements').select('*').eq('contributor_id',session.user.id).maybeSingle();
+
+  // already signed THIS type? show the saved copy (even if the grant was later changed).
+  const {data:existing,error}=await sb.from('contributor_agreements')
+    .select('*').eq('contributor_id',session.user.id).eq('agreement_type',T.dbType).maybeSingle();
   if(error){ render(`<div class="card"><div class="banner err">Couldn't load your agreement: ${esc(error.message)}</div></div>`); return; }
-  if(data){ viewSigned(data); } else { viewStep1(); }
+  if(existing){ viewSigned(existing); return; }
+
+  // gate by the matching capability grant (owner passes; helpers come from migration 057).
+  const [{data:grants},{data:owner}] = await Promise.all([ sb.rpc('get_my_grants'), sb.rpc('is_owner') ]);
+  const g = Array.isArray(grants) ? grants : (grants||[]);
+  if(owner===true || T.need(g)) { viewStep1(); } else { viewGate(); }
 }
 boot();
 </script>
