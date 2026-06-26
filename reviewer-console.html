@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reviewer Console — The Comp Desk Builder Platform</title>
+<style>
+  :root{--bg:#0B1426;--panel:#0F1B33;--panel2:#151d30;--line:#1c2d4a;--ink:#eef3fb;--body:#c4cee0;
+    --muted:#8899b4;--faint:#5a6a82;--orange:#E87722;--green:#2dd4a0;--blue:#3b82f6;--red:#ff6b6b;--amber:#f0a030;}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--body);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--orange);text-decoration:none}
+  .header{background:var(--bg);border-bottom:3px solid var(--orange);position:sticky;top:0;z-index:10}
+  .header .inner{max-width:920px;margin:0 auto;padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .wm{color:#fff;font-size:19px;font-weight:700}.wm .dot{color:var(--orange)}.wm .sub{color:var(--muted);font-size:13px;font-weight:500;margin-left:8px}
+  .who{color:var(--muted);font-size:13px}
+  .wrap{max-width:920px;margin:0 auto;padding:26px 22px 90px}
+  h1{color:#fff;font-size:24px;margin:0 0 4px}.lede{color:var(--muted);font-size:14px;margin:0 0 22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px 20px;margin:0 0 16px}
+  label{display:block;color:var(--ink);font-size:13px;font-weight:600;margin:12px 0 5px}
+  input,textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:#fff;font-size:14px;padding:10px 12px;font-family:inherit}
+  textarea{min-height:64px;resize:vertical}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--orange)}
+  .btn{display:inline-block;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--orange);color:var(--bg)}.btn-ghost{background:transparent;border:1px solid var(--faint);color:var(--body)}
+  .btn-sm{padding:7px 12px;font-size:13px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .banner{border-radius:9px;padding:12px 15px;margin-bottom:14px;font-size:13px}
+  .banner.ok{background:#11261d;border:1px solid var(--green);color:#bdebd7}
+  .banner.err{background:#2a1518;border:1px solid var(--red);color:#ffc9c9}
+  .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .pill.kind{background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+  .pill.s-submitted{background:#10233f;color:#7fb0ff;border:1px solid #234a7a}
+  .pill.s-changes_requested{background:#2a2410;color:var(--amber);border:1px solid #6a5a18}
+  .pill.s-approved,.pill.s-published{background:#11261d;color:var(--green);border:1px solid #1f5c43}
+  .pill.s-rejected{background:#2a1518;color:var(--red);border:1px solid #6a2530}
+  .pill.r-approve{background:#11261d;color:var(--green);border:1px solid #1f5c43}
+  .pill.r-reject{background:#2a1518;color:var(--red);border:1px solid #6a2530}
+  .pill.r-changes{background:#2a2410;color:var(--amber);border:1px solid #6a5a18}
+  .sub-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .sub-title{color:#fff;font-size:16px;font-weight:700}
+  .meta{color:var(--faint);font-size:12px;margin-top:3px}
+  pre{background:#0B1426;border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto;max-height:340px;color:#c8d3e6;font-size:12px;white-space:pre-wrap;word-break:break-word}
+  .rec{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:13px}
+  .rec .reason{color:var(--body);margin-top:4px}
+  details summary{cursor:pointer;color:var(--orange);font-size:13px;margin-top:10px;user-select:none}
+  .muted{color:var(--muted);font-size:13px}
+  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{background:var(--panel2);color:var(--muted);border:none;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:var(--orange);color:var(--bg);font-weight:700}
+  .ownerbox{border-top:1px dashed var(--line);margin-top:12px;padding-top:12px}
+</style>
+</head>
+<body>
+  <div class="header"><div class="inner">
+    <span class="wm">The Comp Desk<span class="dot">.</span><span class="sub">Reviewer Console</span></span>
+    <span class="who" id="who"></span>
+  </div></div>
+  <div class="wrap" id="wrap"><div class="card"><p class="muted">Loading…</p></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = "https://ltibymvlytodkemdeeox.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const wrap = document.getElementById('wrap'), whoEl = document.getElementById('who');
+let ME = null, ME_EMAIL = "", IS_OWNER = false, SCOPE = 'open';
+let REVIEW_KINDS = new Set();   // domains the viewer can review: 'calculator' / 'skill'
+let ACCESS_LABEL = "";
+const esc = s => String(s==null?"":s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+const fmt = d => new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const render = h => wrap.innerHTML = h;
+const canReviewKind = k => IS_OWNER || REVIEW_KINDS.has(k);
+
+function viewLogin(msg){
+  whoEl.textContent="";
+  render(`<div class="card" style="max-width:420px;margin:30px auto">
+    <h1 style="font-size:20px">Reviewer sign in</h1>
+    <p class="lede">Use your Comp Desk login. Review access requires a review grant (Review calculators and/or Review skills).</p>
+    ${msg?`<div class="banner err">${esc(msg)}</div>`:""}
+    <label>Email</label><input id="email" type="email" autocomplete="username">
+    <label>Password</label><input id="pw" type="password" autocomplete="current-password">
+    <div class="row"><button class="btn btn-primary" id="go">Sign in</button></div>
+  </div>`);
+  go.onclick=doLogin; pw.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+}
+async function doLogin(){
+  const email=document.getElementById('email').value.trim(), password=document.getElementById('pw').value;
+  go.disabled=true; go.textContent="Signing in…";
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  if(error){viewLogin(error.message);return;}
+  boot();
+}
+
+function statusPill(s){ return `<span class="pill s-${esc(s)}">${esc(s.replace('_',' '))}</span>`; }
+function recPill(r){ return `<span class="pill r-${esc(r)}">${esc(r)}</span>`; }
+
+function artifactHTML(s){
+  const snap = s.snapshot || {};
+  if(s.kind==='skill'){
+    return `<details><summary>View SKILL.md</summary><pre>${esc(snap.skill_md||'(empty)')}</pre></details>`;
+  }
+  const spec = snap.spec ? JSON.stringify(snap.spec,null,2) : '(no spec)';
+  const code = snap.code ? `<pre>${esc(snap.code)}</pre>` : '';
+  return `<details><summary>View calculator (${esc(snap.authoring||'declarative')}, tier ${esc(snap.tier||'pro')})</summary>
+    ${code}<pre>${esc(spec)}</pre></details>`;
+}
+
+function recsHTML(recs){
+  if(!recs.length) return `<div class="muted" style="margin-top:8px">No recommendations yet.</div>`;
+  return recs.map(r=>`<div class="rec">${recPill(r.recommendation)}
+    <span class="muted">— ${r.reviewer_id===ME?'you':'reviewer'} · ${esc(fmt(r.updated_at))}</span>
+    <div class="reason">${esc(r.reason)}</div></div>`).join("");
+}
+
+function cardHTML(s, recs){
+  const mine = recs.find(r=>r.reviewer_id===ME);
+  const ownByMe = s.builder_id===ME;
+  const recForm = ownByMe
+    ? `<div class="muted" style="margin-top:10px">You submitted this — you can't recommend on your own work.</div>`
+    : `<label>Your recommendation${mine?' (update)':''}</label>
+       <div class="row" style="margin-top:0">
+         <select id="rec_${s.id}" style="max-width:180px">
+           <option value="approve"${mine&&mine.recommendation==='approve'?' selected':''}>Approve</option>
+           <option value="changes"${mine&&mine.recommendation==='changes'?' selected':''}>Request changes</option>
+           <option value="reject"${mine&&mine.recommendation==='reject'?' selected':''}>Reject</option>
+         </select></div>
+       <textarea id="reason_${s.id}" placeholder="Why is this your recommendation? (required)">${mine?esc(mine.reason):''}</textarea>
+       <div class="row"><button class="btn btn-primary btn-sm" onclick="sendRec('${s.id}')">${mine?'Update':'Submit'} recommendation</button></div>`;
+  const ownerBox = (IS_OWNER && (s.status==='submitted'||s.status==='changes_requested'))
+    ? `<div class="ownerbox"><label>Owner decision</label>
+        <div class="row" style="margin-top:0"><select id="dec_${s.id}" style="max-width:180px">
+          <option value="approved">Approve &amp; publish</option>
+          <option value="changes_requested">Request changes</option>
+          <option value="rejected">Reject</option>
+        </select></div>
+        <textarea id="cmt_${s.id}" placeholder="Comment to the builder (optional)"></textarea>
+        <div class="row"><button class="btn btn-ghost btn-sm" onclick="decide('${s.id}')">Record decision</button></div></div>`
+    : "";
+  return `<div class="card" id="card_${s.id}">
+    <div class="sub-head"><span class="pill kind">${esc(s.kind)}</span>${statusPill(s.status)}
+      <span class="sub-title">${esc((s.snapshot&&s.snapshot.name)||s.ref_id)}</span></div>
+    <div class="meta">slug ${esc((s.snapshot&&s.snapshot.slug)||'—')} · v${esc(s.version)} · submitted ${esc(fmt(s.created_at))}${s.notes?' · note: '+esc(s.notes):''}</div>
+    ${artifactHTML(s)}
+    <div style="margin-top:12px">${recsHTML(recs)}</div>
+    ${recForm}
+    ${ownerBox}
+  </div>`;
+}
+
+async function loadQueue(){
+  whoEl.textContent = `${ME_EMAIL} · ${ACCESS_LABEL}`;
+  let q = sb.from('submissions').select('*').order('created_at',{ascending:false});
+  if(SCOPE==='open') q = q.in('status',['submitted','changes_requested']);
+  const {data,error}=await q;
+  if(error){ render(`<div class="card"><div class="banner err">${esc(error.message)}</div></div>`); return; }
+  // RLS already scopes rows to what the caller can_review (+ their own). Additionally hide any
+  // submission outside the viewer's review domain (e.g. a reviewer-who-also-builds' own work in a
+  // kind they can't review). Owner / both-domain reviewers see everything.
+  const subs = (data||[]).filter(s => canReviewKind(s.kind));
+  let recs=[];
+  if(subs.length){
+    const {data:rd}=await sb.from('submission_recommendations').select('*').in('submission_id',subs.map(s=>s.id));
+    recs=rd||[];
+  }
+  const byId={}; recs.forEach(r=>{(byId[r.submission_id]=byId[r.submission_id]||[]).push(r);});
+  const scopeNote = IS_OWNER ? '' : ` · ${[...REVIEW_KINDS].join(' + ')} only`;
+  const toolbar=`<div class="toolbar">
+    <div class="seg"><button class="${SCOPE==='open'?'on':''}" onclick="setScope('open')">Open queue</button>
+      <button class="${SCOPE==='all'?'on':''}" onclick="setScope('all')">All</button></div>
+    <span class="muted">${subs.length} submission${subs.length===1?'':'s'}${scopeNote}</span></div>`;
+  const body = subs.length ? subs.map(s=>cardHTML(s,byId[s.id]||[])).join("")
+    : `<div class="card"><p class="muted">Nothing in the ${SCOPE==='open'?'open ':''}queue right now.</p></div>`;
+  render(`<h1>Submission queue</h1><p class="lede">Review builder-submitted skills and calculator tiles in your review domain, and record your recommendation. Final approve/reject is the owner's call.</p>${toolbar}${body}`);
+}
+window.setScope = s => { SCOPE=s; loadQueue(); };
+
+window.sendRec = async (id)=>{
+  const rec=document.getElementById('rec_'+id).value, reason=document.getElementById('reason_'+id).value.trim();
+  if(!reason){ alert("A written reason is required."); return; }
+  const {error}=await sb.rpc('recommend_submission',{p_submission_id:id,p_recommendation:rec,p_reason:reason});
+  if(error){ alert(error.message); return; }
+  loadQueue();
+};
+window.decide = async (id)=>{
+  const decision=document.getElementById('dec_'+id).value, comment=document.getElementById('cmt_'+id).value.trim();
+  if(!confirm('Record this decision? Approving publishes the artifact.')) return;
+  const {error}=await sb.rpc('decide_submission',{p_submission_id:id,p_decision:decision,p_comment:comment||null});
+  if(error){ alert(error.message); return; }
+  loadQueue();
+};
+
+async function boot(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){ viewLogin(); return; }
+  ME=session.user.id; ME_EMAIL=session.user.email;
+  // Capability grants (migration 057): review (calculator|skill) + owner. Gate + domain-scope on these.
+  const [{data:grants,error:ge},{data:owner,error:oe}] = await Promise.all([
+    sb.rpc('get_my_grants'), sb.rpc('is_owner')
+  ]);
+  if(ge||oe){
+    whoEl.textContent=ME_EMAIL;
+    render(`<div class="card"><div class="banner err">Couldn't verify your access: ${esc((ge||oe).message)}. Reload or contact the owner.</div>
+      <button class="btn btn-ghost btn-sm" id="out">Sign out</button></div>`);
+    document.getElementById('out').onclick=async()=>{await sb.auth.signOut();boot();};
+    return;
+  }
+  IS_OWNER = owner===true;
+  const g = Array.isArray(grants)?grants:[];
+  REVIEW_KINDS = new Set(g.filter(x=>x.capability==='review').map(x=>x.domain));
+  ACCESS_LABEL = IS_OWNER ? 'Owner' : ('Review: '+([...REVIEW_KINDS].join(', ')||'none'));
+  if(!(IS_OWNER || REVIEW_KINDS.size>0)){
+    whoEl.textContent=ME_EMAIL;
+    render(`<div class="card"><div class="banner err">Your account (${esc(ME_EMAIL)}) doesn't have a review grant. Ask the owner to enable <b>Review calculators</b> or <b>Review skills</b>.</div>
+      <button class="btn btn-ghost btn-sm" id="out">Sign out</button></div>`);
+    document.getElementById('out').onclick=async()=>{await sb.auth.signOut();boot();};
+    return;
+  }
+  loadQueue();
+}
+boot();
+</script>
+</body>
+</html>
