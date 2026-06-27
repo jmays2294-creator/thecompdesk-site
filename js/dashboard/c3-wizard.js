@@ -523,15 +523,16 @@
     function _attyAdLabel() { return el('div', { class: 'c3w-ad-label', text: 'Attorney Advertising' }); }
     function _attyDisclosure() { return el('p', { class: 'c3w-ad-disc', text: (CD.REFERRAL_DISCLOSURE || '') }); }
     function _preStartGate() {
+      // CTAs FIRST (worker can act without scrolling past the notice), warning + disclosure below.
       return el('div', { class: 'card c3w-offramp' }, [
         _attyAdLabel(),
-        el('div', { class: 'legal-notice' }, [
-          el('div', { class: 'legal-notice-title', html: '⚖️ Consider an attorney first' }),
-          el('p', { text: 'It is strongly advisable to consult a workers’ compensation attorney to make sure your claim is filed correctly. Filing errors can hurt your case.' })
-        ]),
         el('div', { class: 'btn-row' }, [
           el('button', { type: 'button', class: 'btn btn-primary', onclick: function () { openAttorneyOfframp(); } }, ['Talk to an attorney first']),
           el('button', { type: 'button', class: 'btn btn-secondary', onclick: function () { state.branch = 'self'; persist(); goToStep(1); } }, ['Continue on my own'])
+        ]),
+        el('div', { class: 'legal-notice' }, [
+          el('div', { class: 'legal-notice-title', html: '⚖️ Consider an attorney first' }),
+          el('p', { text: 'It is strongly advisable to consult a workers’ compensation attorney to make sure your claim is filed correctly. Filing errors can hurt your case.' })
         ]),
         _attyDisclosure()
       ]);

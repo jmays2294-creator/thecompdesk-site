@@ -42,6 +42,30 @@
 }
 .wd-hero-tagline { font-size: 15px; color: var(--skin-text-muted); }
 
+/* ── Primary claim CTA (the #1 action) ────────────────────────────────── */
+.wd-claim-card {
+  background: var(--skin-surface-elev);
+  border: 1.5px solid var(--skin-accent);
+  border-radius: var(--skin-card-radius, 18px);
+  box-shadow: var(--skin-card-shadow);
+  padding: var(--space-5, 24px);
+  display: flex; flex-direction: column; gap: var(--space-4, 16px);
+}
+.wd-claim-head { display: flex; align-items: flex-start; gap: 14px; }
+.wd-claim-icon {
+  flex: 0 0 auto; font-size: 24px; line-height: 1;
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--skin-surface-warm);
+}
+.wd-claim-eyebrow {
+  font-family: var(--font-display, serif); font-weight: var(--display-weight, 700);
+  font-size: 18px; color: var(--skin-text); margin-bottom: 4px;
+}
+.wd-claim-sub { font-size: 14px; line-height: 1.5; color: var(--skin-text-muted); margin: 0; }
+.wd-claim-btn { width: 100%; font-size: 16px; min-height: 54px; }
+.wd-claim-secondary { margin-top: calc(-1 * var(--space-1, 4px)); }
+
 /* ── Generic card ─────────────────────────────────────────────────────── */
 .wd-card {
   background: var(--skin-surface-elev);
@@ -457,3 +481,15 @@
   .wd-aww-coin, .wd-aww-spark { animation: none !important; opacity: 1 !important; transform: none !important; }
   .wd-step { transition: none !important; }
 }
+
+
+/* In-app document viewer (My Documents → View) — read a C-3 without downloading */
+.cd-docview-ov{position:fixed;inset:0;z-index:9999;background:rgba(8,10,16,.78);display:flex;flex-direction:column;}
+.cd-docview-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#12141c;border-bottom:1px solid rgba(255,255,255,.08);}
+.cd-docview-title{flex:1 1 auto;min-width:0;font-weight:700;color:#fff;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cd-docview-open{flex:0 0 auto;background:transparent;border:1px solid rgba(255,255,255,.25);color:#cfd4e0;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;}
+.cd-docview-open:hover{border-color:#3b82f6;color:#fff;}
+.cd-docview-x{flex:0 0 auto;background:transparent;border:none;color:#cfd4e0;font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;}
+.cd-docview-x:hover{color:#fff;}
+.cd-docview-frame{flex:1 1 auto;width:100%;border:none;background:#fff;}
+.cd-docs-screen{padding:14px;}

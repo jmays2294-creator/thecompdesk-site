@@ -159,15 +159,18 @@
   JB.matchNow = function (override) {
     if (!_loggedIn()) return Promise.reject(new Error('Sign in first.'));
     var ap = _awwAndPpd(override);
-    if (!ap.aww || !ap.ppd) return Promise.reject(new Error('Enter your AWW and date of accident to estimate benefits.'));
+    // AWW + date of accident are OPTIONAL. When present we also estimate reduced-earnings; when
+    // absent we still match listings to the worker's medical restrictions (no early reject).
     return Promise.all([
       JB.getRestriction(),
       CD.supa.from('job_listings').select('*').order('fetched_at', { ascending: false }).limit(8)
     ]).then(function (res) {
       var rp = res[0], listings = (res[1].data || []);
       if (!rp || !rp.confirmed_by_user) throw new Error('Confirm your restrictions first.');
-      if (!listings.length) return { results: [] };
+      if (!listings.length) return { results: [], tags: [] };
       var p = CD.currentProfile || {};
+      var byExt = {};
+      listings.forEach(function (l) { byExt[l.external_id] = l; });
       return _callFn('job-buddy', {
         restriction_profile: rp,
         aww: ap.aww, ppd_max_for_doa: ap.ppd, doa: ap.doa,
@@ -180,6 +183,22 @@
             salary_is_predicted: l.salary_is_predicted, description: l.description
           };
         })
+      }).then(function (resp) {
+        // The live match returns judgments only; join them back to the listing rows and shape
+        // into feed "tags" so the UI renders them with the same card as the daily precomputed feed.
+        var results = (resp && resp.results) || [];
+        var tags = results.filter(function (r) { return r.restriction_match !== 'no'; })
+          .map(function (r) {
+            return {
+              restriction_match: r.restriction_match,
+              re_estimate: r.re_estimate,
+              restriction_aww_fit_score: r.restriction_aww_fit_score,
+              red_flags: r.red_flags,
+              tagged_at: new Date().toISOString(),
+              job_listings: byExt[r.external_id] || null
+            };
+          }).filter(function (t) { return t.job_listings; });
+        return { results: results, tags: tags };
       });
     });
   };
@@ -679,24 +698,37 @@
       var refreshBtn = H('button', { className: 'cd-jb-btn ghost' }, '↻ Refresh feed');
       var status = H('span', { className: 'cd-jb-upstatus' }, '');
 
-      // If AWW/DOA aren't on the profile, let the worker enter them right here (not saved)
-      // instead of being bounced to the profile editor just to estimate reduced-earnings.
+      // AWW/DOA are OPTIONAL. If they're on the profile we also estimate reduced-earnings; if not,
+      // the worker can type them here (not saved) — but the feed still loads jobs without them.
       var override = {};
       var ap0 = _awwAndPpd();
       if (!ap0.aww || !ap0.ppd) {
-        var awwIn = H('input', { className: 'cd-jb-input cd-jb-input-sm', type: 'number', placeholder: 'AWW $' });
-        awwIn.oninput = function () { override.aww = awwIn.value; };
-        var doaIn = H('input', { className: 'cd-jb-input cd-jb-input-sm', type: 'date', title: 'Date of accident' });
-        doaIn.oninput = function () { override.doa = doaIn.value; };
-        bar.appendChild(H('span', { className: 'cd-jb-fld-lbl' }, 'Estimate benefits:'));
+        var awwIn = H('input', { className: 'cd-jb-input cd-jb-input-sm', type: 'number', placeholder: 'AWW $ (optional)' });
+        awwIn.oninput = function () { override.aww = awwIn.value; reMatchSoon(); };
+        var doaIn = H('input', { className: 'cd-jb-input cd-jb-input-sm', type: 'date', title: 'Date of accident (optional)' });
+        doaIn.oninput = function () { override.doa = doaIn.value; reMatchSoon(); };
+        bar.appendChild(H('span', { className: 'cd-jb-fld-lbl' }, 'Estimate benefits (optional):'));
         bar.appendChild(awwIn); bar.appendChild(doaIn);
       }
 
-      refreshBtn.onclick = function () {
-        status.textContent = 'Matching the newest listings…';
-        JB.matchNow(override).then(function () { renderFeedReload(mount); })
-          .catch(function (e) { status.textContent = (e && e.message) || 'Nothing new to match yet.'; });
-      };
+      function doMatch() {
+        status.textContent = 'Finding jobs within your restrictions…';
+        return JB.matchNow(override).then(function (r) {
+          status.textContent = '';
+          paint((r && r.tags) || []);
+        }).catch(function (e) {
+          status.textContent = (e && e.message) || 'Nothing to match yet.';
+          paint([]);
+        });
+      }
+      // Debounced auto re-match when the worker fills AWW/DOA inline — no manual Refresh needed.
+      var reTimer = null;
+      function reMatchSoon() {
+        if (reTimer) clearTimeout(reTimer);
+        reTimer = setTimeout(function () { if (override.aww || override.doa) doMatch(); }, 900);
+      }
+
+      refreshBtn.onclick = function () { doMatch(); };
       bar.appendChild(refreshBtn); bar.appendChild(status);
       // External search (deep-link only — we display nothing scraped from these)
       var ext = H('div', { className: 'cd-jb-ext' }, [
@@ -707,15 +739,27 @@
       bar.appendChild(ext);
       mount.appendChild(bar);
 
-      if (!tags.length) {
-        mount.appendChild(H('div', { className: 'cd-jb-empty' }, [
-          H('div', { className: 'cd-jb-empty-icon' }, '🎯'),
-          H('h3', {}, 'Your matched feed is being built'),
-          H('p', {}, 'Confirm your restrictions, then we surface jobs within your limits each morning. Tap “Refresh feed” to match the newest listings now, or search Indeed / LinkedIn directly.')
-        ]));
-        return;
+      var listWrap = H('div', { className: 'cd-jb-feedlist' });
+      mount.appendChild(listWrap);
+
+      function paint(items) {
+        listWrap.innerHTML = '';
+        if (!items || !items.length) {
+          listWrap.appendChild(H('div', { className: 'cd-jb-empty' }, [
+            H('div', { className: 'cd-jb-empty-icon' }, '🎯'),
+            H('h3', {}, 'No matches yet'),
+            H('p', {}, 'Confirm your work restrictions and we’ll surface jobs within your limits. Tap “Refresh feed” to match the newest listings now, or search Indeed / LinkedIn directly.')
+          ]));
+          return;
+        }
+        items.forEach(function (t) { listWrap.appendChild(_feedCard(t)); });
       }
-      tags.forEach(function (t) { mount.appendChild(_feedCard(t)); });
+
+      if (tags.length) {
+        paint(tags);   // precomputed daily feed
+      } else {
+        doMatch();     // auto-match the freshest listings on open — no manual Refresh needed
+      }
     });
   }
   function renderFeedReload(mount) { mount.innerHTML = ''; renderFeed(mount); }

@@ -483,6 +483,7 @@ function renderNav(session, tier) {
           </div>
         </li>
         <li><a href="/dashboard/my-cases.html" class="nav-link">My Cases</a></li>
+        <li><a href="/dashboard/#my-documents" class="nav-link">My Documents</a></li>
         ${toolsDropdownHTML()}
         ${exploreDropdownHTML()}
       </ul>
@@ -492,6 +493,7 @@ function renderNav(session, tier) {
         <li>
           <button class="acct-btn"><span class="acct-avatar">${(session && session.user && (session.user.email || 'A')).charAt(0).toUpperCase()}</span><span class="chev">▾</span></button>
           <div class="nav-dropdown-menu right-align">
+            <a href="/dashboard/#my-documents" class="nav-dropdown-item"><span class="ic">📄</span><span class="tx">My Documents<small>Your C-3 &amp; filings</small></span></a>
             <a href="/account.html" class="nav-dropdown-item"><span class="ic">⚙️</span><span class="tx">Account<small>Profile &amp; subscription</small></span></a>
             <a href="/contact.html" class="nav-dropdown-item"><span class="ic">✉️</span><span class="tx">Contact</span></a>
             <div class="nav-dd-sep"></div>
@@ -526,6 +528,7 @@ function renderPublicNav(userState) {
       <button class="acct-btn"><span class="acct-avatar">${(userState.session.user && (userState.session.user.email || 'A')).charAt(0).toUpperCase()}</span><span class="chev">▾</span></button>
       <div class="nav-dropdown-menu right-align">
         <a href="/dashboard/" class="nav-dropdown-item"><span class="ic">🏠</span><span class="tx">Dashboard</span></a>
+        <a href="/dashboard/#my-documents" class="nav-dropdown-item"><span class="ic">📄</span><span class="tx">My Documents</span></a>
         <a href="/account.html" class="nav-dropdown-item"><span class="ic">⚙️</span><span class="tx">Account</span></a>
         <a href="/contact.html" class="nav-dropdown-item"><span class="ic">✉️</span><span class="tx">Contact</span></a>
         <div class="nav-dd-sep"></div>

@@ -113,18 +113,57 @@
     var cont = h('div', { className: 'dash-container worker-dash' });
 
     // ── 1. HERO GREETING ──────────────────────────────────────────────────
+    // Guests (no account) get a generic welcome with NO name — never "Welcome
+    // back, there". Known users keep the personalized greeting.
+    var _known = !!((profile && profile.full_name) || (user && user.email));
     var hero = h('section', { className: 'wd-hero' }, [
       h('div', { className: 'wd-hero-eyebrow' }, 'Comp Buddy · The Comp Desk'),
-      h('h1', { className: 'wd-hero-title' }, [
-        'Welcome back, ',
-        h('span', { className: 'wd-hero-name' }, _firstName(profile, user))
-      ]),
+      h('h1', { className: 'wd-hero-title' },
+        _known
+          ? ['Welcome back, ', h('span', { className: 'wd-hero-name' }, _firstName(profile, user))]
+          : ['Welcome']),
       h('div', { className: 'wd-hero-sub' }, [
         h('span', { className: 'wd-badge worker-badge' }, '👷 Injured Worker'),
-        h('span', { className: 'wd-hero-tagline' }, 'Here’s where your case stands today.')
+        h('span', { className: 'wd-hero-tagline' }, _known ? 'Here’s where your case stands today.' : 'Start your claim and learn your rights.')
       ])
     ]);
     cont.appendChild(hero);
+
+    // ── 1b. PRIMARY CTA — "Start your WC claim" (the visual #1 action) ─────
+    // Launches the C-3 (Employee Claim) wizard directly. Works for guests:
+    // CD.C3Wizard runs an anonymous mode that generates the filled PDF for
+    // local download — no sign-in required. The four secondary entries below
+    // are all free per the locked gating and all work anonymously.
+    var claimCard = h('div', { className: 'wd-claim-card' }, [
+      h('div', { className: 'wd-claim-head' }, [
+        h('span', { className: 'wd-claim-icon', 'aria-hidden': 'true' }, '📝'),
+        h('div', { className: 'wd-claim-copy' }, [
+          h('div', { className: 'wd-claim-eyebrow' }, 'Injured on the job?'),
+          h('p', { className: 'wd-claim-sub' },
+            'File your official C-3 Employee Claim with the NYS Workers’ Compensation Board — guided step by step. Free, no account needed.')
+        ])
+      ]),
+      h('button', {
+        type: 'button', className: 'wd-btn wd-btn-accent wd-claim-btn',
+        onclick: function () { showScreen('c3'); }
+      }, '📝  Start your Workers’ Compensation Claim')
+    ]);
+    cont.appendChild(h('section', { className: 'wd-section wd-claim' }, claimCard));
+
+    // Secondary quick-entries under the primary CTA — all free, all guest-safe.
+    var quickGrid = h('div', { className: 'wd-grid wd-claim-secondary' });
+    [
+      { icon: '🎯', title: 'Job Buddy', desc: 'Find work within your restrictions + C-258.1 log', screen: 'job_buddy' },
+      { icon: '🛣️', title: 'Road to Recovery', desc: 'See every step of your case', screen: 'recovery' },
+      { icon: '🏥', title: 'Find a Doctor', desc: 'Find WCB-authorized doctors', screen: 'doctor' },
+      { icon: '📚', title: 'Learning Portal', desc: 'WC glossary, FAQ & timeline', screen: 'learning' }
+    ].forEach(function (q) {
+      quickGrid.appendChild(_featureCard(h, {
+        icon: q.icon, title: q.title, desc: q.desc, badge: 'Free', badgeCls: 'is-free',
+        onClick: function () { showScreen(q.screen); }
+      }));
+    });
+    cont.appendChild(h('section', { className: 'wd-section' }, quickGrid));
 
     // ── 2. ROAD-TO-RECOVERY MINI-MAP ──────────────────────────────────────
     var recWrap = h('section', { className: 'wd-section wd-recovery' });
@@ -251,17 +290,22 @@
     cont.appendChild(h('div', { className: 'wd-section-label' }, 'Comp Buddy features'));
     // Surface ALL Comp Buddy features so an injured worker sees everything
     // available — honest tier gating (locked/Pro) + truthful "Coming soon".
+    // Locked decision (2026-06-24): the core injured-worker features are FREE +
+    // anonymous-capable — Road to Recovery, IME Reminders, Job Buddy, C-3, Find a
+    // Doctor, Learning. The paywall stays only on the CALCULATORS (Settlement, My
+    // Injury Tools) and attorney/marketplace surfaces.
     var buddy = [
-      { icon: '🛣️', title: 'Road to Recovery', desc: 'See every step of your case', tier: 'comp_buddy', screen: 'recovery' },
-      { icon: '🔔', title: 'IME Reminders', desc: 'Never miss an IME appointment', tier: 'comp_buddy', screen: 'ime' },
+      { icon: '🛣️', title: 'Road to Recovery', desc: 'See every step of your case', tier: 'free', screen: 'recovery' },
+      { icon: '🔔', title: 'IME Reminders', desc: 'Never miss an IME appointment', tier: 'free', screen: 'ime' },
       { icon: '⚖️', title: 'Settlement Calculator', desc: 'Estimate your SLU value', tier: 'comp_buddy', screen: 'settlement' },
       { icon: '🛠️', title: 'My Injury Tools', desc: 'SLU estimator, radiculopathy & more', tier: 'comp_buddy', screen: 'advanced_tools' },
       { icon: '🎯', title: 'Job Buddy (Beta)', desc: 'Free beta — find work within your restrictions + C-258.1 log', tier: 'free', screen: 'job_buddy' },
-      { icon: '📝', title: 'File a C-3 Claim', desc: 'Generate & file your Employee Claim', tier: 'comp_buddy', screen: 'c3' },
+      { icon: '📝', title: 'File a C-3 Claim', desc: 'Generate & file your Employee Claim', tier: 'free', screen: 'c3' },
       { icon: '⚖️', title: 'Find an Attorney', desc: 'Get matched — free, no obligation', tier: 'free', attorney: true },
       { icon: '🤖', title: 'AI Case Advisor', desc: 'Ask questions about your claim', tier: 'pro', soon: true },
       { icon: '📋', title: 'UTDM Monitoring', desc: 'Track medical updates', tier: 'comp_buddy', soon: true },
-      { icon: '🚗', title: 'Mileage & Travel', desc: 'Log travel expenses', tier: 'comp_buddy', soon: true }
+      { icon: '🚗', title: 'Mileage & Travel', desc: 'Log trips, fares & mileage for reimbursement', tier: 'comp_buddy', screen: 'mt' },
+      { icon: '🧾', title: 'Accident & Notice Evidence', desc: 'Collect proof you reported your accident', tier: 'comp_buddy', screen: 'accident-notice' }
     ];
     var buddyGrid = h('div', { className: 'wd-grid' });
     buddy.forEach(function (f) {
@@ -451,28 +495,6 @@
     var p = String(iso).slice(0, 10).split('-');
     return p.length === 3 ? (p[1] + '/' + p[2] + '/' + p[0]) : String(iso);
   }
-  function _docMailto(profile, hasC3, hasC33) {
-    profile = profile || {};
-    var name = profile.full_name || '';
-    var pkg = (hasC3 && hasC33)
-      ? 'my completed Form C-3 (Employee Claim) and Form C-3.3 (Limited Release of Health Information)'
-      : hasC3
-        ? 'my completed Form C-3 (Employee Claim)'
-        : 'my completed Form C-3.3 (Limited Release of Health Information)';
-    var plural = (hasC3 && hasC33) ? 's' : '';
-    var lead = hasC3 ? 'I am filing my own Employee Claim. Attached is ' : 'Attached is ';
-    var subject = (hasC3 ? 'C-3 Employee Claim' : 'C-3.3 Limited Release of Health Information') + (name ? ' — ' + name : '');
-    var body = [
-      'To the New York State Workers’ Compensation Board:', '',
-      lead + pkg + '.', '',
-      'Claimant: ' + name,
-      'Date of birth: ' + (_fmtUSDate(profile.dob) || '—'),
-      'Date of injury: ' + (_fmtUSDate(profile.doa) || '—'),
-      'WCB case number: ' + (profile.wcb_case_number || 'Not yet assigned'), '',
-      'IMPORTANT: please attach the PDF' + plural + ' I downloaded before sending this email.'
-    ].join('\n');
-    return 'mailto:' + WCB_FILING_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  }
   // Stored doc paths are durable "bucket/key" strings (c3-filings/{uid}/…,
   // oc110a-signed/{uid}/…). Split into the bucket + object key for signing.
   function _bucketAndKey(p) {
@@ -495,6 +517,38 @@
       })
       .catch(function (e) { if (w) w.close(); console.warn('[worker-dash] DOC_SIGNED_URL_FAILED', e); });
   }
+  // Mint a short-TTL signed URL for a stored "bucket/key" path (for attaching).
+  function _signedUrlFor(path) {
+    var bk = _bucketAndKey(path);
+    if (!CD.supa || !bk) return Promise.resolve(null);
+    return CD.supa.storage.from(bk.bucket).createSignedUrl(bk.key, 300)
+      .then(function (r) { return (r && r.data && r.data.signedUrl) || null; })
+      .catch(function () { return null; });
+  }
+  // Native "email to WCB" for a stored filing: downloads the EXISTING PDF(s)
+  // (never re-generates) and opens the device mail composer with them attached —
+  // C-3 and C-3.3 in ONE email. Falls back to the share sheet / copyable address
+  // (handled inside CD.NativeMail) on iOS with no Mail account configured.
+  function _emailFilingToWCB(r, profile, hasC3, hasC33, btn) {
+    if (!CD.NativeMail || !CD.NativeMail.emailClaimToWCB) return;
+    if (btn) { btn.disabled = true; btn.textContent = 'Opening mail…'; }
+    var jobs = [];
+    if (hasC3) jobs.push(_signedUrlFor(r.storage_path).then(function (u) { return u ? { name: 'C-3_Employee_Claim.pdf', url: u } : null; }));
+    if (hasC33) jobs.push(_signedUrlFor(r.c33_path).then(function (u) { return u ? { name: 'C-3.3_HIPAA_Release.pdf', url: u } : null; }));
+    Promise.all(jobs).then(function (atts) {
+      atts = atts.filter(Boolean);
+      var name = (profile && profile.full_name) || '';
+      var caseNo = (profile && profile.wcb_case_number) ? (' ' + profile.wcb_case_number) : '';
+      var both = hasC3 && hasC33;
+      var body = ['To the New York State Workers’ Compensation Board:', '',
+        'Attached is my completed ' + (hasC3 ? ('Form C-3 (Employee Claim)' + (both ? ' and Form C-3.3 (Limited Release of Health Information)' : '')) : 'Form C-3.3 (Limited Release of Health Information)') + '.', '',
+        'Claimant: ' + (name || '—')];
+      if (profile && profile.wcb_case_number) body.push('WCB case number: ' + profile.wcb_case_number);
+      body.push('', 'I am filing my own claim. Thank you.');
+      return CD.NativeMail.emailClaimToWCB({ to: WCB_FILING_EMAIL, subject: 'WCB Claim — ' + (name || 'Employee Claim') + caseNo, body: body.join('\n'), attachments: atts });
+    }).catch(function (e) { console.warn('[worker-dash] EMAIL_FILING_FAILED', e); })
+      .then(function () { if (btn) { btn.disabled = false; btn.textContent = '✉️ Email to WCB'; } });
+  }
   // Generic document row used for every source (C-3 filings, OC-110a, …).
   function _genericDocRow(h, opts) {
     var row = h('div', { className: 'wd-doc-row', style: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', padding: '12px 0', borderTop: '1px solid var(--skin-divider)' } });
@@ -516,9 +570,13 @@
       title: title,
       sub: (when ? 'Generated ' + when : 'Generated') + ' · ' + statusLabel,
       actions: [
+        hasC3 ? h('button', { type: 'button', className: 'wd-btn wd-btn-primary', onclick: function () { _viewSignedDoc(r.storage_path, 'C-3 Employee Claim'); } }, '👁 View C-3') : null,
         hasC3 ? h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.storage_path); } }, '⬇ C-3') : null,
+        hasC33 ? h('button', { type: 'button', className: 'wd-btn wd-btn-primary', onclick: function () { _viewSignedDoc(r.c33_path, 'C-3.3 Limited Release (HIPAA)'); } }, '👁 View C-3.3') : null,
         hasC33 ? h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.c33_path); } }, '⬇ C-3.3') : null,
-        h('a', { className: 'wd-btn wd-btn-ghost', href: _docMailto(profile, hasC3, hasC33), style: { textDecoration: 'none' } }, '✉️ Email to WCB')
+        // Native mail composer with the PDF(s) attached (replaces the old mailto,
+        // which couldn't carry attachments). On web it falls back to a mailto.
+        h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function (e) { _emailFilingToWCB(r, profile, hasC3, hasC33, e.currentTarget); } }, '✉️ Email to WCB')
       ]
     });
   }
@@ -530,13 +588,16 @@
     return _genericDocRow(h, {
       title: 'OC-110a Medical Authorization',
       sub: (when ? 'Signed ' + when : 'Signed') + ' · Authorization for Medical Records',
-      actions: [h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(profile.oc110a_doc_url); } }, '⬇ Download')]
+      actions: [
+        h('button', { type: 'button', className: 'wd-btn wd-btn-primary', onclick: function () { _viewSignedDoc(profile.oc110a_doc_url, 'OC-110a Medical Authorization'); } }, '👁 View'),
+        h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(profile.oc110a_doc_url); } }, '⬇ Download')
+      ]
     });
   }
   function _documentsCard(h, showScreen) {
     if (!CD.currentUser || !CD.supa) return null;   // signed-in + configured client only
     var profile = CD.currentProfile || {};
-    var node = h('div', { className: 'wd-card wd-docs' });
+    var node = h('div', { id: 'my-documents', className: 'wd-card wd-docs' });
     node.appendChild(h('div', { className: 'wd-card-hd' }, [
       h('h2', { className: 'wd-card-title' }, '📄 My documents'),
       h('button', { type: 'button', className: 'wd-link-btn', onclick: function () { showScreen('c3'); } }, 'File a C-3 →')
@@ -825,6 +886,52 @@
     var p = function (n) { return (n < 10 ? '0' : '') + n; };
     return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
   }
+
+  // ── In-app PDF viewer + "My Documents" screen ───────────────────────────
+  // Opens a stored filing INSIDE the app (signed URL in an iframe) so the worker
+  // can READ their C-3 without downloading it. "Open externally" stays as a fallback.
+  CD.openDocViewer = function (url, title) {
+    if (!url) return;
+    var ov = document.createElement('div'); ov.className = 'cd-docview-ov';
+    function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown', onKey); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    var bar = document.createElement('div'); bar.className = 'cd-docview-bar';
+    var ttl = document.createElement('div'); ttl.className = 'cd-docview-title'; ttl.textContent = title || 'Document';
+    var openBtn = document.createElement('button'); openBtn.type = 'button'; openBtn.className = 'cd-docview-open'; openBtn.textContent = 'Open externally';
+    openBtn.onclick = function () { try { window.open(url, '_blank'); } catch (e) { try { window.open(url, '_system'); } catch (e2) {} } };
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'cd-docview-x'; x.setAttribute('aria-label', 'Close'); x.textContent = '✕'; x.onclick = close;
+    bar.appendChild(ttl); bar.appendChild(openBtn); bar.appendChild(x);
+    var frame = document.createElement('iframe'); frame.className = 'cd-docview-frame'; frame.src = url; frame.setAttribute('title', title || 'Document');
+    ov.appendChild(bar); ov.appendChild(frame);
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(ov);
+  };
+  // Mint a short-TTL signed URL for a stored "bucket/key" path, then view it in-app.
+  function _viewSignedDoc(path, title) {
+    var bk = _bucketAndKey(path);
+    if (!CD.supa || !bk) { return; }
+    CD.supa.storage.from(bk.bucket).createSignedUrl(bk.key, 300)
+      .then(function (r) {
+        var u = r && r.data && r.data.signedUrl;
+        if (u) { CD.openDocViewer(u, title); }
+        else { console.warn('[worker-dash] DOC_VIEW_FAILED', r && r.error); }
+      })
+      .catch(function (e) { console.warn('[worker-dash] DOC_VIEW_FAILED', e); });
+  }
+  // Full-screen "My Documents" screen (reached from the nav menu). Reuses the same
+  // documents card the dashboard shows.
+  CD.renderDocumentsScreen = function (showScreen) {
+    var H = CD.h || window.h;
+    showScreen = showScreen || CD.showScreen || function () {};
+    var wrap = H('div', { className: 'content cd-docs-screen' });
+    wrap.appendChild(H('div', { className: 'wd-docs-screen-intro', style: { padding: '4px 2px 12px', color: 'var(--txM)', fontSize: '13px', lineHeight: '1.5' } },
+      'Your generated claim forms, saved here. Tap “View” to read a form in the app — no download needed.'));
+    var card = _documentsCard(H, showScreen);
+    if (card) { wrap.appendChild(card); }
+    else { wrap.appendChild(H('div', { className: 'wd-appts-empty' }, 'Sign in to see your documents.')); }
+    return wrap;
+  };
 
   CD.WorkerDashboard = { render: render };
 })(window);
