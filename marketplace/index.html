@@ -152,6 +152,16 @@ footer,.section{border-top-color:rgba(27,42,74,0.10);}
   </div>
 </section>
 
+<!-- Live storefront: hidden until at least one listing is published (status='listed'). -->
+<section class="section" id="store" style="display:none;">
+  <div class="wrap">
+    <span class="badge">Available now</span>
+    <h2>Skills you can buy today</h2>
+    <p class="lead">Published skills from contributing attorneys — watch a demo, see exactly what each one does, and buy it for use in Claude.</p>
+    <div class="grid3" id="storeGrid"></div>
+  </div>
+</section>
+
 <section class="section">
   <div class="wrap">
     <h2>Your expertise, packaged as software.</h2>
@@ -279,6 +289,40 @@ footer,.section{border-top-color:rgba(27,42,74,0.10);}
       }
     });
   });
+</script>
+
+<!-- Live storefront loader — lists published ('listed') skills + calculators for purchase. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  var SB_URL = "https://ltibymvlytodkemdeeox.supabase.co";
+  var SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak";
+  if(!window.supabase) return;
+  var sb = window.supabase.createClient(SB_URL, SB_ANON);
+  var esc = function(s){ return String(s==null?"":s).replace(/[<>&]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;"}[c];}); };
+  var money = function(c){ return '$'+Math.floor(c/100)+'.'+String(c%100).padStart(2,'0'); };
+  sb.from('skill_listings')
+    .select('kind, slug, display_name, description, price_cents, status')
+    .eq('status','listed')
+    .order('published_at',{ascending:false})
+    .then(function(res){
+      var rows = res.data || [];
+      if(!rows.length) return; // stays hidden — page unchanged until go-live
+      var grid = document.getElementById('storeGrid');
+      grid.innerHTML = rows.map(function(r){
+        var tag = r.kind === 'calculator' ? 'Calculator' : 'Skill';
+        return '<div class="card">'
+          + '<div class="icon">'+(r.kind==='calculator'?'🧮':'✨')+'</div>'
+          + '<h3>'+esc(r.display_name)+'</h3>'
+          + '<p>'+esc(r.description)+'</p>'
+          + '<p style="font-weight:800;color:#fff;margin:8px 0 12px">'+money(r.price_cents)+' <span style="font-weight:500;color:var(--muted,#8899b4);font-size:13px">· '+tag+'</span></p>'
+          + '<a class="cta-btn" href="/marketplace/skill?slug='+encodeURIComponent(r.slug)+'">View &amp; buy</a>'
+          + '</div>';
+      }).join('');
+      document.getElementById('store').style.display = '';
+    })
+    .catch(function(){ /* leave hidden on error */ });
+})();
 </script>
 
 </body>
