@@ -117,6 +117,13 @@
 .jb-btn-primary:hover { background: var(--skin-accent-deep, #C85F0F); }
 .jb-btn-sm { padding: 9px 14px; font-size: 14px; }
 .jb-btn.is-disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+/* The "Apply on employer site" control is an <a>, and the site skin sets
+   `body.tcd-skinned a { color: var(--skin-accent) }` (specificity 0,1,2), which outranked
+   `.jb-btn-primary { color:#fff }` (0,1,0) and rendered the button label orange-on-orange =
+   invisible (blank button). `.jb-btn.jb-btn-primary` (0,2,0) outranks the skin's anchor rule,
+   restoring the white label in both rest and hover states. */
+.jb-btn.jb-btn-primary,
+.jb-btn.jb-btn-primary:hover { color: #fff; }
 
 /* ── Results bar + toggle ──────────────────────────────────────────────── */
 .jb-results { display: flex; flex-direction: column; gap: 14px; }
