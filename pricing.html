@@ -3,11 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon / app icons -->
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
 <title>Pricing — The Comp Desk</title>
 <meta name="description" content="Free calculators for every worker. Pro tools for those who need more.">
 <link rel="canonical" href="https://thecompdesk.com/pricing">
@@ -141,7 +136,7 @@ footer a:hover{color:#1d4ed8;}
     <a href="/calculators/aww" class="nav-link">Calculators</a>
     <a href="/learn" class="nav-link">Learn</a>
     <a href="/pricing" class="nav-link" style="color:var(--ac);">Pricing</a>
-    <a href="/auth/signup" class="nav-btn">Get started free</a>
+    <a href="/auth_v2.html?mode=signup" class="nav-btn">Get started free</a>
   </div>
 </nav>
 
@@ -166,7 +161,7 @@ footer a:hover{color:#1d4ed8;}
       <div class="plan-name">Free</div>
       <div class="plan-price"><sup>$</sup>0<span class="per">/mo</span></div>
       <div class="plan-desc">Everything you need to understand your workers' comp benefits — no credit card, ever.</div>
-      <a href="/auth/signup" class="plan-cta">Get started free</a>
+      <a href="/auth_v2.html?mode=signup" class="plan-cta">Get started free</a>
       <hr class="feat-divider">
       <div class="feat-label">What's included</div>
       <ul class="feat-list">
@@ -186,7 +181,7 @@ footer a:hover{color:#1d4ed8;}
       <div class="plan-name">Pro</div>
       <div class="plan-price"><sup>$</sup>19<span class="per">/mo</span></div>
       <div class="plan-desc">Everything in Free, plus the full toolkit for complex claims and ongoing representation.</div>
-      <a href="/auth/signup?next=/account/upgrade" class="plan-cta" id="pro-cta">Start 14-day free trial</a>
+      <a href="/auth_v2.html?mode=signup" class="plan-cta" id="pro-cta">Start 14-day free trial</a>
       <hr class="feat-divider">
       <div class="feat-label">Everything in Free, plus</div>
       <ul class="feat-list">
@@ -277,5 +272,6 @@ function toggleFaq(el) {
 <script defer src="/_vercel/insights/script.js"></script>
   <script src="/js/footer-contact.js" defer></script>
   <script src="/js/header-attorney-cta.js" defer></script>
+  <script type="module" src="/js/nav-account.js"></script>
 </body>
 </html>

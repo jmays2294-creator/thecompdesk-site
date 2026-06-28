@@ -28,10 +28,7 @@
 <meta property="og:url" content="https://thecompdesk.com/confirmed">
 <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
 
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">
+<link rel="icon" href="/assets/hero/comp-desk.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -103,7 +100,7 @@ footer a{color:#3a4a63;}
                  thecompdesk.com appLinks domain, so on a device with the app installed
                  this opens the native app; otherwise it falls back to the web sign-in. -->
             <a class="btn btn-primary" href="https://thecompdesk.com/auth">Open The Comp Desk app</a>
-            <a class="btn btn-ghost" href="/auth.html">Sign in on the web</a>
+            <a class="btn btn-ghost" href="/auth_v2.html">Sign in on the web</a>
           </div>
           <div class="hint">On your phone? Just reopen The Comp Desk app and sign in with the email and password you created.</div>
         </div>
@@ -115,7 +112,7 @@ footer a{color:#3a4a63;}
           <div class="btns">
             <input id="resend-email" class="email" type="email" placeholder="you@email.com" autocomplete="email">
             <button class="btn btn-primary" id="resend-btn" onclick="resend()">Send a new confirmation email</button>
-            <a class="btn btn-ghost" href="/auth.html">Back to sign in</a>
+            <a class="btn btn-ghost" href="/auth_v2.html">Back to sign in</a>
           </div>
           <div id="msg"></div>
         </div>

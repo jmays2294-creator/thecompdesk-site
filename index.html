@@ -3,11 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon / app icons -->
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
 <title>The Comp Desk — Workers' Compensation Tools for New York</title>
 <meta name="description" content="The Comp Desk is a NY Workers' Compensation platform built by a practicing WC attorney. Free tools for injured workers, professional-grade calculators for attorneys.">
 
@@ -121,6 +116,40 @@ body {
 }
 .cover-top .founder-credit .sep { color: var(--skin-accent); margin: 0 2px; }
 .cover-top .founder-credit .role { color: var(--skin-text-soft); }
+/* Logged-in-only affordance — keeps the cinematic intro intact, but lets a
+   signed-in visitor jump to their dashboard without using the two-door choice.
+   Hidden by default; revealed by the auth probe at the bottom of <body>. */
+.cover-account {
+  position: absolute;
+  top: 50%;
+  right: clamp(16px, 4vw, 40px);
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--skin-text);
+  background: color-mix(in srgb, var(--skin-surface-elev, #16243F) 70%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--skin-divider, rgba(255,255,255,0.18));
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.cover-account.show { display: inline-flex; }
+.cover-account:hover {
+  background: color-mix(in srgb, var(--skin-accent, #E87722) 22%, transparent);
+  border-color: var(--skin-accent, #E87722);
+}
+.cover-account .arr { font-size: 11px; opacity: .8; }
+@media (max-width: 640px) {
+  .cover-account { font-size: 12px; padding: 7px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .cover-account { transition: none; } }
 
 .cover-stage {
   flex: 1;
@@ -526,16 +555,6 @@ body {
    if Piece A can't autoplay; we surface the skyline composition instead. */
 body.no-video-bg .video-bg video { display: none; }
 body.no-video-bg .skyline { display: block; }
-.cover-top .cover-signin {
-  position: absolute; right: 28px; top: 50%; transform: translateY(-50%);
-  display: inline-flex; align-items: center; padding: 8px 18px;
-  border: 1px solid rgba(255,255,255,.34); border-radius: 999px;
-  color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .01em;
-  text-decoration: none; background: rgba(255,255,255,.06);
-  backdrop-filter: blur(4px); transition: background .2s ease, border-color .2s ease;
-}
-.cover-top .cover-signin:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.6); }
-@media (max-width: 560px) { .cover-top .cover-signin { right: 16px; padding: 7px 14px; font-size: 13px; } }
 </style>
 </head>
 <body>
@@ -549,7 +568,7 @@ body.no-video-bg .skyline { display: block; }
       </a>
       <p class="founder-credit">Joel Mays, Esq. <span class="sep">·</span> <span class="role">Founder</span></p>
     </div>
-    <a class="cover-signin" href="/auth_v2.html">Sign In</a>
+    <a class="cover-account" id="cover-account" href="/dashboard/">Go to Dashboard <span class="arr">→</span></a>
   </header>
 
   <!-- Cinematic intro: 3-piece Higgsfield sequence
@@ -824,6 +843,22 @@ body.no-video-bg .skyline { display: block; }
     }
   } catch (e) {}
 })();
+</script>
+
+<!-- Logged-in probe: reveal the "Go to Dashboard" affordance only when a
+     session exists. Pure progressive enhancement — the splash is unchanged
+     for logged-out visitors. -->
+<script type="module">
+  import { getOptionalUser } from '/js/auth.js';
+  (async () => {
+    try {
+      const { session } = await getOptionalUser();
+      if (session) {
+        const el = document.getElementById('cover-account');
+        if (el) el.classList.add('show');
+      }
+    } catch (_) { /* never block the intro over an auth hiccup */ }
+  })();
 </script>
 
 </body>
