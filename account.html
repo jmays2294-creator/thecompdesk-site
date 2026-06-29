@@ -290,6 +290,7 @@
         <a href="/" class="nav-brand">The Comp Desk</a>
         <ul class="nav-links">
             <li><a href="/">Home</a></li>
+            <li><a href="/account/security.html">Security</a></li>
             <li><a href="/#features">Features</a></li>
             <li><a href="/#pricing">Pricing</a></li>
         </ul>
@@ -367,6 +368,7 @@
             <h2 class="section-title">Account Actions</h2>
 
             <div class="button-group">
+                <a class="button button-secondary" href="/account/security.html">Change Password</a>
                 <button class="button button-danger" id="signOutButton">Sign Out</button>
             </div>
         </div>
@@ -407,6 +409,11 @@
                 // Biometric-grade auth surfaces (independent of subscription)
                 loadPasskeys();
                 loadMfa();
+
+                // Forced re-enroll after a recovery-code sign-in (auth_v2 sets ?reenroll=1).
+                if (new URLSearchParams(location.search).get('reenroll') === '1') {
+                    showMessage('Your old authenticator was removed during recovery. Please set up two-factor authentication again below.', 'info');
+                }
             } catch (error) {
                 console.error('Error initializing page:', error);
                 showMessage('Failed to load account information.', 'error');
@@ -630,9 +637,34 @@
         }
 
         // ──────────────────────────────────────────────────────────────
-        // TOTP two-factor — Supabase built-in MFA (no server code needed).
+        // TOTP two-factor — Supabase built-in MFA + custom recovery codes
+        // (mfa-recovery-generate / mfa-recovery-verify edge fns, Phase 3).
         // ──────────────────────────────────────────────────────────────
         let _mfaEnrollId = null;
+        let _privileged = null; // cached; privileged users may NOT disable 2FA
+
+        // Privileged = any admin role OR firm tier. Mirrors js/security.js and the
+        // server-side recompute_mfa_requirement. Privileged users cannot drop below aal2.
+        async function getIsPrivileged() {
+            if (_privileged !== null) return _privileged;
+            _privileged = false;
+            try {
+                const { data, error } = await sb.rpc('get_my_admin_role');
+                if (!error && data && ['owner', 'builder', 'reviewer', 'marketplace_contributor'].includes(data)) _privileged = true;
+            } catch (e) { console.error('[account] ROLE_CHECK_FAILED', e); }
+            if (!_privileged) {
+                try { const { data: tier } = await sb.rpc('get_my_entitlement'); if (tier === 'firm') _privileged = true; } catch (_) { /* lenient */ }
+            }
+            return _privileged;
+        }
+
+        // Best-effort audit via the Phase-3 thin writer (service_role-backed).
+        async function auditEvent(event, metadata = {}) {
+            try {
+                const { error } = await sb.functions.invoke('security-audit-log', { body: { event, surface: 'web', metadata } });
+                if (error) throw error;
+            } catch (e) { console.warn('[account] AUDIT_FAILED ' + event, e); }
+        }
 
         async function loadMfa() {
             const statusEl = document.getElementById('mfaStatus');
@@ -645,12 +677,38 @@
                 const verified = (data && data.totp ? data.totp : []).filter(f => f.status === 'verified');
                 statusEl.classList.remove('loading');
                 if (verified.length) {
-                    statusEl.innerHTML = '<span class="tier-badge active">Enabled</span>';
-                    const removeBtn = document.createElement('button');
-                    removeBtn.className = 'button button-danger';
-                    removeBtn.textContent = 'Remove 2FA';
-                    removeBtn.onclick = () => unenrollMfa(verified[0].id);
-                    btns.appendChild(removeBtn);
+                    // Recovery-codes-remaining from the non-secret view (latest batch).
+                    let remaining = null;
+                    try {
+                        const { data: st } = await sb.from('my_recovery_code_status')
+                            .select('remaining_codes, generated_at').order('generated_at', { ascending: false }).limit(1);
+                        if (st && st[0]) remaining = st[0].remaining_codes;
+                    } catch (e) { console.error('[account] CODE_STATUS_FAILED', e); }
+                    const low = remaining !== null && remaining <= 2;
+                    statusEl.innerHTML = '<span class="tier-badge active">Enabled</span>'
+                        + (remaining !== null
+                            ? `<div style="margin-top:0.75rem;font-size:0.9rem;color:${low ? '#fca5a5' : 'var(--txD)'};">${remaining} recovery code${remaining === 1 ? '' : 's'} remaining${low ? ' — regenerate soon.' : '.'}</div>`
+                            : '');
+
+                    const regenBtn = document.createElement('button');
+                    regenBtn.className = low ? 'button button-primary' : 'button button-secondary';
+                    regenBtn.textContent = 'Regenerate recovery codes';
+                    regenBtn.onclick = regenerateCodes;
+                    btns.appendChild(regenBtn);
+
+                    // Disable: NON-privileged only. Privileged users cannot drop below aal2.
+                    if (!(await getIsPrivileged())) {
+                        const removeBtn = document.createElement('button');
+                        removeBtn.className = 'button button-danger';
+                        removeBtn.textContent = 'Disable 2FA';
+                        removeBtn.onclick = () => disableMfa(verified[0].id);
+                        btns.appendChild(removeBtn);
+                    } else {
+                        const note = document.createElement('div');
+                        note.style.cssText = 'font-size:0.85rem;color:var(--txM);margin-top:0.6rem;flex-basis:100%;';
+                        note.textContent = 'Two-factor authentication is required for your role and cannot be disabled.';
+                        btns.appendChild(note);
+                    }
                 } else {
                     statusEl.textContent = 'Not enabled.';
                     const addBtn = document.createElement('button');
@@ -721,19 +779,81 @@
                 return;
             }
             _mfaEnrollId = null;
-            showMessage('Two-factor authentication enabled.', 'success');
-            await loadMfa();
+            await auditEvent('mfa_enrolled');
+            showMessage('Two-factor authentication enabled. Save your recovery codes below.', 'success');
+            // The session is now aal2 — immediately generate + show recovery codes ONCE.
+            await generateAndShowCodes();
         }
 
-        async function unenrollMfa(factorId) {
-            if (!confirm('Remove two-factor authentication? Your account will be less protected.')) return;
+        // Generate a fresh batch (mfa-recovery-generate, requires aal2) and display
+        // the plaintext ONCE behind an "I've saved these" confirm. Hashes never leave
+        // the server; this is the only time the codes are shown.
+        async function generateAndShowCodes() {
+            const enrollArea = document.getElementById('mfaEnrollArea');
+            const btns = document.getElementById('mfaButtons');
+            btns.innerHTML = '';
+            enrollArea.classList.remove('hidden');
+            enrollArea.innerHTML = '<div class="info-value loading">Generating your recovery codes…</div>';
+            const { data, error } = await sb.functions.invoke('mfa-recovery-generate', { body: {} });
+            if (error || !data || !Array.isArray(data.codes)) {
+                console.error('[account] RECOVERY_GENERATE_FAILED', error);
+                enrollArea.innerHTML = '<div class="message error">Could not generate recovery codes. You can regenerate them anytime from this page.</div>';
+                await loadMfa();
+                return;
+            }
+            const list = data.codes.map(c => `<code style="display:block;font-size:1rem;letter-spacing:1px;color:var(--tx);padding:0.2rem 0;">${c}</code>`).join('');
+            enrollArea.innerHTML = `
+                <div class="subscription-details">
+                    <p style="font-weight:600;color:var(--wh);margin-bottom:0.5rem;">Your recovery codes</p>
+                    <p style="color:var(--txD);font-size:0.85rem;margin-bottom:1rem;">Save these somewhere safe. Each can be used once if you lose your authenticator. <strong>They will not be shown again.</strong></p>
+                    <div style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:1rem;text-align:center;margin-bottom:1rem;">${list}</div>
+                    <label style="display:flex;gap:0.5rem;align-items:flex-start;font-size:0.9rem;color:var(--txD);"><input type="checkbox" id="savedCodes"> I've saved these codes somewhere safe.</label>
+                </div>`;
+            const doneBtn = document.createElement('button');
+            doneBtn.className = 'button button-primary'; doneBtn.textContent = 'Done'; doneBtn.disabled = true;
+            doneBtn.onclick = () => loadMfa();
+            btns.appendChild(doneBtn);
+            document.getElementById('savedCodes').addEventListener('change', e => { doneBtn.disabled = !e.target.checked; });
+        }
+
+        // Ensure the current session is aal2; if not, prompt a fresh TOTP challenge.
+        // Returns true once aal2 is held. Used to gate regenerate + disable (step-up).
+        async function ensureAal2() {
+            try {
+                const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+                if (aal && aal.currentLevel === 'aal2') return true;
+            } catch (_) { /* fall through to challenge */ }
+            const { data: f } = await sb.auth.mfa.listFactors();
+            const totp = (f && f.totp ? f.totp : []).filter(x => x.status === 'verified');
+            if (!totp.length) return false;
+            const code = (window.prompt('Enter the 6-digit code from your authenticator app to continue:') || '').trim();
+            if (!/^\d{6}$/.test(code)) { showMessage('A 6-digit code is required.', 'error'); return false; }
+            const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: totp[0].id, code });
+            if (error) { console.error('[account] STEPUP_FAILED', error); showMessage('That code did not match.', 'error'); return false; }
+            await auditEvent('mfa_challenge_passed', { context: 'step_up' });
+            return true;
+        }
+
+        async function regenerateCodes() {
+            if (!confirm('Generate a new set of recovery codes? Your current codes will stop working.')) return;
+            if (!(await ensureAal2())) return;
+            await generateAndShowCodes();
+        }
+
+        // Disable is forbidden for privileged users (they can't drop below aal2) and
+        // requires a fresh challenge (step-up) for everyone else.
+        async function disableMfa(factorId) {
+            if (await getIsPrivileged()) { showMessage('Two-factor authentication is required for your role and cannot be disabled.', 'error'); return; }
+            if (!confirm('Disable two-factor authentication? Your account will be less protected.')) return;
+            if (!(await ensureAal2())) return; // fresh challenge required for a sensitive change
             const { error } = await sb.auth.mfa.unenroll({ factorId });
             if (error) {
                 console.error('[account] MFA_UNENROLL_FAILED', error);
-                showMessage(error.message || 'Could not remove 2FA.', 'error');
+                showMessage(error.message || 'Could not disable 2FA.', 'error');
                 return;
             }
-            showMessage('Two-factor authentication removed.', 'success');
+            await auditEvent('mfa_disabled');
+            showMessage('Two-factor authentication disabled.', 'success');
             await loadMfa();
         }
 

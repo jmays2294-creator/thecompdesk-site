@@ -330,16 +330,110 @@ async function handleLogin(){
   btn.disabled=true;btn.textContent='Signing in...';msg.textContent='';
   const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
   if(error){msg.className='msg error';msg.textContent=error.message;btn.disabled=false;btn.textContent='Sign In';return;}
+  // 2FA step-up: a user WITH a verified TOTP factor signs in at aal1 with
+  // nextLevel aal2 — prompt the 6-digit challenge. A user WITHOUT 2FA has
+  // nextLevel===currentLevel (aal1) and continues straight through.
+  try{
+    const{data:aal}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(aal&&aal.currentLevel==='aal1'&&aal.nextLevel==='aal2'){ showMfaChallenge(); return; }
+  }catch(e){ console.error('[auth] AAL_CHECK_FAILED',e); }
   window.location.href=redirectTo;
+}
+
+// 6-digit TOTP challenge after password (step-up to aal2).
+function showMfaChallenge(){
+  const card=document.getElementById('auth-card');
+  card.innerHTML=`
+    <div class="msg" id="msg"></div>
+    <p style="font-size:14px;color:var(--txD);text-align:center;margin-bottom:14px;">Enter the 6-digit code from your authenticator app.</p>
+    <div class="form-group">
+      <input type="text" id="mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" style="text-align:center;letter-spacing:6px;font-size:18px;">
+    </div>
+    <button class="submit-btn" id="mfa-verify-btn" onclick="verifyMfaLogin()">Verify</button>
+    <div class="forgot" style="text-align:center;margin-top:14px;"><a href="#" onclick="showRecovery();return false;">Lost your authenticator?</a></div>
+  `;
+  const el=document.getElementById('mfa-code'); el.focus();
+  el.addEventListener('keydown',e=>{ if(e.key==='Enter') verifyMfaLogin(); });
+}
+
+async function verifyMfaLogin(){
+  const code=(document.getElementById('mfa-code').value||'').trim();
+  const msg=document.getElementById('msg');
+  if(!/^\d{6}$/.test(code)){ msg.className='msg error'; msg.textContent='Enter the 6-digit code.'; return; }
+  const btn=document.getElementById('mfa-verify-btn'); btn.disabled=true; btn.textContent='Verifying...';
+  const{data:f}=await sb.auth.mfa.listFactors();
+  const totp=(f&&f.totp?f.totp:[]).filter(x=>x.status==='verified');
+  if(!totp.length){ msg.className='msg error'; msg.textContent='No authenticator on file. Use "Lost your authenticator?".'; btn.disabled=false; btn.textContent='Verify'; return; }
+  const{error}=await sb.auth.mfa.challengeAndVerify({factorId:totp[0].id,code});
+  if(error){ console.error('[auth] MFA_LOGIN_FAILED',error); msg.className='msg error'; msg.textContent='That code did not match. Try again.'; btn.disabled=false; btn.textContent='Verify'; return; }
+  try{ await sb.functions.invoke('security-audit-log',{body:{event:'mfa_challenge_passed',surface:'web'}}); }catch(_){ /* best effort */ }
+  window.location.href=redirectTo;
+}
+
+// "Lost your authenticator?" — recovery-code flow. Consumes a code, removes the
+// old factor server-side, and signs the user in (aal1) so they can re-enroll.
+function showRecovery(){
+  const card=document.getElementById('auth-card');
+  const prefill=(document.getElementById('login-email')&&document.getElementById('login-email').value)||'';
+  card.innerHTML=`
+    <div class="msg" id="msg"></div>
+    <p style="font-size:14px;color:var(--txD);text-align:center;margin-bottom:14px;">Enter your email and one of your recovery codes. This removes your old authenticator so you can set up a new one.</p>
+    <div class="form-group"><label>Email</label><input type="email" id="rec-email" autocomplete="email" value="${prefill.replace(/"/g,'&quot;')}"></div>
+    <div class="form-group"><label>Recovery code</label><input type="text" id="rec-code" placeholder="XXXX-XXXX" autocomplete="one-time-code"></div>
+    <button class="submit-btn" id="rec-btn" onclick="submitRecovery()">Recover access</button>
+    <div class="forgot" style="text-align:center;margin-top:14px;"><a href="#" onclick="showMfaChallenge();return false;">← Back</a></div>
+  `;
+  document.getElementById('rec-code').focus();
+}
+
+async function submitRecovery(){
+  const email=(document.getElementById('rec-email').value||'').trim();
+  const code=(document.getElementById('rec-code').value||'').trim();
+  const msg=document.getElementById('msg');
+  if(!email||!code){ msg.className='msg error'; msg.textContent='Enter your email and a recovery code.'; return; }
+  const btn=document.getElementById('rec-btn'); btn.disabled=true; btn.textContent='Checking...';
+  let res=null;
+  try{ res=await sb.functions.invoke('mfa-recovery-verify',{body:{email,code}}); }
+  catch(e){ console.error('[auth] RECOVERY_VERIFY_FAILED',e); }
+  const body=res&&res.data?res.data:null;
+  // Neutral: any failure (bad code, no account, locked) surfaces the same message.
+  if(!body||!body.ok||!body.token_hash){
+    msg.className='msg error';
+    msg.textContent=(body&&body.message)||"That didn't work. Check your details, or request a new reset link.";
+    btn.disabled=false; btn.textContent='Recover access'; return;
+  }
+  // Exchange the one-time token for a session (factor already removed server-side).
+  // verifyOtp with a token_hash takes ONLY {token_hash, type} — passing email too
+  // errors ("Only the token_hash and type should be provided").
+  let otpErr=null;
+  for(const type of ['email','magiclink']){
+    const{error}=await sb.auth.verifyOtp({token_hash:body.token_hash,type});
+    if(!error){ otpErr=null; break; }
+    otpErr=error;
+  }
+  if(otpErr){ console.error('[auth] RECOVERY_OTP_FAILED',otpErr); msg.className='msg error'; msg.textContent='Could not complete recovery. Request a new reset link.'; btn.disabled=false; btn.textContent='Recover access'; return; }
+  // Forced re-enroll: land on the account page, which prompts 2FA setup again.
+  window.location.href='/account.html?reenroll=1';
 }
 
 async function handleForgot(){
   const email=document.getElementById('login-email').value.trim();
   const msg=document.getElementById('msg');
-  if(!email){msg.className='msg error';msg.textContent='Enter your email first, then click Forgot Password.';return;}
-  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/account'});
-  if(error){msg.className='msg error';msg.textContent=error.message;}
-  else{msg.className='msg success';msg.textContent='Password reset email sent. Check your inbox.';}
+  if(!email){msg.className='msg error';msg.textContent='Enter your email above first, then click Forgot password.';return;}
+  // Enumeration defense: the response is ALWAYS the same neutral message, whether
+  // or not an account exists and whether or not the API call errors. Never reveal
+  // existence in copy OR timing — we await then show the identical message in all
+  // branches; any real error is logged to the console only (fail loud there).
+  // redirectTo MUST be registered in Supabase Auth → URL Configuration → Redirect
+  // URLs (added in the Phase 0 manual step). reset-password.html catches the
+  // PASSWORD_RECOVERY event there.
+  const NEUTRAL='If an account exists for that email, a reset link is on its way.';
+  try{
+    await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://thecompdesk.com/reset-password.html'});
+  }catch(e){
+    console.error('[auth] RESET_REQUEST_FAILED',e);
+  }
+  msg.className='msg success';msg.textContent=NEUTRAL;
 }
 
 // Enter key handling
@@ -354,6 +448,13 @@ document.addEventListener('keydown',e=>{
 
 // Initial render
 render();
+
+// Success toast after a completed password reset (reset-password.html signs the
+// user out and routes back here with ?reset=success). Neutral, non-revealing.
+if(urlParams.get('reset')==='success'){
+  const m=document.getElementById('msg');
+  if(m){m.className='msg success';m.textContent='Your password has been updated. Please sign in.';}
+}
 </script>
 <script src="/js/disclaimer.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>

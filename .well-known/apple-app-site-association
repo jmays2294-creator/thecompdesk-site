@@ -7,6 +7,9 @@
         "paths": [
           "/set-password",
           "/set-password/*",
+          "/reset-password",
+          "/reset-password.html",
+          "/reset-password/*",
           "/auth/callback",
           "/auth/callback/*"
         ]

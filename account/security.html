@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security - The Comp Desk</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #06080f;
+            --card: #0e1322;
+            --cardA: #151d30;
+            --bd: #1c2d4a;
+            --ac: #4f8ff7;
+            --acG: rgba(79,143,247,0.12);
+            --gd: #f0a030;
+            --gn: #2dd4a0;
+            --tx: #dce4f0;
+            --txD: #8899b4;
+            --txM: #5a6a82;
+            --wh: #f4f6fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--tx);
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: var(--card);
+            border-bottom: 1px solid var(--bd);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-brand { font-size: 1.5rem; font-weight: 700; color: var(--wh); text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: var(--tx); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--ac); }
+
+        /* Main Container */
+        .container { max-width: 800px; margin: 3rem auto; padding: 2rem; }
+
+        .account-header { margin-bottom: 2.5rem; }
+        .account-header h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #16223d; }
+        .account-header p { color: #3a4a63; font-size: 1rem; }
+
+        .breadcrumb { margin-bottom: 1rem; font-size: 0.9rem; }
+        .breadcrumb a { color: var(--ac); text-decoration: none; font-weight: 500; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .section {
+            background-color: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .section-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--wh); }
+        .section-sub { color: var(--txD); font-size: 0.95rem; margin-bottom: 1.75rem; }
+
+        /* Form fields */
+        .field { margin-bottom: 1.25rem; }
+        .field label {
+            display: block; font-size: 0.9rem; color: var(--txD);
+            margin-bottom: 0.4rem; font-weight: 500;
+        }
+        .field input {
+            width: 100%; padding: 0.7rem 0.9rem; border-radius: 6px;
+            border: 1px solid var(--bd); background: var(--bg); color: var(--tx);
+            font-size: 1rem; font-family: inherit;
+        }
+        .field input:focus { outline: none; border-color: var(--ac); }
+        .hint { font-size: 0.85rem; color: var(--txM); margin-top: 0.4rem; }
+
+        .checkbox-row {
+            display: flex; align-items: flex-start; gap: 0.6rem;
+            margin: 0.5rem 0 1.75rem; font-size: 0.95rem; color: var(--txD);
+        }
+        .checkbox-row input { margin-top: 0.25rem; accent-color: var(--ac); }
+
+        /* Buttons */
+        .button-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; }
+        .button {
+            padding: 0.75rem 1.5rem; border: none; border-radius: 6px;
+            font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;
+            font-family: 'DM Sans', system-ui, sans-serif; text-decoration: none;
+            display: inline-block; text-align: center;
+        }
+        .button-primary { background: linear-gradient(135deg, var(--ac), rgba(79,143,247,0.8)); color: var(--wh); }
+        .button-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(79,143,247,0.3); }
+        .button-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .button-secondary { background-color: var(--cardA); color: var(--tx); border: 1px solid var(--bd); }
+        .button-secondary:hover { border-color: var(--ac); color: var(--ac); }
+
+        /* Messages */
+        .message { padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-bottom: 1.5rem; }
+        .message.success { background-color: rgba(45,212,160,0.15); border: 1px solid var(--gn); color: var(--gn); }
+        .message.error { background-color: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #fca5a5; }
+        .message.info { background-color: var(--acG); border: 1px solid var(--ac); color: var(--ac); }
+        .hidden { display: none; }
+    </style>
+    <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
+    <link rel="stylesheet" href="/css/brand-theme.css">
+    <script src="/js/brand-bg.js" defer></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="/" class="nav-brand">The Comp Desk</a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/account.html">My Account</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="breadcrumb"><a href="/account.html">&larr; Back to My Account</a></div>
+
+        <div class="account-header">
+            <h1>Security</h1>
+            <p>Manage your password and account security.</p>
+        </div>
+
+        <!-- Messages -->
+        <div id="message" class="message hidden" role="alert"></div>
+
+        <!-- Change Password card -->
+        <div class="section">
+            <h2 class="section-title">Change Password</h2>
+            <p class="section-sub">
+                Enter your current password to confirm it&rsquo;s you, then choose a new one.
+            </p>
+
+            <form id="changePasswordForm" autocomplete="off">
+                <div class="field">
+                    <label for="currentPassword">Current password</label>
+                    <input type="password" id="currentPassword" autocomplete="current-password" required>
+                </div>
+                <div class="field">
+                    <label for="newPassword">New password</label>
+                    <input type="password" id="newPassword" autocomplete="new-password" required>
+                    <div class="hint" id="lengthHint">Use at least 10 characters.</div>
+                </div>
+                <div class="field">
+                    <label for="confirmPassword">Confirm new password</label>
+                    <input type="password" id="confirmPassword" autocomplete="new-password" required>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="signOutOthers">
+                    <label for="signOutOthers" style="margin:0;color:var(--txD);font-weight:400;">
+                        Sign out of all other devices after changing my password (recommended).
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="button button-primary" id="changePasswordBtn">Update Password</button>
+                    <a href="/account.html" class="button button-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from '/js/auth.js';
+        import { changePassword, getIsPrivileged } from '/js/security.js';
+
+        const messageEl = document.getElementById('message');
+        function showMessage(text, type) {
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+        }
+        function clearMessage() { messageEl.className = 'message hidden'; }
+
+        // Gate: redirect to sign-in if there's no session (reuses requireAuth).
+        const session = await requireAuth();
+        if (session) {
+            // Reflect the correct length floor for privileged accounts in the hint.
+            try {
+                if (await getIsPrivileged()) {
+                    document.getElementById('lengthHint').textContent =
+                        'Use at least 12 characters (required for privileged accounts).';
+                    document.getElementById('signOutOthers').checked = true;
+                }
+            } catch (_) { /* hint is best-effort */ }
+        }
+
+        const form = document.getElementById('changePasswordForm');
+        const btn = document.getElementById('changePasswordBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage();
+            btn.disabled = true;
+            btn.textContent = 'Updating…';
+            try {
+                const result = await changePassword({
+                    currentPassword: document.getElementById('currentPassword').value,
+                    newPassword: document.getElementById('newPassword').value,
+                    confirmPassword: document.getElementById('confirmPassword').value,
+                    signOutOthers: document.getElementById('signOutOthers').checked
+                });
+                form.reset();
+                showMessage(
+                    result.ok
+                        ? 'Your password has been updated.' +
+                          (document.getElementById('signOutOthers').checked
+                              ? ' Other devices have been signed out.' : '')
+                        : 'Your password has been updated.',
+                    'success'
+                );
+            } catch (err) {
+                showMessage(err && err.message ? err.message : 'We could not update your password.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Update Password';
+            }
+        });
+    </script>
+    <script src="/js/disclaimer.js" defer></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script src="/js/footer-contact.js" defer></script>
+    <script type="module" src="/js/nav-account.js"></script>
+</body>
+</html>

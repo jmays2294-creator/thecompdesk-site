@@ -156,5 +156,11 @@
 
   <script src="/js/footer-contact.js" defer></script>
   <script type="module" src="/js/nav-account.js"></script>
+  <!-- Mandatory-MFA session gate (scope §5.5): soft banner within grace, hard
+       interstitial past deadline, for privileged (firm-admin) users. No-op otherwise. -->
+  <script type="module">
+    import { enforceMfaGate } from '/js/mfa-gate.js';
+    enforceMfaGate();
+  </script>
 </body>
 </html>
