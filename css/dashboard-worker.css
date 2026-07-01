@@ -66,6 +66,84 @@
 .wd-claim-btn { width: 100%; font-size: 16px; min-height: 54px; }
 .wd-claim-secondary { margin-top: calc(-1 * var(--space-1, 4px)); }
 
+/* ── Feature spotlight carousel (Calm Path) ───────────────────────────────
+ * The signature Calm Path header element. Width-capped so it reads as a
+ * compact featured card on the wide website dashboard (#dashRoot is 1040px)
+ * instead of a full-bleed slideshow; in-app it simply fills the phone width. */
+.wd-spotlight { display: flex; flex-direction: column; max-width: 560px; }
+/* Beat the base .wd-section-label negative bottom-margin (it's defined later in
+ * this file, so equal-specificity would lose) — keep the card off the label. */
+.wd-spotlight .wd-sp-label { margin: 0 0 12px; }
+.wd-sp-card {
+  position: relative;
+  background: var(--skin-surface-elev);
+  border-radius: 24px;
+  box-shadow: var(--skin-card-shadow);
+  overflow: hidden; cursor: pointer;
+  outline: none;
+}
+.wd-sp-card:focus-visible { box-shadow: 0 0 0 3px var(--skin-accent-soft), var(--skin-card-shadow); }
+.wd-sp-bar {
+  position: absolute; top: 0; left: 0; height: 3px; width: 0;
+  background: var(--skin-accent); border-radius: 0 3px 3px 0;
+  opacity: .6;
+}
+.wd-sp-pad { padding: var(--space-5, 24px); }
+.wd-sp-content { opacity: 0; transition: opacity var(--rhythm-slow, 600ms) var(--ease-out, ease); }
+.wd-sp-content.is-in { opacity: 1; }
+.wd-sp-top { display: flex; align-items: center; justify-content: space-between; }
+.wd-sp-icon {
+  flex: 0 0 auto; width: 58px; height: 58px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center; font-size: 28px;
+  background: linear-gradient(135deg, var(--skin-accent-soft), var(--skin-accent));
+  box-shadow: 0 8px 20px var(--skin-accent-soft);
+}
+.wd-sp-chip {
+  display: inline-flex; align-items: center; height: 28px; padding: 0 13px;
+  font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--skin-accent-deep); background: var(--skin-surface-warm);
+  border-radius: 999px; white-space: nowrap;
+}
+.wd-sp-title {
+  font-family: var(--font-display, serif); font-weight: 600;
+  font-size: 24px; line-height: 1.2; letter-spacing: -.01em;
+  color: var(--skin-text); margin: 16px 0 0;
+}
+.wd-sp-desc {
+  font-size: 15px; line-height: 1.6; color: var(--skin-text-muted);
+  margin: 11px 0 0; min-height: 44px;
+}
+.wd-sp-cta { width: 100%; min-height: 54px; border-radius: 18px; margin-top: 18px; font-size: 16px; }
+.wd-sp-controls {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 14px;
+}
+.wd-sp-nav {
+  flex: 0 0 auto; width: 44px; height: 44px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; line-height: 1; cursor: pointer;
+  color: var(--skin-text); background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-hairline, rgba(45,49,66,.10));
+  box-shadow: var(--skin-card-shadow);
+  transition: transform var(--rhythm-fast, 400ms) var(--ease-out, ease);
+}
+.wd-sp-nav:active { transform: scale(.94); }
+/* Dot row must fit ~6 dots + both arrows on a 320px phone (dash-container is
+ * 14px side padding). Dot buttons keep a tall hit area but a slim footprint;
+ * the arrows are the primary control. */
+.wd-sp-dots { display: flex; align-items: center; gap: 4px; }
+.wd-sp-dotbtn {
+  width: 26px; height: 44px; padding: 0; border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.wd-sp-dot {
+  display: block; width: 9px; height: 9px; border-radius: 999px;
+  background: var(--skin-hairline, rgba(45,49,66,.16));
+  transition: width var(--rhythm-med, 400ms) var(--ease-out, ease),
+              background var(--rhythm-med, 400ms) var(--ease-out, ease);
+}
+.wd-sp-dot.is-active { width: 26px; background: var(--skin-accent); }
+
 /* ── Generic card ─────────────────────────────────────────────────────── */
 .wd-card {
   background: var(--skin-surface-elev);
@@ -480,6 +558,11 @@
   .wd-gauge-needle, .wd-fcard, .wd-btn { transition: none !important; }
   .wd-aww-coin, .wd-aww-spark { animation: none !important; opacity: 1 !important; transform: none !important; }
   .wd-step { transition: none !important; }
+  /* Spotlight: no crossfade, no dot animation, no progress-bar creep. JS also
+     skips autoplay under reduced motion; slides switch instantly. */
+  .wd-sp-content { opacity: 1 !important; transition: none !important; }
+  .wd-sp-dot, .wd-sp-nav { transition: none !important; }
+  .wd-sp-bar { display: none !important; }
 }
 
 

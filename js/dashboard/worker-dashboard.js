@@ -124,10 +124,18 @@
           : ['Welcome']),
       h('div', { className: 'wd-hero-sub' }, [
         h('span', { className: 'wd-badge worker-badge' }, '👷 Injured Worker'),
-        h('span', { className: 'wd-hero-tagline' }, _known ? 'Here’s where your case stands today.' : 'Start your claim and learn your rights.')
+        h('span', { className: 'wd-hero-tagline' }, _known ? 'Here’s where your case stands today. Take it one step at a time.' : 'Start your claim and learn your rights. Take it one step at a time.')
       ])
     ]);
     cont.appendChild(hero);
+
+    // ── 1a. FEATURE SPOTLIGHT (Calm Path) ─────────────────────────────────
+    // The signature "Calm Path" header element: a gentle, auto-rotating
+    // spotlight of the core free features. Sits between the greeting and the
+    // primary claim CTA; every slide opens its feature via showScreen(). On
+    // the website it is width-capped so it reads as a compact featured card,
+    // not a full-bleed slideshow (see .wd-spotlight in dashboard-worker.css).
+    cont.appendChild(_featureSpotlight(h, showScreen, reduced));
 
     // ── 1b. PRIMARY CTA — "Start your WC claim" (the visual #1 action) ─────
     // Launches the C-3 (Employee Claim) wizard directly. Works for guests:
@@ -525,6 +533,46 @@
       .then(function (r) { return (r && r.data && r.data.signedUrl) || null; })
       .catch(function () { return null; });
   }
+  // Accident & Notice evidence lives on the private 'worker-evidence' bucket with
+  // a BARE object key ({uid}/accident_notice/{uuid}{ext}) — NOT the "bucket/key"
+  // form c3_filings/oc110a store — so sign against that bucket directly.
+  function _signEvidence(storagePath, seconds) {
+    if (!CD.supa || !storagePath) return Promise.resolve(null);
+    var key = String(storagePath).replace(/^worker-evidence\//, '');
+    return CD.supa.storage.from('worker-evidence').createSignedUrl(key, seconds || 300)
+      .then(function (r) { return (r && r.data && (r.data.signedUrl || r.data.signedURL)) || null; })
+      .catch(function () { return null; });
+  }
+  function _viewEvidenceDoc(storagePath, title) {
+    _signEvidence(storagePath, 300).then(function (u) {
+      if (u) { CD.openDocViewer(u, title); }
+      else { console.warn('[worker-dash] EVIDENCE_VIEW_FAILED', storagePath); }
+    });
+  }
+  function _openEvidenceDoc(storagePath) {
+    var w = null;
+    try { w = window.open('about:blank', '_blank'); } catch (e) {}
+    _signEvidence(storagePath, 300).then(function (u) {
+      if (u) { if (w) w.location.href = u; else window.location.href = u; }
+      else { if (w) w.close(); console.warn('[worker-dash] EVIDENCE_OPEN_FAILED', storagePath); }
+    });
+  }
+  // One worker_evidence (accident_notice) row → a documents entry with a photo/PDF
+  // badge, opened via a short-TTL signed URL (mirrors the c3_filings row pattern).
+  function _evidenceRow(h, r) {
+    var mime = String(r.mime_type || '');
+    var badge = /^image\//.test(mime) ? '📷 Photo' : (/pdf/i.test(mime) ? '📄 PDF' : '📎 File');
+    var when = _fmtUSDate(r.created_at);
+    var title = r.file_name || 'Accident & Notice evidence';
+    return _genericDocRow(h, {
+      title: title,
+      sub: badge + (when ? ' · ' + when : ''),
+      actions: [
+        h('button', { type: 'button', className: 'wd-btn wd-btn-primary', onclick: function () { _viewEvidenceDoc(r.storage_path, title); } }, '👁 View'),
+        h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openEvidenceDoc(r.storage_path); } }, '⬇ Download')
+      ]
+    });
+  }
   // Native "email to WCB" for a stored filing: downloads the EXISTING PDF(s)
   // (never re-generates) and opens the device mail composer with them attached —
   // C-3 and C-3.3 in ONE email. Falls back to the share sheet / copyable address
@@ -633,6 +681,35 @@
     } catch (e) {
       console.warn('[worker-dash] DOCS_FETCH_FAILED', e); emptyOrNone('Your filings are unavailable right now.');
     }
+
+    // ── Accident & Notice subsection ──────────────────────────────────────
+    // Photos/PDFs captured or scanned via the Accident & Notice screen land in
+    // worker_evidence (purpose 'accident_notice') on the private worker-evidence
+    // bucket. They surface here automatically — no extra step. Hidden when empty.
+    var anWrap = h('div', { className: 'wd-docs-an', style: { display: 'none', marginTop: '20px' } });
+    anWrap.appendChild(h('div', { className: 'wd-card-hd' }, [
+      h('h3', { className: 'wd-card-title', style: { fontSize: '15px' } }, '🗂️ Accident & Notice'),
+      h('button', { type: 'button', className: 'wd-link-btn', onclick: function () { showScreen('accident-notice'); } }, 'Open Accident & Notice →')
+    ]));
+    var anMount = h('div', { className: 'wd-docs-an-mount' });
+    anWrap.appendChild(anMount);
+    node.appendChild(anWrap);
+    try {
+      CD.supa.from('worker_evidence')
+        .select('id,file_name,mime_type,created_at,storage_path,packet_id')
+        .eq('user_id', CD.currentUser.id)
+        .eq('purpose', 'accident_notice')
+        .order('created_at', { ascending: false })
+        .then(function (res) {
+          if (res && res.error) { console.warn('[worker-dash] AN_FETCH_FAILED', res.error); return; }
+          var rows = (res && res.data) || [];
+          if (!rows.length) return;   // subsection stays hidden when there's nothing
+          anMount.innerHTML = '';
+          rows.forEach(function (r) { anMount.appendChild(_evidenceRow(h, r)); });
+          anWrap.style.display = '';
+        }, function (e) { console.warn('[worker-dash] AN_FETCH_FAILED', e); });
+    } catch (e) { console.warn('[worker-dash] AN_FETCH_FAILED', e); }
+
     return node;
   }
 
@@ -747,6 +824,129 @@
     }
 
     return { node: node, play: play };
+  }
+
+  // ── Feature spotlight carousel (Calm Path) ─────────────────────────────────
+  // A gentle, auto-rotating spotlight of the core free features. The whole card
+  // is a tap target that opens the current feature; the CTA does the same. Dots
+  // + prev/next allow manual control; a slim progress bar shows the dwell.
+  // Autoplay pauses on hover/press and is disabled entirely (with no crossfade)
+  // under prefers-reduced-motion. SELF-CLEANING: the rAF loop stops the instant
+  // the node leaves the DOM, so a dashboard re-render never leaks a timer.
+  function _featureSpotlight(h, showScreen, reduced) {
+    var FEATURES = [
+      { icon: '📝', chip: 'C-3 · Free', title: 'Start Your Claim',
+        desc: 'File your official C-3 claim with the Workers’ Compensation Board. We’ll guide you gently, one step at a time.',
+        cta: 'Start my claim', screen: 'c3' },
+      { icon: '🎯', chip: 'C-258.1 · Free', title: 'Job Buddy',
+        desc: 'Find work that respects your medical restrictions — at your own pace, with a simple job-search log.',
+        cta: 'Open Job Buddy', screen: 'job_buddy' },
+      { icon: '🛣️', chip: 'Roadmap · Free', title: 'Road to Recovery',
+        desc: 'See exactly where your case stands today, laid out in plain, reassuring language.',
+        cta: 'See my road', screen: 'recovery' },
+      { icon: '🏥', chip: 'WCB · Free', title: 'Find a Doctor',
+        desc: 'Find WCB-authorized doctors near you, by body part and borough. No pressure, no rush.',
+        cta: 'Find a doctor', screen: 'doctor' },
+      { icon: '📚', chip: 'Guide · Free', title: 'Learning Portal',
+        desc: 'Plain-English answers whenever you need them — glossary, FAQ and timeline.',
+        cta: 'Start learning', screen: 'learning' },
+      { icon: '💬', chip: 'AI · Free', title: 'Ask Comp Buddy',
+        desc: 'Ask anything about your case, or upload a photo of a decision and we’ll explain it simply.',
+        cta: 'Ask a question', screen: 'chat' }
+    ];
+    var DWELL = 7000;
+    var state = { i: 0, paused: false };
+
+    var bar = h('div', { className: 'wd-sp-bar' });
+    var icon = h('div', { className: 'wd-sp-icon', 'aria-hidden': 'true' });
+    var chip = h('span', { className: 'wd-sp-chip' });
+    var title = h('h2', { className: 'wd-sp-title' });
+    var desc = h('p', { className: 'wd-sp-desc' });
+    var cta = h('button', { type: 'button', className: 'wd-btn wd-btn-accent wd-sp-cta' });
+    var content = h('div', { className: 'wd-sp-content' }, [
+      h('div', { className: 'wd-sp-top' }, [icon, chip]),
+      title, desc, cta
+    ]);
+
+    function open(idx) { try { showScreen(FEATURES[idx].screen); } catch (e) {} }
+
+    var card = h('div', {
+      className: 'wd-sp-card', role: 'button', tabindex: '0',
+      onclick: function () { open(state.i); },
+      onkeydown: function (e) {
+        if (e && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(state.i); }
+      },
+      onpointerenter: function () { state.paused = true; },
+      onpointerleave: function () { state.paused = false; },
+      onpointerdown: function () { state.paused = true; },
+      onpointerup: function () { state.paused = false; }
+    }, [bar, h('div', { className: 'wd-sp-pad' }, content)]);
+
+    // CTA is its own tap target — stop the card handler double-firing.
+    cta.onclick = function (e) { if (e && e.stopPropagation) e.stopPropagation(); open(state.i); };
+
+    var dots = FEATURES.map(function (f, idx) {
+      var dot = h('span', { className: 'wd-sp-dot' });
+      var btn = h('button', {
+        type: 'button', className: 'wd-sp-dotbtn', 'aria-label': 'Go to ' + f.title,
+        onclick: function () { goTo(idx); }
+      }, dot);
+      btn._dot = dot;
+      return btn;
+    });
+    var controls = h('div', { className: 'wd-sp-controls' }, [
+      h('button', { type: 'button', className: 'wd-sp-nav', 'aria-label': 'Previous feature', onclick: function () { advance(-1); } }, '‹'),
+      h('div', { className: 'wd-sp-dots' }, dots),
+      h('button', { type: 'button', className: 'wd-sp-nav', 'aria-label': 'Next feature', onclick: function () { advance(1); } }, '›')
+    ]);
+
+    var root = h('section', { className: 'wd-section wd-spotlight' }, [
+      h('div', { className: 'wd-section-label wd-sp-label' }, 'Where to start'),
+      card, controls
+    ]);
+
+    var progress = 0, last = 0, raf = 0;
+
+    function paint(fade) {
+      var f = FEATURES[state.i];
+      icon.textContent = f.icon;
+      chip.textContent = f.chip;
+      title.textContent = f.title;
+      desc.textContent = f.desc;
+      cta.textContent = f.cta + '  →';
+      card.setAttribute('aria-label', 'Feature ' + (state.i + 1) + ' of ' + FEATURES.length + ': ' + f.title + '. Tap to open.');
+      dots.forEach(function (b, idx) { b._dot.className = 'wd-sp-dot' + (idx === state.i ? ' is-active' : ''); });
+      if (!reduced && fade) {
+        content.classList.remove('is-in');
+        window.requestAnimationFrame(function () {
+          window.requestAnimationFrame(function () { content.classList.add('is-in'); });
+        });
+      } else {
+        content.classList.add('is-in');
+      }
+    }
+    function goTo(idx) {
+      state.i = ((idx % FEATURES.length) + FEATURES.length) % FEATURES.length;
+      progress = 0; bar.style.width = '0%';
+      paint(true);
+    }
+    function advance(dir) { goTo(state.i + dir); }
+
+    function tick(t) {
+      if (!root.isConnected) { if (raf) window.cancelAnimationFrame(raf); raf = 0; return; }
+      if (!last) last = t;
+      var dt = t - last; last = t;
+      if (!reduced && !state.paused) {
+        progress += (dt / DWELL) * 100;
+        if (progress >= 100) { advance(1); }
+        else { bar.style.width = progress.toFixed(2) + '%'; }
+      }
+      raf = window.requestAnimationFrame(tick);
+    }
+
+    paint(false);
+    if (!reduced && window.requestAnimationFrame) { raf = window.requestAnimationFrame(tick); }
+    return root;
   }
 
   // ── small builders ────────────────────────────────────────────────────────
