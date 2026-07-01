@@ -316,6 +316,16 @@
             </div>
         </div>
 
+        <!-- My Profile Section (injured workers only — populated by JS from profiles.*) -->
+        <div class="section hidden" id="workerProfileSection">
+            <h2 class="section-title">My Profile</h2>
+            <p style="color:var(--txD);font-size:0.95rem;margin-bottom:1.25rem;">The details from your Comp Buddy intake — the same info that prefills your C-3. Use “Edit my info” to update any field.</p>
+            <div id="workerProfileBody"></div>
+            <div class="button-group">
+                <a class="button button-primary" href="/tools/claim-filing">✏️ Edit my info</a>
+            </div>
+        </div>
+
         <!-- Subscription Section -->
         <div class="section">
             <h2 class="section-title">Subscription</h2>
@@ -404,6 +414,7 @@
 
                 // Load user profile
                 await loadUserProfile();
+                renderWorkerProfile();
                 await renderSubscriptionInfo();
 
                 // Biometric-grade auth surfaces (independent of subscription)
@@ -445,6 +456,115 @@
                     tier: 'free',
                     subscription_status: 'none'
                 };
+            }
+        }
+
+        // Render the injured-worker "My Profile" snapshot from profiles.* columns.
+        // READ-ONLY. Worker-gated (designation === 'worker'); empty fields show a
+        // subtle "Not provided". The single "Edit my info" CTA (in the markup)
+        // routes to the C-3 filing wizard, which prefills from + writes back to
+        // these same columns. Uses the EXACT column names — no new columns.
+        function renderWorkerProfile() {
+            const p = userProfile || {};
+            const designation = p.designation || 'worker';
+            const section = document.getElementById('workerProfileSection');
+            if (!section) return;
+            // Gate to injured workers — attorneys don't get this panel.
+            if (designation !== 'worker') { section.classList.add('hidden'); return; }
+
+            const WS = { working: 'Working (full duty)', light_duty: 'Light duty', not_working: 'Not working', terminated: 'Terminated' };
+            const LANG = { en: 'English', es: 'Español (Spanish)', zh: '中文 (Chinese)', ru: 'Русский (Russian)', ko: '한국어 (Korean)', pl: 'Polski (Polish)', ht: 'Kreyòl (Haitian Creole)', bn: 'বাংলা (Bengali)', ar: 'العربية (Arabic)', other: 'Other' };
+            const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            const isEmpty = (v) => v === null || v === undefined || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0);
+            const titleCase = (s) => String(s || '').replace(/\b\w/g, (c) => c.toUpperCase());
+            const fmtDate = (d) => { if (isEmpty(d)) return null; const pr = String(d).split('-'); if (pr.length === 3) { const dt = new Date(pr[0], +pr[1] - 1, pr[2]); if (!isNaN(dt)) return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); } return String(d); };
+            const money = (v) => { const n = Number(v); return isFinite(n) ? '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null; };
+
+            // One "label / value" row; empty → subtle italic "Not provided".
+            const row = (label, value) => {
+                const empty = isEmpty(value);
+                const cls = empty ? 'detail-value' : 'detail-value';
+                const style = empty ? ' style="color:var(--txM);font-style:italic;"' : '';
+                return `<div class="detail-row"><span class="detail-label">${esc(label)}</span><span class="${cls}"${style}>${empty ? 'Not provided' : esc(value)}</span></div>`;
+            };
+            const group = (title, rows) => rows.length
+                ? `<div style="margin-bottom:1.25rem;"><div class="info-label" style="margin-bottom:0.75rem;">${esc(title)}</div><div class="subscription-details">${rows.join('')}</div></div>`
+                : '';
+
+            // Personal
+            const personal = group('Personal', [
+                row('Full name', p.full_name),
+                row('Date of birth', fmtDate(p.dob)),
+                row('Phone', p.phone),
+                row('Preferred language', isEmpty(p.language_pref) ? null : (LANG[p.language_pref] || p.language_pref)),
+                row('Email', (currentUser && currentUser.email) || null)
+            ]);
+
+            // Case
+            const caseGrp = group('Your Case', [
+                row('WCB case #', p.wcb_case_number),
+                row('Date of accident', fmtDate(p.doa)),
+                row('Employer', p.employer_name)
+            ]);
+
+            // Medical
+            const parts = Array.isArray(p.body_parts) ? p.body_parts : [];
+            const medical = group('Medical', [
+                row('Injured body parts', parts.length ? parts.map(titleCase).join(', ') : null),
+                row('Work status', isEmpty(p.work_status) ? null : (WS[p.work_status] || p.work_status)),
+                row('Treating doctor', p.treating_doctor),
+                row('Doctor’s address', p.treating_doctor_address),
+                row('Doctor’s phone', p.treating_doctor_phone),
+                row('Medical restrictions', p.medical_restrictions)
+            ]);
+
+            // Address & transportation
+            const addr = group('Address & Transportation', [
+                row('Home address', p.home_address),
+                row('Needs transportation help', typeof p.needs_transportation === 'boolean' ? (p.needs_transportation ? 'Yes' : 'No') : null)
+            ]);
+
+            // Benefits
+            const benefits = group('Benefits', [
+                row('Average weekly wage', (p.current_aww != null && String(p.current_aww).trim() !== '' && Number(p.current_aww) > 0) ? money(p.current_aww) : null)
+            ]);
+
+            // Attorney (detail rows only when represented)
+            const attyRows = [row('Has an attorney', typeof p.has_attorney === 'boolean' ? (p.has_attorney ? 'Yes' : 'No') : null)];
+            if (p.has_attorney) {
+                attyRows.push(row('Attorney name', p.attorney_name));
+                attyRows.push(row('Firm', p.attorney_firm));
+                attyRows.push(row('Attorney phone', p.attorney_phone));
+                attyRows.push(row('Attorney email', p.attorney_email));
+            }
+            const attorney = group('Attorney', attyRows);
+
+            // Authorization (OC-110a)
+            const authRows = [row('Signed', typeof p.oc110a_signed === 'boolean' ? (p.oc110a_signed ? 'Signed' : 'Not signed') : null)];
+            if (p.oc110a_signed_date) authRows.push(row('Signed date', fmtDate(p.oc110a_signed_date)));
+            const authorization = group('Medical Authorization (OC-110a)', authRows);
+
+            document.getElementById('workerProfileBody').innerHTML =
+                personal + caseGrp + medical + addr + benefits + attorney + authorization;
+            section.classList.remove('hidden');
+
+            // If an OC-110a document is on file, add a "View" control (short-TTL signed URL).
+            if (p.oc110a_doc_url) {
+                const holder = document.getElementById('workerProfileBody');
+                const btn = document.createElement('button');
+                btn.className = 'button button-secondary';
+                btn.style.cssText = 'margin-top:0.25rem;font-size:0.9rem;padding:0.5rem 1rem;';
+                btn.textContent = '👁 View OC-110a document';
+                btn.onclick = async () => {
+                    try {
+                        const path = String(p.oc110a_doc_url);
+                        const i = path.indexOf('/'); if (i < 0) return;
+                        const { data, error } = await sb.storage.from(path.slice(0, i)).createSignedUrl(path.slice(i + 1), 300);
+                        if (error || !data || !data.signedUrl) throw (error || new Error('no url'));
+                        window.open(data.signedUrl, '_blank');
+                    } catch (e) { console.warn('[account] OC110A_VIEW_FAILED', e); showMessage('Could not open the document right now.', 'error'); }
+                };
+                holder.appendChild(btn);
             }
         }
 
