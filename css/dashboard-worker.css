@@ -144,6 +144,18 @@
 }
 .wd-sp-dot.is-active { width: 26px; background: var(--skin-accent); }
 
+/* ── Desktop sizing (website /dashboard/ only) ────────────────────────────
+ * The whole worker skin is scaled for the app's narrow phone webview. On a
+ * wide desktop browser the same layout stretches across the full mount and
+ * reads oversized. The app webview is always phone-width, so this min-width
+ * rule affects ONLY the website; and it targets .worker-dash specifically, so
+ * the attorney dashboard (its own container) is untouched. Keep the worker
+ * dashboard as a centered, app-scale column instead of a sprawling page. */
+@media (min-width: 700px) {
+  .worker-dash { max-width: 680px; margin-left: auto; margin-right: auto; }
+  .wd-spotlight { align-self: center; }   /* center the 560px featured card in the column */
+}
+
 /* ── Generic card ─────────────────────────────────────────────────────── */
 .wd-card {
   background: var(--skin-surface-elev);

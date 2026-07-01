@@ -109,11 +109,6 @@
     var openAttorneyIntake = ctx.openAttorneyIntake || CD.openAttorneyIntake || function () {};
     var local = _readLocal();
     var reduced = _reduced();
-    // The "Calm Path" feature spotlight (and its softened tagline) is the
-    // NATIVE-APP experience only. The website /dashboard/ mounts this same
-    // module but keeps the prior, denser layout — so both surfaces render off
-    // one source of truth. Web has no Capacitor runtime → this is false there.
-    var native = _isNativeApp();
 
     var cont = h('div', { className: 'dash-container worker-dash' });
 
@@ -129,19 +124,16 @@
           : ['Welcome']),
       h('div', { className: 'wd-hero-sub' }, [
         h('span', { className: 'wd-badge worker-badge' }, '👷 Injured Worker'),
-        h('span', { className: 'wd-hero-tagline' }, _known
-          ? (native ? 'Here’s where your case stands today. Take it one step at a time.' : 'Here’s where your case stands today.')
-          : (native ? 'Start your claim and learn your rights. Take it one step at a time.' : 'Start your claim and learn your rights.'))
+        h('span', { className: 'wd-hero-tagline' }, _known ? 'Here’s where your case stands today. Take it one step at a time.' : 'Start your claim and learn your rights. Take it one step at a time.')
       ])
     ]);
     cont.appendChild(hero);
 
-    // ── 1a. FEATURE SPOTLIGHT (Calm Path) — NATIVE APP ONLY ───────────────
+    // ── 1a. FEATURE SPOTLIGHT (Calm Path) ─────────────────────────────────
     // The signature "Calm Path" header element: a gentle, auto-rotating
     // spotlight of the core free features. Sits between the greeting and the
-    // primary claim CTA; every slide opens its feature via showScreen(). Shown
-    // ONLY in the native app — the website /dashboard/ keeps the prior layout.
-    if (native) cont.appendChild(_featureSpotlight(h, showScreen, reduced));
+    // primary claim CTA; every slide opens its feature via showScreen().
+    cont.appendChild(_featureSpotlight(h, showScreen, reduced));
 
     // ── 1b. PRIMARY CTA — "Start your WC claim" (the visual #1 action) ─────
     // Launches the C-3 (Employee Claim) wizard directly. Works for guests:
@@ -830,19 +822,6 @@
     }
 
     return { node: node, play: play };
-  }
-
-  // True only inside the native app (Capacitor injects window.Capacitor). The
-  // website has no Capacitor runtime, so this is false there — used to keep the
-  // Calm Path spotlight app-only while both surfaces share this one module.
-  function _isNativeApp() {
-    try {
-      var C = window.Capacitor;
-      if (!C) return false;
-      if (typeof C.isNativePlatform === 'function') return C.isNativePlatform();
-      if (typeof C.getPlatform === 'function') return C.getPlatform() !== 'web';
-      return false;
-    } catch (e) { return false; }
   }
 
   // ── Feature spotlight carousel (Calm Path) ─────────────────────────────────
