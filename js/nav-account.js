@@ -101,9 +101,17 @@ import { getOptionalUser, getProfile, signOut } from '/js/auth.js';
         position: absolute; top: calc(100% + 8px); right: 0;
         min-width: 220px; z-index: 10001;
         background: var(--skin-surface-elev, #16243F);
-        border: 1px solid var(--skin-divider, rgba(255,255,255,0.14));
+        /* Skin-adaptive edge: derived from --skin-text so it stays visible on
+           BOTH the light worker/Dawn skin (dark hairline on the white card,
+           against the cream page) and the dark attorney/cover skins (light
+           hairline on navy). The 10%-opacity --skin-divider was invisible on
+           light backgrounds and let the card blend into the page. */
+        border: 1px solid color-mix(in srgb, var(--skin-text, #f4f6fa) 22%, transparent);
         border-radius: 14px; padding: 8px;
-        box-shadow: 0 16px 44px rgba(0,0,0,0.40);
+        box-shadow:
+          0 20px 50px -12px rgba(20, 26, 45, 0.38),
+          0 6px 16px rgba(20, 26, 45, 0.16),
+          0 0 0 1px color-mix(in srgb, var(--skin-text, #f4f6fa) 8%, transparent);
         opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.98);
         transform-origin: top right;
         transition: opacity .16s ease, transform .16s ease, visibility .16s;
@@ -180,9 +188,12 @@ import { getOptionalUser, getProfile, signOut } from '/js/auth.js';
     ];
   }
 
-  function buildMenu(session, designation) {
+  function buildMenu(session, designation, profileName) {
     var email = (session && session.user && session.user.email) || '';
-    var name = (session && session.user && session.user.user_metadata &&
+    // Prefer the profile's full_name (the app's source of truth); fall back to
+    // the auth metadata, then to nothing.
+    var name = (profileName && profileName.trim()) ||
+               (session && session.user && session.user.user_metadata &&
                 session.user.user_metadata.full_name) || '';
 
     var wrap = document.createElement('div');
@@ -201,8 +212,11 @@ import { getOptionalUser, getProfile, signOut } from '/js/auth.js';
       '</button>' +
       '<div class="tcd-acct-menu" role="menu">' +
         '<div class="tcd-acct-head">' +
-          (name ? '<div class="nm">' + escapeHtml(name) + '</div>' : '') +
-          (email ? '<div class="em">' + escapeHtml(email) + '</div>' : '') +
+          // Name is the primary line. Show the email only as a fallback when we
+          // have no name, so the header is never blank.
+          (name
+            ? '<div class="nm">' + escapeHtml(name) + '</div>'
+            : (email ? '<div class="nm">' + escapeHtml(email) + '</div>' : '')) +
         '</div>' +
         rows +
         '<div class="tcd-acct-sep"></div>' +
@@ -280,13 +294,13 @@ import { getOptionalUser, getProfile, signOut } from '/js/auth.js';
     return null;
   }
 
-  function place(session, designation) {
+  function place(session, designation, profileName) {
     if (document.querySelector('[data-tcd="' + SENTINEL + '"]')) return true; // idempotent
     var container = findContainer();
     if (!container) return false;
     removeSignInCtas();
     injectStyles();
-    container.appendChild(buildMenu(session, designation));
+    container.appendChild(buildMenu(session, designation, profileName));
     wireGlobalClosers();
     return true;
   }
@@ -304,18 +318,20 @@ import { getOptionalUser, getProfile, signOut } from '/js/auth.js';
     if (!state || !state.session) return; // logged out → leave header as-is
 
     var designation = 'worker';
+    var fullName = '';
     try {
       var prof = await getProfile(state.session.user.id);
       if (prof && (prof.designation === 'attorney' || prof.user_type === 'attorney')) {
         designation = 'attorney';
       }
+      if (prof && prof.full_name) fullName = prof.full_name;
     } catch (_) { /* default worker */ }
 
-    if (place(state.session, designation)) return;
+    if (place(state.session, designation, fullName)) return;
     // Header may be injected async — watch for it, place once, stop.
     var obs = new MutationObserver(function () {
       if (navJsOwned()) { obs.disconnect(); return; }
-      if (place(state.session, designation)) obs.disconnect();
+      if (place(state.session, designation, fullName)) obs.disconnect();
     });
     obs.observe(document.body, { childList: true, subtree: true });
     setTimeout(function () { obs.disconnect(); }, 10000);
