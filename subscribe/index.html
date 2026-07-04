@@ -22,31 +22,70 @@
     <link rel="stylesheet" href="/css/skins.css">
     <!-- Stripe checkout handled server-side via Supabase Edge Function -->
     <style>
-        /* Subscription-Specific Styles */
+        /* Subscription-Specific Styles — dark navy brand surface */
+        :root{
+            --sub-ac:#E87722;
+            --sub-ac-h:#FF8B33;
+            --sub-blue:#5AA9F2;
+            --sub-gold:#E7C67C;
+            --sub-green:#5BC79A;
+            --sub-tx:#F4F1EA;
+            --sub-tx2:#C3CCDC;
+            --sub-tx3:#9AA6BC;
+            --sub-card:#16243F;
+            --sub-cardA:#1F2F4D;
+            --sub-bd:rgba(240,235,224,0.12);
+        }
+        html{background:#0F1B33;}
+        /* Own the surface so the injected light brand-bg can't wash out text. */
+        body.tcd-skinned,
+        body.tcd-skinned[data-no-brand-bg]{
+            background:
+                radial-gradient(1100px 660px at 50% -180px, rgba(232,119,34,0.15) 0%, rgba(232,119,34,0) 60%),
+                linear-gradient(180deg,#0B1524 0%, #0F1B33 55%, #0B1524 100%) !important;
+            background-attachment:fixed !important;
+            color:var(--sub-tx);
+            min-height:100vh;
+        }
+        body[data-no-brand-bg] #brand-bg{display:none !important;}
+
         .page-content {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 120px 20px 60px;
+            position: relative;
+            z-index: 1;
         }
 
         .plans-header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 56px;
+        }
+
+        .plans-header .eyebrow{
+            display:inline-block;
+            background:rgba(91,199,154,0.14);
+            border:1px solid rgba(91,199,154,0.35);
+            color:var(--sub-green);
+            padding:6px 16px;border-radius:20px;
+            font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+            margin-bottom:20px;
         }
 
         .plans-header h1 {
-            font-size: 42px;
-            font-weight: 800;
+            font-size: clamp(34px,5vw,46px);
+            font-weight: 900;
             color: #fff;
-            margin-bottom: 16px;
-            letter-spacing: -0.5px;
+            margin-bottom: 14px;
+            letter-spacing: -1px;
         }
 
         .plans-header p {
             font-size: 18px;
-            color: #aaa;
+            color: var(--sub-tx2);
             max-width: 600px;
             margin: 0 auto;
+            line-height:1.6;
         }
 
         /* Plans Grid */
@@ -62,8 +101,8 @@
         }
 
         .plan-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(180deg, var(--sub-cardA) 0%, var(--sub-card) 100%);
+            border: 1px solid var(--sub-bd);
             border-radius: 20px;
             padding: 40px 32px;
             position: relative;
@@ -73,23 +112,24 @@
             width: 100%;
             max-width: 360px;
             min-height: 600px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.28);
         }
 
         .plan-card:hover {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(240,235,224,0.24);
             transform: translateY(-8px);
+            box-shadow: 0 26px 54px rgba(0,0,0,0.38);
         }
 
         /* Highlighted "Most Popular" Card */
         .plan-card.featured {
-            border: 2px solid #4CAF50;
-            box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.3);
+            border: 2px solid var(--sub-ac);
+            box-shadow: 0 0 0 1px rgba(232,119,34,0.35), 0 22px 50px rgba(232,119,34,0.16);
             transform: scale(1.03);
         }
 
         .plan-card.featured:hover {
-            box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 0 34px rgba(232,119,34,0.4);
         }
 
         .plan-badge {
@@ -105,54 +145,45 @@
             z-index: 10;
         }
 
-        .badge-gold {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #000;
-        }
-
-        .badge-blue {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-            color: #fff;
-        }
-
-        .badge-purple {
-            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
-            color: #fff;
-        }
+        /* The old color-name corner label ("Gold/Blue/Purple") is hidden —
+           tier identity now reads through the card accent + "Most Popular" badge. */
+        .plan-badge { display: none; }
 
         .badge-popular {
             position: absolute;
-            top: 24px;
-            right: 24px;
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
-            padding: 4px 12px;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--sub-ac);
+            color: #0B1524;
+            padding: 5px 14px;
             border-radius: 12px;
-            font-size: 10px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .plan-name {
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 800;
             color: #fff;
-            margin-top: 20px;
+            margin-top: 6px;
             margin-bottom: 8px;
         }
 
         .plan-price {
             font-size: 48px;
-            font-weight: 800;
+            font-weight: 900;
             color: #fff;
             margin-bottom: 4px;
-            letter-spacing: -1px;
+            letter-spacing: -1.5px;
         }
 
         .plan-price-period {
             font-size: 14px;
-            color: #888;
+            color: var(--sub-tx3);
             margin-bottom: 32px;
         }
 
@@ -170,11 +201,11 @@
         .plan-features li {
             padding: 12px 0;
             font-size: 14px;
-            color: #ccc;
+            color: var(--sub-tx2);
             display: flex;
             align-items: flex-start;
             gap: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(240,235,224,0.08);
         }
 
         .plan-features li:last-child {
@@ -192,21 +223,21 @@
 
         .checkmark-gold::before {
             content: '✓';
-            color: #FFD700;
+            color: var(--sub-ac);
             font-size: 16px;
             font-weight: bold;
         }
 
         .checkmark-blue::before {
             content: '✓';
-            color: #2196F3;
+            color: var(--sub-blue);
             font-size: 16px;
             font-weight: bold;
         }
 
         .checkmark-purple::before {
             content: '✓';
-            color: #9C27B0;
+            color: var(--sub-gold);
             font-size: 16px;
             font-weight: bold;
         }
@@ -225,33 +256,38 @@
         }
 
         .plan-cta-gold {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: #fff;
+            background: var(--sub-ac);
+            color: #0B1524;
         }
 
         .plan-cta-gold:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+            background: var(--sub-ac-h);
+            box-shadow: 0 10px 24px rgba(232,119,34,0.4);
         }
 
         .plan-cta-blue {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-            color: #fff;
+            background: transparent;
+            color: var(--sub-tx);
+            border: 1.5px solid rgba(240,235,224,0.28);
         }
 
         .plan-cta-blue:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+            border-color: var(--sub-ac);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
         .plan-cta-purple {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: var(--sub-tx);
+            border: 1.5px solid rgba(240,235,224,0.28);
         }
 
         .plan-cta-purple:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(240,235,224,0.06);
+            border-color: var(--sub-ac);
             transform: translateY(-2px);
         }
 
@@ -271,13 +307,13 @@
         }
 
         .current-subscription h3 {
-            color: #4CAF50;
+            color: var(--sub-green);
             margin-bottom: 12px;
             font-size: 18px;
         }
 
         .current-subscription p {
-            color: #aaa;
+            color: var(--sub-tx2);
             margin-bottom: 20px;
         }
 
@@ -313,12 +349,12 @@
             align-items: center;
             gap: 8px;
             font-size: 13px;
-            color: #999;
+            color: var(--sub-tx2);
         }
 
         .badge::before {
             content: '✓';
-            color: #4CAF50;
+            color: var(--sub-green);
             font-weight: bold;
             font-size: 16px;
         }
@@ -339,8 +375,8 @@
         }
 
         .faq-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(31,47,77,0.55);
+            border: 1px solid var(--sub-bd);
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 20px;
@@ -349,8 +385,8 @@
         }
 
         .faq-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(31,47,77,0.85);
+            border-color: rgba(240,235,224,0.22);
         }
 
         .faq-question {
@@ -364,18 +400,18 @@
         }
 
         .faq-toggle {
-            font-size: 20px;
-            color: #4CAF50;
+            font-size: 22px;
+            color: var(--sub-ac);
             transition: transform 0.3s ease;
         }
 
         .faq-toggle.open {
-            transform: rotate(180deg);
+            transform: rotate(45deg);
         }
 
         .faq-answer {
             font-size: 14px;
-            color: #aaa;
+            color: var(--sub-tx2);
             margin: 16px 0 0 0;
             line-height: 1.6;
             max-height: 0;
@@ -463,12 +499,17 @@
                 content: ' ...';
             }
         }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 1px rgba(232,119,34,0.35), 0 22px 50px rgba(232,119,34,0.16); }
+            50% { box-shadow: 0 0 0 2px rgba(232,119,34,0.7), 0 0 40px rgba(232,119,34,0.5); }
+        }
     </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
 <script src="/js/brand-bg.js" defer></script>
 </head>
-<body class="tcd-skinned">
+<body class="tcd-skinned" data-no-brand-bg="true">
     <!-- Audience-skinned nav (replaces the legacy renderNav() injection
          target). The renderNav() call in the module script now no-ops
          because #app-nav no longer exists in the DOM. -->
@@ -487,8 +528,9 @@
 
     <div class="page-content">
         <div class="plans-header">
+            <span class="eyebrow">The Comp Desk Pro</span>
             <h1>Choose Your Plan</h1>
-            <p>Unlock premium workers' compensation tools and features.</p>
+            <p>Unlock premium workers' compensation tools and features. Cancel anytime.</p>
         </div>
 
         <div id="plans-container">
