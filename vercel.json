@@ -59,6 +59,16 @@
       "permanent": true
     },
     {
+      "source": "/find-attorney-how-it-works",
+      "destination": "/connect-with-attorney",
+      "permanent": true
+    },
+    {
+      "source": "/find-attorney-how-it-works.html",
+      "destination": "/connect-with-attorney",
+      "permanent": true
+    },
+    {
       "source": "/home-legacy.html",
       "destination": "/home-legacy",
       "permanent": false

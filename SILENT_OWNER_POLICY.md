@@ -44,7 +44,7 @@ For contact, use role-based brand addresses (`support@thecompdesk.com`, `privacy
 
 The "zero hits outside `back-burner/`" rule has the following deliberate exceptions. These are the **only** places in the repo where the owner's name or firm name may appear. Any new occurrence outside this list is a violation.
 
-1. **`find-attorney-how-it-works.html`** — the sole permitted *public* disclosure point. This page exists specifically to disclose the conflict of interest, name the operator and the operator's firm, and explain that both are permanently excluded from the Find an Attorney directory. The disclosure is the load-bearing feature of the page; do not scrub it. Any change to this page that *removes* the disclosure must be rejected.
+1. **`connect-with-attorney.html`** — the sole permitted *public* disclosure point. This page discloses the conflict of interest in its FAQ (and FAQ JSON-LD): it names the operator and the operator's firm and explains that the firm is permanently excluded from the neutral round-robin attorney connection network, enforced in code. The disclosure is a load-bearing feature of the page; do not scrub it. Any change to this page that *removes* the disclosure must be rejected. (The former disclosure page, `find-attorney-how-it-works.html`, was retired on 2026-07-05 to a `noindex` redirect stub pointing at `/connect-with-attorney`; it no longer carries any owner or firm reference.)
 
 2. **`find-attorney.html`** — the lead-generation page. This is the **sole page where Shulman & Hill PLLC may be named as a participating firm**. The following strict rules apply inside this carve-out:
    - The firm name `Shulman & Hill PLLC` may appear on the page and in dynamic firm cards loaded from the `participating_attorneys` Supabase view.
@@ -77,7 +77,7 @@ Before opening a PR, run:
 grep -riE "Joel|Mays|Shulman|786-?815-?4612" \
   --exclude-dir=.git --exclude-dir=back-burner --exclude-dir=node_modules \
   --exclude=SILENT_OWNER_POLICY.md \
-  --exclude=find-attorney-how-it-works.html \
+  --exclude=connect-with-attorney.html \
   --exclude=find-attorney.html \
   --exclude=directory-exclusion.test.js \
   .
