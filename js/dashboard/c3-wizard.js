@@ -31,17 +31,102 @@
  * exactly like comp-buddy-intake.js.
  *
  * Storage (migration 048): templates in c3-template (read), generated PDFs in
- * c3-filings/{user_id}/{ts}.pdf (own-folder RLS). Only the PDF blob holds PHI;
- * drafts stay client-local (never DB); c3_filings rows hold no narrative PHI.
+ * c3-filings/{user_id}/{ts}.pdf (own-folder RLS). c3_filings rows hold no
+ * narrative PHI. In-progress ANSWERS autosave to client storage always, and —
+ * for signed-in users — to an owner-only c3_drafts row (migration 079) so a
+ * claim can resume across devices; the draft is answers-only (SSN + signature
+ * are stripped client-side) and is deleted the moment the signed PDF is made.
  * ========================================================================== */
 (function (window) {
   'use strict';
   var CD = (window.CD = window.CD || {});
 
+  /* ---- shared glossary tooltip (CD.Glossary) — create if absent ---------
+   * A tiny, self-contained "tap an acronym for a plain-language definition"
+   * helper. Authored here (first place that needed it) but attached to CD so
+   * ANY surface can reuse it: `CD.Glossary.term('AWW')` returns a DOM node that
+   * shows a small popover on tap/hover. Definitions are worker-voice, not
+   * statutory. It injects its own styles + one shared popover, so it works even
+   * where the .c3w wizard styles aren't loaded. */
+  if (!CD.Glossary) {
+    CD.Glossary = (function () {
+      // Plain-English, injured-worker-voice definitions (no legalese). Add terms
+      // here as new surfaces need them.
+      var TERMS = {
+        'AWW': 'Average Weekly Wage — the average amount you earned each week before your injury. Your weekly benefit checks are based on this number.',
+        'C-3': 'The Employee Claim — the official form that opens your workers’ comp case with the Board.',
+        'C-3.3': 'A short HIPAA release that lets the insurer get records from a doctor who treated an earlier injury to the same body part.',
+        'IME': 'Independent Medical Exam — a one-time exam by a doctor the insurance company picks, not your own doctor.',
+        'WCB': 'The New York State Workers’ Compensation Board — the state agency that runs your claim.',
+        'DOI': 'Date of Injury — the day you got hurt, or the day you first noticed a work-related illness.'
+      };
+      var pop = null, openAbbr = null;
+      function ensureStyles() {
+        if (document.getElementById('cd-gloss-styles')) return;
+        var css = [
+          '.cd-gloss{border-bottom:1px dotted currentColor;cursor:help;font-weight:600;white-space:nowrap}',
+          '.cd-gloss:focus{outline:2px solid #3b82f6;outline-offset:2px;border-radius:2px}',
+          '.cd-gloss-pop{position:absolute;z-index:100050;max-width:264px;background:#15171f;color:#e8eaed;border:1px solid #2e3145;border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.5)}',
+          '.cd-gloss-pop b{color:#7ab0ff}'
+        ].join('\n');
+        var s = document.createElement('style'); s.id = 'cd-gloss-styles'; s.textContent = css; document.head.appendChild(s);
+      }
+      function ensurePop() {
+        if (pop) return pop;
+        ensureStyles();
+        pop = document.createElement('div');
+        pop.className = 'cd-gloss-pop';
+        pop.setAttribute('role', 'tooltip');
+        pop.style.display = 'none';
+        document.body.appendChild(pop);
+        document.addEventListener('click', function (e) {
+          if (!pop || pop.style.display === 'none') return;
+          if (e.target && e.target.classList && e.target.classList.contains('cd-gloss')) return;
+          hide();
+        });
+        window.addEventListener('resize', hide);
+        window.addEventListener('scroll', hide, true);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+        return pop;
+      }
+      function hide() { if (pop) { pop.style.display = 'none'; openAbbr = null; } }
+      function showFor(node) {
+        var abbr = node.getAttribute('data-abbr'); var def = TERMS[abbr]; if (!def) return;
+        var p = ensurePop();
+        p.innerHTML = ''; var b = document.createElement('b'); b.textContent = abbr;
+        p.appendChild(b); p.appendChild(document.createTextNode(' — ' + def));
+        p.style.display = 'block'; openAbbr = abbr;
+        var r = node.getBoundingClientRect();
+        var sx = window.pageXOffset || 0, sy = window.pageYOffset || 0;
+        var vw = document.documentElement.clientWidth;
+        var left = Math.min(r.left + sx, sx + vw - p.offsetWidth - 12);
+        p.style.top = (r.bottom + sy + 6) + 'px';
+        p.style.left = Math.max(8, left) + 'px';
+      }
+      function term(abbr, label) {
+        var s = document.createElement('span');
+        s.className = 'cd-gloss'; s.setAttribute('data-abbr', abbr);
+        s.setAttribute('role', 'button'); s.setAttribute('tabindex', '0');
+        s.setAttribute('aria-label', abbr + ' — tap for what this means');
+        s.textContent = label || abbr;
+        s.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); if (openAbbr === abbr) hide(); else showFor(s); });
+        s.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (openAbbr === abbr) hide(); else showFor(s); } });
+        return s;
+      }
+      return { term: term, define: function (a, d) { TERMS[a] = d; }, TERMS: TERMS, hide: hide };
+    })();
+  }
+
   /* ---- constants -------------------------------------------------------- */
   var STEP_NAMES = { 1: 'You & Your Job', 2: 'The Injury', 3: 'Employer & Notice', 4: 'Medical & Work', 5: 'Review & Sign' };
   var TOTAL_STEPS = 5;
+  // Honest per-step time-to-complete (minutes) for a worker filling by hand, with
+  // most of step 1 pre-filled. Drives the "about N min left" estimate: remaining =
+  // sum of the CURRENT step through step 5 (see etaRemaining). Kept modest and
+  // labelled "about" — better to slightly over-promise speed than to intimidate.
+  var STEP_MIN = { 1: 2, 2: 3, 3: 2, 4: 2, 5: 2 };
   var STORAGE_PREFIX = 'c3:filing:';
+  var INTAKE_PREFIX = 'cbi:intake:';   // the Comp Buddy intake's own autosave key
 
   // Same 21 body parts as the intake (canonical lowercase values).
   var BODY_PARTS = [
@@ -244,7 +329,24 @@
       '.c3w .form-error{font-size:12px;color:var(--danger);margin-top:4px;display:none}',
       '.c3w .form-error.visible{display:block}',
       '.c3w .form-hint{font-size:12px;color:var(--text-muted);margin-top:4px}',
-      '.c3w .prefill-tag{display:inline-block;font-size:10px;font-weight:600;color:var(--success);background:var(--success-light);padding:1px 6px;border-radius:10px;margin-left:6px;text-transform:uppercase;letter-spacing:.3px}',
+      // "Filled in from your profile — tap to edit" chip: subtle, tappable (focuses the field).
+      '.c3w .prefill-tag{display:inline-block;font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-light);padding:1px 7px;border-radius:10px;margin-left:6px;cursor:pointer;white-space:nowrap;vertical-align:middle;-webkit-user-select:none;user-select:none}',
+      '.c3w .prefill-tag:hover{background:rgba(59,130,246,.28)}',
+      '.c3w .prefill-tag:focus{outline:2px solid var(--accent);outline-offset:1px}',
+      // one plain-language, worker-voice sentence under a field group.
+      '.c3w .c3w-helper{font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:-4px 0 16px}',
+      // persistent progress bar + ETA under the step dots.
+      '.c3w .c3w-progress-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin:2px 0 8px}',
+      '.c3w .c3w-progress-fill{height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .35s ease}',
+      '.c3w .c3w-eta{text-align:center;font-size:11px;color:var(--text-muted);margin-top:2px}',
+      // resume banner shown on re-entry when a saved draft exists.
+      '.c3w .c3w-resume{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--accent-light);border:1px solid rgba(59,130,246,.35);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}',
+      '.c3w .c3w-resume-icon{font-size:22px;flex-shrink:0}',
+      '.c3w .c3w-resume-body{flex:1;min-width:160px}',
+      '.c3w .c3w-resume-title{font-size:14px;font-weight:600;color:var(--text-primary)}',
+      '.c3w .c3w-resume-sub{font-size:12px;color:var(--text-secondary);margin-top:2px}',
+      '.c3w .c3w-resume-actions{display:flex;gap:8px;flex-shrink:0}',
+      '.c3w .c3w-resume-actions .btn{flex:0 0 auto;padding:9px 16px;font-size:13px}',
       '.c3w .chip-grid{display:flex;flex-wrap:wrap;gap:8px}',
       '.c3w .chip{padding:8px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:20px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;user-select:none}',
       '.c3w .chip:hover{border-color:var(--accent);color:var(--text-primary)}',
@@ -462,13 +564,18 @@
     var signedIn = !anon;       // drives prefill-aware copy (e.g. "From your profile")
 
     /* ---- working state (prefilled from profile) ------------------------ */
-    var nm = splitName(profile.full_name);
-    var addr = [profile.home_address, profile.home_city].filter(Boolean).join(', ');
+    // City/State/ZIP live in three profile columns; the Comp Buddy intake only
+    // captures home_address today, so mailing2 is usually blank until edited.
+    var mailingCityLine = [profile.home_city, [profile.home_state, profile.home_zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+    // Treating-doctor prefill spans two column names: the intake writes the doctor
+    // NAME to profiles.treating_doctor, while the older column is treating_doctor_name.
+    // Prefer whichever is populated so an intake-entered doctor actually carries over.
+    var docName = profile.treating_doctor_name || profile.treating_doctor || '';
     var state = {
       step: 0, branch: '', // '' | 'self' | 'attorney'
       // A. you
       name: profile.full_name || '', dob: profile.dob || '', ssn: '', gender: '',
-      mailing: profile.home_address || '', mailing2: profile.home_city || '',
+      mailing: profile.home_address || '', mailing2: mailingCityLine,
       phone: profile.phone || '', translator: '', language: (profile.language_pref && profile.language_pref !== 'en') ? profile.language_pref : '',
       // B. employer
       employer: profile.employer_name || '', employerPhone: '', workAddress: '', supervisor: '', otherEmployers: '',
@@ -489,7 +596,7 @@
       returnDate: '', returnEmployer: '', grossPay2: '', payFreq2: '',
       // F. medical
       firstTreatDate: '', treatType: '', firstTreatName: '', firstTreatPhone: '',
-      stillTreating: '', treatingDoctors: [profile.treating_doctor_name, profile.treating_doctor_address].filter(Boolean).join(', '), treatingDoctorsPhone: profile.treating_doctor_phone || '',
+      stillTreating: '', treatingDoctors: [docName, profile.treating_doctor_address].filter(Boolean).join(', '), treatingDoctorsPhone: profile.treating_doctor_phone || '',
       // F5/F6 prior injury (triggers C-3.3)
       priorInjury: '', priorWorkRelated: '', priorSameEmployer: '', priorTreatedByDoctor: '',
       c33_priorDesc: '', c33_providers: '', c33_releaseMentalHealth: false,
@@ -497,6 +604,10 @@
       // cert
       certName: profile.full_name || ''
     };
+    // Snapshot of the pure profile-prefill baseline, taken BEFORE any saved draft
+    // or intake data is merged in. "Start over" on the resume banner reverts to this.
+    function cloneState(s) { var o = {}; Object.keys(s).forEach(function (k) { o[k] = Array.isArray(s[k]) ? s[k].slice() : s[k]; }); return o; }
+    var BASELINE = cloneState(state);
 
     /* ---------- attorney off-ramps (3 places; always skippable) --------
      * Each SAVES the draft then opens the in-app lead intake (submit-attorney-lead,
@@ -575,10 +686,12 @@
     }
     var progress = el('div', { class: 'progress-container', id: 'c3w-progress', style: 'display:none' }, [
       pSteps,
+      el('div', { class: 'c3w-progress-bar' }, [el('div', { class: 'c3w-progress-fill', id: 'c3w-bar-fill' })]),
       el('div', { class: 'progress-label' }, [
         document.createTextNode('Step '), el('span', { id: 'c3w-step-current', text: '1' }),
         document.createTextNode(' of ' + TOTAL_STEPS + ' — '), el('span', { id: 'c3w-step-name', text: STEP_NAMES[1] })
-      ])
+      ]),
+      el('div', { class: 'c3w-eta', id: 'c3w-eta' })
     ]);
     root.appendChild(progress);
 
@@ -630,6 +743,7 @@
     var step1 = el('div', { class: 'step-section', id: 'c3w-step-1' });
     step1.appendChild(stepIntro('👤', 'You & Your Job', 'Confirm your details — we’ve pre-filled what we know.'));
     var c1 = card('About You', 'From your profile. Edit anything that’s changed.');
+    c1.appendChild(helper('Double-check the basics — we filled in what we already had. If anything looks off, just tap the box and fix it.'));
     c1.appendChild(fieldRow([
       textField('c3w-name', 'Full Legal Name', 'req', state.name, 'First MI Last', !!state.name),
       dateField('c3w-dob', 'Date of Birth', 'req', state.dob, !!state.dob)
@@ -654,6 +768,7 @@
     step1.appendChild(c1);
 
     var c1b = card('Your Job', 'On the date of your injury or illness.');
+    c1b.appendChild(helper('Tell us about the job you were doing when you got hurt. Your pay here helps set your ', gloss('AWW'), ' — the weekly wage your benefit checks are based on.'));
     c1b.appendChild(group([el('label', { class: 'form-label', html: 'Job Title or Description<span class="req">*</span>' + prefillTag(!!state.jobTitle) }), el('input', { type: 'text', class: 'form-input', id: 'c3w-jobTitle', value: state.jobTitle, placeholder: 'e.g. Warehouse associate' }), errEl('c3w-err-jobTitle', 'Your job title is required')]));
     c1b.appendChild(group([el('label', { class: 'form-label', html: 'What did you normally do at work?<span class="opt">(optional)</span>' }), el('textarea', { class: 'form-input', id: 'c3w-activities', placeholder: 'Day-to-day duties' }, [state.activities])]));
     var jobTimeGroup = optionRow('c3w-jobTime', 'Was your job?', JOB_TIME.map(function (j) { return [j[0], j[1]]; }), state.jobTime, function (v) { state.jobTime = v; $('c3w-jobOther-wrap').style.display = v === 'Other' ? 'block' : 'none'; persist(); });
@@ -672,6 +787,7 @@
     step2.appendChild(stepIntro('🩹', 'The Injury', 'Tell us exactly what happened — this is the heart of your claim.'));
     step2.appendChild(_midNudge()); // (b) dismissible mid-wizard soft nudge
     var c2 = card('When & Where');
+    c2.appendChild(helper('Tell us when and where it happened. The date of injury (your ', gloss('DOI'), ') is the day you got hurt, or the day you first noticed a work-related illness.'));
     c2.appendChild(fieldRow([
       dateField('c3w-doi', 'Date of Injury / Onset', 'req', state.doi, !!state.doi),
       textField('c3w-timeOfInjury', 'Time of Injury', 'opt', state.timeOfInjury, 'e.g. 2:30', false)
@@ -683,11 +799,13 @@
     step2.appendChild(c2);
 
     var c2b = card('What Happened');
+    c2b.appendChild(helper('Describe it like you’d tell a friend — what you were doing, and how you got hurt. Everyday words are perfect.'));
     c2b.appendChild(group([el('label', { class: 'form-label', html: 'What were you doing when injured?<span class="req">*</span>' }), el('textarea', { class: 'form-input', id: 'c3w-whatDoing', placeholder: 'e.g. unloading a truck, typing a report' }, [state.whatDoing]), errEl('c3w-err-whatDoing', 'Describe what you were doing')]));
     c2b.appendChild(group([el('label', { class: 'form-label', html: 'How did the injury/illness happen?<span class="req">*</span>' }), el('textarea', { class: 'form-input', id: 'c3w-howHappened', placeholder: 'e.g. I tripped over a pipe and fell on the floor' }, [state.howHappened]), errEl('c3w-err-howHappened', 'Describe how it happened')]));
     step2.appendChild(c2b);
 
     var c2c = card('Injured Body Parts', 'We pre-checked the parts from your profile. Add the nature of the injury.');
+    c2c.appendChild(helper('Tap every part of your body that was hurt — you can pick more than one.'));
     var chipGrid = el('div', { class: 'chip-grid', id: 'c3w-body-grid' });
     BODY_PARTS.forEach(function (bp) {
       var chip = el('div', { class: 'chip' + (state.bodyParts.indexOf(bp[0]) >= 0 ? ' selected' : ''), 'data-part': bp[0], text: bp[1] });
@@ -709,6 +827,7 @@
     var step3 = el('div', { class: 'step-section', id: 'c3w-step-3' });
     step3.appendChild(stepIntro('🏢', 'Employer & Notice', 'Your employer, and whether you reported the injury.'));
     var c3a = card('Your Employer');
+    c3a.appendChild(helper('This is the company you worked for when you got hurt — the one your claim is filed against.'));
     c3a.appendChild(group([el('label', { class: 'form-label', html: 'Employer When Injured<span class="req">*</span>' + prefillTag(!!state.employer) }), el('input', { type: 'text', class: 'form-input', id: 'c3w-employer', value: state.employer, placeholder: 'Company name' }), errEl('c3w-err-employer', 'Employer name is required')]));
     c3a.appendChild(fieldRow([
       textField('c3w-employerPhone', 'Employer Phone', 'opt', state.employerPhone, '(212) 555-1234', false),
@@ -720,6 +839,7 @@
     step3.appendChild(c3a);
 
     var c3b = card('Notice & Witnesses');
+    c3b.appendChild(helper('Telling your boss you were hurt matters. The ', gloss('WCB'), ' wants to know who you told, and when.'));
     c3b.appendChild(group([el('label', { class: 'form-label', text: 'Did you tell your employer/supervisor?' }), optionRow('c3w-gaveNotice', '', [['yes', 'Yes'], ['no', 'No']], state.gaveNotice, function (v) { state.gaveNotice = v; $('c3w-notice-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
     c3b.appendChild(el('div', { id: 'c3w-notice-detail', style: state.gaveNotice === 'yes' ? 'display:block' : 'display:none' }, [
       group([el('label', { class: 'form-label', text: 'How?' }), optionRow('c3w-noticeMethod', '', [['orally', 'Orally'], ['in_writing', 'In writing']], state.noticeMethod, function (v) { state.noticeMethod = v; persist(); })]),
@@ -732,6 +852,7 @@
     step3.appendChild(c3b);
 
     var c3c = card('Was a Vehicle or Object Involved?', 'Optional — only if relevant.');
+    c3c.appendChild(helper('Only fill this in if a vehicle or piece of equipment was part of what happened. Otherwise, skip it.'));
     c3c.appendChild(group([el('label', { class: 'form-label', text: 'Was an object (forklift, tool, etc.) involved?' }), optionRow('c3w-objectInvolved', '', [['no', 'No'], ['yes', 'Yes']], state.objectInvolved, function (v) { state.objectInvolved = v; $('c3w-object-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
     c3c.appendChild(el('div', { id: 'c3w-object-detail', style: state.objectInvolved === 'yes' ? 'display:block' : 'display:none' }, [group([el('label', { class: 'form-label', text: 'What object?' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-objectWhat', value: state.objectWhat })])]));
     c3c.appendChild(group([el('label', { class: 'form-label', text: 'Was a licensed motor vehicle involved?' }), optionRow('c3w-motorVehicle', '', [['no', 'No'], ['yes', 'Yes']], state.motorVehicle, function (v) { state.motorVehicle = v; $('c3w-mv-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
@@ -747,6 +868,7 @@
     var step4 = el('div', { class: 'step-section', id: 'c3w-step-4' });
     step4.appendChild(stepIntro('🩺', 'Medical & Work Status', 'Your treatment and whether you’ve been back to work.'));
     var c4a = card('Medical Treatment');
+    c4a.appendChild(helper('List the doctors treating you for this injury. If the insurer later sends you to an ', gloss('IME'), ', that’s a different exam — this is about your own care.'));
     c4a.appendChild(fieldRow([
       dateField('c3w-firstTreatDate', 'Date of First Treatment', 'opt', state.firstTreatDate, false),
       selectField('c3w-treatType', 'Where first treated?', 'opt', [['', 'Select…']].concat(TREAT_TYPE), state.treatType)
@@ -759,6 +881,7 @@
     step4.appendChild(c4a);
 
     var c4b = card('Return to Work');
+    c4b.appendChild(helper('Let us know if you stopped working or went back. Light duty still counts as going back.'));
     c4b.appendChild(group([el('label', { class: 'form-label', html: 'Did you stop work because of the injury?' + prefillTag(!!state.stoppedWork) }), optionRow('c3w-stoppedWork', '', [['yes', 'Yes'], ['no', 'No']], state.stoppedWork, function (v) { state.stoppedWork = v; $('c3w-stop-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
     c4b.appendChild(el('div', { id: 'c3w-stop-detail', style: state.stoppedWork === 'yes' ? 'display:block' : 'display:none' }, [group([el('label', { class: 'form-label', text: 'On what date?' }), dateInput('c3w-stopWorkDate', state.stopWorkDate)])]));
     c4b.appendChild(group([el('label', { class: 'form-label', html: 'Have you returned to work?' + prefillTag(!!state.returnedWork) }), optionRow('c3w-returnedWork', '', [['no', 'No'], ['yes', 'Yes']], state.returnedWork, function (v) { state.returnedWork = v; $('c3w-return-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
@@ -774,6 +897,7 @@
     step4.appendChild(c4b);
 
     var c4c = card('Prior Injury', 'If you injured this same body part before, NY requires a short HIPAA release (Form C-3.3).');
+    c4c.appendChild(helper('If you hurt this same body part before, New York needs a short release — the ', gloss('C-3.3'), '. We’ll build it for you automatically.'));
     c4c.appendChild(group([el('label', { class: 'form-label', text: 'Have you had another injury to the same body part, or a similar illness?' }), optionRow('c3w-priorInjury', '', [['no', 'No'], ['yes', 'Yes']], state.priorInjury, function (v) { state.priorInjury = v; $('c3w-c33-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
     var c33Detail = el('div', { id: 'c3w-c33-detail', style: state.priorInjury === 'yes' ? 'display:block' : 'display:none' });
     c33Detail.appendChild(el('div', { class: 'info-callout', html: '<strong>We’ll generate Form C-3.3 too.</strong> It authorizes the doctors who treated your previous injury to release those records to the insurer. File it together with your C-3.' }));
@@ -794,6 +918,7 @@
     var step5 = el('div', { class: 'step-section', id: 'c3w-step-5' });
     step5.appendChild(stepIntro('✅', 'Review & Sign', 'Check your answers, then certify and sign.'));
     var revCard = card('Review', 'Tap “Edit” to change a section.');
+    revCard.appendChild(helper('Read it over. Tap “Edit” on any section to fix it before you sign.'));
     revCard.appendChild(reviewGroup('You & Job', 1, [['Name', 'c3w-rev-name'], ['DOB', 'c3w-rev-dob'], ['Job', 'c3w-rev-job']]));
     revCard.appendChild(reviewGroup('Injury', 2, [['Date', 'c3w-rev-doi'], ['Where', 'c3w-rev-where'], ['Body Parts', 'c3w-rev-body']]));
     revCard.appendChild(reviewGroup('Employer', 3, [['Employer', 'c3w-rev-employer'], ['Gave Notice', 'c3w-rev-notice']]));
@@ -801,6 +926,7 @@
     step5.appendChild(revCard);
 
     var certCard = card('Certify & Sign');
+    certCard.appendChild(helper('Your ', gloss('C-3'), ' is a sworn legal form. Only sign once everything above is true and complete.'));
     certCard.appendChild(el('div', { class: 'legal-notice' }, [
       el('div', { class: 'legal-notice-title', html: '⚠️ Certification' }),
       el('p', { text: 'I am making a claim for benefits under the Workers’ Compensation Law. My signature affirms that the information I am providing is true and accurate to the best of my knowledge and belief. Any person who knowingly and with intent to defraud presents false information may be guilty of a crime subject to fines and imprisonment.' })
@@ -831,6 +957,7 @@
       el('p', { text: DISCLAIMER })
     ]));
     var sc1 = card('Your Information', signedIn ? 'From your profile. Edit anything that’s changed.' : 'Who the release is for.');
+    sc1.appendChild(helper('This ', gloss('C-3.3'), ' release only covers records from a doctor who treated an earlier injury to the same body part.'));
     sc1.appendChild(fieldRow([
       textField('c3w-c33s-name', 'Full Legal Name', 'req', state.name, 'First MI Last', !!state.name),
       dateField('c3w-c33s-dob', 'Date of Birth', 'req', state.dob, !!state.dob)
@@ -884,7 +1011,14 @@
     function group(children) { return el('div', { class: 'form-group' }, children); }
     function fieldRow(cells) { return el('div', { class: 'form-group' }, [el('div', { class: 'form-row' }, cells.map(function (c) { return c || el('div'); }))]); }
     function errEl(id, msg) { return el('div', { class: 'form-error', id: id, text: msg }); }
-    function prefillTag(on) { return on ? '<span class="prefill-tag">from profile</span>' : ''; }
+    // Subtle, tappable "we filled this in" chip. Tapping it focuses the field so
+    // the worker can correct it (handled by the delegated click handler below).
+    function prefillTag(on) { return on ? '<span class="prefill-tag" role="button" tabindex="0" title="Filled in from your profile — tap to edit">From your profile · Edit</span>' : ''; }
+    // one plain-language, worker-voice line under a field group. `parts` is an
+    // array of strings and/or DOM nodes (e.g. CD.Glossary.term('AWW')).
+    function helper() { var parts = Array.prototype.slice.call(arguments); return el('div', { class: 'c3w-helper' }, parts); }
+    // a tappable glossary acronym (falls back to plain text if CD.Glossary absent).
+    function gloss(abbr, label) { return (CD.Glossary && CD.Glossary.term) ? CD.Glossary.term(abbr, label) : el('span', { text: label || abbr }); }
     function labelHtml(label, mode) { return label + (mode === 'req' ? '<span class="req">*</span>' : (mode === 'opt' ? '<span class="opt">(optional)</span>' : '')); }
     function textField(id, label, mode, val, ph, pre) { return el('div', null, [el('label', { class: 'form-label', html: labelHtml(label, mode) + prefillTag(pre) }), el('input', { type: 'text', class: 'form-input', id: id, value: val || '', placeholder: ph || '' }), errEl('c3w-err-' + id.replace('c3w-', ''), label + ' is required')]); }
     function dateInput(id, val) { var n = el('input', { type: 'date', class: 'form-input', id: id, max: todayISO() }); if (val) n.value = val; return n; }
@@ -938,6 +1072,30 @@
     function syncC33() { C33_FIELDS.forEach(function (f) { var n = $(f[0]); if (n) state[f[1]] = n.value; }); }
     root.addEventListener('blur', function (e) { if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { syncFromDom(); persist(); } }, true);
     root.addEventListener('change', function (e) { if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { syncFromDom(); persist(); } });
+    // "tap to edit": tapping a prefill chip focuses (and selects) the field it labels.
+    function focusFieldFor(chip) {
+      var lbl = chip.closest ? chip.closest('label') : null;
+      var wrap = lbl ? lbl.parentNode : (chip.parentNode);
+      var inp = wrap && wrap.querySelector ? wrap.querySelector('input,select,textarea') : null;
+      if (inp) { try { inp.focus(); if (inp.select) inp.select(); } catch (x) {} }
+    }
+    root.addEventListener('click', function (e) {
+      var chip = e.target && e.target.closest ? e.target.closest('.prefill-tag') : null;
+      if (chip) { e.preventDefault(); focusFieldFor(chip); }
+    });
+    root.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.classList && e.target.classList.contains('prefill-tag')) { e.preventDefault(); focusFieldFor(e.target); }
+    });
+    // Add a prefill chip to a field's label after the fact (used when the Comp
+    // Buddy intake hydrates a field that the profile left blank). Marked dynamic
+    // so "Start over" can strip these while leaving the baked-in profile chips.
+    function markPrefilled(inputId) {
+      var inp = $(inputId); if (!inp) return;
+      var wrap = inp.parentNode; var lbl = wrap && wrap.querySelector ? wrap.querySelector('label') : null; if (!lbl) return;
+      if (lbl.querySelector('.prefill-tag')) return;
+      var s = el('span', { class: 'prefill-tag c3w-chip-dyn', role: 'button', tabindex: '0', title: 'Filled in from your profile — tap to edit', text: 'From your profile · Edit' });
+      lbl.appendChild(s);
+    }
 
     /* ---------- validation -------------------------------------------- */
     function showError(id) { var e = $('c3w-err-' + id); if (e) e.classList.add('visible'); }
@@ -953,18 +1111,33 @@
     }
 
     /* ---------- navigation -------------------------------------------- */
+    // Honest "about N min left": sum of the current step through the last step.
+    function etaRemaining(n) { var m = 0; for (var i = Math.max(1, n); i <= TOTAL_STEPS; i++) m += (STEP_MIN[i] || 2); return m; }
     function goToStep(n) {
-      syncFromDom(); state.step = n; persist();
-      progress.style.display = n >= 1 ? 'block' : 'none';
-      root.querySelectorAll('.step-section').forEach(function (s) { s.classList.remove('active'); });
-      var sec = $('c3w-step-' + n); if (sec) sec.classList.add('active');
-      for (var i = 1; i <= TOTAL_STEPS; i++) {
-        var dot = $('c3w-dot-' + i); if (dot) { dot.className = 'step-dot'; if (i < n) dot.classList.add('completed'); else if (i === n) dot.classList.add('active'); }
-        if (i < TOTAL_STEPS) { var line = $('c3w-line-' + i); if (line) { line.className = 'step-line'; if (i < n) line.classList.add('completed'); } }
+      try {
+        syncFromDom(); state.step = n; persist();
+        progress.style.display = n >= 1 ? 'block' : 'none';
+        root.querySelectorAll('.step-section').forEach(function (s) { s.classList.remove('active'); });
+        var sec = $('c3w-step-' + n); if (sec) sec.classList.add('active');
+        for (var i = 1; i <= TOTAL_STEPS; i++) {
+          var dot = $('c3w-dot-' + i); if (dot) { dot.className = 'step-dot'; if (i < n) dot.classList.add('completed'); else if (i === n) dot.classList.add('active'); }
+          if (i < TOTAL_STEPS) { var line = $('c3w-line-' + i); if (line) { line.className = 'step-line'; if (i < n) line.classList.add('completed'); } }
+        }
+        var sc = $('c3w-step-current'); if (sc) sc.textContent = String(n);
+        var sn = $('c3w-step-name'); if (sn) sn.textContent = STEP_NAMES[n] || '';
+        var fill = $('c3w-bar-fill'); if (fill) fill.style.width = Math.round((Math.min(n, TOTAL_STEPS) / TOTAL_STEPS) * 100) + '%';
+        var eta = $('c3w-eta'); if (eta) eta.textContent = (n >= 1 && n <= TOTAL_STEPS) ? ('about ' + etaRemaining(n) + ' min left') : '';
+        if (n === 5) populateReview();
+      } catch (e) {
+        console.error('[C3] STEP_TOGGLE_FAILED', e);
       }
-      var sc = $('c3w-step-current'); if (sc) sc.textContent = String(n);
-      var sn = $('c3w-step-name'); if (sn) sn.textContent = STEP_NAMES[n] || '';
-      if (n === 5) populateReview();
+      // FAIL-SAFE: never leave the wizard with nothing visible. If the toggle above
+      // threw (or somehow left no section active), fall back to Step 1 so the
+      // claimant always sees a usable form rather than a blank screen.
+      if (!root.querySelector('.step-section.active')) {
+        var fb = $('c3w-step-1') || $('c3w-step-0');
+        if (fb) { fb.classList.add('active'); progress.style.display = 'block'; }
+      }
       try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
     }
     // Route into the standalone HIPAA-release-only flow (no numbered stepper).
@@ -1349,7 +1522,8 @@
           });
         });
       }).then(function (result) {
-        return store.remove(STORE_KEY).then(function () { return result; });
+        // Draft is fulfilled — clear both the local autosave and the server row.
+        return store.remove(STORE_KEY).then(function () { return dbClearDraft(); }).then(function () { return result; });
       }).then(function (result) {
         working = false;
         // onComplete reloads tier + returns to the dashboard (where signed-in
@@ -1476,6 +1650,19 @@
       nextBox.appendChild(el('div', { class: 'file-step' }, [el('div', { html: 'Once they receive your claim, the Board <b>indexes it and assigns a WCB case number</b>, then notifies your employer and its insurance carrier. The carrier must accept or dispute the claim, and the Board will mail you about any hearings or next steps. <b>Keep a copy of everything you file.</b>' })]));
       screen.appendChild(nextBox);
 
+      // The ONE unified attorney affordance (CD.AttorneyCTA) — same component the
+      // worker meets on the dashboard, settlement result, recovery step panel and
+      // chat. Offered here as a "have a lawyer look at what you filed" moment,
+      // wrapped in the wizard's standard Attorney-Advertising label + referral
+      // disclosure. Suppressed for workers who already have an attorney.
+      if (!(profile && profile.has_attorney) && !toAttorney && typeof CD.AttorneyCTA === 'function') {
+        var attyCard = el('div', { class: 'card c3w-offramp' });
+        attyCard.appendChild(_attyAdLabel());
+        attyCard.appendChild(CD.AttorneyCTA({ variant: 'inline', source: 'c3_complete' }));
+        attyCard.appendChild(_attyDisclosure());
+        screen.appendChild(attyCard);
+      }
+
       screen.appendChild(el('div', { class: 'info-callout', html: c33Only
         ? '<strong>Before you file:</strong> open the PDF and review it. Sign in ink if a viewer didn’t carry your drawn signature, then file. Your answers are saved on the form.'
         : '<strong>Before you file:</strong> open the PDF and review it. A few Yes/No checkboxes may be blank — mark any that apply to you, then file. Your answers are saved on the form.' }));
@@ -1527,23 +1714,178 @@
     }
 
     /* ---------- autosave persist + restore ---------------------------- */
+    // Option-card groups + their state key (so a resumed draft re-selects them),
+    // and the conditional detail sections that show based on those picks.
+    var OPTION_GROUPS = [
+      ['c3w-translator', 'translator'], ['c3w-jobTime', 'jobTime'], ['c3w-ampm', 'ampm'],
+      ['c3w-usualLocation', 'usualLocation'], ['c3w-gaveNotice', 'gaveNotice'], ['c3w-noticeMethod', 'noticeMethod'],
+      ['c3w-witnessed', 'witnessed'], ['c3w-objectInvolved', 'objectInvolved'], ['c3w-motorVehicle', 'motorVehicle'],
+      ['c3w-vehicleType', 'vehicleType'], ['c3w-stoppedWork', 'stoppedWork'], ['c3w-returnedWork', 'returnedWork'],
+      ['c3w-returnDuty', 'returnDuty'], ['c3w-returnEmployer', 'returnEmployer'], ['c3w-priorInjury', 'priorInjury']
+    ];
+    var COND_WRAPS = [
+      ['c3w-lang-wrap', function () { return state.translator === 'yes'; }],
+      ['c3w-jobOther-wrap', function () { return state.jobTime === 'Other'; }],
+      ['c3w-usualloc-detail', function () { return state.usualLocation === 'no'; }],
+      ['c3w-notice-detail', function () { return state.gaveNotice === 'yes'; }],
+      ['c3w-witness-detail', function () { return state.witnessed === 'yes'; }],
+      ['c3w-object-detail', function () { return state.objectInvolved === 'yes'; }],
+      ['c3w-mv-detail', function () { return state.motorVehicle === 'yes'; }],
+      ['c3w-stop-detail', function () { return state.stoppedWork === 'yes'; }],
+      ['c3w-return-detail', function () { return state.returnedWork === 'yes'; }],
+      ['c3w-c33-detail', function () { return state.priorInjury === 'yes'; }]
+    ];
+    // Push the whole `state` back onto the DOM — text inputs, gender, body-part
+    // chips, option cards, mental-health toggles, and conditional sections. Used
+    // when applying a saved draft or resetting to the profile baseline.
+    function reflectStateToDom() {
+      TEXT_FIELDS.forEach(function (f) { if (SENSITIVE[f[1]]) return; var n = $(f[0]); if (n) n.value = (state[f[1]] != null ? state[f[1]] : ''); });
+      var g = $('c3w-gender'); if (g) g.value = state.gender || '';
+      C33_FIELDS.forEach(function (f) { if (SENSITIVE[f[1]]) return; var n = $(f[0]); if (n) n.value = (state[f[1]] != null ? state[f[1]] : ''); });
+      if (chipGrid) chipGrid.querySelectorAll('.chip').forEach(function (chip) { var part = chip.getAttribute('data-part'); if (state.bodyParts && state.bodyParts.indexOf(part) >= 0) chip.classList.add('selected'); else chip.classList.remove('selected'); });
+      OPTION_GROUPS.forEach(function (o) { var grp = $(o[0]); if (!grp) return; grp.querySelectorAll('.option-card').forEach(function (c) { c.classList[(state[o[1]] && c.getAttribute('data-value') === state[o[1]]) ? 'add' : 'remove']('selected'); }); });
+      ['c3w-mh-toggle', 'c3w-c33s-mh-toggle'].forEach(function (id) { var t = $(id); if (t) t.classList[state.c33_releaseMentalHealth ? 'add' : 'remove']('on'); });
+      COND_WRAPS.forEach(function (w) { var node = $(w[0]); if (node) node.style.display = w[1]() ? 'block' : 'none'; });
+    }
+
+    /* ---------- server-side draft (c3_drafts, signed-in only) ----------
+     * One open draft per user (unique user_id), owner-only RLS. Answers-only —
+     * SSN + signature are already stripped by persist(). Fire-and-forget and
+     * fully fail-safe: if the table isn't there yet (migration 079 unapplied) or
+     * the network is down, the local autosave still carries the draft. */
+    var DRAFT_TABLE = 'c3_drafts';
+    var _dbTimer = null;
+    function nowMs() { try { return Date.now(); } catch (e) { return 0; } }
+    function relTime(ms) {
+      if (!ms) return '';
+      var s = Math.round((nowMs() - ms) / 1000); if (s < 45) return 'just now';
+      var m = Math.round(s / 60); if (m < 60) return m + (m === 1 ? ' minute ago' : ' minutes ago');
+      var h = Math.round(m / 60); if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
+      var d = Math.round(h / 24); return d + (d === 1 ? ' day ago' : ' days ago');
+    }
+    function dbSaveDraftDebounced(snap) {
+      if (anon || !supabase || !user || !user.id) return;
+      if (_dbTimer) { try { clearTimeout(_dbTimer); } catch (e) {} }
+      _dbTimer = setTimeout(function () {
+        try {
+          supabase.from(DRAFT_TABLE).upsert({ user_id: user.id, step: state.step || 0, data: snap }, { onConflict: 'user_id' })
+            .then(function (res) { if (res && res.error) console.warn('[C3] DRAFT_DB_SAVE', res.error.message || res.error); }, function () {});
+        } catch (e) {}
+      }, 900);
+    }
+    function dbClearDraft() {
+      if (anon || !supabase || !user || !user.id) return Promise.resolve();
+      try { return Promise.resolve(supabase.from(DRAFT_TABLE).delete().eq('user_id', user.id)).then(function () {}, function () {}); }
+      catch (e) { return Promise.resolve(); }
+    }
+    function dbGetDraft() {
+      if (anon || !supabase || !user || !user.id) return Promise.resolve(null);
+      try {
+        return Promise.resolve(supabase.from(DRAFT_TABLE).select('data,step,updated_at').eq('user_id', user.id).order('updated_at', { ascending: false }).limit(1))
+          .then(function (res) { return (res && res.data && res.data[0]) ? res.data[0] : null; }, function () { return null; });
+      } catch (e) { return Promise.resolve(null); }
+    }
+
     function persist() {
       var snap = {};
       Object.keys(state).forEach(function (k) { if (!SENSITIVE[k]) snap[k] = state[k]; }); // never persist SSN or signature
+      snap.__savedAt = nowMs();
       store.set(STORE_KEY, snap);
+      dbSaveDraftDebounced(snap);
     }
+
+    // Merge a saved snapshot onto state (SSN/signature excluded) and reflect it.
+    function applyDraft(saved) {
+      if (!saved) return;
+      Object.keys(saved).forEach(function (k) { if (k === '__savedAt') return; if (k in state && !SENSITIVE[k]) state[k] = saved[k]; });
+      reflectStateToDom();
+    }
+    // "Start over": discard the in-progress draft and revert every field to the
+    // original profile-prefill baseline (removes intake-added chips too).
+    function resetToBaseline() {
+      Object.keys(state).forEach(function (k) { state[k] = Array.isArray(BASELINE[k]) ? BASELINE[k].slice() : (k in BASELINE ? BASELINE[k] : (Array.isArray(state[k]) ? [] : '')); });
+      state.step = 0; state.c33Only = false;
+      reflectStateToDom();
+      root.querySelectorAll('.prefill-tag.c3w-chip-dyn').forEach(function (c) { if (c.parentNode) c.parentNode.removeChild(c); });
+    }
+
+    // Pull the Comp Buddy intake's OWN autosave (cbi:intake:<uid>) and fill any
+    // C-3 field the profile left blank — so a half-finished intake still enriches
+    // the claim. Profile + the user's own C-3 draft always win (we only fill blanks).
+    function hydrateFromIntake() {
+      if (anon || !user || !user.id) return Promise.resolve();
+      return store.get(INTAKE_PREFIX + user.id).then(function (intk) {
+        if (!intk) return;
+        function blank(k) { return state[k] == null || String(state[k]).trim() === ''; }
+        function fill(stateKey, val, inputId) {
+          if (val == null || String(val).trim() === '' || !blank(stateKey)) return;
+          state[stateKey] = val;
+          if (inputId) { var n = $(inputId); if (n) { n.value = val; markPrefilled(inputId); } }
+        }
+        var nm2 = [intk.first_name, intk.last_name].filter(Boolean).join(' ');
+        fill('name', nm2, 'c3w-name');
+        if (blank('certName') && nm2) state.certName = nm2;
+        fill('dob', intk.dob, 'c3w-dob');
+        fill('phone', intk.phone, 'c3w-phone');
+        fill('mailing', intk.home_address, 'c3w-mailing');
+        fill('doi', intk.doa, 'c3w-doi');
+        fill('employer', intk.employer_name, 'c3w-employer');
+        fill('treatingDoctors', [intk.treating_doctor, intk.treating_doctor_address].filter(Boolean).join(', '), 'c3w-treatingDoctors');
+        if (intk.language_pref && intk.language_pref !== 'en' && blank('language')) state.language = intk.language_pref;
+        if ((!state.bodyParts || !state.bodyParts.length) && Array.isArray(intk.body_parts) && intk.body_parts.length) {
+          state.bodyParts = intk.body_parts.slice();
+          state.bodyParts.forEach(function (p) { var chip = chipGrid.querySelector('.chip[data-part="' + p + '"]'); if (chip) chip.classList.add('selected'); });
+        }
+        if (intk.work_status) {
+          if (blank('stoppedWork')) state.stoppedWork = (intk.work_status !== 'working') ? 'yes' : '';
+          if (blank('returnedWork')) state.returnedWork = (intk.work_status === 'working' || intk.work_status === 'light_duty') ? 'yes' : '';
+          if (blank('returnDuty')) state.returnDuty = (intk.work_status === 'light_duty') ? 'limited' : (intk.work_status === 'working' ? 'regular' : '');
+        }
+        persist();
+      }).catch(function () {});
+    }
+
+    // On re-entry, OFFER to resume (don't silently jump) — the worker chooses.
+    function offerResume(step, atMs) {
+      var host = $('c3w-step-0'); if (!host || $('c3w-resume')) return;
+      var when = relTime(atMs);
+      var banner = el('div', { class: 'c3w-resume', id: 'c3w-resume' }, [
+        el('div', { class: 'c3w-resume-icon', text: '⏳' }),
+        el('div', { class: 'c3w-resume-body' }, [
+          el('div', { class: 'c3w-resume-title', text: 'Resume your claim' }),
+          el('div', { class: 'c3w-resume-sub', text: when ? ('Saved ' + when + ' — pick up right where you left off.') : 'Pick up right where you left off.' })
+        ]),
+        el('div', { class: 'c3w-resume-actions' }, [
+          el('button', { type: 'button', class: 'btn btn-primary', onclick: function () { var b = $('c3w-resume'); if (b && b.parentNode) b.parentNode.removeChild(b); goToStep(Math.min(Math.max(step, 1), TOTAL_STEPS)); } }, ['Resume']),
+          el('button', { type: 'button', class: 'btn btn-secondary', onclick: function () { dismissResume(); } }, ['Start over'])
+        ])
+      ]);
+      host.insertBefore(banner, host.firstChild);
+    }
+    function dismissResume() {
+      try { store.remove(STORE_KEY); } catch (e) {}
+      dbClearDraft();
+      resetToBaseline();
+      var b = $('c3w-resume'); if (b && b.parentNode) b.parentNode.removeChild(b);
+    }
+
     function restore() {
-      return store.get(STORE_KEY).then(function (saved) {
-        if (!saved) return;
-        Object.keys(saved).forEach(function (k) { if (k in state && !SENSITIVE[k]) state[k] = saved[k]; });
-        TEXT_FIELDS.forEach(function (f) { if (SENSITIVE[f[1]]) return; var n = $(f[0]); if (n && state[f[1]] != null) n.value = state[f[1]]; });
-        var g = $('c3w-gender'); if (g) g.value = state.gender || '';
-        (state.bodyParts || []).forEach(function (p) { var chip = chipGrid.querySelector('.chip[data-part="' + p + '"]'); if (chip) chip.classList.add('selected'); });
-        // restore standalone C-3.3 inputs too (shared state keys)
-        C33_FIELDS.forEach(function (f) { if (SENSITIVE[f[1]]) return; var n = $(f[0]); if (n && state[f[1]] != null) n.value = state[f[1]]; });
-        if (state.c33Only) { goToStandaloneC33(); }
-        else if (state.step && state.step >= 1 && state.step <= TOTAL_STEPS) goToStep(state.step);
-      });
+      return store.get(STORE_KEY).then(function (localSaved) {
+        return dbGetDraft().then(function (dbRow) {
+          var localAt = (localSaved && localSaved.__savedAt) ? localSaved.__savedAt : 0;
+          var dbAt = (dbRow && dbRow.updated_at) ? new Date(dbRow.updated_at).getTime() : 0;
+          // Prefer whichever copy is newer (cross-device); ties go to the server.
+          var chosen = null, chosenAt = 0, chosenStep = 0;
+          if (dbRow && dbRow.data && dbAt >= localAt) { chosen = dbRow.data; chosenAt = dbAt; chosenStep = dbRow.step || dbRow.data.step || 0; }
+          else if (localSaved) { chosen = localSaved; chosenAt = localAt; chosenStep = localSaved.step || 0; }
+          if (chosen) applyDraft(chosen);
+          return hydrateFromIntake().then(function () {
+            if (chosen && chosen.c33Only) { goToStandaloneC33(); return; }
+            if (chosen && chosenStep >= 1) offerResume(chosenStep, chosenAt);
+            // otherwise: fresh start on step 0 with profile + intake prefill in place.
+          });
+        });
+      }).catch(function (e) { console.warn('[C3] RESTORE_FAILED', e); });
     }
 
     // boot
