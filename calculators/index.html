@@ -147,6 +147,43 @@
   margin: 0;
 }
 
+/* Role tag on cards — "For attorneys" framing for the clinical/permanency tools */
+.calc-card .badge-role {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: var(--skin-text-muted);
+  background: rgba(148,163,184,0.14);
+  margin-left: 6px;
+}
+
+/* Glossary term chips (worker-facing) + calculator group labels (P2-3 / P2-4) */
+.calc-terms {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 0 0 30px;
+}
+.calc-terms-label { font-size: 13.5px; font-weight: 600; color: var(--skin-text-soft); }
+.calc-term-chip {
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  color: var(--skin-text); background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  transition: border-color var(--rhythm-fast) var(--ease-out), color var(--rhythm-fast) var(--ease-out);
+}
+.calc-term-chip:hover { border-color: var(--skin-accent); color: var(--skin-accent-deep); }
+[data-audience="attorney"] .calc-term-chip:hover { color: var(--skin-accent); }
+
+.calc-group + .calc-group { margin-top: 40px; }
+.calc-group-label {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--skin-text); margin: 0 0 4px;
+}
+.calc-group-sub { font-size: 13.5px; color: var(--skin-text-soft); margin: 0 0 18px; max-width: 62ch; }
+
 /* Disclaimer block */
 .calc-disclaimer {
   margin-top: 32px;
@@ -233,50 +270,76 @@
 
   <section class="tcd-section scene" style="padding-top:0;">
     <div class="wrap">
-      <div class="calc-grid stagger">
+      <!-- Glossary strip (P2-4): plain-English explainer for the key terms, via
+           the shared field-help modal. Every calculator is free; these chips just
+           demystify the words. -->
+      <div class="calc-terms" role="group" aria-label="Common workers' compensation terms">
+        <span class="calc-terms-label">New to these terms?</span>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('aww')">AWW ⓘ</button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('slu')">SLU ⓘ</button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('lwec')">LWEC ⓘ</button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('ime')">IME ⓘ</button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('c3')">C-3 ⓘ</button>
+      </div>
 
-        <a href="/calculators/aww" class="calc-card" style="--i:0;">
-          <div class="head"><div class="stat">AWW</div><span class="badge badge-free">Free</span></div>
-          <h3>Average Weekly Wage</h3>
-          <p>Calculate your AWW under WCL §14 and the 2/3 comp rate. Multi-employer, concurrent, and seasonal scenarios. Outputs the indemnity rate with citation.</p>
-        </a>
+      <!-- P2-3: worker-relevant calculators foregrounded; the clinical/permanency
+           tools are grouped and framed as attorney/clinician tools. -->
+      <div class="calc-group">
+        <h2 class="calc-group-label">For injured workers</h2>
+        <p class="calc-group-sub">Start here — the numbers most injured workers need. All free, no login.</p>
+        <div class="calc-grid stagger">
 
-        <a href="/calculators/slu" class="calc-card" style="--i:1;">
-          <div class="head"><div class="stat">SLU</div><span class="badge badge-free">Free</span></div>
-          <h3>Schedule Loss of Use</h3>
-          <p>SLU permanency awards under WCL §15(3) for every body part. Includes the 2024 Permanency Guidelines update and award calculation by AWW × loss % × statutory weeks.</p>
-        </a>
+          <a href="/calculators/aww" class="calc-card" style="--i:0;">
+            <div class="head"><div class="stat">AWW</div><span class="badge badge-free">Free</span></div>
+            <h3>Average Weekly Wage</h3>
+            <p>Calculate your AWW under WCL §14 and the 2/3 comp rate. Multi-employer, concurrent, and seasonal scenarios. Outputs the indemnity rate with citation.</p>
+          </a>
 
-        <a href="/calculators/lwec" class="calc-card" style="--i:2;">
-          <div class="head"><div class="stat">LWEC</div><span class="badge badge-free">Free</span></div>
-          <h3>Loss of Wage Earning Capacity</h3>
-          <p>LWEC classification for non-schedule injuries. Functional limitation × vocational factors with the Board's matrix logic and a printable summary.</p>
-        </a>
+          <a href="/calculators/rates" class="calc-card" style="--i:1;">
+            <div class="head"><div class="stat">RATE</div><span class="badge badge-free">Free</span></div>
+            <h3>Rate Lookup</h3>
+            <p>Maximum compensation rates by date of injury — 1985 through present. The reference table for every fee equation and AWW calculation.</p>
+          </a>
 
-        <a href="/calculators/ccp-award" class="calc-card" style="--i:3;">
-          <div class="head"><div class="stat">CCP</div><span class="badge badge-free">Free</span></div>
-          <h3>CCP Award</h3>
-          <p>Classified compensation — PPD, PTD, and death benefit awards. Cap-week tracking and PPD vs SLU comparison.</p>
-        </a>
+          <a href="/calculators/slu" class="calc-card" style="--i:2;">
+            <div class="head"><div class="stat">SLU</div><span class="badge badge-free">Free</span></div>
+            <h3>Schedule Loss of Use</h3>
+            <p>SLU permanency awards under WCL §15(3) for every body part. Includes the 2024 Permanency Guidelines update and award calculation by AWW × loss % × statutory weeks.</p>
+          </a>
 
-        <a href="/calculators/rates" class="calc-card" style="--i:4;">
-          <div class="head"><div class="stat">RATE</div><span class="badge badge-free">Free</span></div>
-          <h3>Rate Lookup</h3>
-          <p>Maximum compensation rates by date of injury — 1985 through present. The reference table for every fee equation and AWW calculation.</p>
-        </a>
+          <a href="/calculators/lwec" class="calc-card" style="--i:3;">
+            <div class="head"><div class="stat">LWEC</div><span class="badge badge-free">Free</span></div>
+            <h3>Loss of Wage Earning Capacity</h3>
+            <p>LWEC classification for non-schedule injuries. Functional limitation × vocational factors with the Board's matrix logic and a printable summary.</p>
+          </a>
 
-        <a href="/calculators/radiculopathy" class="calc-card" style="--i:5;">
-          <div class="head"><div class="stat">RAD</div><span class="badge badge-free">Free</span></div>
-          <h3>Radiculopathy</h3>
-          <p>2012 Impairment Guidelines point system (§S11.4–S11.7) for cervical and lumbar nerve root SLU. The IME-friendly chart with citations on every result.</p>
-        </a>
+        </div>
+      </div>
 
-        <a href="/calculators/spine-brain" class="calc-card" style="--i:6;">
-          <div class="head"><div class="stat">SB</div><span class="badge badge-free">Free</span></div>
-          <h3>Spine &amp; Brain</h3>
-          <p>Non-schedule permanency for spine and brain injuries with the Board's severity-class scoring built in.</p>
-        </a>
+      <div class="calc-group">
+        <h2 class="calc-group-label">For attorneys &amp; clinicians</h2>
+        <p class="calc-group-sub">Permanency and classified-award tools built for practitioners. Free to use — the Pro Workspace adds permanency checking, fee-app equations, and case save/sync for attorneys.</p>
+        <div class="calc-grid stagger">
 
+          <a href="/calculators/ccp-award" class="calc-card" style="--i:0;">
+            <div class="head"><div class="stat">CCP</div><span><span class="badge badge-free">Free</span><span class="badge badge-role">For attorneys</span></span></div>
+            <h3>CCP Award</h3>
+            <p>Classified compensation — PPD, PTD, and death benefit awards. Cap-week tracking and PPD vs SLU comparison.</p>
+          </a>
+
+          <a href="/calculators/radiculopathy" class="calc-card" style="--i:1;">
+            <div class="head"><div class="stat">RAD</div><span><span class="badge badge-free">Free</span><span class="badge badge-role">For attorneys</span></span></div>
+            <h3>Radiculopathy</h3>
+            <p>2012 Impairment Guidelines point system (§S11.4–S11.7) for cervical and lumbar nerve root SLU. The IME-friendly chart with citations on every result.</p>
+          </a>
+
+          <a href="/calculators/spine-brain" class="calc-card" style="--i:2;">
+            <div class="head"><div class="stat">SB</div><span><span class="badge badge-free">Free</span><span class="badge badge-role">For attorneys</span></span></div>
+            <h3>Spine &amp; Brain</h3>
+            <p>Non-schedule permanency for spine and brain injuries with the Board's severity-class scoring built in.</p>
+          </a>
+
+        </div>
       </div>
 
       <div class="calc-disclaimer">
@@ -332,6 +395,9 @@
   </div>
 </noscript>
 
+<!-- Shared field-help glossary component (powers the "New to these terms?" chips) -->
+<script src="/js/field-help-registry.js" defer></script>
+<script src="/js/field-help.js" defer></script>
 <script src="/js/audience-switcher.js"></script>
 
   <script type="module" src="/js/nav-account.js"></script>

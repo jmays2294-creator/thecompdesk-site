@@ -45,6 +45,28 @@
       title: 'Disability %',
       body: 'Your treating doctor sets your official degree of disability. It scales your weekly benefit — a higher percentage means a larger check.',
     },
+    // ── GLOSSARY TERMS (P2-4) — plain-English definitions for the worker-facing
+    //    glossary component (AWW is above). ⚠️ DRAFT copy pending Joel's vetting. ──
+    slu: {
+      title: 'Schedule Loss of Use (SLU)',
+      body: 'A one-time award for permanently losing some use of a “scheduled” body part — an arm, leg, hand, foot, finger, toe, eye, or ear.'
+        + '<br><br>The law assigns each part a set number of weeks. Your award is your percentage of loss applied to those weeks, paid at your weekly rate.',
+    },
+    lwec: {
+      title: 'Loss of Wage-Earning Capacity (LWEC)',
+      body: 'For permanent injuries to body parts that aren’t on the schedule (like your back, neck, or a systemic condition), you’re “classified” instead of getting an SLU.'
+        + '<br><br>Your LWEC is how much your injury lowers your ability to earn. It sets both your ongoing weekly benefit and the most weeks you can be paid.',
+    },
+    ime: {
+      title: 'Independent Medical Exam (IME)',
+      body: 'A one-time exam by a doctor the insurance company picks — not your own doctor — to give their opinion on your injury, treatment, or degree of disability.'
+        + '<br><br>You’re entitled to advance notice and can share your own doctor’s findings. Missing a properly-noticed IME can pause your benefits, so don’t ignore the notice.',
+    },
+    c3: {
+      title: 'C-3 — Employee Claim',
+      body: 'The form you file with the Workers’ Compensation Board to officially open your claim. It tells the Board who you are, how and where you were hurt, and who your employer is.'
+        + '<br><br>Filing it protects your rights — generally file within two years of the injury.',
+    },
     // TODO(Joel): the guest-reachable fee calculators (CCP/Award, SLU Fees, LWEC,
     // Section 32, Burns) and the AWW-calc inputs (Total Earnings, Days Paid, Weeks
     // Worked, Hourly Rate, Hrs/Wk, Tips, Board/Lodging, CCP Amount, Prior Payments,
