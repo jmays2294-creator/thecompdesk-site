@@ -72,12 +72,36 @@
           font-style: italic;
           line-height: 1.5;
         }
+        .tcd-contact-block .tcd-app-get {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 14px;
+          flex-wrap: wrap;
+          margin: 14px 0 2px;
+        }
+        .tcd-contact-block .tcd-app-badge { display: inline-block; line-height: 0; }
+        .tcd-contact-block .tcd-app-badge img { height: 40px; width: auto; display: block; border-radius: 7px; }
+        .tcd-contact-block .tcd-app-ext {
+          color: #4f8ff7;
+          font-weight: 600;
+          font-size: 12.5px;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+        .tcd-contact-block .tcd-app-ext:hover { text-decoration: underline; }
       </style>
       <p class="tcd-contact-title">${FRAMING}</p>
       <p class="tcd-contact-methods">
         <a class="tcd-contact-link" href="tel:${PHONE_TEL}" aria-label="Call or text The Comp Desk">${PHONE_DISPLAY}</a>
         <span class="tcd-contact-note">(call or text)</span>
         <a class="tcd-contact-link" href="mailto:${EMAIL}" aria-label="Email The Comp Desk">${EMAIL}</a>
+      </p>
+      <p class="tcd-app-get">
+        <a class="tcd-app-badge" href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" aria-label="Download The Comp Desk on the App Store">
+          <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download The Comp Desk on the App Store" width="120" height="40" loading="lazy">
+        </a>
+        <a class="tcd-app-ext" href="/extension">Chrome extension</a>
       </p>
       <p class="tcd-upl">${UPL}</p>
     `;

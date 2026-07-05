@@ -3,7 +3,10 @@
 
   <!-- ============================================
        The Comp Desk — Sitemap
-       Updated: 2026-06-04 (removed /for-attorneys.html [301→/attorneys];
+       Updated: 2026-07-05 (consolidated /hire-attorney + /find-attorney →
+       /connect-with-attorney [301, noindex]; bumped lastmod on /worker +
+       /connect-with-attorney)
+       Prev: 2026-06-04 (removed /for-attorneys.html [301→/attorneys];
        added /learn/how-to-file-workers-comp-claim-ny.html,
        /learn/work-search-requirements-ny-workers-comp.html)
        Domain: https://thecompdesk.com
@@ -20,14 +23,17 @@
 
   <url>
     <loc>https://thecompdesk.com/worker</loc>
-    <lastmod>2026-06-21</lastmod>
+    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
+  <!-- /hire-attorney(.html) and /find-attorney(.html) consolidated 2026-07-05 into the
+       single canonical "Talk to an attorney" page below; both 301-redirect to
+       /connect-with-attorney and are noindexed, so they do not appear in the sitemap. -->
   <url>
     <loc>https://thecompdesk.com/connect-with-attorney</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>

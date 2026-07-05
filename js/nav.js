@@ -65,7 +65,7 @@ function computeAudience(tier) {
   if (explicit === 'worker' || explicit === 'attorney') return explicit;
 
   const p = (location.pathname || '/').toLowerCase();
-  if (/^\/(workspace|attorneys?|for-attorneys?|hire-attorney)(\b|\/)/.test(p)
+  if (/^\/(workspace|attorneys?|for-attorneys?)(\b|\/)/.test(p)
       || /^\/calculators\/pro/.test(p)) return 'attorney';
   if (/^\/(worker|job-buddy|learn|connect-with-attorney)(\b|\/)/.test(p)
       || /^\/tools\/(find-doctor|ime|claim-filing)/.test(p)) return 'worker';

@@ -130,7 +130,7 @@
     CD.isWorker  = function () { return isWorker; };
     CD.hasAccess = function (t) { return tierLevel(CD.currentTier) >= tierLevel(t); };
     CD.handleUpgrade = function () { window.location.href = '/subscribe'; };
-    CD.openAttorneyIntake = function () { window.location.href = '/find-attorney'; };
+    CD.openAttorneyIntake = function () { window.location.href = '/connect-with-attorney'; };
 
     // Job Buddy screens render IN-PLACE on the website (no dedicated page), with a
     // back-to-dashboard control. Falls through to URL routing if the module/deps

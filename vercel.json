@@ -37,6 +37,27 @@
       "destination": "/attorneys",
       "permanent": true
     },
+
+    {
+      "source": "/hire-attorney",
+      "destination": "/connect-with-attorney",
+      "permanent": true
+    },
+    {
+      "source": "/hire-attorney.html",
+      "destination": "/connect-with-attorney",
+      "permanent": true
+    },
+    {
+      "source": "/find-attorney",
+      "destination": "/connect-with-attorney",
+      "permanent": true
+    },
+    {
+      "source": "/find-attorney.html",
+      "destination": "/connect-with-attorney",
+      "permanent": true
+    },
     {
       "source": "/home-legacy.html",
       "destination": "/home-legacy",

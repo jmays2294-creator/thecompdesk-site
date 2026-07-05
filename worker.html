@@ -404,6 +404,24 @@
   margin-top: 6px;
 }
 
+/* Get the Comp Buddy app — hero download strip */
+.app-get { margin-top: 26px; }
+.app-get-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--skin-text-muted);
+  margin-bottom: 10px;
+}
+.app-get-badges { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.app-get-badge { display: inline-block; line-height: 0; text-decoration: none; transition: transform 0.15s ease; }
+.app-get-badge:hover { transform: translateY(-1px); }
+.app-get-badge img { height: 47px; width: auto; display: block; border-radius: 9px; }
+.app-get-ext { font-size: 14px; font-weight: 700; color: var(--skin-accent); text-decoration: none; }
+.app-get-ext:hover { text-decoration: underline; }
+
 /* Stage cards — "Your case, stage by stage" */
 .stages {
   display: grid;
@@ -684,6 +702,17 @@ a.show-card:hover { transform: translateY(-4px); border-color: var(--skin-accent
           <div class="stat"><div class="v">WCB</div><div class="l">Authorized providers</div></div>
           <div class="stat"><div class="v">24/7</div><div class="l">In your pocket</div></div>
           <div class="stat"><div class="v">NY</div><div class="l">Workers' comp focused</div></div>
+        </div>
+
+        <!-- Get the Comp Buddy app — App Store badge + Chrome extension. Free for injured workers. -->
+        <div class="app-get" role="group" aria-label="Get the Comp Buddy app">
+          <span class="app-get-label">Get the Comp Buddy app</span>
+          <div class="app-get-badges">
+            <a class="app-get-badge" href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" aria-label="Download The Comp Desk on the App Store">
+              <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" width="140" height="47" loading="lazy">
+            </a>
+            <a class="app-get-ext" href="/extension">Also on Chrome &rarr;</a>
+          </div>
         </div>
       </div>
 

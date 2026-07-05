@@ -32,7 +32,6 @@
     { test: /^\/for-attorneys?(\b|\/)/i,  audience: 'attorney'},
     { test: /^\/calculators\/pro/i,       audience: 'attorney'},
     { test: /^\/workspace(\b|\/)/i,       audience: 'attorney'},
-    { test: /^\/hire-attorney/i,          audience: 'attorney'},
     { test: /^\/connect-with-attorney/i,  audience: 'worker'  },
     { test: /^\/learn(\b|\/)/i,           audience: 'worker'  },
     { test: /^\/tools\/find-doctor/i,     audience: 'worker'  },
