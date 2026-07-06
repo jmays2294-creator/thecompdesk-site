@@ -159,6 +159,9 @@
     // Secondary quick-entries under the primary CTA — all free, all guest-safe.
     var quickGrid = h('div', { className: 'wd-grid wd-claim-secondary' });
     [
+      // GLOSSARY (P2-4): a friendly on-ramp for first-timers → the Learning Portal
+      // (/learn: glossary, rights, timeline); Road to Recovery sits right beside it.
+      { icon: '📖', title: 'New to workers’ comp?', desc: 'Start here — glossary, your rights & the road ahead', screen: 'learning' },
       { icon: '🎯', title: 'Job Buddy', desc: 'Find work within your restrictions + C-258.1 log', screen: 'job_buddy' },
       { icon: '🛣️', title: 'Road to Recovery', desc: 'See every step of your case', screen: 'recovery' },
       { icon: '🏥', title: 'Find a Doctor', desc: 'Find WCB-authorized doctors', screen: 'doctor' },
@@ -310,14 +313,14 @@
       { icon: '⚖️', title: 'Find an Attorney', desc: 'Get matched — free, no obligation', tier: 'free', attorney: true },
       { icon: '🤖', title: 'AI Case Advisor', desc: 'Ask questions about your claim', tier: 'pro', soon: true },
       { icon: '📋', title: 'UTDM Monitoring', desc: 'Track medical updates', tier: 'comp_buddy', soon: true },
-      { icon: '🚗', title: 'Mileage & Travel', desc: 'Log trips, fares & mileage for reimbursement', tier: 'comp_buddy', screen: 'mt' },
+      { icon: '🚗', title: 'Mileage & Travel', desc: 'Log trips, fares & mileage for reimbursement', tier: 'free', screen: 'mt' },
       { icon: '🧾', title: 'Accident & Notice Evidence', desc: 'Collect proof you reported your accident', tier: 'comp_buddy', screen: 'accident-notice' }
     ];
     var buddyGrid = h('div', { className: 'wd-grid' });
     buddy.forEach(function (f) {
       var locked = !hasAccess(f.tier);
       var onClick = null;
-      if (!f.soon && f.attorney) onClick = function () { openAttorneyIntake(); };
+      if (!f.soon && f.attorney) onClick = function () { openAttorneyIntake({ source: 'dashboard' }); };
       else if (!f.soon && !locked) onClick = function () { showScreen(f.screen); };
       else if (!f.soon && locked) onClick = function () { handleUpgrade(f.tier === 'pro' ? 'pro' : 'comp_buddy'); };
       buddyGrid.appendChild(_featureCard(h, {
@@ -329,19 +332,11 @@
     });
     cont.appendChild(h('section', { className: 'wd-section' }, buddyGrid));
 
-    // ── 6d. "Need an Attorney?" lead CTA ──────────────────────────────────
-    if (!(profile && profile.has_attorney)) {
-      var attyCta = h('div', { className: 'wd-card wd-atty' }, [
-        h('div', { className: 'wd-atty-text' }, [
-          h('h3', { className: 'wd-atty-title' }, 'Need an attorney?'),
-          h('p', { className: 'wd-atty-sub' }, 'Get matched with a workers’ comp attorney near you — free, no obligation.')
-        ]),
-        h('button', {
-          type: 'button', className: 'wd-btn wd-btn-accent',
-          onclick: function () { openAttorneyIntake(); }
-        }, 'Get matched — free')
-      ]);
-      cont.appendChild(h('section', { className: 'wd-section' }, attyCta));
+    // ── 6d. Attorney lead CTA ─────────────────────────────────────────────
+    // The ONE unified affordance (CD.AttorneyCTA) — identical on every surface.
+    if (!(profile && profile.has_attorney) && typeof CD.AttorneyCTA === 'function') {
+      cont.appendChild(h('section', { className: 'wd-section' },
+        CD.AttorneyCTA({ variant: 'card', source: 'dashboard' })));
     }
 
     cont.appendChild(h('p', { className: 'wd-disclaimer' }, DISCLAIMER));
@@ -1046,7 +1041,7 @@
       wrap.appendChild(h('div', { className: 'wd-steps-label' }, 'Next steps'));
       var list = h('div', { className: 'wd-steps' });
       steps.forEach(function (s) {
-        var go = s.attorney ? function () { openAttorneyIntake(); } : function () { showScreen(s.screen); };
+        var go = s.attorney ? function () { openAttorneyIntake({ source: 'dashboard' }); } : function () { showScreen(s.screen); };
         var row = h('div', { className: 'wd-step', role: 'button', tabIndex: '0' });
         row.onclick = go;
         row.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });

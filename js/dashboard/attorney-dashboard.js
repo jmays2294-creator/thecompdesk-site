@@ -417,7 +417,7 @@
       { icon: '🗂️', title: 'Pro Workspace', desc: 'AWW, CCP, SLU, LWEC & fee tools', tier: 'pro', screen: 'calculator' },
       { icon: '🧾', title: 'OC-400.1 Fee App', desc: 'Generate the counsel fee application', tier: 'pro', go: function () { if (CD.S) CD.S.sub = 'ccp'; goToCalc('fee'); } },
       { icon: '📝', title: 'C-3 / C-3.3 Generator', desc: 'Guided claim-filing forms', tier: 'pro', screen: 'c3' },
-      { icon: '⚖️', title: 'Settlement Comparison', desc: 'Compare settlement values', tier: 'comp_buddy', screen: 'settlement' },
+      { icon: '⚖️', title: 'Settlement Calculator', desc: 'Estimate settlement values', tier: 'comp_buddy', screen: 'settlement' },
       { icon: '📚', title: 'Learning Portal', desc: 'WC glossary, FAQ, timeline', tier: 'free', screen: 'learning' },
       { icon: '🏥', title: 'Find a Doctor', desc: 'WCB-authorized doctors', tier: 'free', screen: 'doctor' },
       { icon: '🔔', title: 'IME Reminders', desc: 'Never miss an IME', tier: 'comp_buddy', screen: 'ime' },

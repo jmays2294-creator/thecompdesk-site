@@ -76,6 +76,9 @@
   <!-- Shared dashboard modules (vendored from www/ — classic IIFEs on window.CD).
        Order: data-store (CD.S + statutory MAX_RATES) → dashboards → host. -->
   <script src="/js/dashboard/data-store.js" defer></script>
+  <!-- Shared "Talk to an attorney" CTA component (CD.AttorneyCTA) — must load
+       before its consumers (c3-wizard, worker-dashboard). Vendored from www/js/components/. -->
+  <script src="/js/components/attorney-cta.js" defer></script>
   <script src="/js/uploads/evidence-uploader.js" defer></script>
   <script src="/js/mt/mt-tracker.js" defer></script>
   <script src="/js/mt/c257-pdf.js" defer></script>
