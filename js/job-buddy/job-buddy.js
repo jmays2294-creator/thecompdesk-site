@@ -61,6 +61,49 @@
     try { global.open(url, '_blank'); } catch (e) { try { global.open(url, '_system'); } catch (e2) {} }
   }
 
+  // ─── Anonymous (device-local) store ─────────────────────────────────────────
+  // Job Buddy is FREE and usable without an account. A guest's data lives ONLY on
+  // this device (localStorage) and is never persisted server-side; signing in
+  // switches every JB.* helper back to the RLS-backed account tables. Restrictions
+  // share the wizard's device record (jb_voc_profile_v1) so the Restrictions tab
+  // and the Work-Profile wizard stay in sync; the C-258.1 log and ACCES-VR status
+  // get their own local keys.
+  var _LS = { ledger: 'cd_jb_ledger_v1', enroll: 'cd_jb_enroll_v1', wizard: 'jb_voc_profile_v1' };
+  function _lsGet(k, dflt) { try { var v = global.localStorage.getItem(k); return v ? JSON.parse(v) : dflt; } catch (e) { return dflt; } }
+  function _lsSet(k, v) { try { global.localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function _localId() { return 'local-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function _localWizProfile() {
+    try { if (CD.JobBuddyWizard && CD.JobBuddyWizard.loadLocal) return CD.JobBuddyWizard.loadLocal() || _lsGet(_LS.wizard, null); }
+    catch (e) {}
+    return _lsGet(_LS.wizard, null);
+  }
+  function _localRestriction() {
+    var l = _localWizProfile();
+    if (!l || !l.rest) return null;
+    // confirmed_by_user is stored in the local record (the wizard/tab only write it
+    // after the user confirms); never assume confirmation.
+    return Object.assign({ source: 'manual' }, l.rest, { confirmed_by_user: l.rest.confirmed_by_user === true, user_id: null });
+  }
+  function _saveLocalRestriction(fields) {
+    var l = _localWizProfile() || {};
+    l.rest = Object.assign({}, l.rest, fields);
+    l.saved_at = new Date().toISOString();
+    _lsSet(_LS.wizard, l);
+    return _localRestriction();
+  }
+
+  // Persistent "sign in to save" banner shown on guest surfaces. Returns null when
+  // signed in (nothing to prompt).
+  function _anonBanner(msg) {
+    if (_loggedIn()) return null;
+    var H = _hh();
+    var b = H('div', { className: 'cd-jb-anonbar', style: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', justifyContent: 'space-between', margin: '0 0 14px', padding: '10px 14px', borderRadius: '12px', background: 'var(--skin-accent-soft,rgba(37,99,235,.08))', color: 'var(--skin-text,#1b2330)', fontSize: '13px', lineHeight: '1.4' } }, [
+      H('span', {}, msg || 'You’re not signed in — everything here stays on this device only.'),
+      H('button', { className: 'cd-jb-btn ghost', type: 'button', style: { flex: '0 0 auto' }, onclick: function () { try { if (CD.showAuth) CD.showAuth('Create a free account to save your Job Buddy data'); } catch (e) {} } }, 'Sign in to save')
+    ]);
+    return b;
+  }
+
   // Worker's pre-injury AWW + the statutory PPD max for their DOA (from calc-core).
   // `override` lets the Feed tab supply AWW/DOA inline (entered there, not saved to the
   // profile) so a worker isn't forced into the profile editor just to estimate benefits.
@@ -73,20 +116,21 @@
     return { aww: (aww > 0 ? aww : null), ppd: (ppd > 0 ? ppd : null), doa: doaSrc || null };
   }
 
-  // Authenticated edge-function POST (mirrors advisor-module.js).
-  function _callFn(name, payload) {
+  // Edge-function POST (mirrors advisor-module.js). Signed-in callers send their
+  // user access token; when opts.allowAnon is set (live matching) a guest posts
+  // with the public anon key instead, and the function runs in anonymous mode.
+  function _callFn(name, payload, opts) {
+    opts = opts || {};
     var supa = CD.supa;
-    if (!supa) return Promise.reject(new Error('Not signed in'));
-    return supa.auth.getSession().then(function (r) {
-      var token = r && r.data && r.data.session && r.data.session.access_token;
-      if (!token) throw new Error('Not signed in');
-      var base = (supa.supabaseUrl || CD.SUPABASE_URL || '').replace(/\/$/, '');
+    var base = ((supa && supa.supabaseUrl) || CD.SUPABASE_URL || '').replace(/\/$/, '');
+    var anonKey = CD.SUPABASE_ANON_KEY || (supa && supa.supabaseKey) || '';
+    function post(bearer) {
       return fetch(base + '/functions/v1/' + name, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-          'apikey': CD.SUPABASE_ANON_KEY || (supa.supabaseKey || '')
+          'Authorization': 'Bearer ' + (bearer || anonKey),
+          'apikey': anonKey
         },
         body: JSON.stringify(payload)
       }).then(function (res) {
@@ -95,20 +139,31 @@
           return body;
         });
       });
-    });
+    }
+    if (supa && CD.currentUser) {
+      return supa.auth.getSession().then(function (r) {
+        var token = r && r.data && r.data.session && r.data.session.access_token;
+        if (token) return post(token);
+        if (opts.allowAnon && base) return post(null);
+        throw new Error('Not signed in');
+      });
+    }
+    if (opts.allowAnon && base) return post(null);
+    return Promise.reject(new Error('Not signed in'));
   }
 
   // ─── data API ─────────────────────────────────────────────────────────────
   var JB = CD.JobBuddy = CD.JobBuddy || {};
+  var _jbMigrated = false; // guest→account local-data migration runs at most once per session
 
   JB.getRestriction = function () {
-    if (!_loggedIn()) return Promise.resolve(null);
+    if (!_loggedIn()) return Promise.resolve(_localRestriction());
     return CD.supa.from('restriction_profiles').select('*').eq('user_id', CD.currentUser.id).maybeSingle()
       .then(function (r) { return r.data || null; });
   };
 
   JB.saveRestriction = function (fields) {
-    if (!_loggedIn()) return Promise.reject(new Error('Sign in to save your restrictions.'));
+    if (!_loggedIn()) return Promise.resolve(_saveLocalRestriction(fields));
     var row = Object.assign({ user_id: CD.currentUser.id, updated_at: new Date().toISOString() }, fields);
     return CD.supa.from('restriction_profiles').upsert(row, { onConflict: 'user_id' }).select().maybeSingle()
       .then(function (r) {
@@ -123,17 +178,19 @@
   };
 
   // Send an IME/C-4.3 PDF (base64) to the extractor; returns proposed fields for the user to CONFIRM.
+  // Auto-fill from a PDF is a signed-in feature (it calls a protected edge fn); guests type manually.
   JB.extractFromPdf = function (base64, filename) {
+    if (!_loggedIn()) return Promise.reject(new Error('Sign in to auto-fill from your IME / C-4.3 — or enter your restrictions manually below.'));
     return _callFn('restriction-extract', { pdf_base64: base64, filename: filename || 'document.pdf' });
   };
 
   JB.getEnrollment = function () {
-    if (!_loggedIn()) return Promise.resolve(null);
+    if (!_loggedIn()) return Promise.resolve(_lsGet(_LS.enroll, null));
     return CD.supa.from('access_vr_enrollments').select('*').eq('user_id', CD.currentUser.id).maybeSingle()
       .then(function (r) { return r.data || null; });
   };
   JB.saveEnrollment = function (status, notes) {
-    if (!_loggedIn()) return Promise.reject(new Error('Sign in first.'));
+    if (!_loggedIn()) { var loc = { status: status, notes: notes || null, updated_at: new Date().toISOString() }; _lsSet(_LS.enroll, loc); return Promise.resolve(loc); }
     var row = { user_id: CD.currentUser.id, status: status, notes: notes || null, updated_at: new Date().toISOString() };
     if (status === 'enrolled' || status === 'active') row.enrolled_at = new Date().toISOString();
     return CD.supa.from('access_vr_enrollments').upsert(row, { onConflict: 'user_id' }).select().maybeSingle()
@@ -157,7 +214,8 @@
   // On-demand live match against the freshest cached listings (when the feed is empty).
   // `override` (optional) = { aww, doa } entered inline on the Feed tab.
   JB.matchNow = function (override) {
-    if (!_loggedIn()) return Promise.reject(new Error('Sign in first.'));
+    // FREE + guest-capable: signed-in callers match against their saved restrictions;
+    // guests match against their device-local restrictions via the anon edge-fn path.
     var ap = _awwAndPpd(override);
     // AWW + date of accident are OPTIONAL. When present we also estimate reduced-earnings; when
     // absent we still match listings to the worker's medical restrictions (no early reject).
@@ -166,27 +224,49 @@
       CD.supa.from('job_listings').select('*').order('fetched_at', { ascending: false }).limit(8)
     ]).then(function (res) {
       var rp = res[0], listings = (res[1].data || []);
-      if (!rp || !rp.confirmed_by_user) throw new Error('Confirm your restrictions first.');
+      if (!rp || !rp.confirmed_by_user) throw new Error('Set and confirm your work restrictions first — then tap Refresh.');
       if (!listings.length) return { results: [], tags: [] };
       var p = CD.currentProfile || {};
       var byExt = {};
       listings.forEach(function (l) { byExt[l.external_id] = l; });
-      return _callFn('job-buddy', {
-        restriction_profile: rp,
-        aww: ap.aww, ppd_max_for_doa: ap.ppd, doa: ap.doa,
-        target: { role: p.occupation || null, geography: p.home_city || null },
-        listings: listings.map(function (l) {
-          return {
-            external_id: l.external_id, source: l.source, title: l.title,
-            employer: l.employer, location: l.location,
-            salary_min: l.salary_min, salary_max: l.salary_max,
-            salary_is_predicted: l.salary_is_predicted, description: l.description
-          };
-        })
-      }).then(function (resp) {
+
+      // The edge fn rejects any batch over CHUNK listings ("listings batch too large").
+      // Split the feed into CHUNK-sized batches, call the fn once per batch, and merge the
+      // per-batch results (in order) so any feed size works. A failed batch doesn't sink the
+      // whole feed — we still render the batches that succeeded.
+      var CHUNK = 4;
+      var target = { role: p.occupation || null, geography: p.home_city || null };
+      function callChunk(chunk) {
+        return _callFn('job-buddy', {
+          restriction_profile: rp,
+          aww: ap.aww, ppd_max_for_doa: ap.ppd, doa: ap.doa,
+          target: target,
+          listings: chunk.map(function (l) {
+            return {
+              external_id: l.external_id, source: l.source, title: l.title,
+              employer: l.employer, location: l.location,
+              salary_min: l.salary_min, salary_max: l.salary_max,
+              salary_is_predicted: l.salary_is_predicted, description: l.description
+            };
+          })
+        }, { allowAnon: true }).then(
+          function (resp) { return { ok: true, results: (resp && resp.results) || [] }; },
+          function (err) { return { ok: false, results: [], error: err }; }
+        );
+      }
+
+      var chunks = [];
+      for (var i = 0; i < listings.length; i += CHUNK) chunks.push(listings.slice(i, i + CHUNK));
+
+      return Promise.all(chunks.map(callChunk)).then(function (parts) {
+        // Merge each batch's judgments back in feed order.
+        var results = [], failed = 0;
+        parts.forEach(function (part) {
+          if (!part.ok) failed++;
+          results = results.concat(part.results);
+        });
         // The live match returns judgments only; join them back to the listing rows and shape
         // into feed "tags" so the UI renders them with the same card as the daily precomputed feed.
-        var results = (resp && resp.results) || [];
         var tags = results.filter(function (r) { return r.restriction_match !== 'no'; })
           .map(function (r) {
             return {
@@ -198,32 +278,90 @@
               job_listings: byExt[r.external_id] || null
             };
           }).filter(function (t) { return t.job_listings; });
-        return { results: results, tags: tags };
+        var out = { results: results, tags: tags };
+        if (failed) {
+          // Every batch failed → treat as a hard error so the caller shows the failure, not "no matches".
+          if (failed === chunks.length) throw new Error('Couldn’t match your feed right now — please try again.');
+          out.partialError = 'Some listings couldn’t be matched (' + failed + ' of ' + chunks.length + ' batches) — showing the rest.';
+        }
+        return out;
       });
     });
   };
 
   // ─── C-258.1 ledger ─────────────────────────────────────────────────────
   JB.listLedger = function () {
-    if (!_loggedIn()) return Promise.resolve([]);
+    if (!_loggedIn()) {
+      var list = _lsGet(_LS.ledger, []);
+      // newest first (date_applied desc, then created_at desc) — mirrors the server order.
+      return Promise.resolve(list.slice().sort(function (a, b) {
+        return String(b.date_applied || '').localeCompare(String(a.date_applied || '')) ||
+               String(b.created_at || '').localeCompare(String(a.created_at || ''));
+      }));
+    }
     return CD.supa.from('lma_ledger').select('*').order('date_applied', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false })
       .then(function (r) { return r.error ? [] : (r.data || []); });
   };
   JB.addLedger = function (row) {
-    if (!_loggedIn()) return Promise.reject(new Error('Sign in first.'));
-    var rec = Object.assign({ user_id: CD.currentUser.id }, row);
-    return CD.supa.from('lma_ledger').insert(rec).select().maybeSingle()
+    if (!_loggedIn()) {
+      var list = _lsGet(_LS.ledger, []);
+      var rec = Object.assign({ id: _localId(), created_at: new Date().toISOString(), response_received: false }, row);
+      list.push(rec); _lsSet(_LS.ledger, list);
+      return Promise.resolve(rec);
+    }
+    var srv = Object.assign({ user_id: CD.currentUser.id }, row);
+    return CD.supa.from('lma_ledger').insert(srv).select().maybeSingle()
       .then(function (r) { if (r.error) throw r.error; return r.data; });
   };
   JB.updateLedger = function (id, patch) {
-    if (!_loggedIn()) return Promise.reject(new Error('Sign in first.'));
+    if (!_loggedIn()) {
+      var list = _lsGet(_LS.ledger, []);
+      for (var i = 0; i < list.length; i++) { if (list[i].id === id) { list[i] = Object.assign({}, list[i], patch); break; } }
+      _lsSet(_LS.ledger, list);
+      return Promise.resolve(true);
+    }
     return CD.supa.from('lma_ledger').update(patch).eq('id', id).select().maybeSingle()
       .then(function (r) { if (r.error) throw r.error; return r.data; });
   };
   JB.removeLedger = function (id) {
-    if (!_loggedIn()) return Promise.resolve(false);
+    if (!_loggedIn()) {
+      _lsSet(_LS.ledger, _lsGet(_LS.ledger, []).filter(function (x) { return x.id !== id; }));
+      return Promise.resolve(true);
+    }
     return CD.supa.from('lma_ledger').delete().eq('id', id).then(function (r) { return !r.error; });
   };
+  // One-shot: when a former guest signs in, carry their device-local Job Buddy data
+  // (restrictions + vocational via the wizard, the C-258.1 log, ACCES-VR status) up
+  // into their account, then clear it locally. Best-effort and idempotent — each
+  // piece clears its own local key only on a successful write.
+  JB.migrateLocalToAccount = function () {
+    if (!_loggedIn()) return Promise.resolve(false);
+    var jobs = [];
+    try {
+      if (CD.JobBuddyWizard && CD.JobBuddyWizard.hasLocalProfile && CD.JobBuddyWizard.hasLocalProfile() && CD.JobBuddyWizard.syncLocalToSupabase) {
+        jobs.push(CD.JobBuddyWizard.syncLocalToSupabase(CD.supa, CD.currentUser.id).catch(function () {}));
+      }
+    } catch (e) {}
+    var ledger = _lsGet(_LS.ledger, []);
+    if (ledger.length) {
+      var rows = ledger.map(function (r) {
+        var c = Object.assign({}, r); delete c.id; delete c.created_at; // let the DB assign fresh ids
+        c.user_id = CD.currentUser.id; return c;
+      });
+      jobs.push(Promise.resolve(CD.supa.from('lma_ledger').insert(rows)).then(function (res) {
+        if (res && res.error) throw res.error;
+        try { global.localStorage.removeItem(_LS.ledger); } catch (e) {}
+      }).catch(function () {}));
+    }
+    var enr = _lsGet(_LS.enroll, null);
+    if (enr && enr.status) {
+      jobs.push(JB.saveEnrollment(enr.status, enr.notes).then(function () {
+        try { global.localStorage.removeItem(_LS.enroll); } catch (e) {}
+      }).catch(function () {}));
+    }
+    return Promise.all(jobs).then(function () { return jobs.length > 0; });
+  };
+
   // Log an application straight from a feed listing (pre-fills C-258.1 fields).
   JB.logFromListing = function (listing) {
     return JB.addLedger({
@@ -554,6 +692,13 @@
     paintTabs(); root.appendChild(tabs); root.appendChild(body); paintBody();
     root.appendChild(H('p', { className: 'cd-jb-disclaimer' }, DISCLAIMER));
 
+    // Former guest just signed in → migrate their device-local data into the account
+    // once, then repaint so the freshly-synced restrictions/log show up.
+    if (!_jbMigrated && _loggedIn()) {
+      _jbMigrated = true;
+      JB.migrateLocalToAccount().then(function (did) { if (did) paintBody(); }).catch(function () {});
+    }
+
     // First-run: open the Work Profile wizard once (logged-in & job_buddy_onboarded === false).
     // Deferred a tick so the caller can attach the screen first; the wizard mounts on <body>.
     global.setTimeout(function () { _maybeAutoOpenWizard(function () { paintBody(); }); }, 0);
@@ -568,6 +713,7 @@
 
     JB.getRestriction().then(function (rp) {
       mount.innerHTML = '';
+      var _ab = _anonBanner('You’re not signed in — your restrictions stay on this device only.'); if (_ab) mount.appendChild(_ab);
       var draft = {
         lifting_limit_lbs: rp ? rp.lifting_limit_lbs : '',
         stand_minutes: rp ? rp.stand_minutes : '',
@@ -606,7 +752,7 @@
             upStatus.textContent = 'Extracted — please review every field, then confirm.';
             rebuildForm();
           }).catch(function (e) {
-            upStatus.textContent = 'Couldn’t read that PDF. Enter your restrictions manually below.';
+            upStatus.textContent = (e && e.message) || 'Couldn’t read that PDF. Enter your restrictions manually below.';
           });
         };
         reader.readAsDataURL(f);
@@ -684,7 +830,7 @@
       rebuildForm();
     }).catch(function () {
       mount.innerHTML = '';
-      mount.appendChild(_hh()('p', { className: 'cd-jb-help' }, 'Sign in to set up your work restrictions.'));
+      mount.appendChild(_hh()('p', { className: 'cd-jb-help' }, 'Couldn’t load your restrictions right now — please try again.'));
     });
   }
 
@@ -714,7 +860,8 @@
       function doMatch() {
         status.textContent = 'Finding jobs within your restrictions…';
         return JB.matchNow(override).then(function (r) {
-          status.textContent = '';
+          // A partial batch failure still paints what matched — just flag the gap.
+          status.textContent = (r && r.partialError) || '';
           paint((r && r.tags) || []);
         }).catch(function (e) {
           status.textContent = (e && e.message) || 'Nothing to match yet.';
@@ -824,6 +971,7 @@
     mount.appendChild(H('div', { className: 'cd-jb-loading' }, 'Loading your search log…'));
     JB.listLedger().then(function (rows) {
       mount.innerHTML = '';
+      var _ab = _anonBanner('You’re not signed in — your C-258.1 log stays on this device only.'); if (_ab) mount.appendChild(_ab);
       var stats = JB.computeStats(rows);
 
       var statsBar = H('div', { className: 'cd-jb-stats' }, [

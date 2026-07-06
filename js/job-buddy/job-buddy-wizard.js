@@ -169,7 +169,16 @@
   };
   W.hasLocalProfile = function () { return !!W.loadLocal(); };
   function saveLocal(d) {
-    try { global.localStorage.setItem(LS_PROFILE, JSON.stringify({ voc: vocPayload(d), rest: restPayload(d), saved_at: nowISO() })); } catch (e) {}
+    // Only ever called from the Review → Confirm step, so stamp the confirmed flags
+    // (mirrors saveSupabase). Job Buddy's live matcher requires confirmed_by_user, and
+    // the standalone Restrictions tab reads this same device record.
+    try {
+      global.localStorage.setItem(LS_PROFILE, JSON.stringify({
+        voc: Object.assign({ vocational_confirmed_by_user: true }, vocPayload(d)),
+        rest: Object.assign({ confirmed_by_user: true }, restPayload(d)),
+        saved_at: nowISO()
+      }));
+    } catch (e) {}
   }
   W.clearLocal = function () { try { global.localStorage.removeItem(LS_PROFILE); } catch (e) {} };
 

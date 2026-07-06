@@ -230,6 +230,18 @@
     // snapshot, missing values render as actionable empty-state next-steps.
     cont.appendChild(h('section', { className: 'wd-section' }, _caseStatus(h, profile, showScreen, openAttorneyIntake)));
 
+    // ── 4c. TALK TO AN ATTORNEY (video consult) ───────────────────────────
+    // Delegated to CD.Consult so the booking flow + styling live in one module
+    // (mirrors the CD.Recovery / CD.AttorneyCTA delegation above). Opens the
+    // 'consult' screen: pick a slot → details → pay (if priced) → join a
+    // Whereby video room. Absent module → section is simply skipped.
+    try {
+      if (CD.Consult && typeof CD.Consult.workerPromoCard === 'function') {
+        var consultCard = CD.Consult.workerPromoCard({ h: h, showScreen: showScreen, profile: profile, user: user });
+        if (consultCard) cont.appendChild(h('section', { className: 'wd-section' }, consultCard));
+      }
+    } catch (e) { console.error('[worker-dash] CONSULT_PROMO_FAILED', e); }
+
     // ── 5. APPOINTMENTS SUMMARY ───────────────────────────────────────────
     var apptCard = h('div', { className: 'wd-card wd-appts' });
     apptCard.appendChild(h('div', { className: 'wd-card-hd' }, [

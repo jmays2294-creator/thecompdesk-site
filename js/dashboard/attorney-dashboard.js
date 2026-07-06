@@ -221,7 +221,8 @@
     var h = ctx.h;
     var body = [];
     if (_sched.phase === 'loading' || _sched.phase === 'idle') {
-      body.push(h('div', { className: 'cc-skel' })); body.push(h('div', { className: 'cc-skel' }));
+      body.push(h('div', { className: 'cc-skel', role: 'status', 'aria-label': 'Loading your schedule' }));
+      body.push(h('div', { className: 'cc-skel', 'aria-hidden': 'true' }));
       return _card(ctx, { title: 'Upcoming', line: true, meta: 'firm cases', delay: '.04s' }, body);
     }
     if (_sched.phase === 'error') {
@@ -507,9 +508,18 @@
 
       var rings = [];
 
-      // two-column grid
+      // two-column grid. The "Consults" panel (video-consult bookings on this
+      // attorney's slots) is delegated to CD.Consult, which self-gates on Pro/Firm
+      // (getUserTier, fail-loud) and returns null for lower tiers.
+      var consultPanel = null;
+      try {
+        if (CD.Consult && typeof CD.Consult.renderAttorneyPanel === 'function') {
+          consultPanel = CD.Consult.renderAttorneyPanel(ctx);
+        }
+      } catch (e) { console.error('[atty-dash] CONSULT_PANEL_FAILED', e); }
       var left = h('div', { className: 'cc-col' }, [
         renderSchedule(ctx),
+        consultPanel,
         _card(ctx, { title: 'Network co-counsel cases', delay: '.3s' },
           h('p', { className: 'cc-coc-sub' }, 'No network co-counsel cases yet. Cases you take on jointly through The Comp Desk will appear here once that program is live.'))
       ]);
