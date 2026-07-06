@@ -611,7 +611,7 @@ footer a{color:var(--txD);}
       </details>
       <details class="faq-item">
         <summary>Can I use this on my phone at hearings?</summary>
-        <p>Absolutely. The Comp Desk is available on iOS (App Store) and as a responsive web app. Pull it up on your phone between hearings, on your tablet at your desk, or on your laptop in the office.</p>
+        <p>Absolutely. The Comp Desk is available on iOS (App Store), as a Chrome extension, and as a responsive web app. Pull it up on your phone between hearings, on your tablet at your desk, or on your laptop in the office.</p>
       </details>
       <details class="faq-item">
         <summary>Who built this?</summary>
@@ -666,18 +666,13 @@ footer a{color:var(--txD);}
         <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="cta-btn green ev-cta" aria-label="Download The Comp Desk on the App Store">Download on App Store</a>
       </div>
 
-      <div class="ev-card soon">
+      <div class="ev-card live">
         <div class="icon">🧩</div>
-        <span class="tag">Chrome — Coming Soon</span>
+        <span class="tag">Live on Chrome</span>
         <h3>Chrome Extension</h3>
         <p>Highlight a wage statement in an adjuster email — the AWW lands in the side panel. Same calculators, no tab-switching.</p>
-        <form class="ev-form" data-capture="extension" data-tags="chrome-waitlist,for-attorneys">
-          <div class="field-row">
-            <input type="email" name="email" placeholder="you@firm.com" required aria-label="Email for Chrome extension waitlist">
-            <button type="submit">Notify Me</button>
-          </div>
-          <p class="privacy-note">One email when the listing goes live. See <a href="/extension-privacy" style="color:var(--txD);">extension privacy</a>.</p>
-        </form>
+        <a data-ext-install href="/extension" target="_blank" rel="noopener" class="cta-btn ev-cta" aria-label="Add The Comp Desk to Chrome">Add to Chrome — Free</a>
+        <p class="privacy-note">Desktop Chrome — reads only what you highlight. See <a href="/extension-privacy" style="color:var(--txD);">extension privacy</a>.</p>
       </div>
 
       <div class="ev-card live">
@@ -693,9 +688,8 @@ footer a{color:var(--txD);}
   </div>
 </section>
 
-<!-- Email capture infrastructure (required for the Chrome waitlist form above) -->
-<script src="/js/esp-adapter.js" defer></script>
-<script src="/js/email-capture.js" defer></script>
+<!-- Chrome Web Store install CTA (single source of truth for the store URL) -->
+<script src="/js/extension-cta.js" defer></script>
 
 <!-- BOTTOM CTA -->
 <section class="cta-banner">

@@ -226,8 +226,9 @@ footer a{color:#3a4a63;}
     <p class="sub">One calculator engine — three places to reach it. The iOS app for hearings on the go, the Chrome extension for the cases on your desktop, and the web workspace for the deep work in between.</p>
     <div class="ctas">
       <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="cta-btn green">Download on App Store</a>
-      <a href="#chrome" class="cta-btn outline">Get Notified When Chrome Drops</a>
+      <a data-ext-install href="https://chromewebstore.google.com/detail/aachpchfcnbdbhljjinafackkdpjmobo" target="_blank" rel="noopener" class="cta-btn gold">Add to Chrome — Free</a>
     </div>
+    <p style="color:var(--txM);font-size:13px;margin-top:12px;">Installs in desktop Chrome — free, no sign-up to try.</p>
   </div>
 </section>
 
@@ -256,9 +257,9 @@ footer a{color:#3a4a63;}
       </div>
 
       <!-- Chrome -->
-      <div class="plat-card soon" id="chrome">
+      <div class="plat-card live" id="chrome">
         <div class="icon">🧩</div>
-        <span class="tag">Coming Soon</span>
+        <span class="tag">Available now</span>
         <h3>Chrome Extension</h3>
         <p>For the cases that live in your browser. Highlight any wage statement, IME report, or carrier email — get the calculation back in the side panel without leaving the page.</p>
         <ul>
@@ -267,13 +268,8 @@ footer a{color:#3a4a63;}
           <li>Reads only what you highlight — never the page</li>
           <li>Same Pro/Firm tiers, same sync</li>
         </ul>
-        <form class="waitlist-form" data-capture="extension" data-tags="chrome-waitlist">
-          <div class="field-row">
-            <input type="email" name="email" placeholder="you@firm.com" required aria-label="Email for Chrome extension waitlist">
-            <button type="submit">Notify Me</button>
-          </div>
-          <p class="privacy-note">We'll email you when the Chrome Web Store listing goes live — that's it. See our <a href="/extension-privacy">extension privacy policy</a>.</p>
-        </form>
+        <a data-ext-install href="https://chromewebstore.google.com/detail/aachpchfcnbdbhljjinafackkdpjmobo" target="_blank" rel="noopener" class="cta-btn gold" style="margin-top:auto;">Add to Chrome — Free</a>
+        <p class="privacy-note" style="margin-top:10px;">Installs in desktop Chrome. Reads only what you highlight — see the <a href="/extension-privacy">extension privacy policy</a>.</p>
       </div>
 
       <!-- Web -->
@@ -354,8 +350,8 @@ footer a{color:#3a4a63;}
     <h2>Frequently asked questions</h2>
     <div class="faq-list">
       <details class="faq-item">
-        <summary>When does the Chrome extension launch?</summary>
-        <p>The extension is in the Chrome Web Store review queue. Drop your email above and you'll get a single notification email the day the listing goes live — no marketing, no list-rental.</p>
+        <summary>How do I install the Chrome extension?</summary>
+        <p>It's live in the Chrome Web Store. Open this page in desktop Chrome and click <strong>Add to Chrome — Free</strong> — it installs in a couple of clicks. It runs on desktop Chrome only for now.</p>
       </details>
       <details class="faq-item">
         <summary>Does the extension read everything I browse?</summary>
@@ -385,11 +381,11 @@ footer a{color:#3a4a63;}
 <section class="cta-banner">
   <div class="wrap">
     <h2>Start where you are.</h2>
-    <p>iOS today. Chrome any day now. Web right now.</p>
+    <p>iOS, Chrome, and web — the same engine, everywhere you work.</p>
     <div class="ctas">
       <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="cta-btn green">Download on App Store</a>
       <a href="/workspace/" class="cta-btn outline">Open the Workspace</a>
-      <a href="#chrome" class="cta-btn gold">Join the Chrome Waitlist</a>
+      <a data-ext-install href="https://chromewebstore.google.com/detail/aachpchfcnbdbhljjinafackkdpjmobo" target="_blank" rel="noopener" class="cta-btn gold">Add to Chrome — Free</a>
     </div>
   </div>
 </section>
@@ -402,9 +398,8 @@ footer a{color:#3a4a63;}
   </div>
 </footer>
 
-<!-- Email capture infrastructure -->
-<script src="/js/esp-adapter.js" defer></script>
-<script src="/js/email-capture.js" defer></script>
+<!-- Chrome Web Store install CTA (single source of truth for the store URL) -->
+<script src="/js/extension-cta.js" defer></script>
 
 <!-- Vercel Web Analytics -->
 <script defer src="/_vercel/insights/script.js"></script>
