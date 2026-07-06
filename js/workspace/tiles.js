@@ -1317,13 +1317,19 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
     };
   }, [inputs, tt, aww, global.minRate, global.maxRate]);
 
-  // CCP as a percentage of the claimant's FULL weekly rate (⅔ × AWW, capped
-  // for the DOA — i.e. global.ttRate). Surfaced as a small read-only field
-  // between CCP Amount and Prior Payments so the attorney can see at a glance
-  // what disability rate the entered CCP implies (e.g. $367.33 ÷ $552.37 =
-  // 66.5%). Null when there's no CCP amount or no resolvable rate.
-  const ccpPctOfRate = (Number(inputs.ccpAmount) > 0 && Number(tt) > 0)
-    ? (Number(inputs.ccpAmount) / Number(tt)) * 100
+  // CCP as a percentage of the claimant's TRUE weekly rate — the UNCAPPED
+  // ⅔ × AWW, NOT the statutory-capped global.ttRate. This mirrors the TR/TP
+  // convention (June 2026 fix): a percentage is applied to the uncapped
+  // ⅔ AWW, so the inverse readout must divide by the same base. Dividing by
+  // the capped rate overstated the % any time ⅔ × AWW exceeded the DOA max
+  // (e.g. AWW $2,100 → 75% TR = $1,050; wrong: $1,050 ÷ capped $1,281.50 =
+  // 81.9%; right: $1,050 ÷ uncapped $1,400 = 75.0%). Clamped at 100% so a
+  // claimant at/above full TT (incl. the AWW-below-min collapse) never reads
+  // over 100%. Surfaced as a small read-only field between CCP Amount and
+  // Prior Payments. Null when there's no CCP amount or no resolvable AWW.
+  const ccpTrueRate = (Number(aww) || 0) * 2 / 3;
+  const ccpPctOfRate = (Number(inputs.ccpAmount) > 0 && ccpTrueRate > 0)
+    ? Math.min(100, (Number(inputs.ccpAmount) / ccpTrueRate) * 100)
     : null;
 
   return (
@@ -1698,7 +1704,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
           <div className="f-group ccp-pct-group">
             <label className="f-label">% of Rate</label>
             <div className="ccp-pct-display"
-              title="CCP as a percentage of the claimant's full weekly rate (⅔ × AWW, capped for the date of accident).">
+              title="CCP as a percentage of the claimant's true weekly rate (uncapped ⅔ × AWW), clamped at 100%.">
               {ccpPctOfRate != null ? ccpPctOfRate.toFixed(1) + '%' : '—'}
             </div>
           </div>
