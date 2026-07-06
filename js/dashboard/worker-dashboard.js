@@ -959,7 +959,7 @@
     var cls = 'wd-fcard' + (o.locked ? ' is-locked' : '') + (o.soon ? ' is-soon' : '');
     var c = h('div', { className: cls });
     if (o.soon) c.appendChild(h('span', { className: 'wd-fcard-flag' }, 'Coming soon'));
-    else if (o.locked) c.appendChild(h('span', { className: 'wd-fcard-lock' }, '🔒'));
+    else if (o.locked) c.appendChild(h('span', { className: 'wd-fcard-lock' }, '🔒 Unlock'));
     c.appendChild(h('div', { className: 'wd-fcard-icon' }, o.icon));
     c.appendChild(h('div', { className: 'wd-fcard-title' }, o.title));
     c.appendChild(h('div', { className: 'wd-fcard-desc' }, o.desc));

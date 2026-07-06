@@ -362,12 +362,9 @@
 .wd-tier-badge.is-pro { background: rgba(124,58,237,.14); color: #7c3aed; }
 .wd-fcard-flag, .wd-fcard-lock {
   position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700;
-}
-.wd-fcard-flag {
   background: var(--skin-surface-warm); color: var(--skin-text-muted);
   border-radius: 6px; padding: 2px 7px; text-transform: uppercase; letter-spacing: .03em;
 }
-.wd-fcard-lock { font-size: 14px; }
 
 /* ── Disclaimer ───────────────────────────────────────────────────────── */
 .wd-disclaimer {
