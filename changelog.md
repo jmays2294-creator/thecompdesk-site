@@ -5,6 +5,27 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-07-06
+
+### CCP "% of Rate" fix — divide by the true (uncapped) ⅔ AWW, clamp at 100%
+
+The Pro workspace CCP tile's **% of Rate** read-only field (`js/workspace/tiles.js`, `CCPTile`)
+divided the entered CCP amount by the **statutory-capped** TT rate (`global.ttRate`) instead of
+the claimant's true weekly rate. This overstated the percentage any time ⅔ × AWW exceeded the DOA
+maximum, and broke the round-trip with the TR/TP formula (which applies the percentage to the
+uncapped ⅔ AWW per the June 2026 fix, then caps the dollar result).
+
+- **Now divides by the uncapped ⅔ × AWW** (`ccpTrueRate`), matching the TR/TP convention so the
+  readout is the true inverse of the rate math. Clamped at 100% so a claimant at/above full TT
+  (including the AWW-below-min collapse) never reads over 100%.
+- **Example** (DOA 7/1/2026, statutory max $1,281.50, AWW $3,600 → true rate $2,400): a 50% TR
+  pays $1,200/wk. Old field read **93.6%** ($1,200 ÷ capped $1,281.50); now reads **50.0%**
+  ($1,200 ÷ $2,400). Low earners (⅔ AWW below the max) are unchanged.
+- Tooltip updated to describe the uncapped basis. Website-only field (not present in the app
+  `www/` or native bundles), so no cross-surface sync needed. Commit `ebb0c8e`.
+
+---
+
 ## 2026-06-18
 
 ### Job Buddy — public, no-account beta page (`/job-buddy`) with map + list and eggshell theme
