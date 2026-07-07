@@ -575,7 +575,7 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
                 <input type="number" min="0" step="1" className="f-input dt-days" value={deadlineDays}
                   onChange={e => setDeadlineDays(e.target.value)}
                   title="Calendar days, counting from the day after the start"
-                  style={{ width: '58px', fontSize: '11.5px', padding: '2px 7px' }} />
+                  style={{ width: '72px', fontSize: '11.5px', padding: '2px 7px' }} />
                 <select className="f-input dt-select" value={deadlineDays}
                   onChange={e => setDeadlineDays(Number(e.target.value))}
                   title="Common terms — calendar days from the day after the start">

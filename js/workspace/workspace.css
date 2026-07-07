@@ -926,7 +926,7 @@ html body[data-theme] .beta-banner {
 .deadline-tool {
   flex: 0 0 auto;
   display: flex;
-  gap: 16px;
+  gap: 24px;
   align-items: baseline;
 }
 .deadline-tool .dt-field {
