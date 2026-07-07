@@ -56,6 +56,21 @@ const COMMON_RATE_PCTS = [
 // Day-count options for the AWW strip "Deadline" quick-calc dropdown.
 const DEADLINE_DAY_OPTIONS = [10, 15, 30, 45, 60, 75, 90];
 
+// Local-date <-> "yyyy-mm-dd" helpers for the AWW strip start-date field.
+// We deliberately avoid toISOString()/new Date(string) — both interpret the
+// value in UTC, which drifts the calendar day for anyone west of GMT. These
+// stay entirely in local time so the <input type="date"> round-trips exactly.
+const toLocalISO = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+const fromLocalISO = (s) => {
+  const [y, m, d] = String(s).split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
 // ============================================================================
 // SECTION 1 — AWW COMPUTATION (Task 1)
 // ============================================================================
@@ -285,13 +300,15 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
     rate: applyRateBounds(state.aww * (2 / 3) * (p.v / 100), state.aww, computed.minRate, computed.maxRate),
   })), [state.aww, computed.minRate, computed.maxRate]);
 
-  // ── Today / Deadline quick-calc ────────────────────────────────────────────
-  // Today is always the user's current date (read-only). Deadline = Today + N
-  // CALENDAR days, counting from the day AFTER today — so N=10 from a Monday
-  // lands on the following Thursday (Monday + 10 calendar days). Building the
-  // date as new Date(y, m, d + N) at local midnight handles month rollover and
-  // avoids any timezone off-by-one. N is a local scratch value (not saved case
-  // data), defaulting to 30.
+  // ── Start / Deadline quick-calc ────────────────────────────────────────────
+  // Start defaults to the date the workspace was opened but is editable, so you
+  // can measure a term off any anchor date. Deadline = Start + N CALENDAR days,
+  // counting from the day AFTER the start — so N=10 from a Monday lands on the
+  // following Thursday (Monday + 10 calendar days). Building the date as
+  // new Date(y, m, d + N) at local midnight handles month rollover and avoids
+  // any timezone off-by-one. Both values are local scratch (not saved case
+  // data); Start defaults to today, term N defaults to 30.
+  const [startISO, setStartISO] = useState(() => toLocalISO(new Date()));
   const [deadlineDays, setDeadlineDays] = useState(30);
   // "More themes" menu open/close, with outside-click + Escape to dismiss.
   const [moreThemesOpen, setMoreThemesOpen] = useState(false);
@@ -303,9 +320,8 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
     document.addEventListener('keydown', onKey);
     return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
   }, [moreThemesOpen]);
-  const _today = new Date();
-  const today = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate());
-  const deadlineDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + deadlineDays);
+  const start = fromLocalISO(startISO);
+  const deadlineDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() + Number(deadlineDays || 0));
   const fmtCalDate = (d) => d.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
   // Re-compute preview whenever wizard inputs change (only while open)
@@ -541,18 +557,33 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
           </div>
           <div className="deadline-tool">
             <div className="dt-field">
-              <label className="f-label">Today</label>
-              <div className="dt-readout">{fmtCalDate(today)}</div>
+              <label className="f-label">
+                Start
+                <button type="button" className="dt-today"
+                  onClick={() => setStartISO(toLocalISO(new Date()))}
+                  title="Reset start date to today"
+                  style={{ background: 'none', border: 'none', padding: 0, margin: 0, font: 'inherit', color: 'var(--ac)', cursor: 'pointer', textDecoration: 'underline' }}>Today</button>
+              </label>
+              <input type="date" className="f-input dt-start" value={startISO}
+                onChange={e => setStartISO(e.target.value)}
+                title="Anchor date the term counts from"
+                style={{ width: 'auto', fontSize: '11.5px', padding: '2px 7px' }} />
             </div>
             <div className="dt-field">
               <label className="f-label">Term</label>
-              <select className="f-input dt-select" value={deadlineDays}
-                onChange={e => setDeadlineDays(Number(e.target.value))}
-                title="Calendar days, counting from the day after today">
-                {DEADLINE_DAY_OPTIONS.map(n => (
-                  <option key={n} value={n}>{n} days</option>
-                ))}
-              </select>
+              <div className="dt-term" style={{ display: 'inline-flex', alignItems: 'baseline', gap: '6px' }}>
+                <input type="number" min="0" step="1" className="f-input dt-days" value={deadlineDays}
+                  onChange={e => setDeadlineDays(e.target.value)}
+                  title="Calendar days, counting from the day after the start"
+                  style={{ width: '58px', fontSize: '11.5px', padding: '2px 7px' }} />
+                <select className="f-input dt-select" value={deadlineDays}
+                  onChange={e => setDeadlineDays(Number(e.target.value))}
+                  title="Common terms — calendar days from the day after the start">
+                  {DEADLINE_DAY_OPTIONS.map(n => (
+                    <option key={n} value={n}>{n} days</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="dt-field">
               <label className="f-label">Deadline</label>
@@ -857,6 +888,7 @@ const PALETTE_ITEMS = [
   { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', short: '$/Wk',   desc: 'Max + Min rate by date' },
   { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  short: 'Radic.', desc: 'S11.4 point system + nerve-root caps', pro: true },
   { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   short: 'MTGs',   desc: 'NYS WCB Medical Treatment Guidelines — keyword search w/ citations' },
+  { type: 'DateCalc',      name: 'Date Calc',     icon: '📅',   short: '📅',     desc: 'Add/subtract yrs·mo·wks·days · date span' },
 ];
 
 function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
@@ -967,6 +999,7 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
     SLU: SLUTile, LWEC: LWECTile, CCP: CCPTile,
     RateLookup: RateLookupTile, Radiculopathy: RadiculopathyTile,
     Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGTile,
+    DateCalc: DateCalcTile,
   }[tile.type] || (tile.type && tile.type.indexOf('pub_') === 0 ? window.PublishedTile : undefined);
 
   // Tile Size now scales the actual footprint (cell.w / cell.h come from the

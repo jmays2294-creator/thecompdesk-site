@@ -14,6 +14,25 @@ const TILE_SPECS = {
   Burns:         { w: 460, h: 520, name: 'Burns Rate (3rd-Party Lien)' },
   Settlement:    { w: 420, h: 360, name: 'Section 32 Settlement' },
   MTG:           { w: 480, h: 620, name: 'Medical Treatment Guidelines' },
+  DateCalc:      { w: 480, h: 560, name: 'Date Calculator' },
+};
+
+// Date Calculator helpers, published as globals by constants.js. This is the
+// window-global equivalent of `import { ... } from './constants.js'` — this
+// bundle is loaded as plain <script> tags (constants.js first), not ES
+// modules, so there is no import statement to write.
+const {
+  addYMWD, dateDiffBreakdown, isBusinessDay, rollToNextBusinessDay,
+  toLocalISO, fromLocalISO,
+} = window;
+
+// Per-interval quick presets for the Add/Subtract mode. Days mirror the AWW
+// strip deadline tool's DEADLINE_DAY_OPTIONS for cross-tool consistency.
+const DATECALC_PRESETS = {
+  y: [1, 2, 3, 5, 10],
+  m: [1, 3, 6, 9, 12],
+  w: [1, 2, 4, 6, 8, 12],
+  d: [10, 15, 30, 45, 60, 75, 90],
 };
 
 // ====================================================================
@@ -2255,6 +2274,181 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
 }
 
 // ====================================================================
+// Date Calculator Tile — standalone add/subtract + between-dates calc.
+// Independent of AWW/DOI (ignores `global`). Mirrors timeanddate.com's
+// dateadd.html + duration calculator. All math via the timezone-safe
+// helpers in constants.js. See DateCalcTile default inputs in
+// TILE_INPUT_DEFAULTS (constants.js) — persisted on tile.inputs.
+// ====================================================================
+const DATECALC_FMT = (d) =>
+  d.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+// "Mon D, YYYY" (no weekday) for inline mid-sentence use.
+const DATECALC_FMT_SHORT = (d) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+// One interval row: a number input + a quick-preset dropdown, both writing the
+// same `key` on inputs. `unit` is the plural label (Years/Months/Weeks/Days).
+function DateCalcInterval({ label, unit, value, presets, onChange }) {
+  return (
+    <div className="f-group">
+      <label className="f-label">{label}</label>
+      <div style={{ display: 'flex', gap: '6px' }}>
+        <input className="f-input" type="number" min="0" step="1" value={value}
+          style={{ width: '72px' }}
+          onChange={e => onChange(e.target.value)} />
+        <select className="f-select" value={presets.includes(Number(value)) ? String(value) : ''}
+          onChange={e => onChange(e.target.value)}
+          style={{ flex: 1 }} title={`Common ${unit.toLowerCase()} presets`}>
+          <option value="">Preset…</option>
+          {presets.map(n => <option key={n} value={n}>{n} {unit.toLowerCase()}</option>)}
+        </select>
+      </div>
+    </div>
+  );
+}
+
+function DateCalcTile({ tile, global, onUpdate }) {
+  // `global` (AWW/DOI) intentionally unused — this tile is self-contained.
+  const inputs = tile.inputs || (window.TILE_INPUT_DEFAULTS.DateCalc());
+  const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+
+  const mode = inputs.mode || 'add';
+  const MODES = [
+    { id: 'add',     label: 'Add / Subtract' },
+    { id: 'between', label: 'Between Dates' },
+  ];
+
+  // ── Mode A: Add / Subtract ────────────────────────────────────────────────
+  let addResult = null, addExplain = '';
+  {
+    const start = fromLocalISO(inputs.start || toLocalISO(new Date()));
+    const sign = inputs.direction === 'subtract' ? -1 : 1;
+    const parts = { y: inputs.y, m: inputs.m, w: inputs.w, d: inputs.d };
+    let out = addYMWD(start, parts, { sign, businessDaysOnly: !!inputs.businessDaysOnly });
+    let rolled = false;
+    if (inputs.roll && !isBusinessDay(out)) { out = rollToNextBusinessDay(out); rolled = true; }
+    addResult = out;
+    // Plain-English clause for the intervals actually used.
+    const bits = [];
+    if (Number(inputs.y)) bits.push(`${Math.abs(Number(inputs.y))} year${Math.abs(Number(inputs.y)) === 1 ? '' : 's'}`);
+    if (Number(inputs.m)) bits.push(`${Math.abs(Number(inputs.m))} month${Math.abs(Number(inputs.m)) === 1 ? '' : 's'}`);
+    if (Number(inputs.w)) bits.push(`${Math.abs(Number(inputs.w))} week${Math.abs(Number(inputs.w)) === 1 ? '' : 's'}`);
+    if (Number(inputs.d)) bits.push(`${Math.abs(Number(inputs.d))} ${inputs.businessDaysOnly ? 'business ' : ''}day${Math.abs(Number(inputs.d)) === 1 ? '' : 's'}`);
+    const clause = bits.length ? bits.join(', ') : '0 days';
+    addExplain = `${DATECALC_FMT_SHORT(start)} ${sign === -1 ? 'minus' : 'plus'} ${clause} = ${DATECALC_FMT(addResult)}`
+      + (rolled ? ' (rolled to next business day)' : '');
+  }
+
+  // ── Mode B: Between Dates ─────────────────────────────────────────────────
+  let diff = null, betweenExplain = '';
+  {
+    const s = fromLocalISO(inputs.start || toLocalISO(new Date()));
+    const e = fromLocalISO(inputs.end || toLocalISO(new Date()));
+    diff = dateDiffBreakdown(s, e, { includeEnd: !!inputs.includeEnd });
+    const ymd = [];
+    if (diff.years) ymd.push(`${diff.years} yr${diff.years === 1 ? '' : 's'}`);
+    if (diff.months) ymd.push(`${diff.months} mo`);
+    ymd.push(`${diff.days} day${diff.days === 1 ? '' : 's'}`);
+    betweenExplain = `From ${DATECALC_FMT_SHORT(s)} to ${DATECALC_FMT_SHORT(e)} is ${diff.totalDays} day${diff.totalDays === 1 ? '' : 's'}`
+      + `${inputs.includeEnd ? ' (end date counted)' : ''} — ${diff.weeks} wk ${diff.remDays} d, or ${ymd.join(' ')}, `
+      + `and ${diff.businessDays} business day${diff.businessDays === 1 ? '' : 's'}.`;
+  }
+
+  return (
+    <div className="tile-body">
+      {/* Mode tabs */}
+      <div role="tablist" aria-label="Date calculator mode"
+        style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+        {MODES.map(mo => (
+          <button key={mo.id} type="button" role="tab" aria-selected={mode === mo.id}
+            className={'btn tiny ' + (mode === mo.id ? 'primary' : '')}
+            style={{ flex: 1 }}
+            onClick={() => setInputs({ mode: mo.id })}>
+            {mo.label}
+          </button>
+        ))}
+      </div>
+
+      {mode === 'add' ? (
+        <>
+          <div className="row cols-2">
+            <div className="f-group">
+              <label className="f-label">Start Date</label>
+              <input className="f-input" type="date" value={inputs.start || ''}
+                onChange={e => setInputs({ start: e.target.value })} />
+            </div>
+            <div className="f-group">
+              <label className="f-label">Direction</label>
+              <select className="f-select" value={inputs.direction || 'add'}
+                onChange={e => setInputs({ direction: e.target.value })}>
+                <option value="add">Add (+)</option>
+                <option value="subtract">Subtract (−)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="row cols-2">
+            <DateCalcInterval label="Years"  unit="Years"  value={inputs.y} presets={DATECALC_PRESETS.y} onChange={v => setInputs({ y: v })} />
+            <DateCalcInterval label="Months" unit="Months" value={inputs.m} presets={DATECALC_PRESETS.m} onChange={v => setInputs({ m: v })} />
+          </div>
+          <div className="row cols-2">
+            <DateCalcInterval label="Weeks"  unit="Weeks"  value={inputs.w} presets={DATECALC_PRESETS.w} onChange={v => setInputs({ w: v })} />
+            <DateCalcInterval label="Days"   unit="Days"   value={inputs.d} presets={DATECALC_PRESETS.d} onChange={v => setInputs({ d: v })} />
+          </div>
+
+          <div className="row cols-2">
+            <label className="f-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'none', letterSpacing: 0 }}>
+              <input type="checkbox" checked={!!inputs.businessDaysOnly}
+                onChange={e => setInputs({ businessDaysOnly: e.target.checked })} />
+              Count days as business days
+            </label>
+            <label className="f-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'none', letterSpacing: 0 }}>
+              <input type="checkbox" checked={!!inputs.roll}
+                onChange={e => setInputs({ roll: e.target.checked })} />
+              Roll result to next business day
+            </label>
+          </div>
+
+          <div className="results">
+            <div className="r-row big"><span className="l">Result</span><span className="v">{DATECALC_FMT(addResult)}</span></div>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--tx-faint)', margin: '8px 2px 0', lineHeight: 1.4 }}>{addExplain}</p>
+        </>
+      ) : (
+        <>
+          <div className="row cols-2">
+            <div className="f-group">
+              <label className="f-label">Start Date</label>
+              <input className="f-input" type="date" value={inputs.start || ''}
+                onChange={e => setInputs({ start: e.target.value })} />
+            </div>
+            <div className="f-group">
+              <label className="f-label">End Date</label>
+              <input className="f-input" type="date" value={inputs.end || ''}
+                onChange={e => setInputs({ end: e.target.value })} />
+            </div>
+          </div>
+
+          <label className="f-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'none', letterSpacing: 0 }}>
+            <input type="checkbox" checked={!!inputs.includeEnd}
+              onChange={e => setInputs({ includeEnd: e.target.checked })} />
+            Include end date (count it as a full day)
+          </label>
+
+          <div className="results">
+            <div className="r-row big"><span className="l">Total Days</span><span className="v">{diff.totalDays}</span></div>
+            <div className="r-row"><span className="l">Weeks</span><span className="v">{diff.weeks} wk {diff.remDays} d</span></div>
+            <div className="r-row"><span className="l">Y / M / D</span><span className="v">{diff.years} y · {diff.months} m · {diff.days} d</span></div>
+            <div className="r-row"><span className="l">Business Days</span><span className="v">{diff.businessDays}</span></div>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--tx-faint)', margin: '8px 2px 0', lineHeight: 1.4 }}>{betweenExplain}</p>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ====================================================================
 // Equation Card builders
 // ====================================================================
 function buildEquation(tile, global) {
@@ -2785,6 +2979,6 @@ function buildEquation(tile, global) {
 
 Object.assign(window, {
   TILE_SPECS, SLUTile, LWECTile, CCPTile, RateLookupTile, RadiculopathyTile,
-  BurnsTile, SettlementTile, MTGTile,
+  BurnsTile, SettlementTile, MTGTile, DateCalcTile,
   buildEquation, weeksBetween, inclusiveDays, periodWeeks, dayAfter, MUSCLE_WEAKNESS, DESIGNATIONS,
 });

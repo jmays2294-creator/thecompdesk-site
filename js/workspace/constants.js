@@ -195,6 +195,215 @@ const fmtN = (n, d=2) => {
 };
 
 // ============================================================================
+// DATE CALCULATOR HELPERS (shared, timezone-safe) — powers the Date Calculator
+// tile (js/workspace/tiles.js DateCalcTile). Mirrors timeanddate.com's
+// dateadd.html (Add/Subtract) + its duration calculator (Between Dates).
+//
+// TIMEZONE CONTRACT: every Date here is constructed at LOCAL midnight via
+// new Date(y, mIdx, d). We never touch toISOString()/new Date("yyyy-mm-dd")
+// for calendar work — those parse/emit UTC and drift the day west of GMT
+// (the same trap the AWW-strip deadline tool avoids). The existing
+// dayAfter()/inclusiveDays() helpers in tiles.js are UTC-based; we reuse
+// inclusiveDays' inclusive-count *convention* (guarded, with a local
+// fallback so this file is testable standalone) but do all date construction
+// locally.
+// ============================================================================
+
+// "yyyy-mm-dd" from LOCAL parts (never toISOString — that's UTC).
+function toLocalISO(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+// Parse "yyyy-mm-dd" back to a LOCAL-midnight Date (never new Date(str) — UTC).
+function fromLocalISO(s) {
+  const [y, m, d] = String(s).split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+// Normalize any Date to local midnight (drops any time component).
+function _localMidnight(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+// nth (1-based) weekday of a month. weekday: 0=Sun … 6=Sat.
+function _nthWeekdayOfMonth(year, monthIdx, weekday, nth) {
+  const first = new Date(year, monthIdx, 1);
+  const shift = (weekday - first.getDay() + 7) % 7;
+  return new Date(year, monthIdx, 1 + shift + (nth - 1) * 7);
+}
+// Last given weekday of a month (e.g. last Monday in May).
+function _lastWeekdayOfMonth(year, monthIdx, weekday) {
+  const last = new Date(year, monthIdx + 1, 0); // day 0 of next month = last of this
+  const shift = (last.getDay() - weekday + 7) % 7;
+  return new Date(year, monthIdx, last.getDate() - shift);
+}
+// General Election Day = first Tuesday AFTER the first Monday in November.
+function _electionDay(year) {
+  const firstMon = _nthWeekdayOfMonth(year, 10, 1, 1);
+  return new Date(year, 10, firstMon.getDate() + 1);
+}
+// Weekend→observed shift for FIXED-date holidays: Sat→Fri, Sun→Mon.
+function _observedShift(d) {
+  const wd = d.getDay();
+  if (wd === 6) return new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1);
+  if (wd === 0) return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+  return d;
+}
+
+// NY State public-holiday DEFINITIONS (General Construction Law §24 set that
+// the WCB observes). Fixed dates get the weekend→observed shift; floating ones
+// (Monday/Thursday/Tuesday rules) never need shifting. Materialized per-year by
+// nyObservedHolidaySet() below.
+// TODO(Joel): confirm WCB observed-holiday set
+const NY_OBSERVED_HOLIDAYS = [
+  { name: "New Year's Day",            type: 'fixed',        month: 1,  day: 1 },
+  { name: 'Martin Luther King Jr. Day',type: 'nth-weekday',  month: 1,  weekday: 1, nth: 3 },
+  { name: "Lincoln's Birthday",        type: 'fixed',        month: 2,  day: 12 },
+  { name: "Washington's Birthday",     type: 'nth-weekday',  month: 2,  weekday: 1, nth: 3 },
+  { name: 'Memorial Day',              type: 'last-weekday', month: 5,  weekday: 1 },
+  { name: 'Juneteenth',                type: 'fixed',        month: 6,  day: 19 },
+  { name: 'Independence Day',          type: 'fixed',        month: 7,  day: 4 },
+  { name: 'Labor Day',                 type: 'nth-weekday',  month: 9,  weekday: 1, nth: 1 },
+  { name: 'Columbus Day',              type: 'nth-weekday',  month: 10, weekday: 1, nth: 2 },
+  { name: 'Election Day',              type: 'election',     month: 11 },
+  { name: 'Veterans Day',              type: 'fixed',        month: 11, day: 11 },
+  { name: 'Thanksgiving Day',          type: 'nth-weekday',  month: 11, weekday: 4, nth: 4 },
+  { name: 'Christmas Day',             type: 'fixed',        month: 12, day: 25 },
+];
+
+const _nyHolidayCache = {};
+// Set of observed-holiday "yyyy-mm-dd" strings for a given calendar year.
+function nyObservedHolidaySet(year) {
+  if (_nyHolidayCache[year]) return _nyHolidayCache[year];
+  const set = new Set();
+  for (const h of NY_OBSERVED_HOLIDAYS) {
+    let dt = null;
+    if (h.type === 'fixed')             dt = _observedShift(new Date(year, h.month - 1, h.day));
+    else if (h.type === 'nth-weekday')  dt = _nthWeekdayOfMonth(year, h.month - 1, h.weekday, h.nth);
+    else if (h.type === 'last-weekday') dt = _lastWeekdayOfMonth(year, h.month - 1, h.weekday);
+    else if (h.type === 'election')     dt = _electionDay(year);
+    if (dt) set.add(toLocalISO(dt));
+  }
+  _nyHolidayCache[year] = set;
+  return set;
+}
+
+// A business day = Mon–Fri that is not an observed NY holiday.
+function isBusinessDay(date) {
+  const d = _localMidnight(date);
+  const wd = d.getDay();
+  if (wd === 0 || wd === 6) return false;
+  return !nyObservedHolidaySet(d.getFullYear()).has(toLocalISO(d));
+}
+// Roll FORWARD to the next business day (returns the date unchanged if it is
+// already a business day). Skips weekends AND NY holidays.
+function rollToNextBusinessDay(date) {
+  let d = _localMidnight(date);
+  let guard = 0;
+  while (!isBusinessDay(d) && guard++ < 3660) {
+    d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+  }
+  return d;
+}
+// Step |n| business days from a date in the direction of sign(n).
+function _stepBusinessDays(date, n) {
+  let d = _localMidnight(date);
+  const dir = n < 0 ? -1 : 1;
+  let remaining = Math.abs(n);
+  let guard = 0;
+  while (remaining > 0 && guard++ < 100000) {
+    d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + dir);
+    if (isBusinessDay(d)) remaining--;
+  }
+  return d;
+}
+
+// Build a local-midnight Date for (year, monthIdx) with `day` clamped to that
+// month's last valid day. new Date(2026, 1, 31) would roll into March; this
+// pins it to Feb 28. Used for month/year addition so Jan 31 + 1 mo = Feb 28.
+function clampToMonthEnd(year, monthIdx, day) {
+  // Normalize month overflow/underflow into year first.
+  const y = year + Math.floor(monthIdx / 12);
+  const mi = ((monthIdx % 12) + 12) % 12;
+  const lastDay = new Date(y, mi + 1, 0).getDate();
+  return new Date(y, mi, Math.min(day, lastDay));
+}
+
+// Add (or subtract) years/months/weeks/days to a start Date.
+//   parts: { y, m, w, d }
+//   opts:  { sign: +1 | -1, businessDaysOnly: bool }
+// Years+months apply first (with end-of-month clamp); weeks+days then apply as
+// a single day delta — calendar days normally, or business days when
+// businessDaysOnly is set. Returns a local-midnight Date.
+function addYMWD(startDate, parts, opts) {
+  const sign = (opts && opts.sign === -1) ? -1 : 1;
+  const businessDaysOnly = !!(opts && opts.businessDaysOnly);
+  const y = Number(parts && parts.y) || 0;
+  const m = Number(parts && parts.m) || 0;
+  const w = Number(parts && parts.w) || 0;
+  const d = Number(parts && parts.d) || 0;
+  const s = _localMidnight(startDate);
+  // 1) years + months with month-end clamp
+  const targetMonthIdx = s.getMonth() + sign * m;
+  let result = clampToMonthEnd(s.getFullYear() + sign * y, targetMonthIdx, s.getDate());
+  // 2) weeks + days as one delta
+  const dayPortion = sign * (w * 7 + d);
+  if (businessDaysOnly) {
+    result = _stepBusinessDays(result, dayPortion);
+  } else if (dayPortion !== 0) {
+    result = new Date(result.getFullYear(), result.getMonth(), result.getDate() + dayPortion);
+  }
+  return result;
+}
+
+// Calendar years/months/days between two local-midnight dates (end exclusive).
+function _ymdBetween(start, end) {
+  let years = end.getFullYear() - start.getFullYear();
+  let months = end.getMonth() - start.getMonth();
+  let days = end.getDate() - start.getDate();
+  if (days < 0) {
+    months -= 1;
+    const daysInPrevMonth = new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+    days += daysInPrevMonth;
+  }
+  if (months < 0) { years -= 1; months += 12; }
+  return { years, months, days };
+}
+
+// Duration between two dates. includeEnd counts the end date itself (adds one
+// day to the span), matching timeanddate's "include end date" checkbox.
+// Returns { totalDays, weeks, remDays, years, months, days, businessDays }.
+function dateDiffBreakdown(startDate, endDate, opts) {
+  const includeEnd = !!(opts && opts.includeEnd);
+  let s = _localMidnight(startDate);
+  let e = _localMidnight(endDate);
+  if (e < s) { const t = s; s = e; e = t; } // tolerate reversed inputs
+  // Reuse tiles.js inclusiveDays' convention (both endpoints counted) where
+  // present; fall back to a local delta so this helper works standalone.
+  const localInclusive = Math.round((e - s) / 86400000) + 1;
+  const inclusiveCount = (typeof inclusiveDays === 'function')
+    ? inclusiveDays(toLocalISO(s), toLocalISO(e))
+    : localInclusive;
+  const totalDays = Math.max(0, inclusiveCount - (includeEnd ? 0 : 1));
+  const weeks = Math.floor(totalDays / 7);
+  const remDays = totalDays % 7;
+  // y/m/d + business-day count are measured against the same effective span.
+  const effEnd = includeEnd
+    ? new Date(e.getFullYear(), e.getMonth(), e.getDate() + 1)
+    : e;
+  const { years, months, days } = _ymdBetween(s, effEnd);
+  let businessDays = 0;
+  let cur = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+  let guard = 0;
+  while (cur < effEnd && guard++ < 1000000) {
+    if (isBusinessDay(cur)) businessDays++;
+    cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() + 1);
+  }
+  return { totalDays, weeks, remDays, years, months, days, businessDays };
+}
+
+// ============================================================================
 // CASE HYDRATION (May 8, 2026)
 // ============================================================================
 //
@@ -283,6 +492,19 @@ const TILE_INPUT_DEFAULTS = {
     isMVA: false, mvaThreshold: 50000,
   }),
   Settlement:    () => ({ settlement: 0, msa: 0, msaType: 'none', msaMode: 'usd', msaPct: 5 }),
+  DateCalc:      () => {
+    const today = toLocalISO(new Date());
+    return {
+      mode: 'add',            // 'add' (Add/Subtract) | 'between' (Between Dates)
+      direction: 'add',       // 'add' | 'subtract' (Mode A)
+      start: today,           // Mode A start + Mode B start (local ISO)
+      y: 0, m: 0, w: 0, d: 0, // Mode A intervals
+      businessDaysOnly: false, // Mode A — count the day portion in business days
+      roll: false,            // Mode A — roll a non-business-day result forward
+      end: today,             // Mode B end (local ISO)
+      includeEnd: false,      // Mode B — count the end date itself
+    };
+  },
 };
 
 // Per-row defaults inside known nested arrays.
@@ -407,6 +629,9 @@ const _SHARED = _CALC ? {
 Object.assign(window, {
   ..._SHARED,
   applyMinFloor, fmt$, fmtN,
+  // Date Calculator helpers (Date Calculator tile) — see the block above.
+  toLocalISO, fromLocalISO, NY_OBSERVED_HOLIDAYS, nyObservedHolidaySet,
+  isBusinessDay, rollToNextBusinessDay, clampToMonthEnd, addYMWD, dateDiffBreakdown,
   // Hydration contract — see ops/rd/specs/workspace_case_hydration.md
   WORKSPACE_FORMAT_VERSION,
   DEFAULT_AWW_STATE, DEFAULT_TWEAKS,
