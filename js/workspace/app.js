@@ -889,6 +889,8 @@ const PALETTE_ITEMS = [
   { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  short: 'Radic.', desc: 'S11.4 point system + nerve-root caps', pro: true },
   { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   short: 'MTGs',   desc: 'NYS WCB Medical Treatment Guidelines — keyword search w/ citations' },
   { type: 'DateCalc',      name: 'Date Calc',     icon: '📅',   short: '📅',     desc: 'Add/subtract yrs·mo·wks·days · date span' },
+  { type: 'SLURom',        name: 'ROM → SLU',     icon: 'ROM',  short: 'ROM',    desc: 'Range-of-motion → true %SLU · 2018 Guidelines (BETA)', pro: true },
+  { type: 'NonSchedule',   name: 'Non-Schedule',  icon: 'NS',   short: 'NS',     desc: 'Spine / Brain / Psych impairment → Class + Severity (BETA)', pro: true },
 ];
 
 function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
@@ -998,8 +1000,8 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
   const Component = {
     SLU: SLUTile, LWEC: LWECTile, CCP: CCPTile,
     RateLookup: RateLookupTile, Radiculopathy: RadiculopathyTile,
-    Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGTile,
-    DateCalc: DateCalcTile,
+    Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGBrowserTile,
+    DateCalc: DateCalcTile, SLURom: SLURomTile, NonSchedule: NonScheduleTile,
   }[tile.type] || (tile.type && tile.type.indexOf('pub_') === 0 ? window.PublishedTile : undefined);
 
   // Tile Size now scales the actual footprint (cell.w / cell.h come from the

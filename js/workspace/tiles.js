@@ -15,6 +15,10 @@ const TILE_SPECS = {
   Settlement:    { w: 420, h: 360, name: 'Section 32 Settlement' },
   MTG:           { w: 480, h: 620, name: 'Medical Treatment Guidelines' },
   DateCalc:      { w: 480, h: 560, name: 'Date Calculator' },
+  // Fee Calculator 6.1 conversions (BETA) — engines in constants.js, verified
+  // against the NY 2018 Impairment Guidelines (ops/secretary/fee_calc_6.1/).
+  SLURom:        { w: 540, h: 700, name: 'Schedule ROM → SLU', pro: true },
+  NonSchedule:   { w: 540, h: 680, name: 'Non-Schedule Impairment', pro: true },
 };
 
 // Date Calculator helpers, published as globals by constants.js. This is the
@@ -748,6 +752,7 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
             </div>
           )}
         </div>
+        <IMECompare kind="slu" tile={tile} global={global} onUpdate={onUpdate} />
       </div>
     </>
   );
@@ -824,6 +829,7 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
             </div>
           )}
         </div>
+        <IMECompare kind="lwec" tile={tile} global={global} onUpdate={onUpdate} />
       </div>
     </>
   );
@@ -1892,6 +1898,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
             <div className="r-row net r-row-employer"><span className="l">Net to Employer</span><span className="v">{fmt$(computed.netToEmployer)}</span></div>
           )}
         </div>
+        <IMECompare kind="ccp" tile={tile} global={global} onUpdate={onUpdate} />
       </div>
     </>
   );
@@ -2269,6 +2276,7 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
           </div>
         )}
       </div>
+      <S32Scenarios tile={tile} onUpdate={onUpdate} />
     </div>
   );
 }
@@ -2977,8 +2985,588 @@ function buildEquation(tile, global) {
   }
 }
 
+// ====================================================================
+// BETA banner — shown on Fee Calculator 6.1 tiles under review.
+// ====================================================================
+function BetaBanner({ note }) {
+  return (
+    <div style={{display:'flex', alignItems:'center', gap:8, padding:'6px 10px', margin:'0 0 8px',
+      background:'rgba(255,207,92,0.12)', border:'1px solid rgba(255,207,92,0.45)', borderRadius:8,
+      fontSize:11, color:'var(--tx-dim)'}}>
+      <span style={{display:'inline-block', padding:'1px 7px', borderRadius:10, fontSize:10,
+        fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', color:'#1b1b1f',
+        background:'var(--ac-2, #ffcf5c)'}}>Beta</span>
+      <span>{note || 'New calculator under review — please verify results before relying on them, and send feedback.'}</span>
+    </div>
+  );
+}
+
+// ====================================================================
+// Schedule ROM → SLU Tile (BETA) — enter a doctor's range-of-motion
+// findings and read the true %SLU straight off the NY 2018 Impairment
+// Guidelines (band interpolation + combining rules + caps + special
+// considerations, all in window.romToSLU). Also shows the resulting
+// statutory SLU award using the inherited TT rate.
+// ====================================================================
+const ROM_SITE_LIST = [
+  'R Shoulder','L Shoulder','R Elbow','L Elbow','R Wrist','L Wrist','R Thumb','L Thumb',
+  'R 1st Finger (Index)','L 1st Finger (Index)','R 2nd Finger (Middle)','L 2nd Finger (Middle)',
+  'R 3rd Finger (Ring)','L 3rd Finger (Ring)','R 4th Finger (Pinky)','L 4th Finger (Pinky)',
+  'R Hip','L Hip','R Knee','L Knee','R Ankle/Foot','L Ankle/Foot',
+  'R Great Toe','L Great Toe','R 2nd Toe','L 2nd Toe','R 3rd Toe','L 3rd Toe',
+  'R 4th Toe','L 4th Toe','R 5th Toe','L 5th Toe',
+];
+function romSluMember(site) {
+  if (/Shoulder|Elbow/.test(site)) return { member: 'Arm', wks: 312 };
+  if (/Wrist/.test(site))          return { member: 'Hand', wks: 244 };
+  if (/Thumb/.test(site))          return { member: 'Thumb', wks: 75 };
+  if (/1st Finger/.test(site))     return { member: 'Index finger', wks: 46 };
+  if (/2nd Finger/.test(site))     return { member: 'Middle finger', wks: 30 };
+  if (/3rd Finger/.test(site))     return { member: 'Ring finger', wks: 25 };
+  if (/4th Finger/.test(site))     return { member: 'Little finger', wks: 15 };
+  if (/Hip|Knee/.test(site))       return { member: 'Leg', wks: 288 };
+  if (/Ankle|Foot/.test(site))     return { member: 'Foot', wks: 205 };
+  if (/Great Toe/.test(site))      return { member: 'Great toe', wks: 38 };
+  if (/Toe/.test(site))            return { member: 'Other toe', wks: 16 };
+  return { member: '—', wks: 0 };
+}
+function SLURomTile({ tile, global, onUpdate }) {
+  const inputs = tile.inputs || { site: 'R Shoulder', roms: {}, special: 'None' };
+  const tt = global.ttRate;
+  const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+  const setRom = (joint, val) => setInputs({ roms: { ...(inputs.roms || {}), [joint]: val } });
+
+  const result = useMemo(
+    () => window.romToSLU(inputs.site, inputs.roms || {}, inputs.special),
+    [inputs.site, inputs.roms, inputs.special]
+  );
+  const specials = (window.SLU_ROM_SPECIAL || []).filter(s => s.bodyPart === result.key);
+  const mem = romSluMember(inputs.site);
+  const pctHi = result.hi || 0;
+  const awardWks = (pctHi / 100) * mem.wks;
+  const awardGross = awardWks * tt;
+  const isRange = result.lo !== result.hi;
+
+  return (
+    <>
+      <Inherited {...global} />
+      <div className="tile-body">
+        <BetaBanner note="Schedule ROM → SLU (beta). Combining rules, caps & special considerations per the 2018 Guidelines — verify before filing." />
+        <div className="row cols-2">
+          <div className="f-group">
+            <label className="f-label">Injury Site</label>
+            <select className="f-select" value={inputs.site}
+              onChange={e => setInputs({ site: e.target.value, roms: {}, special: 'None' })}>
+              {ROM_SITE_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="f-group">
+            <label className="f-label">Special Consideration</label>
+            <select className="f-select" value={inputs.special || 'None'}
+              onChange={e => setInputs({ special: e.target.value })}>
+              <option value="None">None</option>
+              {specials.filter(s => s.consideration !== 'None').map(s =>
+                <option key={s.consideration} value={s.consideration}>{s.consideration}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div style={{display:'grid', gap:6, marginTop:4}}>
+          <div className="rom-head" style={{display:'grid', gridTemplateColumns:'1.4fr 0.7fr 0.9fr 0.7fr',
+            gap:8, fontSize:10, textTransform:'uppercase', letterSpacing:0.4, color:'var(--tx-faint)'}}>
+            <span>Motion</span><span>Normal</span><span>Doctor ROM°</span><span>% SLU</span>
+          </div>
+          {result.joints.map(j => (
+            <div key={j.joint} style={{display:'grid', gridTemplateColumns:'1.4fr 0.7fr 0.9fr 0.7fr',
+              gap:8, alignItems:'center'}}>
+              <span style={{fontSize:12}}>{j.joint}</span>
+              <span style={{fontSize:12, color:'var(--tx-faint)'}}>{j.normal}°</span>
+              <input className="f-input" type="number" min="0" step="1"
+                value={(inputs.roms && inputs.roms[j.joint] !== undefined) ? inputs.roms[j.joint] : ''}
+                placeholder={j.normal + '°'}
+                onChange={e => setRom(j.joint, e.target.value)} />
+              <span style={{fontFamily:'var(--mono)', fontSize:12, color: j.pct ? 'var(--ac-2)' : 'var(--tx-faint)'}}>
+                {j.pct || '—'}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="results">
+          <div className="r-row big"><span className="l">True Schedule Loss of Use</span>
+            <span className="v">{result.display || '0%'}</span></div>
+          <div className="r-row"><span className="l">SLU Member</span>
+            <span className="v">{mem.member} ({mem.wks} wks)</span></div>
+          <div className="r-row"><span className="l">SLU Weeks {isRange ? '(at high %)' : ''}</span>
+            <span className="v">{fmtN(awardWks, 2)}</span></div>
+          <div className="r-row net"><span className="l">Award @ {fmt$(tt)}/wk</span>
+            <span className="v">{fmt$(awardGross)}</span></div>
+        </div>
+        <p style={{fontSize:11, color:'var(--tx-faint)', margin:'8px 2px 0', lineHeight:1.4}}>
+          Enter this {isRange ? 'range' : 'percentage'} ({result.display || '0%'}) into the SLU tile's “% SLU”
+          field to fold it into a multi-body-part award with §15(3)(w) credits.
+        </p>
+      </div>
+    </>
+  );
+}
+
+// ====================================================================
+// Non-Schedule Impairment Tile (BETA) — Spine (Tables 11.1/11.2 +
+// S11.4-S11.7), Brain (15.1), Psych (17.3). Outputs Class + Severity.
+// Spine reconciled to the app's Radiculopathy scorer (window.nonSchedSpine).
+// ====================================================================
+const NONSCHED_ORD = ['None', 'Minimal', 'Mild', 'Moderate', 'Severe'];
+const BRAIN_DOMAINS = ['Cognition', 'Language', 'Emotion/Behavior', 'Sleep/Alertness', 'Episodic Neuro'];
+const PSYCH_DOMAINS = ['ADL Impact', 'Work Function', 'Social Function', 'Concentration', 'Decompensation'];
+function NSDomainSelect({ label, value, onChange }) {
+  return (
+    <div className="f-group">
+      <label className="f-label">{label}</label>
+      <select className="f-select" value={value || 'None'} onChange={e => onChange(e.target.value)}>
+        {NONSCHED_ORD.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+function NonScheduleTile({ tile, global, onUpdate }) {
+  const inputs = tile.inputs || {
+    mode: 'spine',
+    region: 'lumbar', nerveRoot: 'None', symptoms: true, imaging: false, emg: false,
+    weakness: 5, atrophy: false, sensory: 'Normal', reflex: 'Normal', tension: false,
+    brain: {}, psych: {},
+  };
+  const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+  const mode = inputs.mode || 'spine';
+  const MODES = [{ id: 'spine', label: 'Spine' }, { id: 'brain', label: 'Brain' }, { id: 'psych', label: 'Psych' }];
+
+  const roots = inputs.region === 'lumbar' ? NERVE_CAPS.lumbar : (inputs.region === 'cervical' ? NERVE_CAPS.cervical : []);
+  const spine = useMemo(() => window.nonSchedSpine({
+    region: inputs.region, nerveRoot: inputs.nerveRoot, symptoms: inputs.symptoms,
+    imaging: inputs.imaging, emg: inputs.emg, weakness: Number(inputs.weakness),
+    atrophy: inputs.atrophy, sensory: inputs.sensory, reflex: inputs.reflex, tension: inputs.tension,
+  }), [inputs]);
+  const brain = useMemo(() => window.nonSchedDomains(BRAIN_DOMAINS.map(d => (inputs.brain || {})[d] || 'None')), [inputs.brain]);
+  const psych = useMemo(() => window.nonSchedDomains(PSYCH_DOMAINS.map(d => (inputs.psych || {})[d] || 'None')), [inputs.psych]);
+
+  return (
+    <div className="tile-body">
+      <BetaBanner note="Non-Schedule impairment (beta). Spine reconciled to the Radiculopathy scorer; Brain/Psych per Tables 15.1/17.3 — verify before filing." />
+      <div role="tablist" style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+        {MODES.map(m => (
+          <button key={m.id} type="button" role="tab" aria-selected={mode === m.id}
+            className={'btn tiny ' + (mode === m.id ? 'primary' : '')} style={{ flex: 1 }}
+            onClick={() => setInputs({ mode: m.id })}>{m.label}</button>
+        ))}
+      </div>
+
+      {mode === 'spine' && (
+        <>
+          <div className="row cols-2">
+            <div className="f-group">
+              <label className="f-label">Region</label>
+              <select className="f-select" value={inputs.region} onChange={e => {
+                const region = e.target.value;
+                const list = region === 'lumbar' ? NERVE_CAPS.lumbar : (region === 'cervical' ? NERVE_CAPS.cervical : []);
+                setInputs({ region, nerveRoot: 'None' });
+              }}>
+                <option value="cervical">Cervical</option>
+                <option value="thoracic">Thoracic</option>
+                <option value="lumbar">Lumbar</option>
+              </select>
+            </div>
+            <div className="f-group">
+              <label className="f-label">Nerve Root (optional)</label>
+              <select className="f-select" value={inputs.nerveRoot} onChange={e => setInputs({ nerveRoot: e.target.value })}>
+                <option value="None">None</option>
+                {roots.map(n => <option key={n.v} value={n.v}>{n.label || n.v}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="row cols-2">
+            <div className="f-group">
+              <label className="f-label">Symptoms Present?</label>
+              <select className="f-select" value={inputs.symptoms ? 'yes' : 'no'} onChange={e => setInputs({ symptoms: e.target.value === 'yes' })}>
+                <option value="yes">Yes</option><option value="no">No</option>
+              </select>
+            </div>
+            <div className="f-group">
+              <label className="f-label">Muscle Weakness</label>
+              <select className="f-select" value={inputs.weakness} onChange={e => setInputs({ weakness: Number(e.target.value) })}>
+                {MUSCLE_WEAKNESS.map(m => <option key={m.v} value={m.v}>{m.label}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="row cols-2">
+            <div className="f-group">
+              <label className="f-label">Imaging</label>
+              <select className="f-select" value={inputs.imaging ? 'y' : 'n'} onChange={e => setInputs({ imaging: e.target.value === 'y' })}>
+                <option value="n">Negative (0)</option><option value="y">Positive (16)</option>
+              </select>
+            </div>
+            <div className="f-group">
+              <label className="f-label">EMG</label>
+              <select className="f-select" value={inputs.emg ? 'y' : 'n'} onChange={e => setInputs({ emg: e.target.value === 'y' })}>
+                <option value="n">Negative (0)</option><option value="y">Positive (6)</option>
+              </select>
+            </div>
+          </div>
+          <div className="row cols-2">
+            <div className="f-group">
+              <label className="f-label">Sensory</label>
+              <select className="f-select" value={inputs.sensory} onChange={e => setInputs({ sensory: e.target.value })}>
+                <option value="Normal">Normal (0)</option><option value="Compromised">Compromised (4)</option><option value="Anesthesia">Anesthesia (6)</option>
+              </select>
+            </div>
+            <div className="f-group">
+              <label className="f-label">Reflexes</label>
+              <select className="f-select" value={inputs.reflex} onChange={e => setInputs({ reflex: e.target.value })}>
+                <option value="Normal">Normal (0)</option><option value="Diminished">Diminished (4)</option><option value="Absent">Absent (6)</option>
+              </select>
+            </div>
+          </div>
+          <div className="row cols-2">
+            <div className="f-group">
+              <label className="f-label">Muscle Atrophy</label>
+              <select className="f-select" value={inputs.atrophy ? 'y' : 'n'} onChange={e => setInputs({ atrophy: e.target.value === 'y' })}>
+                <option value="n">Absent (0)</option><option value="y">Present (6)</option>
+              </select>
+            </div>
+            <div className="f-group">
+              <label className="f-label">Tension Signs</label>
+              <select className="f-select" value={inputs.tension ? 'y' : 'n'} onChange={e => setInputs({ tension: e.target.value === 'y' })}>
+                <option value="n">Negative (0)</option><option value="y">Positive (4)</option>
+              </select>
+            </div>
+          </div>
+          <div className="results">
+            <div className="r-row"><span className="l">Total Points</span><span className="v">{spine.total}</span></div>
+            {spine.capMotor !== null && (
+              <div className="r-row"><span className="l">Nerve-root cap</span>
+                <span className="v" style={{fontSize:10}}>motor ≤ {spine.capMotor} · sensory ≤ {spine.capSensory}</span></div>
+            )}
+            <div className="r-row big"><span className="l">Class</span><span className="v">{spine.class}</span></div>
+            <div className="r-row net"><span className="l">Severity Ranking</span><span className="v">{spine.severity}</span></div>
+          </div>
+        </>
+      )}
+
+      {mode === 'brain' && (
+        <>
+          <div className="row cols-2">
+            {BRAIN_DOMAINS.map(d => (
+              <NSDomainSelect key={d} label={d} value={(inputs.brain || {})[d]}
+                onChange={v => setInputs({ brain: { ...(inputs.brain || {}), [d]: v } })} />
+            ))}
+          </div>
+          <div className="results">
+            <div className="r-row big"><span className="l">Class (Table 15.1)</span><span className="v">{brain.class}</span></div>
+            <div className="r-row net"><span className="l">Severity Ranking</span><span className="v">{brain.severity}</span></div>
+          </div>
+        </>
+      )}
+
+      {mode === 'psych' && (
+        <>
+          <div className="row cols-2">
+            {PSYCH_DOMAINS.map(d => (
+              <NSDomainSelect key={d} label={d} value={(inputs.psych || {})[d]}
+                onChange={v => setInputs({ psych: { ...(inputs.psych || {}), [d]: v } })} />
+            ))}
+          </div>
+          <div className="results">
+            <div className="r-row big"><span className="l">Class (Table 17.3)</span><span className="v">{psych.class}</span></div>
+            <div className="r-row net"><span className="l">Severity Ranking</span><span className="v">{psych.severity}</span></div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ====================================================================
+// MTG Browser Tile (rebuilt) — body part → category → treatment
+// drill-down with an APPROVAL panel (what's needed for the treatment to
+// be approved: Indications, Recommended/Not, Pre-Auth, freq/duration,
+// §cite) plus free-text search across the whole guideline set. Data is
+// the 2,199-row treatment dataset from Fee Calculator 6.1, loaded lazily
+// from /data/mtg/treatments.json and cached module-side.
+// ====================================================================
+let _mtgTx = (typeof window !== 'undefined' && window._MTG_TX) || null;
+let _mtgTxPromise = null;
+function loadMtgTreatments() {
+  if (_mtgTx) return Promise.resolve(_mtgTx);
+  if (_mtgTxPromise) return _mtgTxPromise;
+  const paths = ['data/mtg/treatments.json', '/data/mtg/treatments.json', './data/mtg/treatments.json'];
+  _mtgTxPromise = (async () => {
+    for (const p of paths) {
+      try { const r = await fetch(p); if (r.ok) { _mtgTx = await r.json(); if (typeof window !== 'undefined') window._MTG_TX = _mtgTx; return _mtgTx; } } catch (e) {}
+    }
+    throw new Error('MTG treatments dataset not reachable');
+  })();
+  return _mtgTxPromise;
+}
+function mtgStatusStyle(status) {
+  if (status === 'Recommended')      return { color: '#0b6b3a', bg: 'rgba(34,180,110,0.14)', label: 'Recommended' };
+  if (status === 'Not Recommended')  return { color: '#a3341f', bg: 'rgba(220,80,60,0.14)',  label: 'Not Recommended' };
+  return { color: 'var(--tx-dim)', bg: 'rgba(150,150,150,0.14)', label: status || '—' };
+}
+function MTGBrowserTile({ tile, global, onUpdate }) {
+  const inputs = tile.inputs || { query: '', bodyPart: 'All', category: 'All', openKey: null };
+  const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+  const [data, setData] = useState(_mtgTx);
+  const [err, setErr] = useState(false);
+  useEffect(() => {
+    if (data) return;
+    loadMtgTreatments().then(setData).catch(() => setErr(true));
+  }, []);
+
+  const treatments = (data && data.treatments) || [];
+  const bodyParts = (data && data.bodyParts) || [];
+  const categories = (data && data.categories) || [];
+  const q = (inputs.query || '').trim().toLowerCase();
+
+  const filtered = useMemo(() => {
+    let list = treatments;
+    if (inputs.bodyPart && inputs.bodyPart !== 'All') list = list.filter(t => t.bodyPart === inputs.bodyPart);
+    if (inputs.category && inputs.category !== 'All') list = list.filter(t => t.category === inputs.category);
+    if (q) list = list.filter(t =>
+      (t.treatment && t.treatment.toLowerCase().includes(q)) ||
+      (t.indications && t.indications.toLowerCase().includes(q)) ||
+      (t.brief && t.brief.toLowerCase().includes(q)) ||
+      (t.section && t.section.toLowerCase().includes(q)) ||
+      (t.bodyPart && t.bodyPart.toLowerCase().includes(q)));
+    return list;
+  }, [data, inputs.bodyPart, inputs.category, q]);
+
+  const shown = filtered.slice(0, 60);
+  const keyOf = (t, i) => `${t.bodyPart}|${t.category}|${t.treatment}|${i}`;
+
+  return (
+    <div className="tile-body">
+      <BetaBanner note="Rebuilt MTG browser (beta) — drill down to the approval criteria for any treatment; verify against the source guideline." />
+      <div className="f-group">
+        <input className="f-input" type="search" placeholder="Search treatments, criteria, §section…"
+          value={inputs.query || ''} onChange={e => setInputs({ query: e.target.value, openKey: null })} />
+      </div>
+      <div className="row cols-2">
+        <div className="f-group">
+          <label className="f-label">Body Part</label>
+          <select className="f-select" value={inputs.bodyPart || 'All'} onChange={e => setInputs({ bodyPart: e.target.value, openKey: null })}>
+            <option value="All">All body parts</option>
+            {bodyParts.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+        </div>
+        <div className="f-group">
+          <label className="f-label">Category</label>
+          <select className="f-select" value={inputs.category || 'All'} onChange={e => setInputs({ category: e.target.value, openKey: null })}>
+            <option value="All">All categories</option>
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {err && <p style={{ color: 'var(--ac-2)', fontSize: 12 }}>MTG dataset couldn’t load. Check /data/mtg/treatments.json is deployed.</p>}
+      {!data && !err && <p style={{ color: 'var(--tx-faint)', fontSize: 12 }}>Loading guidelines…</p>}
+
+      {data && (
+        <>
+          <div style={{ fontSize: 11, color: 'var(--tx-faint)', margin: '2px 0 6px' }}>
+            {filtered.length} treatment{filtered.length === 1 ? '' : 's'}{filtered.length > 60 ? ' (showing first 60 — narrow your search)' : ''}
+          </div>
+          <div style={{ display: 'grid', gap: 6, maxHeight: 340, overflowY: 'auto' }}>
+            {shown.map((t, i) => {
+              const k = keyOf(t, i);
+              const open = inputs.openKey === k;
+              const st = mtgStatusStyle(t.status);
+              return (
+                <div key={k} style={{ border: '1px solid var(--bd-soft)', borderRadius: 8, overflow: 'hidden' }}>
+                  <button type="button" onClick={() => setInputs({ openKey: open ? null : k })}
+                    style={{ width: '100%', textAlign: 'left', display: 'flex', gap: 8, alignItems: 'center',
+                      padding: '8px 10px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                    <span style={{ flex: 1, fontSize: 12.5, color: 'var(--tx)' }}>{t.treatment}</span>
+                    <span style={{ fontSize: 9.5, fontWeight: 700, padding: '1px 6px', borderRadius: 8,
+                      color: st.color, background: st.bg, whiteSpace: 'nowrap' }}>{st.label}</span>
+                    <span style={{ fontSize: 14, color: 'var(--tx-faint)' }}>{open ? '−' : '+'}</span>
+                  </button>
+                  {open && (
+                    <div style={{ padding: '2px 10px 10px', borderTop: '1px solid var(--bd-soft)', fontSize: 12, lineHeight: 1.5 }}>
+                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '6px 0', color: 'var(--tx-dim)', fontSize: 11 }}>
+                        <span><strong>{t.bodyPart}</strong> · {t.category}</span>
+                        <span>Pre-Auth: <strong>{t.preAuth || '—'}</strong></span>
+                        {t.section && <span>MTG §{t.section}</span>}
+                      </div>
+                      {t.indications && (
+                        <div style={{ margin: '4px 0' }}>
+                          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>What’s needed for approval</div>
+                          <div>{t.indications}</div>
+                        </div>
+                      )}
+                      {(t.frequency || t.duration) && (
+                        <div style={{ display: 'flex', gap: 16, margin: '4px 0', color: 'var(--tx-dim)' }}>
+                          {t.frequency && <span><em>Frequency:</em> {t.frequency}</span>}
+                          {t.duration && <span><em>Duration:</em> {t.duration}</span>}
+                        </div>
+                      )}
+                      {t.brief && <div style={{ color: 'var(--tx-faint)', fontStyle: 'italic', marginTop: 4 }}>{t.brief}</div>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {shown.length === 0 && <p style={{ color: 'var(--tx-faint)', fontSize: 12 }}>No treatments match. Try a different search or filter.</p>}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ====================================================================
+// IME Comparison (BETA) — reusable panel for SLU / LWEC / CCP. Toggle
+// reveals a second opinion field; shows the outcome under the treating
+// opinion, the IME opinion, and their midpoint (average), plus a slider
+// to drag to any negotiation point between the two and watch it update.
+// Stored on tile.inputs.ime so it never disturbs the tile's own inputs.
+// ====================================================================
+function imeFmtPct(v, kind) { return (kind === 'slu' ? Math.round(v) : Math.round(v * 10) / 10) + '%'; }
+function IMECompare({ kind, tile, global, onUpdate }) {
+  const ime = (tile.inputs && tile.inputs.ime) || { on: false, treating: 0, ime: 0, blend: 50, member: 'Leg', weeks: 0 };
+  const set = (next) => onUpdate({ ...tile, inputs: { ...tile.inputs, ime: { ...ime, ...next } } });
+  const tt = global.ttRate, aww = global.aww;
+  const unitLabel = kind === 'slu' ? '% SLU' : kind === 'lwec' ? '% LWEC' : '% of ⅔ AWW';
+  const treating = Number(ime.treating) || 0;
+  const imeVal = Number(ime.ime) || 0;
+  const mid = (treating + imeVal) / 2;
+  const blendVal = treating + (imeVal - treating) * ((Number(ime.blend) || 0) / 100);
+  const memberWks = (SLU_BP.find(b => b.n === ime.member) || SLU_BP[0]).w;
+
+  const outcome = (v) => {
+    if (kind === 'slu') { const wks = (v / 100) * memberWks; return { line: `${fmtN(wks, 1)} wks`, dollars: wks * tt }; }
+    if (kind === 'lwec') {
+      const cr = applyRateBounds(tt * (v / 100), aww, global.minRate, global.maxRate);
+      const br = lwecBracket(v); const life = br.mw === 'Lifetime';
+      return { line: `${fmt$(cr)}/wk · ${life ? 'Lifetime' : br.mw + ' wks'}`, dollars: life ? null : cr * br.mw };
+    }
+    const wr = applyRateBounds((Number(aww) || 0) * (2 / 3) * (v / 100), aww, global.minRate, global.maxRate);
+    const wks = Number(ime.weeks) || 0;
+    return { line: `${fmt$(wr)}/wk${wks ? ` × ${wks} wks` : ''}`, dollars: wks ? wr * wks : null };
+  };
+  const Col = ({ label, v, accent }) => {
+    const o = outcome(v);
+    return (
+      <div style={{ flex: 1, textAlign: 'center', padding: '6px 4px', borderRadius: 8,
+        background: accent ? 'rgba(255,207,92,0.14)' : 'rgba(150,150,150,0.08)' }}>
+        <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>{label}</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--ac-2)' }}>{imeFmtPct(v, kind)}</div>
+        <div style={{ fontSize: 10.5, color: 'var(--tx-dim)' }}>{o.line}</div>
+        <div style={{ fontSize: 12, fontWeight: 600 }}>{o.dollars == null ? 'Lifetime' : fmt$(o.dollars)}</div>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ marginTop: 8, borderTop: '1px dashed var(--bd-soft)', paddingTop: 8 }}>
+      {!ime.on ? (
+        <button type="button" className="btn tiny" onClick={() => set({ on: true })}>+ Compare IME opinion</button>
+      ) : (
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>IME vs Treating — {unitLabel}</span>
+            <button type="button" className="btn tiny" onClick={() => set({ on: false })}>− Hide</button>
+          </div>
+          <div className="row cols-2" style={{ marginTop: 6 }}>
+            <div className="f-group"><label className="f-label">Treating / Claimant {unitLabel}</label>
+              <input className="f-input" type="number" min="0" value={ime.treating} onChange={e => set({ treating: e.target.value })} /></div>
+            <div className="f-group"><label className="f-label">IME {unitLabel}</label>
+              <input className="f-input" type="number" min="0" value={ime.ime} onChange={e => set({ ime: e.target.value })} /></div>
+          </div>
+          {kind === 'slu' && (
+            <div className="f-group"><label className="f-label">SLU Member</label>
+              <select className="f-select" value={ime.member} onChange={e => set({ member: e.target.value })}>
+                {SLU_BP.map(b => <option key={b.n} value={b.n}>{b.n} ({b.w} wks)</option>)}
+              </select></div>
+          )}
+          {kind === 'ccp' && (
+            <div className="f-group" style={{ maxWidth: 220 }}><label className="f-label">Weeks (optional)</label>
+              <input className="f-input" type="number" min="0" value={ime.weeks} onChange={e => set({ weeks: e.target.value })} /></div>
+          )}
+          <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+            <Col label="Treating" v={treating} accent={false} />
+            <Col label="Midpoint" v={mid} accent={true} />
+            <Col label="IME" v={imeVal} accent={false} />
+          </div>
+          <div className="f-group" style={{ marginTop: 8 }}>
+            <label className="f-label">Negotiation point — {imeFmtPct(blendVal, kind)} · {outcome(blendVal).dollars == null ? 'Lifetime' : fmt$(outcome(blendVal).dollars)}</label>
+            <input type="range" min="0" max="100" value={ime.blend} onChange={e => set({ blend: e.target.value })} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--tx-faint)' }}>
+              <span>Treating {imeFmtPct(treating, kind)}</span><span>IME {imeFmtPct(imeVal, kind)}</span>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ====================================================================
+// S32 Scenarios (BETA) — three settlement figures (Conservative / Likely
+// / Aggressive) → net-to-claimant for each, using the tile's current
+// set-aside config. Stored on tile.inputs.scenarios.
+// ====================================================================
+function S32Scenarios({ tile, onUpdate }) {
+  const inputs = tile.inputs || {};
+  const sc = inputs.scenarios || { on: false, low: 0, mid: 0, high: 0 };
+  const set = (next) => onUpdate({ ...tile, inputs: { ...inputs, scenarios: { ...sc, ...next } } });
+  const calc = (v) => window.CD.Calc.computeSettlement({
+    settlement: Number(v) || 0, msa: inputs.msa, msaType: inputs.msaType,
+    msaMode: inputs.msaMode, msaPct: inputs.msaPct, msaOn: inputs.msaOn,
+  });
+  const Col = ({ label, v }) => {
+    const r = calc(v);
+    return (
+      <div style={{ flex: 1, textAlign: 'center', padding: '6px 4px', borderRadius: 8, background: 'rgba(150,150,150,0.08)' }}>
+        <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>{label}</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ac-2)' }}>{fmt$(r.settlement)}</div>
+        <div style={{ fontSize: 10.5, color: 'var(--tx-dim)' }}>fee {fmt$(r.fee)}</div>
+        <div style={{ fontSize: 12, fontWeight: 600 }}>net {fmt$(r.net)}</div>
+      </div>
+    );
+  };
+  return (
+    <div style={{ marginTop: 8, borderTop: '1px dashed var(--bd-soft)', paddingTop: 8 }}>
+      {!sc.on ? (
+        <button type="button" className="btn tiny" onClick={() => set({ on: true })}>+ Compare settlement scenarios</button>
+      ) : (
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>Scenarios — net to claimant (same set-aside)</span>
+            <button type="button" className="btn tiny" onClick={() => set({ on: false })}>− Hide</button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 6 }}>
+            <div className="f-group"><label className="f-label">Conservative</label>
+              <div className="f-input-wrap"><span className="prefix">$</span>
+                <input className="f-input with-prefix" type="number" min="0" value={sc.low} onChange={e => set({ low: e.target.value })} /></div></div>
+            <div className="f-group"><label className="f-label">Likely</label>
+              <div className="f-input-wrap"><span className="prefix">$</span>
+                <input className="f-input with-prefix" type="number" min="0" value={sc.mid} onChange={e => set({ mid: e.target.value })} /></div></div>
+            <div className="f-group"><label className="f-label">Aggressive</label>
+              <div className="f-input-wrap"><span className="prefix">$</span>
+                <input className="f-input with-prefix" type="number" min="0" value={sc.high} onChange={e => set({ high: e.target.value })} /></div></div>
+          </div>
+          <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+            <Col label="Conservative" v={sc.low} />
+            <Col label="Likely" v={sc.mid} />
+            <Col label="Aggressive" v={sc.high} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 Object.assign(window, {
   TILE_SPECS, SLUTile, LWECTile, CCPTile, RateLookupTile, RadiculopathyTile,
-  BurnsTile, SettlementTile, MTGTile, DateCalcTile,
+  BurnsTile, SettlementTile, MTGTile, DateCalcTile, SLURomTile, NonScheduleTile, MTGBrowserTile, IMECompare, S32Scenarios,
   buildEquation, weeksBetween, inclusiveDays, periodWeeks, dayAfter, MUSCLE_WEAKNESS, DESIGNATIONS,
 });
