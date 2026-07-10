@@ -684,7 +684,7 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
   return (
     <>
       <Inherited {...global} />
-      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
+      <div className="tile-body" style={{ width: baseW, boxSizing: 'border-box' }}>
         <div style={{display:'grid', gap:8}}>
           {inputs.rows.map(r => (
             <div className="row cols-slu-bp" key={r.id}>
@@ -811,7 +811,7 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
   return (
     <>
       <Inherited {...global} />
-      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
+      <div className="tile-body" style={{ width: baseW, boxSizing: 'border-box' }}>
         <div className="f-group">
           <label className="f-label">LWEC % — {computed.pct}%</label>
           <input type="range" min="0" max="100" value={inputs.pct}
@@ -1427,7 +1427,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
           </button>
         </div>
       </div>
-      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
+      <div className="tile-body" style={{ width: baseW, boxSizing: 'border-box' }}>
         <div style={{display:'grid', gap:8}}>
           {inputs.periods.map((p, i) => (
             <React.Fragment key={p.id}>
@@ -2246,7 +2246,7 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
   ];
 
   return (
-    <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
+    <div className="tile-body" style={{ width: baseW, boxSizing: 'border-box' }}>
       <div className="f-group">
         <label className="f-label">Settlement Amount</label>
         <div className="f-input-wrap"><span className="prefix">$</span>
@@ -3144,7 +3144,7 @@ function SLURomTile({ tile, global, onUpdate }) {
   return (
     <>
       <Inherited {...global} />
-      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
+      <div className="tile-body" style={{ width: baseW, boxSizing: 'border-box' }}>
         <BetaBanner note="ROM → SLU (beta). Multi-body-part; ROM findings auto-compute each %SLU (2018 Guidelines). Verify before filing." />
         <div style={{ display: 'grid', gap: 10 }}>
           {computedRows.map(({ r, res, mem, wks, gross }) => {
@@ -3686,10 +3686,10 @@ function SplitFlyout({ open, title, unit, endpoints, lo = 0, hi = 100, step = 1,
   const px = (n) => (prefix || '') + n;
   return (
     <div aria-hidden={!open} style={{
-      position: 'absolute', top: 0, left: '100%', marginLeft: 10, width: SPLIT_PANEL_W - 18, height: '100%',
+      position: 'absolute', top: 44, right: 0, bottom: 0, width: SPLIT_PANEL_W - 18, zIndex: 6,
       boxSizing: 'border-box', padding: '10px 10px 14px', overflowY: 'auto',
       borderLeft: '1px solid var(--bd-soft)',
-      background: 'linear-gradient(180deg, rgba(255,207,92,0.06), rgba(255,255,255,0.015))',
+      background: 'linear-gradient(180deg, rgba(255,207,92,0.08), rgba(255,255,255,0.02)), var(--tile)',
       opacity: open ? 1 : 0, transform: open ? 'translateX(0)' : 'translateX(16px)',
       pointerEvents: open ? 'auto' : 'none',
       transition: 'opacity 260ms ease, transform 340ms cubic-bezier(0.2,0.9,0.3,1)',
@@ -3739,9 +3739,9 @@ function ExertionalFlyout({ open, td, ime, mid, onTD, onIME, onMid, onClose }) {
   const midIdx = (typeof mid === 'number') ? mid : auto;
   return (
     <div aria-hidden={!open} style={{
-      position: 'absolute', top: 0, left: '100%', marginLeft: 10, width: SPLIT_PANEL_W - 18, height: '100%',
+      position: 'absolute', top: 44, right: 0, bottom: 0, width: SPLIT_PANEL_W - 18, zIndex: 6,
       boxSizing: 'border-box', padding: '10px 10px 14px', overflowY: 'auto', borderLeft: '1px solid var(--bd-soft)',
-      background: 'linear-gradient(180deg, rgba(255,207,92,0.06), rgba(255,255,255,0.015))',
+      background: 'linear-gradient(180deg, rgba(255,207,92,0.08), rgba(255,255,255,0.02)), var(--tile)',
       opacity: open ? 1 : 0, transform: open ? 'translateX(0)' : 'translateX(16px)', pointerEvents: open ? 'auto' : 'none',
       transition: 'opacity 260ms ease, transform 340ms cubic-bezier(0.2,0.9,0.3,1)',
     }}>
