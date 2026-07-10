@@ -665,7 +665,7 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
   // the row's own %SLU last overrides.
   const baseW = tileBaseW(tile);
   const splitRow = (inputs.rows || []).find(r => r.id === inputs._splitId) || null;
-  const openSplit = (id) => setInputs({ _splitId: id, _expandW: SPLIT_PANEL_W });
+  const openSplit = (id) => setInputs({ _splitId: id, _expandW: 0 });
   const closeSplit = () => setInputs({ _splitId: null, _expandW: 0 });
   const splitTD  = (v) => updateRow(inputs._splitId, { td: v,  pct: (((Number(v) || 0) + (Number(splitRow && splitRow.ime) || 0)) / 2) });
   const splitIME = (v) => updateRow(inputs._splitId, { ime: v, pct: (((Number(splitRow && splitRow.td) || 0) + (Number(v) || 0)) / 2) });
@@ -708,6 +708,11 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
             </div>
           ))}
         </div>
+        <SplitFlyout open={!!inputs._splitId}
+          title={splitRow ? `Split Opinions · ${splitRow.bp} · % SLU` : 'Split Opinions · % SLU'} unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
+          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
+          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+          footNote="Midpoint fills this body part's %SLU; changing an opinion re-centers it. Type the row's %SLU last to override." />
         <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
 
         {/* Prior TT/TR/TP (§15(3)(w)) and PHP sit side-by-side. Both are
@@ -768,11 +773,6 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
             </div>
           )}
         </div>
-        <SplitFlyout open={!!inputs._splitId}
-          title="Split Opinions · % SLU" unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
-          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
-          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
-          footNote="Midpoint fills this body part's %SLU; changing an opinion re-centers it. Type the row's %SLU last to override." />
       </div>
     </>
   );
@@ -793,7 +793,7 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
   const baseW = tileBaseW(tile);
   const exert = inputs.exert || { on: false, td: '', ime: '', mid: null };
   const setExert = (patch) => setInputs({ exert: { ...exert, ...patch } });
-  const openExert = () => setInputs({ exert: { ...exert, on: true }, _expandW: SPLIT_PANEL_W });
+  const openExert = () => setInputs({ exert: { ...exert, on: true }, _expandW: 0 });
   const closeExert = () => setInputs({ exert: { ...exert, on: false }, _expandW: 0 });
   const exTD = (v) => setExert({ td: v, mid: null });
   const exIME = (v) => setExert({ ime: v, mid: null });
@@ -822,6 +822,8 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
         <button type="button" className={'btn tiny' + (exert.on ? ' primary' : '')}
           onClick={() => exert.on ? closeExert() : openExert()} style={{ alignSelf: 'start' }}
           title="Compare treating vs IME exertional capacity">⚖ Split Opinions</button>
+        <ExertionalFlyout open={!!exert.on} td={exert.td} ime={exert.ime} mid={exert.mid}
+          onTD={exTD} onIME={exIME} onMid={exMid} onClose={closeExert} />
         <div className="f-group" style={{maxWidth: 260}}>
           <label className="f-label">Prior TT / TR / TP Weeks (§15(3)(w))</label>
           <input className="f-input" type="number" min="0" step="0.5" value={inputs.priorTTRWks || 0}
@@ -863,8 +865,6 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
             </div>
           )}
         </div>
-        <ExertionalFlyout open={!!exert.on} td={exert.td} ime={exert.ime} mid={exert.mid}
-          onTD={exTD} onIME={exIME} onMid={exMid} onClose={closeExert} />
       </div>
     </>
   );
@@ -1125,7 +1125,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
   // typing the period's own Rate % last overrides.
   const baseW = tileBaseW(tile);
   const splitPeriod = (inputs.periods || []).find(p => p.id === inputs._splitId) || null;
-  const openSplit = (id) => setInputs({ _splitId: id, _expandW: SPLIT_PANEL_W });
+  const openSplit = (id) => setInputs({ _splitId: id, _expandW: 0 });
   const closeSplit = () => setInputs({ _splitId: null, _expandW: 0 });
   const splitTD  = (v) => updatePeriod(inputs._splitId, { rateMode: 'pct', td: v,  ratePct: (((Number(v) || 0) + (Number(splitPeriod && splitPeriod.ime) || 0)) / 2) });
   const splitIME = (v) => updatePeriod(inputs._splitId, { rateMode: 'pct', ime: v, ratePct: (((Number(splitPeriod && splitPeriod.td) || 0) + (Number(v) || 0)) / 2) });
@@ -1760,6 +1760,11 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
           ))}
         </div>
         <button className="btn tiny" onClick={addPeriod}>+ Add Period</button>
+        <SplitFlyout open={!!inputs._splitId}
+          title="Split Opinions · Degree of Disability" unit="%" endpoints={['0% (no disability)', '100% (TT)']} lo={0} hi={100}
+          treating={splitPeriod ? (splitPeriod.td ?? '') : ''} ime={splitPeriod ? (splitPeriod.ime ?? '') : ''} value={splitPeriod ? splitPeriod.ratePct : ''}
+          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+          footNote="Applies to this TR/TP period's Rate % (degree of disability). Rate = degree × ⅔ AWW (bounded). Type the period's Rate % last to override." />
 
         <div className="row ccp-builder-fields">
           <div className="f-group">
@@ -1951,11 +1956,6 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
             <div className="r-row net r-row-employer"><span className="l">Net to Employer</span><span className="v">{fmt$(computed.netToEmployer)}</span></div>
           )}
         </div>
-        <SplitFlyout open={!!inputs._splitId}
-          title="Split Opinions · Degree of Disability" unit="%" endpoints={['0% (no disability)', '100% (TT)']} lo={0} hi={100}
-          treating={splitPeriod ? (splitPeriod.td ?? '') : ''} ime={splitPeriod ? (splitPeriod.ime ?? '') : ''} value={splitPeriod ? splitPeriod.ratePct : ''}
-          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
-          footNote="Applies to this TR/TP period's Rate % (degree of disability). Rate = degree × ⅔ AWW (bounded). Type the period's Rate % last to override." />
       </div>
     </>
   );
@@ -2217,7 +2217,7 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
   // the Settlement Amount (last-write-wins; typing the field above overrides).
   const baseW = tileBaseW(tile);
   const neg = inputs.neg || { on: false, demand: 0, offer: 0 };
-  const openNeg = () => setInputs({ neg: { ...neg, on: true }, _expandW: SPLIT_PANEL_W });
+  const openNeg = () => setInputs({ neg: { ...neg, on: true }, _expandW: 0 });
   const closeNeg = () => setInputs({ neg: { ...neg, on: false }, _expandW: 0 });
   const negDemand = (v) => setInputs({ neg: { ...neg, demand: v }, settlement: (((Number(v) || 0) + (Number(neg.offer) || 0)) / 2) });
   const negOffer  = (v) => setInputs({ neg: { ...neg, offer: v },  settlement: (((Number(neg.demand) || 0) + (Number(v) || 0)) / 2) });
@@ -2256,6 +2256,13 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
       <button type="button" className={'btn tiny' + (neg.on ? ' primary' : '')}
         onClick={() => neg.on ? closeNeg() : openNeg()} style={{ alignSelf: 'start' }}
         title="Compare claimant demand vs carrier offer">⚖ Carrier Negotiation</button>
+      <SplitFlyout open={!!neg.on} prefix="$" tdLabel="Claimant Demand" imeLabel="Carrier Offer"
+        title="Carrier Negotiation" unit="settlement" step={100}
+        endpoints={[fmt$(Math.min(Number(neg.offer) || 0, Number(neg.demand) || 0)), fmt$(Math.max(Number(neg.offer) || 0, Number(neg.demand) || 0))]}
+        lo={Math.min(Number(neg.offer) || 0, Number(neg.demand) || 0)} hi={Math.max(Number(neg.offer) || 0, Number(neg.demand) || 0)}
+        treating={neg.demand} ime={neg.offer} value={inputs.settlement}
+        onTreating={negDemand} onIme={negOffer} onValue={negVal} onClose={closeNeg}
+        footNote="Midpoint fills the Settlement Amount; edit it here or in the field above (last-write-wins)." />
 
       {/* Set-aside type — three-way segmented selector. */}
       <div className="msa-type-row">
@@ -2346,13 +2353,6 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
           </div>
         )}
       </div>
-      <SplitFlyout open={!!neg.on} prefix="$" tdLabel="Claimant Demand" imeLabel="Carrier Offer"
-        title="Carrier Negotiation" unit="settlement" step={100}
-        endpoints={[fmt$(Math.min(Number(neg.offer) || 0, Number(neg.demand) || 0)), fmt$(Math.max(Number(neg.offer) || 0, Number(neg.demand) || 0))]}
-        lo={Math.min(Number(neg.offer) || 0, Number(neg.demand) || 0)} hi={Math.max(Number(neg.offer) || 0, Number(neg.demand) || 0)}
-        treating={neg.demand} ime={neg.offer} value={inputs.settlement}
-        onTreating={negDemand} onIme={negOffer} onValue={negVal} onClose={closeNeg}
-        footNote="Midpoint fills the Settlement Amount; edit it here or in the field above (last-write-wins)." />
     </div>
   );
 }
@@ -3135,7 +3135,7 @@ function SLURomTile({ tile, global, onUpdate }) {
 
   // Per-row Split Opinions — midpoint of TD vs IME %SLU fills that row's applied %.
   const splitRow = rows.find(r => r.id === inputs._splitId) || null;
-  const openSplit = (id) => setInputs({ _splitId: id, _expandW: SPLIT_PANEL_W });
+  const openSplit = (id) => setInputs({ _splitId: id, _expandW: 0 });
   const closeSplit = () => setInputs({ _splitId: null, _expandW: 0 });
   const splitTD  = (v) => updateRow(inputs._splitId, { td: v,  pct: (((Number(v) || 0) + (Number(splitRow && splitRow.ime) || 0)) / 2) });
   const splitIME = (v) => updateRow(inputs._splitId, { ime: v, pct: (((Number(splitRow && splitRow.td) || 0) + (Number(v) || 0)) / 2) });
@@ -3199,15 +3199,15 @@ function SLURomTile({ tile, global, onUpdate }) {
           })}
         </div>
         <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
+        <SplitFlyout open={!!inputs._splitId}
+          title={splitRow ? `Split Opinions · ${splitRow.bp} · % SLU` : 'Split Opinions · % SLU'} unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
+          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
+          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+          footNote="Midpoint fills this body part's applied %SLU. Entering ROM or typing the field re-sets it (last-write-wins)." />
         <div className="results">
           <div className="r-row big"><span className="l">Total SLU Award</span><span className="v">{fmt$(totalGross)}</span></div>
           <div className="r-row"><span className="l">@ {fmt$(tt)}/wk</span><span className="v" style={{ fontSize: 10 }}>{computedRows.length} body part{computedRows.length === 1 ? '' : 's'} · run the SLU tile for §15(3)(w) credit</span></div>
         </div>
-        <SplitFlyout open={!!inputs._splitId}
-          title="Split Opinions · % SLU" unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
-          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
-          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
-          footNote="Midpoint fills this body part's applied %SLU. Entering ROM or typing the field re-sets it (last-write-wins)." />
       </div>
     </>
   );
@@ -3414,7 +3414,7 @@ function mtgStatusStyle(status) {
   return { color: 'var(--tx-dim)', bg: 'rgba(150,150,150,0.14)', label: status || '—' };
 }
 function MTGBrowserTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { query: '', bodyPart: 'All', category: 'All', openKey: null };
+  const inputs = tile.inputs || { query: '', bodyPart: 'All', category: 'All', selKey: null };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
   const [data, setData] = useState(_mtgTx);
   const [err, setErr] = useState(false);
@@ -3427,12 +3427,14 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
   const bodyParts = (data && data.bodyParts) || [];
   const categories = (data && data.categories) || [];
   const q = (inputs.query || '').trim().toLowerCase();
+  // Global-index key so a selection survives filter/search changes.
+  const keyOf = (t, gi) => `${t.bodyPart}|${t.category}|${t.treatment}|${gi}`;
 
   const filtered = useMemo(() => {
-    let list = treatments;
-    if (inputs.bodyPart && inputs.bodyPart !== 'All') list = list.filter(t => t.bodyPart === inputs.bodyPart);
-    if (inputs.category && inputs.category !== 'All') list = list.filter(t => t.category === inputs.category);
-    if (q) list = list.filter(t =>
+    let list = treatments.map((t, gi) => ({ t, gi }));
+    if (inputs.bodyPart && inputs.bodyPart !== 'All') list = list.filter(x => x.t.bodyPart === inputs.bodyPart);
+    if (inputs.category && inputs.category !== 'All') list = list.filter(x => x.t.category === inputs.category);
+    if (q) list = list.filter(({ t }) =>
       (t.treatment && t.treatment.toLowerCase().includes(q)) ||
       (t.indications && t.indications.toLowerCase().includes(q)) ||
       (t.brief && t.brief.toLowerCase().includes(q)) ||
@@ -3441,27 +3443,27 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
     return list;
   }, [data, inputs.bodyPart, inputs.category, q]);
 
-  const shown = filtered.slice(0, 60);
-  const keyOf = (t, i) => `${t.bodyPart}|${t.category}|${t.treatment}|${i}`;
+  const shown = filtered.slice(0, 200);
+  const sel = filtered.find(({ t, gi }) => keyOf(t, gi) === inputs.selKey) || null;
 
   return (
     <div className="tile-body">
-      <BetaBanner note="Rebuilt MTG browser (beta) — drill down to the approval criteria for any treatment; verify against the source guideline." />
+      <BetaBanner note="MTG browser (beta) — pick a treatment to read its approval criteria + citation; verify against the source guideline before relying on it." />
       <div className="f-group">
         <input className="f-input" type="search" placeholder="Search treatments, criteria, §section…"
-          value={inputs.query || ''} onChange={e => setInputs({ query: e.target.value, openKey: null })} />
+          value={inputs.query || ''} onChange={e => setInputs({ query: e.target.value })} />
       </div>
       <div className="row cols-2">
-        <div className="f-group">
+        <div className="f-group" style={{ minWidth: 0 }}>
           <label className="f-label">Body Part</label>
-          <select className="f-select" value={inputs.bodyPart || 'All'} onChange={e => setInputs({ bodyPart: e.target.value, openKey: null })}>
+          <select className="f-select" value={inputs.bodyPart || 'All'} onChange={e => setInputs({ bodyPart: e.target.value, selKey: null })}>
             <option value="All">All body parts</option>
             {bodyParts.map(b => <option key={b} value={b}>{b}</option>)}
           </select>
         </div>
-        <div className="f-group">
+        <div className="f-group" style={{ minWidth: 0 }}>
           <label className="f-label">Category</label>
-          <select className="f-select" value={inputs.category || 'All'} onChange={e => setInputs({ category: e.target.value, openKey: null })}>
+          <select className="f-select" value={inputs.category || 'All'} onChange={e => setInputs({ category: e.target.value, selKey: null })}>
             <option value="All">All categories</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -3473,50 +3475,76 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
 
       {data && (
         <>
-          <div style={{ fontSize: 11, color: 'var(--tx-faint)', margin: '2px 0 6px' }}>
-            {filtered.length} treatment{filtered.length === 1 ? '' : 's'}{filtered.length > 60 ? ' (showing first 60 — narrow your search)' : ''}
+          <div style={{ fontSize: 11, color: 'var(--tx-faint)', margin: '2px 0 4px' }}>
+            {filtered.length} treatment{filtered.length === 1 ? '' : 's'}{filtered.length > 200 ? ' (showing first 200 — narrow your search)' : ''}
           </div>
-          <div style={{ display: 'grid', gap: 6, maxHeight: 340, overflowY: 'auto' }}>
-            {shown.map((t, i) => {
-              const k = keyOf(t, i);
-              const open = inputs.openKey === k;
+
+          {/* Master list — names wrap fully; category/§ subtitle disambiguates duplicates */}
+          <div style={{ display: 'grid', gap: 4, maxHeight: 220, overflowY: 'auto', paddingRight: 2 }}>
+            {shown.map(({ t, gi }) => {
+              const k = keyOf(t, gi);
+              const active = inputs.selKey === k;
               const st = mtgStatusStyle(t.status);
               return (
-                <div key={k} style={{ border: '1px solid var(--bd-soft)', borderRadius: 8, overflow: 'hidden' }}>
-                  <button type="button" onClick={() => setInputs({ openKey: open ? null : k })}
-                    style={{ width: '100%', textAlign: 'left', display: 'flex', gap: 8, alignItems: 'center',
-                      padding: '8px 10px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                    <span style={{ flex: 1, fontSize: 12.5, color: 'var(--tx)' }}>{t.treatment}</span>
-                    <span style={{ fontSize: 9.5, fontWeight: 700, padding: '1px 6px', borderRadius: 8,
-                      color: st.color, background: st.bg, whiteSpace: 'nowrap' }}>{st.label}</span>
-                    <span style={{ fontSize: 14, color: 'var(--tx-faint)' }}>{open ? '−' : '+'}</span>
-                  </button>
-                  {open && (
-                    <div style={{ padding: '2px 10px 10px', borderTop: '1px solid var(--bd-soft)', fontSize: 12, lineHeight: 1.5 }}>
-                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '6px 0', color: 'var(--tx-dim)', fontSize: 11 }}>
-                        <span><strong>{t.bodyPart}</strong> · {t.category}</span>
-                        <span>Pre-Auth: <strong>{t.preAuth || '—'}</strong></span>
-                        {t.section && <span>MTG §{t.section}</span>}
-                      </div>
-                      {t.indications && (
-                        <div style={{ margin: '4px 0' }}>
-                          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>What’s needed for approval</div>
-                          <div>{t.indications}</div>
-                        </div>
-                      )}
-                      {(t.frequency || t.duration) && (
-                        <div style={{ display: 'flex', gap: 16, margin: '4px 0', color: 'var(--tx-dim)' }}>
-                          {t.frequency && <span><em>Frequency:</em> {t.frequency}</span>}
-                          {t.duration && <span><em>Duration:</em> {t.duration}</span>}
-                        </div>
-                      )}
-                      {t.brief && <div style={{ color: 'var(--tx-faint)', fontStyle: 'italic', marginTop: 4 }}>{t.brief}</div>}
-                    </div>
-                  )}
-                </div>
+                <button key={k} type="button" onClick={() => setInputs({ selKey: active ? null : k })}
+                  style={{ width: '100%', textAlign: 'left', display: 'flex', gap: 8, alignItems: 'flex-start',
+                    padding: '7px 9px', borderRadius: 8, cursor: 'pointer',
+                    border: active ? '1px solid var(--ac)' : '1px solid var(--bd-soft)',
+                    background: active ? 'var(--ac-soft)' : 'transparent' }}>
+                  <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: 'var(--tx)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>
+                    {t.treatment}
+                    <span style={{ display: 'block', fontSize: 10, color: 'var(--tx-faint)', marginTop: 1 }}>
+                      {t.category}{t.section ? ` · §${t.section}` : ''}
+                    </span>
+                  </span>
+                  <span style={{ flexShrink: 0, fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 8,
+                    color: st.color, background: st.bg, whiteSpace: 'nowrap' }}>{st.label}</span>
+                </button>
               );
             })}
             {shown.length === 0 && <p style={{ color: 'var(--tx-faint)', fontSize: 12 }}>No treatments match. Try a different search or filter.</p>}
+          </div>
+
+          {/* Detail pane — full criteria + citation for the selected treatment */}
+          <div style={{ marginTop: 8, borderTop: '1px solid var(--bd-soft)', paddingTop: 10 }}>
+            {!sel ? (
+              <p style={{ color: 'var(--tx-faint)', fontSize: 12, fontStyle: 'italic', margin: 0 }}>
+                Select a treatment above to see its approval criteria and citation.
+              </p>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--tx)', lineHeight: 1.3, overflowWrap: 'anywhere' }}>{sel.t.treatment}</span>
+                  <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 8,
+                    color: mtgStatusStyle(sel.t.status).color, background: mtgStatusStyle(sel.t.status).bg, whiteSpace: 'nowrap' }}>{mtgStatusStyle(sel.t.status).label}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '6px 0 8px', color: 'var(--tx-dim)', fontSize: 11 }}>
+                  <span><strong>{sel.t.bodyPart}</strong> · {sel.t.category}</span>
+                  <span>Pre-Auth: <strong>{sel.t.preAuth || '—'}</strong></span>
+                  {sel.t.section && <span>MTG §{sel.t.section}</span>}
+                </div>
+                {sel.t.indications ? (
+                  <div style={{ margin: '6px 0' }}>
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>What’s needed for approval</div>
+                    <div style={{ fontSize: 12.5, lineHeight: 1.5, overflowWrap: 'anywhere' }}>{sel.t.indications}</div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 11.5, color: 'var(--tx-faint)', fontStyle: 'italic', margin: '6px 0' }}>
+                    No approval-criteria detail recorded for this entry — verify against the source MTG.
+                  </div>
+                )}
+                {(sel.t.frequency || sel.t.duration) && (
+                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', margin: '6px 0', color: 'var(--tx-dim)', fontSize: 12 }}>
+                    {sel.t.frequency && <span><em>Frequency:</em> {sel.t.frequency}</span>}
+                    {sel.t.duration && <span><em>Duration:</em> {sel.t.duration}</span>}
+                  </div>
+                )}
+                {sel.t.brief && <div style={{ color: 'var(--tx-faint)', fontStyle: 'italic', marginTop: 6, fontSize: 12 }}>{sel.t.brief}</div>}
+                <div style={{ fontSize: 10, color: 'var(--tx-faint)', marginTop: 8, lineHeight: 1.4 }}>
+                  Source: NYS WCB Medical Treatment Guidelines{sel.t.section ? ` — ${sel.t.section}` : ''}. Confirm against the current published guideline.
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -3681,18 +3709,15 @@ function tileBaseW(tile) {
   return (s && s.w) || 480;
 }
 function SplitFlyout({ open, title, unit, endpoints, lo = 0, hi = 100, step = 1, prefix, treating, ime, value, onTreating, onIme, onValue, onClose, footNote, tdLabel = 'Treating Dr', imeLabel = 'IME' }) {
+  if (!open) return null;
   const t = Number(treating) || 0, i = Number(ime) || 0;
   const mid = Math.round(((t + i) / 2) * 100) / 100;
   const px = (n) => (prefix || '') + n;
   return (
-    <div aria-hidden={!open} style={{
-      position: 'absolute', top: 44, right: 0, bottom: 0, width: SPLIT_PANEL_W - 18, zIndex: 6,
-      boxSizing: 'border-box', padding: '10px 10px 14px', overflowY: 'auto',
-      borderLeft: '1px solid var(--bd-soft)',
-      background: 'linear-gradient(180deg, rgba(255,207,92,0.08), rgba(255,255,255,0.02)), var(--tile)',
-      opacity: open ? 1 : 0, transform: open ? 'translateX(0)' : 'translateX(16px)',
-      pointerEvents: open ? 'auto' : 'none',
-      transition: 'opacity 260ms ease, transform 340ms cubic-bezier(0.2,0.9,0.3,1)',
+    <div className="split-inline" style={{
+      marginTop: 8, padding: '10px 12px 14px', borderRadius: 10, boxSizing: 'border-box', width: '100%',
+      border: '1px solid var(--bd-soft)',
+      background: 'linear-gradient(180deg, rgba(255,207,92,0.10), rgba(255,255,255,0.02)), var(--tile)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--ac-2)' }}>{title}</span>
@@ -3737,13 +3762,12 @@ function ExertionalFlyout({ open, td, ime, mid, onTD, onIME, onMid, onClose }) {
   const ti = EXERTION_LEVELS.indexOf(td), ii = EXERTION_LEVELS.indexOf(ime);
   const auto = (ti >= 0 && ii >= 0) ? Math.round((ti + ii) / 2) : (ti >= 0 ? ti : (ii >= 0 ? ii : 2));
   const midIdx = (typeof mid === 'number') ? mid : auto;
+  if (!open) return null;
   return (
-    <div aria-hidden={!open} style={{
-      position: 'absolute', top: 44, right: 0, bottom: 0, width: SPLIT_PANEL_W - 18, zIndex: 6,
-      boxSizing: 'border-box', padding: '10px 10px 14px', overflowY: 'auto', borderLeft: '1px solid var(--bd-soft)',
-      background: 'linear-gradient(180deg, rgba(255,207,92,0.08), rgba(255,255,255,0.02)), var(--tile)',
-      opacity: open ? 1 : 0, transform: open ? 'translateX(0)' : 'translateX(16px)', pointerEvents: open ? 'auto' : 'none',
-      transition: 'opacity 260ms ease, transform 340ms cubic-bezier(0.2,0.9,0.3,1)',
+    <div className="split-inline" style={{
+      marginTop: 8, padding: '10px 12px 14px', borderRadius: 10, boxSizing: 'border-box', width: '100%',
+      border: '1px solid var(--bd-soft)',
+      background: 'linear-gradient(180deg, rgba(255,207,92,0.10), rgba(255,255,255,0.02)), var(--tile)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--ac-2)' }}>Split · Exertional Capacity</span>
