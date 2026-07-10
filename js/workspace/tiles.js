@@ -687,7 +687,8 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
       <div className="tile-body" style={{ width: baseW, boxSizing: 'border-box' }}>
         <div style={{display:'grid', gap:8}}>
           {inputs.rows.map(r => (
-            <div className="row cols-slu-bp" key={r.id}>
+            <React.Fragment key={r.id}>
+            <div className="row cols-slu-bp">
               <div className="f-group">
                 <label className="f-label">Body Part</label>
                 <select className="f-select" value={r.bp} onChange={e => updateRow(r.id, { bp: e.target.value })}>
@@ -706,13 +707,16 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
                 <button className="delete-row" onClick={() => removeRow(r.id)} title="Remove">×</button>
               </div>
             </div>
+            {inputs._splitId === r.id && (
+              <SplitFlyout open={true}
+                title={`Split Opinions · ${r.bp} · % SLU`} unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
+                treating={r.td ?? ''} ime={r.ime ?? ''} value={r.pct}
+                onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+                footNote="Midpoint fills this body part's %SLU; changing an opinion re-centers it. Type the row's %SLU last to override." />
+            )}
+            </React.Fragment>
           ))}
         </div>
-        <SplitFlyout open={!!inputs._splitId}
-          title={splitRow ? `Split Opinions · ${splitRow.bp} · % SLU` : 'Split Opinions · % SLU'} unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
-          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
-          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
-          footNote="Midpoint fills this body part's %SLU; changing an opinion re-centers it. Type the row's %SLU last to override." />
         <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
 
         {/* Prior TT/TR/TP (§15(3)(w)) and PHP sit side-by-side. Both are
@@ -1745,6 +1749,13 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                 <button className="delete-row" onClick={() => removePeriod(p.id)}>×</button>
               </div>
             </div>
+            {inputs._splitId === p.id && (
+              <SplitFlyout open={true}
+                title="Split Opinions · Degree of Disability" unit="%" endpoints={['0% (no disability)', '100% (TT)']} lo={0} hi={100}
+                treating={p.td ?? ''} ime={p.ime ?? ''} value={p.ratePct}
+                onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+                footNote="Applies to this TR/TP period's Rate % (degree of disability). Rate = degree × ⅔ AWW (bounded). Type the period's Rate % last to override." />
+            )}
             {i < inputs.periods.length - 1 && (
               <div className="period-insert-row">
                 <button
@@ -1760,11 +1771,6 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
           ))}
         </div>
         <button className="btn tiny" onClick={addPeriod}>+ Add Period</button>
-        <SplitFlyout open={!!inputs._splitId}
-          title="Split Opinions · Degree of Disability" unit="%" endpoints={['0% (no disability)', '100% (TT)']} lo={0} hi={100}
-          treating={splitPeriod ? (splitPeriod.td ?? '') : ''} ime={splitPeriod ? (splitPeriod.ime ?? '') : ''} value={splitPeriod ? splitPeriod.ratePct : ''}
-          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
-          footNote="Applies to this TR/TP period's Rate % (degree of disability). Rate = degree × ⅔ AWW (bounded). Type the period's Rate % last to override." />
 
         <div className="row ccp-builder-fields">
           <div className="f-group">
@@ -3150,7 +3156,8 @@ function SLURomTile({ tile, global, onUpdate }) {
           {computedRows.map(({ r, res, mem, wks, gross }) => {
             const specials = (window.SLU_ROM_SPECIAL || []).filter(s => s.bodyPart === res.key);
             return (
-              <div key={r.id} style={{ border: '1px solid var(--bd-soft)', borderRadius: 8, padding: '8px 10px' }}>
+              <React.Fragment key={r.id}>
+              <div style={{ border: '1px solid var(--bd-soft)', borderRadius: 8, padding: '8px 10px' }}>
                 <div className="row cols-2">
                   <div className="f-group"><label className="f-label">Injury Site</label>
                     <select className="f-select" value={r.site}
@@ -3195,15 +3202,18 @@ function SLURomTile({ tile, global, onUpdate }) {
                   <button className="delete-row" onClick={() => removeRow(r.id)} title="Remove">×</button>
                 </div>
               </div>
+              {inputs._splitId === r.id && (
+                <SplitFlyout open={true}
+                  title={`Split Opinions · ${mem.member} · % SLU`} unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
+                  treating={r.td ?? ''} ime={r.ime ?? ''} value={r.pct}
+                  onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+                  footNote="Midpoint fills this body part's applied %SLU. Entering ROM or typing the field re-sets it (last-write-wins)." />
+              )}
+              </React.Fragment>
             );
           })}
         </div>
         <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
-        <SplitFlyout open={!!inputs._splitId}
-          title={splitRow ? `Split Opinions · ${splitRow.bp} · % SLU` : 'Split Opinions · % SLU'} unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
-          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
-          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
-          footNote="Midpoint fills this body part's applied %SLU. Entering ROM or typing the field re-sets it (last-write-wins)." />
         <div className="results">
           <div className="r-row big"><span className="l">Total SLU Award</span><span className="v">{fmt$(totalGross)}</span></div>
           <div className="r-row"><span className="l">@ {fmt$(tt)}/wk</span><span className="v" style={{ fontSize: 10 }}>{computedRows.length} body part{computedRows.length === 1 ? '' : 's'} · run the SLU tile for §15(3)(w) credit</span></div>
