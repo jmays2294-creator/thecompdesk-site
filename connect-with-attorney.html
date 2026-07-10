@@ -1415,6 +1415,10 @@
           });
           const confirmEl = document.getElementById('confirmScreen');
           confirmEl.style.display = 'block';
+          // GA4 generate_lead — fires ONLY on a real SAVED lead (res.ok && data.ok),
+          // including the soft-fail "no attorney available" path. Truthful conversion
+          // signal for Google Ads; replaces the phantom auto form_submit.
+          try { gtag('event', 'generate_lead', { event_category: 'referral', lead_id: (data.id || undefined), currency: 'USD', value: 0 }); } catch (e) {}
 
           if (data.error_code && SOFT_FAIL_CODES.has(data.error_code)) {
             // Saved but unmatched — switch the copy to the soft-fail message
