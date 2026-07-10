@@ -660,6 +660,17 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
     setInputs({ rows: inputs.rows.filter(r => r.id !== id) });
   };
 
+  // Split Opinions (per body-part row) — horizontal outgrowth. The midpoint of
+  // TD vs IME fills that row's %SLU; changing TD/IME resets to midpoint; typing
+  // the row's own %SLU last overrides.
+  const baseW = tileBaseW(tile);
+  const splitRow = (inputs.rows || []).find(r => r.id === inputs._splitId) || null;
+  const openSplit = (id) => setInputs({ _splitId: id, _expandW: SPLIT_PANEL_W });
+  const closeSplit = () => setInputs({ _splitId: null, _expandW: 0 });
+  const splitTD  = (v) => updateRow(inputs._splitId, { td: v,  pct: (((Number(v) || 0) + (Number(splitRow && splitRow.ime) || 0)) / 2) });
+  const splitIME = (v) => updateRow(inputs._splitId, { ime: v, pct: (((Number(splitRow && splitRow.td) || 0) + (Number(v) || 0)) / 2) });
+  const splitVal = (v) => updateRow(inputs._splitId, { pct: v });
+
   // Single source of truth — shared calc-core (same module the app uses).
   // PHP §15(4-a) multi-part shared healing period + §15(3)(w) credit live there.
   const computed = useMemo(() => window.CD.Calc.computeSLU({
@@ -673,7 +684,7 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
   return (
     <>
       <Inherited {...global} />
-      <div className="tile-body">
+      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
         <div style={{display:'grid', gap:8}}>
           {inputs.rows.map(r => (
             <div className="row cols-slu-bp" key={r.id}>
@@ -688,7 +699,12 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
                 <input className="f-input" type="number" min="0" max="100" value={r.pct}
                   onChange={e => updateRow(r.id, { pct: e.target.value })} />
               </div>
-              <button className="delete-row" onClick={() => removeRow(r.id)} title="Remove">×</button>
+              <div style={{ display: 'flex', gap: 4, alignItems: 'end' }}>
+                <button type="button" className={'btn tiny' + (inputs._splitId === r.id ? ' primary' : '')}
+                  onClick={() => inputs._splitId === r.id ? closeSplit() : openSplit(r.id)}
+                  title="Split treating vs IME opinion" style={{ padding: '2px 7px' }}>⚖</button>
+                <button className="delete-row" onClick={() => removeRow(r.id)} title="Remove">×</button>
+              </div>
             </div>
           ))}
         </div>
@@ -752,7 +768,11 @@ function SLUTile({ tile, global, onUpdate, onFeeApp }) {
             </div>
           )}
         </div>
-        <IMECompare kind="slu" tile={tile} global={global} onUpdate={onUpdate} />
+        <SplitFlyout open={!!inputs._splitId}
+          title="Split Opinions · % SLU" unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
+          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
+          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+          footNote="Midpoint fills this body part's %SLU; changing an opinion re-centers it. Type the row's %SLU last to override." />
       </div>
     </>
   );
@@ -768,6 +788,17 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
 
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
+  // Split Opinions (Exertional) — TD vs IME exertional capacity, midpoint level.
+  // Qualitative aid; does not auto-set the LWEC%.
+  const baseW = tileBaseW(tile);
+  const exert = inputs.exert || { on: false, td: '', ime: '', mid: null };
+  const setExert = (patch) => setInputs({ exert: { ...exert, ...patch } });
+  const openExert = () => setInputs({ exert: { ...exert, on: true }, _expandW: SPLIT_PANEL_W });
+  const closeExert = () => setInputs({ exert: { ...exert, on: false }, _expandW: 0 });
+  const exTD = (v) => setExert({ td: v, mid: null });
+  const exIME = (v) => setExert({ ime: v, mid: null });
+  const exMid = (v) => setExert({ mid: v });
+
   // Single source of truth — shared calc-core. Class rate uses the BOUNDED TT
   // (2/3 AWW capped at max / floored at min) × LWEC%; §15(3)(w) credit (weeks
   // over 130, paid week-for-week at the class rate) handled inside computeLWEC.
@@ -780,7 +811,7 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
   return (
     <>
       <Inherited {...global} />
-      <div className="tile-body">
+      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
         <div className="f-group">
           <label className="f-label">LWEC % — {computed.pct}%</label>
           <input type="range" min="0" max="100" value={inputs.pct}
@@ -788,6 +819,9 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
           <input className="f-input" type="number" min="0" max="100" value={inputs.pct}
             onChange={e => setInputs({ pct: e.target.value })} style={{maxWidth:120}}/>
         </div>
+        <button type="button" className={'btn tiny' + (exert.on ? ' primary' : '')}
+          onClick={() => exert.on ? closeExert() : openExert()} style={{ alignSelf: 'start' }}
+          title="Compare treating vs IME exertional capacity">⚖ Split Opinions</button>
         <div className="f-group" style={{maxWidth: 260}}>
           <label className="f-label">Prior TT / TR / TP Weeks (§15(3)(w))</label>
           <input className="f-input" type="number" min="0" step="0.5" value={inputs.priorTTRWks || 0}
@@ -829,7 +863,8 @@ function LWECTile({ tile, global, onUpdate, onFeeApp }) {
             </div>
           )}
         </div>
-        <IMECompare kind="lwec" tile={tile} global={global} onUpdate={onUpdate} />
+        <ExertionalFlyout open={!!exert.on} td={exert.td} ime={exert.ime} mid={exert.mid}
+          onTD={exTD} onIME={exIME} onMid={exMid} onClose={closeExert} />
       </div>
     </>
   );
@@ -1084,6 +1119,17 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
   const updatePeriod = (id, patch) => {
     setInputs({ periods: inputs.periods.map(p => p.id === id ? { ...p, ...patch } : p) });
   };
+
+  // Split Opinions (per TR/TP period) — degree of disability. Midpoint of TD vs
+  // IME fills the period's Rate % (in % mode); changing an opinion re-centers it;
+  // typing the period's own Rate % last overrides.
+  const baseW = tileBaseW(tile);
+  const splitPeriod = (inputs.periods || []).find(p => p.id === inputs._splitId) || null;
+  const openSplit = (id) => setInputs({ _splitId: id, _expandW: SPLIT_PANEL_W });
+  const closeSplit = () => setInputs({ _splitId: null, _expandW: 0 });
+  const splitTD  = (v) => updatePeriod(inputs._splitId, { rateMode: 'pct', td: v,  ratePct: (((Number(v) || 0) + (Number(splitPeriod && splitPeriod.ime) || 0)) / 2) });
+  const splitIME = (v) => updatePeriod(inputs._splitId, { rateMode: 'pct', ime: v, ratePct: (((Number(splitPeriod && splitPeriod.td) || 0) + (Number(v) || 0)) / 2) });
+  const splitVal = (v) => updatePeriod(inputs._splitId, { rateMode: 'pct', ratePct: v });
   const removePeriod = (id) => {
     setInputs({ periods: inputs.periods.filter(p => p.id !== id) });
   };
@@ -1381,7 +1427,7 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
           </button>
         </div>
       </div>
-      <div className="tile-body">
+      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
         <div style={{display:'grid', gap:8}}>
           {inputs.periods.map((p, i) => (
             <React.Fragment key={p.id}>
@@ -1503,6 +1549,13 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
                   </div>
                 );
               })()}
+              {(p.desg === 'TR' || p.desg === 'TP') && (
+                <button type="button" className={'btn tiny' + (inputs._splitId === p.id ? ' primary' : '')}
+                  onClick={() => inputs._splitId === p.id ? closeSplit() : openSplit(p.id)}
+                  style={{ marginTop: 2 }} title="Split treating vs IME degree of disability">
+                  ⚖ Split Opinions
+                </button>
+              )}
               {/* NCLT (No Compensable Lost Time) and NME (No Medical Evidence)
                   are $0-comp designations by definition — no manual rate
                   input is rendered. The period is documented for the record
@@ -1898,7 +1951,11 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
             <div className="r-row net r-row-employer"><span className="l">Net to Employer</span><span className="v">{fmt$(computed.netToEmployer)}</span></div>
           )}
         </div>
-        <IMECompare kind="ccp" tile={tile} global={global} onUpdate={onUpdate} />
+        <SplitFlyout open={!!inputs._splitId}
+          title="Split Opinions · Degree of Disability" unit="%" endpoints={['0% (no disability)', '100% (TT)']} lo={0} hi={100}
+          treating={splitPeriod ? (splitPeriod.td ?? '') : ''} ime={splitPeriod ? (splitPeriod.ime ?? '') : ''} value={splitPeriod ? splitPeriod.ratePct : ''}
+          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+          footNote="Applies to this TR/TP period's Rate % (degree of disability). Rate = degree × ⅔ AWW (bounded). Type the period's Rate % last to override." />
       </div>
     </>
   );
@@ -2156,6 +2213,16 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
   const inputs = tile.inputs || { settlement: 0, msa: 0, msaType: 'none', msaMode: 'usd', msaPct: 5 };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
 
+  // Carrier negotiation outgrowth — Demand vs Offer → editable midpoint feeds
+  // the Settlement Amount (last-write-wins; typing the field above overrides).
+  const baseW = tileBaseW(tile);
+  const neg = inputs.neg || { on: false, demand: 0, offer: 0 };
+  const openNeg = () => setInputs({ neg: { ...neg, on: true }, _expandW: SPLIT_PANEL_W });
+  const closeNeg = () => setInputs({ neg: { ...neg, on: false }, _expandW: 0 });
+  const negDemand = (v) => setInputs({ neg: { ...neg, demand: v }, settlement: (((Number(v) || 0) + (Number(neg.offer) || 0)) / 2) });
+  const negOffer  = (v) => setInputs({ neg: { ...neg, offer: v },  settlement: (((Number(neg.demand) || 0) + (Number(v) || 0)) / 2) });
+  const negVal    = (v) => setInputs({ settlement: v });
+
   // Mode-switching helper: when the user picks MSA-regular for the first time
   // (no msaMode set yet), default to 'pct' with 5% preset per Joel's spec.
   const onMsaTypeChange = (id) => {
@@ -2179,13 +2246,16 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
   ];
 
   return (
-    <div className="tile-body">
+    <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
       <div className="f-group">
         <label className="f-label">Settlement Amount</label>
         <div className="f-input-wrap"><span className="prefix">$</span>
           <input className="f-input with-prefix" type="number" min="0" value={inputs.settlement}
             onChange={e => setInputs({ settlement: e.target.value })}/></div>
       </div>
+      <button type="button" className={'btn tiny' + (neg.on ? ' primary' : '')}
+        onClick={() => neg.on ? closeNeg() : openNeg()} style={{ alignSelf: 'start' }}
+        title="Compare claimant demand vs carrier offer">⚖ Carrier Negotiation</button>
 
       {/* Set-aside type — three-way segmented selector. */}
       <div className="msa-type-row">
@@ -2276,7 +2346,13 @@ function SettlementTile({ tile, global, onUpdate, onFeeApp }) {
           </div>
         )}
       </div>
-      <S32Scenarios tile={tile} onUpdate={onUpdate} />
+      <SplitFlyout open={!!neg.on} prefix="$" tdLabel="Claimant Demand" imeLabel="Carrier Offer"
+        title="Carrier Negotiation" unit="settlement" step={100}
+        endpoints={[fmt$(Math.min(Number(neg.offer) || 0, Number(neg.demand) || 0)), fmt$(Math.max(Number(neg.offer) || 0, Number(neg.demand) || 0))]}
+        lo={Math.min(Number(neg.offer) || 0, Number(neg.demand) || 0)} hi={Math.max(Number(neg.offer) || 0, Number(neg.demand) || 0)}
+        treating={neg.demand} ime={neg.offer} value={inputs.settlement}
+        onTreating={negDemand} onIme={negOffer} onValue={negVal} onClose={closeNeg}
+        footNote="Midpoint fills the Settlement Amount; edit it here or in the field above (last-write-wins)." />
     </div>
   );
 }
@@ -3030,82 +3106,108 @@ function romSluMember(site) {
   if (/Toe/.test(site))            return { member: 'Other toe', wks: 16 };
   return { member: '—', wks: 0 };
 }
+function sluRomRow(id) { return { id: id || Date.now(), site: 'R Shoulder', roms: {}, special: 'None', pct: 0, td: '', ime: '', romOpen: true }; }
 function SLURomTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || { site: 'R Shoulder', roms: {}, special: 'None' };
   const tt = global.ttRate;
+  // Accept the new multi-row shape; migrate an old single-site save into row 1.
+  const raw = tile.inputs || {};
+  const inputs = raw.rows ? raw : { ...raw, rows: [{ ...sluRomRow(1), site: raw.site || 'R Shoulder', roms: raw.roms || {}, special: raw.special || 'None' }] };
+  const rows = inputs.rows;
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
-  const setRom = (joint, val) => setInputs({ roms: { ...(inputs.roms || {}), [joint]: val } });
+  const updateRow = (id, patch) => setInputs({ rows: rows.map(r => r.id === id ? { ...r, ...patch } : r) });
+  const addRow = () => setInputs({ rows: [...rows, sluRomRow(Date.now())] });
+  const removeRow = (id) => setInputs({ rows: rows.filter(r => r.id !== id) });
+  const setRom = (id, joint, val, site, special) => {
+    const row = rows.find(x => x.id === id);
+    const newRoms = { ...(row.roms || {}), [joint]: val };
+    updateRow(id, { roms: newRoms, pct: window.romToSLU(site, newRoms, special).hi || 0 });
+  };
+  const baseW = tileBaseW(tile);
 
-  const result = useMemo(
-    () => window.romToSLU(inputs.site, inputs.roms || {}, inputs.special),
-    [inputs.site, inputs.roms, inputs.special]
-  );
-  const specials = (window.SLU_ROM_SPECIAL || []).filter(s => s.bodyPart === result.key);
-  const mem = romSluMember(inputs.site);
-  const pctHi = result.hi || 0;
-  const awardWks = (pctHi / 100) * mem.wks;
-  const awardGross = awardWks * tt;
-  const isRange = result.lo !== result.hi;
+  const computedRows = rows.map(r => {
+    const res = window.romToSLU(r.site, r.roms || {}, r.special);
+    const mem = romSluMember(r.site);
+    const pct = Number(r.pct) || 0;
+    const wks = (pct / 100) * mem.wks;
+    return { r, res, mem, pct, wks, gross: wks * tt };
+  });
+  const totalGross = computedRows.reduce((s, c) => s + c.gross, 0);
+
+  // Per-row Split Opinions — midpoint of TD vs IME %SLU fills that row's applied %.
+  const splitRow = rows.find(r => r.id === inputs._splitId) || null;
+  const openSplit = (id) => setInputs({ _splitId: id, _expandW: SPLIT_PANEL_W });
+  const closeSplit = () => setInputs({ _splitId: null, _expandW: 0 });
+  const splitTD  = (v) => updateRow(inputs._splitId, { td: v,  pct: (((Number(v) || 0) + (Number(splitRow && splitRow.ime) || 0)) / 2) });
+  const splitIME = (v) => updateRow(inputs._splitId, { ime: v, pct: (((Number(splitRow && splitRow.td) || 0) + (Number(v) || 0)) / 2) });
+  const splitVal = (v) => updateRow(inputs._splitId, { pct: v });
 
   return (
     <>
       <Inherited {...global} />
-      <div className="tile-body">
-        <BetaBanner note="Schedule ROM → SLU (beta). Combining rules, caps & special considerations per the 2018 Guidelines — verify before filing." />
-        <div className="row cols-2">
-          <div className="f-group">
-            <label className="f-label">Injury Site</label>
-            <select className="f-select" value={inputs.site}
-              onChange={e => setInputs({ site: e.target.value, roms: {}, special: 'None' })}>
-              {ROM_SITE_LIST.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-          <div className="f-group">
-            <label className="f-label">Special Consideration</label>
-            <select className="f-select" value={inputs.special || 'None'}
-              onChange={e => setInputs({ special: e.target.value })}>
-              <option value="None">None</option>
-              {specials.filter(s => s.consideration !== 'None').map(s =>
-                <option key={s.consideration} value={s.consideration}>{s.consideration}</option>)}
-            </select>
-          </div>
+      <div className="tile-body" style={{ position: 'relative', width: baseW, boxSizing: 'border-box' }}>
+        <BetaBanner note="ROM → SLU (beta). Multi-body-part; ROM findings auto-compute each %SLU (2018 Guidelines). Verify before filing." />
+        <div style={{ display: 'grid', gap: 10 }}>
+          {computedRows.map(({ r, res, mem, wks, gross }) => {
+            const specials = (window.SLU_ROM_SPECIAL || []).filter(s => s.bodyPart === res.key);
+            return (
+              <div key={r.id} style={{ border: '1px solid var(--bd-soft)', borderRadius: 8, padding: '8px 10px' }}>
+                <div className="row cols-2">
+                  <div className="f-group"><label className="f-label">Injury Site</label>
+                    <select className="f-select" value={r.site}
+                      onChange={e => updateRow(r.id, { site: e.target.value, roms: {}, special: 'None', pct: 0 })}>
+                      {ROM_SITE_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select></div>
+                  <div className="f-group"><label className="f-label">Special Consideration</label>
+                    <select className="f-select" value={r.special || 'None'}
+                      onChange={e => updateRow(r.id, { special: e.target.value, pct: window.romToSLU(r.site, r.roms || {}, e.target.value).hi || 0 })}>
+                      <option value="None">None</option>
+                      {specials.filter(s => s.consideration !== 'None').map(s => <option key={s.consideration} value={s.consideration}>{s.consideration}</option>)}
+                    </select></div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '4px 0' }}>
+                  <button type="button" className="btn tiny" onClick={() => updateRow(r.id, { romOpen: !r.romOpen })}>
+                    {r.romOpen ? '▾ ROM findings' : '▸ ROM findings'}
+                  </button>
+                  <span style={{ fontSize: 12, color: 'var(--tx-dim)' }}>from ROM: <strong style={{ color: 'var(--ac-2)' }}>{res.display || '0%'}</strong></span>
+                </div>
+                {r.romOpen && (
+                  <div style={{ display: 'grid', gap: 5, marginTop: 2 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.6fr 0.9fr 0.6fr', gap: 6, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, color: 'var(--tx-faint)' }}>
+                      <span>Motion</span><span>Normal</span><span>ROM°</span><span>%SLU</span>
+                    </div>
+                    {res.joints.map(j => (
+                      <div key={j.joint} style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.6fr 0.9fr 0.6fr', gap: 6, alignItems: 'center' }}>
+                        <span style={{ fontSize: 11.5 }}>{j.joint}</span>
+                        <span style={{ fontSize: 11.5, color: 'var(--tx-faint)' }}>{j.normal}°</span>
+                        <input className="f-input" type="number" min="0" step="1"
+                          value={(r.roms && r.roms[j.joint] !== undefined) ? r.roms[j.joint] : ''} placeholder={j.normal + '°'}
+                          onChange={e => setRom(r.id, j.joint, e.target.value, r.site, r.special)} />
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: j.pct ? 'var(--ac-2)' : 'var(--tx-faint)' }}>{j.pct || '—'}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'end', gap: 8, marginTop: 6 }}>
+                  <div className="f-group" style={{ maxWidth: 110 }}><label className="f-label">Applied % SLU</label>
+                    <input className="f-input" type="number" min="0" max="100" value={r.pct} onChange={e => updateRow(r.id, { pct: e.target.value })} /></div>
+                  <span style={{ fontSize: 11.5, color: 'var(--tx-dim)', flex: 1 }}>{mem.member} ({mem.wks} wks) → {fmtN(wks, 1)} wks · <strong>{fmt$(gross)}</strong></span>
+                  <button type="button" className={'btn tiny' + (inputs._splitId === r.id ? ' primary' : '')} onClick={() => inputs._splitId === r.id ? closeSplit() : openSplit(r.id)} title="Split treating vs IME %SLU" style={{ padding: '2px 7px' }}>⚖</button>
+                  <button className="delete-row" onClick={() => removeRow(r.id)} title="Remove">×</button>
+                </div>
+              </div>
+            );
+          })}
         </div>
-
-        <div style={{display:'grid', gap:6, marginTop:4}}>
-          <div className="rom-head" style={{display:'grid', gridTemplateColumns:'1.4fr 0.7fr 0.9fr 0.7fr',
-            gap:8, fontSize:10, textTransform:'uppercase', letterSpacing:0.4, color:'var(--tx-faint)'}}>
-            <span>Motion</span><span>Normal</span><span>Doctor ROM°</span><span>% SLU</span>
-          </div>
-          {result.joints.map(j => (
-            <div key={j.joint} style={{display:'grid', gridTemplateColumns:'1.4fr 0.7fr 0.9fr 0.7fr',
-              gap:8, alignItems:'center'}}>
-              <span style={{fontSize:12}}>{j.joint}</span>
-              <span style={{fontSize:12, color:'var(--tx-faint)'}}>{j.normal}°</span>
-              <input className="f-input" type="number" min="0" step="1"
-                value={(inputs.roms && inputs.roms[j.joint] !== undefined) ? inputs.roms[j.joint] : ''}
-                placeholder={j.normal + '°'}
-                onChange={e => setRom(j.joint, e.target.value)} />
-              <span style={{fontFamily:'var(--mono)', fontSize:12, color: j.pct ? 'var(--ac-2)' : 'var(--tx-faint)'}}>
-                {j.pct || '—'}
-              </span>
-            </div>
-          ))}
-        </div>
-
+        <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
         <div className="results">
-          <div className="r-row big"><span className="l">True Schedule Loss of Use</span>
-            <span className="v">{result.display || '0%'}</span></div>
-          <div className="r-row"><span className="l">SLU Member</span>
-            <span className="v">{mem.member} ({mem.wks} wks)</span></div>
-          <div className="r-row"><span className="l">SLU Weeks {isRange ? '(at high %)' : ''}</span>
-            <span className="v">{fmtN(awardWks, 2)}</span></div>
-          <div className="r-row net"><span className="l">Award @ {fmt$(tt)}/wk</span>
-            <span className="v">{fmt$(awardGross)}</span></div>
+          <div className="r-row big"><span className="l">Total SLU Award</span><span className="v">{fmt$(totalGross)}</span></div>
+          <div className="r-row"><span className="l">@ {fmt$(tt)}/wk</span><span className="v" style={{ fontSize: 10 }}>{computedRows.length} body part{computedRows.length === 1 ? '' : 's'} · run the SLU tile for §15(3)(w) credit</span></div>
         </div>
-        <p style={{fontSize:11, color:'var(--tx-faint)', margin:'8px 2px 0', lineHeight:1.4}}>
-          Enter this {isRange ? 'range' : 'percentage'} ({result.display || '0%'}) into the SLU tile's “% SLU”
-          field to fold it into a multi-body-part award with §15(3)(w) credits.
-        </p>
+        <SplitFlyout open={!!inputs._splitId}
+          title="Split Opinions · % SLU" unit="% SLU" endpoints={['0% (none)', '100% (total)']} lo={0} hi={100}
+          treating={splitRow ? (splitRow.td ?? '') : ''} ime={splitRow ? (splitRow.ime ?? '') : ''} value={splitRow ? splitRow.pct : ''}
+          onTreating={splitTD} onIme={splitIME} onValue={splitVal} onClose={closeSplit}
+          footNote="Midpoint fills this body part's applied %SLU. Entering ROM or typing the field re-sets it (last-write-wins)." />
       </div>
     </>
   );
@@ -3565,8 +3667,116 @@ function S32Scenarios({ tile, onUpdate }) {
   );
 }
 
+// ====================================================================
+// Split Opinions — horizontal outgrowth panel (BETA). A tile grows wider
+// (app.js reads inputs._expandW) and this flyout slides in on the right,
+// anchored to the fixed-width tile-body. Treating vs IME, midpoint auto-
+// generated + editable via slider AND number field; the applied value
+// feeds the tile's own field (last-write-wins). Reset-to-midpoint is done
+// by the caller's onTreating/onIme handlers. Reused by CCP + SLU (+ more).
+// ====================================================================
+const SPLIT_PANEL_W = 340;
+function tileBaseW(tile) {
+  const s = (typeof TILE_SPECS !== 'undefined' && TILE_SPECS[tile.type]) || (typeof window !== 'undefined' && window.TILE_SPECS && window.TILE_SPECS[tile.type]);
+  return (s && s.w) || 480;
+}
+function SplitFlyout({ open, title, unit, endpoints, lo = 0, hi = 100, step = 1, prefix, treating, ime, value, onTreating, onIme, onValue, onClose, footNote, tdLabel = 'Treating Dr', imeLabel = 'IME' }) {
+  const t = Number(treating) || 0, i = Number(ime) || 0;
+  const mid = Math.round(((t + i) / 2) * 100) / 100;
+  const px = (n) => (prefix || '') + n;
+  return (
+    <div aria-hidden={!open} style={{
+      position: 'absolute', top: 0, left: '100%', marginLeft: 10, width: SPLIT_PANEL_W - 18, height: '100%',
+      boxSizing: 'border-box', padding: '10px 10px 14px', overflowY: 'auto',
+      borderLeft: '1px solid var(--bd-soft)',
+      background: 'linear-gradient(180deg, rgba(255,207,92,0.06), rgba(255,255,255,0.015))',
+      opacity: open ? 1 : 0, transform: open ? 'translateX(0)' : 'translateX(16px)',
+      pointerEvents: open ? 'auto' : 'none',
+      transition: 'opacity 260ms ease, transform 340ms cubic-bezier(0.2,0.9,0.3,1)',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--ac-2)' }}>{title}</span>
+        <button type="button" className="btn tiny" onClick={onClose} title="Close">×</button>
+      </div>
+      <div className="row cols-2" style={{ marginTop: 8 }}>
+        <div className="f-group"><label className="f-label">{tdLabel}</label>
+          <div className="f-input-wrap">{prefix && <span className="prefix">{prefix}</span>}
+            <input className={'f-input' + (prefix ? ' with-prefix' : '')} type="number" value={treating} onChange={e => onTreating(e.target.value)} /></div></div>
+        <div className="f-group"><label className="f-label">{imeLabel}</label>
+          <div className="f-input-wrap">{prefix && <span className="prefix">{prefix}</span>}
+            <input className={'f-input' + (prefix ? ' with-prefix' : '')} type="number" value={ime} onChange={e => onIme(e.target.value)} /></div></div>
+      </div>
+      <div style={{ textAlign: 'center', margin: '10px 0 4px' }}>
+        <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>Applied {unit || ''} · midpoint (editable)</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 3 }}>
+          {prefix && <span style={{ color: 'var(--tx-dim)', fontFamily: 'var(--mono)' }}>{prefix}</span>}
+          <input className="f-input" type="number" value={value} onChange={e => onValue(e.target.value)}
+            style={{ textAlign: 'center', maxWidth: 120, fontFamily: 'var(--mono)', color: 'var(--ac-2)', fontSize: 15 }} />
+        </div>
+      </div>
+      <input type="range" min={lo} max={hi} step={step} value={Number(value) || 0} onChange={e => onValue(e.target.value)} style={{ width: '100%' }} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, color: 'var(--tx-faint)' }}>
+        <span>{endpoints ? endpoints[0] : lo}</span><span>{endpoints ? endpoints[1] : hi}</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--tx-dim)', marginTop: 6 }}>
+        <span>{px(t)}</span><span style={{ color: 'var(--ac-2)' }}>mid {px(mid)}</span><span>{px(i)}</span>
+      </div>
+      {footNote && <p style={{ fontSize: 10, color: 'var(--tx-faint)', marginTop: 8, lineHeight: 1.4 }}>{footNote}</p>}
+    </div>
+  );
+}
+
+// ====================================================================
+// Exertional-capacity Split (LWEC) — qualitative horizontal outgrowth.
+// TD vs IME exertional level (sedentary→very heavy); midpoint level auto-
+// generated + adjustable on a 5-step slider. Decision aid only — it does
+// NOT auto-set the LWEC% (no fixed exertional→% mapping).
+// ====================================================================
+const EXERTION_LEVELS = ['Sedentary', 'Light', 'Medium', 'Heavy', 'Very Heavy'];
+function ExertionalFlyout({ open, td, ime, mid, onTD, onIME, onMid, onClose }) {
+  const ti = EXERTION_LEVELS.indexOf(td), ii = EXERTION_LEVELS.indexOf(ime);
+  const auto = (ti >= 0 && ii >= 0) ? Math.round((ti + ii) / 2) : (ti >= 0 ? ti : (ii >= 0 ? ii : 2));
+  const midIdx = (typeof mid === 'number') ? mid : auto;
+  return (
+    <div aria-hidden={!open} style={{
+      position: 'absolute', top: 0, left: '100%', marginLeft: 10, width: SPLIT_PANEL_W - 18, height: '100%',
+      boxSizing: 'border-box', padding: '10px 10px 14px', overflowY: 'auto', borderLeft: '1px solid var(--bd-soft)',
+      background: 'linear-gradient(180deg, rgba(255,207,92,0.06), rgba(255,255,255,0.015))',
+      opacity: open ? 1 : 0, transform: open ? 'translateX(0)' : 'translateX(16px)', pointerEvents: open ? 'auto' : 'none',
+      transition: 'opacity 260ms ease, transform 340ms cubic-bezier(0.2,0.9,0.3,1)',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--ac-2)' }}>Split · Exertional Capacity</span>
+        <button type="button" className="btn tiny" onClick={onClose} title="Close">×</button>
+      </div>
+      <div className="row cols-2" style={{ marginTop: 8 }}>
+        <div className="f-group"><label className="f-label">Treating Dr</label>
+          <select className="f-select" value={td || ''} onChange={e => onTD(e.target.value)}>
+            <option value="">—</option>{EXERTION_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+          </select></div>
+        <div className="f-group"><label className="f-label">IME</label>
+          <select className="f-select" value={ime || ''} onChange={e => onIME(e.target.value)}>
+            <option value="">—</option>{EXERTION_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+          </select></div>
+      </div>
+      <div style={{ textAlign: 'center', margin: '10px 0 4px' }}>
+        <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4, color: 'var(--tx-faint)' }}>Midpoint capacity</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 15, color: 'var(--ac-2)' }}>{EXERTION_LEVELS[midIdx]}</div>
+      </div>
+      <input type="range" min={0} max={4} step={1} value={midIdx} onChange={e => onMid(Number(e.target.value))} style={{ width: '100%' }} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, color: 'var(--tx-faint)' }}>
+        <span>Sedentary</span><span>Very Heavy</span>
+      </div>
+      <p style={{ fontSize: 10, color: 'var(--tx-faint)', marginTop: 8, lineHeight: 1.4 }}>
+        Decision aid — set the LWEC% yourself from the functional + vocational picture. Changing an opinion re-centers the midpoint.
+      </p>
+    </div>
+  );
+}
+
 Object.assign(window, {
   TILE_SPECS, SLUTile, LWECTile, CCPTile, RateLookupTile, RadiculopathyTile,
-  BurnsTile, SettlementTile, MTGTile, DateCalcTile, SLURomTile, NonScheduleTile, MTGBrowserTile, IMECompare, S32Scenarios,
+  BurnsTile, SettlementTile, MTGTile, DateCalcTile, SLURomTile, NonScheduleTile, MTGBrowserTile,
+  SplitFlyout, ExertionalFlyout, tileBaseW,
   buildEquation, weeksBetween, inclusiveDays, periodWeeks, dayAfter, MUSCLE_WEAKNESS, DESIGNATIONS,
 });

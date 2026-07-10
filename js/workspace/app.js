@@ -881,16 +881,17 @@ const PALETTE_ITEMS = [
   // `short` is the chip label used by the collapsed rail (icons like '⚕️' or
   // 'S11' don't read as the tile name in the narrow column).
   { type: 'SLU',           name: 'SLU',           icon: 'SLU',  short: 'SLU',    desc: 'Schedule Loss of Use — multi body part awards', pro: true },
-  { type: 'LWEC',          name: 'LWEC',          icon: 'LW',   short: 'LW',     desc: 'Loss of Wage Earning Capacity bracket calc' },
-  { type: 'CCP',           name: 'CCP / Award',   icon: 'CCP',  short: 'CCP',    desc: 'Period-by-period builder · TT/RE/TR/TP/NCLT/NME' },
-  { type: 'Burns',         name: 'Burns Rate',    icon: 'BRN',  short: 'BRN',    desc: '3rd-party lien apportionment per Burns v Varick' },
-  { type: 'Settlement',    name: 'Settlement',    icon: 'S32',  short: 'S32',    desc: 'Section 32 — settlement minus MSA, 15% fee on remainder' },
-  { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', short: '$/Wk',   desc: 'Max + Min rate by date' },
-  { type: 'Radiculopathy', name: 'Radiculopathy', icon: 'S11',  short: 'Radic.', desc: 'S11.4 point system + nerve-root caps', pro: true },
-  { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   short: 'MTGs',   desc: 'NYS WCB Medical Treatment Guidelines — keyword search w/ citations' },
-  { type: 'DateCalc',      name: 'Date Calc',     icon: '📅',   short: '📅',     desc: 'Add/subtract yrs·mo·wks·days · date span' },
   { type: 'SLURom',        name: 'ROM → SLU',     icon: 'ROM',  short: 'ROM',    desc: 'Range-of-motion → true %SLU · 2018 Guidelines (BETA)', pro: true },
   { type: 'NonSchedule',   name: 'Non-Schedule',  icon: 'NS',   short: 'NS',     desc: 'Spine / Brain / Psych impairment → Class + Severity (BETA)', pro: true },
+  { type: 'LWEC',          name: 'LWEC',          icon: 'LW',   short: 'LW',     desc: 'Loss of Wage Earning Capacity bracket calc' },
+  { type: 'CCP',           name: 'CCP / Award',   icon: 'CCP',  short: 'CCP',    desc: 'Period-by-period builder · TT/RE/TR/TP/NCLT/NME' },
+  { type: 'Settlement',    name: 'Settlement',    icon: 'S32',  short: 'S32',    desc: 'Section 32 — settlement minus MSA, 15% fee on remainder' },
+  { type: 'Burns',         name: 'Burns Rate',    icon: 'BRN',  short: 'BRN',    desc: '3rd-party lien apportionment per Burns v Varick' },
+  { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', short: '$/Wk',   desc: 'Max + Min rate by date' },
+  { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   short: 'MTGs',   desc: 'NYS WCB Medical Treatment Guidelines — browse + search + approval criteria' },
+  { type: 'DateCalc',      name: 'Date Calc',     icon: '📅',   short: '📅',     desc: 'Add/subtract yrs·mo·wks·days · date span' },
+  // Radiculopathy retired from the palette — superseded by the Non-Schedule tile's
+  // Spine tab. The RadiculopathyTile component stays registered for saved cases.
 ];
 
 function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
@@ -1009,7 +1010,10 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
   // re-flows to fit instead of tiles overlapping their original boxes. The
   // transform is just the 3D perspective tilt.
   const transform = `perspective(800px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;
-  const c = cell || { x: tile.x, y: tile.y, w: spec.w, h: spec.h };
+  // A tile grows horizontally when a Split-Opinions flyout opens (the tile
+  // content sets inputs._expandW px); the packer below already folds this into
+  // the packed cell, so this fallback (unpacked) path mirrors it.
+  const c = cell || { x: tile.x, y: tile.y, w: spec.w + ((tile.inputs && tile.inputs._expandW) || 0), h: spec.h };
 
   return (
     <div ref={tileRef}
@@ -1082,7 +1086,9 @@ function packGrid(ordered, tileScale, containerW, gap) {
   let x = 0, y = 0, rowH = 0, maxBottom = 0;
   for (const t of ordered) {
     const spec = TILE_SPECS[t.type] || { w: 320, h: 220 };
-    const w = spec.w * s, h = spec.h * s;
+    // Split-Opinions flyout reserves a fixed extra width (inputs._expandW) on
+    // the right; add it unscaled so neighbours reflow to make room for it.
+    const w = spec.w * s + ((t.inputs && t.inputs._expandW) || 0), h = spec.h * s;
     if (x > 0 && x + w > W + 0.5) { x = 0; y += rowH + g; rowH = 0; }
     pos[t.id] = { x, y, w, h };
     x += w + g;
