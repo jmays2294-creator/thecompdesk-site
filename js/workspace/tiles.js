@@ -3418,6 +3418,28 @@ function loadMtgTreatments() {
   })();
   return _mtgTxPromise;
 }
+// Maps a treatments.json bodyPart onto the published guideline slug so the
+// detail pane can link back to the source PDF at /data/mtg/pdfs/{slug}.pdf
+// (same PDFs the MTG search tile links to). 'Pre-Auth Rules (All)' has no
+// single source guideline — it cites 12 NYCRR 324.2 — so it gets no link.
+const MTG_BODYPART_SLUG = {
+  'Mid/Low Back': 'low-back',
+  'Neck': 'neck',
+  'Knee': 'knee',
+  'Shoulder': 'shoulder',
+  'Ankle/Foot': 'ankle-foot',
+  'Elbow': 'elbow',
+  'Hand/Wrist/Forearm': 'hand-wrist-forearm',
+  'Hip/Groin': 'hip-groin',
+  'PTSD': 'ptsd',
+  'TBI': 'tbi',
+  'Depression': 'depression',
+  'CRPS': 'crps',
+  'Non-Acute Pain': 'non-acute-pain',
+  'Eye Disorders': 'eye-disorders',
+  'Occ. Asthma': 'asthma',
+  'Occ. ILD': 'lung-disease',
+};
 function mtgStatusStyle(status) {
   if (status === 'Recommended')      return { color: '#0b6b3a', bg: 'rgba(34,180,110,0.14)', label: 'Recommended' };
   if (status === 'Not Recommended')  return { color: '#a3341f', bg: 'rgba(220,80,60,0.14)',  label: 'Not Recommended' };
@@ -3550,6 +3572,17 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
                   </div>
                 )}
                 {sel.t.brief && <div style={{ color: 'var(--tx-faint)', fontStyle: 'italic', marginTop: 6, fontSize: 12 }}>{sel.t.brief}</div>}
+                {MTG_BODYPART_SLUG[sel.t.bodyPart] && (
+                  <a href={`/data/mtg/pdfs/${MTG_BODYPART_SLUG[sel.t.bodyPart]}.pdf`} target="_blank" rel="noopener"
+                    onClick={e => e.stopPropagation()}
+                    style={{
+                      display: 'inline-block', marginTop: 10, padding: '7px 14px', borderRadius: 6,
+                      background: 'var(--ac-soft)', border: '1px solid var(--ac)', color: 'var(--ac)',
+                      fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3,
+                    }}>
+                    Read the full guideline{sel.t.section ? ` (§${sel.t.section})` : ''} →
+                  </a>
+                )}
                 <div style={{ fontSize: 10, color: 'var(--tx-faint)', marginTop: 8, lineHeight: 1.4 }}>
                   Source: NYS WCB Medical Treatment Guidelines{sel.t.section ? ` — ${sel.t.section}` : ''}. Confirm against the current published guideline.
                 </div>
