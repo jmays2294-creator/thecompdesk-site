@@ -650,204 +650,21 @@ Object.assign(window, {
 
 
 // ===========================================================================
-// Fee Calculator 6.1 engines — ROM→%SLU + Non-Schedule impairment.
-// Verified against the NY 2018 Impairment Guidelines; see
-// ops/secretary/fee_calc_6.1/ (engines + Node tests). Wrapped in an IIFE so
-// only the public API reaches window (no global-name collisions). Consumed by
-// SLURomTile + NonScheduleTile in tiles.js as window.romToSLU / window.nonSchedSpine.
-// Reads existing tables NERVE_CAPS / CERVICAL_RANKS / LUMBAR_RANKS from this file.
+// Fee Calculator 6.1 engines.
+// The SLU ROM -> %SLU engine (romToSLU / sluReplacement / romJointsFor /
+// SLU_ROM_JOINTS / SLU_ROM_SPECIAL / SLU_SITE_CAPS) lives in the shared
+// CANONICAL module /js/calc-core/slu-rom.js, loaded by workspace.html BEFORE
+// this file. It publishes its API on window for tiles.js. Do NOT
+// re-implement SLU ROM math here; the app copy is www/js/calc-core/slu-rom.js
+// and the two must stay byte-identical (slu-guidelines-regression skill).
+// ===========================================================================
+
+// ===========================================================================
+// Non-Schedule impairment engine (unchanged) -- wrapped in an IIFE so only
+// the public API reaches window. Reads NERVE_CAPS / CERVICAL_RANKS /
+// LUMBAR_RANKS from this file.
 // ===========================================================================
 (function(){
-  const SLU_ROM_JOINTS = [{"bodyPart": "Thumb", "joint": "IP", "normalROM": 80, "mildThresh": 60, "mildLow": 10, "mildHigh": 15, "modThresh": 40, "modLow": 20, "modHigh": 25, "markedThresh": 25, "markedLow": 40, "markedHigh": 45, "memberType": "Thumb", "jointOrder": 1}, {"bodyPart": "Thumb", "joint": "MCP", "normalROM": 60, "mildThresh": 45, "mildLow": 15, "mildHigh": 20, "modThresh": 30, "modLow": 25, "modHigh": 30, "markedThresh": 15, "markedLow": 45, "markedHigh": 50, "memberType": "Thumb", "jointOrder": 2}, {"bodyPart": "Thumb", "joint": "CMC", "normalROM": 0, "mildThresh": 1, "mildLow": 20, "mildHigh": 25, "modThresh": 2, "modLow": 30, "modHigh": 40, "markedThresh": 3, "markedLow": 50, "markedHigh": 90, "memberType": "Thumb", "jointOrder": 3}, {"bodyPart": "Finger", "joint": "DIP", "normalROM": 90, "mildThresh": 75, "mildLow": 10, "mildHigh": 15, "modThresh": 45, "modLow": 20, "modHigh": 25, "markedThresh": 25, "markedLow": 40, "markedHigh": 45, "memberType": "Finger", "jointOrder": 1}, {"bodyPart": "Finger", "joint": "PIP", "normalROM": 100, "mildThresh": 75, "mildLow": 15, "mildHigh": 20, "modThresh": 45, "modLow": 25, "modHigh": 30, "markedThresh": 25, "markedLow": 45, "markedHigh": 50, "memberType": "Finger", "jointOrder": 2}, {"bodyPart": "Finger", "joint": "MCP", "normalROM": 90, "mildThresh": 75, "mildLow": 20, "mildHigh": 25, "modThresh": 45, "modLow": 30, "modHigh": 40, "markedThresh": 25, "markedLow": 50, "markedHigh": 90, "memberType": "Finger", "jointOrder": 3}, {"bodyPart": "Wrist", "joint": "Palmar Flex", "normalROM": 80, "mildThresh": 60, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 40, "modLow": 12.5, "modHigh": 12.5, "markedThresh": 20, "markedLow": 20, "markedHigh": 20, "memberType": "Hand", "jointOrder": 1}, {"bodyPart": "Wrist", "joint": "Dorsi Flex", "normalROM": 70, "mildThresh": 60, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 35, "modLow": 15, "modHigh": 15, "markedThresh": 20, "markedLow": 25, "markedHigh": 25, "memberType": "Hand", "jointOrder": 2}, {"bodyPart": "Wrist", "joint": "Pron/Sup", "normalROM": 90, "mildThresh": 75, "mildLow": 7.5, "mildHigh": 10, "modThresh": 45, "modLow": 17.5, "modHigh": 20, "markedThresh": 25, "markedLow": 25, "markedHigh": 30, "memberType": "Hand", "jointOrder": 3}, {"bodyPart": "Elbow", "joint": "Extension", "normalROM": 0, "mildThresh": 45, "mildLow": 25, "mildHigh": 25, "modThresh": 90, "modLow": 50, "modHigh": 50, "markedThresh": 125, "markedLow": 85, "markedHigh": 85, "memberType": "Arm", "jointOrder": 1}, {"bodyPart": "Elbow", "joint": "Flexion", "normalROM": 150, "mildThresh": 125, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 90, "modLow": 33.33, "modHigh": 33.33, "markedThresh": 45, "markedLow": 66.67, "markedHigh": 66.67, "memberType": "Arm", "jointOrder": 2}, {"bodyPart": "Shoulder", "joint": "Flex/Abd", "normalROM": 180, "mildThresh": 135, "mildLow": 20, "mildHigh": 20, "modThresh": 90, "modLow": 40, "modHigh": 40, "markedThresh": 45, "markedLow": 60, "markedHigh": 60, "memberType": "Arm", "jointOrder": 1}, {"bodyPart": "Shoulder", "joint": "Int Rotation", "normalROM": 70, "mildThresh": 55, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 35, "modLow": 10, "modHigh": 10, "markedThresh": 20, "markedLow": 12.5, "markedHigh": 12.5, "memberType": "Arm", "jointOrder": 2}, {"bodyPart": "Shoulder", "joint": "Ext Rotation", "normalROM": 90, "mildThresh": 75, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 45, "modLow": 10, "modHigh": 10, "markedThresh": 25, "markedLow": 12.5, "markedHigh": 12.5, "memberType": "Arm", "jointOrder": 3}, {"bodyPart": "Shoulder", "joint": "Adduction", "normalROM": 30, "mildThresh": 25, "mildLow": 7.5, "mildHigh": 10, "modThresh": 999, "modLow": 0, "modHigh": 0, "markedThresh": 999, "markedLow": 0, "markedHigh": 0, "memberType": "Arm", "jointOrder": 4}, {"bodyPart": "Shoulder", "joint": "Post Extension", "normalROM": 60, "mildThresh": 50, "mildLow": 7.5, "mildHigh": 10, "modThresh": 999, "modLow": 0, "modHigh": 0, "markedThresh": 999, "markedLow": 0, "markedHigh": 0, "memberType": "Arm", "jointOrder": 5}, {"bodyPart": "Hip", "joint": "Abduction", "normalROM": 45, "mildThresh": 35, "mildLow": 7.5, "mildHigh": 10, "modThresh": 25, "modLow": 15, "modHigh": 17.5, "markedThresh": 15, "markedLow": 20, "markedHigh": 25, "memberType": "Leg", "jointOrder": 1}, {"bodyPart": "Hip", "joint": "Adduction", "normalROM": 35, "mildThresh": 25, "mildLow": 7.5, "mildHigh": 10, "modThresh": 20, "modLow": 15, "modHigh": 17.5, "markedThresh": 10, "markedLow": 20, "markedHigh": 25, "memberType": "Leg", "jointOrder": 2}, {"bodyPart": "Hip", "joint": "Int Rotation", "normalROM": 45, "mildThresh": 35, "mildLow": 7.5, "mildHigh": 10, "modThresh": 25, "modLow": 10, "modHigh": 15, "markedThresh": 15, "markedLow": 20, "markedHigh": 25, "memberType": "Leg", "jointOrder": 3}, {"bodyPart": "Hip", "joint": "Ext Rotation", "normalROM": 45, "mildThresh": 35, "mildLow": 7.5, "mildHigh": 10, "modThresh": 25, "modLow": 10, "modHigh": 15, "markedThresh": 15, "markedLow": 20, "markedHigh": 25, "memberType": "Leg", "jointOrder": 4}, {"bodyPart": "Hip", "joint": "Flexion", "normalROM": 120, "mildThresh": 90, "mildLow": 10, "mildHigh": 10, "modThresh": 45, "modLow": 33.33, "modHigh": 33.33, "markedThresh": 25, "markedLow": 66.67, "markedHigh": 66.67, "memberType": "Leg", "jointOrder": 5}, {"bodyPart": "Hip", "joint": "Post Extension", "normalROM": 30, "mildThresh": 25, "mildLow": 7.5, "mildHigh": 10, "modThresh": 15, "modLow": 0, "modHigh": 0, "markedThresh": 5, "markedLow": 0, "markedHigh": 0, "memberType": "Leg", "jointOrder": 6}, {"bodyPart": "Knee", "joint": "Flexion", "normalROM": 140, "mildThresh": 120, "mildLow": 10, "mildHigh": 10, "modThresh": 90, "modLow": 40, "modHigh": 40, "markedThresh": 45, "markedLow": 55, "markedHigh": 55, "memberType": "Leg", "jointOrder": 1}, {"bodyPart": "Knee", "joint": "Extension", "normalROM": 0, "mildThresh": 10, "mildLow": 7.5, "mildHigh": 10, "modThresh": 20, "modLow": 15, "modHigh": 20, "markedThresh": 30, "markedLow": 25, "markedHigh": 35, "memberType": "Leg", "jointOrder": 2}, {"bodyPart": "Ankle/Foot", "joint": "Plantar Flex", "normalROM": 40, "mildThresh": 30, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 20, "modLow": 15, "modHigh": 15, "markedThresh": 10, "markedLow": 25, "markedHigh": 25, "memberType": "Foot", "jointOrder": 1}, {"bodyPart": "Ankle/Foot", "joint": "Dorsi Flex", "normalROM": 20, "mildThresh": 12.5, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 7.5, "modLow": 15, "modHigh": 15, "markedThresh": 5, "markedLow": 25, "markedHigh": 25, "memberType": "Foot", "jointOrder": 2}, {"bodyPart": "Ankle/Foot", "joint": "Inversion", "normalROM": 35, "mildThresh": 30, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 20, "modLow": 12.5, "modHigh": 12.5, "markedThresh": 10, "markedLow": 17.5, "markedHigh": 17.5, "memberType": "Foot", "jointOrder": 3}, {"bodyPart": "Ankle/Foot", "joint": "Eversion", "normalROM": 15, "mildThresh": 12, "mildLow": 7.5, "mildHigh": 7.5, "modThresh": 8, "modLow": 12.5, "modHigh": 12.5, "markedThresh": 4, "markedLow": 17.5, "markedHigh": 17.5, "memberType": "Foot", "jointOrder": 4}, {"bodyPart": "Great Toe", "joint": "IP", "normalROM": 90, "mildThresh": 75, "mildLow": 10, "mildHigh": 15, "modThresh": 45, "modLow": 20, "modHigh": 25, "markedThresh": 25, "markedLow": 40, "markedHigh": 45, "memberType": "Great Toe", "jointOrder": 1}, {"bodyPart": "Great Toe", "joint": "MTP Flex", "normalROM": 45, "mildThresh": 35, "mildLow": 15, "mildHigh": 20, "modThresh": 25, "modLow": 25, "modHigh": 30, "markedThresh": 15, "markedLow": 45, "markedHigh": 50, "memberType": "Great Toe", "jointOrder": 2}, {"bodyPart": "Great Toe", "joint": "MTP Ext", "normalROM": 70, "mildThresh": 55, "mildLow": 15, "mildHigh": 20, "modThresh": 35, "modLow": 25, "modHigh": 30, "markedThresh": 20, "markedLow": 45, "markedHigh": 50, "memberType": "Great Toe", "jointOrder": 3}, {"bodyPart": "Smaller Toes", "joint": "DIP", "normalROM": 90, "mildThresh": 75, "mildLow": 10, "mildHigh": 15, "modThresh": 45, "modLow": 20, "modHigh": 25, "markedThresh": 25, "markedLow": 40, "markedHigh": 45, "memberType": "Toe", "jointOrder": 1}, {"bodyPart": "Smaller Toes", "joint": "PIP", "normalROM": 100, "mildThresh": 75, "mildLow": 15, "mildHigh": 20, "modThresh": 45, "modLow": 25, "modHigh": 30, "markedThresh": 25, "markedLow": 45, "markedHigh": 50, "memberType": "Toe", "jointOrder": 2}, {"bodyPart": "Smaller Toes", "joint": "MTP", "normalROM": 90, "mildThresh": 75, "mildLow": 20, "mildHigh": 25, "modThresh": 45, "modLow": 30, "modHigh": 40, "markedThresh": 25, "markedLow": 50, "markedHigh": 90, "memberType": "Toe", "jointOrder": 3}];
-
-  const SLU_ROM_SPECIAL = [{"bodyPart": "Thumb", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Thumb", "consideration": "Ankylosis CMC (100%)", "low": 100, "high": 100}, {"bodyPart": "Thumb", "consideration": "Mild adduction (7.5%)", "low": 7.5, "high": 7.5}, {"bodyPart": "Thumb", "consideration": "Mild opposition (10%)", "low": 10, "high": 10}, {"bodyPart": "Thumb", "consideration": "Mild radial abd (10%)", "low": 10, "high": 10}, {"bodyPart": "Finger", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Finger", "consideration": "Mallet deformity (≤33⅓%)", "low": 0, "high": 33.33}, {"bodyPart": "Finger", "consideration": "Trigger finger (≤33⅓%)", "low": 0, "high": 33.33}, {"bodyPart": "Finger", "consideration": "Flail DIP (50%)", "low": 50, "high": 50}, {"bodyPart": "Finger", "consideration": "Loss ≥½ distal phalanx (50%)", "low": 50, "high": 50}, {"bodyPart": "Finger", "consideration": "Dupuytren's (5-7.5% hand)", "low": 5, "high": 7.5}, {"bodyPart": "Wrist", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Wrist", "consideration": "Wrist drop/radial palsy (66⅔%)", "low": 66.67, "high": 66.67}, {"bodyPart": "Wrist", "consideration": "Partial wrist drop", "low": 0, "high": 66.67}, {"bodyPart": "Wrist", "consideration": "Darrach procedure (10%+)", "low": 10, "high": 10}, {"bodyPart": "Wrist", "consideration": "Prox row resection (20%+)", "low": 20, "high": 20}, {"bodyPart": "Wrist", "consideration": "CTS post-decompression (10-20%)", "low": 10, "high": 20}, {"bodyPart": "Wrist", "consideration": "De Quervain's (7.5-20%)", "low": 7.5, "high": 20}, {"bodyPart": "Wrist", "consideration": "Ganglion (0-7.5%)", "low": 0, "high": 7.5}, {"bodyPart": "Elbow", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Elbow", "consideration": "Loss head of radius (10%+)", "low": 10, "high": 10}, {"bodyPart": "Elbow", "consideration": "Laxity/hyperextension (10-15%)", "low": 10, "high": 15}, {"bodyPart": "Elbow", "consideration": "Olecranon excision (10%+)", "low": 10, "high": 10}, {"bodyPart": "Shoulder", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Shoulder", "consideration": "Clavicle fracture (0-10%)", "low": 0, "high": 10}, {"bodyPart": "Shoulder", "consideration": "AC/SC separation (7.5-10%)", "low": 7.5, "high": 10}, {"bodyPart": "Shoulder", "consideration": "Winged scapula (15-20%)", "low": 15, "high": 20}, {"bodyPart": "Shoulder", "consideration": "Clavicle resection end (10%)", "low": 10, "high": 10}, {"bodyPart": "Shoulder", "consideration": "Clavicle resection entire (15%)", "low": 15, "high": 15}, {"bodyPart": "Shoulder", "consideration": "Biceps rupture long head (10-15%)", "low": 10, "high": 15}, {"bodyPart": "Shoulder", "consideration": "Biceps rupture distal (20%+)", "low": 20, "high": 33.33}, {"bodyPart": "Shoulder", "consideration": "Replacement - Good (35%)", "low": 35, "high": 35}, {"bodyPart": "Shoulder", "consideration": "Replacement - Fair (35%+)", "low": 35, "high": 50}, {"bodyPart": "Shoulder", "consideration": "Replacement - Poor (35%+)", "low": 35, "high": 80}, {"bodyPart": "Hip", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Hip", "consideration": "Femur head/neck excision (50%+)", "low": 50, "high": 50}, {"bodyPart": "Hip", "consideration": "Synovitis/bursitis (0-7.5%)", "low": 0, "high": 7.5}, {"bodyPart": "Hip", "consideration": "Fractured pelvis (15-20%)", "low": 15, "high": 20}, {"bodyPart": "Hip", "consideration": "Leg shortening ½\" (5%)", "low": 5, "high": 5}, {"bodyPart": "Hip", "consideration": "Leg shortening ¾\" (7.5%)", "low": 7.5, "high": 7.5}, {"bodyPart": "Hip", "consideration": "Leg shortening 1\" (10%)", "low": 10, "high": 10}, {"bodyPart": "Hip", "consideration": "Quad rupture (15-25%+)", "low": 15, "high": 25}, {"bodyPart": "Hip", "consideration": "Quad atrophy (10%)", "low": 10, "high": 10}, {"bodyPart": "Hip", "consideration": "Replacement - Good (35%)", "low": 35, "high": 35}, {"bodyPart": "Hip", "consideration": "Replacement - Fair (35%+)", "low": 35, "high": 55}, {"bodyPart": "Hip", "consideration": "Replacement - Poor (35%+)", "low": 35, "high": 80}, {"bodyPart": "Knee", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Knee", "consideration": "Patella total excision (15%+)", "low": 15, "high": 15}, {"bodyPart": "Knee", "consideration": "Patella partial excision (7.5-10%+)", "low": 7.5, "high": 10}, {"bodyPart": "Knee", "consideration": "Patella fracture w/ fixation (7.5-10%)", "low": 7.5, "high": 10}, {"bodyPart": "Knee", "consideration": "Patella recurrent dislocation (10-15%)", "low": 10, "high": 15}, {"bodyPart": "Knee", "consideration": "Chondromalacia patella (7.5-10%)", "low": 7.5, "high": 10}, {"bodyPart": "Knee", "consideration": "Prepatellar bursitis (0-7.5%)", "low": 0, "high": 7.5}, {"bodyPart": "Knee", "consideration": "Quad tendon rupture (10-15%)", "low": 10, "high": 15}, {"bodyPart": "Knee", "consideration": "Tibial plateau fracture (10-15%)", "low": 10, "high": 15}, {"bodyPart": "Knee", "consideration": "Osteochondritis (7.5-10%)", "low": 7.5, "high": 10}, {"bodyPart": "Knee", "consideration": "Tibial shaft fracture (0-10%)", "low": 0, "high": 10}, {"bodyPart": "Knee", "consideration": "Replacement - Good (35%)", "low": 35, "high": 35}, {"bodyPart": "Knee", "consideration": "Replacement - Fair (35%+)", "low": 35, "high": 55}, {"bodyPart": "Knee", "consideration": "Replacement - Poor (35%+)", "low": 35, "high": 80}, {"bodyPart": "Ankle/Foot", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Ankle/Foot", "consideration": "Os calcis fracture (33⅓-40%)", "low": 33.33, "high": 40}, {"bodyPart": "Ankle/Foot", "consideration": "Ankle fusion (75%)", "low": 75, "high": 75}, {"bodyPart": "Ankle/Foot", "consideration": "Complete foot drop (66⅔%)", "low": 66.67, "high": 66.67}, {"bodyPart": "Ankle/Foot", "consideration": "Partial foot drop (20-33⅓%)", "low": 20, "high": 33.33}, {"bodyPart": "Ankle/Foot", "consideration": "Achilles rupture (20-25%)", "low": 20, "high": 25}, {"bodyPart": "Ankle/Foot", "consideration": "Malleolar fracture (20-30%)", "low": 20, "high": 30}, {"bodyPart": "Great Toe", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Great Toe", "consideration": "Distal phalanx amputation (50%)", "low": 50, "high": 50}, {"bodyPart": "Great Toe", "consideration": "MTP amputation (100%)", "low": 100, "high": 100}, {"bodyPart": "Smaller Toes", "consideration": "None", "low": 0, "high": 0}, {"bodyPart": "Smaller Toes", "consideration": "DIP amputation/ankylosis (50%)", "low": 50, "high": 50}, {"bodyPart": "Smaller Toes", "consideration": "PIP amputation/ankylosis (75%)", "low": 75, "high": 75}, {"bodyPart": "Smaller Toes", "consideration": "MTP amputation (90-100%)", "low": 90, "high": 100}];
-
-  // ===========================================================================
-  // Schedule ROM → %SLU engine (NY 2018 Impairment Guidelines).
-  // Faithful port of "Schedule ROM Calc" (Fee Calculator 6.1) — per-joint band
-  // interpolation + body-part-specific combining rules + caps + special
-  // considerations. Produces the true SLU % from a doctor's ROM findings.
-  // Every combining branch mirrors one of the 7 spreadsheet Total() formulas.
-  // ===========================================================================
-
-  const _rnd = (v) => Math.round(v * 2) / 2;                 // nearest 0.5 (spreadsheet _rnd)
-  const _num = (x) => (x === '' || x === null || x === undefined) ? 0 : Number(x);
-
-  // Parse a per-joint result ("30%" or "" or "7.5-20%") to its low / high number.
-  function _lo(x){ if(x===''||x==null) return 0; const s=String(x); if(s.indexOf('-')>=0) return parseFloat(s); return parseFloat(s.replace('%','')); }
-  function _hi(x){ if(x===''||x==null) return 0; const s=String(x); const i=s.indexOf('-'); if(i>=0) return parseFloat(s.slice(i+1)); return parseFloat(s.replace('%','')); }
-
-  function _bodyPartKey(site){
-    if(/1st Finger|2nd Finger|3rd Finger|4th Finger/.test(site)) return 'Finger';
-    if(/2nd Toe|3rd Toe|4th Toe|5th Toe/.test(site)) return 'Smaller Toes';
-    return String(site).replace(/^[LR]\s+/,'').trim();
-  }
-  function _combineGroup(key){
-    return ({Shoulder:'shoulder',Thumb:'thumb',Hip:'hip',Knee:'knee','Ankle/Foot':'ankle','Great Toe':'greatToe'})[key] || 'simple';
-  }
-
-  // Joints for a body-part key, ordered by jointOrder (drives the tile inputs).
-  function romJointsFor(key){
-    return SLU_ROM_JOINTS.filter(j=>j.bodyPart===key).sort((a,b)=>a.jointOrder-b.jointOrder);
-  }
-
-  // Per-joint %SLU from a single ROM value. Returns '' (no loss) or 'NN%' / 'NN.N%'.
-  // Mirrors the generic per-joint LET formula (uses the HIGH band values).
-  function romJointPct(key, jointName, rom){
-    if(rom===''||rom===null||rom===undefined) return '';
-    const r = SLU_ROM_JOINTS.find(j=>j.bodyPart===key && j.joint===jointName);
-    if(!r) return '';
-    const nrm=r.normalROM, mt=r.mildThresh, mhi=r.mildHigh, odt=r.modThresh, odhi=r.modHigh, mkt=r.markedThresh, mkhi=r.markedHigh;
-    const v=Number(rom);
-    const rev = nrm < mt;               // impairment increases with ROM (e.g. extension)
-    let band;
-    if(rev){
-      if(v<=nrm) band=0; else if(v>=mkt) band=4; else if(v>=odt) band=3; else if(v>=mt) band=2; else band=1;
-    } else {
-      if(v>=nrm) band=0; else if(v<=mkt) band=4; else if(v<=odt) band=3; else if(v<=mt) band=2; else band=1;
-    }
-    if(band===0) return '';
-    const denom=(a)=> (a===0?1:Math.abs(a));
-    let pct;
-    if(band===4) pct=_rnd(mkhi);
-    else if(band===3) pct=_rnd(odhi+(mkhi-odhi)*Math.abs(v-odt)/denom(mkt-odt));
-    else if(band===2) pct=_rnd(mhi+(odhi-mhi)*Math.abs(v-mt)/denom(odt-mt));
-    else pct=_rnd(0+(mhi-0)*Math.abs(v-nrm)/denom(mt-nrm));
-    return pct+'%';
-  }
-
-  // Special-consideration low/high for a body-part key + label.
-  function _special(key, label){
-    if(!label || label==='None') return {lo:0,hi:0};
-    const r=SLU_ROM_SPECIAL.find(s=>s.bodyPart===key && s.consideration===label);
-    return r?{lo:Number(r.low),hi:Number(r.high)}:{lo:0,hi:0};
-  }
-
-  // Shoulder band helpers (5.4b rotation combine).
-  const _shBnd=(v)=> v<=0?0 : v<=7.5?v/7.5 : v<=10?1+(v-7.5)/2.5 : v<=12.5?2+(v-10)/2.5 : 3;
-  const _shComb=(b)=> b<=0?0 : b<=1?Math.round(10*b*2)/2 : b<=2?Math.round((10+5*(b-1))*2)/2 : Math.round((15+7.5*(b-2))*2)/2;
-  // Ankle band helpers (8.4b inv/ev combine).
-  const _akBnd=(v)=> v<=0?0 : v<=7.5?v/7.5 : v<=12.5?1+(v-7.5)/5 : v<=17.5?2+(v-12.5)/5 : 3;
-  const _akComb=(b)=> b<=0?0 : b<=1?Math.round(10*b*2)/2 : b<=2?Math.round((10+7.5*(b-1))*2)/2 : Math.round((17.5+7.5*(b-2))*2)/2;
-
-  // Combine six per-joint values (d,g,j,m,p,s strings) into the total {lo,hi}.
-  function _combine(group, jv, key){
-    const [d,g,j,m,p,s]=jv;
-    const sum=(f)=>f(d)+f(g)+f(j)+f(m)+f(p)+f(s);
-    if(group==='simple'){
-      return {lo:sum(_lo), hi:sum(_hi)};
-    }
-    if(group==='shoulder'){
-      const dhi=_hi(d), ghi=_hi(g), jhi=_hi(j), mhi=_hi(m), phi=_hi(p), shi=_hi(s);
-      const hasFlxAbd=d!=='';
-      const bothRot=(g!==''&&j!=='');
-      const avgRotBnd=(_shBnd(ghi)+_shBnd(jhi))/2;
-      const bothMild=bothRot&&ghi<=7.5&&jhi<=7.5;
-      const rotVal=bothRot?_shComb(avgRotBnd):(ghi+jhi);
-      const rotAdj=hasFlxAbd?(bothMild?0:Math.min(rotVal,15)):rotVal;
-      const rawHi=dhi+rotAdj+mhi+phi+shi;
-      const capHi=Math.min(rawHi,80);
-      return {lo:capHi, hi:capHi, _single:true};
-    }
-    if(group==='ankle'){
-      const dhi=_hi(d), ghi=_hi(g), jhi=_hi(j), mhi=_hi(m), phi=_hi(p), shi=_hi(s);
-      const bothIE=(j!==''&&m!=='');
-      const avgBnd=(_akBnd(jhi)+_akBnd(mhi))/2;
-      const ievHi=bothIE?_akComb(avgBnd):(jhi+mhi);
-      const pdHi=dhi+ghi;
-      const bothPDmk=(d!==''&&g!==''&&dhi>=25&&ghi>=25);
-      const adjPD=bothPDmk?Math.min(pdHi,40):pdHi;
-      const rawHi=adjPD+ievHi+phi+shi;
-      return {lo:rawHi, hi:rawHi, _single:true, _cap:55};
-    }
-    if(group==='knee'){
-      const flo=_lo(d),fhi=_hi(d),elo=_lo(g),ehi=_hi(g);
-      const fb= fhi===0?0: fhi<=10?1: fhi<=40?2:3;
-      const eb= ehi===0?0: ehi<=10?1: ehi<=20?2:3;
-      const mb=Math.max(fb,eb);
-      const both=(fhi>0&&ehi>0);
-      const clo= !both? flo+elo : (mb<=1?10:mb<=2?40:66.67);
-      const chi= !both? fhi+ehi : (mb<=1?15:mb<=2?45:66.67);
-      let lo=clo+_lo(j)+_lo(m)+_lo(p)+_lo(s);
-      let hi=chi+_hi(j)+_hi(m)+_hi(p)+_hi(s);
-      return {lo:Math.min(lo,70), hi:Math.min(hi,70)};
-    }
-    if(group==='hip'){
-      const ablo=_lo(d),abhi=_hi(d),adlo=_lo(g),adhi=_hi(g);
-      const abb= abhi===0?0: abhi<=10?1: abhi<=17.5?2:3;
-      const adb= adhi===0?0: adhi<=10?1: adhi<=17.5?2:3;
-      const aboth=(abhi>0&&adhi>0), amb=Math.max(abb,adb);
-      const aaclo= !aboth? ablo+adlo : (amb<=1?7.5:amb<=2?15:20);
-      const aachi= !aboth? abhi+adhi : (amb<=1?10:amb<=2?17.5:25);
-      const irlo=_lo(j),irhi=_hi(j),erlo=_lo(m),erhi=_hi(m);
-      const irb= irhi===0?0: irhi<=10?1: irhi<=15?2:3;
-      const erb= erhi===0?0: erhi<=10?1: erhi<=15?2:3;
-      const rboth=(irhi>0&&erhi>0), rmb=Math.max(irb,erb);
-      const rclo= !rboth? irlo+erlo : (rmb<=1?7.5:rmb<=2?10:20);
-      const rchi= !rboth? irhi+erhi : (rmb<=1?10:rmb<=2?15:25);
-      let lo=aaclo+rclo+_lo(p)+_lo(s);
-      let hi=aachi+rchi+_hi(p)+_hi(s);
-      return {lo:Math.min(lo,80), hi:Math.min(hi,80)};
-    }
-    if(group==='thumb'){
-      const iplo=_lo(d),iphi=_hi(d),mclo=_lo(g),mchi=_hi(g);
-      const ipb= iphi===0?0: iphi<=15?1: iphi<=25?2:3;
-      const mcb= mchi===0?0: mchi<=20?1: mchi<=30?2:3;
-      const mb=Math.max(ipb,mcb), both=(iphi>0&&mchi>0);
-      const clo= !both? iplo+mclo : (mb<=1?20:mb<=2?40:80);
-      const chi= !both? iphi+mchi : (mb<=1?30:mb<=2?50:90);
-      const lo=clo+_lo(j)+_lo(m)+_lo(p)+_lo(s);
-      const hi=chi+_hi(j)+_hi(m)+_hi(p)+_hi(s);
-      return {lo,hi};
-    }
-    if(group==='greatToe'){
-      const iplo=_lo(d),iphi=_hi(d),mflo=_lo(g),mfhi=_hi(g),melo=_lo(j),mehi=_hi(j);
-      const mtphi=Math.max(mfhi,mehi);
-      const ipb= iphi===0?0: iphi<=15?1: iphi<=25?2:3;
-      const mtpb= mtphi===0?0: mtphi<=20?1: mtphi<=30?2:3;
-      const mb=Math.max(ipb,mtpb);
-      const both=(iphi>0)&&(mfhi>0||mehi>0);
-      const clo= !both? iplo+mflo+melo : (mb<=1?20:mb<=2?40:80);
-      const chi= !both? iphi+mfhi+mehi : (mb<=1?30:mb<=2?50:90);
-      const lo=clo+_lo(m)+_lo(p)+_lo(s);
-      const hi=chi+_hi(m)+_hi(p)+_hi(s);
-      return {lo,hi};
-    }
-    return {lo:0,hi:0};
-  }
-
-  // Top-level: site + {jointName: rom} map (+ optional special-consideration label)
-  // → { lo, hi, display, joints:[{joint,normal,rom,pct}] }.
-  function romToSLU(site, romByJoint, specialLabel){
-    const key=_bodyPartKey(site);
-    const group=_combineGroup(key);
-    const js=romJointsFor(key);
-    const jointVals=[]; const detail=[];
-    for(let i=0;i<6;i++){
-      const jt=js[i];
-      if(!jt){ jointVals.push(''); continue; }
-      const rom=(romByJoint&&romByJoint[jt.joint]!==undefined)?romByJoint[jt.joint]:'';
-      const pct=romJointPct(key, jt.joint, rom);
-      jointVals.push(pct);
-      detail.push({joint:jt.joint, normal:jt.normalROM, rom:rom, pct:pct});
-    }
-    let c=_combine(group, jointVals, key);
-    const sp=_special(key, specialLabel);
-    // Shoulder adds special HIGH only (single); others add lo->sclo, hi->schi.
-    let tlo, thi;
-    if(c._single){
-      // special added after body cap; ankle then re-caps at 55.
-      thi=c.hi + sp.hi;
-      if(c._cap) thi=Math.min(thi, c._cap);
-      tlo=thi;
-    } else {
-      tlo=c.lo + sp.lo;
-      thi=c.hi + sp.hi;
-    }
-    const display = tlo===0 ? '' : (tlo===thi ? tlo+'%' : tlo+'-'+thi+'%');
-    return {lo:tlo, hi:thi, display, key, group, joints:detail};
-  }
-
   // ===========================================================================
   // Non-Schedule impairment engine — Spine (Tables 11.1/11.2 + S11.4-S11.7),
   // Brain (15.1), Psych (17.3). Spine reconciled to the app's shipped
@@ -900,9 +717,7 @@ Object.assign(window, {
   }
 
   Object.assign(window, {
-    romToSLU, romJointPct, romJointsFor,
     nonSchedSpine, nonSchedDomains,
-    SLU_ROM_JOINTS, SLU_ROM_SPECIAL,
     NONSCHED_ORDINAL: ORDINAL,
   });
 })();

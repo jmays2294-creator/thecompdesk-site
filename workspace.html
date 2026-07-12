@@ -277,6 +277,9 @@
     // formulas-data.js — plain-language formula reference, shared with the app.
     // Plain UMD module (attaches window.CD.Formulas), so loadScript not loadAndTransform.
     await loadScript('/js/formulas-data.js');
+    // slu-rom.js — canonical SLU ROM → %SLU engine (romToSLU / sluReplacement).
+    // MUST load before constants.js/tiles.js; byte-identical to the app copy.
+    await loadScript('/js/calc-core/slu-rom.js');
     await loadScript('/js/workspace/constants.js');
     await loadAndTransform('/js/workspace/tiles.js');
     // Owner-approved tiles from the admin platform (additive; no-op if none published).

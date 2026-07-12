@@ -3112,30 +3112,110 @@ function romSluMember(site) {
   if (/Toe/.test(site))            return { member: 'Other toe', wks: 16 };
   return { member: '—', wks: 0 };
 }
-function sluRomRow(id) { return { id: id || Date.now(), site: 'R Shoulder', roms: {}, special: 'None', pct: 0, td: '', ime: '', romOpen: true }; }
+function sluRomRow(id) { return { id: id || Date.now(), site: 'R Shoulder', mode: 'rom', roms: {}, both: {}, contra: {}, atrophy: false, special: 'None', repl: {}, pct: 0, td: '', ime: '', romOpen: true }; }
+// Sites whose joint replacement has its own stand-alone scoring track
+// (Tables 5.5 / 6.5 / 7.5 — see window.sluReplacement).
+function sluReplJoint(site) {
+  if (/Shoulder/.test(site)) return 'Shoulder';
+  if (/Hip/.test(site)) return 'Hip';
+  if (/Knee/.test(site)) return 'Knee';
+  return null;
+}
+// Migrate legacy saves: the old single "Flex/Abd" input becomes Forward
+// Flexion (same Table 5.4(a) scale); retired "Replacement - ..." specials
+// switch the row into the dedicated Replacement mode.
+function sluMigrateRow(r) {
+  const roms = { ...(r.roms || {}) };
+  if (roms['Flex/Abd'] !== undefined && roms['Forward Flexion'] === undefined) {
+    roms['Forward Flexion'] = roms['Flex/Abd'];
+  }
+  delete roms['Flex/Abd'];
+  let mode = r.mode || 'rom', special = r.special || 'None';
+  if (/^Replacement - /.test(special)) { mode = 'replacement'; special = 'None'; }
+  return { both: {}, contra: {}, repl: {}, atrophy: false, ...r, roms, mode, special };
+}
+function SluReplacementFields({ joint, repl, onChange }) {
+  const F = (label, key) => (
+    <div className="f-group"><label className="f-label">{label}</label>
+      <input className="f-input" type="number" step="any" value={repl[key] !== undefined ? repl[key] : ''}
+        onChange={e => onChange({ ...repl, [key]: e.target.value })} /></div>
+  );
+  const C = (label, key) => (
+    <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, cursor: 'pointer' }}>
+      <input type="checkbox" checked={!!repl[key]} onChange={e => onChange({ ...repl, [key]: e.target.checked })} /> {label}
+    </label>
+  );
+  return (
+    <div style={{ display: 'grid', gap: 6 }}>
+      <div className="row cols-2">
+        {F('Flexion °', 'flexion')}
+        {joint === 'Shoulder' ? F('Abduction °', 'abduction')
+          : joint === 'Knee' ? F('Extension deficit °', 'extension')
+          : F('Mal-rotation °', 'malRotationDeg')}
+      </div>
+      {joint === 'Hip' && (
+        <div className="row cols-2">{F('Leg length discrepancy (in)', 'lldInches')}{F('Atrophy, mid-thigh (in)', 'atrophyIn')}</div>
+      )}
+      {joint === 'Knee' && (
+        <>
+          <div className="row cols-2">{F('Malalignment °', 'malalignDeg')}{F('ML laxity °', 'mlLaxityDeg')}</div>
+          <div className="row cols-2">{F('AP motion (mm)', 'apMotionMm')}{F('Leg length (in)', 'legLengthIn')}</div>
+          <div className="row cols-2">{F('Atrophy, mid-thigh (in)', 'atrophyIn')}{F('Months post-op', 'monthsPostOp')}</div>
+        </>
+      )}
+      {joint === 'Shoulder' && (
+        <div className="row cols-2">{F('Atrophy, mid-arm (in)', 'atrophyIn')}{F('Months post-op', 'monthsPostOp')}</div>
+      )}
+      {joint === 'Hip' && (
+        <div className="row cols-2">{F('Months post-op', 'monthsPostOp')}<div /></div>
+      )}
+      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+        {C('Chronic complications', 'chronicComplications')}
+        {joint === 'Hip' && C('Hip fracture case', 'hipFracture')}
+        {C('FAILED replacement', 'failed')}
+      </div>
+    </div>
+  );
+}
 function SLURomTile({ tile, global, onUpdate }) {
   const tt = global.ttRate;
-  // Accept the new multi-row shape; migrate an old single-site save into row 1.
+  // Accept the multi-row shape; migrate an old single-site save into row 1.
   const raw = tile.inputs || {};
-  const inputs = raw.rows ? raw : { ...raw, rows: [{ ...sluRomRow(1), site: raw.site || 'R Shoulder', roms: raw.roms || {}, special: raw.special || 'None' }] };
+  const inputs = raw.rows
+    ? { ...raw, rows: raw.rows.map(sluMigrateRow) }
+    : { ...raw, rows: [sluMigrateRow({ ...sluRomRow(1), site: raw.site || 'R Shoulder', roms: raw.roms || {}, special: raw.special || 'None' })] };
   const rows = inputs.rows;
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
   const updateRow = (id, patch) => setInputs({ rows: rows.map(r => r.id === id ? { ...r, ...patch } : r) });
   const addRow = () => setInputs({ rows: [...rows, sluRomRow(Date.now())] });
   const removeRow = (id) => setInputs({ rows: rows.filter(r => r.id !== id) });
-  const setRom = (id, joint, val, site, special) => {
-    const row = rows.find(x => x.id === id);
-    const newRoms = { ...(row.roms || {}), [joint]: val };
-    updateRow(id, { roms: newRoms, pct: window.romToSLU(site, newRoms, special).hi || 0 });
-  };
   const baseW = tileBaseW(tile);
 
+  // Canonical engine calls — ALL SLU math lives in js/calc-core/slu-rom.js
+  // (window.romToSLU / window.sluReplacement). The tile never does arithmetic
+  // on percentages.
+  const engineOpts = (r) => ({ bothMotions: r.both || {}, contralateral: r.contra || {}, shoulderAtrophy: !!r.atrophy });
+  const scoreRow = (r) => {
+    const rj = sluReplJoint(r.site);
+    if (r.mode === 'replacement' && rj) {
+      const rep = window.sluReplacement(rj, r.repl || {});
+      return { rep, res: null, auto: rep && !rep.blocked ? (rep.pct || 0) : 0 };
+    }
+    const res = window.romToSLU(r.site, r.roms || {}, r.special, engineOpts(r));
+    return { rep: null, res, auto: res.hi || 0 };
+  };
+  // Patch a row and refresh its applied % from the engine.
+  const patchAndScore = (id, patch) => {
+    const row = { ...rows.find(x => x.id === id), ...patch };
+    updateRow(id, { ...patch, pct: scoreRow(row).auto });
+  };
+
   const computedRows = rows.map(r => {
-    const res = window.romToSLU(r.site, r.roms || {}, r.special);
+    const { rep, res } = scoreRow(r);
     const mem = romSluMember(r.site);
     const pct = Number(r.pct) || 0;
     const wks = (pct / 100) * mem.wks;
-    return { r, res, mem, pct, wks, gross: wks * tt };
+    return { r, res, rep, mem, pct, wks, gross: wks * tt };
   });
   const totalGross = computedRows.reduce((s, c) => s + c.gross, 0);
 
@@ -3147,52 +3227,143 @@ function SLURomTile({ tile, global, onUpdate }) {
   const splitIME = (v) => updateRow(inputs._splitId, { ime: v, pct: (((Number(splitRow && splitRow.td) || 0) + (Number(v) || 0)) / 2) });
   const splitVal = (v) => updateRow(inputs._splitId, { pct: v });
 
+  const GRID = '1.35fr 0.45fr 0.75fr 0.75fr 0.9fr';
   return (
     <>
       <Inherited {...global} />
       <div className="tile-body" style={{ width: baseW, boxSizing: 'border-box' }}>
-        <BetaBanner note="ROM → SLU (beta). Multi-body-part; ROM findings auto-compute each %SLU (2018 Guidelines). Verify before filing." />
+        <BetaBanner note="ROM → SLU (beta). Canonical 2018-Guidelines engine (Board worked-example regression suite). Verify before filing." />
         <div style={{ display: 'grid', gap: 10 }}>
-          {computedRows.map(({ r, res, mem, wks, gross }) => {
-            const specials = (window.SLU_ROM_SPECIAL || []).filter(s => s.bodyPart === res.key);
+          {computedRows.map(({ r, res, rep, mem, wks, gross }) => {
+            const key = res ? res.key : sluReplJoint(r.site);
+            const specials = (window.SLU_ROM_SPECIAL || []).filter(s => s.bodyPart === (res ? res.key : ''));
+            const replJoint = sluReplJoint(r.site);
             return (
               <React.Fragment key={r.id}>
               <div style={{ border: '1px solid var(--bd-soft)', borderRadius: 8, padding: '8px 10px' }}>
                 <div className="row cols-2">
                   <div className="f-group"><label className="f-label">Injury Site</label>
                     <select className="f-select" value={r.site}
-                      onChange={e => updateRow(r.id, { site: e.target.value, roms: {}, special: 'None', pct: 0 })}>
+                      onChange={e => patchAndScore(r.id, { site: e.target.value, roms: {}, both: {}, contra: {}, repl: {}, mode: 'rom', special: 'None' })}>
                       {ROM_SITE_LIST.map(s => <option key={s} value={s}>{s}</option>)}
                     </select></div>
-                  <div className="f-group"><label className="f-label">Special Consideration</label>
-                    <select className="f-select" value={r.special || 'None'}
-                      onChange={e => updateRow(r.id, { special: e.target.value, pct: window.romToSLU(r.site, r.roms || {}, e.target.value).hi || 0 })}>
-                      <option value="None">None</option>
-                      {specials.filter(s => s.consideration !== 'None').map(s => <option key={s.consideration} value={s.consideration}>{s.consideration}</option>)}
-                    </select></div>
+                  {r.mode !== 'replacement' ? (
+                    <div className="f-group"><label className="f-label">Special Consideration</label>
+                      <select className="f-select" value={r.special || 'None'}
+                        onChange={e => patchAndScore(r.id, { special: e.target.value })}>
+                        <option value="None">None</option>
+                        {specials.filter(s => s.consideration !== 'None').map(s => (
+                          <option key={s.consideration} value={s.consideration}>
+                            {s.consideration}{s.mode === 'standalone' ? ' · stand-alone' : ''}
+                          </option>
+                        ))}
+                      </select></div>
+                  ) : <div />}
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '4px 0' }}>
-                  <button type="button" className="btn tiny" onClick={() => updateRow(r.id, { romOpen: !r.romOpen })}>
-                    {r.romOpen ? '▾ ROM findings' : '▸ ROM findings'}
-                  </button>
-                  <span style={{ fontSize: 12, color: 'var(--tx-dim)' }}>from ROM: <strong style={{ color: 'var(--ac-2)' }}>{res.display || '0%'}</strong></span>
-                </div>
-                {r.romOpen && (
-                  <div style={{ display: 'grid', gap: 5, marginTop: 2 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.6fr 0.9fr 0.6fr', gap: 6, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, color: 'var(--tx-faint)' }}>
-                      <span>Motion</span><span>Normal</span><span>ROM°</span><span>%SLU</span>
-                    </div>
-                    {res.joints.map(j => (
-                      <div key={j.joint} style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.6fr 0.9fr 0.6fr', gap: 6, alignItems: 'center' }}>
-                        <span style={{ fontSize: 11.5 }}>{j.joint}</span>
-                        <span style={{ fontSize: 11.5, color: 'var(--tx-faint)' }}>{j.normal}°</span>
-                        <input className="f-input" type="number" min="0" step="1"
-                          value={(r.roms && r.roms[j.joint] !== undefined) ? r.roms[j.joint] : ''} placeholder={j.normal + '°'}
-                          onChange={e => setRom(r.id, j.joint, e.target.value, r.site, r.special)} />
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: j.pct ? 'var(--ac-2)' : 'var(--tx-faint)' }}>{j.pct || '—'}</span>
-                      </div>
+                {replJoint && (
+                  <div role="tablist" style={{ display: 'flex', gap: 4, margin: '4px 0' }}>
+                    {[{ id: 'rom', label: 'ROM (Table ' + (replJoint === 'Shoulder' ? '5.4' : replJoint === 'Hip' ? '6.4' : '7.4') + ')' },
+                      { id: 'replacement', label: 'Joint Replacement (Table ' + (replJoint === 'Shoulder' ? '5.5' : replJoint === 'Hip' ? '6.5' : '7.5') + ')' }].map(m => (
+                      <button key={m.id} type="button" role="tab" aria-selected={r.mode === m.id}
+                        className={'btn tiny' + (r.mode === m.id ? ' primary' : '')} style={{ flex: 1 }}
+                        onClick={() => patchAndScore(r.id, { mode: m.id })}>{m.label}</button>
                     ))}
                   </div>
+                )}
+                {r.mode === 'replacement' && replJoint ? (
+                  <>
+                    <div style={{ fontSize: 10.5, color: 'var(--tx-dim)', margin: '2px 0 6px' }}>
+                      Stand-alone track: base 35%, columns scored independently (mix rows), max 80%. Replaces the ROM table for a replaced joint.
+                    </div>
+                    <SluReplacementFields joint={replJoint} repl={r.repl || {}}
+                      onChange={(repl) => patchAndScore(r.id, { repl })} />
+                    {rep && rep.blocked ? (
+                      <div style={{ margin: '6px 0', padding: '6px 8px', borderRadius: 6, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.5)', fontSize: 11, color: 'var(--tx)' }}>
+                        <strong>Not schedulable.</strong> {rep.warnings[0]}
+                      </div>
+                    ) : rep && (
+                      <div style={{ fontSize: 12, color: 'var(--tx-dim)', margin: '4px 0' }}>
+                        Table result: <strong style={{ color: 'var(--ac-2)' }}>{rep.pct}%</strong>
+                        <span style={{ fontSize: 10.5 }}> (35 base + {rep.columns.rom} ROM + {rep.columns.position} position + {rep.columns.atrophy} atrophy + {rep.columns.complications} complications, ≤{rep.max})</span>
+                      </div>
+                    )}
+                    {rep && !rep.blocked && rep.warnings.map((w, i) => (
+                      <div key={i} style={{ fontSize: 10, color: 'var(--ac-2, #ffcf5c)', margin: '2px 0' }}>⚠ {w}</div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '4px 0', flexWrap: 'wrap' }}>
+                      <button type="button" className="btn tiny" onClick={() => updateRow(r.id, { romOpen: !r.romOpen })}>
+                        {r.romOpen ? '▾ ROM findings' : '▸ ROM findings'}
+                      </button>
+                      <span style={{ fontSize: 12, color: 'var(--tx-dim)' }}>from ROM: <strong style={{ color: 'var(--ac-2)' }}>{(res && res.display) || '0%'}</strong></span>
+                      {key === 'Shoulder' && (
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: 'var(--tx-dim)', cursor: 'pointer' }}
+                          title="Gates the 10-15% marked-rotation add (Table 5.4(a) note)">
+                          <input type="checkbox" checked={!!r.atrophy} onChange={e => patchAndScore(r.id, { atrophy: e.target.checked })} />
+                          muscle atrophy
+                        </label>
+                      )}
+                    </div>
+                    {r.romOpen && res && (
+                      <div style={{ display: 'grid', gap: 5, marginTop: 2 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 6, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, color: 'var(--tx-faint)' }}>
+                          <span>Motion</span><span>Norm</span><span>ROM°</span><span title="Contralateral (uninjured side) baseline — §1.3(3)(b)">Contra°</span><span>%SLU</span>
+                        </div>
+                        {res.joints.map(j => {
+                          const rowDef = (window.SLU_ROM_JOINTS || []).find(x => x.bodyPart === res.key && x.joint === j.joint) || {};
+                          const isPair = rowDef.pair === 'flexExt' || rowDef.pair === 'pronSup';
+                          const pairLabel = rowDef.pair === 'pronSup' ? '+sup' : '+ext';
+                          return (
+                            <div key={j.joint} style={{ display: 'grid', gridTemplateColumns: GRID, gap: 6, alignItems: 'center' }}>
+                              <span style={{ fontSize: 11.5 }}>
+                                {j.joint}
+                                {isPair && (
+                                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 3, marginLeft: 5, fontSize: 9.5, color: 'var(--tx-dim)', cursor: 'pointer' }}
+                                    title="Paired motion also deficient → higher figure applies (one motion → lower figure)">
+                                    <input type="checkbox" checked={!!(r.both && r.both[j.joint])}
+                                      onChange={e => patchAndScore(r.id, { both: { ...(r.both || {}), [j.joint]: e.target.checked } })} />
+                                    {pairLabel}
+                                  </label>
+                                )}
+                              </span>
+                              <span style={{ fontSize: 11.5, color: 'var(--tx-faint)' }}>{j.grade ? 'grade' : j.normal + '°'}</span>
+                              {j.grade ? (
+                                <select className="f-select" style={{ gridColumn: '3 / 5' }}
+                                  value={(r.roms && r.roms[j.joint] !== undefined) ? r.roms[j.joint] : ''}
+                                  onChange={e => patchAndScore(r.id, { roms: { ...(r.roms || {}), [j.joint]: e.target.value } })}>
+                                  <option value="">— full opposition —</option>
+                                  {(rowDef.gradeLabels || []).map((gl, gi) => <option key={gi} value={gi + 1}>{gl}</option>)}
+                                </select>
+                              ) : (
+                                <>
+                                  <input className="f-input" type="number" min="0" step="1"
+                                    value={(r.roms && r.roms[j.joint] !== undefined) ? r.roms[j.joint] : ''} placeholder={j.normal + '°'}
+                                    onChange={e => patchAndScore(r.id, { roms: { ...(r.roms || {}), [j.joint]: e.target.value } })} />
+                                  {j.flat ? <span style={{ fontSize: 10, color: 'var(--tx-faint)' }}>flat 7.5–10</span> : (
+                                    <input className="f-input" type="number" min="0" step="1"
+                                      value={(r.contra && r.contra[j.joint] !== undefined) ? r.contra[j.joint] : ''} placeholder="—"
+                                      onChange={e => patchAndScore(r.id, { contra: { ...(r.contra || {}), [j.joint]: e.target.value } })} />
+                                  )}
+                                </>
+                              )}
+                              <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: j.pct ? 'var(--ac-2)' : 'var(--tx-faint)' }}>
+                                {j.pct || '—'}{j.sev && j.pct ? <span style={{ fontSize: 8.5, color: 'var(--tx-faint)' }}> {j.sev}{j.extrapolated ? '*' : ''}</span> : null}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {res.notes && res.notes.length > 0 && (
+                          <div style={{ display: 'grid', gap: 2 }}>
+                            {res.notes.map((n, i) => (
+                              <div key={i} style={{ fontSize: 10, color: 'var(--ac-2, #ffcf5c)' }}>⚠ {n}</div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
                 <div style={{ display: 'flex', alignItems: 'end', gap: 8, marginTop: 6 }}>
                   <div className="f-group" style={{ maxWidth: 110 }}><label className="f-label">Applied % SLU</label>
@@ -3214,6 +3385,9 @@ function SLURomTile({ tile, global, onUpdate }) {
           })}
         </div>
         <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
+        <div style={{ fontSize: 9.5, color: 'var(--tx-faint)', margin: '4px 0' }}>
+          * = extrapolated value (not printed in the 2018 Guidelines). Contra° scales the rating to the uninjured side's baseline (§1.3(3)(b)).
+        </div>
         <div className="results">
           <div className="r-row big"><span className="l">Total SLU Award</span><span className="v">{fmt$(totalGross)}</span></div>
           <div className="r-row"><span className="l">@ {fmt$(tt)}/wk</span><span className="v" style={{ fontSize: 10 }}>{computedRows.length} body part{computedRows.length === 1 ? '' : 's'} · run the SLU tile for §15(3)(w) credit</span></div>
@@ -3440,6 +3614,36 @@ const MTG_BODYPART_SLUG = {
   'Occ. Asthma': 'asthma',
   'Occ. ILD': 'lung-disease',
 };
+
+// section-pages.json maps a treatment's §section onto its PAGE in the guideline
+// PDF, so the link can deep-link with #page=N rather than dropping the reader on
+// page 1 of a 949-page document. Generated by scripts/build-mtg-section-pages.py.
+// Lazy + cached module-side; a failed fetch just costs us the page anchor.
+let _mtgPages = (typeof window !== 'undefined' && window._MTG_PAGES) || null;
+let _mtgPagesPromise = null;
+function loadMtgSectionPages() {
+  if (_mtgPages) return Promise.resolve(_mtgPages);
+  if (_mtgPagesPromise) return _mtgPagesPromise;
+  _mtgPagesPromise = fetch('/data/mtg/section-pages.json')
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
+    .then(j => {
+      _mtgPages = j.pages || {};
+      if (typeof window !== 'undefined') window._MTG_PAGES = _mtgPages;
+      return _mtgPages;
+    })
+    .catch(e => { console.warn('[MTG] section pages', e); _mtgPages = {}; return _mtgPages; });
+  return _mtgPagesPromise;
+}
+
+// Build the source-guideline URL for a treatment, deep-linked to its section
+// when we know the page. Returns null when there's no source PDF (the
+// "Pre-Auth Rules (All)" pseudo-category cites 12 NYCRR 324.2, not a guideline).
+function mtgSourceHref(t, pageMap) {
+  const slug = MTG_BODYPART_SLUG[t.bodyPart];
+  if (!slug) return null;
+  const page = pageMap && pageMap[slug] && pageMap[slug][(t.section || '').trim()];
+  return `/data/mtg/pdfs/${slug}.pdf${page ? `#page=${page}` : ''}`;
+}
 function mtgStatusStyle(status) {
   if (status === 'Recommended')      return { color: '#0b6b3a', bg: 'rgba(34,180,110,0.14)', label: 'Recommended' };
   if (status === 'Not Recommended')  return { color: '#a3341f', bg: 'rgba(220,80,60,0.14)',  label: 'Not Recommended' };
@@ -3450,9 +3654,10 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
   const [data, setData] = useState(_mtgTx);
   const [err, setErr] = useState(false);
+  const [pageMap, setPageMap] = useState(_mtgPages);
   useEffect(() => {
-    if (data) return;
-    loadMtgTreatments().then(setData).catch(() => setErr(true));
+    if (!data) loadMtgTreatments().then(setData).catch(() => setErr(true));
+    if (!pageMap) loadMtgSectionPages().then(setPageMap);
   }, []);
 
   const treatments = (data && data.treatments) || [];
@@ -3572,17 +3777,24 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
                   </div>
                 )}
                 {sel.t.brief && <div style={{ color: 'var(--tx-faint)', fontStyle: 'italic', marginTop: 6, fontSize: 12 }}>{sel.t.brief}</div>}
-                {MTG_BODYPART_SLUG[sel.t.bodyPart] && (
-                  <a href={`/data/mtg/pdfs/${MTG_BODYPART_SLUG[sel.t.bodyPart]}.pdf`} target="_blank" rel="noopener"
-                    onClick={e => e.stopPropagation()}
-                    style={{
-                      display: 'inline-block', marginTop: 10, padding: '7px 14px', borderRadius: 6,
-                      background: 'var(--ac-soft)', border: '1px solid var(--ac)', color: 'var(--ac)',
-                      fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3,
-                    }}>
-                    Read the full guideline{sel.t.section ? ` (§${sel.t.section})` : ''} →
-                  </a>
-                )}
+                {(() => {
+                  const href = mtgSourceHref(sel.t, pageMap);
+                  if (!href) return null;
+                  // Only promise the section jump when we actually resolved a page —
+                  // otherwise the link honestly reads as "open the guideline".
+                  const deep = href.includes('#page=');
+                  return (
+                    <a href={href} target="_blank" rel="noopener"
+                      onClick={e => e.stopPropagation()}
+                      style={{
+                        display: 'inline-block', marginTop: 10, padding: '7px 14px', borderRadius: 6,
+                        background: 'var(--ac-soft)', border: '1px solid var(--ac)', color: 'var(--ac)',
+                        fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3,
+                      }}>
+                      {deep ? `Read the full guideline at §${sel.t.section} →` : 'Open the source guideline →'}
+                    </a>
+                  );
+                })()}
                 <div style={{ fontSize: 10, color: 'var(--tx-faint)', marginTop: 8, lineHeight: 1.4 }}>
                   Source: NYS WCB Medical Treatment Guidelines{sel.t.section ? ` — ${sel.t.section}` : ''}. Confirm against the current published guideline.
                 </div>
