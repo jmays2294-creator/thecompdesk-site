@@ -3649,15 +3649,167 @@ function mtgStatusStyle(status) {
   if (status === 'Not Recommended')  return { color: '#a3341f', bg: 'rgba(220,80,60,0.14)',  label: 'Not Recommended' };
   return { color: 'var(--tx-dim)', bg: 'rgba(150,150,150,0.14)', label: status || '—' };
 }
+
+// Every indications string in the dataset is written "1) foo, 2) bar" — split it
+// back into the numbered criteria so the drawer can render them as the checklist
+// they actually are. Verified against all 2,199 rows: 1–7 criteria each, none empty.
+function mtgCriteria(text) {
+  if (!text) return [];
+  return String(text).split(/\s*\d+\)\s*/)
+    .map(s => s.replace(/,\s*$/, '').trim())
+    .filter(Boolean);
+}
+
+// ---------- Indications drawer ----------
+// Docked panel listing the approval criteria for EVERY treatment in the tile's
+// current filter, so you can read a whole body part's requirements in one scroll
+// instead of clicking treatments one at a time.
+//
+// Portaled to document.body: `.tile` sets `overflow: hidden`, so a panel docked
+// outside the tile's box would be clipped. Same escape hatch MTGOverlay uses.
+// Anchors to the tile's right edge, flips left when there's no room, and drops to
+// a bottom sheet on narrow viewports.
+const MTG_DRAWER_W = 380;
+const MTG_DRAWER_CAP = 60;
+
+function MTGIndicationsDrawer({ items, total, subtitle, pageMap, anchorEl, onClose, onSelect, selKey }) {
+  const [rect, setRect] = useState(null);
+
+  useEffect(() => {
+    if (!anchorEl) return;
+    const measure = () => setRect(anchorEl.getBoundingClientRect());
+    measure();
+    window.addEventListener('scroll', measure, true);
+    window.addEventListener('resize', measure);
+    // The tile can be dragged around the canvas — keep the drawer glued to it.
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (ro) ro.observe(anchorEl);
+    const raf = setInterval(measure, 250);
+    return () => {
+      window.removeEventListener('scroll', measure, true);
+      window.removeEventListener('resize', measure);
+      if (ro) ro.disconnect();
+      clearInterval(raf);
+    };
+  }, [anchorEl]);
+
+  const narrow = typeof window !== 'undefined' && window.innerWidth < 860;
+  let pos;
+  if (narrow || !rect) {
+    pos = { left: 8, right: 8, bottom: 8, top: 'auto', width: 'auto', maxHeight: '60vh' };
+  } else {
+    let left = rect.right + 10;
+    if (left + MTG_DRAWER_W > window.innerWidth - 10) left = rect.left - MTG_DRAWER_W - 10;
+    if (left < 10) left = Math.max(10, window.innerWidth - MTG_DRAWER_W - 10);
+    const top = Math.max(10, Math.min(rect.top, window.innerHeight - 220));
+    const maxHeight = Math.min(rect.height, window.innerHeight - top - 12);
+    pos = { left, top, width: MTG_DRAWER_W, maxHeight };
+  }
+
+  const node = (
+    <div style={{
+      position: 'fixed', ...pos, zIndex: 8500,
+      display: 'flex', flexDirection: 'column',
+      background: 'var(--tile, #111a2b)',
+      border: '1px solid var(--ac)',
+      borderRadius: 12,
+      boxShadow: '0 20px 60px rgba(0,0,0,.45)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8,
+        padding: '10px 12px', background: 'var(--ac-soft)',
+        borderBottom: '1px solid var(--bd-soft)', flexShrink: 0,
+      }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ac)' }}>Indications</div>
+          <div style={{ fontSize: 10.5, color: 'var(--tx-faint)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {subtitle} · {total} treatment{total === 1 ? '' : 's'}
+            {total > MTG_DRAWER_CAP ? ` — showing first ${MTG_DRAWER_CAP}` : ''}
+          </div>
+        </div>
+        <button type="button" aria-label="Close indications" onClick={onClose} style={{
+          background: 'transparent', border: 0, color: 'var(--tx-faint)', cursor: 'pointer',
+          fontSize: 20, lineHeight: 1, padding: '0 4px', flexShrink: 0,
+        }}>×</button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: 10, display: 'grid', gap: 8, minHeight: 0 }}>
+        {items.length === 0 && (
+          <p style={{ color: 'var(--tx-faint)', fontSize: 12, fontStyle: 'italic', margin: 0 }}>
+            Nothing matches the current filter.
+          </p>
+        )}
+        {items.map(({ t, k }) => {
+          const st = mtgStatusStyle(t.status);
+          const crit = mtgCriteria(t.indications);
+          const href = mtgSourceHref(t, pageMap);
+          const active = k === selKey;
+          return (
+            <div key={k} onClick={() => onSelect(k)} style={{
+              background: 'var(--bg-1, rgba(9,14,26,0.55))',
+              border: active ? '1px solid var(--ac)' : '1px solid var(--bd-soft)',
+              borderRadius: 8, padding: '9px 11px', cursor: 'pointer',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'flex-start' }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--tx)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>{t.treatment}</div>
+                  <div style={{ fontSize: 10, color: 'var(--tx-faint)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
+                    {t.category}{t.section ? ` · §${t.section}` : ''}
+                  </div>
+                </div>
+                <span style={{
+                  flexShrink: 0, fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 8,
+                  color: st.color, background: st.bg, whiteSpace: 'nowrap',
+                }}>{st.label}</span>
+              </div>
+
+              <ul style={{ listStyle: 'none', margin: '6px 0 0', padding: 0 }}>
+                {crit.map((c, n) => (
+                  <li key={n} style={{ display: 'flex', gap: 7, fontSize: 11.5, color: 'var(--tx-dim)', lineHeight: 1.5, marginTop: 4 }}>
+                    <span style={{ color: 'var(--ac)', fontWeight: 700, flexShrink: 0 }}>{n + 1}</span>
+                    <span style={{ overflowWrap: 'anywhere' }}>{c}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div style={{ fontSize: 10.5, color: 'var(--tx-faint)', marginTop: 6 }}>
+                Pre-auth: <strong style={{ color: 'var(--tx-dim)' }}>{t.preAuth || '—'}</strong>
+                {t.duration && t.duration !== 'N/A' ? ` · Duration: ${t.duration}` : ''}
+              </div>
+
+              {href && (
+                <a href={href} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}
+                  style={{ display: 'inline-block', marginTop: 6, fontSize: 10.5, fontWeight: 700, color: 'var(--ac)', textDecoration: 'none' }}>
+                  {href.includes('#page=') ? `Read §${t.section} in the guideline →` : 'Open the source guideline →'}
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  if (typeof ReactDOM !== 'undefined' && ReactDOM.createPortal && typeof document !== 'undefined') {
+    return ReactDOM.createPortal(node, document.body);
+  }
+  return node;
+}
 function MTGBrowserTile({ tile, global, onUpdate }) {
   const inputs = tile.inputs || { query: '', bodyPart: 'All', category: 'All', selKey: null };
   const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
   const [data, setData] = useState(_mtgTx);
   const [err, setErr] = useState(false);
   const [pageMap, setPageMap] = useState(_mtgPages);
+  // Anchor the drawer to the tile itself (the .tile ancestor), not the body div —
+  // the body scrolls, the tile doesn't.
+  const bodyRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   useEffect(() => {
     if (!data) loadMtgTreatments().then(setData).catch(() => setErr(true));
     if (!pageMap) loadMtgSectionPages().then(setPageMap);
+    if (bodyRef.current) setAnchorEl(bodyRef.current.closest('.tile') || bodyRef.current);
   }, []);
 
   const treatments = (data && data.treatments) || [];
@@ -3683,8 +3835,15 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
   const shown = filtered.slice(0, 200);
   const sel = filtered.find(({ t, gi }) => keyOf(t, gi) === inputs.selKey) || null;
 
+  const drawerItems = filtered.slice(0, MTG_DRAWER_CAP).map(({ t, gi }) => ({ t, k: keyOf(t, gi) }));
+  const drawerSubtitle = [
+    inputs.bodyPart && inputs.bodyPart !== 'All' ? inputs.bodyPart : 'All body parts',
+    inputs.category && inputs.category !== 'All' ? inputs.category : null,
+    q ? `“${inputs.query.trim()}”` : null,
+  ].filter(Boolean).join(' · ');
+
   return (
-    <div className="tile-body">
+    <div className="tile-body" ref={bodyRef}>
       <BetaBanner note="MTG browser (beta) — pick a treatment to read its approval criteria + citation; verify against the source guideline before relying on it." />
       <div className="f-group">
         <input className="f-input" type="search" placeholder="Search treatments, criteria, §section…"
@@ -3712,8 +3871,22 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
 
       {data && (
         <>
-          <div style={{ fontSize: 11, color: 'var(--tx-faint)', margin: '2px 0 4px' }}>
-            {filtered.length} treatment{filtered.length === 1 ? '' : 's'}{filtered.length > 200 ? ' (showing first 200 — narrow your search)' : ''}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '2px 0 4px' }}>
+            <span style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--tx-faint)' }}>
+              {filtered.length} treatment{filtered.length === 1 ? '' : 's'}{filtered.length > 200 ? ' (showing first 200 — narrow your search)' : ''}
+            </span>
+            <button type="button" disabled={!filtered.length}
+              onClick={() => setInputs({ drawer: !inputs.drawer })}
+              style={{
+                flexShrink: 0, cursor: filtered.length ? 'pointer' : 'default',
+                fontSize: 10.5, fontWeight: 700, padding: '4px 9px', borderRadius: 6,
+                background: inputs.drawer ? 'var(--ac)' : 'var(--ac-soft)',
+                border: '1px solid var(--ac)',
+                color: inputs.drawer ? '#fff' : 'var(--ac)',
+                opacity: filtered.length ? 1 : 0.45,
+              }}>
+              {inputs.drawer ? 'Hide indications' : `All indications (${Math.min(filtered.length, MTG_DRAWER_CAP)})`}
+            </button>
           </div>
 
           {/* Master list — names wrap fully; category/§ subtitle disambiguates duplicates */}
@@ -3802,6 +3975,19 @@ function MTGBrowserTile({ tile, global, onUpdate }) {
             )}
           </div>
         </>
+      )}
+
+      {inputs.drawer && data && filtered.length > 0 && (
+        <MTGIndicationsDrawer
+          items={drawerItems}
+          total={filtered.length}
+          subtitle={drawerSubtitle}
+          pageMap={pageMap}
+          anchorEl={anchorEl}
+          selKey={inputs.selKey}
+          onSelect={k => setInputs({ selKey: inputs.selKey === k ? null : k })}
+          onClose={() => setInputs({ drawer: false })}
+        />
       )}
     </div>
   );
