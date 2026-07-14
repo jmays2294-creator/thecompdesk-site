@@ -295,8 +295,8 @@
     .form-error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;}
     .form-error.visible{display:block;}
 
-    /* ─── Body Diagram ─────────────────────────────────────────── */
-    .body-dx{margin-top:4px;}
+    /* ─── Body Diagram (Claude Design body map; selected-state keyed to the site's .selected) ── */
+    .body-dx{margin-top:4px;--bdx-ac:var(--ac,#4E9FFF);--bdx-rest:#2C3547;--bdx-hover:#3E4A63;--bdx-line:rgba(214,228,255,.16);--bdx-focus:#F2F7FF;--bdx-glow:color-mix(in srgb,var(--bdx-ac) 50%,transparent);}
     .body-dx-tabs{display:inline-flex;background:rgba(6,8,15,0.6);border:1px solid var(--bd);border-radius:8px;padding:3px;gap:2px;margin-bottom:12px;}
     .body-dx-tab{background:transparent;border:none;color:var(--txD);font:600 13px/1 'DM Sans',sans-serif;padding:7px 16px;border-radius:6px;cursor:pointer;transition:background 0.15s,color 0.15s;}
     .body-dx-tab.active{background:var(--ac);color:#fff;}
@@ -306,15 +306,36 @@
     .body-dx-stage svg{width:100%;height:auto;display:block;}
     .body-dx-view{display:none;}
     .body-dx-view.active{display:block;}
-    /* Silhouette outline */
-    .body-silhouette{fill:rgba(79,143,247,0.05);stroke:var(--bd);stroke-width:1.2;pointer-events:none;}
-    /* Hit regions */
-    .body-region{fill:rgba(79,143,247,0.10);stroke:rgba(79,143,247,0.45);stroke-width:1;cursor:pointer;transition:fill 0.15s,stroke 0.15s;}
-    .body-region:hover{fill:rgba(79,143,247,0.28);stroke:var(--ac);}
-    .body-region:focus{outline:none;}
-    .body-region:focus-visible{stroke:var(--wh);stroke-width:2;}
-    .body-region.selected{fill:var(--ac);stroke:var(--wh);stroke-width:1.5;}
-    .body-region.selected:hover{fill:#6ba2ff;}
+    /* Selectable regions */
+    .body-dx .body-region{fill:var(--bdx-rest);stroke:var(--bdx-line);stroke-width:.9;cursor:pointer;outline:none;transition:fill .16s ease,filter .16s ease;}
+    .body-dx .body-region:hover{fill:var(--bdx-hover);}
+    .body-dx .body-region:focus-visible{stroke:var(--bdx-focus);stroke-width:1.7;stroke-dasharray:4 2.6;}
+    .body-dx .body-region.selected{fill:var(--bdx-ac);stroke:rgba(255,255,255,.55);filter:drop-shadow(0 0 6px var(--bdx-glow));}
+    /* Paired hit/art regions: transparent hit path drives the adjacent visible artwork */
+    .body-dx .body-region.body-hit{fill:transparent!important;stroke:none!important;filter:none!important;}
+    .body-dx .body-dx-art{fill:var(--bdx-rest);stroke:var(--bdx-line);stroke-width:.9;pointer-events:none;transition:fill .16s ease,filter .16s ease;}
+    .body-dx .body-hit:hover+.body-dx-art{fill:var(--bdx-hover);}
+    .body-dx .body-hit:focus-visible+.body-dx-art{stroke:var(--bdx-focus);stroke-width:1.7;stroke-dasharray:4 2.6;}
+    .body-dx .body-hit.selected+.body-dx-art{fill:var(--bdx-ac);stroke:rgba(255,255,255,.55);filter:drop-shadow(0 0 6px var(--bdx-glow));}
+    /* Zoom hotspots (open the detail drawer; .zoom-on = a child region is selected) */
+    .body-dx .body-zoom{fill:var(--bdx-rest);stroke:var(--bdx-line);stroke-width:.9;cursor:pointer;outline:none;transition:fill .16s ease,stroke .16s ease;}
+    .body-dx .body-zoom:hover{fill:var(--bdx-hover);}
+    .body-dx .body-zoom:focus-visible{stroke:var(--bdx-focus);stroke-width:1.7;stroke-dasharray:4 2.6;}
+    .body-dx .body-zoom.zoom-on{fill:var(--bdx-hover);stroke:var(--bdx-ac);stroke-width:2;filter:drop-shadow(0 0 5px var(--bdx-glow));}
+    .body-dx .bdx-inert{fill:#232B3B;pointer-events:none;}
+    .body-dx .bdx-shade{pointer-events:none;}
+    @media (prefers-reduced-motion:reduce){.body-dx .body-region,.body-dx .body-dx-art,.body-dx .body-zoom{transition:none!important;}}
+    /* Detail drawer (head / hands / feet) */
+    .body-dx-drawer{display:none;margin:14px auto 0;max-width:340px;background:rgba(6,8,15,0.6);border:1px solid var(--bd);border-radius:12px;padding:12px 14px 16px;}
+    .body-dx-drawer.open{display:block;}
+    .body-dx-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+    .body-dx-drawer-title{font-size:13px;font-weight:700;color:var(--wh);}
+    .body-dx-drawer-done{background:transparent;border:1px solid var(--bd);color:var(--txD);font:600 12px/1 'DM Sans',sans-serif;padding:6px 14px;border-radius:6px;cursor:pointer;transition:border-color 0.15s,color 0.15s;}
+    .body-dx-drawer-done:hover{border-color:var(--ac);color:var(--ac);}
+    .body-dx-drawer-done:focus-visible{outline:2px solid var(--ac);outline-offset:2px;}
+    .body-dx-panel{display:none;}
+    .body-dx-panel.active{display:block;}
+    .body-dx-panel svg{width:100%;max-width:250px;height:auto;display:block;margin:0 auto;}
     /* Selection summary */
     .body-dx-summary{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;min-height:28px;}
     .body-dx-pill{display:inline-flex;align-items:center;gap:6px;background:var(--acG);border:1px solid rgba(79,143,247,0.35);color:var(--ac);font-size:12px;font-weight:600;padding:4px 10px;border-radius:14px;}
@@ -749,177 +770,265 @@
                   <button type="button" class="body-dx-tab" id="bodyTabBack" role="tab" aria-selected="false" aria-controls="bodyViewBack" data-view="back">Back</button>
                 </div>
 
+                <!-- Shared shading gradient defs — must precede all body-map SVGs.
+                     Kept OUTSIDE .body-dx-stage so the stage's width:100% svg rule can't hit it. -->
+                <!-- Shared shading gradients. Referenced by ALL body-map SVGs (url(#gHiF), url(#gShF)).
+                     Claude Design defined these inside front.svg only; hoisted here because the front view is
+                     display:none whenever another view is active, which can drop the refs. Inline this ONCE,
+                     near the top of the diagram container, before any of the view SVGs. -->
+                <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute">
+                  <defs>
+                          <radialGradient id="gHiF"><stop offset="0" stop-color="#BFD4FF" stop-opacity=".13"></stop><stop offset="1" stop-color="#BFD4FF" stop-opacity="0"></stop></radialGradient>
+                          <radialGradient id="gShF"><stop offset="0" stop-color="#04080F" stop-opacity=".32"></stop><stop offset="1" stop-color="#04080F" stop-opacity="0"></stop></radialGradient>
+                        </defs>
+                </svg>
+
                 <div class="body-dx-stage">
-                  <!-- FRONT VIEW -->
+                  <!-- FRONT VIEW (claimant-left = viewer-left) -->
                   <div class="body-dx-view active" id="bodyViewFront" role="tabpanel" aria-labelledby="bodyTabFront">
-                    <svg viewBox="0 0 200 480" xmlns="http://www.w3.org/2000/svg" aria-label="Front view of human body. Tap a region to mark it as injured.">
-                      <!-- Silhouette outline (decorative) -->
-                      <path class="body-silhouette" d="M100 18
-                        c-15 0 -27 12 -27 27 c0 11 5 21 13 26
-                        l-3 8
-                        c-12 2 -22 8 -28 18 c-6 10 -8 22 -8 36
-                        l0 60 c0 6 -2 12 -5 17
-                        l-22 38 c-3 5 -3 11 0 16 c3 4 9 5 14 2
-                        l8 -6 l-2 60 c-1 8 0 16 2 24
-                        l4 18
-                        l-2 90 c0 4 1 8 4 11 c3 3 7 4 11 3
-                        l8 -2 l2 32 c0 4 2 8 5 10 c3 2 7 2 11 1
-                        l8 -3
-                        l4 -28
-                        l4 28
-                        l8 3 c4 1 8 1 11 -1 c3 -2 5 -6 5 -10
-                        l2 -32 l8 2 c4 1 8 0 11 -3 c3 -3 4 -7 4 -11
-                        l-2 -90
-                        l4 -18 c2 -8 3 -16 2 -24
-                        l-2 -60 l8 6 c5 3 11 2 14 -2 c3 -5 3 -11 0 -16
-                        l-22 -38 c-3 -5 -5 -11 -5 -17 l0 -60
-                        c0 -14 -2 -26 -8 -36 c-6 -10 -16 -16 -28 -18
-                        l-3 -8 c8 -5 13 -15 13 -26 c0 -15 -12 -27 -27 -27 z" />
-
-                      <!-- Hit regions: head -->
-                      <ellipse class="body-region" data-region="head" data-label="Head"
-                        cx="100" cy="45" rx="26" ry="28" tabindex="0" role="button" aria-label="Head" aria-pressed="false"></ellipse>
-
-                      <!-- Neck -->
-                      <rect class="body-region" data-region="neck" data-label="Neck"
-                        x="86" y="74" width="28" height="16" rx="6" tabindex="0" role="button" aria-label="Neck" aria-pressed="false"></rect>
-
-                      <!-- Shoulders -->
-                      <ellipse class="body-region" data-region="left_shoulder" data-label="Left shoulder"
-                        cx="63" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Left shoulder" aria-pressed="false"></ellipse>
-                      <ellipse class="body-region" data-region="right_shoulder" data-label="Right shoulder"
-                        cx="137" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Right shoulder" aria-pressed="false"></ellipse>
-
-                      <!-- Chest -->
-                      <rect class="body-region" data-region="chest" data-label="Chest"
-                        x="76" y="98" width="48" height="60" rx="12" tabindex="0" role="button" aria-label="Chest" aria-pressed="false"></rect>
-
-                      <!-- Upper arms -->
-                      <rect class="body-region" data-region="left_arm" data-label="Left arm"
-                        x="42" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Left arm" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="right_arm" data-label="Right arm"
-                        x="138" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Right arm" aria-pressed="false"></rect>
-
-                      <!-- Elbows -->
-                      <circle class="body-region" data-region="left_elbow" data-label="Left elbow"
-                        cx="52" cy="194" r="11" tabindex="0" role="button" aria-label="Left elbow" aria-pressed="false"></circle>
-                      <circle class="body-region" data-region="right_elbow" data-label="Right elbow"
-                        cx="148" cy="194" r="11" tabindex="0" role="button" aria-label="Right elbow" aria-pressed="false"></circle>
-
-                      <!-- Wrist / hand -->
-                      <rect class="body-region" data-region="left_wrist_hand" data-label="Left wrist/hand"
-                        x="42" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Left wrist and hand" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="right_wrist_hand" data-label="Right wrist/hand"
-                        x="136" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Right wrist and hand" aria-pressed="false"></rect>
-
-                      <!-- Hips -->
-                      <ellipse class="body-region" data-region="left_hip" data-label="Left hip"
-                        cx="84" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Left hip" aria-pressed="false"></ellipse>
-                      <ellipse class="body-region" data-region="right_hip" data-label="Right hip"
-                        cx="116" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Right hip" aria-pressed="false"></ellipse>
-
-                      <!-- Knees -->
-                      <circle class="body-region" data-region="left_knee" data-label="Left knee"
-                        cx="84" cy="316" r="13" tabindex="0" role="button" aria-label="Left knee" aria-pressed="false"></circle>
-                      <circle class="body-region" data-region="right_knee" data-label="Right knee"
-                        cx="116" cy="316" r="13" tabindex="0" role="button" aria-label="Right knee" aria-pressed="false"></circle>
-
-                      <!-- Ankles / feet -->
-                      <rect class="body-region" data-region="left_ankle_foot" data-label="Left ankle/foot"
-                        x="68" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Left ankle and foot" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="right_ankle_foot" data-label="Right ankle/foot"
-                        x="108" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Right ankle and foot" aria-pressed="false"></rect>
-                    </svg>
+                    <svg id="ab-front" viewBox="0 0 220 660" width="300" role="group" aria-label="Front of body">
+                            <path class="body-zoom" data-panel="head" tabindex="0" role="button" aria-label="Head and face — open head detail" d="M110,8 C126,8 136,22 136,44 C136,60 130,74 122,84 C118,89 114,92 110,92 C106,92 102,89 98,84 C90,74 84,60 84,44 C84,22 94,8 110,8 Z"></path>
+                            <path class="body-region" data-region="neck" data-label="Neck" tabindex="0" role="button" aria-label="Neck" aria-pressed="false" d="M97,82 C101,88 105,91 110,91 C115,91 119,88 123,82 C124,92 126,98 132,102 C140,107 150,110 158,113 L158,120 L62,120 L62,113 C70,110 80,107 88,102 C94,98 96,92 97,82 Z"></path>
+                            <path class="body-region" data-region="chest" data-label="Chest" tabindex="0" role="button" aria-label="Chest" aria-pressed="false" d="M62,120 L158,120 C158,145 156,165 152,180 C138,188 122,190 110,190 C98,190 82,188 68,180 C64,165 62,145 62,120 Z"></path>
+                            <path class="body-region" data-region="abdomen" data-label="Abdomen" tabindex="0" role="button" aria-label="Abdomen" aria-pressed="false" d="M68,180 C82,188 98,190 110,190 C122,190 138,188 152,180 C149,200 147,224 146,247 L74,247 C73,224 71,200 68,180 Z"></path>
+                            <path class="body-region" data-region="pelvis_groin" data-label="Pelvis / groin" tabindex="0" role="button" aria-label="Pelvis and groin" aria-pressed="false" d="M74,247 L146,247 C147,258 148,268 148,276 C136,282 122,288 110,304 C98,288 84,282 72,276 C72,268 73,258 74,247 Z"></path>
+                            <g>
+                              <path d="M62,113 C52,115 43,121 38,131 C34,139 33,148 34,157 L56,157 C58,144 59,130 62,120 L62,113 Z" class="body-region" data-region="left_shoulder" data-label="Left shoulder" tabindex="0" role="button" aria-label="Left shoulder" aria-pressed="false"></path>
+                              <path d="M34,157 L56,157 C56,172 55,188 53,202 L32,206 C30,190 31,172 34,157 Z" class="body-region" data-region="left_arm" data-label="Left upper arm" tabindex="0" role="button" aria-label="Left upper arm" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="left_elbow" data-label="Left elbow" tabindex="0" role="button" aria-label="Left elbow" aria-pressed="false" d="M22,194 L62,190 L62,238 L22,242 Z"></path><path d="M32,206 L53,202 C53,210 52,217 52,224 L30,228 C30,220 31,213 32,206 Z" class="body-dx-art"></path>
+                              <path d="M30,228 L52,224 C51,244 48,262 44,278 L26,281 C25,262 27,244 30,228 Z" class="body-region" data-region="left_forearm" data-label="Left forearm" tabindex="0" role="button" aria-label="Left forearm" aria-pressed="false"></path>
+                              <path d="M26,281 L44,278 C45,290 45,300 44,310 C42,326 38,340 33,348 C28,351 23,348 21,342 C19,330 20,310 22,296 C23,290 24,285 26,281 Z" class="body-zoom" data-panel="hands" data-side="left" tabindex="0" role="button" aria-label="Left hand and wrist — open hand detail"></path>
+                              <path class="body-region body-hit" data-region="left_hip" data-label="Left hip" tabindex="0" role="button" aria-label="Left hip" aria-pressed="false" d="M50,230 L80,230 L80,306 L50,306 Z"></path><path d="M74,236 C67,242 62,251 60,262 C59,276 61,289 64,300 C68,292 71,284 72,276 C72,268 73,258 74,247 C74,243 74,239 74,236 Z" class="body-dx-art"></path>
+                              <path d="M72,276 C84,282 98,288 110,304 C108,332 106,362 104,390 L76,394 C71,362 65,331 64,300 C68,292 71,284 72,276 Z" class="body-region" data-region="left_thigh" data-label="Left thigh" tabindex="0" role="button" aria-label="Left thigh" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="left_knee" data-label="Left knee" tabindex="0" role="button" aria-label="Left knee" aria-pressed="false" d="M68,382 L112,378 L112,430 L68,434 Z"></path><path d="M76,394 L104,390 C104,400 104,410 103,418 L78,422 C77,412 76,403 76,394 Z" class="body-dx-art"></path>
+                              <path d="M78,422 L103,418 C106,440 104,462 99,482 C96,498 93,514 91,528 L83,530 C79,514 76,498 75,482 C73,462 74,440 78,422 Z" class="body-region" data-region="left_lower_leg" data-label="Left lower leg" tabindex="0" role="button" aria-label="Left lower leg" aria-pressed="false"></path>
+                              <path d="M83,530 L91,528 C92,538 92,546 93,552 C97,560 101,568 102,578 C102,586 96,590 87,590 C77,590 71,586 71,578 C71,568 75,558 79,552 C81,546 82,538 83,530 Z" class="body-zoom" data-panel="feet" data-side="left" tabindex="0" role="button" aria-label="Left foot and ankle — open foot detail"></path>
+                            </g>
+                            <g transform="translate(220 0) scale(-1 1)">
+                              <path d="M62,113 C52,115 43,121 38,131 C34,139 33,148 34,157 L56,157 C58,144 59,130 62,120 L62,113 Z" class="body-region" data-region="right_shoulder" data-label="Right shoulder" tabindex="0" role="button" aria-label="Right shoulder" aria-pressed="false"></path>
+                              <path d="M34,157 L56,157 C56,172 55,188 53,202 L32,206 C30,190 31,172 34,157 Z" class="body-region" data-region="right_arm" data-label="Right upper arm" tabindex="0" role="button" aria-label="Right upper arm" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="right_elbow" data-label="Right elbow" tabindex="0" role="button" aria-label="Right elbow" aria-pressed="false" d="M22,194 L62,190 L62,238 L22,242 Z"></path><path d="M32,206 L53,202 C53,210 52,217 52,224 L30,228 C30,220 31,213 32,206 Z" class="body-dx-art"></path>
+                              <path d="M30,228 L52,224 C51,244 48,262 44,278 L26,281 C25,262 27,244 30,228 Z" class="body-region" data-region="right_forearm" data-label="Right forearm" tabindex="0" role="button" aria-label="Right forearm" aria-pressed="false"></path>
+                              <path d="M26,281 L44,278 C45,290 45,300 44,310 C42,326 38,340 33,348 C28,351 23,348 21,342 C19,330 20,310 22,296 C23,290 24,285 26,281 Z" class="body-zoom" data-panel="hands" data-side="right" tabindex="0" role="button" aria-label="Right hand and wrist — open hand detail"></path>
+                              <path class="body-region body-hit" data-region="right_hip" data-label="Right hip" tabindex="0" role="button" aria-label="Right hip" aria-pressed="false" d="M50,230 L80,230 L80,306 L50,306 Z"></path><path d="M74,236 C67,242 62,251 60,262 C59,276 61,289 64,300 C68,292 71,284 72,276 C72,268 73,258 74,247 C74,243 74,239 74,236 Z" class="body-dx-art"></path>
+                              <path d="M72,276 C84,282 98,288 110,304 C108,332 106,362 104,390 L76,394 C71,362 65,331 64,300 C68,292 71,284 72,276 Z" class="body-region" data-region="right_thigh" data-label="Right thigh" tabindex="0" role="button" aria-label="Right thigh" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="right_knee" data-label="Right knee" tabindex="0" role="button" aria-label="Right knee" aria-pressed="false" d="M68,382 L112,378 L112,430 L68,434 Z"></path><path d="M76,394 L104,390 C104,400 104,410 103,418 L78,422 C77,412 76,403 76,394 Z" class="body-dx-art"></path>
+                              <path d="M78,422 L103,418 C106,440 104,462 99,482 C96,498 93,514 91,528 L83,530 C79,514 76,498 75,482 C73,462 74,440 78,422 Z" class="body-region" data-region="right_lower_leg" data-label="Right lower leg" tabindex="0" role="button" aria-label="Right lower leg" aria-pressed="false"></path>
+                              <path d="M83,530 L91,528 C92,538 92,546 93,552 C97,560 101,568 102,578 C102,586 96,590 87,590 C77,590 71,586 71,578 C71,568 75,558 79,552 C81,546 82,538 83,530 Z" class="body-zoom" data-panel="feet" data-side="right" tabindex="0" role="button" aria-label="Right foot and ankle — open foot detail"></path>
+                            </g>
+                            <g class="bdx-shade" aria-hidden="true">
+                              <ellipse cx="110" cy="42" rx="17" ry="24" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="110" cy="82" rx="13" ry="7" fill="url(#gShF)"></ellipse>
+                              <ellipse cx="110" cy="126" rx="40" ry="7" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="90" cy="150" rx="17" ry="13" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="130" cy="150" rx="17" ry="13" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="110" cy="158" rx="4" ry="26" fill="url(#gShF)"></ellipse>
+                              <ellipse cx="46" cy="134" rx="11" ry="15" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="174" cy="134" rx="11" ry="15" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="110" cy="216" rx="6" ry="28" fill="url(#gShF)"></ellipse>
+                              <ellipse cx="87" cy="340" rx="10" ry="32" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="133" cy="340" rx="10" ry="32" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="90" cy="406" rx="7" ry="9" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="130" cy="406" rx="7" ry="9" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="88" cy="468" rx="3" ry="36" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="132" cy="468" rx="3" ry="36" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="42" cy="182" rx="6" ry="20" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="178" cy="182" rx="6" ry="20" fill="url(#gHiF)"></ellipse>
+                            </g>
+        
+                            <text x="14" y="330" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">L</text>
+                            <text x="200" y="330" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">R</text>
+                          </svg>
                   </div>
 
-                  <!-- BACK VIEW -->
+                  <!-- BACK VIEW (mirrored: claimant-left = viewer-right) -->
                   <div class="body-dx-view" id="bodyViewBack" role="tabpanel" aria-labelledby="bodyTabBack">
-                    <svg viewBox="0 0 200 480" xmlns="http://www.w3.org/2000/svg" aria-label="Back view of human body. Tap a region to mark it as injured.">
-                      <!-- Silhouette outline (decorative; mirror of front) -->
-                      <path class="body-silhouette" d="M100 18
-                        c-15 0 -27 12 -27 27 c0 11 5 21 13 26
-                        l-3 8
-                        c-12 2 -22 8 -28 18 c-6 10 -8 22 -8 36
-                        l0 60 c0 6 -2 12 -5 17
-                        l-22 38 c-3 5 -3 11 0 16 c3 4 9 5 14 2
-                        l8 -6 l-2 60 c-1 8 0 16 2 24
-                        l4 18
-                        l-2 90 c0 4 1 8 4 11 c3 3 7 4 11 3
-                        l8 -2 l2 32 c0 4 2 8 5 10 c3 2 7 2 11 1
-                        l8 -3
-                        l4 -28
-                        l4 28
-                        l8 3 c4 1 8 1 11 -1 c3 -2 5 -6 5 -10
-                        l2 -32 l8 2 c4 1 8 0 11 -3 c3 -3 4 -7 4 -11
-                        l-2 -90
-                        l4 -18 c2 -8 3 -16 2 -24
-                        l-2 -60 l8 6 c5 3 11 2 14 -2 c3 -5 3 -11 0 -16
-                        l-22 -38 c-3 -5 -5 -11 -5 -17 l0 -60
-                        c0 -14 -2 -26 -8 -36 c-6 -10 -16 -16 -28 -18
-                        l-3 -8 c8 -5 13 -15 13 -26 c0 -15 -12 -27 -27 -27 z" />
-
-                      <!-- Head -->
-                      <ellipse class="body-region" data-region="head" data-label="Head"
-                        cx="100" cy="45" rx="26" ry="28" tabindex="0" role="button" aria-label="Head" aria-pressed="false"></ellipse>
-
-                      <!-- Neck (back) -->
-                      <rect class="body-region" data-region="neck" data-label="Neck"
-                        x="86" y="74" width="28" height="16" rx="6" tabindex="0" role="button" aria-label="Neck" aria-pressed="false"></rect>
-
-                      <!-- Shoulders (back) -->
-                      <ellipse class="body-region" data-region="left_shoulder" data-label="Left shoulder"
-                        cx="137" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Left shoulder (back view)" aria-pressed="false"></ellipse>
-                      <ellipse class="body-region" data-region="right_shoulder" data-label="Right shoulder"
-                        cx="63" cy="108" rx="16" ry="14" tabindex="0" role="button" aria-label="Right shoulder (back view)" aria-pressed="false"></ellipse>
-
-                      <!-- BACK: cervical (upper), thoracic (mid), lumbar (lower) -->
-                      <rect class="body-region" data-region="back_cervical" data-label="Cervical (upper) back"
-                        x="78" y="92" width="44" height="22" rx="6" tabindex="0" role="button" aria-label="Cervical back (upper)" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="back_thoracic" data-label="Thoracic (mid) back"
-                        x="76" y="116" width="48" height="44" rx="6" tabindex="0" role="button" aria-label="Thoracic back (mid)" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="back_lumbar" data-label="Lumbar (lower) back"
-                        x="76" y="162" width="48" height="40" rx="6" tabindex="0" role="button" aria-label="Lumbar back (lower)" aria-pressed="false"></rect>
-
-                      <!-- Upper arms (mirrored: left side of viewer = right arm) -->
-                      <rect class="body-region" data-region="right_arm" data-label="Right arm"
-                        x="42" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Right arm (back view)" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="left_arm" data-label="Left arm"
-                        x="138" y="118" width="20" height="68" rx="9" tabindex="0" role="button" aria-label="Left arm (back view)" aria-pressed="false"></rect>
-
-                      <!-- Elbows (mirrored) -->
-                      <circle class="body-region" data-region="right_elbow" data-label="Right elbow"
-                        cx="52" cy="194" r="11" tabindex="0" role="button" aria-label="Right elbow (back view)" aria-pressed="false"></circle>
-                      <circle class="body-region" data-region="left_elbow" data-label="Left elbow"
-                        cx="148" cy="194" r="11" tabindex="0" role="button" aria-label="Left elbow (back view)" aria-pressed="false"></circle>
-
-                      <!-- Wrist / hand (mirrored) -->
-                      <rect class="body-region" data-region="right_wrist_hand" data-label="Right wrist/hand"
-                        x="42" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Right wrist and hand (back view)" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="left_wrist_hand" data-label="Left wrist/hand"
-                        x="136" y="206" width="22" height="58" rx="9" tabindex="0" role="button" aria-label="Left wrist and hand (back view)" aria-pressed="false"></rect>
-
-                      <!-- Hips (mirrored) -->
-                      <ellipse class="body-region" data-region="right_hip" data-label="Right hip"
-                        cx="84" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Right hip (back view)" aria-pressed="false"></ellipse>
-                      <ellipse class="body-region" data-region="left_hip" data-label="Left hip"
-                        cx="116" cy="216" rx="14" ry="16" tabindex="0" role="button" aria-label="Left hip (back view)" aria-pressed="false"></ellipse>
-
-                      <!-- Knees (mirrored) -->
-                      <circle class="body-region" data-region="right_knee" data-label="Right knee"
-                        cx="84" cy="316" r="13" tabindex="0" role="button" aria-label="Right knee (back view)" aria-pressed="false"></circle>
-                      <circle class="body-region" data-region="left_knee" data-label="Left knee"
-                        cx="116" cy="316" r="13" tabindex="0" role="button" aria-label="Left knee (back view)" aria-pressed="false"></circle>
-
-                      <!-- Ankles / feet (mirrored) -->
-                      <rect class="body-region" data-region="right_ankle_foot" data-label="Right ankle/foot"
-                        x="68" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Right ankle and foot (back view)" aria-pressed="false"></rect>
-                      <rect class="body-region" data-region="left_ankle_foot" data-label="Left ankle/foot"
-                        x="108" y="402" width="24" height="58" rx="8" tabindex="0" role="button" aria-label="Left ankle and foot (back view)" aria-pressed="false"></rect>
-                    </svg>
+                    <svg id="ab-back" viewBox="0 0 220 660" width="300" role="group" aria-label="Back of body">
+        
+                            <path class="body-zoom" data-panel="head" tabindex="0" role="button" aria-label="Back of head — open head detail" d="M110,8 C126,8 136,22 136,44 C136,60 130,74 122,84 C118,89 114,92 110,92 C106,92 102,89 98,84 C90,74 84,60 84,44 C84,22 94,8 110,8 Z"></path>
+                            <path class="body-region" data-region="back_cervical" data-label="Upper (cervical) back" tabindex="0" role="button" aria-label="Upper cervical back and neck" aria-pressed="false" d="M97,82 C101,88 105,91 110,91 C115,91 119,88 123,82 C124,92 126,98 132,102 C140,107 150,110 158,113 L158,150 L62,150 L62,113 C70,110 80,107 88,102 C94,98 96,92 97,82 Z"></path>
+                            <path class="body-region" data-region="back_thoracic" data-label="Mid (thoracic) back" tabindex="0" role="button" aria-label="Mid thoracic back" aria-pressed="false" d="M62,150 L158,150 C158,170 156,186 153,198 L67,198 C64,186 62,170 62,150 Z"></path>
+                            <path class="body-region" data-region="back_lumbar" data-label="Lower (lumbar) back" tabindex="0" role="button" aria-label="Lower lumbar back" aria-pressed="false" d="M67,198 L153,198 C151,214 149,230 151,244 L69,244 C71,230 69,214 67,198 Z"></path>
+                            <path class="body-region" data-region="sacrum_coccyx" data-label="Sacrum / tailbone" tabindex="0" role="button" aria-label="Sacrum and tailbone" aria-pressed="false" d="M92,244 L128,244 C128,258 126,272 120,282 C116,289 104,289 100,282 C94,272 92,258 92,244 Z"></path>
+                            <g>
+                              <path d="M62,113 C52,115 43,121 38,131 C34,139 33,148 34,157 L56,157 C58,144 59,130 62,120 L62,113 Z" class="body-region" data-region="right_shoulder" data-label="Right shoulder" tabindex="0" role="button" aria-label="Right shoulder" aria-pressed="false"></path>
+                              <path d="M34,157 L56,157 C56,172 55,188 53,202 L32,206 C30,190 31,172 34,157 Z" class="body-region" data-region="right_arm" data-label="Right upper arm" tabindex="0" role="button" aria-label="Right upper arm" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="right_elbow" data-label="Right elbow" tabindex="0" role="button" aria-label="Right elbow" aria-pressed="false" d="M22,194 L62,190 L62,238 L22,242 Z"></path><path d="M32,206 L53,202 C53,210 52,217 52,224 L30,228 C30,220 31,213 32,206 Z" class="body-dx-art"></path>
+                              <path d="M30,228 L52,224 C51,244 48,262 44,278 L26,281 C25,262 27,244 30,228 Z" class="body-region" data-region="right_forearm" data-label="Right forearm" tabindex="0" role="button" aria-label="Right forearm" aria-pressed="false"></path>
+                              <path d="M26,281 L44,278 C45,290 45,300 44,310 C42,326 38,340 33,348 C28,351 23,348 21,342 C19,330 20,310 22,296 C23,290 24,285 26,281 Z" class="body-zoom" data-panel="hands" data-side="right" tabindex="0" role="button" aria-label="Right hand and wrist — open hand detail"></path>
+                              <path d="M69,244 L92,244 C92,262 95,276 102,288 C98,296 89,301 79,300 C68,299 60,291 59,279 C58,265 62,253 69,244 Z" class="body-region" data-region="right_hip" data-label="Right hip" tabindex="0" role="button" aria-label="Right hip and buttock" aria-pressed="false"></path>
+                              <path d="M79,300 C89,301 98,296 102,288 C105,293 108,298 110,304 C108,332 106,362 104,390 L76,394 C71,362 66,332 64,302 C68,303 73,301 79,300 Z" class="body-region" data-region="right_thigh" data-label="Right thigh" tabindex="0" role="button" aria-label="Right thigh" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="right_knee" data-label="Right knee" tabindex="0" role="button" aria-label="Right knee" aria-pressed="false" d="M68,382 L112,378 L112,430 L68,434 Z"></path><path d="M76,394 L104,390 C104,400 104,410 103,418 L78,422 C77,412 76,403 76,394 Z" class="body-dx-art"></path>
+                              <path d="M78,422 L103,418 C106,440 104,462 99,482 C96,498 93,514 91,528 L83,530 C79,514 76,498 75,482 C73,462 74,440 78,422 Z" class="body-region" data-region="right_lower_leg" data-label="Right lower leg" tabindex="0" role="button" aria-label="Right lower leg and calf" aria-pressed="false"></path>
+                              <path d="M83,530 L91,528 C92,540 93,550 95,558 C97,568 95,580 88,584 C79,589 71,584 70,575 C69,563 73,551 78,544 C81,539 82,535 83,530 Z" class="body-zoom" data-panel="feet" data-side="right" tabindex="0" role="button" aria-label="Right foot and ankle — open foot detail"></path>
+                            </g>
+                            <g transform="translate(220 0) scale(-1 1)">
+                              <path d="M62,113 C52,115 43,121 38,131 C34,139 33,148 34,157 L56,157 C58,144 59,130 62,120 L62,113 Z" class="body-region" data-region="left_shoulder" data-label="Left shoulder" tabindex="0" role="button" aria-label="Left shoulder" aria-pressed="false"></path>
+                              <path d="M34,157 L56,157 C56,172 55,188 53,202 L32,206 C30,190 31,172 34,157 Z" class="body-region" data-region="left_arm" data-label="Left upper arm" tabindex="0" role="button" aria-label="Left upper arm" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="left_elbow" data-label="Left elbow" tabindex="0" role="button" aria-label="Left elbow" aria-pressed="false" d="M22,194 L62,190 L62,238 L22,242 Z"></path><path d="M32,206 L53,202 C53,210 52,217 52,224 L30,228 C30,220 31,213 32,206 Z" class="body-dx-art"></path>
+                              <path d="M30,228 L52,224 C51,244 48,262 44,278 L26,281 C25,262 27,244 30,228 Z" class="body-region" data-region="left_forearm" data-label="Left forearm" tabindex="0" role="button" aria-label="Left forearm" aria-pressed="false"></path>
+                              <path d="M26,281 L44,278 C45,290 45,300 44,310 C42,326 38,340 33,348 C28,351 23,348 21,342 C19,330 20,310 22,296 C23,290 24,285 26,281 Z" class="body-zoom" data-panel="hands" data-side="left" tabindex="0" role="button" aria-label="Left hand and wrist — open hand detail"></path>
+                              <path d="M69,244 L92,244 C92,262 95,276 102,288 C98,296 89,301 79,300 C68,299 60,291 59,279 C58,265 62,253 69,244 Z" class="body-region" data-region="left_hip" data-label="Left hip" tabindex="0" role="button" aria-label="Left hip and buttock" aria-pressed="false"></path>
+                              <path d="M79,300 C89,301 98,296 102,288 C105,293 108,298 110,304 C108,332 106,362 104,390 L76,394 C71,362 66,332 64,302 C68,303 73,301 79,300 Z" class="body-region" data-region="left_thigh" data-label="Left thigh" tabindex="0" role="button" aria-label="Left thigh" aria-pressed="false"></path>
+                              <path class="body-region body-hit" data-region="left_knee" data-label="Left knee" tabindex="0" role="button" aria-label="Left knee" aria-pressed="false" d="M68,382 L112,378 L112,430 L68,434 Z"></path><path d="M76,394 L104,390 C104,400 104,410 103,418 L78,422 C77,412 76,403 76,394 Z" class="body-dx-art"></path>
+                              <path d="M78,422 L103,418 C106,440 104,462 99,482 C96,498 93,514 91,528 L83,530 C79,514 76,498 75,482 C73,462 74,440 78,422 Z" class="body-region" data-region="left_lower_leg" data-label="Left lower leg" tabindex="0" role="button" aria-label="Left lower leg and calf" aria-pressed="false"></path>
+                              <path d="M83,530 L91,528 C92,540 93,550 95,558 C97,568 95,580 88,584 C79,589 71,584 70,575 C69,563 73,551 78,544 C81,539 82,535 83,530 Z" class="body-zoom" data-panel="feet" data-side="left" tabindex="0" role="button" aria-label="Left foot and ankle — open foot detail"></path>
+                            </g>
+                            <g class="bdx-shade" aria-hidden="true">
+                              <ellipse cx="110" cy="40" rx="18" ry="24" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="88" cy="156" rx="13" ry="18" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="132" cy="156" rx="13" ry="18" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="110" cy="180" rx="3.5" ry="62" fill="url(#gShF)"></ellipse>
+                              <ellipse cx="82" cy="272" rx="13" ry="16" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="138" cy="272" rx="13" ry="16" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="88" cy="452" rx="9" ry="26" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="132" cy="452" rx="9" ry="26" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="90" cy="345" rx="9" ry="28" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="130" cy="345" rx="9" ry="28" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="46" cy="134" rx="11" ry="15" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="174" cy="134" rx="11" ry="15" fill="url(#gHiF)"></ellipse>
+                            </g>
+        
+                            <text x="14" y="330" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">R</text>
+                            <text x="200" y="330" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">L</text>
+                          </svg>
                   </div>
                 </div>
 
-                <p class="body-dx-help">Tap each injured area on the front and back views. Selections from both views combine.</p>
+                <!-- Detail drawer: opened by the .body-zoom hotspots on the figure -->
+                <div class="body-dx-drawer" id="bodyDxDrawer" role="region" aria-label="Body area detail">
+                  <div class="body-dx-drawer-head">
+                    <span class="body-dx-drawer-title" id="bodyDxDrawerTitle">Detail</span>
+                    <button type="button" class="body-dx-drawer-done" id="bodyDxDrawerDone">Done</button>
+                  </div>
+                  <div class="body-dx-panel" data-panel-key="head">
+                    <svg id="ab-head" viewBox="0 0 220 250" width="240" role="group" aria-label="Head detail, front-facing">
+                            <path class="bdx-inert" aria-hidden="true" d="M92,198 C96,208 102,214 110,214 C118,214 124,208 128,198 C128,212 130,222 136,228 L84,228 C90,222 92,212 92,198 Z"></path>
+                            <path class="body-region" data-region="head" data-label="Head / skull" tabindex="0" role="button" aria-label="Head, skull and brain" aria-pressed="false" d="M110,14 C143,14 164,42 164,82 C164,89 163,96 162,103 L58,103 C57,96 56,89 56,82 C56,42 77,14 110,14 Z"></path>
+                            <path class="body-region" data-region="face" data-label="Face (disfigurement)" tabindex="0" role="button" aria-label="Face, scarring or disfigurement" aria-pressed="false" fill-rule="evenodd" d="M58,103 L162,103 C161,130 157,152 149,172 C139,193 126,206 110,206 C94,206 81,193 71,172 C63,152 59,130 58,103 Z M70,122 C75,115 87,115 93,122 C87,129 75,129 70,122 Z M150,122 C145,115 133,115 127,122 C133,129 145,129 150,122 Z"></path>
+                            <path class="body-region body-hit" data-region="left_eye" data-label="Left eye" tabindex="0" role="button" aria-label="Left eye" aria-pressed="false" d="M58,100 L106,100 L106,144 L58,144 Z"></path>
+                            <path class="body-dx-art" d="M70,122 C75,115 87,115 93,122 C87,129 75,129 70,122 Z"></path>
+                            <path class="body-region body-hit" data-region="right_eye" data-label="Right eye" tabindex="0" role="button" aria-label="Right eye" aria-pressed="false" d="M114,100 L162,100 L162,144 L114,144 Z"></path>
+                            <path class="body-dx-art" d="M150,122 C145,115 133,115 127,122 C133,129 145,129 150,122 Z"></path>
+                            <path class="body-region body-hit" data-region="left_ear" data-label="Left ear" tabindex="0" role="button" aria-label="Left ear, hearing" aria-pressed="false" d="M28,96 L60,96 L60,168 L28,168 Z"></path>
+                            <path class="body-dx-art" d="M56,108 C48,106 42,114 43,128 C44,144 50,158 58,162 C63,164 66,160 65,153 C62,139 61,124 61,112 C60,109 58,108 56,108 Z"></path>
+                            <path class="body-region body-hit" data-region="right_ear" data-label="Right ear" tabindex="0" role="button" aria-label="Right ear, hearing" aria-pressed="false" d="M160,96 L192,96 L192,168 L160,168 Z"></path>
+                            <path class="body-dx-art" d="M164,108 C172,106 178,114 177,128 C176,144 170,158 162,162 C157,164 154,160 155,153 C158,139 159,124 159,112 C160,109 162,108 164,108 Z"></path>
+                            <g class="bdx-shade" aria-hidden="true">
+                              <ellipse cx="110" cy="52" rx="30" ry="26" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="110" cy="102" rx="36" ry="6" fill="url(#gShF)"></ellipse>
+                              <ellipse cx="110" cy="140" rx="5" ry="17" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="82" cy="152" rx="10" ry="12" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="138" cy="152" rx="10" ry="12" fill="url(#gHiF)"></ellipse>
+                              <ellipse cx="110" cy="188" rx="20" ry="8" fill="url(#gShF)"></ellipse>
+                            </g>
+                            <text x="16" y="244" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">L</text>
+                            <text x="196" y="244" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">R</text>
+                          </svg>
+                  </div>
+                  <div class="body-dx-panel" data-panel-key="hand-left">
+                    <svg id="ab-hand-l" viewBox="0 0 230 250" width="230" role="group" aria-label="Left hand, dorsal view">
+                                <g transform="translate(230 0) scale(-1 1)">
+                                  <path d="M78,108 C82,98 88,92 96,90 L150,92 C158,96 163,104 166,112 C169,124 169,138 166,150 C163,166 156,180 148,192 C146,200 145,206 145,212 C146,222 146,230 145,238 L97,238 C96,230 96,222 97,212 C97,204 94,196 90,186 C82,172 76,156 75,140 C74,128 75,116 78,108 Z" class="body-region" data-region="left_wrist_hand" data-label="Left wrist &amp; hand" tabindex="0" role="button" aria-label="Left wrist and hand" aria-pressed="false"></path>
+                                  <path class="body-region body-hit" data-region="left_thumb" data-label="Left thumb" tabindex="0" role="button" aria-label="Left thumb" aria-pressed="false" d="M24,64 L58,68 L84,118 L60,142 L26,98 Z"></path>
+                                  <path d="M76,132 C66,124 54,114 44,102 C37,94 34,86 37,80 C41,74 49,75 55,81 C65,91 74,104 79,116 C78,121 77,126 76,132 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_index_finger" data-label="Left index finger" tabindex="0" role="button" aria-label="Left index finger" aria-pressed="false" d="M46,20 L92,24 L104,106 L64,114 Z"></path>
+                                  <path d="M78,108 C72,90 64,68 58,48 C56,40 58,33 63,30 C68,27 74,29 77,36 C86,56 94,78 100,104 C93,107 85,108 78,108 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_middle_finger" data-label="Left middle finger" tabindex="0" role="button" aria-label="Left middle finger" aria-pressed="false" d="M94,8 L130,8 L128,104 L100,106 Z"></path>
+                                  <path d="M102,105 C101,84 101,58 102,36 C102,26 106,20 112,20 C118,20 122,26 122,36 C123,58 123,84 122,104 C115,106 108,106 102,105 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_ring_finger" data-label="Left ring finger" tabindex="0" role="button" aria-label="Left ring finger" aria-pressed="false" d="M132,14 L164,24 L152,110 L126,106 Z"></path>
+                                  <path d="M126,104 C128,82 132,60 137,42 C139,33 144,29 149,31 C154,33 156,39 155,47 C151,66 146,88 143,106 C137,106 131,105 126,104 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_little_finger" data-label="Left little finger" tabindex="0" role="button" aria-label="Left little finger" aria-pressed="false" d="M166,40 L200,58 L174,118 L148,108 Z"></path>
+                                  <path d="M148,106 C153,92 159,78 166,66 C170,59 175,57 179,60 C183,63 184,68 181,75 C175,88 169,100 165,110 C159,110 153,108 148,106 Z" class="body-dx-art"></path>
+                                  <g class="bdx-shade" aria-hidden="true">
+                                    <ellipse cx="92" cy="104" rx="6" ry="5" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="112" cy="100" rx="6" ry="5" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="132" cy="101" rx="6" ry="5" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="152" cy="106" rx="5" ry="4" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="104" cy="140" rx="3" ry="26" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="124" cy="138" rx="3" ry="26" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="121" cy="210" rx="22" ry="5" fill="url(#gShF)"></ellipse>
+                                  </g>
+                                </g>
+                                <text x="8" y="244" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">LEFT · dorsal</text>
+                              </svg>
+                  </div>
+                  <div class="body-dx-panel" data-panel-key="hand-right">
+                    <svg id="ab-hand-r" viewBox="0 0 230 250" width="230" role="group" aria-label="Right hand, dorsal view">
+            
+                                <path d="M78,108 C82,98 88,92 96,90 L150,92 C158,96 163,104 166,112 C169,124 169,138 166,150 C163,166 156,180 148,192 C146,200 145,206 145,212 C146,222 146,230 145,238 L97,238 C96,230 96,222 97,212 C97,204 94,196 90,186 C82,172 76,156 75,140 C74,128 75,116 78,108 Z" class="body-region" data-region="right_wrist_hand" data-label="Right wrist &amp; hand" tabindex="0" role="button" aria-label="Right wrist and hand" aria-pressed="false"></path>
+                                <path class="body-region body-hit" data-region="right_thumb" data-label="Right thumb" tabindex="0" role="button" aria-label="Right thumb" aria-pressed="false" d="M24,64 L58,68 L84,118 L60,142 L26,98 Z"></path>
+                                <path d="M76,132 C66,124 54,114 44,102 C37,94 34,86 37,80 C41,74 49,75 55,81 C65,91 74,104 79,116 C78,121 77,126 76,132 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_index_finger" data-label="Right index finger" tabindex="0" role="button" aria-label="Right index finger" aria-pressed="false" d="M46,20 L92,24 L104,106 L64,114 Z"></path>
+                                <path d="M78,108 C72,90 64,68 58,48 C56,40 58,33 63,30 C68,27 74,29 77,36 C86,56 94,78 100,104 C93,107 85,108 78,108 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_middle_finger" data-label="Right middle finger" tabindex="0" role="button" aria-label="Right middle finger" aria-pressed="false" d="M94,8 L130,8 L128,104 L100,106 Z"></path>
+                                <path d="M102,105 C101,84 101,58 102,36 C102,26 106,20 112,20 C118,20 122,26 122,36 C123,58 123,84 122,104 C115,106 108,106 102,105 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_ring_finger" data-label="Right ring finger" tabindex="0" role="button" aria-label="Right ring finger" aria-pressed="false" d="M132,14 L164,24 L152,110 L126,106 Z"></path>
+                                <path d="M126,104 C128,82 132,60 137,42 C139,33 144,29 149,31 C154,33 156,39 155,47 C151,66 146,88 143,106 C137,106 131,105 126,104 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_little_finger" data-label="Right little finger" tabindex="0" role="button" aria-label="Right little finger" aria-pressed="false" d="M166,40 L200,58 L174,118 L148,108 Z"></path>
+                                <path d="M148,106 C153,92 159,78 166,66 C170,59 175,57 179,60 C183,63 184,68 181,75 C175,88 169,100 165,110 C159,110 153,108 148,106 Z" class="body-dx-art"></path>
+                                <g class="bdx-shade" aria-hidden="true">
+                                  <ellipse cx="92" cy="104" rx="6" ry="5" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="112" cy="100" rx="6" ry="5" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="132" cy="101" rx="6" ry="5" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="152" cy="106" rx="5" ry="4" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="104" cy="140" rx="3" ry="26" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="124" cy="138" rx="3" ry="26" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="121" cy="210" rx="22" ry="5" fill="url(#gShF)"></ellipse>
+                                </g>
+                                <text x="8" y="244" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">RIGHT · dorsal</text>
+                              </svg>
+                  </div>
+                  <div class="body-dx-panel" data-panel-key="foot-left">
+                    <svg id="ab-foot-l" viewBox="0 0 190 235" width="200" role="group" aria-label="Left foot, dorsal view">
+                                <g transform="translate(190 0) scale(-1 1)">
+                                  <path d="M70,12 L120,12 C122,26 122,40 121,52 C126,74 132,98 138,124 C142,142 143,156 141,168 L45,168 C41,154 41,140 45,124 C52,98 60,74 66,52 C67,40 68,26 70,12 Z" class="body-region" data-region="left_ankle_foot" data-label="Left ankle &amp; foot" tabindex="0" role="button" aria-label="Left ankle and foot" aria-pressed="false"></path>
+                                  <path class="body-region body-hit" data-region="left_great_toe" data-label="Left great toe" tabindex="0" role="button" aria-label="Left great toe" aria-pressed="false" d="M24,166 L70,166 L76,230 L26,230 Z"></path>
+                                  <path d="M45,168 C38,176 33,188 33,200 C33,212 40,220 52,220 C64,220 71,212 71,200 C71,188 69,177 66,168 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_second_toe" data-label="Left 2nd toe" tabindex="0" role="button" aria-label="Left second toe" aria-pressed="false" d="M64,166 L92,166 L100,224 L72,226 Z"></path>
+                                  <path d="M68,168 C67,178 68,190 71,200 C73,208 78,212 84,211 C90,210 93,205 93,197 C93,187 92,177 90,168 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_third_toe" data-label="Left 3rd toe" tabindex="0" role="button" aria-label="Left third toe" aria-pressed="false" d="M90,166 L114,166 L124,216 L98,220 Z"></path>
+                                  <path d="M92,168 C92,178 94,188 97,196 C99,203 104,206 109,205 C114,204 116,199 115,192 C114,183 112,175 110,168 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_fourth_toe" data-label="Left 4th toe" tabindex="0" role="button" aria-label="Left fourth toe" aria-pressed="false" d="M112,166 L134,166 L146,208 L122,214 Z"></path>
+                                  <path d="M112,168 C113,177 116,185 120,192 C123,198 128,200 132,198 C136,196 137,191 135,185 C133,179 130,173 128,168 Z" class="body-dx-art"></path>
+                                  <path class="body-region body-hit" data-region="left_fifth_toe" data-label="Left 5th toe" tabindex="0" role="button" aria-label="Left fifth toe" aria-pressed="false" d="M132,166 L156,164 L170,200 L144,210 Z"></path>
+                                  <path d="M130,168 C132,176 135,182 139,188 C142,193 147,194 150,191 C153,188 153,183 150,178 C147,173 143,170 140,168 Z" class="body-dx-art"></path>
+                                  <g class="bdx-shade" aria-hidden="true">
+                                    <ellipse cx="95" cy="34" rx="16" ry="14" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="80" cy="110" rx="8" ry="34" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="112" cy="120" rx="6" ry="28" fill="url(#gHiF)"></ellipse>
+                                    <ellipse cx="94" cy="164" rx="40" ry="5" fill="url(#gShF)"></ellipse>
+                                  </g>
+                                </g>
+                                <text x="8" y="16" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">LEFT</text>
+                              </svg>
+                  </div>
+                  <div class="body-dx-panel" data-panel-key="foot-right">
+                    <svg id="ab-foot-r" viewBox="0 0 190 235" width="200" role="group" aria-label="Right foot, dorsal view">
+            
+                                <path d="M70,12 L120,12 C122,26 122,40 121,52 C126,74 132,98 138,124 C142,142 143,156 141,168 L45,168 C41,154 41,140 45,124 C52,98 60,74 66,52 C67,40 68,26 70,12 Z" class="body-region" data-region="right_ankle_foot" data-label="Right ankle &amp; foot" tabindex="0" role="button" aria-label="Right ankle and foot" aria-pressed="false"></path>
+                                <path class="body-region body-hit" data-region="right_great_toe" data-label="Right great toe" tabindex="0" role="button" aria-label="Right great toe" aria-pressed="false" d="M24,166 L70,166 L76,230 L26,230 Z"></path>
+                                <path d="M45,168 C38,176 33,188 33,200 C33,212 40,220 52,220 C64,220 71,212 71,200 C71,188 69,177 66,168 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_second_toe" data-label="Right 2nd toe" tabindex="0" role="button" aria-label="Right second toe" aria-pressed="false" d="M64,166 L92,166 L100,224 L72,226 Z"></path>
+                                <path d="M68,168 C67,178 68,190 71,200 C73,208 78,212 84,211 C90,210 93,205 93,197 C93,187 92,177 90,168 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_third_toe" data-label="Right 3rd toe" tabindex="0" role="button" aria-label="Right third toe" aria-pressed="false" d="M90,166 L114,166 L124,216 L98,220 Z"></path>
+                                <path d="M92,168 C92,178 94,188 97,196 C99,203 104,206 109,205 C114,204 116,199 115,192 C114,183 112,175 110,168 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_fourth_toe" data-label="Right 4th toe" tabindex="0" role="button" aria-label="Right fourth toe" aria-pressed="false" d="M112,166 L134,166 L146,208 L122,214 Z"></path>
+                                <path d="M112,168 C113,177 116,185 120,192 C123,198 128,200 132,198 C136,196 137,191 135,185 C133,179 130,173 128,168 Z" class="body-dx-art"></path>
+                                <path class="body-region body-hit" data-region="right_fifth_toe" data-label="Right 5th toe" tabindex="0" role="button" aria-label="Right fifth toe" aria-pressed="false" d="M132,166 L156,164 L170,200 L144,210 Z"></path>
+                                <path d="M130,168 C132,176 135,182 139,188 C142,193 147,194 150,191 C153,188 153,183 150,178 C147,173 143,170 140,168 Z" class="body-dx-art"></path>
+                                <g class="bdx-shade" aria-hidden="true">
+                                  <ellipse cx="95" cy="34" rx="16" ry="14" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="80" cy="110" rx="8" ry="34" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="112" cy="120" rx="6" ry="28" fill="url(#gHiF)"></ellipse>
+                                  <ellipse cx="94" cy="164" rx="40" ry="5" fill="url(#gShF)"></ellipse>
+                                </g>
+                                <text x="150" y="16" font-size="11" fill="#5E6E92" font-family="ui-monospace,Menlo,monospace" aria-hidden="true">RIGHT</text>
+                              </svg>
+                  </div>
+                </div>
+
+                <p class="body-dx-help">Tap each injured area. Tap the head, a hand, or a foot to open a closer view — selections from every view combine.</p>
 
                 <div class="body-dx-summary" id="bodyDxSummary" aria-live="polite" aria-label="Selected body parts">
                   <span class="body-dx-empty" id="bodyDxEmpty">No body parts selected yet</span>
@@ -1069,11 +1178,13 @@
       if (empty) empty.style.display = 'none';
       [...bodyDxState].forEach(key => {
         const label = bodyRegionLabels[key] || key;
+        const esc = label.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const pill = document.createElement('span');
         pill.className = 'body-dx-pill';
-        pill.innerHTML = `${label.replace(/[<>&]/g,'')} <button type="button" aria-label="Remove ${label.replace(/"/g,'')}" data-remove="${key}">&times;</button>`;
+        pill.innerHTML = `${esc} <button type="button" aria-label="Remove ${esc.replace(/"/g,'')}" data-remove="${key}">&times;</button>`;
         container.appendChild(pill);
       });
+      syncZoomHotspots();
     }
 
     function toggleBodyRegion(key, label) {
@@ -1088,6 +1199,57 @@
       if (dxField) dxField.classList.remove('has-error');
       syncBodyRegionVisuals(key);
       renderBodyDxSummary();
+    }
+
+    // ── Detail drawer (head / hands / feet zoom panels) ─────────
+    // Hotspots (.body-zoom) are NOT selections — they open an inline drawer
+    // whose regions toggle through the same toggleBodyRegion()/bodyDxState path.
+    const BODY_PANEL_TITLES = {
+      'head': 'Head & face',
+      'hand-left': 'Left hand',  'hand-right': 'Right hand',
+      'foot-left': 'Left foot',  'foot-right': 'Right foot',
+    };
+    let bodyDrawerOpener = null; // hotspot to return focus to on Done
+
+    function bodyPanelKey(panel, side) {
+      if (panel === 'head') return 'head';
+      return (panel === 'hands' ? 'hand' : 'foot') + '-' + (side || 'left');
+    }
+
+    function openBodyPanel(panelKey, openerEl) {
+      const drawer = document.getElementById('bodyDxDrawer');
+      if (!drawer) return;
+      drawer.querySelectorAll('.body-dx-panel').forEach(p => {
+        p.classList.toggle('active', p.dataset.panelKey === panelKey);
+      });
+      const title = document.getElementById('bodyDxDrawerTitle');
+      if (title) title.textContent = BODY_PANEL_TITLES[panelKey] || 'Detail';
+      drawer.classList.add('open');
+      bodyDrawerOpener = openerEl || null;
+      // Move focus into the drawer for keyboard users
+      const first = drawer.querySelector('.body-dx-panel.active .body-region');
+      (first || document.getElementById('bodyDxDrawerDone'))?.focus();
+      // Keep the drawer visible inside the modal body's internal scroll
+      drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeBodyPanel() {
+      const drawer = document.getElementById('bodyDxDrawer');
+      if (!drawer || !drawer.classList.contains('open')) return;
+      drawer.classList.remove('open');
+      if (bodyDrawerOpener) { bodyDrawerOpener.focus(); bodyDrawerOpener = null; }
+    }
+
+    // A hotspot shows "on" whenever any region inside its panel is selected,
+    // so drawer selections stay visible after the drawer closes.
+    function syncZoomHotspots() {
+      document.querySelectorAll('.body-zoom').forEach(z => {
+        const key = bodyPanelKey(z.dataset.panel, z.dataset.side);
+        const panel = document.querySelector(`.body-dx-panel[data-panel-key="${key}"]`);
+        const on = !!panel && [...panel.querySelectorAll('.body-region[data-region]')]
+          .some(r => bodyDxState.has(r.dataset.region));
+        z.classList.toggle('zoom-on', on);
+      });
     }
 
     function initBodyDiagram() {
@@ -1117,6 +1279,26 @@
             v.classList.toggle('active', v.id === 'bodyView' + (view === 'back' ? 'Back' : 'Front'));
           });
         });
+      });
+      // Zoom hotspots → open the matching detail panel in the drawer
+      document.querySelectorAll('.body-zoom').forEach(z => {
+        const open = () => openBodyPanel(bodyPanelKey(z.dataset.panel, z.dataset.side), z);
+        z.addEventListener('click', open);
+        z.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            open();
+          }
+        });
+      });
+      // Drawer close: Done button, or Escape while focus is inside the drawer
+      // (stopPropagation so Escape closes the drawer, not the whole wizard)
+      document.getElementById('bodyDxDrawerDone')?.addEventListener('click', closeBodyPanel);
+      document.getElementById('bodyDxDrawer')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          closeBodyPanel();
+        }
       });
       // Pill remove buttons (event delegation)
       document.getElementById('bodyDxSummary')?.addEventListener('click', (e) => {
@@ -1341,11 +1523,11 @@
       const otherParts = otherRaw
         ? otherRaw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean)
         : [];
+      // injuries: human-readable labels, for the attorney's eyes
+      const injuriesStr = [...bodyDxState].map(k => bodyRegionLabels[k] || k)
+        .concat(otherParts).join(', ');
+      // body_parts: raw keys, unchanged — anything downstream that parses keys keeps working
       const bodyPartsArr = [...new Set([...bodyDxState, ...otherParts])];
-
-      // Server expects an `injuries` string. Compose from clicked body
-      // regions + any freeform "other body part" text. No char limits.
-      const injuriesStr = bodyPartsArr.join(', ');
 
       const payload = {
         first_name:           fd.get('first_name')?.trim(),
