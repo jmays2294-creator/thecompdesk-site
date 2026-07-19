@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
   <title>NY Workers' Comp Benefit Rate Lookup | The Comp Desk</title>
-  <meta name="description" content="Look up the statutory maximum and minimum weekly workers' compensation benefit rates for any NY date of injury. Instant results under WCL §25(3) — free tool by The Comp Desk.">
+  <meta name="description" content="Look up the statutory maximum and minimum weekly workers' comp benefit rates for any NY date of injury. Free instant results from The Comp Desk.">
   <meta property="og:title" content="NY Workers' Comp Benefit Rate Lookup | The Comp Desk">
   <meta property="og:description" content="Enter your NY workers' comp date of injury and instantly see the statutory weekly maximum and minimum benefit rates that apply to your case.">
   <meta property="og:type" content="website">
@@ -20,6 +20,40 @@
   <meta name="twitter:title" content="NY Workers' Comp Benefit Rate Lookup">
   <meta name="twitter:description" content="Look up the statutory max/min weekly benefit rates for any NY workers' comp date of injury.">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-benefit-rate.png">
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What are the maximum and minimum workers' comp rates in New York?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For injuries on or after July 1, 2026 the maximum weekly rate is $1,281.50. The minimum weekly benefit rose to $275 on January 1, 2024 and $325 on January 1, 2025, and beginning January 1, 2026 it is indexed to one-fifth of the New York State Average Weekly Wage."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which rate year applies to my case?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The rate period covering your date of injury. The maximum and minimum in effect on the day you were hurt stay with your case for its life, regardless of later annual increases."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do the rate caps affect my weekly check?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your weekly benefit is two-thirds of your average weekly wage multiplied by your degree of disability. If that figure exceeds the maximum for your injury year you receive the maximum; if it falls below the minimum you generally receive the minimum rate."
+        }
+      }
+    ]
+  }
+  </script>
+
   <link rel="canonical" href="https://thecompdesk.com/calculators/benefit-rate">
   <script type="application/ld+json">
   {
@@ -271,10 +305,31 @@
       <!-- Cross-tool link -->
       <div style="margin-top:16px;padding:14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;font-size:13px;color:var(--txM);">
         <strong style="color:#fff;">Also useful:</strong>
-        Once you know your rate cap, use the <a href="/calculators/aww.html" style="color:var(--ac);">AWW Calculator</a> to figure out your Average Weekly Wage and your actual weekly comp benefit.
+        Once you know your rate cap, use the <a href="/calculators/aww" style="color:var(--ac);">AWW Calculator</a> to figure out your Average Weekly Wage and your actual weekly comp benefit.
       </div>
 
     </div><!-- /results-section -->
+
+    <!-- FAQ -->
+    <div class="calc-section" style="margin-top:16px;">
+      <div class="calc-header">
+        <h2 class="calc-header-title">Frequently Asked Questions</h2>
+      </div>
+      <div class="calc-body">
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What are the maximum and minimum workers' comp rates in New York?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          For injuries on or after July 1, 2026 the maximum weekly rate is $1,281.50 — see the full <a href="/calculators/rates" style="color:var(--ac);">historical maximum rates table</a>. The minimum weekly benefit rose to $275 on January 1, 2024 and $325 on January 1, 2025, and beginning January 1, 2026 it is indexed to one-fifth of the New York State Average Weekly Wage.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">Which rate year applies to my case?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          The rate period covering your date of injury. The maximum and minimum in effect on the day you were hurt stay with your case for its life, regardless of later annual increases.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">How do the rate caps affect my weekly check?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;">
+          Your weekly benefit is two-thirds of your <a href="/calculators/aww" style="color:var(--ac);">average weekly wage</a> multiplied by your degree of disability. If that figure exceeds the maximum for your injury year you receive the maximum; if it falls below the minimum you generally receive the minimum rate.
+        </p>
+      </div>
+    </div>
 
   </div><!-- /container -->
 

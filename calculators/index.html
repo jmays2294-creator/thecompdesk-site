@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYS Workers' Compensation Calculators — Free Online Tools | The Comp Desk</title>
-<meta name="description" content="Free NYS workers' compensation calculators: SLU, AWW, LWEC, Award, Rates, and advanced tools. Calculate benefits, awards, and maximum compensation rates instantly.">
+<title>Free NYS Workers' Comp Calculators — SLU, AWW, LWEC</title>
+<meta name="description" content="Free NYS workers' compensation calculators: SLU, AWW, LWEC, awards, and maximum rates. Calculate benefits and award values instantly.">
 
 <meta property="og:title" content="NYS Workers' Compensation Calculators — Free Online Tools">
 <meta property="og:description" content="Free NYS workers' compensation calculators for SLU, AWW, LWEC, awards, and rate lookups.">
@@ -55,16 +55,19 @@
   padding: clamp(56px, 8vh, 96px) 0 clamp(32px, 5vh, 56px);
   text-align: center;
 }
-.calc-hero h1 {
+.calc-hero h1,
+.calc-hero h2.hero-alt {
   font-size: clamp(38px, 6vw, 60px);
   margin-bottom: 18px;
 }
-.calc-hero h1 em {
+.calc-hero h1 em,
+.calc-hero h2.hero-alt em {
   font-style: italic;
   color: var(--skin-accent);
   font-weight: 500;
 }
-[data-audience="attorney"] .calc-hero h1 em {
+[data-audience="attorney"] .calc-hero h1 em,
+[data-audience="attorney"] .calc-hero h2.hero-alt em {
   font-style: normal;
   font-weight: 800;
 }
@@ -270,7 +273,7 @@
 
       <!-- Attorney-side headline -->
       <div class="aud-attorney">
-        <h1 style="--i:1;">The <em>calculators</em> the hearing room uses.</h1>
+        <h2 class="hero-alt" style="--i:1;">The <em>calculators</em> the hearing room uses.</h2>
         <p class="lede" style="--i:2;">Free, cited, defensible. Each result shows the WCL section, IME guideline, or Board rule it implements. Need more? The Pro Workspace adds permanency checking, fee equations, and case save/sync.</p>
       </div>
     </div>

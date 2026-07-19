@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYS Workers' Comp Rate Lookup — Maximum Rates by Year | The Comp Desk</title>
+  <title>NYS Workers' Comp Rate Lookup — Maximum Rates by Year</title>
   <meta name="description" content="Free NYS workers' compensation maximum rate lookup. Find the statutory maximum rate for any injury date. Historical rates 1985–present.">
   <meta property="og:title" content="NYS Workers' Comp Rate Lookup — 2026 Maximum Rates">
   <meta property="og:description" content="Free lookup of NYS workers' compensation maximum rates by injury date. Historical rates and current statutory maxima.">
@@ -29,6 +29,56 @@
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the maximum workers' comp rate in New York for 2026?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For injuries on or after July 1, 2026, the maximum weekly compensation rate in New York is $1,281.50, per WCB Subject No. 046-1805. For dates of injury between July 1, 2025 and June 30, 2026, the maximum is $1,222.42."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is my weekly workers' comp benefit calculated in New York?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your weekly benefit is two-thirds of your average weekly wage (AWW) multiplied by your degree of disability, capped at the statutory maximum rate for your date of injury."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does my compensation rate increase when New York announces a new maximum?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The maximum rate that applies to your case is fixed by your date of injury and remains applicable for the life of the case, even as new maximums take effect each July 1."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there a minimum weekly compensation rate in New York?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The minimum weekly benefit rose to $275 on January 1, 2024 and $325 on January 1, 2025, and beginning January 1, 2026 it is indexed to one-fifth of the New York State Average Weekly Wage."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What if two-thirds of my wages is more than the maximum rate?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your rate is capped at the statutory maximum for your injury year. Higher-wage workers receive the maximum; everyone else receives two-thirds of their average weekly wage at total disability."
+        }
+      }
+    ]
   }
   </script>
 
@@ -75,7 +125,7 @@
     <!-- Rate Lookup -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Rate Lookup</span>
+        <h2 class="calc-header-title">Rate Lookup</h2>
       </div>
       <div class="calc-body">
         <div class="fields-row">
@@ -101,10 +151,40 @@
       </div>
     </div>
 
+    <!-- 2026 max rate -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <h2 class="calc-header-title">2026 NYS Maximum Weekly Compensation Rate</h2>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          The maximum weekly workers' compensation rate in New York State is <strong style="color:var(--tx);">$1,281.50</strong> for injuries occurring on or after July 1, 2026, per <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" style="color:var(--ac);">WCB Subject No. 046-1805</a>. For dates of injury between July 1, 2025 and June 30, 2026, the maximum is <strong style="color:var(--tx);">$1,222.42</strong>.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;">
+          The rate that governs your case is the one in effect on your <strong style="color:var(--tx);">date of injury</strong> — not the current year's rate. Enter your accident date in the lookup above to see the maximum that applies to your claim.
+        </p>
+      </div>
+    </div>
+
+    <!-- How the max is set -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <h2 class="calc-header-title">How New York Sets the Maximum Comp Rate</h2>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          Under WCL §15(6), the maximum weekly benefit equals <strong style="color:var(--tx);">two-thirds of the New York State Average Weekly Wage (NYSAWW)</strong>. The NYSAWW — defined in WCL §2(16) — is the average weekly wage of all workers covered by New York unemployment insurance for the previous calendar year, calculated by the NYS Department of Labor and reported to the Superintendent of Financial Services by March 31 each year.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;">
+          The new maximum takes effect each <strong style="color:var(--tx);">July 1</strong> and is announced by the Workers' Compensation Board in an annual Subject Number bulletin. Once set by your date of injury, the maximum rate for your case does not change, regardless of later increases.
+        </p>
+      </div>
+    </div>
+
     <!-- Historical Rates -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Historical Maximum Rates</span>
+        <h2 class="calc-header-title">Historical NY Maximum Comp Rates (1985–Present)</h2>
       </div>
       <div class="calc-body" style="padding:0;">
         <table class="data-table">
@@ -144,20 +224,46 @@
       </div>
     </div>
 
-    <!-- About rates -->
+    <!-- How to calculate -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Understanding NYS Maximum Compensation Rates</span>
+        <h2 class="calc-header-title">How to Calculate Your Weekly Benefit</h2>
       </div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          The maximum weekly compensation rate in New York State is the highest amount a workers' compensation insurance carrier can pay to an injured worker for temporary or permanent disability benefits. This rate is adjusted annually by the New York Department of Financial Services, effective July 1st each year, based on wage indices calculated from U.S. Department of Labor data.
-        </p>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">How Rates Apply:</strong> The maximum rate that applies to a specific workers' compensation case is determined by the date of the work-related injury or occupational disease. Once established for a case, that rate remains applicable throughout the life of the case regardless of subsequent rate changes.
+          Your weekly benefit is <strong style="color:var(--tx);">2/3 × your Average Weekly Wage (AWW) × your degree of disability</strong>, and it cannot exceed the statutory maximum for your injury year. A worker earning $1,500/week who is totally disabled receives 2/3 × $1,500 = $1,000/week. A worker earning $2,100/week hits the cap: 2/3 × $2,100 = $1,400, which is reduced to the $1,281.50 maximum for a 2026 injury.
         </p>
         <p style="color:var(--txD);line-height:1.8;">
-          <strong style="color:var(--tx);">Impact on Benefits:</strong> The maximum rate affects all types of workers' compensation benefits. A worker's 2/3 compensation rate cannot exceed the statutory maximum for the year of injury. Workers with higher wages are capped at the maximum, while lower-wage workers receive 2/3 of their AWW.
+          Start with the free <a href="/calculators/aww" style="color:var(--ac);">Average Weekly Wage (AWW) calculator</a> to establish your wage under WCL §14. Then estimate permanency awards with the <a href="/calculators/slu" style="color:var(--ac);">Schedule Loss of Use (SLU) calculator</a> or the <a href="/calculators/lwec" style="color:var(--ac);">Loss of Wage Earning Capacity (LWEC) calculator</a>. For the minimum rate for your injury date, see the <a href="/calculators/benefit-rate" style="color:var(--ac);">benefit rate lookup</a>.
+        </p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <h2 class="calc-header-title">Frequently Asked Questions</h2>
+      </div>
+      <div class="calc-body">
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What is the maximum workers' comp rate in New York for 2026?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          For injuries on or after July 1, 2026, the maximum weekly compensation rate is <strong style="color:var(--tx);">$1,281.50</strong>, per WCB Subject No. 046-1805. For dates of injury between July 1, 2025 and June 30, 2026, the maximum is $1,222.42.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">How is my weekly workers' comp benefit calculated in New York?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          Your weekly benefit is two-thirds of your <a href="/calculators/aww" style="color:var(--ac);">average weekly wage (AWW)</a> multiplied by your degree of disability, capped at the statutory maximum rate for your date of injury.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">Does my compensation rate increase when New York announces a new maximum?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          No. The maximum rate that applies to your case is fixed by your date of injury and remains applicable for the life of the case, even as new maximums take effect each July 1.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">Is there a minimum weekly compensation rate in New York?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          Yes. The minimum weekly benefit rose to $275 on January 1, 2024 and $325 on January 1, 2025, and beginning January 1, 2026 it is indexed to one-fifth of the New York State Average Weekly Wage.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What if two-thirds of my wages is more than the maximum rate?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;">
+          Your rate is capped at the statutory maximum for your injury year. Higher-wage workers receive the maximum; everyone else receives two-thirds of their average weekly wage at total disability.
         </p>
       </div>
     </div>

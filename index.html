@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Comp Desk — Workers' Compensation Tools for New York</title>
-<meta name="description" content="The Comp Desk is a NY Workers' Compensation platform built by a practicing WC attorney. Free tools for injured workers, professional-grade calculators for attorneys.">
+<meta name="description" content="The Comp Desk is a NY workers' comp platform built by a practicing WC attorney. Free tools for injured workers, pro-grade calculators for attorneys.">
 
 <!-- Open Graph -->
 <meta property="og:title" content="The Comp Desk — NY Workers' Compensation Tools">
@@ -501,6 +501,21 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+.cover-tools {
+  position: relative;
+  z-index: 5;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--skin-text-muted);
+}
+.cover-tools a {
+  color: var(--skin-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cover-tools a:hover { color: var(--skin-text); }
+.cover-tools .sep { margin: 0 8px; opacity: 0.5; }
 .cover-skip {
   position: fixed;
   right: 18px;
@@ -781,6 +796,9 @@ body.no-video-bg .skyline { display: block; }
   </div>
 
   <p class="cover-caption">Choose your path</p>
+  <nav class="cover-tools" aria-label="Popular free calculators">
+    <a href="/calculators/rates">NYS Workers' Comp Maximum Rates</a><span class="sep" aria-hidden="true">·</span><a href="/calculators/slu">SLU Calculator</a><span class="sep" aria-hidden="true">·</span><a href="/calculators/lwec">LWEC Calculator</a>
+  </nav>
   <a class="cover-skip" href="/worker" aria-label="Skip cover and go to the worker home">Skip intro →</a>
 
 </main>

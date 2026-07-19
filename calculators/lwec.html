@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LWEC Calculator — Loss of Wage Earning Capacity | NYS Workers' Comp | The Comp Desk</title>
-  <meta name="description" content="Free NYS Loss of Wage Earning Capacity (LWEC) calculator. Calculate weekly benefits, bracket classification, max weeks, attorney fee (15 weeks), and net to claimant under New York workers' compensation law.">
-  <meta property="og:title" content="LWEC Calculator — Loss of Wage Earning Capacity | NYS Workers' Comp">
+  <title>NYS LWEC Calculator — Loss of Wage Earning Capacity</title>
+  <meta name="description" content="Free NYS LWEC calculator. Estimate weekly benefits, bracket, max weeks, attorney fee, and net to claimant under New York workers' comp law.">
+  <meta property="og:title" content="NYS LWEC Calculator — Loss of Wage Earning Capacity">
   <meta property="og:description" content="Free calculator for NYS Loss of Wage Earning Capacity benefits with bracket system, max weeks, attorney fee, and net to claimant.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Comp Desk">
@@ -14,7 +14,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LWEC Calculator — Loss of Wage Earning Capacity | NYS Workers' Comp">
+  <meta name="twitter:title" content="NYS LWEC Calculator — Loss of Wage Earning Capacity">
   <meta name="twitter:description" content="Free calculator for NYS Loss of Wage Earning Capacity benefits with bracket system, max weeks, attorney fee, and net to claimant.">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-lwec.png">
 
@@ -29,6 +29,56 @@
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What does LWEC mean in workers' comp?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "LWEC stands for Loss of Wage Earning Capacity — the percentage by which a permanent injury reduces your ability to earn wages. The Workers' Compensation Board sets it at permanency (classification) based on medical impairment, functional limitations, and vocational factors such as age, education, and work history."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many weeks of LWEC benefits can I get in New York?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "WCL §15(3)(w) caps benefit weeks by LWEC percentage — from 225 weeks at 15% or less up to 525 weeks at over 95%. Workers found permanently totally disabled receive lifetime benefits."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is the weekly LWEC rate calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The weekly classification rate equals your LWEC percentage multiplied by your compensation rate (two-thirds of your average weekly wage, capped at the statutory maximum for your date of injury). For example, 50% LWEC with a $750 comp rate pays $375 per week."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is LWEC the same as a Schedule Loss of Use award?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. A Schedule Loss of Use (SLU) award pays a fixed number of weeks for permanent loss of use of an extremity under WCL §15(3). LWEC compensates non-schedule permanent injuries — spine, head, and systemic conditions — with weekly benefits over a capped duration."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What attorney fee comes out of an LWEC award?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Attorneys are typically awarded 15 weeks multiplied by the weekly classification rate, deducted from the award and subject to Workers' Compensation Board approval under WCL §24."
+        }
+      }
+    ]
   }
   </script>
 
@@ -75,7 +125,7 @@
     <!-- Calculator -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Calculator</span>
+        <h2 class="calc-header-title">Calculator</h2>
       </div>
       <div class="calc-body">
 
@@ -186,10 +236,43 @@
       </div>
     </div>
 
+    <!-- What is LWEC -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <h2 class="calc-header-title" data-fieldhelp="lwec">What Is LWEC (Loss of Wage Earning Capacity)?</h2>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          Loss of Wage Earning Capacity (LWEC) is New York's measure of how much a permanent, non-schedule injury reduces an injured worker's ability to earn wages. When a worker reaches maximum medical improvement with a permanent partial disability that isn't covered by the Schedule Loss of Use system — typically spine, head, and systemic injuries — the Workers' Compensation Board assigns an LWEC percentage based on medical impairment, functional limitations, and vocational factors such as age, education, and work history.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;">
+          That percentage drives both the <strong style="color:var(--tx);">weekly benefit rate</strong> and the <strong style="color:var(--tx);">maximum number of weeks</strong> the benefit is payable, using the bracket system shown below.
+        </p>
+      </div>
+    </div>
+
+    <!-- How LWEC is calculated -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <h2 class="calc-header-title">How LWEC Is Calculated (WCL §15(3)(w))</h2>
+      </div>
+      <div class="calc-body">
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          The weekly LWEC classification rate equals <strong style="color:var(--tx);">your LWEC percentage × your compensation rate</strong> (2/3 of your average weekly wage, capped at the <a href="/calculators/rates" style="color:var(--ac);">statutory maximum rate</a> for your date of injury). For example, a 50% LWEC classification with a $750/week comp rate yields $375/week.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          The duration is capped by WCL §15(3)(w): the LWEC percentage falls into a bracket that sets the maximum weeks of benefits — from 225 weeks at 15% or less up to 525 weeks above 95%. Workers classified with a permanent total disability receive lifetime benefits.
+        </p>
+        <p style="color:var(--txD);line-height:1.8;">
+          Not sure of your wage figure? Establish it first with the <a href="/calculators/aww" style="color:var(--ac);">Average Weekly Wage (AWW) calculator</a> under WCL §14.
+        </p>
+      </div>
+    </div>
+
     <!-- LWEC Bracket Reference -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">LWEC Classification Brackets</span>
+        <h2 class="calc-header-title">LWEC Percentage Brackets &amp; Maximum Weeks</h2>
       </div>
       <div class="calc-body" style="padding:0;">
         <table class="data-table" id="bracketTable">
@@ -222,36 +305,47 @@
       </div>
     </div>
 
-    <!-- Compare with SLU -->
+    <!-- LWEC vs SLU -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title">Compare with SLU</span>
+        <h2 class="calc-header-title">LWEC vs. Schedule Loss of Use (SLU)</h2>
       </div>
       <div class="calc-body">
-        <p style="color:var(--txD);margin-bottom:14px;">
-          Not sure whether your case qualifies for Schedule Loss of Use or Loss of Wage Earning Capacity? Try our SLU calculator for comparison.
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
+          New York permanency awards come in two forms. A <strong style="color:var(--tx);">Schedule Loss of Use (SLU)</strong> award pays a fixed number of weeks for permanent loss of use of an extremity — arm, hand, leg, foot, fingers, vision, or hearing — under WCL §15(3), even if you're back at work at full pay. <strong style="color:var(--tx);">LWEC</strong> covers non-schedule permanent injuries (spine, head, systemic conditions) with weekly benefits paid over a capped duration. A case generally resolves under one framework or the other for a given injury.
         </p>
-        <a href="slu.html" class="btn-secondary">Go to SLU Calculator</a>
+        <p style="color:var(--txD);margin-bottom:14px;">
+          Think your injury may be a schedule loss? Estimate the award with the free <a href="/calculators/slu" style="color:var(--ac);">Schedule Loss of Use (SLU) calculator</a>.
+        </p>
+        <a href="/calculators/slu" class="btn-secondary">Go to SLU Calculator</a>
       </div>
     </div>
 
-    <!-- About LWEC -->
+    <!-- FAQ -->
     <div class="calc-section">
       <div class="calc-header">
-        <span class="calc-header-title" data-fieldhelp="lwec">About Loss of Wage Earning Capacity (LWEC)</span>
+        <h2 class="calc-header-title">Frequently Asked Questions</h2>
       </div>
       <div class="calc-body">
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          Loss of Wage Earning Capacity (LWEC), also known as permanent partial disability (PPD) in some contexts, is a form of workers' compensation benefit available to injured workers in New York State who have suffered permanent injuries that reduce their ability to earn wages. Unlike Schedule Loss of Use, which is a fixed benefit, LWEC is flexible and based on the individual worker's actual loss of earning capacity.
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What does LWEC mean in workers' comp?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          LWEC stands for Loss of Wage Earning Capacity — the percentage by which a permanent injury reduces your ability to earn wages. The Workers' Compensation Board sets it at permanency (classification) based on medical impairment, functional limitations, and vocational factors such as age, education, and work history.
         </p>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">Classification System:</strong> When an injured worker reaches maximum medical improvement and cannot return to regular employment, the Workers' Compensation Board classifies the worker as having lost a percentage of their wage earning capacity. This percentage falls into a bracket that determines the maximum number of weeks of benefits payable.
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">How many weeks of LWEC benefits can I get in New York?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          WCL §15(3)(w) caps benefit weeks by LWEC percentage — from 225 weeks at 15% or less up to 525 weeks at over 95%. Workers found permanently totally disabled receive lifetime benefits.
         </p>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">LWEC Benefit Calculation:</strong> The weekly LWEC classification rate equals the LWEC percentage × the worker's 2/3 AWW compensation rate. For example, a 50% LWEC classification with a $750/week comp rate yields $375/week. That rate is paid for the maximum weeks in the bracket (350 weeks for 51–60%).
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">How is the weekly LWEC rate calculated?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          The weekly classification rate equals your LWEC percentage multiplied by your compensation rate (two-thirds of your average weekly wage, capped at the <a href="/calculators/rates" style="color:var(--ac);">statutory maximum</a> for your date of injury). For example, 50% LWEC with a $750 comp rate pays $375 per week.
         </p>
-        <p style="color:var(--txD);line-height:1.8;">
-          <strong style="color:var(--tx);">Attorney Fee:</strong> Under WCL §24, attorneys are typically awarded 15 weeks × the weekly classification rate as their fee, deducted from the total award. This calculator shows the full fee and net-to-claimant breakdown.
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">Is LWEC the same as a Schedule Loss of Use award?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          No. A <a href="/calculators/slu" style="color:var(--ac);">Schedule Loss of Use (SLU) award</a> pays a fixed number of weeks for permanent loss of use of an extremity under WCL §15(3). LWEC compensates non-schedule permanent injuries — spine, head, and systemic conditions — with weekly benefits over a capped duration.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What attorney fee comes out of an LWEC award?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;">
+          Attorneys are typically awarded 15 weeks multiplied by the weekly classification rate, deducted from the award and subject to Workers' Compensation Board approval under WCL §24. This calculator shows the full fee and net-to-claimant breakdown.
         </p>
       </div>
     </div>

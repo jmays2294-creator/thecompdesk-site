@@ -89,9 +89,11 @@ body {
 }
 
 /* Alias so <h2 class="section-title"> works with padding override */
-h2.section-title {
+h2.section-title,
+h2.calc-header-title {
   font-size: 10px;
   font-weight: 800;
+  margin: 0;
 }
 
 .calc-header {

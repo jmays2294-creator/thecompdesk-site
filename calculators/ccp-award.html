@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CCP / Award Calculator — Period-Based NYS Workers' Comp | The Comp Desk</title>
-  <meta name="description" content="Free NYS workers' compensation CCP award calculator. Enter date ranges by period designation (TT, RE, TR, TP) to calculate gross award, attorney fee, and net to claimant. Exact app formulas.">
+  <title>NYS Workers' Comp Award Calculator — CCP Periods</title>
+  <meta name="description" content="Free NYS workers' comp CCP award calculator. Enter periods (TT, RE, TR, TP) to calculate gross award, attorney fee, and net to claimant.">
   <meta property="og:title" content="CCP / Award Calculator — Period-Based NYS Workers' Comp | The Comp Desk">
   <meta property="og:description" content="Calculate classified CCP awards period-by-period with automatic rate calculation from AWW. Includes attorney fee breakdown and net to claimant.">
   <meta property="og:type" content="website">
@@ -29,6 +29,40 @@
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How is a period-based workers' comp award calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Each date range in the award is counted in weeks and multiplied by the weekly rate for that period's designation (such as temporary total or reduced earnings). The periods are summed into a gross award, from which the attorney fee is deducted to reach the net to claimant."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What rate applies during each period?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Two-thirds of your average weekly wage multiplied by your degree of disability for that period, capped at the statutory maximum rate for your date of injury."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is the attorney fee calculated on an award?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Attorney fees on accrued awards are commonly 15% of the accrued amount, subject to Workers' Compensation Board approval under WCL §24. The calculator shows the fee and the net to claimant."
+        }
+      }
+    ]
   }
   </script>
 
@@ -517,6 +551,27 @@
             <tr><td>Jul 1, 1985 – Jun 30, 2007</td><td>$400.00</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="calc-section">
+      <div class="calc-header">
+        <h2 class="calc-header-title">Frequently Asked Questions</h2>
+      </div>
+      <div class="calc-body">
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">How is a period-based workers' comp award calculated?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          Each date range in the award is counted in weeks and multiplied by the weekly rate for that period's designation (such as temporary total or reduced earnings). The periods are summed into a gross award, from which the attorney fee is deducted to reach the net to claimant.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What rate applies during each period?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+          Two-thirds of your <a href="/calculators/aww" style="color:var(--ac);">average weekly wage</a> multiplied by your degree of disability for that period, capped at the <a href="/calculators/rates" style="color:var(--ac);">statutory maximum rate</a> for your date of injury.
+        </p>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">How is the attorney fee calculated on an award?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;">
+          Attorney fees on accrued awards are commonly 15% of the accrued amount, subject to Workers' Compensation Board approval under WCL §24. The calculator shows the fee and the net to claimant.
+        </p>
       </div>
     </div>
 
