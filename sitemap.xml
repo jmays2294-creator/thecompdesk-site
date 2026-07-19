@@ -89,50 +89,57 @@
 
   <url>
     <loc>https://thecompdesk.com/calculators/</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
 
   <url>
     <loc>https://thecompdesk.com/calculators/slu</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://thecompdesk.com/calculators/aww</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://thecompdesk.com/calculators/lwec</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://thecompdesk.com/calculators/ccp-award</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <url>
     <loc>https://thecompdesk.com/calculators/rates</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://thecompdesk.com/calculators/radiculopathy</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://thecompdesk.com/calculators/benefit-rate</loc>
+    <lastmod>2026-07-19</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
 
