@@ -505,22 +505,6 @@ const TILE_INPUT_DEFAULTS = {
       includeEnd: false,      // Mode B — count the end date itself
     };
   },
-};
-
-// Per-row defaults inside known nested arrays.
-const TILE_ROW_DEFAULTS = {
-  SLU_ROW:    () => ({ id: Date.now() + Math.random(), bp: 'Leg', pct: 0 }),
-  CCP_PERIOD: () => ({
-    id: Date.now() + Math.random(), start: '', end: '', desg: 'TT',
-    curEarn: 0, ratePct: 100, manualRate: 0,
-    // TR/TP $/% rate mode (5/19/26 v1): 'pct' | 'usd'
-    rateMode: 'pct',
-    amending: false, priorMode: 'pct', priorVal: 0,
-    // REIMB ER (5/19/26 v2-v5): scope + Known/Unknown + optional date range
-    reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
-    reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
-    endMode: null,
-  }),
   // Fee Calculator 6.1 conversions (BETA).
   SLURom:        () => ({ site: 'R Shoulder', roms: {}, special: 'None' }),
   NonSchedule:   () => ({
@@ -540,6 +524,23 @@ const TILE_ROW_DEFAULTS = {
     });
     return { cases: [mkCase(0), mkCase(1)], rows: [{ id: t + 10, part: 'Arm', pct: {} }], _expandW: 0 };
   },
+};
+
+// Per-row defaults inside known nested arrays.
+const TILE_ROW_DEFAULTS = {
+  SLU_ROW:    () => ({ id: Date.now() + Math.random(), bp: 'Leg', pct: 0 }),
+  CCP_PERIOD: () => ({
+    id: Date.now() + Math.random(), start: '', end: '', desg: 'TT',
+    curEarn: 0, ratePct: 100, manualRate: 0,
+    // TR/TP $/% rate mode (5/19/26 v1): 'pct' | 'usd'
+    rateMode: 'pct',
+    amending: false, priorMode: 'pct', priorVal: 0,
+    // REIMB ER (5/19/26 v2-v5): scope + Known/Unknown + optional date range
+    reimbErOn: false, reimbErAmount: 0, reimbErUnknown: false,
+    reimbErScope: 'period', reimbErRangeStart: '', reimbErRangeEnd: '',
+    endMode: null,
+  }),
+
 };
 
 function hydrateAwwState(raw) {
