@@ -1960,6 +1960,16 @@ function CCPTile({ tile, global, onUpdate, onFeeApp }) {
             </>
           )}
           <div className="r-row"><span className="l">Total Fee</span><span className="v">{fmt$(computed.totalFee)}</span></div>
+          {/* CCP is the one calculator whose displayed fee is NOT the filed
+              fee — the composite stays exact (see the KNOWN DIVERGENCE note on
+              computeCCP in calc-core.js), while feeapp.js files floor5(total).
+              Say so rather than letting the attorney find the gap on the PDF. */}
+          <div className="r-row">
+            <span className="l" style={{textTransform:'none', letterSpacing:0, color:'var(--tx-faint)'}}>
+              Filed OC-400.1 fee rounds down to the nearest $5.
+            </span>
+            <span className="v" />
+          </div>
           <div className="r-row net"><span className="l">Net to Claimant</span><span className="v">{fmt$(computed.netToClaimant)}</span></div>
           {computed.employerMoving > 0 && (
             <div className="r-row net r-row-employer"><span className="l">Net to Employer</span><span className="v">{fmt$(computed.netToEmployer)}</span></div>
@@ -4301,12 +4311,19 @@ const apptCaseLabel = (i) => (i === 0 ? 'Current' : 'Prior ' + i);
 // downstream can detect that, so the warning has to stay on screen.
 const APPT_BANNER_STYLE = {
   gridColumn: '1 / -1',
-  padding: '6px 10px',
+  padding: '3px 7px',
   border: '1px solid color-mix(in srgb, #f59e0b 55%, transparent)',
   borderRadius: 4,
   background: 'color-mix(in srgb, #f59e0b 12%, var(--bg-1))',
   color: 'var(--tx)',
-  font: '600 11px/1.4 inherit',
+  // NOT the `font:` shorthand — `font: 600 9px/1.3 inherit` is INVALID CSS
+  // (`inherit` is not a legal family inside the shorthand), so the whole
+  // declaration was dropped and the banner rendered at the browser default
+  // 16px. That, not the padding, is why it looked oversized. Longhand inherits
+  // the family naturally and actually applies.
+  fontWeight: 600,
+  fontSize: 9,
+  lineHeight: 1.3,
 };
 const APPT_SECTION_STYLE = {
   gridColumn: '1 / -1',
@@ -4333,9 +4350,23 @@ const APPT_VALUE_STYLE = {
 };
 
 function ApportionmentTile({ tile, global, onUpdate }) {
-  const inputs = tile.inputs || window.TILE_INPUT_DEFAULTS.Apportionment();
-  const cases = inputs.cases || [];
-  const rows = inputs.rows || [];
+  // Normalise BEFORE deriving nCases. A HYDRATED tile has a truthy tile.inputs,
+  // so `tile.inputs || DEFAULTS()` never fired for a saved tile whose cases
+  // array was empty — nCases collapsed to 0, the grid template became
+  // `138px repeat(0, …)`, and the tile rendered as a label-only column with no
+  // input fields, a banner wrapped into 138px and $0.00 on every total.
+  // useMemo keeps the seed's generated ids stable for this mount so nothing
+  // re-keys mid-render.
+  const seed = useMemo(() => window.TILE_INPUT_DEFAULTS.Apportionment(), []);
+  const rawCases = (tile.inputs && tile.inputs.cases) || [];
+  const rawRows = (tile.inputs && tile.inputs.rows) || [];
+  const inputs = tile.inputs
+    ? { ...tile.inputs,
+        cases: rawCases.length ? rawCases : seed.cases,
+        rows:  rawRows.length  ? rawRows  : seed.rows }
+    : seed;
+  const cases = inputs.cases;
+  const rows = inputs.rows;
   const nCases = cases.length;
   const colW = apptColW(nCases);
 
@@ -4405,6 +4436,14 @@ function ApportionmentTile({ tile, global, onUpdate }) {
     if ((inputs._expandW || 0) !== wantExpandW) setInputs({ _expandW: wantExpandW });
   }, [wantExpandW]);
 
+  // Heal a stale saved tile ONCE on mount so the seed survives a reload instead
+  // of being re-derived every time (and so the shell width persists with it).
+  useEffect(() => {
+    if (tile.inputs && !((tile.inputs.cases || []).length)) {
+      onUpdate({ ...tile, inputs: { ...inputs, _expandW: apptExpandW(inputs.cases.length) } });
+    }
+  }, []);
+
   // Fail loud (Apr 27 playbook) rather than rendering plausible zeros.
   if (!computed) {
     console.error('[workspace] CALC_CORE_MISSING — js/calc-core.js must load before the workspace bundle (Apportionment tile)');
@@ -4412,6 +4451,18 @@ function ApportionmentTile({ tile, global, onUpdate }) {
       <div className="tile-body" style={{ width: tileBaseW(tile), boxSizing: 'border-box' }}>
         <div style={{ ...APPT_BANNER_STYLE, gridColumn: 'auto' }}>
           Calculator core failed to load — reload the page. (calc-core.js)
+        </div>
+      </div>
+    );
+  }
+
+  // Fail loud rather than silently rendering an empty label-only grid.
+  if (nCases < 1) {
+    console.error('[workspace] APPORTIONMENT_NO_CASES — tile has no case columns', tile.id);
+    return (
+      <div className="tile-body" style={{ width: tileBaseW(tile), boxSizing: 'border-box' }}>
+        <div style={{ ...APPT_BANNER_STYLE, gridColumn: 'auto' }}>
+          This tile has no cases. Remove it and drop a fresh one.
         </div>
       </div>
     );
@@ -4488,8 +4539,7 @@ function ApportionmentTile({ tile, global, onUpdate }) {
           {/* ---- body parts × %SLU ---- */}
           <div style={APPT_SECTION_STYLE}>Body Parts — apportioned %SLU</div>
           <div style={APPT_BANNER_STYLE}>
-            ⚠️ Enter the <b>apportioned</b> %SLU for each case. If apportionment applies, split the
-            loss across cases — do not enter the full SLU value in more than one case.
+            ⚠️ Enter each case's <b>apportioned</b> %SLU — don't repeat the full SLU across cases.
           </div>
 
           {rows.map(r => (

@@ -1068,7 +1068,15 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
       <div className="tile-header" onPointerDown={(e) => onTilePointerDown(e, tile.id)}>
         <span className="tile-handle">⋮⋮</span>
         <span className="tile-name">{spec.name}<span className="tile-instance"> #{tile.instance}</span></span>
-        <button className="tile-close" onClick={() => onRemove(tile.id)} title="Remove">×</button>
+        {/* stopPropagation on pointerdown: .tile-header owns onPointerDown for
+            dragging, so pressing × used to start a zero-distance drag and the
+            pointerup reposition (findEmptySlot) swallowed the click — the close
+            button did nothing. General tile bug; the Apportionment tile just
+            made it obvious. */}
+        <button className="tile-close"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); onRemove(tile.id); }}
+          title="Remove">×</button>
       </div>
       <Component tile={tile} global={global} onUpdate={onUpdate} onFeeApp={onFeeApp} />
     </div>

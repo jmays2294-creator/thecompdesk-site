@@ -380,6 +380,21 @@
   // manualRate, rateMode('pct'|'usd'), amending, priorMode, priorVal,
   // reimbErOn, reimbErAmount, reimbErUnknown, reimbErScope('period'|'all'|'specific'),
   // reimbErRangeStart, reimbErRangeEnd.
+  //
+  // KNOWN DIVERGENCE — CCP's totalFee is INTENTIONALLY NOT floored to $5.
+  // Every other calculator here reports floorFee5(fee) so the tile shows the
+  // number that gets filed. CCP does not, and that is a decision, not an
+  // oversight: totalFee is a composite of THREE parts split across TWO payers
+  // (feeOnClaimant 15% from the claimant's award + feeOnEmployer 15% from the
+  // employer REIMB-ER bucket + feeOnCCP = ccpAmount/3). Flooring the blended
+  // total moves ≤$4.99 out of one payer's bucket and into the other's net, and
+  // which bucket absorbs it is a per-case attorney judgment — not something the
+  // engine can pick. So the composite stays exact and the allocation is made by
+  // hand. NOTE the consequence: a CCP-generated OC-400.1 still files
+  // floor5(totalFee) via feeapp.js, so for CCP ALONE the displayed fee (exact)
+  // and the filed fee (floored) intentionally differ. The CCP tile carries a
+  // line of microcopy saying so. Do NOT "fix" this by adding floorFee5 — the
+  // fee-rounding-guard pins CCP-exact and will go red if you do.
   function computeCCP(periods = [], opts = {}) {
     const aww = num(opts.aww), minRate = num(opts.minRate), maxRate = num(opts.maxRate);
     const rounding = opts.rounding || 'none';
