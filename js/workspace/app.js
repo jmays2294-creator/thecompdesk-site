@@ -1017,6 +1017,38 @@ function Palette({ onAdd, onDragStart, isPro, collapsed, onToggleCollapsed }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Per-tile error boundary. WHY THIS EXISTS (2026-07-21 outage): the workspace
+// canvas has no error boundary, so ONE tile that throws during render blanks the
+// ENTIRE #root. A single misfiled TILE_INPUT_DEFAULTS factory (Apportionment)
+// took the whole website workspace down for every signed-in user who had that
+// tile saved. Wrapping each tile's body — NOT its header — means a broken tile
+// degrades to an inert error card the user can still close, and every other tile
+// keeps working. Mirrors the app's global render guard (ui-controller.js).
+// Must be a class component (getDerivedStateFromError / componentDidCatch).
+class TileErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { err: null }; }
+  static getDerivedStateFromError(err) { return { err }; }
+  componentDidCatch(err, info) {
+    // Fail loud (Apr 27 playbook) — the card is graceful, the log is not.
+    console.error('[workspace] TILE_RENDER_ERROR', this.props.type, err, info && info.componentStack);
+  }
+  render() {
+    if (!this.state.err) return this.props.children;
+    return (
+      <div className="tile-body" style={{ justifyContent: 'center', gap: 8, padding: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warn, #f59e0b)' }}>
+          This tile hit an error
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--tx-faint)', lineHeight: 1.5 }}>
+          The <span style={{ fontFamily: 'var(--mono)' }}>{String(this.props.type)}</span> tile
+          couldn\'t render. Your other tiles are unaffected — close it (\u00d7) and drop a fresh one.
+        </div>
+      </div>
+    );
+  }
+}
+
 function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerDown, isRecent, perspective, onFeeApp }) {
   const tileRef = useRef(null);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
@@ -1078,7 +1110,9 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
           onClick={(e) => { e.stopPropagation(); onRemove(tile.id); }}
           title="Remove">×</button>
       </div>
-      <Component tile={tile} global={global} onUpdate={onUpdate} onFeeApp={onFeeApp} />
+      <TileErrorBoundary type={tile.type}>
+        <Component tile={tile} global={global} onUpdate={onUpdate} onFeeApp={onFeeApp} />
+      </TileErrorBoundary>
     </div>
   );
 }
