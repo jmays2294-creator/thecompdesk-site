@@ -875,6 +875,40 @@ function TabStrip({ tabs, activeTabId, tier, onSwitch, onNew, onClose, onRename,
 // SECTION 4 — Palette / Tile / Canvas / EquationCard (unchanged from artifact)
 // ============================================================================
 
+// ---------------------------------------------------------------------------
+// Unknown tile types — forward-compat.
+// hydrateTile (constants.js) now PRESERVES a tile type this build doesn't know
+// instead of dropping it, so that a lagging surface can't truncate a newer
+// surface's synced layout. The consequence is that every TILE_SPECS lookup has
+// to tolerate a miss: before this, `TILE_SPECS[t.type].w` in findEmptySlot and
+// `spec.name` in EquationCard would throw on the first render after such a
+// workspace loaded. tileSpecFor() is the single guarded accessor.
+// ---------------------------------------------------------------------------
+const UNKNOWN_TILE_SPEC = { w: 300, h: 170, name: 'Unavailable tile', unknown: true };
+function tileSpecFor(type) {
+  return TILE_SPECS[type]
+    || (typeof window !== 'undefined' && window.PUBLISHED_SPECS && window.PUBLISHED_SPECS[type])
+    || UNKNOWN_TILE_SPEC;
+}
+
+// Inert stand-in for a preserved-but-unrenderable tile. Deliberately has no
+// inputs and no calc path — it must never mutate the tile it is standing in for,
+// because that saved state belongs to whichever surface CAN render it.
+function UnavailableTile({ tile }) {
+  return (
+    <div className="tile-body" style={{ justifyContent: 'center', gap: 8 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warn)' }}>
+        This tile isn't available in this version
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--tx-faint)', lineHeight: 1.5 }}>
+        <span style={{ fontFamily: 'var(--mono)' }}>{String(tile.type)}</span> was saved by a newer
+        version of the workspace. Its data has been kept intact — update this app, or open the
+        workspace on the web, to use it.
+      </div>
+    </div>
+  );
+}
+
 const PALETTE_ITEMS = [
   // pro:true mirrors TILE_SPECS in tiles.js. Free users see a lock badge on
   // these palette cards and hit the Paywall on click/drop.
@@ -890,6 +924,7 @@ const PALETTE_ITEMS = [
   { type: 'RateLookup',    name: 'Rate Lookup',   icon: '$/wk', short: '$/Wk',   desc: 'Max + Min rate by date' },
   { type: 'MTG',           name: 'MTGs',          icon: '⚕️',   short: 'MTGs',   desc: 'NYS WCB Medical Treatment Guidelines — browse + search + approval criteria' },
   { type: 'DateCalc',      name: 'Date Calc',     icon: '📅',   short: '📅',     desc: 'Add/subtract yrs·mo·wks·days · date span' },
+  { type: 'Apportionment', name: 'Apportionment', icon: 'APP',  short: 'APP',    desc: 'Multi-case SLU — one claimant, several D/As, apportioned across cases', pro: true },
   // Radiculopathy retired from the palette — superseded by the Non-Schedule tile's
   // Spine tab. The RadiculopathyTile component stays registered for saved cases.
 ];
@@ -997,13 +1032,16 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
   };
   const handleMouseLeave = () => setTilt({ rx: 0, ry: 0 });
 
-  const spec = TILE_SPECS[tile.type] || (window.PUBLISHED_SPECS && window.PUBLISHED_SPECS[tile.type]);
+  const spec = tileSpecFor(tile.type);
   const Component = {
     SLU: SLUTile, LWEC: LWECTile, CCP: CCPTile,
     RateLookup: RateLookupTile, Radiculopathy: RadiculopathyTile,
     Burns: BurnsTile, Settlement: SettlementTile, MTG: MTGBrowserTile,
     DateCalc: DateCalcTile, SLURom: SLURomTile, NonSchedule: NonScheduleTile,
-  }[tile.type] || (tile.type && tile.type.indexOf('pub_') === 0 ? window.PublishedTile : undefined);
+    Apportionment: ApportionmentTile,
+  }[tile.type]
+    || (tile.type && tile.type.indexOf('pub_') === 0 ? window.PublishedTile : undefined)
+    || UnavailableTile;
 
   // Tile Size now scales the actual footprint (cell.w / cell.h come from the
   // auto-arrange packer, already multiplied by tile-scale), so the grid
@@ -1045,7 +1083,7 @@ function findEmptySlot(tiles, w, h, preferX = 0, preferY = 0, snap = GRID) {
   preferX = Math.max(0, snapped(preferX));
   preferY = Math.max(0, snapped(preferY));
   const candidate = { x: preferX, y: preferY, w, h };
-  const occupied = tiles.map(t => ({ x: t.x, y: t.y, w: TILE_SPECS[t.type].w, h: TILE_SPECS[t.type].h }));
+  const occupied = tiles.map(t => ({ x: t.x, y: t.y, w: tileSpecFor(t.type).w, h: tileSpecFor(t.type).h }));
   if (!occupied.some(r => rectsOverlap(candidate, r))) return { x: candidate.x, y: candidate.y };
   const step = snap;
   for (let radius = step; radius < 4000; radius += step) {
@@ -1085,7 +1123,7 @@ function packGrid(ordered, tileScale, containerW, gap) {
   const pos = {};
   let x = 0, y = 0, rowH = 0, maxBottom = 0;
   for (const t of ordered) {
-    const spec = TILE_SPECS[t.type] || { w: 320, h: 220 };
+    const spec = tileSpecFor(t.type);
     // Split-Opinions flyout reserves a fixed extra width (inputs._expandW) on
     // the right; add it unscaled so neighbours reflow to make room for it.
     const w = spec.w * s + ((t.inputs && t.inputs._expandW) || 0), h = spec.h * s;
@@ -1225,7 +1263,7 @@ function Canvas({ tiles, tileScale, global, onUpdate, onRemove, onAdd, mostRecen
         )}
         {tiles.map(tile => {
           const isDragging = !!drag && drag.id === tile.id;
-          const spec = TILE_SPECS[tile.type] || { w: 320, h: 220 };
+          const spec = tileSpecFor(tile.type);
           const cell = isDragging
             ? { x: tile.x, y: tile.y, w: spec.w * ts, h: spec.h * ts }
             : (packed[tile.id] || { x: tile.x, y: tile.y, w: spec.w * ts, h: spec.h * ts });
@@ -1251,7 +1289,9 @@ function EquationCard({ tile, global, onFeeApp }) {
     const d = new Date(tile.addedAt);
     return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }, [tile.addedAt]);
-  const spec = TILE_SPECS[tile.type];
+  const spec = tileSpecFor(tile.type);
+  // No equation, no fee app for a tile this build can't render.
+  if (spec.unknown) return null;
 
   const onCopy = async () => {
     try { await navigator.clipboard.writeText(eq.mono); }

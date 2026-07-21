@@ -167,6 +167,24 @@
     if (minR > 0 && bounded < minR) bounded = minR;
     return bounded;
   }
+  // floorFee5 — THE attorney-fee rounding rule for a fee APPLICATION.
+  // Joel's spec (see the identical floor5 in workspace/feeapp.js + oc400-core.js):
+  // "the fee requested should automatically generate the nearest $5 number below
+  // the eligible fee." $4,876.32 → $4,875; $5,000 → $5,000.
+  //
+  // WHY IT LIVES HERE NOW (2026-07-21): the OC-400.1 generator has ALWAYS floored
+  // the "Amount Requested" field — every fee app this product has ever produced
+  // carries a floored number. But the tiles displayed the exact 15%, so the fee
+  // and net on screen were up to $4.99 away from what the attorney actually
+  // filed off that same screen. The calculators now report the number that will
+  // be requested, so display and filing agree. Idempotent, so feeapp.js's own
+  // floor5 on the way to the PDF is a no-op rather than a double-rounding.
+  function floorFee5(amount) {
+    const v = num(amount);
+    if (!isFinite(v) || v <= 0) return 0;
+    return Math.floor(v / 5) * 5;
+  }
+
   function isAwwBelowMin(aww, minRate) {
     const a = num(aww), m = num(minRate);
     return m > 0 && a > 0 && a < m;
@@ -209,7 +227,8 @@
     const creditDollars = creditWks * ttN;
     const total = Math.max(0, grossTotal - creditDollars);
     const moving = Math.max(0, total - num(priorPay));
-    const fee = moving * 0.15;
+    // The requested fee — floored to $5 so the tile shows what gets filed.
+    const fee = floorFee5(moving * 0.15);
     const net = moving - fee;
     return { rowOut, sluWeeksTotal, phpInput, maxHp, phpCreditWks, totalWeeks,
              grossTotal, creditWks, creditDollars, total, moving, fee, net };
@@ -236,7 +255,8 @@
     const grossAward = isLifetime ? null : classRate * grossWks;
     const creditDollars = isLifetime ? null : classRate * creditWks;
     const totalAward = isLifetime ? null : classRate * adjustedWks;
-    const fee = classRate * 15;
+    // First 15 weeks at the class rate — the requested fee, floored to $5.
+    const fee = floorFee5(classRate * 15);
     const weeklyNet = classRate - num(feePerWeek);
     const totalNet = isLifetime ? null : totalAward - fee;
     return { pct:p, rawClassRate, classRate, bracket, isLifetime, grossWks, creditWks,
@@ -258,7 +278,11 @@
       case 'RE': raw = (2 / 3) * (awwN - num(curEarn)); break;
       case 'TR':
       case 'TP':
-        raw = (rateMode === 'usd') ? num(manualRate) : (num(ratePct) / 100) * cappedTT;
+        // June 2026 drift fix: percentage applies to the UNCAPPED ⅔ × AWW;
+        // applyRateBounds() below caps at DOA max / floors at DOA min /
+        // collapses to AWW. Using cappedTT understated the rate whenever
+        // ⅔ × AWW exceeded the DOA max. TP and TR are identical (label-only).
+        raw = (rateMode === 'usd') ? num(manualRate) : awwN * (2 / 3) * (num(ratePct) / 100);
         break;
       case 'HIA': return 0; // Held in Abeyance — no rate, no contribution
       default:   raw = num(manualRate); break;
@@ -374,7 +398,8 @@
       if (period.desg === 'TT') rawCurrentRate = ttBounded;
       else if (period.desg === 'RE') rawCurrentRate = Math.max(0, (aww - num(period.curEarn)) * 2 / 3);
       else if (period.desg === 'TR') rawCurrentRate = (rateMode === 'usd') ? num(period.manualRate) : aww * (2/3) * (num(period.ratePct)/100);
-      else if (period.desg === 'TP') rawCurrentRate = (rateMode === 'pct') ? ttBounded * (num(period.ratePct)/100) : num(period.manualRate);
+      // TP mirrors TR (June 2026 drift fix) — % on UNCAPPED ⅔ × AWW, then bound below.
+      else if (period.desg === 'TP') rawCurrentRate = (rateMode === 'usd') ? num(period.manualRate) : aww * (2/3) * (num(period.ratePct)/100);
       else if (period.desg === 'NCLT' || period.desg === 'NME') rawCurrentRate = 0;
       else rawCurrentRate = num(period.manualRate);
 
@@ -478,7 +503,7 @@
     const pct = num(msaPct);
     const msaUsd = !hasMSA ? 0 : (mode === 'pct' ? (s * pct / 100) : num(msa));
     const indemnity = Math.max(0, s - msaUsd);
-    const fee = indemnity * 0.15;
+    const fee = floorFee5(indemnity * 0.15);
     const net = Math.max(0, indemnity - fee);
     return { settlement:s, msaType:type, hasMSA, msaMode:mode, msaPct:pct, msa:msaUsd, indemnity, fee, net };
   }
@@ -503,16 +528,145 @@
     return t[t.length - 1].letter;
   }
 
+  // ─────────────────── MULTI-CASE SLU APPORTIONMENT ──────────────────────
+  // Apportionment BETWEEN CLAIMS — one claimant, several established cases
+  // with different dates of accident. This is NOT Burns v. Varick third-party
+  // lien apportionment (that is computeBurns, which the UI also labels
+  // "apportionment"); nothing here touches a third-party recovery.
+  //
+  // Each case carries its OWN AWW and its OWN DOA, so each pulls its own
+  // max/min out of the rate tables — the same body part can settle at very
+  // different weekly rates across two cases. Digital port of Joel's
+  // "Apportionment Fee Calculator" workbook (ops/secretary/); the per-column
+  // formulas are reproduced exactly EXCEPT the two places the workbook is
+  // wrong, where MIN_RATES/MAX_RATES above stay authoritative:
+  //   1. The workbook's Rate Table hard-codes a $150 minimum for every year.
+  //      The real pre-reform minimums are $40 (before 7/1/2007) and $100
+  //      (7/1/2007–4/30/2013).
+  //   2. Excel's MIN() SKIPS a blank cell, so a column with no AWW reports the
+  //      statutory minimum as its "rate". A case with no AWW rates at 0 here.
+  //      Either way the money is identical — 0 weeks × anything is 0.
+  //
+  // cases[]: { label, caseNumber, aww, doa:'YYYY-MM-DD', weeksAtTT, priorPay,
+  //            credits, parts:[{ part, pctSLU }] }
+  //
+  // parts[].pctSLU is a FRACTION (0.10 = 10%), matching the workbook's
+  //   percent-formatted cells. Callers already holding whole percents may pass
+  //   `pct` (0–100, computeSLU's convention) instead — supply ONE key per row,
+  //   never both. Whatever the units: enter the APPORTIONED %SLU for each case
+  //   — the loss SPLIT across the cases, not the full SLU repeated in every
+  //   column, or the same loss is paid for more than once.
+  // php — pre-permanency period = max(0, weeksAtTT − the LONGEST healing
+  //   period among the parts scoring above 0% in THAT case). Credited once
+  //   against the longest part, never summed; same rule as computeSLU.
+  // priorTempWks — §15(3)(w) prior TEMPORARY DISABILITY weeks for that case.
+  //   Scope is COMBINED temporary total AND temporary partial / reduced
+  //   earnings, not TT alone — the same figure computeSLU's `priorTTRWks`
+  //   takes (the SLU tile labels it "Prior TT / TR / TP Weeks (§15(3)(w))").
+  //   Weeks above 130 are credited at that case's own rate and SUBTRACTED from
+  //   the gross in dollars, exactly as computeSLU does it. Without this the
+  //   tile could only ADD weeks (via PHP) and read high on any case with heavy
+  //   prior temporary disability. The workbook has no such column.
+  // fee — FLOOR(moving × 15%, $5): 15% rounded DOWN to the nearest $5, the
+  //   OC-400.1 convention the workbook uses. (computeSLU leaves its 15%
+  //   unrounded; these numbers go on a filed fee app, so they get rounded.)
+  //   A case that has been overpaid (moving < 0) carries no fee rather than a
+  //   negative one — the workbook would report a negative fee there.
+  function computeApportionment({ cases = [] } = {}) {
+    const perCase = (Array.isArray(cases) ? cases : []).map((raw) => {
+      const c = raw || {};
+      const aww = num(c.aww);
+      const doa = c.doa || '';
+      const maxRate = maxRateForDOA(doa);
+      const minRate = minRateForDOA(doa);
+      // A case rates at 0 until it has BOTH an AWW and a D/A that lands in the
+      // rate table. Without the D/A guard, maxRateForDOA() returns 0, which
+      // applyRateBounds reads as "no cap" — a blank or pre-1985 date would
+      // silently pay the UNCAPPED ⅔ AWW (e.g. $2,000/wk on a $3,000 AWW instead
+      // of the $1,125.46 statutory max), and it would do it while the attorney
+      // is still filling the column in.
+      const rate = (aww > 0 && maxRate > 0)
+        ? applyRateBounds(aww * 2 / 3, aww, minRate, maxRate)
+        : 0;
+
+      let scheduledWeeks = 0;
+      let highestHP = 0;
+      const parts = (Array.isArray(c.parts) ? c.parts : []).map((rawPart) => {
+        const p = rawPart || {};
+        const bp = findSLUPart(p.part);
+        // pctSLU is the fraction form; pct is the 0–100 form. Explicit keys,
+        // no sniffing — 0.5 must never be ambiguous between 0.5% and 50%.
+        const pctSLU = (p.pctSLU === undefined || p.pctSLU === null || p.pctSLU === '')
+          ? num(p.pct) / 100
+          : num(p.pctSLU);
+        const w = bp ? bp.w : 0;
+        const hp = bp ? bp.hp : 0;
+        const weeks = pctSLU * w;
+        scheduledWeeks += weeks;
+        // Only parts actually scoring drive the healing period (workbook:
+        // MAX(IF((pct>0)*(part<>""), hp, 0))).
+        if (pctSLU > 0 && hp > highestHP) highestHP = hp;
+        return { part: bp ? bp.n : (p.part || ''), known: !!bp, pctSLU, w, hp, weeks };
+      });
+
+      const weeksAtTT = num(c.weeksAtTT);
+      // PHP protracts a SCHEDULE AWARD — with no established %SLU there is no
+      // award to protract, so weeks at TT alone must never mint one. (Without
+      // this, a case with 50 weeks at TT and every body part still at 0% would
+      // report 50 weeks × the rate as "gross".)
+      const php = scheduledWeeks > 0 ? Math.max(0, weeksAtTT - highestHP) : 0;
+      const totalWeeks = scheduledWeeks + php;
+      const gross = totalWeeks * rate;
+
+      // §15(3)(w) — prior temporary disability (TT + TP/TR combined) above 130
+      // weeks is credited at this case's rate. Same rule and same order of
+      // operations as computeSLU: the credit comes off the GROSS in dollars,
+      // clamped at 0, BEFORE prior payments and dollar credits.
+      const priorTempWks = num(c.priorTempWks);
+      const priorTempCreditWks = priorTempWks > 130 ? priorTempWks - 130 : 0;
+      const priorTempCreditDollars = priorTempCreditWks * rate;
+      const awardAfterCredit = Math.max(0, gross - priorTempCreditDollars);
+
+      const priorPay = num(c.priorPay);
+      const credits = num(c.credits);
+      const moving = awardAfterCredit - priorPay - credits;
+      const fee = floorFee5(moving * 0.15);
+      const net = moving - fee;
+
+      return {
+        label: c.label || '', caseNumber: c.caseNumber || '',
+        aww, doa, maxRate, minRate, rate,
+        parts, scheduledWeeks, weeksAtTT, highestHP, php, totalWeeks,
+        gross, priorTempWks, priorTempCreditWks, priorTempCreditDollars,
+        awardAfterCredit, priorPay, credits, moving, fee, net,
+      };
+    });
+
+    const totals = perCase.reduce((t, r) => ({
+      gross:    t.gross    + r.gross,
+      priorTempCreditDollars: t.priorTempCreditDollars + r.priorTempCreditDollars,
+      priorPay: t.priorPay + r.priorPay,
+      credits:  t.credits  + r.credits,
+      moving:   t.moving   + r.moving,
+      fee:      t.fee      + r.fee,
+      net:      t.net      + r.net,
+    }), { gross: 0, priorTempCreditDollars: 0, priorPay: 0, credits: 0,
+          moving: 0, fee: 0, net: 0 });
+
+    return { perCase, totals };
+  }
+
   return {
     // constants
     MAX_RATES, MIN_RATES, SLU_BP, SLU_ALIASES, LWEC_BR, NERVE_CAPS, CERVICAL_RANKS, LUMBAR_RANKS,
     DAYS_MULTIPLIER,
     // lookups + helpers
     lookupMax, lookupMin, maxRateForDOA, minRateForDOA, findSLUPart,
-    applyRateBounds, isAwwBelowMin, getCappedTT, lwecBracket, weeksBetween, roundWeeksDown,
+    applyRateBounds, isAwwBelowMin, getCappedTT, lwecBracket, floorFee5, weeksBetween, roundWeeksDown,
     inclusiveDays, periodWeeks, dayAfter,
     // calculators
     computeAWW, computeSLU, computeLWEC, ccpPeriodRate, computeCCP, computeBurns, computeSettlement,
+    computeApportionment,
     nerveCap, clampNerveScores, radRank,
   };
 });

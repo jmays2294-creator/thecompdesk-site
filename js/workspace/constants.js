@@ -529,6 +529,17 @@ const TILE_ROW_DEFAULTS = {
     sensory: 'Normal', reflex: 'Normal', tension: false, brain: {}, psych: {},
   }),
   MTG:           () => ({ query: '', bodyPart: 'All', category: 'All', openKey: null }),
+  Apportionment: () => {
+    // Seeds the 2-case starting state (Current + Prior 1) that TILE_SPECS'
+    // width is drawn for. Money fields seed to '' rather than 0 so a 7-column
+    // grid doesn't open as a wall of $0.00 the attorney has to clear.
+    const t = Date.now();
+    const mkCase = (n) => ({
+      id: t + n, caseNumber: '', aww: '', doa: '',
+      weeksAtTT: '', priorTempWks: '', priorPay: '', credits: '',
+    });
+    return { cases: [mkCase(0), mkCase(1)], rows: [{ id: t + 10, part: 'Arm', pct: {} }], _expandW: 0 };
+  },
 };
 
 function hydrateAwwState(raw) {
@@ -556,14 +567,34 @@ function hydrateTileInputs(type, raw) {
       .map(p => ({ ...TILE_ROW_DEFAULTS.CCP_PERIOD(), ...p }));
     if (merged.periods.length === 0) merged.periods = [TILE_ROW_DEFAULTS.CCP_PERIOD()];
   }
+  if (type === 'Apportionment') {
+    // A tile with no case column can't render a grid — restore the seed pair.
+    if (!Array.isArray(merged.cases) || merged.cases.length === 0) merged.cases = defaults.cases;
+    if (!Array.isArray(merged.rows)) merged.rows = [];
+  }
   return merged;
 }
 
 function hydrateTile(raw) {
   if (!raw || typeof raw !== 'object') return null;
   if (!TILE_INPUT_DEFAULTS[raw.type]) {
-    console.warn('[workspace] HYDRATION_UNKNOWN_TILE_TYPE', raw.type);
-    return null;
+    // FORWARD-COMPAT: a tile type this build doesn't know is PRESERVED VERBATIM,
+    // never dropped. One workspace row syncs across the website, the app and both
+    // native bundles under last-write-wins — so if a lagging surface dropped an
+    // unknown tile it would save the truncated layout back and DELETE that tile
+    // from every other surface, including the one that created it. (That is a
+    // real path: the website deploy repo routinely lags the app by a release.)
+    // We have no schema for these inputs, so we normalise NOTHING — every key is
+    // carried through untouched and re-serialised byte-for-byte. The canvas
+    // renders an inert placeholder for them (see tileSpecFor / UnavailableTile).
+    console.warn('[workspace] HYDRATION_UNKNOWN_TILE_TYPE — preserved, not renderable here', raw.type);
+    return {
+      ...raw,
+      id: (raw.id !== undefined && raw.id !== null) ? raw.id : (Date.now() + Math.random()),
+      type: raw.type,
+      x: typeof raw.x === 'number' ? raw.x : 20,
+      y: typeof raw.y === 'number' ? raw.y : 20,
+    };
   }
   return {
     id: (raw.id !== undefined && raw.id !== null) ? raw.id : (Date.now() + Math.random()),

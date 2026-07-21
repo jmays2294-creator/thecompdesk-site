@@ -19,6 +19,9 @@ const TILE_SPECS = {
   // against the NY 2018 Impairment Guidelines (ops/secretary/fee_calc_6.1/).
   SLURom:        { w: 540, h: 700, name: 'Schedule ROM → SLU', pro: true },
   NonSchedule:   { w: 540, h: 680, name: 'Non-Schedule Impairment', pro: true },
+  // Width is the 2-case starting state; the tile grows/shrinks horizontally
+  // via inputs._expandW as cases are added or removed (see apptExpandW).
+  Apportionment: { w: 508, h: 700, name: 'Multi-Case SLU / Apportionment', pro: true },
 };
 
 // Date Calculator helpers, published as globals by constants.js. This is the
@@ -2541,6 +2544,23 @@ function DateCalcTile({ tile, global, onUpdate }) {
 // ====================================================================
 // Equation Card builders
 // ====================================================================
+// floorFee5 — the fee-application $5 floor (WCL fee apps: "the nearest $5
+// number below the eligible fee"). Prefers the canonical calc-core
+// implementation and falls back to an IDENTICAL inline copy, because
+// buildEquation must keep working where window.CD does not exist: the
+// feeapp-field-map-regression harness runs it in a bare vm, and the Electron
+// shim imports it as a module. Reaching through window.CD.Calc directly made
+// buildEquation THROW there, which silently emptied feeReasons and would have
+// left FeeReason3/4/6 unchecked on a filed OC-400.1.
+// NOTE: buildEquation must call this as a BARE `floorFee5(...)` so its text
+// stays byte-identical to the copy in www/js/calc-core/index.js.
+function floorFee5(n) {
+  const C = (typeof window !== 'undefined' && window.CD && window.CD.Calc) || null;
+  if (C && typeof C.floorFee5 === 'function') return C.floorFee5(n);
+  const v = Number(n);
+  return (!isFinite(v) || v <= 0) ? 0 : Math.floor(v / 5) * 5;
+}
+
 function buildEquation(tile, global) {
   const tt = global.ttRate;
   const aww = global.aww;
@@ -2582,7 +2602,7 @@ function buildEquation(tile, global) {
       const total = Math.max(0, grossTotal - creditDollars);
       const priorPay = Number(inputs.priorPay || 0);
       const moving = Math.max(0, total - priorPay);
-      const fee = moving * 0.15;
+      const fee = floorFee5(moving * 0.15);
       const net = moving - fee;
       if (grossTotal > 0) lines.push(`Gross Value: ${fmtN(totalWeeks, 2)} wks × ${fmt$(tt)} = ${fmt$(grossTotal)}`);
       if (creditWks > 0) {
@@ -2625,7 +2645,7 @@ function buildEquation(tile, global) {
       const grossWks = isLifetime ? null : bracket.mw;
       const adjustedWks = isLifetime ? null : Math.max(0, grossWks - creditWks);
       const totalAward = isLifetime ? null : classRate * adjustedWks;
-      const fee = classRate * 15;
+      const fee = floorFee5(classRate * 15);
       const totalNet = isLifetime ? null : totalAward - fee;
       const floorReason = isAwwBelowMin(aww, global.minRate)
         ? `AWW ${fmt$(aww)} < statutory min ${fmt$(global.minRate)} → AWW is the floor`
@@ -3027,7 +3047,7 @@ function buildEquation(tile, global) {
         : msaMode === 'pct' ? (settlement * msaPct / 100)
         : (Number(inputs.msa) || 0);
       const indemnity = Math.max(0, settlement - msa);
-      const fee = indemnity * 0.15;
+      const fee = floorFee5(indemnity * 0.15);
       const net = Math.max(0, indemnity - fee);
 
       // 5/19/26 — $0-omission. A $0 settlement (no value entered) produces
@@ -4239,9 +4259,344 @@ function ExertionalFlyout({ open, td, ime, mid, onTD, onIME, onMid, onClose }) {
   );
 }
 
+// ====================================================================
+// Multi-Case SLU / Apportionment Tile
+//   One claimant, several established cases with different dates of
+//   accident. Cases run left-to-right as columns and the body-part list
+//   down the left is SHARED, so the same injury site reads across every
+//   case — which is the whole point of an apportioned split. Digital port
+//   of Joel's "Apportionment Fee Calculator" workbook (ops/secretary/).
+//
+//   Each case carries its OWN AWW and its OWN D/A, so each pulls its own
+//   max/min out of the rate tables — the same body part can settle at very
+//   different weekly rates across two cases.
+//
+//   ZERO MATH LIVES HERE. Everything comes back from calc-core's
+//   computeApportionment(); this component only collects inputs and
+//   formats output. Regression: ops/dev/qa/apportionment_fixtures.mjs.
+//
+//   No <Inherited/> strip: that shows the GLOBAL aww/rate, which would be
+//   actively misleading on a tile whose whole subject is per-case rates.
+// ====================================================================
+const APPT_MAX_CASES = 7;              // Current + 6 priors — the workbook's max
+const APPT_LABEL_W = 138;              // the row-label column
+const APPT_COL_GAP = 6;                // MUST match gridStyle's column gap
+const APPT_BODY_PAD = 30;              // .tile-body's 14px each side + 2px slack
+// Columns condense as cases are added so the tile stays readable instead of
+// running off the canvas; horizontal scroll is the last resort, not the plan.
+// The floor is set by <input type="date">, which is intrinsically ~138px in
+// Chromium; below ~124 it clips the value, not just the placeholder.
+const apptColW = (n) => (n <= 2 ? 164 : n <= 4 ? 140 : 124);
+// n case columns PLUS the label column ⇒ n+1 tracks ⇒ n gaps. Leaving the gaps
+// out here under-measures the grid and clips the right-hand case.
+const apptBodyW = (n) => APPT_LABEL_W + n * apptColW(n) + n * APPT_COL_GAP + APPT_BODY_PAD;
+// Tiles grow horizontally via inputs._expandW — app.js renders the shell at
+// spec.w + _expandW. Negative is fine and intended: one case shrinks the tile.
+// TILE_SPECS.Apportionment.w IS apptBodyW(2) = 508, the 2-case starting state.
+const apptExpandW = (n) => apptBodyW(n) - (((typeof TILE_SPECS !== 'undefined' && TILE_SPECS.Apportionment) || {}).w || 508);
+const apptCaseLabel = (i) => (i === 0 ? 'Current' : 'Prior ' + i);
+
+// Persistent inline notice — deliberately not a tooltip. Entering the FULL
+// %SLU in more than one case pays for the same loss twice, and nothing
+// downstream can detect that, so the warning has to stay on screen.
+const APPT_BANNER_STYLE = {
+  gridColumn: '1 / -1',
+  padding: '6px 10px',
+  border: '1px solid color-mix(in srgb, #f59e0b 55%, transparent)',
+  borderRadius: 4,
+  background: 'color-mix(in srgb, #f59e0b 12%, var(--bg-1))',
+  color: 'var(--tx)',
+  font: '600 11px/1.4 inherit',
+};
+const APPT_SECTION_STYLE = {
+  gridColumn: '1 / -1',
+  marginTop: 6,
+  paddingTop: 6,
+  borderTop: '1px solid var(--bd-soft)',
+  fontSize: 10,
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '.06em',
+  color: 'var(--tx-faint)',
+};
+const APPT_ROWLABEL_STYLE = {
+  color: 'var(--tx-dim)', fontSize: 10, textTransform: 'uppercase',
+  letterSpacing: '.04em', lineHeight: 1.25,
+};
+// .f-input carries no width of its own — it relies on a flex/grid parent to
+// stretch it. Inside .f-input-wrap (a plain position:relative block) it keeps
+// its intrinsic ~180px and punches out of its column, so say it explicitly.
+const APPT_MONEY_INPUT_STYLE = { width: '100%', boxSizing: 'border-box' };
+const APPT_VALUE_STYLE = {
+  fontFamily: 'var(--mono)', fontSize: 11.5, textAlign: 'right',
+  color: 'var(--tx)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+};
+
+function ApportionmentTile({ tile, global, onUpdate }) {
+  const inputs = tile.inputs || window.TILE_INPUT_DEFAULTS.Apportionment();
+  const cases = inputs.cases || [];
+  const rows = inputs.rows || [];
+  const nCases = cases.length;
+  const colW = apptColW(nCases);
+
+  const setInputs = (next) => onUpdate({ ...tile, inputs: { ...inputs, ...next } });
+  const setCase = (id, patch) =>
+    setInputs({ cases: cases.map(c => (c.id === id ? { ...c, ...patch } : c)) });
+  const setRow = (id, patch) =>
+    setInputs({ rows: rows.map(r => (r.id === id ? { ...r, ...patch } : r)) });
+  // %SLU is stored per row, keyed by case id — so removing a case can't
+  // silently shift another case's percentages onto the wrong column.
+  const setPct = (rowId, caseId, v) =>
+    setInputs({ rows: rows.map(r => (r.id === rowId ? { ...r, pct: { ...(r.pct || {}), [caseId]: v } } : r)) });
+
+  const addCase = () => {
+    if (nCases >= APPT_MAX_CASES) return;
+    const next = cases.concat([{
+      id: Date.now(), caseNumber: '', aww: '', doa: '',
+      weeksAtTT: '', priorTempWks: '', priorPay: '', credits: '',
+    }]);
+    setInputs({ cases: next, _expandW: apptExpandW(next.length) });
+  };
+  const removeCase = (id) => {
+    if (nCases <= 1) return;
+    const next = cases.filter(c => c.id !== id);
+    setInputs({
+      cases: next,
+      rows: rows.map(r => {
+        const pct = { ...(r.pct || {}) };
+        delete pct[id];
+        return { ...r, pct };
+      }),
+      _expandW: apptExpandW(next.length),
+    });
+  };
+  const addRow = () => setInputs({ rows: rows.concat([{ id: Date.now(), part: 'Arm', pct: {} }]) });
+  const removeRow = (id) => setInputs({ rows: rows.filter(r => r.id !== id) });
+
+  // Single source of truth — calc-core. Labels are positional (Current,
+  // Prior 1…) and derived here rather than stored, so they can never go stale
+  // after a case is removed.
+  const Calc = (typeof window !== 'undefined' && window.CD && window.CD.Calc) || null;
+  const computed = useMemo(() => {
+    if (!Calc || typeof Calc.computeApportionment !== 'function') return null;
+    return Calc.computeApportionment({
+      cases: cases.map((c, i) => ({
+        label: apptCaseLabel(i),
+        caseNumber: c.caseNumber,
+        aww: c.aww,
+        doa: c.doa,
+        weeksAtTT: c.weeksAtTT,
+        priorTempWks: c.priorTempWks,
+        priorPay: c.priorPay,
+        credits: c.credits,
+        // The UI collects whole percents, so this is calc-core's `pct` (0–100)
+        // key. Its `pctSLU` key is the 0–1 fraction form — never pass both.
+        parts: rows.filter(r => r.part).map(r => ({ part: r.part, pct: (r.pct || {})[c.id] })),
+      })),
+    });
+  }, [Calc, cases, rows]);
+
+  // Keep the SHELL width in step with the case count. addCase/removeCase set
+  // _expandW directly so there's no flash, but a tile restored from a saved
+  // case can arrive with a stale value — and .tile is overflow:hidden, so a
+  // shell narrower than the body silently CLIPS the right-hand cases.
+  const wantExpandW = apptExpandW(nCases);
+  useEffect(() => {
+    if ((inputs._expandW || 0) !== wantExpandW) setInputs({ _expandW: wantExpandW });
+  }, [wantExpandW]);
+
+  // Fail loud (Apr 27 playbook) rather than rendering plausible zeros.
+  if (!computed) {
+    console.error('[workspace] CALC_CORE_MISSING — js/calc-core.js must load before the workspace bundle (Apportionment tile)');
+    return (
+      <div className="tile-body" style={{ width: tileBaseW(tile), boxSizing: 'border-box' }}>
+        <div style={{ ...APPT_BANNER_STYLE, gridColumn: 'auto' }}>
+          Calculator core failed to load — reload the page. (calc-core.js)
+        </div>
+      </div>
+    );
+  }
+
+  const per = computed.perCase;
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: APPT_LABEL_W + 'px repeat(' + nCases + ', ' + colW + 'px)',
+    gap: '4px ' + APPT_COL_GAP + 'px',
+    alignItems: 'center',
+    minWidth: 'min-content',
+  };
+  // A readout line: label down the left, one value per case across.
+  const readout = (label, pick, opts) => (
+    <React.Fragment key={'ro-' + label}>
+      <span style={{ ...APPT_ROWLABEL_STYLE, ...((opts && opts.labelStyle) || {}) }}>{label}</span>
+      {per.map((r, i) => (
+        <span key={cases[i].id} style={{ ...APPT_VALUE_STYLE, ...((opts && opts.valueStyle) || {}) }}>
+          {pick(r)}
+        </span>
+      ))}
+    </React.Fragment>
+  );
+
+  return (
+    <div className="tile-body" style={{ width: apptBodyW(nCases), boxSizing: 'border-box' }}>
+      <div style={{ overflowX: 'auto' }}>
+        <div style={gridStyle}>
+
+          {/* ---- case headers ---- */}
+          <span style={APPT_ROWLABEL_STYLE} />
+          {cases.map((c, i) => (
+            <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ac-2)', letterSpacing: '.03em' }}>
+                {apptCaseLabel(i)}
+              </span>
+              {nCases > 1 && (
+                <button className="delete-row" onClick={() => removeCase(c.id)}
+                  title={'Remove ' + apptCaseLabel(i)} style={{ padding: 2 }}>×</button>
+              )}
+            </div>
+          ))}
+
+          <span style={APPT_ROWLABEL_STYLE}>WCB / Case #</span>
+          {cases.map(c => (
+            <input key={c.id} className="f-input" type="text" value={c.caseNumber || ''}
+              placeholder="G0000000"
+              onChange={e => setCase(c.id, { caseNumber: e.target.value })} />
+          ))}
+
+          <span style={APPT_ROWLABEL_STYLE}>AWW</span>
+          {cases.map(c => (
+            <div key={c.id} className="f-input-wrap">
+              <span className="prefix">$</span>
+              <input className="f-input with-prefix" type="number" min="0" value={c.aww}
+                style={APPT_MONEY_INPUT_STYLE}
+                onChange={e => setCase(c.id, { aww: e.target.value })} />
+            </div>
+          ))}
+
+          <span style={APPT_ROWLABEL_STYLE}>Date of Accident</span>
+          {cases.map(c => (
+            <input key={c.id} className="f-input" type="date" value={c.doa || ''}
+              onChange={e => setCase(c.id, { doa: e.target.value })} />
+          ))}
+
+          <span style={APPT_ROWLABEL_STYLE}>Weeks at TT</span>
+          {cases.map(c => (
+            <input key={c.id} className="f-input" type="number" min="0" step="0.5" value={c.weeksAtTT}
+              onChange={e => setCase(c.id, { weeksAtTT: e.target.value })} />
+          ))}
+
+          {/* ---- body parts × %SLU ---- */}
+          <div style={APPT_SECTION_STYLE}>Body Parts — apportioned %SLU</div>
+          <div style={APPT_BANNER_STYLE}>
+            ⚠️ Enter the <b>apportioned</b> %SLU for each case. If apportionment applies, split the
+            loss across cases — do not enter the full SLU value in more than one case.
+          </div>
+
+          {rows.map(r => (
+            <React.Fragment key={r.id}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <select className="f-select" style={{ flex: 1, minWidth: 0 }} value={r.part}
+                  onChange={e => setRow(r.id, { part: e.target.value })}>
+                  {SLU_BP.map(b => <option key={b.n} value={b.n}>{b.n} ({b.w} wks)</option>)}
+                </select>
+                <button className="delete-row" onClick={() => removeRow(r.id)}
+                  title="Remove body part" style={{ padding: 2 }}>×</button>
+              </div>
+              {cases.map(c => (
+                <input key={c.id} className="f-input" type="number" min="0" max="100" step="0.01"
+                  placeholder="0"
+                  value={(r.pct || {})[c.id] === undefined ? '' : (r.pct || {})[c.id]}
+                  onChange={e => setPct(r.id, c.id, e.target.value)} />
+              ))}
+            </React.Fragment>
+          ))}
+
+          <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 6 }}>
+            <button className="btn tiny" onClick={addRow}>+ Add Body Part</button>
+            <button className="btn tiny" onClick={addCase} disabled={nCases >= APPT_MAX_CASES}
+              title={nCases >= APPT_MAX_CASES ? 'Maximum ' + APPT_MAX_CASES + ' cases' : 'Add a prior case'}>
+              + Add Case
+            </button>
+            <span style={{ ...APPT_ROWLABEL_STYLE, alignSelf: 'center' }}>
+              {nCases} of {APPT_MAX_CASES} cases
+            </span>
+          </div>
+
+          {/* ---- offsets ---- */}
+          <div style={APPT_SECTION_STYLE}>Offsets</div>
+
+          {/* §15(3)(w). Scope is COMBINED temporary total AND temporary
+              partial / reduced earnings — TP weeks count toward the 130, so a
+              TT-only figure here understates the credit and reads high. */}
+          <span style={APPT_ROWLABEL_STYLE} title="Prior temporary disability weeks — temporary TOTAL plus temporary PARTIAL / reduced earnings, combined. Weeks over 130 are credited at this case's rate.">
+            Prior TT + TP Wks §15(3)(w)
+          </span>
+          {cases.map(c => (
+            <input key={c.id} className="f-input" type="number" min="0" step="0.5"
+              value={c.priorTempWks === undefined ? '' : c.priorTempWks}
+              onChange={e => setCase(c.id, { priorTempWks: e.target.value })} />
+          ))}
+
+          <span style={APPT_ROWLABEL_STYLE}>Prior Payments</span>
+          {cases.map(c => (
+            <div key={c.id} className="f-input-wrap">
+              <span className="prefix">$</span>
+              <input className="f-input with-prefix" type="number" min="0" value={c.priorPay}
+                style={APPT_MONEY_INPUT_STYLE}
+                onChange={e => setCase(c.id, { priorPay: e.target.value })} />
+            </div>
+          ))}
+
+          <span style={APPT_ROWLABEL_STYLE}>Credits</span>
+          {cases.map(c => (
+            <div key={c.id} className="f-input-wrap">
+              <span className="prefix">$</span>
+              <input className="f-input with-prefix" type="number" min="0" value={c.credits}
+                style={APPT_MONEY_INPUT_STYLE}
+                onChange={e => setCase(c.id, { credits: e.target.value })} />
+            </div>
+          ))}
+
+          {/* ---- per-case results ---- */}
+          <div style={APPT_SECTION_STYLE}>Per Case</div>
+
+          {readout('Rate / wk', r => fmt$(r.rate))}
+          {readout('Scheduled Wks', r => fmtN(r.scheduledWeeks, 2))}
+          {readout('PHP Wks', r => fmtN(r.php, 2))}
+          {readout('Total Wks', r => fmtN(r.totalWeeks, 2))}
+          {readout('§15(3)(w) Credit', r => (r.priorTempCreditWks > 0
+            ? '−' + fmt$(r.priorTempCreditDollars) + ' (' + fmtN(r.priorTempCreditWks, 1) + ' wk)'
+            : '—'))}
+          {readout('Gross Value', r => fmt$(r.gross))}
+          {readout('Moving', r => fmt$(r.moving))}
+          {readout('Fee (15% ↓ $5)', r => fmt$(r.fee))}
+          {readout('Net to Claimant', r => fmt$(r.net), {
+            valueStyle: { color: 'var(--ok)', fontWeight: 600 },
+          })}
+
+        </div>
+      </div>
+
+      {/* ---- all-case totals ---- */}
+      <div className="results">
+        <div className="r-row"><span className="l">Total Gross</span><span className="v">{fmt$(computed.totals.gross)}</span></div>
+        {computed.totals.priorTempCreditDollars > 0 && (
+          <div className="r-row"><span className="l">Total §15(3)(w) Credit</span><span className="v">−{fmt$(computed.totals.priorTempCreditDollars)}</span></div>
+        )}
+        <div className="r-row"><span className="l">Total Prior Payments</span><span className="v">−{fmt$(computed.totals.priorPay)}</span></div>
+        <div className="r-row"><span className="l">Total Credits</span><span className="v">−{fmt$(computed.totals.credits)}</span></div>
+        <div className="r-row big"><span className="l">Total Moving</span><span className="v">{fmt$(computed.totals.moving)}</span></div>
+        <div className="r-row"><span className="l">Total Fee</span><span className="v">{fmt$(computed.totals.fee)}</span></div>
+        <div className="r-row net"><span className="l">Total Net to Claimant</span><span className="v">{fmt$(computed.totals.net)}</span></div>
+      </div>
+    </div>
+  );
+}
+
 Object.assign(window, {
   TILE_SPECS, SLUTile, LWECTile, CCPTile, RateLookupTile, RadiculopathyTile,
   BurnsTile, SettlementTile, MTGTile, DateCalcTile, SLURomTile, NonScheduleTile, MTGBrowserTile,
+  ApportionmentTile,
   SplitFlyout, ExertionalFlyout, tileBaseW,
   buildEquation, weeksBetween, inclusiveDays, periodWeeks, dayAfter, MUSCLE_WEAKNESS, DESIGNATIONS,
 });
