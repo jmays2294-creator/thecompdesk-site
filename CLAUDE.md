@@ -40,18 +40,12 @@ If the doctor returns FAIL (exit code 1), do not proceed. Show Joel the report a
 
 ## GitHub authentication
 
-Direct git push from a Cowork sandbox requires a Personal Access Token. The token is **never written into this file or committed to the repo**. Configure it via environment variable in the agent session:
+Auth is handled by the GitHub CLI (`gh auth login` + `gh auth setup-git`); the credential lives in the macOS keyring. Never put a token in a remote URL or a committed file. With gh set as the git credential helper, the plain HTTPS remote authenticates automatically:
 
 ```bash
-export GITHUB_TOKEN="<paste-fine-grained-PAT-here>"
-git remote set-url origin "https://jmays2294-creator:${GITHUB_TOKEN}@github.com/jmays2294-creator/thecompdesk-site.git"
+git remote -v   # → https://github.com/jmays2294-creator/thecompdesk-site.git  (no token)
+git push        # gh supplies the credential from the keyring
 ```
-
-**Token requirements:**
-- Fine-grained PAT (not classic) scoped to this repo only
-- Permissions: `Contents: read+write`, `Metadata: read-only`
-- Expiration: 90 days max; rotate on schedule
-- Stored in 1Password / shell env, not in any file in this repo
 
 If you find a literal token committed anywhere in the repo or in any agent instructions, treat it as compromised: rotate immediately in GitHub Settings → Developer settings → Personal access tokens.
 
