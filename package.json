@@ -1,0 +1,14 @@
+{
+  "name": "thecompdesk-site",
+  "private": true,
+  "type": "module",
+  "description": "Static site + i18n build tooling for thecompdesk.com",
+  "scripts": {
+    "i18n:build": "node scripts/i18n/build-locales.mjs",
+    "i18n:verify": "node scripts/i18n/verify.mjs",
+    "i18n:derive-zh-hant": "node scripts/i18n/derive-zh-hant.mjs"
+  },
+  "dependencies": {
+    "opencc-js": "^1.0.5"
+  }
+}
