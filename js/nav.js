@@ -437,7 +437,7 @@ function exploreDropdownHTML() {
     <li>
       <button class="nav-dropdown-toggle">Explore <span class="chev">▾</span></button>
       <div class="nav-dropdown-menu">
-        <a href="/learn/" class="nav-dropdown-item"><span class="ic">📚</span><span class="tx">Learn<small>WC guides &amp; articles</small></span></a>
+        <a href="/learn" class="nav-dropdown-item"><span class="ic">📚</span><span class="tx">Learn<small>WC guides &amp; articles</small></span></a>
         <a href="/marketplace" class="nav-dropdown-item"><span class="ic">🛍️</span><span class="tx">Marketplace<small>AI agents &amp; skills</small></span></a>
         <a href="/extension" class="nav-dropdown-item"><span class="ic">🧩</span><span class="tx">Apps<small>Chrome extension</small></span></a>
         <a href="/for-attorneys" class="nav-dropdown-item"><span class="ic">👔</span><span class="tx">For Attorneys<small>Pro &amp; Firm tools</small></span></a>
