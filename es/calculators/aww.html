@@ -5,10 +5,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYS AWW Calculator — Average Weekly Wage (WCL §14)</title>
-  <meta name="description" content="Free NYS Average Weekly Wage (AWW) calculator under WCL §14. 52-week divisor, 200/260/300 multiplier, overtime, and concurrent employment methods.">
-  <meta property="og:title" content="Average Weekly Wage (AWW) Calculator — NYS Workers' Comp">
-  <meta property="og:description" content="Free calculator for NYS Average Weekly Wage benefits under WCL §14. Statutory 200/260/300 multipliers, straight divisor, compensation rate tables.">
+  <title data-i18n="calculators.aww.meta.title" data-i18n="calculators.aww.meta.title">Calculadora AWW de NYS — Salario semanal promedio (WCL §14)</title>
+  <meta name="description" content="Calculadora gratuita del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Divisor de 52 semanas, multiplicador de 200/260/300, horas extras y métodos de empleo concurrente." data-i18n-attr="content:calculators.aww.meta.description" data-i18n-attr="content:calculators.aww.meta.description">
+  <meta property="og:title" content="Calculadora del salario semanal promedio (Average Weekly Wage, AWW) — Compensación laboral de NYS" data-i18n-attr="content:calculators.aww.meta.og-title" data-i18n-attr="content:calculators.aww.meta.og-title">
+  <meta property="og:description" content="Calculadora gratuita para los beneficios del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Multiplicadores legales de 200/260/300, divisor directo y tablas de tasas de compensación." data-i18n-attr="content:calculators.aww.meta.og-description" data-i18n-attr="content:calculators.aww.meta.og-description">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Comp Desk">
   <meta property="og:url" content="https://thecompdesk.com/es/calculators/aww">
@@ -16,57 +16,61 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Average Weekly Wage (AWW) Calculator — NYS Workers' Comp">
-  <meta name="twitter:description" content="Free calculator for NYS Average Weekly Wage benefits under WCL §14. Statutory 200/260/300 multipliers, straight divisor, compensation rate tables.">
+  <meta name="twitter:title" content="Calculadora del salario semanal promedio (Average Weekly Wage, AWW) — Compensación laboral de NYS" data-i18n-attr="content:calculators.aww.meta.og-title" data-i18n-attr="content:calculators.aww.meta.og-title">
+  <meta name="twitter:description" content="Calculadora gratuita para los beneficios del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Multiplicadores legales de 200/260/300, divisor directo y tablas de tasas de compensación." data-i18n-attr="content:calculators.aww.meta.og-description" data-i18n-attr="content:calculators.aww.meta.og-description">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-aww.png">
 
   <!-- JSON-LD: WebApplication -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "NYS AWW Calculator",
-    "url": "https://thecompdesk.com/calculators/aww",
-    "description": "Free NYS Average Weekly Wage (AWW) calculator under WCL §14. Statutory methods: 52-week divisor, 200/260/300 multiplier, straight divisor.",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "All",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Calculadora de AWW de NYS",
+  "url": "https://thecompdesk.com/es/calculators/aww",
+  "description": "Calculadora gratuita del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Métodos legales: divisor de 52 semanas, multiplicador 200/260/300, divisor directo.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
   }
-  </script>
+}
+</script>
 
   <!-- JSON-LD: FAQPage -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What is the Average Weekly Wage (AWW) in NY workers' comp?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Your AWW is your gross earnings for the 52 weeks before the injury converted to a weekly figure under WCL §14. Nearly every benefit in your case — weekly checks, SLU awards, LWEC classifications — is computed from two-thirds of it."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Which WCL §14 method applies to me?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "It depends on your work pattern: the 260 multiplier for five-day workers and 300 for six-day workers who worked substantially the whole year, the 200 minimum multiplier for seasonal work, or a straight 52-week divisor. The calculator applies the statutory methods and shows each result."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Does overtime or a second job count toward AWW?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes — AWW is based on gross earnings including overtime. Wages from concurrent employment (a second job) may also be added under WCL §14(6) when the injury disables you from both jobs."
-        }
+  <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Qué es el salario semanal promedio (Average Weekly Wage, AWW) en la compensación laboral de NY?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Su AWW son sus ingresos brutos de las 52 semanas anteriores a la lesión, convertidos en una cifra semanal según WCL §14. Casi todos los beneficios de su caso —los cheques semanales, los pagos por SLU, las clasificaciones de LWEC— se calculan a partir de dos tercios de esa cifra."
       }
-    ]
-  }
-  </script>
+    },
+    {
+      "@type": "Question",
+      "name": "¿Qué método de WCL §14 se aplica en mi caso?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Depende de su patrón de trabajo: el multiplicador 260 para trabajadores de cinco días y 300 para trabajadores de seis días que trabajaron sustancialmente todo el año, el multiplicador mínimo 200 para trabajo de temporada, o un divisor directo de 52 semanas. La calculadora aplica los métodos legales y muestra cada resultado."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Las horas extra o un segundo empleo cuentan para el AWW?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí: el AWW se basa en los ingresos brutos, incluidas las horas extra. Los salarios de un empleo simultáneo (un segundo trabajo) también pueden sumarse según WCL §14(6) cuando la lesión lo incapacita para ambos empleos."
+      }
+    }
+  ]
+}
+</script>
 
   <link rel="canonical" href="https://thecompdesk.com/es/calculators/aww">
   <link rel="stylesheet" href="/css/app.css">
@@ -209,51 +213,51 @@
   <script src="/js/i18n-locale.js" defer></script>
 </head>
 <body class="tcd-skinned" data-no-brand-bg="true">
-  <nav class="tcd-nav" aria-label="Primary">
+  <nav class="tcd-nav" aria-label="Primary" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
     <div class="tcd-nav-inner">
-      <a class="tcd-wordmark" href="/es/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
-      <div class="tcd-nav-links">
-        <a href="/attorneys">Attorneys</a>
-        <a href="/es/calculators/">Calculators</a>
-        <a href="/workspace-tour">Workspace</a>
-        <a href="/learn">Learn</a>
+      <a class="tcd-wordmark" href="/es/?replay=1" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links" data-i18n="shared.attorneys-calculators-workspace-learn" data-i18n="shared.attorneys-calculators-workspace-learn">
+        <a href="/attorneys">Abogados</a>
+        <a href="/es/calculators/">Calculadoras</a>
+        <a href="/workspace-tour">Espacio de Trabajo</a>
+        <a href="/learn">Aprender</a>
       </div>
       <div class="tcd-nav-right">
         <div data-audience-switch></div>
-        <a class="tcd-nav-cta cta-btn" href="/auth_v2.html">Sign In / Sign Up</a>
+        <a class="tcd-nav-cta cta-btn" href="/auth_v2.html" data-i18n="shared.sign-in-sign-up" data-i18n="shared.sign-in-sign-up">Iniciar Sesión / Registrarse</a>
       </div>
     </div>
   </nav>
 
   <div class="container">
-    <div class="breadcrumb">
-      <a href="/es/">Home</a> &gt; <a href="/es/calculators/">Calculators</a> &gt; <span>AWW Calculator</span>
+    <div class="breadcrumb" data-i18n="calculators.aww.home-calculators-aww-calculator" data-i18n="calculators.aww.home-calculators-aww-calculator">
+      <a href="/es/">Inicio</a> &gt; <a href="/es/calculators/">Calculadoras</a> &gt; <span>Calculadora de AWW</span>
     </div>
 
-    <h1 class="page-title">NYS Average Weekly Wage (AWW) Calculator</h1>
-    <p class="page-subtitle">Calculate Average Weekly Wage under Workers' Compensation Law §14. Choose the applicable statutory method based on the claimant's work history.</p>
+    <h1 class="page-title" data-i18n="calculators.aww.nys-average-weekly-wage-aww" data-i18n="calculators.aww.nys-average-weekly-wage-aww">Calculadora del salario semanal promedio (AWW) de NYS</h1>
+    <p class="page-subtitle" data-i18n="calculators.aww.calculate-average-weekly-wage-under" data-i18n="calculators.aww.calculate-average-weekly-wage-under">Calcule el salario semanal promedio (AWW) según la Ley de Compensación para Trabajadores, §14. Elija el método legal aplicable según el historial laboral del reclamante.</p>
 
     <!-- ═══════════════════════════════════════════
          GLOBAL INPUTS: DOI + Max Rate
     ═══════════════════════════════════════════ -->
     <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Date of Injury &amp; Max Rate</span>
+      <div class="calc-header" data-i18n="calculators.aww.date-of-injury-max-rate" data-i18n="calculators.aww.date-of-injury-max-rate">
+        <span class="calc-header-title">Fecha de la Lesión y Tarifa Máxima</span>
       </div>
       <div class="calc-body">
         <div class="fields-row" style="margin-bottom:0;">
           <div class="field-group">
-            <label class="field-label" for="doiDate">Date of Injury</label>
-            <input type="date" id="doiDate" data-fieldhelp="doa" aria-label="Date of injury">
-            <span class="field-hint">Auto-fills the applicable statutory maximum rate</span>
+            <label class="field-label" for="doiDate" data-i18n="shared.date-of-injury" data-i18n="shared.date-of-injury">Fecha de la Lesión</label>
+            <input type="date" id="doiDate" data-fieldhelp="doa" aria-label="Fecha de la lesión" data-i18n-attr="aria-label:calculators.aww.date-of-injury.label" data-i18n-attr="aria-label:calculators.aww.date-of-injury.label">
+            <span class="field-hint" data-i18n="calculators.aww.auto-fills-the-applicable-statutory" data-i18n="calculators.aww.auto-fills-the-applicable-statutory">Completa automáticamente la tarifa máxima legal aplicable</span>
           </div>
           <div class="field-group">
-            <label class="field-label" for="maxRate">Statutory Maximum Rate <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" title="Per NYS WCB Subject No. 046-1805 — max/min eff. 7/1/2026. Click for source." style="color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;">&#9432;</a></label>
+            <label class="field-label" for="maxRate" data-i18n="calculators.aww.statutory-maximum-rate-9432" data-i18n="calculators.aww.statutory-maximum-rate-9432">Tarifa Máxima Legal <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" title="Según el NYS WCB Subject No. 046-1805 — máximo/mínimo vigente desde el 7/1/2026. Haga clic para ver la fuente." style="color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;">&#9432;</a></label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="maxRate" value="1281.50" step="0.01" aria-label="Maximum weekly compensation rate">
+              <input type="number" id="maxRate" value="1281.50" step="0.01" aria-label="Tasa máxima de compensación semanal" data-i18n-attr="aria-label:calculators.aww.maximum-weekly-compensation-rate.label" data-i18n-attr="aria-label:calculators.aww.maximum-weekly-compensation-rate.label">
             </div>
-            <span class="field-hint" id="maxRateHint">Current max: $1,281.50 (Jul 1, 2026)</span>
+            <span class="field-hint" id="maxRateHint" data-i18n="calculators.aww.current-max-1-281-50" data-i18n="calculators.aww.current-max-1-281-50">Máximo actual: $1,281.50 (Jul 1, 2026)</span>
           </div>
         </div>
       </div>
@@ -263,31 +267,31 @@
          CALCULATION METHOD SELECTOR
     ═══════════════════════════════════════════ -->
     <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Calculation Method</span>
+      <div class="calc-header" data-i18n="calculators.aww.calculation-method" data-i18n="calculators.aww.calculation-method">
+        <span class="calc-header-title">Método de Cálculo</span>
       </div>
       <div class="calc-body">
 
         <div class="method-cards" id="methodCards">
           <div class="method-card active" data-method="statutory" role="button" tabindex="0" aria-pressed="true">
-            <span class="stat-tag">§14 SUBD. 2</span>
-            <div class="method-card-title">Statutory Method (200/260/300)</div>
-            <div class="method-card-desc">Total earnings ÷ days worked × statutory multiplier ÷ 52. For claimants who did NOT work substantially the whole year.</div>
+            <span class="stat-tag" data-i18n="calculators.aww.14-subd-2" data-i18n="calculators.aww.14-subd-2">§14 SUBD. 2</span>
+            <div class="method-card-title" data-i18n="calculators.aww.statutory-method-200-260-300" data-i18n="calculators.aww.statutory-method-200-260-300">Método Legal (200/260/300)</div>
+            <div class="method-card-desc" data-i18n="calculators.aww.total-earnings-days-worked-statutory" data-i18n="calculators.aww.total-earnings-days-worked-statutory">Ingresos totales ÷ días trabajados × multiplicador legal ÷ 52. Para reclamantes que NO trabajaron sustancialmente todo el año.</div>
           </div>
           <div class="method-card" data-method="52week" role="button" tabindex="0" aria-pressed="false">
-            <span class="stat-tag">§14 SUBD. 1</span>
-            <div class="method-card-title">52-Week Divisor</div>
-            <div class="method-card-desc">Total annual earnings ÷ 52. For claimants who worked substantially the whole year preceding injury.</div>
+            <span class="stat-tag" data-i18n="calculators.aww.14-subd-1" data-i18n="calculators.aww.14-subd-1">§14 SUBD. 1</span>
+            <div class="method-card-title" data-i18n="calculators.aww.52-week-divisor" data-i18n="calculators.aww.52-week-divisor">Divisor de 52 Semanas</div>
+            <div class="method-card-desc" data-i18n="calculators.aww.total-annual-earnings-52-for" data-i18n="calculators.aww.total-annual-earnings-52-for">Ingresos anuales totales ÷ 52. Para reclamantes que trabajaron sustancialmente todo el año anterior a la lesión.</div>
           </div>
           <div class="method-card" data-method="straight" role="button" tabindex="0" aria-pressed="false">
-            <span class="stat-tag gold">BOARD DISCRETION</span>
-            <div class="method-card-title">Straight Divisor</div>
-            <div class="method-card-desc">Total earnings ÷ actual weeks worked. Used when statutory methods don't produce a fair result or for irregular employment.</div>
+            <span class="stat-tag gold" data-i18n="calculators.aww.board-discretion" data-i18n="calculators.aww.board-discretion">CRITERIO DE LA JUNTA</span>
+            <div class="method-card-title" data-i18n="calculators.aww.straight-divisor" data-i18n="calculators.aww.straight-divisor">Divisor Directo</div>
+            <div class="method-card-desc" data-i18n="calculators.aww.total-earnings-actual-weeks-worked" data-i18n="calculators.aww.total-earnings-actual-weeks-worked">Ingresos totales ÷ semanas realmente trabajadas. Se usa cuando los métodos legales no producen un resultado justo o para empleo irregular.</div>
           </div>
           <div class="method-card" data-method="hourly" role="button" tabindex="0" aria-pressed="false">
-            <span class="stat-tag">QUICK CALC</span>
-            <div class="method-card-title">Hourly Rate</div>
-            <div class="method-card-desc">Hourly rate × hours per week. Quick calculation from known hourly wage.</div>
+            <span class="stat-tag" data-i18n="calculators.aww.quick-calc" data-i18n="calculators.aww.quick-calc">CÁLCULO RÁPIDO</span>
+            <div class="method-card-title" data-i18n="calculators.aww.hourly-rate" data-i18n="calculators.aww.hourly-rate">Tarifa por Hora</div>
+            <div class="method-card-desc" data-i18n="calculators.aww.hourly-rate-hours-per-week" data-i18n="calculators.aww.hourly-rate-hours-per-week">Tarifa por hora × horas por semana. Cálculo rápido a partir del salario por hora conocido.</div>
           </div>
         </div>
       </div>
@@ -297,8 +301,8 @@
          EARNINGS & WORK HISTORY INPUTS
     ═══════════════════════════════════════════ -->
     <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title" id="inputSectionTitle">Earnings &amp; Work History (§14 Multiplier)</span>
+      <div class="calc-header" data-i18n="calculators.aww.earnings-work-history-14-multiplier" data-i18n="calculators.aww.earnings-work-history-14-multiplier">
+        <span class="calc-header-title" id="inputSectionTitle">Ingresos e Historial Laboral (Multiplicador §14)</span>
       </div>
       <div class="calc-body">
 
@@ -306,41 +310,41 @@
         <div id="statutoryInputs">
           <div class="fields-row">
             <div class="field-group">
-              <label class="field-label" for="totalEarnings">Total Earnings in Period</label>
+              <label class="field-label" for="totalEarnings" data-i18n="calculators.aww.total-earnings-in-period" data-i18n="calculators.aww.total-earnings-in-period">Ingresos Totales en el Período</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
                 <input type="number" id="totalEarnings" value="" step="0.01" placeholder="52000.00"
-                       aria-label="Total gross earnings in the period preceding injury">
+                       aria-label="Ingresos brutos totales en el período anterior a la lesión" data-i18n-attr="aria-label:calculators.aww.total-gross-earnings-in-the.label" data-i18n-attr="aria-label:calculators.aww.total-gross-earnings-in-the.label">
               </div>
-              <span class="field-hint">Gross earnings in the year (or period) before accident</span>
+              <span class="field-hint" data-i18n="calculators.aww.gross-earnings-in-the-year" data-i18n="calculators.aww.gross-earnings-in-the-year">Ingresos brutos en el año (o período) anterior al accidente</span>
             </div>
             <div class="field-group">
-              <label class="field-label" for="daysWorked">Total Days Worked in Period</label>
+              <label class="field-label" for="daysWorked" data-i18n="calculators.aww.total-days-worked-in-period" data-i18n="calculators.aww.total-days-worked-in-period">Total de Días Trabajados en el Período</label>
               <input type="number" id="daysWorked" value="" placeholder="220" min="1"
-                     aria-label="Total number of days actually worked in the earning period">
-              <span class="field-hint">Actual days worked (not calendar days)</span>
+                     aria-label="Número total de días realmente trabajados en el período de ingresos" data-i18n-attr="aria-label:calculators.aww.total-number-of-days-actually.label" data-i18n-attr="aria-label:calculators.aww.total-number-of-days-actually.label">
+              <span class="field-hint" data-i18n="calculators.aww.actual-days-worked-not-calendar" data-i18n="calculators.aww.actual-days-worked-not-calendar">Días realmente trabajados (no días calendario)</span>
             </div>
           </div>
 
           <div style="margin-top:12px;">
-            <label class="field-label" style="display:block;margin-bottom:8px;">Days Per Week Claimant Worked</label>
+            <label class="field-label" style="display:block;margin-bottom:8px;" data-i18n="calculators.aww.days-per-week-claimant-worked" data-i18n="calculators.aww.days-per-week-claimant-worked">Días por Semana que Trabajó el Reclamante</label>
             <div class="dpw-group" id="dpwGroup">
-              <button class="dpw-btn" data-dpw="4" aria-label="4 days per week (200 multiplier)">
+              <button class="dpw-btn" data-dpw="4" aria-label="4 días por semana (multiplicador 200)" data-i18n-attr="aria-label:calculators.aww.4-days-per-week-200.label" data-i18n-attr="aria-label:calculators.aww.4-days-per-week-200.label">
                 4<span class="dpw-label">×200</span>
               </button>
-              <button class="dpw-btn active" data-dpw="5" aria-label="5 days per week (260 multiplier)">
+              <button class="dpw-btn active" data-dpw="5" aria-label="5 días por semana (multiplicador 260)" data-i18n-attr="aria-label:calculators.aww.5-days-per-week-260.label" data-i18n-attr="aria-label:calculators.aww.5-days-per-week-260.label">
                 5<span class="dpw-label">×260</span>
               </button>
-              <button class="dpw-btn" data-dpw="6" aria-label="6 days per week (300 multiplier)">
+              <button class="dpw-btn" data-dpw="6" aria-label="6 días por semana (multiplicador 300)" data-i18n-attr="aria-label:calculators.aww.6-days-per-week-300.label" data-i18n-attr="aria-label:calculators.aww.6-days-per-week-300.label">
                 6<span class="dpw-label">×300</span>
               </button>
-              <button class="dpw-btn" data-dpw="7" aria-label="7 days per week (365 multiplier)">
+              <button class="dpw-btn" data-dpw="7" aria-label="7 días por semana (multiplicador 365)" data-i18n-attr="aria-label:calculators.aww.7-days-per-week-365.label" data-i18n-attr="aria-label:calculators.aww.7-days-per-week-365.label">
                 7<span class="dpw-label">×365</span>
               </button>
             </div>
-            <div class="explain-box" id="multiplierExplain">
-              <strong>§14 Multiplier (5-day worker):</strong> Average daily wage × <span id="multiplierVal">260</span> = average annual earnings, then ÷ 52 = AWW.
-              <br>Daily Wage = Total Earnings ÷ Days Worked. Then: Daily Wage × <span id="multiplierVal2">260</span> ÷ 52 = AWW.
+            <div class="explain-box" id="multiplierExplain" data-i18n="calculators.aww.14-multiplier-5-day-worker" data-i18n="calculators.aww.14-multiplier-5-day-worker">
+              <strong>Multiplicador §14 (trabajador de 5 días):</strong> Salario diario promedio × <span id="multiplierVal">260</span> = ingresos anuales promedio, luego ÷ 52 = AWW.
+              <br>Salario Diario = Ingresos Totales ÷ Días Trabajados. Luego: Salario Diario × <span id="multiplierVal2">260</span> ÷ 52 = AWW.
             </div>
           </div>
         </div>
@@ -349,17 +353,17 @@
         <div id="weekDivisorInputs" style="display:none;">
           <div class="fields-row">
             <div class="field-group">
-              <label class="field-label" for="annualEarnings52">Total Annual Earnings</label>
+              <label class="field-label" for="annualEarnings52" data-i18n="calculators.aww.total-annual-earnings" data-i18n="calculators.aww.total-annual-earnings">Ingresos Anuales Totales</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
                 <input type="number" id="annualEarnings52" value="" step="0.01" placeholder="78000.00"
-                       aria-label="Total gross earnings in the 52 weeks preceding injury">
+                       aria-label="Ingresos brutos totales en las 52 semanas anteriores a la lesión" data-i18n-attr="aria-label:calculators.aww.total-gross-earnings-in-the.label-2" data-i18n-attr="aria-label:calculators.aww.total-gross-earnings-in-the.label-2">
               </div>
-              <span class="field-hint">Gross earnings in the 52 weeks before accident</span>
+              <span class="field-hint" data-i18n="calculators.aww.gross-earnings-in-the-52" data-i18n="calculators.aww.gross-earnings-in-the-52">Ingresos brutos en las 52 semanas anteriores al accidente</span>
             </div>
           </div>
-          <div class="explain-box">
-            <strong>§14 Subdivision 1:</strong> When the claimant worked substantially the whole year, AWW = Total Earnings ÷ 52. This is the simplest method and applies to full-year, consistent employment.
+          <div class="explain-box" data-i18n="calculators.aww.14-subdivision-1-when-the" data-i18n="calculators.aww.14-subdivision-1-when-the">
+            <strong>§14 Subdivisión 1:</strong> Cuando el reclamante trabajó sustancialmente todo el año, AWW = Ingresos Totales ÷ 52. Este es el método más simple y se aplica al empleo constante durante todo el año.
           </div>
         </div>
 
@@ -367,23 +371,23 @@
         <div id="straightInputs" style="display:none;">
           <div class="fields-row">
             <div class="field-group">
-              <label class="field-label" for="straightEarnings">Total Earnings in Period</label>
+              <label class="field-label" for="straightEarnings" data-i18n="calculators.aww.total-earnings-in-period" data-i18n="calculators.aww.total-earnings-in-period">Ingresos Totales en el Período</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
                 <input type="number" id="straightEarnings" value="" step="0.01" placeholder="32000.00"
-                       aria-label="Total gross earnings in the period worked">
+                       aria-label="Ingresos brutos totales en el período trabajado" data-i18n-attr="aria-label:calculators.aww.total-gross-earnings-in-the.label-3" data-i18n-attr="aria-label:calculators.aww.total-gross-earnings-in-the.label-3">
               </div>
-              <span class="field-hint">Total earnings in whatever period was worked</span>
+              <span class="field-hint" data-i18n="calculators.aww.total-earnings-in-whatever-period" data-i18n="calculators.aww.total-earnings-in-whatever-period">Ingresos totales en el período que se haya trabajado</span>
             </div>
             <div class="field-group">
-              <label class="field-label" for="weeksWorked">Weeks Actually Worked</label>
+              <label class="field-label" for="weeksWorked" data-i18n="calculators.aww.weeks-actually-worked" data-i18n="calculators.aww.weeks-actually-worked">Semanas Realmente Trabajadas</label>
               <input type="number" id="weeksWorked" value="" step="0.01" placeholder="26" min="0.1"
-                     aria-label="Number of weeks actually worked">
-              <span class="field-hint">Can be fractional (e.g. 26.5 weeks)</span>
+                     aria-label="Número de semanas realmente trabajadas" data-i18n-attr="aria-label:calculators.aww.number-of-weeks-actually-worked.label" data-i18n-attr="aria-label:calculators.aww.number-of-weeks-actually-worked.label">
+              <span class="field-hint" data-i18n="calculators.aww.can-be-fractional-e-g" data-i18n="calculators.aww.can-be-fractional-e-g">Puede ser un número decimal (por ejemplo, 26.5 semanas)</span>
             </div>
           </div>
-          <div class="explain-box">
-            <strong>Straight Divisor:</strong> AWW = Total Earnings ÷ Weeks Worked. Used by the Board when the §14 multiplier methods don't yield a fair result, or for irregular/seasonal workers, new hires, and part-year employment.
+          <div class="explain-box" data-i18n="calculators.aww.straight-divisor-aww-total-earnings" data-i18n="calculators.aww.straight-divisor-aww-total-earnings">
+            <strong>Divisor Directo:</strong> AWW = Ingresos Totales ÷ Semanas Trabajadas. La Junta lo usa cuando los métodos del multiplicador §14 no producen un resultado justo, o para trabajadores irregulares/estacionales, empleados nuevos y empleo de temporada parcial.
           </div>
         </div>
 
@@ -391,21 +395,21 @@
         <div id="hourlyInputs" style="display:none;">
           <div class="fields-row">
             <div class="field-group">
-              <label class="field-label" for="hourlyRate">Hourly Rate</label>
+              <label class="field-label" for="hourlyRate" data-i18n="calculators.aww.hourly-rate" data-i18n="calculators.aww.hourly-rate">Tarifa por Hora</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
                 <input type="number" id="hourlyRate" value="" step="0.01" placeholder="25.00"
-                       aria-label="Hourly rate of pay">
+                       aria-label="Tarifa por hora" data-i18n-attr="aria-label:calculators.aww.hourly-rate-of-pay.label" data-i18n-attr="aria-label:calculators.aww.hourly-rate-of-pay.label">
               </div>
             </div>
             <div class="field-group">
-              <label class="field-label" for="hoursPerWeek">Hours Per Week</label>
+              <label class="field-label" for="hoursPerWeek" data-i18n="calculators.aww.hours-per-week" data-i18n="calculators.aww.hours-per-week">Horas por Semana</label>
               <input type="number" id="hoursPerWeek" value="40" min="1"
-                     aria-label="Regularly scheduled hours per week">
+                     aria-label="Horas semanales regulares programadas" data-i18n-attr="aria-label:calculators.aww.regularly-scheduled-hours-per-week.label" data-i18n-attr="aria-label:calculators.aww.regularly-scheduled-hours-per-week.label">
             </div>
           </div>
-          <div class="explain-box">
-            <strong>Hourly Quick Calc:</strong> AWW = Hourly Rate × Hours/Week. Useful when you know the claimant's hourly rate and regular schedule.
+          <div class="explain-box" data-i18n="calculators.aww.hourly-quick-calc-aww-hourly" data-i18n="calculators.aww.hourly-quick-calc-aww-hourly">
+            <strong>Cálculo Rápido por Hora:</strong> AWW = Tarifa por Hora × Horas/Semana. Útil cuando se conoce la tarifa por hora y el horario regular del reclamante.
           </div>
         </div>
       </div>
@@ -415,63 +419,63 @@
          ADDITIONAL ADJUSTMENTS
     ═══════════════════════════════════════════ -->
     <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Adjustments</span>
+      <div class="calc-header" data-i18n="calculators.aww.adjustments" data-i18n="calculators.aww.adjustments">
+        <span class="calc-header-title">Ajustes</span>
       </div>
       <div class="calc-body">
 
         <!-- Overtime / Tips / Bonuses -->
         <label class="check-row">
-          <input type="checkbox" id="hasOvertime" aria-label="Include overtime, tips, or bonuses"> Include Overtime / Tips / Bonuses
+          <input type="checkbox" id="hasOvertime" aria-label="Incluir horas extra, propinas o bonos" data-i18n-attr="aria-label:calculators.aww.include-overtime-tips-or-bonuses.label" data-i18n-attr="aria-label:calculators.aww.include-overtime-tips-or-bonuses.label"> Include Overtime / Tips / Bonuses
         </label>
         <div id="overtimeSection" style="display:none;margin-bottom:12px;margin-top:6px;">
           <div class="field-group" style="max-width:280px;">
-            <label class="field-label" for="overtimeAmount">Additional Weekly Amount</label>
+            <label class="field-label" for="overtimeAmount" data-i18n="calculators.aww.additional-weekly-amount" data-i18n="calculators.aww.additional-weekly-amount">Monto Semanal Adicional</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="overtimeAmount" value="0" step="0.01" aria-label="Additional weekly overtime or tips">
+              <input type="number" id="overtimeAmount" value="0" step="0.01" aria-label="Horas extra o propinas semanales adicionales" data-i18n-attr="aria-label:calculators.aww.additional-weekly-overtime-or-tips.label" data-i18n-attr="aria-label:calculators.aww.additional-weekly-overtime-or-tips.label">
             </div>
-            <span class="field-hint">Per-week average of OT/tips/bonuses over 52 weeks</span>
+            <span class="field-hint" data-i18n="calculators.aww.per-week-average-of-ot" data-i18n="calculators.aww.per-week-average-of-ot">Promedio semanal de horas extra/propinas/bonos durante 52 semanas</span>
           </div>
         </div>
 
         <!-- Concurrent Employment -->
         <label class="check-row">
-          <input type="checkbox" id="hasConcurrent" aria-label="Include concurrent employment"> Concurrent Employment (§14 — 2nd / Additional Job)
+          <input type="checkbox" id="hasConcurrent" aria-label="Incluir empleo simultáneo" data-i18n-attr="aria-label:calculators.aww.include-concurrent-employment.label" data-i18n-attr="aria-label:calculators.aww.include-concurrent-employment.label"> Concurrent Employment (§14 — 2nd / Additional Job)
         </label>
         <div id="concurrentSection" style="display:none;margin-bottom:12px;margin-top:6px;padding:10px 12px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:7px;">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--ac);margin-bottom:6px;letter-spacing:.5px;">Concurrent Employment</div>
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--ac);margin-bottom:6px;letter-spacing:.5px;" data-i18n="calculators.aww.concurrent-employment" data-i18n="calculators.aww.concurrent-employment">Empleo Simultáneo</div>
           <div class="field-group" style="max-width:280px;">
-            <label class="field-label" for="concurrentAWW">Concurrent Job AWW</label>
+            <label class="field-label" for="concurrentAWW" data-i18n="calculators.aww.concurrent-job-aww" data-i18n="calculators.aww.concurrent-job-aww">AWW del Empleo Simultáneo</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="concurrentAWW" value="0" step="0.01" aria-label="AWW from concurrent employment">
+              <input type="number" id="concurrentAWW" value="0" step="0.01" aria-label="AWW del empleo simultáneo" data-i18n-attr="aria-label:calculators.aww.aww-from-concurrent-employment.label" data-i18n-attr="aria-label:calculators.aww.aww-from-concurrent-employment.label">
             </div>
-            <span class="field-hint">Weekly earnings at 2nd job — added to primary AWW</span>
+            <span class="field-hint" data-i18n="calculators.aww.weekly-earnings-at-2nd-job" data-i18n="calculators.aww.weekly-earnings-at-2nd-job">Ingresos semanales en el segundo empleo — se suman al AWW principal</span>
           </div>
         </div>
 
         <!-- Amended AWW -->
         <label class="check-row">
-          <input type="checkbox" id="hasAmended" aria-label="Apply amended AWW"> Amended AWW (Board Decision / Stipulation)
+          <input type="checkbox" id="hasAmended" aria-label="Aplicar AWW modificado" data-i18n-attr="aria-label:calculators.aww.apply-amended-aww.label" data-i18n-attr="aria-label:calculators.aww.apply-amended-aww.label"> Amended AWW (Board Decision / Stipulation)
         </label>
         <div id="amendedSection" style="display:none;margin-bottom:12px;margin-top:6px;padding:10px 12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:7px;">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gd);margin-bottom:6px;letter-spacing:.5px;">Amended AWW</div>
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gd);margin-bottom:6px;letter-spacing:.5px;" data-i18n="calculators.aww.amended-aww" data-i18n="calculators.aww.amended-aww">AWW Enmendado</div>
           <div class="fields-row">
             <div class="field-group">
-              <label class="field-label" for="priorAWW">Prior AWW</label>
+              <label class="field-label" for="priorAWW" data-i18n="calculators.aww.prior-aww.label" data-i18n="calculators.aww.prior-aww.label">AWW anterior</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="priorAWW" value="" step="0.01" placeholder="—" aria-label="Prior AWW">
+                <input type="number" id="priorAWW" value="" step="0.01" placeholder="—" aria-label="AWW anterior" data-i18n-attr="aria-label:calculators.aww.prior-aww.label" data-i18n-attr="aria-label:calculators.aww.prior-aww.label">
               </div>
             </div>
             <div class="field-group">
-              <label class="field-label" for="newAWW">New / Amended AWW</label>
+              <label class="field-label" for="newAWW" data-i18n="calculators.aww.new-amended-aww.text" data-i18n="calculators.aww.new-amended-aww.text">AWW nuevo/modificado</label>
               <div class="field-wrap">
                 <span class="field-prefix">$</span>
-                <input type="number" id="newAWW" value="" step="0.01" placeholder="—" aria-label="New amended AWW">
+                <input type="number" id="newAWW" value="" step="0.01" placeholder="—" aria-label="Nuevo AWW modificado" data-i18n-attr="aria-label:calculators.aww.new-amended-aww.label" data-i18n-attr="aria-label:calculators.aww.new-amended-aww.label">
               </div>
-              <span class="field-hint">Overrides calculated AWW</span>
+              <span class="field-hint" data-i18n="calculators.aww.overrides-calculated-aww" data-i18n="calculators.aww.overrides-calculated-aww">Reemplaza el AWW calculado</span>
             </div>
           </div>
         </div>
@@ -482,39 +486,39 @@
          RESULTS
     ═══════════════════════════════════════════ -->
     <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">Results</span>
+      <div class="calc-header" data-i18n="shared.results" data-i18n="shared.results">
+        <span class="calc-header-title">Resultados</span>
       </div>
       <div class="calc-body" style="padding-bottom:8px;">
         <div class="result-box" style="margin-bottom:0;">
           <div class="result-grid">
-            <div class="result-item">
-              <span class="result-label">Calculated AWW</span>
+            <div class="result-item" data-i18n="calculators.aww.calculated-aww" data-i18n="calculators.aww.calculated-aww">
+              <span class="result-label">AWW Calculado</span>
               <span class="result-value" id="awwResult">—</span>
             </div>
-            <div class="result-item">
-              <span class="result-label">2/3 Rate (before cap)</span>
+            <div class="result-item" data-i18n="calculators.aww.2-3-rate-before-cap" data-i18n="calculators.aww.2-3-rate-before-cap">
+              <span class="result-label">Tarifa de 2/3 (antes del tope)</span>
               <span class="result-value" id="twoThirdsResult">—</span>
             </div>
-            <div class="result-item">
-              <span class="result-label">Statutory Maximum</span>
+            <div class="result-item" data-i18n="calculators.aww.statutory-maximum" data-i18n="calculators.aww.statutory-maximum">
+              <span class="result-label">Máximo Legal</span>
               <span class="result-value blue" id="applicableMaxResult">—</span>
             </div>
-            <div class="result-item">
-              <span class="result-label">Final Comp Rate (TT)</span>
+            <div class="result-item" data-i18n="calculators.aww.final-comp-rate-tt" data-i18n="calculators.aww.final-comp-rate-tt">
+              <span class="result-label">Tarifa Final de Compensación (TT)</span>
               <span class="result-value gold" id="finalRateResult">—</span>
             </div>
           </div>
 
           <!-- Statutory formula breakdown -->
           <div id="formulaBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;">Statutory Calculation</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;" data-i18n="calculators.aww.statutory-calculation" data-i18n="calculators.aww.statutory-calculation">Cálculo Legal</div>
             <div class="formula-box" id="formulaText"></div>
           </div>
 
           <!-- Extended rate table -->
           <div id="extendedBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;">Compensation Rate Table</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;" data-i18n="calculators.aww.compensation-rate-table" data-i18n="calculators.aww.compensation-rate-table">Tabla de Tarifas de Compensación</div>
             <div class="result-row-list" id="rateTableRows"></div>
           </div>
 
@@ -532,46 +536,46 @@
 
     <!-- About AWW — §14 Explanation -->
     <div class="calc-section">
-      <div class="calc-header">
-        <span class="calc-header-title">WCL §14 — How AWW Is Calculated</span>
+      <div class="calc-header" data-i18n="calculators.aww.wcl-14-how-aww-is" data-i18n="calculators.aww.wcl-14-how-aww-is">
+        <span class="calc-header-title">WCL §14 — Cómo se Calcula el AWW</span>
       </div>
       <div class="calc-body">
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          Average Weekly Wage (AWW) is the foundation of all New York workers' compensation benefits. Under <strong style="color:var(--tx);">Workers' Compensation Law §14</strong>, AWW determines the compensation rate — two-thirds (2/3) of AWW, capped at the statutory maximum set annually by DFS.
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.aww.average-weekly-wage-aww-is" data-i18n="calculators.aww.average-weekly-wage-aww-is">
+          El salario semanal promedio (Average Weekly Wage, AWW) es la base de todos los beneficios de compensación para trabajadores de Nueva York. Según la <strong style="color:var(--tx);">Ley de Compensación para Trabajadores §14</strong>, el AWW determina la tarifa de compensación — dos tercios (2/3) del AWW, con un tope máximo legal fijado anualmente por el DFS.
         </p>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--ac);">§14(1) — 52-Week Divisor:</strong> For workers employed substantially the whole year, total gross earnings in the 52 weeks preceding the accident are divided by 52. This is the default method for full-time, full-year workers.
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.aww.14-1-52-week-divisor" data-i18n="calculators.aww.14-1-52-week-divisor">
+          <strong style="color:var(--ac);">§14(1) — Divisor de 52 Semanas:</strong> Para trabajadores empleados sustancialmente durante todo el año, los ingresos brutos totales de las 52 semanas anteriores al accidente se dividen entre 52. Este es el método predeterminado para trabajadores de tiempo completo durante todo el año.
         </p>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--ac);">§14(2) — Day-Based Multiplier:</strong> When the claimant did NOT work substantially the whole year, average annual earnings are computed by multiplying the average daily wage by a statutory multiplier based on the claimant's regular work schedule:
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.aww.14-2-day-based-multiplier" data-i18n="calculators.aww.14-2-day-based-multiplier">
+          <strong style="color:var(--ac);">§14(2) — Multiplicador Basado en Días:</strong> Cuando el reclamante NO trabajó sustancialmente todo el año, las ganancias anuales promedio se calculan multiplicando el salario diario promedio por un multiplicador legal basado en el horario de trabajo regular del reclamante:
         </p>
         <div style="padding:10px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;margin-bottom:12px;">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
             <div>
               <div style="font-size:20px;font-weight:800;color:var(--ac);">200</div>
-              <div style="font-size:10px;color:var(--txM);font-weight:600;">4-Day Worker</div>
+              <div style="font-size:10px;color:var(--txM);font-weight:600;" data-i18n="calculators.aww.4-day-worker" data-i18n="calculators.aww.4-day-worker">Trabajador de 4 Días</div>
             </div>
             <div>
               <div style="font-size:20px;font-weight:800;color:var(--ac);">260</div>
-              <div style="font-size:10px;color:var(--txM);font-weight:600;">5-Day Worker</div>
+              <div style="font-size:10px;color:var(--txM);font-weight:600;" data-i18n="calculators.aww.5-day-worker" data-i18n="calculators.aww.5-day-worker">Trabajador de 5 Días</div>
             </div>
             <div>
               <div style="font-size:20px;font-weight:800;color:var(--ac);">300</div>
-              <div style="font-size:10px;color:var(--txM);font-weight:600;">6-Day Worker</div>
+              <div style="font-size:10px;color:var(--txM);font-weight:600;" data-i18n="calculators.aww.6-day-worker" data-i18n="calculators.aww.6-day-worker">Trabajador de 6 Días</div>
             </div>
           </div>
-          <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--txD);">
-            AWW = (Total Earnings ÷ Days Worked) × Multiplier ÷ 52
+          <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--txD);" data-i18n="calculators.aww.aww-total-earnings-days-worked" data-i18n="calculators.aww.aww-total-earnings-days-worked">
+            AWW = (Ganancias Totales ÷ Días Trabajados) × Multiplicador ÷ 52
           </div>
         </div>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--gd);">Straight Divisor (Board Discretion):</strong> When the statutory multiplier methods do not yield a fair result — for instance, with seasonal workers, irregular schedules, new hires, or part-year employment — the Board may use a straight divisor: Total Earnings ÷ Actual Weeks Worked. This is the most commonly litigated AWW calculation.
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.aww.straight-divisor-board-discretion-when" data-i18n="calculators.aww.straight-divisor-board-discretion-when">
+          <strong style="color:var(--gd);">Divisor Directo (Discreción de la Junta):</strong> Cuando los métodos de multiplicador legal no producen un resultado justo — por ejemplo, con trabajadores temporeros, horarios irregulares, empleados nuevos o empleo parcial del año — la Junta puede usar un divisor directo: Ganancias Totales ÷ Semanas Realmente Trabajadas. Este es el cálculo de AWW más comúnmente disputado.
         </p>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;">
-          <strong style="color:var(--tx);">Concurrent Employment:</strong> Under §14, wages from all concurrent employment at the time of injury are combined. If the claimant held two jobs, both sets of wages are included — even if only one employer's work caused the injury.
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.aww.concurrent-employment-under-14-wages" data-i18n="calculators.aww.concurrent-employment-under-14-wages">
+          <strong style="color:var(--tx);">Empleo Concurrente:</strong> Según el §14, se combinan los salarios de todos los empleos concurrentes al momento de la lesión. Si el reclamante tenía dos empleos, se incluyen ambos conjuntos de salarios — aunque el trabajo de solo un empleador haya causado la lesión.
         </p>
-        <p style="color:var(--txD);line-height:1.8;">
-          <strong style="color:var(--tx);">Why It Matters:</strong> AWW directly controls the comp rate, which flows into every benefit calculation: temporary total, reduced earnings, SLU awards, CCP awards, and fee applications. Getting the AWW right is the single most important number in the case.
+        <p style="color:var(--txD);line-height:1.8;" data-i18n="calculators.aww.why-it-matters-aww-directly" data-i18n="calculators.aww.why-it-matters-aww-directly">
+          <strong style="color:var(--tx);">Por Qué Importa:</strong> El AWW controla directamente la tasa de compensación, la cual se refleja en cada cálculo de beneficios: incapacidad total temporal, ingresos reducidos, indemnizaciones por SLU, indemnizaciones por CCP y solicitudes de honorarios. Calcular correctamente el AWW es el número más importante del caso.
         </p>
       </div>
     </div>
@@ -579,33 +583,33 @@
     <!-- FAQ -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title">Frequently Asked Questions</h2>
+        <h2 class="calc-header-title" data-i18n="shared.frequently-asked-questions" data-i18n="shared.frequently-asked-questions">Preguntas Frecuentes</h2>
       </div>
       <div class="calc-body">
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What is the Average Weekly Wage (AWW) in NY workers' comp?</h3>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
-          Your AWW is your gross earnings for the 52 weeks before the injury converted to a weekly figure under WCL §14. Nearly every benefit in your case — weekly checks capped at the <a href="/es/calculators/rates" style="color:var(--ac);">statutory maximum rate</a>, <a href="/es/calculators/slu" style="color:var(--ac);">Schedule Loss of Use (SLU) awards</a>, and <a href="/es/calculators/lwec" style="color:var(--ac);">LWEC classifications</a> — is computed from two-thirds of it.
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.aww.jsonld.what-is-the-average-weekly" data-i18n="calculators.aww.jsonld.what-is-the-average-weekly">¿Qué es el salario semanal promedio (Average Weekly Wage, AWW) en la compensación laboral de NY?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.aww.your-aww-is-your-gross" data-i18n="calculators.aww.your-aww-is-your-gross">
+          Su AWW es su ingreso bruto de las 52 semanas anteriores a la lesión, convertido a una cifra semanal según el WCL §14. Casi todos los beneficios de su caso — cheques semanales limitados a la <a href="/es/calculators/rates" style="color:var(--ac);">tasa máxima legal</a>, las <a href="/es/calculators/slu" style="color:var(--ac);">indemnizaciones por Pérdida de Uso Programada (Schedule Loss of Use, SLU)</a>, y las <a href="/es/calculators/lwec" style="color:var(--ac);">clasificaciones de LWEC</a> — se calculan a partir de dos tercios de este monto.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">Which WCL §14 method applies to me?</h3>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
-          It depends on your work pattern: the 260 multiplier for five-day workers and 300 for six-day workers who worked substantially the whole year, the 200 minimum multiplier for seasonal work, or a straight 52-week divisor. The calculator applies the statutory methods and shows each result.
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.aww.jsonld.which-wcl-14-method-applies" data-i18n="calculators.aww.jsonld.which-wcl-14-method-applies">¿Qué método de WCL §14 se aplica en mi caso?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.aww.jsonld.it-depends-on-your-work" data-i18n="calculators.aww.jsonld.it-depends-on-your-work">
+          Depende de su patrón de trabajo: el multiplicador 260 para trabajadores de cinco días y 300 para trabajadores de seis días que trabajaron sustancialmente todo el año, el multiplicador mínimo 200 para trabajo de temporada, o un divisor directo de 52 semanas. La calculadora aplica los métodos legales y muestra cada resultado.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">Does overtime or a second job count toward AWW?</h3>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;">
-          Yes — AWW is based on gross earnings including overtime. Wages from concurrent employment (a second job) may also be added under WCL §14(6) when the injury disables you from both jobs.
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.aww.jsonld.does-overtime-or-a-second" data-i18n="calculators.aww.jsonld.does-overtime-or-a-second">¿Las horas extra o un segundo empleo cuentan para el AWW?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;" data-i18n="calculators.aww.jsonld.yes-aww-is-based-on" data-i18n="calculators.aww.jsonld.yes-aww-is-based-on">
+          Sí: el AWW se basa en los ingresos brutos, incluidas las horas extra. Los salarios de un empleo simultáneo (un segundo trabajo) también pueden sumarse según WCL §14(6) cuando la lesión lo incapacita para ambos empleos.
         </p>
       </div>
     </div>
 
     <!-- App CTA -->
     <div class="upgrade-banner">
-      <div class="upgrade-title">Full-Featured Mobile App</div>
-      <div class="upgrade-description">Calculate AWW, manage hearings, and build fee applications on the go.</div>
-      <button class="btn-primary">Download the App</button>
+      <div class="upgrade-title" data-i18n="shared.full-featured-mobile-app" data-i18n="shared.full-featured-mobile-app">App Móvil Completa</div>
+      <div class="upgrade-description" data-i18n="calculators.aww.calculate-aww-manage-hearings-and" data-i18n="calculators.aww.calculate-aww-manage-hearings-and">Calcule el AWW, administre audiencias y prepare solicitudes de honorarios desde su teléfono.</div>
+      <button class="btn-primary" data-i18n="shared.download-the-app" data-i18n="shared.download-the-app">Descargar la App</button>
     </div>
 
     <div class="disclaimer">
-      <p style="margin:0;"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. AWW calculations are based on current New York State Workers' Compensation Law §14 and Department of Financial Services regulations. The accuracy of results depends on the wages entered. Disputes over AWW may require detailed wage documentation and adjudication by the Workers' Compensation Board. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
+      <p style="margin:0;" data-i18n="calculators.aww.disclaimer-this-calculator-is-provided" data-i18n="calculators.aww.disclaimer-this-calculator-is-provided"><strong>Aviso legal:</strong> Esta calculadora se ofrece únicamente con fines informativos y no constituye asesoría legal. Los cálculos de AWW se basan en la Ley de Compensación para Trabajadores del Estado de Nueva York §14 vigente y en las regulaciones del Departamento de Servicios Financieros. La exactitud de los resultados depende de los salarios ingresados. Las disputas sobre el AWW pueden requerir documentación salarial detallada y resolución por parte de la Junta de Compensación para Trabajadores (Workers' Compensation Board). Consulte a un abogado calificado en compensación para trabajadores para obtener orientación sobre su caso específico.</p>
     </div>
   </div>
 

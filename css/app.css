@@ -775,3 +775,21 @@ textarea:focus {
   .btn-secondary,
   .btn-upgrade { width: 100%; }
 }
+
+/* Convenience-translation notice — rendered only on translated (locale) copies of the
+   legal pages by scripts/i18n/build-locales.mjs. Never present on the English originals,
+   which are the governing versions. Logical properties for the Phase 4 RTL pass. */
+.i18n-translation-notice {
+  margin: 0;
+  padding-block: 10px;
+  padding-inline: 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+  color: #4a3c1a;
+  background: #fdf6e3;
+  border-block-end: 1px solid #e6d9b0;
+}
+@media (prefers-color-scheme: dark) {
+  .i18n-translation-notice { color: #f3e6c4; background: #33291097; border-block-end-color: #5d4d20; }
+}

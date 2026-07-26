@@ -5,26 +5,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Email Confirmed — The Comp Desk</title>
-<meta name="description" content="Your email is confirmed. Return to The Comp Desk app and sign in, or sign in on the web.">
+<title data-i18n="confirmed.meta.og-title" data-i18n="confirmed.meta.og-title">Correo confirmado — The Comp Desk</title>
+<meta name="description" content="Su correo electrónico está confirmado. Vuelva a la aplicación de The Comp Desk e inicie sesión, o inicie sesión en la web." data-i18n-attr="content:confirmed.meta.description" data-i18n-attr="content:confirmed.meta.description">
 <meta name="robots" content="index,follow">
 
 <!-- JSON-LD Schema -->
-<script type="application/ld+json">
+<script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
 {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "name": "Email Confirmed — The Comp Desk",
-  "description": "Your email is confirmed. Return to The Comp Desk app and sign in.",
-  "url": "https://thecompdesk.com/confirmed"
+  "name": "Correo confirmado — The Comp Desk",
+  "description": "Su correo electrónico está confirmado. Vuelva a la aplicación de The Comp Desk e inicie sesión.",
+  "url": "https://thecompdesk.com/es/confirmed"
 }
 </script>
 
 <link rel="canonical" href="https://thecompdesk.com/es/confirmed">
 
 <!-- Open Graph -->
-<meta property="og:title" content="Email Confirmed — The Comp Desk">
-<meta property="og:description" content="Your email is confirmed. Return to The Comp Desk app and sign in.">
+<meta property="og:title" content="Correo confirmado — The Comp Desk" data-i18n-attr="content:confirmed.meta.og-title" data-i18n-attr="content:confirmed.meta.og-title">
+<meta property="og:description" content="Su correo electrónico está confirmado. Vuelva a la aplicación de The Comp Desk e inicie sesión." data-i18n-attr="content:confirmed.meta.og-description" data-i18n-attr="content:confirmed.meta.og-description">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Comp Desk">
 <meta property="og:url" content="https://thecompdesk.com/es/confirmed">
@@ -106,37 +106,37 @@ footer a{color:#3a4a63;}
 <body>
   <main>
     <div class="shell">
-      <a href="/es/" class="back">← Back to The Comp Desk</a>
+      <a href="/es/" class="back" data-i18n="shared.back-to-the-comp-desk" data-i18n="shared.back-to-the-comp-desk">← Volver a The Comp Desk</a>
       <div class="card">
-        <img class="logo" src="/assets/hero/comp-desk.png" alt="The Comp Desk">
-        <div class="brand">The Comp Desk</div>
+        <img class="logo" src="/assets/hero/comp-desk.png" alt="The Comp Desk" data-i18n-attr="alt:shared.the-comp-desk" data-i18n-attr="alt:shared.the-comp-desk">
+        <div class="brand" data-i18n="shared.the-comp-desk" data-i18n="shared.the-comp-desk">The Comp Desk</div>
 
         <!-- SUCCESS (default) -->
         <div id="success">
           <div class="check" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
-          <h1>Your email is confirmed 🎉</h1>
-          <p>Thanks for joining The Comp Desk. Your account is verified and ready —
-             you can now return to the app and sign in.</p>
-          <div class="btns">
+          <h1 data-i18n="confirmed.your-email-is-confirmed" data-i18n="confirmed.your-email-is-confirmed">Su correo electrónico está confirmado 🎉</h1>
+          <p data-i18n="confirmed.thanks-for-joining-the-comp" data-i18n="confirmed.thanks-for-joining-the-comp">Gracias por unirse a The Comp Desk. Su cuenta está verificada y lista;
+             ahora puede volver a la aplicación e iniciar sesión.</p>
+          <div class="btns" data-i18n="confirmed.open-the-comp-desk-app" data-i18n="confirmed.open-the-comp-desk-app">
             <!-- Universal/app link: capacitor.config.json registers the app for the
                  thecompdesk.com appLinks domain, so on a device with the app installed
                  this opens the native app; otherwise it falls back to the web sign-in. -->
-            <a class="btn btn-primary" href="https://thecompdesk.com/auth">Open The Comp Desk app</a>
-            <a class="btn btn-ghost" href="/auth_v2.html">Sign in on the web</a>
+            <a class="btn btn-primary" href="https://thecompdesk.com/auth">Abrir la aplicación The Comp Desk</a>
+            <a class="btn btn-ghost" href="/auth_v2.html">Iniciar sesión en la web</a>
           </div>
-          <div class="hint">On your phone? Just reopen The Comp Desk app and sign in with the email and password you created.</div>
+          <div class="hint" data-i18n="confirmed.on-your-phone-just-reopen" data-i18n="confirmed.on-your-phone-just-reopen">¿Está en su teléfono? Simplemente vuelva a abrir la aplicación The Comp Desk e inicie sesión con el correo electrónico y la contraseña que creó.</div>
         </div>
 
         <!-- ERROR (shown only if Supabase appends an expired/invalid token error) -->
         <div id="error-box">
-          <h1 style="font-size:21px;">This link has expired</h1>
-          <p>Confirmation links are only good for a short time. Enter your email and we’ll send you a fresh one.</p>
+          <h1 style="font-size:21px;" data-i18n="confirmed.this-link-has-expired" data-i18n="confirmed.this-link-has-expired">Este enlace ha vencido</h1>
+          <p data-i18n="confirmed.confirmation-links-are-only-good" data-i18n="confirmed.confirmation-links-are-only-good">Los enlaces de confirmación solo son válidos por poco tiempo. Ingrese su correo electrónico y le enviaremos uno nuevo.</p>
           <div class="btns">
-            <input id="resend-email" class="email" type="email" placeholder="you@email.com" autocomplete="email">
-            <button class="btn btn-primary" id="resend-btn" onclick="resend()">Send a new confirmation email</button>
-            <a class="btn btn-ghost" href="/auth_v2.html">Back to sign in</a>
+            <input id="resend-email" class="email" type="email" placeholder="you@email.com" autocomplete="email" data-i18n-attr="placeholder:shared.you-email-com" data-i18n-attr="placeholder:shared.you-email-com">
+            <button class="btn btn-primary" id="resend-btn" onclick="resend()" data-i18n="confirmed.send-a-new-confirmation-email" data-i18n="confirmed.send-a-new-confirmation-email">Enviar un nuevo correo de confirmación</button>
+            <a class="btn btn-ghost" href="/auth_v2.html" data-i18n="confirmed.back-to-sign-in" data-i18n="confirmed.back-to-sign-in">Volver a iniciar sesión</a>
           </div>
           <div id="msg"></div>
         </div>
@@ -145,8 +145,8 @@ footer a{color:#3a4a63;}
   </main>
 
   <footer>
-    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
-    <p style="margin-top:6px;"><a href="/es/disclaimer">Disclaimer</a> &middot; <a href="/es/legal/terms">Terms of Use</a> &middot; <a href="/es/legal/privacy">Privacy Policy</a> &middot; <a href="/es/contact">Contact</a></p>
+    <p data-i18n="shared.2026-njj-document-services-inc" data-i18n="shared.2026-njj-document-services-inc">&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. Todos los derechos reservados.</p>
+    <p style="margin-top:6px;" data-i18n="shared.disclaimer-terms-of-use-privacy" data-i18n="shared.disclaimer-terms-of-use-privacy"><a href="/es/disclaimer">Aviso Legal</a> &middot; <a href="/es/legal/terms">Términos de Uso</a> &middot; <a href="/es/legal/privacy">Política de Privacidad</a> &middot; <a href="/es/contact">Contacto</a></p>
   </footer>
 
   <script>

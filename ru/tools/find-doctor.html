@@ -5,13 +5,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Find a Workers' Comp Doctor in NYC | NYS Workers' Compensation | The Comp Desk</title>
-  <meta name="description" content="Find a workers' compensation doctor in New York City. Interactive map covering all five boroughs, helping injured workers find WCB-authorized providers experienced with New York workers' comp cases.">
+  <title data-i18n="tools.find-doctor.meta.title" data-i18n="tools.find-doctor.meta.title">Find a Workers' Comp Doctor in NYC | NYS Workers' Compensation | The Comp Desk</title>
+  <meta name="description" content="Find a workers' compensation doctor in New York City. Interactive map covering all five boroughs, helping injured workers find WCB-authorized providers experienced with New York workers' comp cases." data-i18n-attr="content:tools.find-doctor.meta.description" data-i18n-attr="content:tools.find-doctor.meta.description">
   <meta name="keywords" content="find workers comp doctor NYC, NYS workers compensation doctor, workers comp physician Manhattan Brooklyn Queens Bronx Staten Island, occupational medicine NYC, WC provider directory, workers comp treatment NY">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk">
-  <meta property="og:description" content="Interactive map of workers'-comp-experienced doctors across the five boroughs. Use your location to find providers near you.">
+  <meta property="og:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk" data-i18n-attr="content:tools.find-doctor.meta.og-title" data-i18n-attr="content:tools.find-doctor.meta.og-title">
+  <meta property="og:description" content="Interactive map of workers'-comp-experienced doctors across the five boroughs. Use your location to find providers near you." data-i18n-attr="content:tools.find-doctor.meta.og-description" data-i18n-attr="content:tools.find-doctor.meta.og-description">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Comp Desk">
   <meta property="og:url" content="https://thecompdesk.com/ru/tools/find-doctor">
@@ -19,15 +19,15 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk">
-  <meta name="twitter:description" content="Interactive five-borough map of NY workers'-comp-experienced doctors. Free.">
+  <meta name="twitter:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk" data-i18n-attr="content:tools.find-doctor.meta.og-title" data-i18n-attr="content:tools.find-doctor.meta.og-title">
+  <meta name="twitter:description" content="Interactive five-borough map of NY workers'-comp-experienced doctors. Free." data-i18n-attr="content:tools.find-doctor.meta.twitter-description" data-i18n-attr="content:tools.find-doctor.meta.twitter-description">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
 
   <!-- Canonical -->
   <link rel="canonical" href="https://thecompdesk.com/ru/tools/find-doctor">
 
   <!-- JSON-LD: WebApplication + FAQPage -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
   [
     {
       "@context": "https://schema.org",
@@ -254,14 +254,14 @@
   <script src="/js/i18n-locale.js" defer></script>
 </head>
 <body class="tcd-skinned">
-  <a class="skip-link" href="#main">Skip to map</a>
+  <a class="skip-link" href="#main" data-i18n="tools.find-doctor.skip-to-map" data-i18n="tools.find-doctor.skip-to-map">Skip to map</a>
 
   <div class="dawn-wash" aria-hidden="true"></div>
 
-  <nav class="tcd-nav" aria-label="Primary">
+  <nav class="tcd-nav" aria-label="Primary" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
     <div class="tcd-nav-inner">
-      <a class="tcd-wordmark" href="/ru/worker" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
-      <div class="tcd-nav-links">
+      <a class="tcd-wordmark" href="/ru/worker" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links" data-i18n="shared.learn-find-a-doctor-calculators" data-i18n="shared.learn-find-a-doctor-calculators">
         <a href="/learn">Learn</a>
         <a href="/ru/tools/find-doctor">Find a Doctor</a>
         <a href="/ru/calculators/">Calculators</a>
@@ -269,18 +269,18 @@
       </div>
       <div class="tcd-nav-right">
         <div data-audience-switch></div>
-        <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+        <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F" data-i18n="shared.sign-in" data-i18n="shared.sign-in">Sign in</a>
       </div>
     </div>
   </nav>
 
   <!-- Legislation disclaimer (pinned right at the top, per Joel's spec) -->
-  <aside class="law-banner" role="note" aria-label="Workers' compensation legislation update">
+  <aside class="law-banner" role="note" aria-label="Workers' compensation legislation update" data-i18n-attr="aria-label:tools.find-doctor.workers-compensation-legislation-update.label" data-i18n-attr="aria-label:tools.find-doctor.workers-compensation-legislation-update.label">
     <div class="inner">
       <div class="icon" aria-hidden="true">!</div>
       <div class="copy">
-        <h2>Proposed: Universal Authorization</h2>
-        <p>Gov. Hochul's <strong>2026 State of the State</strong> proposal (re-proposed after 2025) <strong>would</strong> let any eligible licensed provider in good standing treat workers'-compensation patients without separate WCB authorization. It is <strong>not yet law</strong> &mdash; if enacted, it would take effect <strong>January 1, 2028</strong>. Until then, this map highlights providers experienced with WC cases. <a href="https://www.wcb.ny.gov/sots-universalauthorization/" target="_blank" rel="noopener noreferrer">Read the WCB proposal &rarr;</a></p>
+        <h2 data-i18n="tools.find-doctor.proposed-universal-authorization" data-i18n="tools.find-doctor.proposed-universal-authorization">Proposed: Universal Authorization</h2>
+        <p data-i18n="tools.find-doctor.gov-hochul-s-2026-state" data-i18n="tools.find-doctor.gov-hochul-s-2026-state">Gov. Hochul's <strong>2026 State of the State</strong> proposal (re-proposed after 2025) <strong>would</strong> let any eligible licensed provider in good standing treat workers'-compensation patients without separate WCB authorization. It is <strong>not yet law</strong> &mdash; if enacted, it would take effect <strong>January 1, 2028</strong>. Until then, this map highlights providers experienced with WC cases. <a href="https://www.wcb.ny.gov/sots-universalauthorization/" target="_blank" rel="noopener noreferrer">Read the WCB proposal &rarr;</a></p>
       </div>
     </div>
   </aside>
@@ -288,43 +288,43 @@
   <main id="main">
     <section class="hero">
       <div class="wrap">
-        <div class="badge">NYC Five-Borough Directory</div>
-        <h1>Find a <span>Workers' Comp Doctor</span> in NYC</h1>
-        <p class="sub">Interactive map of providers experienced with New York workers'-compensation cases. Use your location, browse by borough, and open directions in Apple or Google Maps with one tap.</p>
+        <div class="badge" data-i18n="tools.find-doctor.nyc-five-borough-directory" data-i18n="tools.find-doctor.nyc-five-borough-directory">NYC Five-Borough Directory</div>
+        <h1 data-i18n="tools.find-doctor.find-a-workers-comp-doctor" data-i18n="tools.find-doctor.find-a-workers-comp-doctor">Find a <span>Workers' Comp Doctor</span> in NYC</h1>
+        <p class="sub" data-i18n="tools.find-doctor.interactive-map-of-providers-experienced" data-i18n="tools.find-doctor.interactive-map-of-providers-experienced">Interactive map of providers experienced with New York workers'-compensation cases. Use your location, browse by borough, and open directions in Apple or Google Maps with one tap.</p>
       </div>
     </section>
 
     <section class="search">
       <div class="wrap">
         <div class="search-grid">
-          <button id="locate" class="locate-btn" type="button" aria-label="Find doctors near my current location">
+          <button id="locate" class="locate-btn" type="button" aria-label="Find doctors near my current location" data-i18n="tools.find-doctor.use-my-location" data-i18n-attr="aria-label:tools.find-doctor.find-doctors-near-my-current.label" data-i18n="tools.find-doctor.use-my-location" data-i18n-attr="aria-label:tools.find-doctor.find-doctors-near-my-current.label">
             <span class="pin" aria-hidden="true"></span>
             <span id="locate-label">Use my location</span>
           </button>
-          <select id="filter-borough" aria-label="Filter by borough">
-            <option value="">All five boroughs</option>
-            <option value="Manhattan">Manhattan</option>
-            <option value="Brooklyn">Brooklyn</option>
-            <option value="Queens">Queens</option>
-            <option value="Bronx">The Bronx</option>
-            <option value="Staten Island">Staten Island</option>
+          <select id="filter-borough" aria-label="Filter by borough" data-i18n-attr="aria-label:tools.find-doctor.filter-by-borough.label" data-i18n-attr="aria-label:tools.find-doctor.filter-by-borough.label">
+            <option value="" data-i18n="tools.find-doctor.all-five-boroughs" data-i18n="tools.find-doctor.all-five-boroughs">All five boroughs</option>
+            <option value="Manhattan" data-i18n="tools.find-doctor.manhattan" data-i18n="tools.find-doctor.manhattan">Manhattan</option>
+            <option value="Brooklyn" data-i18n="tools.find-doctor.brooklyn" data-i18n="tools.find-doctor.brooklyn">Brooklyn</option>
+            <option value="Queens" data-i18n="shared.queens" data-i18n="shared.queens">Queens</option>
+            <option value="Bronx" data-i18n="tools.find-doctor.the-bronx" data-i18n="tools.find-doctor.the-bronx">The Bronx</option>
+            <option value="Staten Island" data-i18n="tools.find-doctor.staten-island" data-i18n="tools.find-doctor.staten-island">Staten Island</option>
           </select>
-          <select id="filter-specialty" aria-label="Filter by specialty">
-            <option value="">All specialties</option>
-            <option value="Orthopedics">Orthopedics</option>
-            <option value="Neurology">Neurology</option>
-            <option value="Pain Management">Pain Management</option>
-            <option value="Physical Therapy">Physical Therapy</option>
-            <option value="Chiropractic">Chiropractic</option>
-            <option value="Hand Surgery">Hand Surgery</option>
-            <option value="Occupational Medicine">Occupational Medicine</option>
-            <option value="Pulmonology">Pulmonology</option>
-            <option value="Podiatry">Podiatry</option>
-            <option value="Primary Care">Primary Care</option>
+          <select id="filter-specialty" aria-label="Filter by specialty" data-i18n-attr="aria-label:tools.find-doctor.filter-by-specialty.label" data-i18n-attr="aria-label:tools.find-doctor.filter-by-specialty.label">
+            <option value="" data-i18n="tools.find-doctor.all-specialties" data-i18n="tools.find-doctor.all-specialties">All specialties</option>
+            <option value="Orthopedics" data-i18n="tools.find-doctor.orthopedics" data-i18n="tools.find-doctor.orthopedics">Orthopedics</option>
+            <option value="Neurology" data-i18n="tools.find-doctor.neurology" data-i18n="tools.find-doctor.neurology">Neurology</option>
+            <option value="Pain Management" data-i18n="tools.find-doctor.pain-management" data-i18n="tools.find-doctor.pain-management">Pain Management</option>
+            <option value="Physical Therapy" data-i18n="tools.find-doctor.physical-therapy" data-i18n="tools.find-doctor.physical-therapy">Physical Therapy</option>
+            <option value="Chiropractic" data-i18n="tools.find-doctor.chiropractic" data-i18n="tools.find-doctor.chiropractic">Chiropractic</option>
+            <option value="Hand Surgery" data-i18n="tools.find-doctor.hand-surgery" data-i18n="tools.find-doctor.hand-surgery">Hand Surgery</option>
+            <option value="Occupational Medicine" data-i18n="tools.find-doctor.occupational-medicine" data-i18n="tools.find-doctor.occupational-medicine">Occupational Medicine</option>
+            <option value="Pulmonology" data-i18n="tools.find-doctor.pulmonology" data-i18n="tools.find-doctor.pulmonology">Pulmonology</option>
+            <option value="Podiatry" data-i18n="tools.find-doctor.podiatry" data-i18n="tools.find-doctor.podiatry">Podiatry</option>
+            <option value="Primary Care" data-i18n="tools.find-doctor.primary-care" data-i18n="tools.find-doctor.primary-care">Primary Care</option>
           </select>
-          <button id="search-btn" class="search-btn" type="button" aria-label="Search doctors and show them on the map">
+          <button id="search-btn" class="search-btn" type="button" aria-label="Search doctors and show them on the map" data-i18n-attr="aria-label:tools.find-doctor.search-doctors-and-show-them.label" data-i18n-attr="aria-label:tools.find-doctor.search-doctors-and-show-them.label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
-            <span>Search</span>
+            <span data-i18n="tools.find-doctor.search" data-i18n="tools.find-doctor.search">Search</span>
           </button>
         </div>
       </div>
@@ -333,10 +333,10 @@
     <section class="map-section">
       <div class="wrap">
         <div class="map-shell">
-          <div id="map" role="application" aria-label="Map of workers'-comp doctors across the five boroughs of New York City"></div>
+          <div id="map" role="application" aria-label="Map of workers'-comp doctors across the five boroughs of New York City" data-i18n-attr="aria-label:tools.find-doctor.map-of-workers-comp-doctors.label" data-i18n-attr="aria-label:tools.find-doctor.map-of-workers-comp-doctors.label"></div>
           <div class="map-empty" id="map-empty">
-            <h3>Map couldn't load</h3>
-            <p>If you're offline or have an ad-blocker active, the map may be blocked. The list below still works.</p>
+            <h3 data-i18n="tools.find-doctor.map-couldn-t-load" data-i18n="tools.find-doctor.map-couldn-t-load">Map couldn't load</h3>
+            <p data-i18n="tools.find-doctor.if-you-re-offline-or" data-i18n="tools.find-doctor.if-you-re-offline-or">If you're offline or have an ad-blocker active, the map may be blocked. The list below still works.</p>
           </div>
         </div>
       </div>
@@ -345,41 +345,41 @@
     <section class="results" aria-labelledby="results-heading">
       <div class="wrap">
         <div class="results-head">
-          <h2 id="results-heading">Doctors near you</h2>
-          <span class="count" id="results-count" aria-live="polite">Loading directory…</span>
+          <h2 id="results-heading" data-i18n="tools.find-doctor.doctors-near-you" data-i18n="tools.find-doctor.doctors-near-you">Doctors near you</h2>
+          <span class="count" id="results-count" aria-live="polite" data-i18n="tools.find-doctor.loading-directory" data-i18n="tools.find-doctor.loading-directory">Loading directory…</span>
         </div>
         <div class="filter-banner" id="filter-banner">
           <span class="fb-text" id="filter-banner-text"></span>
-          <button class="fb-clear" id="filter-banner-clear" type="button">Show curated picks</button>
+          <button class="fb-clear" id="filter-banner-clear" type="button" data-i18n="tools.find-doctor.show-curated-picks" data-i18n="tools.find-doctor.show-curated-picks">Show curated picks</button>
         </div>
         <div id="doc-grid" class="doc-grid" hidden></div>
         <div id="empty-state" class="empty-state">
-          <h3>Directory is being built</h3>
-          <p>We're seeding the five-borough doctor directory now. In the meantime, the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS Workers' Compensation Board provider search</a> and the <a href="https://npiregistry.cms.hhs.gov/search">NPI Registry</a> let you look up any licensed New York physician.</p>
-          <p style="margin-top:14px;font-size:13px;color:var(--skin-text-muted);">If you're a workers'-comp-experienced provider and want to be listed, <a href="mailto:hello@thecompdesk.com?subject=List%20me%20in%20the%20Find%20a%20Doctor%20directory">email us</a>.</p>
+          <h3 data-i18n="tools.find-doctor.directory-is-being-built" data-i18n="tools.find-doctor.directory-is-being-built">Directory is being built</h3>
+          <p data-i18n="tools.find-doctor.we-re-seeding-the-five" data-i18n="tools.find-doctor.we-re-seeding-the-five">We're seeding the five-borough doctor directory now. In the meantime, the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS Workers' Compensation Board provider search</a> and the <a href="https://npiregistry.cms.hhs.gov/search">NPI Registry</a> let you look up any licensed New York physician.</p>
+          <p style="margin-top:14px;font-size:13px;color:var(--skin-text-muted);" data-i18n="tools.find-doctor.if-you-re-a-workers" data-i18n="tools.find-doctor.if-you-re-a-workers">If you're a workers'-comp-experienced provider and want to be listed, <a href="mailto:hello@thecompdesk.com?subject=List%20me%20in%20the%20Find%20a%20Doctor%20directory">email us</a>.</p>
         </div>
       </div>
     </section>
 
     <section class="info">
       <div class="wrap">
-        <h2>How it works</h2>
-        <p class="section-sub">Three steps, no signup.</p>
+        <h2 data-i18n="shared.how-it-works-2" data-i18n="shared.how-it-works-2">How it works</h2>
+        <p class="section-sub" data-i18n="tools.find-doctor.three-steps-no-signup" data-i18n="tools.find-doctor.three-steps-no-signup">Three steps, no signup.</p>
         <div class="steps-grid">
           <div class="step-card">
             <div class="step-num">1</div>
-            <h3>Locate yourself</h3>
-            <p>Tap "Use my location" to drop a pin where you are. The map zooms in and sorts the list by distance.</p>
+            <h3 data-i18n="tools.find-doctor.locate-yourself" data-i18n="tools.find-doctor.locate-yourself">Locate yourself</h3>
+            <p data-i18n="tools.find-doctor.tap-use-my-location-to" data-i18n="tools.find-doctor.tap-use-my-location-to">Tap "Use my location" to drop a pin where you are. The map zooms in and sorts the list by distance.</p>
           </div>
           <div class="step-card">
             <div class="step-num">2</div>
-            <h3>Filter</h3>
-            <p>Narrow by borough or specialty. The map updates as you filter.</p>
+            <h3 data-i18n="tools.find-doctor.filter" data-i18n="tools.find-doctor.filter">Filter</h3>
+            <p data-i18n="tools.find-doctor.narrow-by-borough-or-specialty" data-i18n="tools.find-doctor.narrow-by-borough-or-specialty">Narrow by borough or specialty. The map updates as you filter.</p>
           </div>
           <div class="step-card">
             <div class="step-num">3</div>
-            <h3>Get directions</h3>
-            <p>Tap "Open in Maps" on any card to launch turn-by-turn navigation in Apple Maps (iOS/Mac) or Google Maps (everyone else).</p>
+            <h3 data-i18n="tools.find-doctor.get-directions" data-i18n="tools.find-doctor.get-directions">Get directions</h3>
+            <p data-i18n="tools.find-doctor.tap-open-in-maps-on" data-i18n="tools.find-doctor.tap-open-in-maps-on">Tap "Open in Maps" on any card to launch turn-by-turn navigation in Apple Maps (iOS/Mac) or Google Maps (everyone else).</p>
           </div>
         </div>
       </div>
@@ -387,53 +387,53 @@
 
     <section class="info">
       <div class="wrap">
-        <h2>Find by injured body part or condition</h2>
-        <p class="section-sub">Tap your injury to pull every WCB-authorized provider for it — the full Workers' Compensation Board list, narrowed to your area. Use "Use my location" or pick a borough first to sort by distance.</p>
+        <h2 data-i18n="tools.find-doctor.find-by-injured-body-part" data-i18n="tools.find-doctor.find-by-injured-body-part">Find by injured body part or condition</h2>
+        <p class="section-sub" data-i18n="tools.find-doctor.tap-your-injury-to-pull" data-i18n="tools.find-doctor.tap-your-injury-to-pull">Tap your injury to pull every WCB-authorized provider for it — the full Workers' Compensation Board list, narrowed to your area. Use "Use my location" or pick a borough first to sort by distance.</p>
         <div class="body-parts-grid" id="body-parts-grid">
-          <button class="body-part-item" type="button" data-bp="Head & Brain"><h4>Head &amp; Brain</h4><p>Neurology, neurosurgery</p></button>
-          <button class="body-part-item" type="button" data-bp="Neck & Spine"><h4>Neck &amp; Spine</h4><p>Orthopedics, neurology</p></button>
-          <button class="body-part-item" type="button" data-bp="Shoulder & Arm"><h4>Shoulder &amp; Arm</h4><p>Orthopedics, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Wrist & Hand"><h4>Wrist &amp; Hand</h4><p>Hand surgery, orthopedics</p></button>
-          <button class="body-part-item" type="button" data-bp="Back & Lumbar"><h4>Back &amp; Lumbar</h4><p>Orthopedics, neurology, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Hip & Pelvis"><h4>Hip &amp; Pelvis</h4><p>Orthopedics, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Knee"><h4>Knee</h4><p>Orthopedics, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Ankle & Foot"><h4>Ankle &amp; Foot</h4><p>Orthopedics, podiatry</p></button>
-          <button class="body-part-item" type="button" data-bp="Lung & Respiratory"><h4>Lung &amp; Respiratory</h4><p>Pulmonology, occupational medicine</p></button>
-          <button class="body-part-item" type="button" data-bp="Pain Management"><h4>Pain Management</h4><p>Pain specialists, PM&amp;R</p></button>
-          <button class="body-part-item" type="button" data-bp="Multiple Injuries"><h4>Multiple Injuries</h4><p>Primary care, occupational medicine</p></button>
-          <button class="body-part-item" type="button" data-bp="Stress / Mental"><h4>Stress / Mental</h4><p>Psychiatry, psychology</p></button>
+          <button class="body-part-item" type="button" data-bp="Head & Brain"><h4 data-i18n="tools.find-doctor.head-brain" data-i18n="tools.find-doctor.head-brain">Head &amp; Brain</h4><p data-i18n="tools.find-doctor.neurology-neurosurgery" data-i18n="tools.find-doctor.neurology-neurosurgery">Neurology, neurosurgery</p></button>
+          <button class="body-part-item" type="button" data-bp="Neck & Spine"><h4 data-i18n="tools.find-doctor.neck-spine" data-i18n="tools.find-doctor.neck-spine">Neck &amp; Spine</h4><p data-i18n="tools.find-doctor.orthopedics-neurology" data-i18n="tools.find-doctor.orthopedics-neurology">Orthopedics, neurology</p></button>
+          <button class="body-part-item" type="button" data-bp="Shoulder & Arm"><h4 data-i18n="tools.find-doctor.shoulder-arm" data-i18n="tools.find-doctor.shoulder-arm">Shoulder &amp; Arm</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Wrist & Hand"><h4 data-i18n="tools.find-doctor.wrist-hand" data-i18n="tools.find-doctor.wrist-hand">Wrist &amp; Hand</h4><p data-i18n="tools.find-doctor.hand-surgery-orthopedics" data-i18n="tools.find-doctor.hand-surgery-orthopedics">Hand surgery, orthopedics</p></button>
+          <button class="body-part-item" type="button" data-bp="Back & Lumbar"><h4 data-i18n="tools.find-doctor.back-lumbar" data-i18n="tools.find-doctor.back-lumbar">Back &amp; Lumbar</h4><p data-i18n="tools.find-doctor.orthopedics-neurology-pt" data-i18n="tools.find-doctor.orthopedics-neurology-pt">Orthopedics, neurology, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Hip & Pelvis"><h4 data-i18n="tools.find-doctor.hip-pelvis" data-i18n="tools.find-doctor.hip-pelvis">Hip &amp; Pelvis</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Knee"><h4 data-i18n="shared.knee" data-i18n="shared.knee">Knee</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Ankle & Foot"><h4 data-i18n="tools.find-doctor.ankle-foot" data-i18n="tools.find-doctor.ankle-foot">Ankle &amp; Foot</h4><p data-i18n="tools.find-doctor.orthopedics-podiatry" data-i18n="tools.find-doctor.orthopedics-podiatry">Orthopedics, podiatry</p></button>
+          <button class="body-part-item" type="button" data-bp="Lung & Respiratory"><h4 data-i18n="tools.find-doctor.lung-respiratory" data-i18n="tools.find-doctor.lung-respiratory">Lung &amp; Respiratory</h4><p data-i18n="tools.find-doctor.pulmonology-occupational-medicine" data-i18n="tools.find-doctor.pulmonology-occupational-medicine">Pulmonology, occupational medicine</p></button>
+          <button class="body-part-item" type="button" data-bp="Pain Management"><h4 data-i18n="tools.find-doctor.pain-management" data-i18n="tools.find-doctor.pain-management">Pain Management</h4><p data-i18n="tools.find-doctor.pain-specialists-pm-r" data-i18n="tools.find-doctor.pain-specialists-pm-r">Pain specialists, PM&amp;R</p></button>
+          <button class="body-part-item" type="button" data-bp="Multiple Injuries"><h4 data-i18n="tools.find-doctor.multiple-injuries" data-i18n="tools.find-doctor.multiple-injuries">Multiple Injuries</h4><p data-i18n="tools.find-doctor.primary-care-occupational-medicine" data-i18n="tools.find-doctor.primary-care-occupational-medicine">Primary care, occupational medicine</p></button>
+          <button class="body-part-item" type="button" data-bp="Stress / Mental"><h4 data-i18n="tools.find-doctor.stress-mental" data-i18n="tools.find-doctor.stress-mental">Stress / Mental</h4><p data-i18n="tools.find-doctor.psychiatry-psychology" data-i18n="tools.find-doctor.psychiatry-psychology">Psychiatry, psychology</p></button>
         </div>
       </div>
     </section>
 
     <section class="info">
       <div class="wrap">
-        <h2>FAQ</h2>
+        <h2 data-i18n="shared.faq" data-i18n="shared.faq">FAQ</h2>
         <div class="faq-container">
           <div class="faq-item">
-            <button class="faq-question" type="button"><span>Does my doctor need to be WCB-authorized?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer">Currently, yes. Apart from limited exceptions like emergency care, a provider who treats an injured worker in New York generally must be authorized by the Workers' Compensation Board. Governor Hochul's 2026 "Universal Authorization" proposal would remove that requirement for any eligible licensed provider in good standing, but it is not yet law — if enacted, it would take effect January 1, 2028.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.does-my-doctor-need-to" data-i18n="tools.find-doctor.does-my-doctor-need-to"><span>Does my doctor need to be WCB-authorized?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.currently-yes-apart-from-limited" data-i18n="tools.find-doctor.currently-yes-apart-from-limited">Currently, yes. Apart from limited exceptions like emergency care, a provider who treats an injured worker in New York generally must be authorized by the Workers' Compensation Board. Governor Hochul's 2026 "Universal Authorization" proposal would remove that requirement for any eligible licensed provider in good standing, but it is not yet law — if enacted, it would take effect January 1, 2028.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button"><span>Can I choose my own doctor?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer">Generally yes. For non-emergency treatment, you have the right to select your own treating physician, who currently must be WCB-authorized. If your employer is part of a Preferred Provider Organization (PPO), you may be required to see a PPO provider for the first 30 days. A WC attorney can confirm what applies in your case.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.can-i-choose-my-own" data-i18n="tools.find-doctor.can-i-choose-my-own"><span>Can I choose my own doctor?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.generally-yes-for-non-emergency" data-i18n="tools.find-doctor.generally-yes-for-non-emergency">Generally yes. For non-emergency treatment, you have the right to select your own treating physician, who currently must be WCB-authorized. If your employer is part of a Preferred Provider Organization (PPO), you may be required to see a PPO provider for the first 30 days. A WC attorney can confirm what applies in your case.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button"><span>Which boroughs does the map cover?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer">All five — Manhattan, Brooklyn, Queens, the Bronx, and Staten Island. Pan and zoom are restricted to this region. Outside NYC? Use the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS WCB provider search</a>.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.which-boroughs-does-the-map" data-i18n="tools.find-doctor.which-boroughs-does-the-map"><span>Which boroughs does the map cover?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.all-five-manhattan-brooklyn-queens" data-i18n="tools.find-doctor.all-five-manhattan-brooklyn-queens">All five — Manhattan, Brooklyn, Queens, the Bronx, and Staten Island. Pan and zoom are restricted to this region. Outside NYC? Use the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS WCB provider search</a>.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button"><span>Is the directory free?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer">Yes — no signup, no paywall, no ads.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.is-the-directory-free" data-i18n="tools.find-doctor.is-the-directory-free"><span>Is the directory free?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.yes-no-signup-no-paywall" data-i18n="tools.find-doctor.yes-no-signup-no-paywall">Yes — no signup, no paywall, no ads.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button"><span>How is "WC-experienced" determined?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer">Listed providers either (a) self-identify as accepting workers'-comp patients and have a history of WC billing under the WCB authorization regime, or (b) have been recommended by attorneys actively practicing WC in New York. We do not accept payment for placement.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.how-is-wc-experienced-determined" data-i18n="tools.find-doctor.how-is-wc-experienced-determined"><span>How is "WC-experienced" determined?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.listed-providers-either-a-self" data-i18n="tools.find-doctor.listed-providers-either-a-self">Listed providers either (a) self-identify as accepting workers'-comp patients and have a history of WC billing under the WCB authorization regime, or (b) have been recommended by attorneys actively practicing WC in New York. We do not accept payment for placement.</div>
           </div>
         </div>
 
         <div class="legal-disclaimer">
-          <p><strong>Disclaimer.</strong> This directory is provided for informational purposes only and does not constitute legal advice, medical advice, or a recommendation of any specific provider. It is not a substitute for consultation with a licensed attorney or physician. Always verify a provider's credentials, insurance acceptance, and current practice status before scheduling treatment. The Comp Desk does not endorse any specific healthcare provider and receives no payment in exchange for placement.</p>
+          <p data-i18n="tools.find-doctor.disclaimer-this-directory-is-provided" data-i18n="tools.find-doctor.disclaimer-this-directory-is-provided"><strong>Disclaimer.</strong> This directory is provided for informational purposes only and does not constitute legal advice, medical advice, or a recommendation of any specific provider. It is not a substitute for consultation with a licensed attorney or physician. Always verify a provider's credentials, insurance acceptance, and current practice status before scheduling treatment. The Comp Desk does not endorse any specific healthcare provider and receives no payment in exchange for placement.</p>
         </div>
       </div>
     </section>
@@ -441,8 +441,8 @@
 
   <footer class="tcd-footer">
     <div class="wrap">
-      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
-      <p>
+      <p data-i18n="shared.2026-njj-document-services-inc" data-i18n="shared.2026-njj-document-services-inc">&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+      <p data-i18n="shared.privacy-contact-disclaimer" data-i18n="shared.privacy-contact-disclaimer">
         <a href="/ru/legal/privacy">Privacy</a>
         <a href="/ru/contact">Contact</a>
         <a href="/ru/disclaimer">Disclaimer</a>

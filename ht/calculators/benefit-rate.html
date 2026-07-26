@@ -10,20 +10,20 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-  <title>NY Workers' Comp Benefit Rate Lookup | The Comp Desk</title>
-  <meta name="description" content="Look up the statutory maximum and minimum weekly workers' comp benefit rates for any NY date of injury. Free instant results from The Comp Desk.">
-  <meta property="og:title" content="NY Workers' Comp Benefit Rate Lookup | The Comp Desk">
-  <meta property="og:description" content="Enter your NY workers' comp date of injury and instantly see the statutory weekly maximum and minimum benefit rates that apply to your case.">
+  <title data-i18n="calculators.benefit-rate.meta.og-title" data-i18n="calculators.benefit-rate.meta.og-title">NY Workers' Comp Benefit Rate Lookup | The Comp Desk</title>
+  <meta name="description" content="Look up the statutory maximum and minimum weekly workers' comp benefit rates for any NY date of injury. Free instant results from The Comp Desk." data-i18n-attr="content:calculators.benefit-rate.meta.description" data-i18n-attr="content:calculators.benefit-rate.meta.description">
+  <meta property="og:title" content="NY Workers' Comp Benefit Rate Lookup | The Comp Desk" data-i18n-attr="content:calculators.benefit-rate.meta.og-title" data-i18n-attr="content:calculators.benefit-rate.meta.og-title">
+  <meta property="og:description" content="Enter your NY workers' comp date of injury and instantly see the statutory weekly maximum and minimum benefit rates that apply to your case." data-i18n-attr="content:calculators.benefit-rate.meta.og-description" data-i18n-attr="content:calculators.benefit-rate.meta.og-description">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Comp Desk">
   <meta property="og:url" content="https://thecompdesk.com/ht/calculators/benefit-rate">
   <meta property="og:image" content="https://thecompdesk.com/images/og-benefit-rate.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="NY Workers' Comp Benefit Rate Lookup">
-  <meta name="twitter:description" content="Look up the statutory max/min weekly benefit rates for any NY workers' comp date of injury.">
+  <meta name="twitter:title" content="NY Workers' Comp Benefit Rate Lookup" data-i18n-attr="content:calculators.benefit-rate.meta.twitter-title" data-i18n-attr="content:calculators.benefit-rate.meta.twitter-title">
+  <meta name="twitter:description" content="Look up the statutory max/min weekly benefit rates for any NY workers' comp date of injury." data-i18n-attr="content:calculators.benefit-rate.meta.twitter-description" data-i18n-attr="content:calculators.benefit-rate.meta.twitter-description">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-benefit-rate.png">
   <!-- JSON-LD: FAQPage -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -57,7 +57,7 @@
   </script>
 
   <link rel="canonical" href="https://thecompdesk.com/ht/calculators/benefit-rate">
-  <script type="application/ld+json">
+  <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
   {
     "@context": "https://schema.org",
     "@type": "HowTo",
@@ -240,19 +240,19 @@
   <div id="app-nav"></div>
 
   <div class="container">
-    <div class="breadcrumb">
+    <div class="breadcrumb" data-i18n="calculators.benefit-rate.home-calculators-benefit-rate-lookup" data-i18n="calculators.benefit-rate.home-calculators-benefit-rate-lookup">
       <a href="/ht/">Home</a> &gt; <a href="/ht/calculators/">Calculators</a> &gt; <span>Benefit Rate Lookup</span>
     </div>
 
-    <h1 class="page-title">NY Workers' Comp Benefit Rate Lookup</h1>
-    <p class="page-subtitle">Enter a date of injury to see the statutory weekly maximum and minimum compensation rates under New York Workers' Compensation Law.</p>
+    <h1 class="page-title" data-i18n="calculators.benefit-rate.meta.twitter-title" data-i18n="calculators.benefit-rate.meta.twitter-title">NY Workers' Comp Benefit Rate Lookup</h1>
+    <p class="page-subtitle" data-i18n="calculators.benefit-rate.enter-a-date-of-injury" data-i18n="calculators.benefit-rate.enter-a-date-of-injury">Enter a date of injury to see the statutory weekly maximum and minimum compensation rates under New York Workers' Compensation Law.</p>
 
     <!-- Input card -->
     <div class="calc-section">
-      <div class="calc-header">Date of Injury</div>
+      <div class="calc-header" data-i18n="shared.date-of-injury" data-i18n="shared.date-of-injury">Date of Injury</div>
       <div class="calc-body">
         <div style="margin-bottom:16px;">
-          <label class="field-label" for="doi-input">Date of Injury (DOI)</label>
+          <label class="field-label" for="doi-input" data-i18n="calculators.benefit-rate.date-of-injury-doi" data-i18n="calculators.benefit-rate.date-of-injury-doi">Date of Injury (DOI)</label>
           <input
             type="date"
             id="doi-input"
@@ -261,12 +261,12 @@
             autocomplete="off"
             aria-describedby="doi-hint"
           >
-          <div id="doi-hint" style="font-size:11px;color:var(--txM);margin-top:4px;">
+          <div id="doi-hint" style="font-size:11px;color:var(--txM);margin-top:4px;" data-i18n="calculators.benefit-rate.enter-the-date-you-were" data-i18n="calculators.benefit-rate.enter-the-date-you-were">
             Enter the date you were injured at work.
           </div>
         </div>
 
-        <button class="btn-primary" id="lookup-btn" type="button" style="width:100%;">
+        <button class="btn-primary" id="lookup-btn" type="button" style="width:100%;" data-i18n="calculators.benefit-rate.look-up-rates" data-i18n="calculators.benefit-rate.look-up-rates">
           Look Up Rates
         </button>
       </div>
@@ -281,12 +281,12 @@
       <!-- Rate cards -->
       <div class="rate-result-grid">
         <div class="rate-card max">
-          <div class="rc-label">Weekly Maximum</div>
+          <div class="rc-label" data-i18n="calculators.benefit-rate.weekly-maximum" data-i18n="calculators.benefit-rate.weekly-maximum">Weekly Maximum</div>
           <div class="rc-value" id="max-rate-val">—</div>
           <div class="rc-period" id="max-rate-period"></div>
         </div>
         <div class="rate-card min">
-          <div class="rc-label">Weekly Minimum</div>
+          <div class="rc-label" data-i18n="calculators.benefit-rate.weekly-minimum" data-i18n="calculators.benefit-rate.weekly-minimum">Weekly Minimum</div>
           <div class="rc-value" id="min-rate-val">—</div>
           <div class="rc-period" id="min-rate-period"></div>
         </div>
@@ -302,24 +302,24 @@
 
       <!-- Comp Buddy explainer -->
       <div class="comp-buddy-block">
-        <img src="/assets/hero/comp-buddy.png" alt="Comp Buddy mascot" width="52" height="52">
+        <img src="/assets/hero/comp-buddy.png" alt="Comp Buddy mascot" width="52" height="52" data-i18n-attr="alt:calculators.benefit-rate.comp-buddy-mascot.alt" data-i18n-attr="alt:calculators.benefit-rate.comp-buddy-mascot.alt">
         <div class="cb-text" id="buddy-explainer"></div>
       </div>
 
       <!-- CTA -->
       <div class="find-atty-cta">
-        <div class="cta-heading">Want to know what your specific case might be worth?</div>
-        <div class="cta-body">Talk to a NY workers' comp attorney. Many offer free consultations and work on contingency — you pay nothing unless you win.</div>
+        <div class="cta-heading" data-i18n="calculators.benefit-rate.want-to-know-what-your" data-i18n="calculators.benefit-rate.want-to-know-what-your">Want to know what your specific case might be worth?</div>
+        <div class="cta-body" data-i18n="calculators.benefit-rate.talk-to-a-ny-workers" data-i18n="calculators.benefit-rate.talk-to-a-ny-workers">Talk to a NY workers' comp attorney. Many offer free consultations and work on contingency — you pay nothing unless you win.</div>
         <a
           id="find-atty-btn"
           href="/ht/connect-with-attorney?utm_source=benefit-rate&amp;utm_medium=tool_cta"
           class="btn-primary"
           style="display:inline-block;text-decoration:none;"
-        >Find a NY Workers' Comp Attorney</a>
+         data-i18n="calculators.benefit-rate.find-a-ny-workers-comp" data-i18n="calculators.benefit-rate.find-a-ny-workers-comp">Find a NY Workers' Comp Attorney</a>
       </div>
 
       <!-- Cross-tool link -->
-      <div style="margin-top:16px;padding:14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;font-size:13px;color:var(--txM);">
+      <div style="margin-top:16px;padding:14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;font-size:13px;color:var(--txM);" data-i18n="calculators.benefit-rate.also-useful-once-you-know" data-i18n="calculators.benefit-rate.also-useful-once-you-know">
         <strong style="color:#fff;">Also useful:</strong>
         Once you know your rate cap, use the <a href="/ht/calculators/aww" style="color:var(--ac);">AWW Calculator</a> to figure out your Average Weekly Wage and your actual weekly comp benefit.
       </div>
@@ -329,19 +329,19 @@
     <!-- FAQ -->
     <div class="calc-section" style="margin-top:16px;">
       <div class="calc-header">
-        <h2 class="calc-header-title">Frequently Asked Questions</h2>
+        <h2 class="calc-header-title" data-i18n="shared.frequently-asked-questions" data-i18n="shared.frequently-asked-questions">Frequently Asked Questions</h2>
       </div>
       <div class="calc-body">
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">What are the maximum and minimum workers' comp rates in New York?</h3>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.benefit-rate.jsonld.what-are-the-maximum-and" data-i18n="calculators.benefit-rate.jsonld.what-are-the-maximum-and">What are the maximum and minimum workers' comp rates in New York?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.benefit-rate.for-injuries-on-or-after" data-i18n="calculators.benefit-rate.for-injuries-on-or-after">
           For injuries on or after July 1, 2026 the maximum weekly rate is $1,281.50 — see the full <a href="/ht/calculators/rates" style="color:var(--ac);">historical maximum rates table</a>. The minimum weekly benefit rose to $275 on January 1, 2024 and $325 on January 1, 2025, and beginning January 1, 2026 it is indexed to one-fifth of the New York State Average Weekly Wage.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">Which rate year applies to my case?</h3>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;">
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.benefit-rate.jsonld.which-rate-year-applies-to" data-i18n="calculators.benefit-rate.jsonld.which-rate-year-applies-to">Which rate year applies to my case?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.benefit-rate.jsonld.the-rate-period-covering-your" data-i18n="calculators.benefit-rate.jsonld.the-rate-period-covering-your">
           The rate period covering your date of injury. The maximum and minimum in effect on the day you were hurt stay with your case for its life, regardless of later annual increases.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;">How do the rate caps affect my weekly check?</h3>
-        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;">
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.benefit-rate.jsonld.how-do-the-rate-caps" data-i18n="calculators.benefit-rate.jsonld.how-do-the-rate-caps">How do the rate caps affect my weekly check?</h3>
+        <p style="color:var(--txD);line-height:1.8;margin-bottom:0;" data-i18n="calculators.benefit-rate.your-weekly-benefit-is-two" data-i18n="calculators.benefit-rate.your-weekly-benefit-is-two">
           Your weekly benefit is two-thirds of your <a href="/ht/calculators/aww" style="color:var(--ac);">average weekly wage</a> multiplied by your degree of disability. If that figure exceeds the maximum for your injury year you receive the maximum; if it falls below the minimum you generally receive the minimum rate.
         </p>
       </div>

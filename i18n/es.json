@@ -1,0 +1,1036 @@
+{
+  "shared": {
+    "radiculopathy": "Radiculopatía",
+    "sign-in": "Iniciar sesión",
+    "find-an-attorney": "Buscar un Abogado",
+    "always-free": "Siempre gratis",
+    "ime-reminders": "Recordatorios de IME",
+    "medical-travel": "Médico y Viajes",
+    "common-questions": "Preguntas frecuentes",
+    "2026-njj-document-services-inc": "&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. Todos los derechos reservados.",
+    "privacy-contact-replay-intro": "<a href=\"/privacy\">Privacidad</a>\n      <a href=\"/contact\">Contacto</a>\n      <a href=\"/?replay=1\">Repetir introducción</a>",
+    "how-it-works": "Cómo Funciona",
+    "frequently-asked-questions": "Preguntas Frecuentes",
+    "queens": "Queens",
+    "knee": "Rodilla",
+    "the-comp-desk-3": "The Comp <span>Desk</span>",
+    "free": "Gratis",
+    "disclaimer": "Aviso Legal",
+    "back-to-the-comp-desk": "← Volver a The Comp Desk",
+    "disclaimer-terms-of-use-privacy": "<a href=\"/disclaimer.html\">Aviso Legal</a> &middot; <a href=\"/terms.html\">Términos de Uso</a> &middot; <a href=\"/privacy.html\">Política de Privacidad</a> &middot; <a href=\"/contact.html\">Contacto</a>",
+    "sign-in-sign-up": "Iniciar Sesión / Registrarse",
+    "rate-lookup": "Consulta de Tasas",
+    "attorneys-calculators-workspace-learn": "<a href=\"/attorneys\">Abogados</a>\n        <a href=\"/calculators\">Calculadoras</a>\n        <a href=\"/workspace-tour\">Espacio de Trabajo</a>\n        <a href=\"/learn\">Aprender</a>",
+    "date-of-injury": "Fecha de la Lesión",
+    "results": "<span class=\"calc-header-title\">Resultados</span>",
+    "full-featured-mobile-app": "App Móvil Completa",
+    "download-the-app": "Descargar la App",
+    "average-weekly-wage-aww": "Salario Semanal Promedio (Average Weekly Wage, AWW)",
+    "prior-payments-already-made": "Pagos Anteriores Ya Realizados",
+    "attorney-fee-net": "Honorarios del Abogado y Neto",
+    "ready-to-file": "¿Listo para presentar?",
+    "generate-fee-app-pro": "Generar Solicitud de Honorarios\n                <span style=\"font-size:9px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:3px;font-weight:700;\">PRO</span>",
+    "jul-1-2025-jun-30": "1 jul 2025 – 30 jun 2026",
+    "jul-1-2024-jun-30": "1 jul 2024 – 30 jun 2025",
+    "jul-1-2023-jun-30": "1 jul 2023 – 30 jun 2024",
+    "jul-1-2022-jun-30": "1 jul 2022 – 30 jun 2023",
+    "jul-1-2021-jun-30": "1 jul 2021 – 30 jun 2022",
+    "jul-1-2020-jun-30": "1 jul 2020 – 30 jun 2021",
+    "jul-1-2019-jun-30": "1 jul 2019 – 30 jun 2020",
+    "jul-1-2018-jun-30": "1 jul 2018 – 30 jun 2019",
+    "jul-1-2017-jun-30": "1 jul 2017 – 30 jun 2018",
+    "jul-1-2016-jun-30": "1 jul 2016 – 30 jun 2017"
+  },
+  "connect-with-attorney": {
+    "company-you-were-working-for": {
+      "placeholder": "Empresa para la que trabajaba"
+    },
+    "body-view": {
+      "label": "Vista del cuerpo"
+    },
+    "head-and-face-open-head": {
+      "label": "Cabeza y rostro — detalle de cabeza abierta"
+    },
+    "neck": {
+      "label": "Cuello"
+    },
+    "chest": {
+      "label": "Pecho"
+    },
+    "abdomen": {
+      "label": "Abdomen"
+    },
+    "pelvis-and-groin": {
+      "label": "Pelvis e ingle"
+    },
+    "left-shoulder": {
+      "label": "Hombro izquierdo"
+    },
+    "left-upper-arm": {
+      "label": "Brazo izquierdo"
+    },
+    "left-elbow": {
+      "label": "Codo izquierdo"
+    },
+    "left-forearm": {
+      "label": "Antebrazo izquierdo"
+    },
+    "left-hand-and-wrist-open": {
+      "label": "Mano y muñeca izquierdas — detalle de mano abierta"
+    },
+    "left-hip": {
+      "label": "Cadera izquierda"
+    },
+    "left-thigh": {
+      "label": "Muslo izquierdo"
+    },
+    "left-knee": {
+      "label": "Rodilla izquierda"
+    },
+    "left-lower-leg": {
+      "label": "Pierna izquierda (parte inferior)"
+    },
+    "left-foot-and-ankle-open": {
+      "label": "Pie y tobillo izquierdos — detalle de pie abierto"
+    },
+    "right-shoulder": {
+      "label": "Hombro derecho"
+    },
+    "right-upper-arm": {
+      "label": "Brazo derecho"
+    },
+    "right-elbow": {
+      "label": "Codo derecho"
+    },
+    "right-forearm": {
+      "label": "Antebrazo derecho"
+    },
+    "right-hand-and-wrist-open": {
+      "label": "Mano y muñeca derechas — detalle de mano abierta"
+    },
+    "right-hip": {
+      "label": "Cadera derecha"
+    },
+    "right-thigh": {
+      "label": "Muslo derecho"
+    },
+    "right-knee": {
+      "label": "Rodilla derecha"
+    },
+    "right-lower-leg": {
+      "label": "Pierna derecha (parte inferior)"
+    },
+    "right-foot-and-ankle-open": {
+      "label": "Pie y tobillo derechos — detalle de pie abierto"
+    },
+    "back-of-head-open-head": {
+      "label": "Parte posterior de la cabeza — detalle de cabeza abierta"
+    },
+    "upper-cervical-back-and-neck": {
+      "label": "Espalda cervical superior y cuello"
+    },
+    "mid-thoracic-back": {
+      "label": "Espalda torácica media"
+    },
+    "lower-lumbar-back": {
+      "label": "Espalda lumbar inferior"
+    },
+    "sacrum-and-tailbone": {
+      "label": "Sacro y cóccix"
+    },
+    "right-hip-and-buttock": {
+      "label": "Cadera y glúteo derechos"
+    },
+    "right-lower-leg-and-calf": {
+      "label": "Pierna y pantorrilla derechas"
+    },
+    "left-hip-and-buttock": {
+      "label": "Cadera y glúteo izquierdos"
+    },
+    "left-lower-leg-and-calf": {
+      "label": "Pierna y pantorrilla izquierdas"
+    },
+    "body-area-detail": {
+      "label": "Detalle de la zona del cuerpo"
+    },
+    "head-skull-and-brain": {
+      "label": "Cabeza, cráneo y cerebro"
+    },
+    "face-scarring-or-disfigurement": {
+      "label": "Rostro, cicatrices o desfiguración"
+    },
+    "left-eye": {
+      "label": "Ojo izquierdo"
+    },
+    "right-eye": {
+      "label": "Ojo derecho"
+    },
+    "left-ear-hearing": {
+      "label": "Oído izquierdo, audición"
+    },
+    "right-ear-hearing": {
+      "label": "Oído derecho, audición"
+    },
+    "left-wrist-and-hand": {
+      "label": "Muñeca y mano izquierdas"
+    },
+    "left-thumb": {
+      "label": "Pulgar izquierdo"
+    },
+    "left-index-finger": {
+      "label": "Dedo índice izquierdo"
+    },
+    "left-middle-finger": {
+      "label": "Dedo medio izquierdo"
+    },
+    "left-ring-finger": {
+      "label": "Dedo anular izquierdo"
+    },
+    "left-little-finger": {
+      "label": "Dedo meñique izquierdo"
+    },
+    "right-wrist-and-hand": {
+      "label": "Muñeca y mano derechas"
+    },
+    "right-thumb": {
+      "label": "Pulgar derecho"
+    },
+    "right-index-finger": {
+      "label": "Dedo índice derecho"
+    },
+    "right-middle-finger": {
+      "label": "Dedo medio derecho"
+    },
+    "right-ring-finger": {
+      "label": "Dedo anular derecho"
+    },
+    "right-little-finger": {
+      "label": "Dedo meñique derecho"
+    },
+    "left-ankle-and-foot": {
+      "label": "Tobillo y pie izquierdos"
+    },
+    "left-great-toe": {
+      "label": "Dedo gordo del pie izquierdo"
+    },
+    "left-second-toe": {
+      "label": "Segundo dedo del pie izquierdo"
+    },
+    "left-third-toe": {
+      "label": "Tercer dedo del pie izquierdo"
+    },
+    "left-fourth-toe": {
+      "label": "Cuarto dedo del pie izquierdo"
+    },
+    "left-fifth-toe": {
+      "label": "Quinto dedo del pie izquierdo"
+    },
+    "right-ankle-and-foot": {
+      "label": "Tobillo y pie derechos"
+    },
+    "right-great-toe": {
+      "label": "Dedo gordo del pie derecho"
+    },
+    "right-second-toe": {
+      "label": "Segundo dedo del pie derecho"
+    },
+    "right-third-toe": {
+      "label": "Tercer dedo del pie derecho"
+    },
+    "right-fourth-toe": {
+      "label": "Cuarto dedo del pie derecho"
+    },
+    "right-fifth-toe": {
+      "label": "Quinto dedo del pie derecho"
+    },
+    "selected-body-parts": {
+      "label": "Partes del cuerpo seleccionadas"
+    },
+    "e-g-rodilla-paule-plecy": {
+      "placeholder": "p. ej., rodilla, épaule, plecy, ribs"
+    },
+    "first-name": {
+      "placeholder": "Nombre",
+      "text": "Nombre <span class=\"req\">*</span>"
+    },
+    "last-name": {
+      "placeholder": "Apellido",
+      "text": "Apellido <span class=\"req\">*</span>"
+    },
+    "jsonld": {
+      "no-the-comp-desk-does": "No. The Comp Desk no avala, recomienda ni certifica a ningún abogado. La asignación de abogados es mecánica y no constituye una recomendación ni un aval. Usted es responsable de evaluar a los abogados y elegir uno que se ajuste a sus necesidades.",
+      "how-are-attorneys-assigned-to": "¿Cómo se asignan los abogados a mi caso?",
+      "attorneys-are-assigned-through-neutral": "Los abogados se asignan mediante una rotación neutral por turnos según su condado. No hay subastas, clasificaciones ni prioridad pagada. La asignación es puramente mecánica.",
+      "why-is-the-owner-s": "¿Por qué se excluye el bufete del propietario (Shulman & Hill)?",
+      "to-avoid-conflict-of-interest": "Para evitar un conflicto de intereses. Joel Mays, el creador de The Comp Desk, es abogado en Shulman & Hill. Para garantizar una práctica de derivación neutral e imparcial, el bufete queda excluido de forma permanente, algo que se aplica mediante pruebas automatizadas en el código.",
+      "how-much-does-it-cost": "¿Cuánto cuesta para los abogados participar?",
+      "attorneys-purchase-lead-credits-a": "Los abogados compran créditos de contacto. Un solo crédito de contacto cuesta $99. Hay paquetes por volumen disponibles: 3 créditos por $249, 5 créditos por $449 o 10 créditos por $799. Se usa un crédito por cada contacto aceptado. Los trabajadores lesionados usan el servicio completamente gratis.",
+      "can-i-request-removal-from": "¿Puedo solicitar que me quiten de la red?",
+      "yes-any-attorney-can-request": "Sí. Cualquier abogado puede solicitar su baja comunicándose con The Comp Desk. La baja se procesa dentro de un día hábil. Los créditos no usados son reembolsables.",
+      "what-if-i-accept-a": "¿Qué pasa si acepto un contacto pero no puedo comunicarme con el trabajador?",
+      "if-you-document-3-contact": "Si documenta 3 intentos de contacto en 5 días hábiles y el trabajador sigue sin responder, recibe un reembolso completo del crédito."
+    },
+    "worker-attorneys-calculators-learn": "<a href=\"/worker\">Trabajador</a>\n        <a href=\"/attorneys\">Abogados</a>\n        <a href=\"/calculators\">Calculadoras</a>\n        <a href=\"/learn\">Aprender</a>",
+    "free-for-injured-workers": "Gratis para Trabajadores Lesionados",
+    "connect-with-the-right-attorney": "Conéctese con el <span>Abogado</span> Correcto. Sin Juegos.",
+    "a-transparent-neutral-attorney-connection": "Un servicio de conexión de abogados transparente y neutral para la compensación de trabajadores de New York. Los abogados se asignan por rotación neutral. Sin colocación pagada. Sin comisiones por referencia. Sin recomendaciones. Solo representación real.",
+    "get-connected-free": "Conéctese — Gratis",
+    "how-it-works-for-injured": "Cómo Funciona para Trabajadores Lesionados",
+    "three-simple-steps-to-connect": "Tres pasos sencillos para conectarse con un abogado con licencia.",
+    "tell-us-about-your-case": "Cuéntenos Sobre Su Caso",
+    "submit-your-county-injury-type": "Envíe su condado, tipo de lesión y etapa del caso. No necesita cuenta. Su información se mantiene privada y solo se comparte con un abogado participante a la vez.",
+    "we-connect-you": "Lo Conectamos",
+    "your-information-is-sent-to": "Su información se envía a un abogado participante en su área mediante una asignación neutral y automática. No se recomienda ni respalda a ningún abogado.",
+    "the-attorney-contacts-you": "El Abogado Se Comunica con Usted",
+    "a-licensed-nys-workers-compensation": "Un abogado con licencia en compensación de trabajadores de NYS se comunicará con usted dentro de 48 horas. Si no lo hace, lo conectamos automáticamente con otro abogado.",
+    "start-your-case-it-s": "Inicie Su Caso — Es Gratis",
+    "no-account-needed-takes-about": "No necesita cuenta. Toma unos 2 minutos.",
+    "our-transparency-promise": "Nuestra Promesa de Transparencia",
+    "six-core-principles-that-make": "Seis principios básicos que hacen diferente a este servicio.",
+    "no-paid-placement": "Sin Colocación Pagada",
+    "attorneys-cannot-pay-for-priority": "Los abogados no pueden pagar por prioridad. La asignación es por rotación neutral, no por ofertas ni clasificaciones.",
+    "flat-lead-fee-only": "Solo Tarifa Fija por Contacto",
+    "attorneys-pay-a-flat-per": "Los abogados pagan una tarifa fija por cada contacto. Sin comisiones por referencia, sin porcentaje de su caso, sin sobornos.",
+    "random-order-every-time": "Orden Aleatorio Cada Vez",
+    "every-visitor-sees-a-different": "Cada visitante ve un orden diferente. Usamos el algoritmo Fisher-Yates, reiniciado en cada carga de página. No hay un «primer lugar» que comprar.",
+    "no-endorsements": "Sin Recomendaciones",
+    "listing-is-purely-informational-the": "El listado es puramente informativo. The Comp Desk no recomienda, certifica ni respalda a ningún abogado. Usted decide.",
+    "no-tracking": "Sin Seguimiento",
+    "we-don-t-monitor-which": "No monitoreamos en qué abogado hace clic o a quién llama. Su elección se mantiene privada entre usted y el abogado.",
+    "owner-excluded": "Propietario Excluido",
+    "joel-mays-firm-shulman-hill": "El bufete de Joel Mays (Shulman & Hill) está excluido permanentemente de la red. Joel Mays es abogado en Shulman & Hill, no propietario ni socio. Sin conflicto de interés. Aplicado por código.",
+    "join-the-network-pay-only": "Únase a la Red — Pague Solo por los Contactos que Acepte",
+    "purchase-lead-credits-when-an": "Compre créditos de contacto. Cuando un trabajador lesionado en su condado envía un caso, usted recibe una notificación. Revise los detalles del caso (condado, tipo de lesión, etapa del caso) y acepte el contacto para recibir su información de contacto. Un crédito por cada contacto aceptado. Si no responde dentro de 48 horas, el contacto pasa automáticamente al siguiente abogado.",
+    "how-it-works-1-purchase": "<strong style=\"color:var(--wh);\">Cómo Funciona:</strong><br>\n          1. Compre un paquete de créditos a continuación.<br>\n          2. Cuando llega un contacto en su condado, se le notifica con los detalles del caso.<br>\n          3. Acepte el contacto — se deduce un crédito y recibe la información de contacto del trabajador.<br>\n          4. Si rechaza o no responde dentro de 48 horas — el contacto pasa al siguiente abogado. No se usa ningún crédito.",
+    "single-lead": "Contacto Individual",
+    "1-credit": "1 crédito",
+    "99-lead": "$99 / contacto",
+    "most-popular": "Más Popular",
+    "starter": "Inicial",
+    "3-credits": "3 créditos",
+    "83-lead": "$83 / contacto",
+    "standard": "Estándar",
+    "5-credits": "5 créditos",
+    "89-80-lead": "$89.80 / contacto",
+    "volume": "Volumen",
+    "10-credits": "10 créditos",
+    "79-90-lead": "$79.90 / contacto",
+    "no-monthly-fees-no-setup": "Sin cuotas mensuales. Sin costos de instalación. Sin porcentajes de referido. Solo paga por los contactos que decida aceptar.",
+    "join-our-attorney-referral-network": "Únase a Nuestra Red de Referidos de Abogados",
+    "common-questions-about-how-the": "Preguntas frecuentes sobre cómo funciona la red.",
+    "no-the-comp-desk-does": "No. The Comp Desk no respalda, recomienda ni certifica a ningún abogado de la red. La asignación de abogados es automática y se basa en una rotación neutral por turnos. Usted es responsable de evaluar a los abogados y elegir uno que se ajuste a sus necesidades.",
+    "attorneys-are-assigned-through-neutral": "Los abogados se asignan mediante una rotación neutral por turnos según su condado. No hay ofertas, ni clasificaciones, ni prioridad pagada. Cuando envía la información de su caso, el siguiente abogado participante en el turno de su condado recibe una notificación. Si no responde en 48 horas, el contacto pasa automáticamente al siguiente abogado.",
+    "to-avoid-conflict-of-interest": "Para evitar un conflicto de interés. Joel Mays, el creador de The Comp Desk, es abogado en Shulman & Hill. Para garantizar que este servicio siga siendo neutral e imparcial, el bufete está excluido permanentemente, algo que se verifica mediante pruebas automatizadas en el código. The Comp Desk es una herramienta de conexión, no un medio de mercadeo para el bufete del propietario.",
+    "attorneys-purchase-lead-credits-a": "Los abogados compran créditos de contacto. Un solo crédito cuesta $99. Hay paquetes de volumen disponibles: 3 créditos por $249 (Inicial), 5 créditos por $449 (Estándar), o 10 créditos por $799 (Volumen). Se usa un crédito por cada contacto aceptado. No hay cuotas mensuales, ni costos de instalación, ni porcentajes de referido. Los trabajadores lesionados usan el servicio completamente gratis.",
+    "if-you-document-3-contact": "Si documenta 3 intentos de contacto durante 5 días hábiles y el trabajador sigue sin poder ser localizado, recibe un reembolso completo del crédito. Comuníquese con joel@thecompdesk.com con su registro de intentos para solicitar el reembolso.",
+    "yes-any-attorney-can-request": "Sí. Cualquier abogado puede solicitar su eliminación de la red comunicándose con The Comp Desk a joel@thecompdesk.com. La eliminación se procesa dentro de un día hábil. Los créditos no usados son reembolsables. Sin hacer preguntas.",
+    "injured-at-work": "¿Se Lesionó en el Trabajo?",
+    "submit-your-case-details-and": "Envíe los detalles de su caso y lo conectaremos con un abogado de compensación laboral con licencia en NYS. Es gratis, simple y transparente.",
+    "the-comp-desk-is-a": "The Comp Desk es solo un servicio de directorio. No se crea ninguna relación abogado-cliente al usar este servicio. La asignación de abogados es automática y no constituye una recomendación ni un respaldo de The Comp Desk. Consulte directamente con un abogado sobre sus necesidades legales específicas.",
+    "privacy-contact-join-attorney-network": "<a href=\"/privacy\">Privacidad</a>\n        <a href=\"/contact\">Contacto</a>\n        <a href=\"javascript:void(0)\" onclick=\"openAttorneyApplication()\">Únase a la red de abogados</a>",
+    "we-ll-match-you-with": "Le conectaremos con un abogado en su área.",
+    "county": "Condado <span class=\"req\">*</span>",
+    "select-your-county": "Seleccione su condado...",
+    "albany": "Albany",
+    "allegany": "Allegany",
+    "bronx": "Bronx",
+    "broome": "Broome",
+    "cattaraugus": "Cattaraugus",
+    "cayuga": "Cayuga",
+    "chautauqua": "Chautauqua",
+    "chemung": "Chemung",
+    "chenango": "Chenango",
+    "clinton": "Clinton",
+    "columbia": "Columbia",
+    "cortland": "Cortland",
+    "delaware": "Delaware",
+    "dutchess": "Dutchess",
+    "erie": "Erie",
+    "essex": "Essex",
+    "franklin": "Franklin",
+    "fulton": "Fulton",
+    "genesee": "Genesee",
+    "greene": "Greene",
+    "hamilton": "Hamilton",
+    "herkimer": "Herkimer",
+    "jefferson": "Jefferson",
+    "kings-brooklyn": "Kings (Brooklyn)",
+    "lewis": "Lewis",
+    "livingston": "Livingston",
+    "madison": "Madison",
+    "monroe": "Monroe",
+    "montgomery": "Montgomery",
+    "nassau": "Nassau",
+    "new-york-manhattan": "New York (Manhattan)",
+    "niagara": "Niagara",
+    "oneida": "Oneida",
+    "onondaga": "Onondaga",
+    "ontario": "Ontario",
+    "orange": "Orange",
+    "orleans": "Orleans",
+    "oswego": "Oswego",
+    "otsego": "Otsego",
+    "putnam": "Putnam",
+    "rensselaer": "Rensselaer",
+    "richmond-staten-island": "Richmond (Staten Island)",
+    "rockland": "Rockland",
+    "saratoga": "Saratoga",
+    "schenectady": "Schenectady",
+    "schoharie": "Schoharie",
+    "schuyler": "Schuyler",
+    "seneca": "Seneca",
+    "st-lawrence": "St. Lawrence",
+    "steuben": "Steuben",
+    "suffolk": "Suffolk",
+    "sullivan": "Sullivan",
+    "tioga": "Tioga",
+    "tompkins": "Tompkins",
+    "ulster": "Ulster",
+    "warren": "Warren",
+    "washington": "Washington",
+    "wayne": "Wayne",
+    "westchester": "Westchester",
+    "wyoming": "Wyoming",
+    "yates": "Yates",
+    "injury-type": "Tipo de lesión <span class=\"req\">*</span>",
+    "select-injury-type": "Seleccione el tipo de lesión...",
+    "back-spine": "Espalda / Columna",
+    "neck-cervical": "Cuello / Cervical",
+    "shoulder": "Hombro",
+    "hip": "Cadera",
+    "ankle-foot": "Tobillo / Pie",
+    "wrist-hand": "Muñeca / Mano",
+    "head-brain-tbi": "Cabeza / Cerebro (TBI)",
+    "repetitive-stress-carpal-tunnel": "Estrés repetitivo / Túnel carpiano",
+    "occupational-disease": "Enfermedad ocupacional",
+    "multiple-body-parts": "Varias partes del cuerpo",
+    "other": "Otro",
+    "case-stage": "Etapa del caso <span class=\"req\">*</span>",
+    "where-are-you-in-the": "¿En qué etapa del proceso está?",
+    "new-injury-haven-t-filed": "Lesión nueva — Aún no ha presentado un reclamo",
+    "claim-filed-waiting-for-hearing": "Reclamo presentado — Esperando audiencia",
+    "open-case-looking-to-switch": "Caso abierto — Busca cambiar de abogado",
+    "my-claim-was-denied": "Mi reclamo fue denegado",
+    "previously-settled-want-to-reopen": "Ya se resolvió — Quiere reabrirlo",
+    "not-sure-other": "No está seguro / Otro",
+    "date-of-injury": "Fecha de la lesión <span class=\"req\">*</span>",
+    "approximate-date-is-fine": "Una fecha aproximada está bien.",
+    "continue": "Continuar",
+    "a-few-more-details": "Unos detalles más",
+    "help-the-attorney-understand-your": "Ayude al abogado a entender su situación.",
+    "employer-name": "Nombre del empleador <span class=\"req\">*</span>",
+    "what-happened": "¿Qué pasó? <span class=\"req\">*</span>",
+    "a-word-or-two-is": "Una o dos palabras están bien. Más detalles ayudan al abogado a prepararse.",
+    "body-parts-injured": "Partes del cuerpo lesionadas <span class=\"req\">*</span>",
+    "front": "Frente",
+    "back": "Espalda",
+    "detail": "Detalle",
+    "done": "Listo",
+    "left-dorsal": "IZQUIERDA · dorsal",
+    "right-dorsal": "DERECHA · dorsal",
+    "left": "IZQUIERDA",
+    "right": "DERECHA",
+    "tap-each-injured-area-tap": "Toque cada área lesionada. Toque la cabeza, una mano o un pie para abrir una vista más cercana; las selecciones de todas las vistas se combinan.",
+    "no-body-parts-selected-yet": "<span class=\"body-dx-empty\" id=\"bodyDxEmpty\">Aún no se ha seleccionado ninguna parte del cuerpo</span>",
+    "other-body-part-any-language": "Otra parte del cuerpo (en cualquier idioma)",
+    "optional-type-any-body-part": "Opcional. Escriba cualquier parte del cuerpo que no aparezca en el diagrama, en cualquier idioma.",
+    "how-should-we-reach-you": "¿Cómo debemos contactarlo?",
+    "an-attorney-will-contact-you": "Un abogado se pondrá en contacto con usted dentro de 48 horas.",
+    "phone": "Teléfono <span class=\"req\">*</span>",
+    "email": "Correo electrónico <span class=\"req\">*</span>",
+    "best-way-to-reach-you": "Mejor manera de contactarlo",
+    "phone-or-email-either-is": "Teléfono o correo electrónico — cualquiera está bien",
+    "phone-call-preferred": "Prefiero llamada telefónica",
+    "email-preferred": "Prefiero correo electrónico",
+    "i-agree-to-be-contacted": "Acepto que un abogado participante se comunique conmigo por teléfono, mensaje de texto o correo electrónico sobre mi caso de compensación laboral. Entiendo que este es un servicio gratuito y que no estoy obligado a contratar a ningún abogado. <span class=\"req\">*</span>",
+    "i-understand-that-the-comp": "Entiendo que The Comp Desk no respalda ni recomienda a ningún abogado. La asignación es mecánica y neutral. No se crea ninguna relación abogado-cliente hasta que yo decida contratar a un abogado. <span class=\"req\">*</span>",
+    "submit-my-case": "Enviar mi caso",
+    "your-information-is-encrypted-and": "Su información está encriptada y solo se comparte con un abogado a la vez.",
+    "thanks": "Gracias",
+    "a-new-york-workers-compensation": "Un abogado de compensación laboral de Nueva York se pondrá en contacto con usted dentro de <strong style=\"color:var(--wh);\">48 horas</strong>.",
+    "if-they-don-t-reach": "Si no se comunican a tiempo, lo conectaremos automáticamente con el siguiente abogado disponible en su área.",
+    "need-to-reach-us": "¿Necesita contactarnos?",
+    "contact-thecompdesk-com": "contact@thecompdesk.com",
+    "the-comp-desk-is-a-2": "The Comp Desk es una plataforma de software, no un bufete de abogados. Contactarnos no crea una relación abogado-cliente con ningún abogado."
+  },
+  "contact": {
+    "meta": {
+      "description": "Comuníquese con The Comp Desk por teléfono, mensaje de texto o correo electrónico. Respondemos preguntas de trabajadores lesionados de Nueva York, abogados y socios. The Comp Desk es una plataforma de software, no un bufete de abogados.",
+      "og-title": "Contactar a The Comp Desk",
+      "og-description": "¿Preguntas? Llámenos, envíenos un mensaje de texto o un correo electrónico. (929) 797-4797 · contact@thecompdesk.com",
+      "twitter-description": "¿Preguntas? Llámenos, envíenos un mensaje de texto o un correo electrónico.",
+      "title": "Contactar a The Comp Desk — Llámenos, envíenos un mensaje de texto o un correo electrónico"
+    },
+    "worker-attorneys-calculators-learn": "<a href=\"/worker\">Trabajador</a>\n      <a href=\"/attorneys\">Abogados</a>\n      <a href=\"/calculators\">Calculadoras</a>\n      <a href=\"/learn\">Aprender</a>",
+    "we-re-here-to-help": "Estamos aquí para ayudar",
+    "whether-you-re-an-injured": "Ya sea que sea un trabajador lesionado, un abogado o un socio, contáctenos directamente a través de cualquiera de los canales a continuación. Respondemos rápido.",
+    "phone": "Teléfono",
+    "call-us-directly": "Llámenos directamente",
+    "text": "Mensaje de texto",
+    "same-number-text-anytime": "Mismo número — envíe un mensaje de texto en cualquier momento",
+    "email": "Correo electrónico",
+    "contact-thecompdesk-com": "<a href=\"mailto:contact@thecompdesk.com\">contact@thecompdesk.com</a>",
+    "we-reply-within-1-business": "Respondemos en 1 día hábil",
+    "hours": "Horario",
+    "monday-friday-9-00-am": "Lunes – viernes · 9:00 a. m. – 6:00 p. m. ET",
+    "texts-and-emails-received-outside": "Los mensajes de texto y correos recibidos fuera del horario laboral se responden el siguiente día hábil. Respondemos en inglés y español.",
+    "what-we-can-help-with": "En qué podemos ayudarle",
+    "account-billing-or-login-issues": "Problemas de cuenta, facturación o acceso a la aplicación The Comp Desk",
+    "questions-about-comp-buddy-workers": "Preguntas sobre Comp Buddy (trabajadores) o herramientas para abogados",
+    "pro-or-firm-tier-inquiries": "Consultas sobre los planes Pro o Firm",
+    "press-partnerships-and-bug-reports": "Prensa, alianzas e informes de errores",
+    "help-connecting-with-an-experienced": "Ayuda para conectarse con un abogado experimentado en compensación laboral",
+    "important-the-comp-desk-is": "<strong>Importante —</strong> The Comp Desk es una plataforma de software, no un bufete de abogados. Contactarnos no crea una relación de abogado-cliente con ningún abogado.",
+    "privacy-terms-replay-intro": "<a href=\"/privacy\">Privacidad</a>\n      <a href=\"/legal/terms.html\">Términos</a>\n      <a href=\"/?replay=1\">Repetir introducción</a>"
+  },
+  "pricing": {
+    "meta": {
+      "description": "Calculadoras gratuitas para todo trabajador. Herramientas Pro para quienes necesitan más.",
+      "og-title": "Precios — The Comp Desk"
+    },
+    "calculators-learn-pricing-get-started": "<a href=\"/calculators/aww\" class=\"nav-link\">Calculadoras</a>\n    <a href=\"/learn\" class=\"nav-link\">Aprender</a>\n    <a href=\"/pricing\" class=\"nav-link\" style=\"color:var(--ac);\">Precios</a>\n    <a href=\"/auth_v2.html?mode=signup\" class=\"nav-btn\">Comenzar gratis</a>",
+    "simple-honest-pricing": "Precios simples y honestos",
+    "free-for-every-worker-pro": "Gratis para todo trabajador.<br><span>Pro</span> para quienes necesitan más.",
+    "all-calculators-are-always-free": "Todas las calculadoras son siempre gratuitas. Pro desbloquea herramientas más avanzadas cuando su caso lo requiere.",
+    "pro-is-coming-soon-sign": "<strong>Pro llegará pronto.</strong> Regístrese gratis hoy — será de los primeros cuando se lance Pro.",
+    "free-forever": "Gratis para siempre",
+    "0-mo": "<sup>$</sup>0<span class=\"per\">/mes</span>",
+    "everything-you-need-to-understand": "Todo lo que necesita para entender sus beneficios de compensación laboral — sin tarjeta de crédito, nunca.",
+    "get-started-free": "Comenzar gratis",
+    "what-s-included": "Qué incluye",
+    "aww-calculator-average-weekly-wage": "<span class=\"icon\">✓</span><span><strong>Calculadora de AWW</strong><span class=\"note\">salario semanal promedio (Average Weekly Wage, AWW) + enlaces para compartir</span></span>",
+    "benefit-rate-calculator": "<span class=\"icon\">✓</span><span><strong>Calculadora de tasa de beneficios</strong></span>",
+    "slu-calculator-schedule-loss-of": "<span class=\"icon\">✓</span><span><strong>Calculadora de SLU</strong><span class=\"note\">pérdida programada de uso (Schedule Loss of Use, SLU)</span></span>",
+    "12-learn-articles-process-rights": "<span class=\"icon\">✓</span><span><strong>12 artículos de Aprender</strong><span class=\"note\">Proceso, derechos, errores comunes</span></span>",
+    "find-attorney-directory": "<span class=\"icon\">✓</span><span><strong>Directorio de Buscar abogado</strong></span>",
+    "save-calculations-unlimited-case-history": "<span class=\"icon\">✓</span><span><strong>Guardar cálculos</strong><span class=\"note\">Historial de casos ilimitado</span></span>",
+    "most-popular": "Más popular",
+    "for-serious-cases": "Para casos complejos",
+    "pro": "Pro",
+    "19-mo": "<sup>$</sup>19<span class=\"per\">/mes</span>",
+    "everything-in-free-plus-the": "Todo lo del plan Gratis, más el conjunto completo de herramientas para casos complejos y representación continua.",
+    "start-14-day-free-trial": "Iniciar prueba gratis de 14 días",
+    "everything-in-free-plus": "Todo lo del plan Gratis, más",
+    "comp-buddy-chat-unlimited-ai": "<span class=\"icon\">⚡</span><span><strong>Chat de Comp Buddy — ilimitado</strong><span class=\"note\">Orientación sobre compensación laboral con IA, sin límites</span></span>",
+    "document-vault-secure-storage-for": "<span class=\"icon\">🗂</span><span><strong>Bóveda de documentos</strong><span class=\"note\">Almacenamiento seguro para expedientes médicos y formularios</span></span>",
+    "claim-timeline-visual-tracker-for": "<span class=\"icon\">📅</span><span><strong>Cronología del caso</strong><span class=\"note\">Seguimiento visual de los hitos de su caso</span></span>",
+    "priority-support-response-within-1": "<span class=\"icon\">🎯</span><span><strong>Soporte prioritario</strong><span class=\"note\">Respuesta dentro de 1 día hábil</span></span>",
+    "is-the-free-plan-really": "¿El plan gratuito es realmente gratis para siempre?\n      <span class=\"chevron\">▾</span>",
+    "yes-the-calculators-learn-articles": "Sí. Las calculadoras, los artículos de Learn y el directorio Find Attorney siempre serán gratuitos. No ponemos límites de tiempo a las cuentas gratuitas.",
+    "what-happens-after-the-14": "¿Qué pasa después de la prueba de 14 días?\n      <span class=\"chevron\">▾</span>",
+    "your-card-isn-t-charged": "No se le cobra a su tarjeta hasta que termine la prueba. Si cancela antes, no se le facturará. Después de la prueba, Pro se renueva a $19/mes hasta que se cancele.",
+    "can-i-cancel-anytime": "¿Puedo cancelar en cualquier momento?\n      <span class=\"chevron\">▾</span>",
+    "yes-cancel-any-time-from": "Sí, cancele en cualquier momento desde la página de su cuenta. Mantendrá el acceso a Pro hasta el final del período de facturación, y luego volverá a Free.",
+    "do-i-need-a-credit": "¿Necesito una tarjeta de crédito para registrarme?\n      <span class=\"chevron\">▾</span>",
+    "no-card-required-for-the": "No se requiere tarjeta para el plan Free. Solo necesita una tarjeta cuando inicia la prueba de Pro.",
+    "who-is-the-comp-desk": "¿Para quién es The Comp Desk?\n      <span class=\"chevron\">▾</span>",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "not-legal-advice-all-calculations": "No es asesoría legal. Todos los cálculos son solo estimaciones."
+  },
+  "confirmed": {
+    "meta": {
+      "description": "Su correo electrónico está confirmado. Vuelva a la aplicación de The Comp Desk e inicie sesión, o inicie sesión en la web.",
+      "og-title": "Correo confirmado — The Comp Desk",
+      "og-description": "Su correo electrónico está confirmado. Vuelva a la aplicación de The Comp Desk e inicie sesión."
+    },
+    "your-email-is-confirmed": "Su correo electrónico está confirmado 🎉",
+    "thanks-for-joining-the-comp": "Gracias por unirse a The Comp Desk. Su cuenta está verificada y lista;\n             ahora puede volver a la aplicación e iniciar sesión.",
+    "open-the-comp-desk-app": "<!-- Universal/app link: capacitor.config.json registers the app for the\n                 thecompdesk.com appLinks domain, so on a device with the app installed\n                 this opens the native app; otherwise it falls back to the web sign-in. -->\n            <a class=\"btn btn-primary\" href=\"https://thecompdesk.com/auth\">Abrir la aplicación The Comp Desk</a>\n            <a class=\"btn btn-ghost\" href=\"/auth_v2.html\">Iniciar sesión en la web</a>",
+    "on-your-phone-just-reopen": "¿Está en su teléfono? Simplemente vuelva a abrir la aplicación The Comp Desk e inicie sesión con el correo electrónico y la contraseña que creó.",
+    "this-link-has-expired": "Este enlace ha vencido",
+    "confirmation-links-are-only-good": "Los enlaces de confirmación solo son válidos por poco tiempo. Ingrese su correo electrónico y le enviaremos uno nuevo.",
+    "send-a-new-confirmation-email": "Enviar un nuevo correo de confirmación",
+    "back-to-sign-in": "Volver a iniciar sesión"
+  },
+  "delete-account": {
+    "enter-your-account-email": {
+      "placeholder": "Ingrese el correo electrónico de su cuenta"
+    },
+    "delete": {
+      "placeholder": "DELETE"
+    },
+    "meta": {
+      "title": "Eliminar cuenta - The Comp Desk"
+    },
+    "home": "<a href=\"/\">Inicio</a>",
+    "features": "<a href=\"/#features\">Funciones</a>",
+    "pricing": "<a href=\"/#pricing\">Precios</a>",
+    "delete-your-account": "Eliminar su cuenta",
+    "this-action-is-permanent-and": "Esta acción es permanente y no se puede deshacer. Todos sus datos se eliminarán de forma permanente de The Comp Desk.",
+    "what-will-be-deleted": "Qué se eliminará:",
+    "your-profile-and-account-information": "Su perfil e información de la cuenta",
+    "all-saved-calculations-and-case": "Todos los cálculos guardados y los datos del caso",
+    "your-subscription-if-active-it": "Su suscripción (si está activa, se cancelará)",
+    "digital-signature-and-attorney-profile": "Firma digital y datos del perfil de abogado",
+    "confirm-your-email-address": "Confirme su dirección de correo electrónico",
+    "type-delete-to-confirm": "Escriba \"DELETE\" para confirmar",
+    "cancel": "Cancelar",
+    "delete-account": "Eliminar cuenta",
+    "need-help-instead-contact-us": "¿Necesita ayuda? Contáctenos en <a href=\"mailto:contact@thecompdesk.com\">contact@thecompdesk.com</a>",
+    "account-deleted": "Cuenta eliminada",
+    "your-account-and-all-associated": "Su cuenta y todos los datos asociados se eliminaron de forma permanente. Si tenía una suscripción activa, se canceló y no se realizarán más cargos.",
+    "return-home": "Volver al inicio"
+  },
+  "share-your-story": {
+    "meta": {
+      "description": "Comparta su historia de compensación laboral con The Comp Desk. Prioridad en la privacidad, solo con su consentimiento.",
+      "title": "Comparta su historia - The Comp Desk"
+    },
+    "e-g-back-injury-repetitive": {
+      "placeholder": "Por ejemplo, lesión de espalda, esguince por movimiento repetitivo"
+    },
+    "jsonld": {
+      "share-your-story-injured-workers": "Comparta su historia — Experiencias de trabajadores lesionados",
+      "read-and-share-real-stories": "Lea y comparta historias reales de trabajadores lesionados que atraviesan el sistema de compensación laboral de NYS."
+    },
+    "share-your-story": "Comparta su historia",
+    "help-other-injured-workers-by": "Ayude a otros trabajadores lesionados contándonos qué funcionó y qué no.",
+    "disclaimer-the-comp-desk-is": "<strong>Aviso.</strong> The Comp Desk es un recurso informativo, no un bufete de abogados.\n    Enviar su historia no crea una relación abogado-cliente y no constituye asesoría legal.\n    Solo usaremos lo que comparta de las formas que usted autorice expresamente a continuación. No\n    <strong>vendemos</strong> su información ni la <strong>compartimos</strong> con ningún\n    bufete de abogados externo. Puede solicitar su eliminación permanente en cualquier momento mediante el enlace de su\n    correo de confirmación.",
+    "your-name-optional": "Su nombre <span class=\"hint\">(opcional)</span>",
+    "state": "Estado",
+    "injury-type": "Tipo de lesión",
+    "what-helped-you": "¿Qué le ayudó?",
+    "what-didn-t": "¿Qué no?",
+    "photo-optional": "Foto <span class=\"hint\">(opcional)</span>",
+    "email-so-we-can-send": "Correo electrónico <span class=\"hint\">(para poder enviarle el enlace de eliminación)</span>",
+    "how-should-we-identify-you": "¿Cómo debemos identificarlo?",
+    "permissions": "Permisos",
+    "you-may-use-the-photo": "Puede usar la foto que subí.",
+    "you-may-quote-my-words": "Puede citar mis palabras directamente.",
+    "submit-my-story": "Enviar mi historia",
+    "back-to-the-comp-desk": "<a href=\"/\">← Volver a The Comp Desk</a>"
+  },
+  "calculators": {
+    "meta": {
+      "description": "Calculadoras gratuitas de compensación laboral de NYS: SLU, AWW, LWEC, indemnizaciones y tasas máximas. Calcule beneficios y valores de indemnización al instante.",
+      "og-title": "Calculadoras de compensación laboral de NYS — Herramientas gratuitas en línea",
+      "og-description": "Calculadoras gratuitas de compensación laboral de NYS para SLU, AWW, LWEC, indemnizaciones y consultas de tasas.",
+      "twitter-title": "Calculadoras de compensación laboral de NYS",
+      "title": "Calculadoras gratuitas de compensación laboral de NYS — SLU, AWW, LWEC"
+    },
+    "common-workers-compensation-terms": {
+      "label": "Términos comunes de compensación laboral"
+    },
+    "jsonld": {
+      "free-nys-workers-compensation-calculators": "Calculadoras gratuitas de compensación laboral de NYS: SLU, AWW, LWEC, indemnización, tasas y herramientas avanzadas."
+    },
+    "aww": {
+      "meta": {
+        "description": "Calculadora gratuita del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Divisor de 52 semanas, multiplicador de 200/260/300, horas extras y métodos de empleo concurrente.",
+        "og-title": "Calculadora del salario semanal promedio (Average Weekly Wage, AWW) — Compensación laboral de NYS",
+        "og-description": "Calculadora gratuita para los beneficios del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Multiplicadores legales de 200/260/300, divisor directo y tablas de tasas de compensación.",
+        "title": "Calculadora AWW de NYS — Salario semanal promedio (WCL §14)"
+      },
+      "date-of-injury": {
+        "label": "Fecha de la lesión"
+      },
+      "maximum-weekly-compensation-rate": {
+        "label": "Tasa máxima de compensación semanal"
+      },
+      "total-gross-earnings-in-the": {
+        "label": "Ingresos brutos totales en el período anterior a la lesión",
+        "label-2": "Ingresos brutos totales en las 52 semanas anteriores a la lesión",
+        "label-3": "Ingresos brutos totales en el período trabajado"
+      },
+      "total-number-of-days-actually": {
+        "label": "Número total de días realmente trabajados en el período de ingresos"
+      },
+      "4-days-per-week-200": {
+        "label": "4 días por semana (multiplicador 200)"
+      },
+      "5-days-per-week-260": {
+        "label": "5 días por semana (multiplicador 260)"
+      },
+      "6-days-per-week-300": {
+        "label": "6 días por semana (multiplicador 300)"
+      },
+      "7-days-per-week-365": {
+        "label": "7 días por semana (multiplicador 365)"
+      },
+      "number-of-weeks-actually-worked": {
+        "label": "Número de semanas realmente trabajadas"
+      },
+      "hourly-rate-of-pay": {
+        "label": "Tarifa por hora"
+      },
+      "regularly-scheduled-hours-per-week": {
+        "label": "Horas semanales regulares programadas"
+      },
+      "include-overtime-tips-or-bonuses": {
+        "label": "Incluir horas extra, propinas o bonos"
+      },
+      "additional-weekly-overtime-or-tips": {
+        "label": "Horas extra o propinas semanales adicionales"
+      },
+      "include-concurrent-employment": {
+        "label": "Incluir empleo simultáneo"
+      },
+      "aww-from-concurrent-employment": {
+        "label": "AWW del empleo simultáneo"
+      },
+      "apply-amended-aww": {
+        "label": "Aplicar AWW modificado"
+      },
+      "prior-aww": {
+        "label": "AWW anterior"
+      },
+      "new-amended-aww": {
+        "label": "Nuevo AWW modificado",
+        "text": "AWW nuevo/modificado"
+      },
+      "jsonld": {
+        "nys-aww-calculator": "Calculadora de AWW de NYS",
+        "free-nys-average-weekly-wage": "Calculadora gratuita del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Métodos legales: divisor de 52 semanas, multiplicador 200/260/300, divisor directo.",
+        "what-is-the-average-weekly": "¿Qué es el salario semanal promedio (Average Weekly Wage, AWW) en la compensación laboral de NY?",
+        "your-aww-is-your-gross": "Su AWW son sus ingresos brutos de las 52 semanas anteriores a la lesión, convertidos en una cifra semanal según WCL §14. Casi todos los beneficios de su caso —los cheques semanales, los pagos por SLU, las clasificaciones de LWEC— se calculan a partir de dos tercios de esa cifra.",
+        "which-wcl-14-method-applies": "¿Qué método de WCL §14 se aplica en mi caso?",
+        "it-depends-on-your-work": "Depende de su patrón de trabajo: el multiplicador 260 para trabajadores de cinco días y 300 para trabajadores de seis días que trabajaron sustancialmente todo el año, el multiplicador mínimo 200 para trabajo de temporada, o un divisor directo de 52 semanas. La calculadora aplica los métodos legales y muestra cada resultado.",
+        "does-overtime-or-a-second": "¿Las horas extra o un segundo empleo cuentan para el AWW?",
+        "yes-aww-is-based-on": "Sí: el AWW se basa en los ingresos brutos, incluidas las horas extra. Los salarios de un empleo simultáneo (un segundo trabajo) también pueden sumarse según WCL §14(6) cuando la lesión lo incapacita para ambos empleos."
+      },
+      "home-calculators-aww-calculator": "<a href=\"/\">Inicio</a> &gt; <a href=\"/calculators/\">Calculadoras</a> &gt; <span>Calculadora de AWW</span>",
+      "nys-average-weekly-wage-aww": "Calculadora del salario semanal promedio (AWW) de NYS",
+      "calculate-average-weekly-wage-under": "Calcule el salario semanal promedio (AWW) según la Ley de Compensación para Trabajadores, §14. Elija el método legal aplicable según el historial laboral del reclamante.",
+      "date-of-injury-max-rate": "<span class=\"calc-header-title\">Fecha de la Lesión y Tarifa Máxima</span>",
+      "auto-fills-the-applicable-statutory": "Completa automáticamente la tarifa máxima legal aplicable",
+      "statutory-maximum-rate-9432": "Tarifa Máxima Legal <a href=\"https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp\" target=\"_blank\" rel=\"noopener\" title=\"Según el NYS WCB Subject No. 046-1805 — máximo/mínimo vigente desde el 7/1/2026. Haga clic para ver la fuente.\" style=\"color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;\">&#9432;</a>",
+      "current-max-1-281-50": "Máximo actual: $1,281.50 (Jul 1, 2026)",
+      "calculation-method": "<span class=\"calc-header-title\">Método de Cálculo</span>",
+      "14-subd-2": "§14 SUBD. 2",
+      "statutory-method-200-260-300": "Método Legal (200/260/300)",
+      "total-earnings-days-worked-statutory": "Ingresos totales ÷ días trabajados × multiplicador legal ÷ 52. Para reclamantes que NO trabajaron sustancialmente todo el año.",
+      "14-subd-1": "§14 SUBD. 1",
+      "52-week-divisor": "Divisor de 52 Semanas",
+      "total-annual-earnings-52-for": "Ingresos anuales totales ÷ 52. Para reclamantes que trabajaron sustancialmente todo el año anterior a la lesión.",
+      "board-discretion": "CRITERIO DE LA JUNTA",
+      "straight-divisor": "Divisor Directo",
+      "total-earnings-actual-weeks-worked": "Ingresos totales ÷ semanas realmente trabajadas. Se usa cuando los métodos legales no producen un resultado justo o para empleo irregular.",
+      "quick-calc": "CÁLCULO RÁPIDO",
+      "hourly-rate": "Tarifa por Hora",
+      "hourly-rate-hours-per-week": "Tarifa por hora × horas por semana. Cálculo rápido a partir del salario por hora conocido.",
+      "earnings-work-history-14-multiplier": "<span class=\"calc-header-title\" id=\"inputSectionTitle\">Ingresos e Historial Laboral (Multiplicador §14)</span>",
+      "total-earnings-in-period": "Ingresos Totales en el Período",
+      "gross-earnings-in-the-year": "Ingresos brutos en el año (o período) anterior al accidente",
+      "total-days-worked-in-period": "Total de Días Trabajados en el Período",
+      "actual-days-worked-not-calendar": "Días realmente trabajados (no días calendario)",
+      "days-per-week-claimant-worked": "Días por Semana que Trabajó el Reclamante",
+      "14-multiplier-5-day-worker": "<strong>Multiplicador §14 (trabajador de 5 días):</strong> Salario diario promedio × <span id=\"multiplierVal\">260</span> = ingresos anuales promedio, luego ÷ 52 = AWW.\n              <br>Salario Diario = Ingresos Totales ÷ Días Trabajados. Luego: Salario Diario × <span id=\"multiplierVal2\">260</span> ÷ 52 = AWW.",
+      "total-annual-earnings": "Ingresos Anuales Totales",
+      "gross-earnings-in-the-52": "Ingresos brutos en las 52 semanas anteriores al accidente",
+      "14-subdivision-1-when-the": "<strong>§14 Subdivisión 1:</strong> Cuando el reclamante trabajó sustancialmente todo el año, AWW = Ingresos Totales ÷ 52. Este es el método más simple y se aplica al empleo constante durante todo el año.",
+      "total-earnings-in-whatever-period": "Ingresos totales en el período que se haya trabajado",
+      "weeks-actually-worked": "Semanas Realmente Trabajadas",
+      "can-be-fractional-e-g": "Puede ser un número decimal (por ejemplo, 26.5 semanas)",
+      "straight-divisor-aww-total-earnings": "<strong>Divisor Directo:</strong> AWW = Ingresos Totales ÷ Semanas Trabajadas. La Junta lo usa cuando los métodos del multiplicador §14 no producen un resultado justo, o para trabajadores irregulares/estacionales, empleados nuevos y empleo de temporada parcial.",
+      "hours-per-week": "Horas por Semana",
+      "hourly-quick-calc-aww-hourly": "<strong>Cálculo Rápido por Hora:</strong> AWW = Tarifa por Hora × Horas/Semana. Útil cuando se conoce la tarifa por hora y el horario regular del reclamante.",
+      "adjustments": "<span class=\"calc-header-title\">Ajustes</span>",
+      "additional-weekly-amount": "Monto Semanal Adicional",
+      "per-week-average-of-ot": "Promedio semanal de horas extra/propinas/bonos durante 52 semanas",
+      "concurrent-employment": "Empleo Simultáneo",
+      "concurrent-job-aww": "AWW del Empleo Simultáneo",
+      "weekly-earnings-at-2nd-job": "Ingresos semanales en el segundo empleo — se suman al AWW principal",
+      "amended-aww": "AWW Enmendado",
+      "overrides-calculated-aww": "Reemplaza el AWW calculado",
+      "calculated-aww": "<span class=\"result-label\">AWW Calculado</span>\n              <span class=\"result-value\" id=\"awwResult\">—</span>",
+      "2-3-rate-before-cap": "<span class=\"result-label\">Tarifa de 2/3 (antes del tope)</span>\n              <span class=\"result-value\" id=\"twoThirdsResult\">—</span>",
+      "statutory-maximum": "<span class=\"result-label\">Máximo Legal</span>\n              <span class=\"result-value blue\" id=\"applicableMaxResult\">—</span>",
+      "final-comp-rate-tt": "<span class=\"result-label\">Tarifa Final de Compensación (TT)</span>\n              <span class=\"result-value gold\" id=\"finalRateResult\">—</span>",
+      "statutory-calculation": "Cálculo Legal",
+      "compensation-rate-table": "Tabla de Tarifas de Compensación",
+      "wcl-14-how-aww-is": "<span class=\"calc-header-title\">WCL §14 — Cómo se Calcula el AWW</span>",
+      "average-weekly-wage-aww-is": "El salario semanal promedio (Average Weekly Wage, AWW) es la base de todos los beneficios de compensación para trabajadores de Nueva York. Según la <strong style=\"color:var(--tx);\">Ley de Compensación para Trabajadores §14</strong>, el AWW determina la tarifa de compensación — dos tercios (2/3) del AWW, con un tope máximo legal fijado anualmente por el DFS.",
+      "14-1-52-week-divisor": "<strong style=\"color:var(--ac);\">§14(1) — Divisor de 52 Semanas:</strong> Para trabajadores empleados sustancialmente durante todo el año, los ingresos brutos totales de las 52 semanas anteriores al accidente se dividen entre 52. Este es el método predeterminado para trabajadores de tiempo completo durante todo el año.",
+      "14-2-day-based-multiplier": "<strong style=\"color:var(--ac);\">§14(2) — Multiplicador Basado en Días:</strong> Cuando el reclamante NO trabajó sustancialmente todo el año, las ganancias anuales promedio se calculan multiplicando el salario diario promedio por un multiplicador legal basado en el horario de trabajo regular del reclamante:",
+      "4-day-worker": "Trabajador de 4 Días",
+      "5-day-worker": "Trabajador de 5 Días",
+      "6-day-worker": "Trabajador de 6 Días",
+      "aww-total-earnings-days-worked": "AWW = (Ganancias Totales ÷ Días Trabajados) × Multiplicador ÷ 52",
+      "straight-divisor-board-discretion-when": "<strong style=\"color:var(--gd);\">Divisor Directo (Discreción de la Junta):</strong> Cuando los métodos de multiplicador legal no producen un resultado justo — por ejemplo, con trabajadores temporeros, horarios irregulares, empleados nuevos o empleo parcial del año — la Junta puede usar un divisor directo: Ganancias Totales ÷ Semanas Realmente Trabajadas. Este es el cálculo de AWW más comúnmente disputado.",
+      "concurrent-employment-under-14-wages": "<strong style=\"color:var(--tx);\">Empleo Concurrente:</strong> Según el §14, se combinan los salarios de todos los empleos concurrentes al momento de la lesión. Si el reclamante tenía dos empleos, se incluyen ambos conjuntos de salarios — aunque el trabajo de solo un empleador haya causado la lesión.",
+      "why-it-matters-aww-directly": "<strong style=\"color:var(--tx);\">Por Qué Importa:</strong> El AWW controla directamente la tasa de compensación, la cual se refleja en cada cálculo de beneficios: incapacidad total temporal, ingresos reducidos, indemnizaciones por SLU, indemnizaciones por CCP y solicitudes de honorarios. Calcular correctamente el AWW es el número más importante del caso.",
+      "your-aww-is-your-gross": "Su AWW es su ingreso bruto de las 52 semanas anteriores a la lesión, convertido a una cifra semanal según el WCL §14. Casi todos los beneficios de su caso — cheques semanales limitados a la <a href=\"/calculators/rates\" style=\"color:var(--ac);\">tasa máxima legal</a>, las <a href=\"/calculators/slu\" style=\"color:var(--ac);\">indemnizaciones por Pérdida de Uso Programada (Schedule Loss of Use, SLU)</a>, y las <a href=\"/calculators/lwec\" style=\"color:var(--ac);\">clasificaciones de LWEC</a> — se calculan a partir de dos tercios de este monto.",
+      "calculate-aww-manage-hearings-and": "Calcule el AWW, administre audiencias y prepare solicitudes de honorarios desde su teléfono.",
+      "disclaimer-this-calculator-is-provided": "<strong>Aviso legal:</strong> Esta calculadora se ofrece únicamente con fines informativos y no constituye asesoría legal. Los cálculos de AWW se basan en la Ley de Compensación para Trabajadores del Estado de Nueva York §14 vigente y en las regulaciones del Departamento de Servicios Financieros. La exactitud de los resultados depende de los salarios ingresados. Las disputas sobre el AWW pueden requerir documentación salarial detallada y resolución por parte de la Junta de Compensación para Trabajadores (Workers' Compensation Board). Consulte a un abogado calificado en compensación para trabajadores para obtener orientación sobre su caso específico.",
+      "text": "AWW ⓘ"
+    },
+    "benefit-rate": {
+      "meta": {
+        "description": "Consulte las tasas máximas y mínimas legales de beneficios semanales de compensación para trabajadores en NY según la fecha de la lesión. Resultados instantáneos y gratuitos de The Comp Desk.",
+        "og-title": "Consulta de Tasas de Beneficios de Compensación para Trabajadores de NY | The Comp Desk",
+        "og-description": "Ingrese la fecha de su lesión laboral en NY y vea al instante las tasas máximas y mínimas legales de beneficios semanales que aplican a su caso.",
+        "twitter-title": "Consulta de Tasas de Beneficios de Compensación para Trabajadores de NY",
+        "twitter-description": "Consulte las tasas máximas/mínimas legales de beneficios semanales para cualquier fecha de lesión laboral en NY."
+      },
+      "comp-buddy-mascot": {
+        "alt": "Mascota Comp Buddy"
+      },
+      "jsonld": {
+        "what-are-the-maximum-and": "¿Cuáles son las tasas máximas y mínimas de compensación para trabajadores en Nueva York?",
+        "for-injuries-on-or-after": "Para lesiones ocurridas el 1 de julio de 2026 o después, la tasa máxima semanal es de $1,281.50. El beneficio mínimo semanal subió a $275 el 1 de enero de 2024 y a $325 el 1 de enero de 2025, y a partir del 1 de enero de 2026 se indexa a un quinto del Salario Semanal Promedio del Estado de Nueva York.",
+        "which-rate-year-applies-to": "¿Qué año de tasa aplica a mi caso?",
+        "the-rate-period-covering-your": "El período de tasas que cubre la fecha de su lesión. El máximo y el mínimo vigentes el día en que se lesionó permanecen con su caso durante toda su duración, sin importar aumentos anuales posteriores.",
+        "how-do-the-rate-caps": "¿Cómo afectan los límites de tasa a mi cheque semanal?",
+        "your-weekly-benefit-is-two": "Su beneficio semanal es dos tercios de su salario semanal promedio multiplicado por su grado de discapacidad. Si esa cifra supera el máximo del año de su lesión, recibirá el máximo; si cae por debajo del mínimo, generalmente recibirá la tasa mínima.",
+        "how-to-look-up-ny": "Cómo Consultar las Tasas de Beneficios de Compensación para Trabajadores de NY",
+        "use-this-free-tool-to": "Use esta herramienta gratuita para encontrar las tasas máximas y mínimas legales de compensación semanal que aplican a un caso de compensación para trabajadores de Nueva York según la fecha de la lesión.",
+        "ny-benefit-rate-lookup-the": "Consulta de Tasas de Beneficios de NY — The Comp Desk",
+        "enter-your-date-of-injury": "Ingrese la fecha de su lesión",
+        "type-or-select-the-date": "Escriba o seleccione la fecha en que se lesionó en el trabajo. La herramienta acepta cualquier fecha desde 1985 hasta hoy.",
+        "click-look-up-rates": "Haga clic en Consultar Tasas",
+        "press-the-look-up-rates": "Presione el botón Consultar Tasas. La herramienta devuelve al instante las tasas máximas y mínimas legales de beneficios semanales aplicables según el WCL §25(3).",
+        "review-your-results": "Revise sus resultados",
+        "see-the-weekly-maximum-no": "Vea la tasa máxima semanal (a nadie se le puede pagar más) y la tasa mínima semanal (a nadie se le puede pagar menos) fijadas según la fecha de su lesión. Estas tasas se establecen cada año según el Salario Semanal Promedio del Estado de Nueva York (NYSAWW)."
+      },
+      "home-calculators-benefit-rate-lookup": "<a href=\"/\">Inicio</a> &gt; <a href=\"/calculators/\">Calculadoras</a> &gt; <span>Consulta de Tasa de Beneficios</span>",
+      "enter-a-date-of-injury": "Ingrese una fecha de lesión para ver las tasas máximas y mínimas legales de compensación semanal según la Ley de Compensación para Trabajadores de Nueva York.",
+      "date-of-injury-doi": "Fecha de la Lesión (DOI)",
+      "enter-the-date-you-were": "Ingrese la fecha en que se lesionó en el trabajo.",
+      "look-up-rates": "Consultar Tasas",
+      "weekly-maximum": "Máximo Semanal",
+      "weekly-minimum": "Mínimo Semanal",
+      "want-to-know-what-your": "¿Quiere saber cuánto podría valer su caso específico?",
+      "talk-to-a-ny-workers": "Hable con un abogado de compensación laboral de NY. Muchos ofrecen consultas gratuitas y trabajan por contingencia: usted no paga nada a menos que gane.",
+      "find-a-ny-workers-comp": "Encuentre un abogado de compensación laboral de NY",
+      "also-useful-once-you-know": "<strong style=\"color:#fff;\">También útil:</strong>\n        Una vez que sepa su límite de tasa, use la <a href=\"/calculators/aww\" style=\"color:var(--ac);\">Calculadora de AWW</a> para calcular su salario semanal promedio (Average Weekly Wage, AWW) y su beneficio semanal real de compensación.",
+      "your-weekly-benefit-is-two": "Su beneficio semanal equivale a dos tercios de su <a href=\"/calculators/aww\" style=\"color:var(--ac);\">salario semanal promedio</a> multiplicado por su grado de discapacidad. Si esa cifra supera el máximo correspondiente al año de su lesión, usted recibe el máximo; si es menor que el mínimo, generalmente recibe la tasa mínima."
+    },
+    "ccp-award": {
+      "meta": {
+        "description": "Calculadora gratuita de NYS para el cálculo de pagos CCP de compensación laboral. Ingrese los periodos (TT, RE, TR, TP) para calcular el pago bruto, el honorario del abogado y el monto neto para el reclamante.",
+        "og-title": "Calculadora de CCP / Pago — Compensación Laboral de NYS por Periodos | The Comp Desk",
+        "og-description": "Calcule los pagos CCP clasificados periodo por periodo con cálculo automático de la tasa a partir del AWW. Incluye el desglose del honorario del abogado y el monto neto para el reclamante.",
+        "twitter-title": "Calculadora de CCP / Pago — Compensación Laboral de NYS por Periodos",
+        "title": "Calculadora de Pagos de Compensación Laboral de NYS — Periodos CCP"
+      },
+      "average-weekly-wage-used-to": {
+        "label": "Salario semanal promedio (AWW) — se usa para calcular automáticamente las tasas de cada periodo"
+      },
+      "date-of-accident-auto-fills": {
+        "label": "Fecha del accidente — completa automáticamente la tasa máxima legal"
+      },
+      "statutory-maximum-weekly-rate-for": {
+        "label": "Tasa semanal máxima legal para la fecha del accidente"
+      },
+      "reset-all-period-entries": {
+        "label": "Restablecer todas las entradas de periodos"
+      },
+      "award-periods": {
+        "label": "Periodos de pago"
+      },
+      "add-another-award-period": {
+        "label": "Agregar otro periodo de pago"
+      },
+      "ccp-dollar-amount-attorney-receives": {
+        "label": "Monto en dólares del CCP — el abogado recibe 1/3"
+      },
+      "prior-award-payments-already-made": {
+        "label": "Pagos anteriores ya realizados — se deducen antes de calcular el honorario"
+      },
+      "award-period-summary": {
+        "label": "Resumen del periodo de pago"
+      },
+      "generate-wcb-fee-application-pro": {
+        "label": "Generar solicitud de honorarios de WCB (función Pro)"
+      },
+      "jsonld": {
+        "nys-ccp-award-calculator": "Calculadora de CCP / Pago de NYS",
+        "free-nys-workers-compensation-ccp": "Calculadora gratuita de pagos CCP de compensación laboral de NYS. Ingrese los rangos de fechas según la designación del periodo para calcular el pago bruto, el honorario del abogado y el monto neto para el reclamante.",
+        "how-is-a-period-based": "¿Cómo se calcula un pago de compensación laboral por periodos?",
+        "each-date-range-in-the": "Cada rango de fechas del pago se cuenta en semanas y se multiplica por la tasa semanal correspondiente a la designación de ese periodo (como discapacidad total temporal o ingresos reducidos). Los periodos se suman para obtener el pago bruto, del cual se deduce el honorario del abogado para llegar al monto neto para el reclamante.",
+        "what-rate-applies-during-each": "¿Qué tasa se aplica durante cada periodo?",
+        "two-thirds-of-your-average": "Dos tercios de su salario semanal promedio (AWW) multiplicado por su grado de discapacidad para ese periodo, con un límite en la tasa máxima legal correspondiente a la fecha de su lesión.",
+        "how-is-the-attorney-fee": "¿Cómo se calcula el honorario del abogado sobre un pago?",
+        "attorney-fees-on-accrued-awards": "Los honorarios del abogado sobre los pagos acumulados suelen ser el 15% del monto acumulado, sujetos a la aprobación del Workers' Compensation Board conforme a WCL §24. La calculadora muestra el honorario y el monto neto para el reclamante."
+      },
+      "home-calculators-ccp-award-calculator": "<a href=\"/\">Inicio</a> &gt; <a href=\"/calculators/\">Calculadoras</a> &gt; <span>Calculadora de CCP / Pago</span>",
+      "period-by-period-calculation-of": "Cálculo periodo por periodo de los pagos de compensación laboral (TT, RE, TR, TP, NCLT, NME). Deriva automáticamente las tasas a partir del AWW. Incluye el desglose del honorario del abogado y el monto neto para el reclamante.",
+      "global-inputs": "<span class=\"calc-header-title\">Datos generales</span>",
+      "computed-tt-rate": "Tasa TT calculada",
+      "2-3-aww-capped-at": "2/3 del AWW con límite en el máximo legal",
+      "date-of-accident-doa": "Fecha del accidente (DOA)",
+      "auto-fills-statutory-max-rate": "Completa automáticamente la tasa máxima legal",
+      "statutory-max-rate-9432": "Tasa Máxima Legal <a href=\"https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp\" target=\"_blank\" rel=\"noopener\" title=\"Según NYS WCB Subject No. 046-1805 — máx/mín vigente 7/1/2026. Haga clic para ver la fuente.\" style=\"color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;\">&#9432;</a>",
+      "current-1-281-50-jul": "Actual: $1,281.50 (Jul 1, 2026)",
+      "period-entries": "Entradas de periodos",
+      "reset": "Restablecer",
+      "add-period": "+ Agregar Período",
+      "ccp-prior-payments": "<span class=\"calc-header-title\">CCP y Pagos Anteriores</span>",
+      "ccp-amount": "Monto de CCP",
+      "attorney-fee-ccp-3": "Honorario del abogado = CCP ÷ 3",
+      "deducted-before-attorney-fee": "Deducido antes del honorario del abogado",
+      "total-award": "<span class=\"result-label\">Indemnización Total</span>\n              <span class=\"result-value\" id=\"totalAwardResult\">—</span>",
+      "total-attorney-fee": "<span class=\"result-label\">Honorario Total del Abogado</span>\n              <span class=\"result-value blue\" id=\"totalFeeResult\">—</span>",
+      "net-to-claimant": "<span class=\"result-label\">Neto para el Reclamante</span>\n              <span class=\"result-value gold\" id=\"netResult\">—</span>",
+      "award-period-breakdown": "Desglose del Período de Indemnización",
+      "period": "Período",
+      "desig": "Desig",
+      "rate-wk": "Tarifa / sem",
+      "weeks": "Semanas",
+      "amount": "Monto",
+      "total-award-2": "<span class=\"result-row-label\">Indemnización Total</span>\n                <span class=\"result-row-val mono\" id=\"fbTotalAward\">—</span>",
+      "prior-payments": "<span class=\"result-row-label\">Pagos Anteriores</span>\n                <span class=\"result-row-val mono\" id=\"fbPrior\">—</span>",
+      "moving-amount": "<span class=\"result-row-label\" style=\"color:var(--gd);font-weight:700;\">Monto Nuevo</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gd);\" id=\"fbMoving\">—</span>",
+      "fee-on-award-15": "<span class=\"result-row-label\" style=\"color:var(--gn);\">Honorario sobre la Indemnización (15%)</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gn);\" id=\"fbFeeAward\">—</span>",
+      "fee-on-ccp-3": "<span class=\"result-row-label\" style=\"color:var(--gn);\">Honorario sobre el CCP (÷ 3)</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gn);\" id=\"fbFeeCCP\">—</span>",
+      "total-attorney-fee-2": "<span class=\"result-row-label\" style=\"color:var(--gn);font-weight:700;\">Honorario Total del Abogado</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gn);font-weight:800;\" id=\"fbTotalFee\">—</span>",
+      "net-to-claimant-2": "<span class=\"result-row-label\" style=\"color:var(--gd);font-weight:700;\">Neto para el Reclamante</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gd);font-weight:800;\" id=\"fbNet\">—</span>",
+      "fee-app-breakdown": "Desglose de la Solicitud de Honorarios",
+      "generate-a-wcb-fee-application": "Genere una solicitud de honorarios de WCB prellenada con estas cifras de la indemnización.",
+      "about-ccp-awards-in-new": "<span class=\"calc-header-title\">Acerca de las Indemnizaciones CCP en Nueva York</span>",
+      "a-classified-compensation-period-ccp": "Una indemnización de Período de Compensación Clasificado (Classified Compensation Period, CCP) es una determinación formal del Workers' Compensation Board que establece un período de beneficios por incapacidad. Las indemnizaciones se construyen período por período, cada uno con su propio tipo de beneficio (designación) y fechas.",
+      "tt-temporary-total-rate-2": "<strong style=\"color:var(--tx);\">TT — Total Temporal:</strong> Tarifa = 2/3 del AWW, con un tope según el máximo establecido por ley para la fecha del accidente. Se usa cuando el reclamante está totalmente incapacitado para todo trabajo.",
+      "re-reduced-earnings-rate-2": "<strong style=\"color:var(--tx);\">RE — Ingresos Reducidos:</strong> Tarifa = 2/3 × (AWW − ingresos semanales actuales). Se usa cuando el reclamante regresa a un trabajo más liviano con salario reducido.",
+      "tr-temporary-reduced-rate-a": "<strong style=\"color:var(--tx);\">TR — Reducción Temporal:</strong> Tarifa = un porcentaje de la tarifa TT, ingresado manualmente. Se usa por estipulación o disposición.",
+      "tp-nclt-nme-manual-rate": "<strong style=\"color:var(--tx);\">TP / NCLT / NME:</strong> Tarifa ingresada manualmente. TP = parcial temporal; NCLT = tiempo perdido sin compensación; NME = sin evidencia médica.",
+      "attorney-fee-wcl-24-the": "<strong style=\"color:var(--tx);\">Honorario del Abogado (WCL §24):</strong> El honorario sobre la indemnización equivale al 15% del monto nuevo (dinero adicional). El honorario sobre el CCP es 1/3 del monto en dólares del CCP. Ambos se pagan de la indemnización del reclamante.",
+      "statutory-maximum-weekly-rates": "<span class=\"calc-header-title\">Tasas Máximas Semanales Establecidas por Ley</span>",
+      "max-weekly-rate": "Tasa Máxima Semanal",
+      "two-thirds-of-your-average": "Dos tercios de su <a href=\"/calculators/aww\" style=\"color:var(--ac);\">salario semanal promedio</a> multiplicado por su grado de incapacidad durante ese período, con un tope de la <a href=\"/calculators/rates\" style=\"color:var(--ac);\">tasa máxima establecida por ley</a> para su fecha de lesión.",
+      "calculate-awards-track-cases-and": "Calcule indemnizaciones, dé seguimiento a casos y genere solicitudes de honorarios desde cualquier lugar.",
+      "disclaimer-this-calculator-is-provided": "<strong>Aviso legal:</strong> Esta calculadora se ofrece únicamente con fines informativos y no constituye asesoría legal. Los cálculos de las indemnizaciones se basan en la ley vigente de compensación para trabajadores del estado de Nueva York y en las regulaciones del Department of Financial Services. Las indemnizaciones reales son determinadas por el Workers' Compensation Board según el expediente específico, la evidencia médica y los resultados de las audiencias. Consulte a un abogado calificado en compensación para trabajadores para obtener orientación sobre su caso específico."
+    },
+    "lwec": {
+      "meta": {
+        "description": "Calculadora gratuita de pérdida de capacidad de ganancia salarial (LWEC) de NYS. Calcule los beneficios semanales, la categoría, las semanas máximas, el honorario del abogado y el monto neto para el reclamante según la ley de compensación para trabajadores de Nueva York.",
+        "og-title": "Calculadora de LWEC de NYS — Pérdida de Capacidad de Ganancia Salarial",
+        "og-description": "Calculadora gratuita de los beneficios por pérdida de capacidad de ganancia salarial (LWEC) de NYS, con sistema de categorías, semanas máximas, honorario del abogado y monto neto para el reclamante."
+      },
+      "lwec-loss-percentage": {
+        "label": "Porcentaje de pérdida de LWEC",
+        "text": "Porcentaje de Pérdida de LWEC"
+      },
+      "weekly-attorney-fee-amount": {
+        "label": "Monto de la cuota semanal del abogado"
+      },
+      "jsonld": {
+        "nys-lwec-calculator": "Calculadora de LWEC de NYS",
+        "free-nys-loss-of-wage": "Calculadora gratuita de NYS de pérdida de capacidad para ganar salario (Loss of Wage Earning Capacity, LWEC). Clasificación por rango, semanas máximas, cuota de abogado y neto para el reclamante.",
+        "what-does-lwec-mean-in": "¿Qué significa LWEC en compensación laboral?",
+        "lwec-stands-for-loss-of": "LWEC significa pérdida de capacidad para ganar salario (Loss of Wage Earning Capacity) — el porcentaje en que una lesión permanente reduce su capacidad de ganar salario. La Junta de Compensación Laboral (Workers' Compensation Board) lo establece al momento de la permanencia (clasificación) según el deterioro médico, las limitaciones funcionales y factores vocacionales como la edad, la educación y el historial laboral.",
+        "how-many-weeks-of-lwec": "¿Cuántas semanas de beneficios de LWEC puedo recibir en Nueva York?",
+        "wcl-15-3-w-caps": "La Sección 15(3)(w) de la WCL limita las semanas de beneficio según el porcentaje de LWEC — desde 225 semanas con 15% o menos hasta 525 semanas con más de 95%. Los trabajadores clasificados con incapacidad total permanente (PTD) reciben beneficios de por vida.",
+        "how-is-the-weekly-lwec": "¿Cómo se calcula la tasa semanal de LWEC?",
+        "the-weekly-classification-rate-equals": "La tasa semanal de clasificación equivale a su porcentaje de LWEC multiplicado por su tasa de compensación (dos tercios de su salario semanal promedio, con el tope máximo legal según su fecha de lesión). Por ejemplo, un 50% de LWEC con una tasa de compensación de $750 paga $375 por semana.",
+        "is-lwec-the-same-as": "¿Es LWEC lo mismo que un beneficio de pérdida programada de uso (SLU)?",
+        "no-a-schedule-loss-of": "No. Un beneficio de pérdida programada de uso (Schedule Loss of Use, SLU) paga un número fijo de semanas por la pérdida permanente de uso de una extremidad según la Sección 15(3) de la WCL. LWEC compensa lesiones permanentes no programadas — columna, cabeza y condiciones sistémicas — con beneficios semanales durante una duración limitada.",
+        "what-attorney-fee-comes-out": "¿Qué cuota de abogado se descuenta de un beneficio de LWEC?",
+        "attorneys-are-typically-awarded-15": "Por lo general, a los abogados se les otorgan 15 semanas multiplicadas por la tasa semanal de clasificación, deducidas del beneficio y sujetas a la aprobación de la Junta de Compensación Laboral (Workers' Compensation Board) según la Sección 24 de la WCL."
+      },
+      "home-calculators-lwec-calculator": "<a href=\"/\">Inicio</a> &gt; <a href=\"/calculators/\">Calculadoras</a> &gt; <span>Calculadora de LWEC</span>",
+      "nys-loss-of-wage-earning": "Calculadora de NYS de pérdida de capacidad para ganar salario (Loss of Wage Earning Capacity, LWEC)",
+      "calculate-loss-of-wage-earning": "Calcule la tasa de clasificación por pérdida de capacidad para ganar salario, el rango, las semanas máximas, la cuota de abogado y el neto para el reclamante según la Ley de Compensación Laboral de Nueva York.",
+      "2-3-aww-comp-rate": "2/3 del AWW = tasa de compensación (calculada automáticamente)",
+      "2-3-aww-comp-rate-2": "2/3 del AWW (Tasa de Compensación): <span id=\"compRateDisplay\" style=\"color:var(--gd);font-weight:800;font-family:var(--mono);\">—</span>",
+      "0-100-loss-of-earning": "0–100% de pérdida de capacidad para ganar",
+      "attorney-fee-week-optional": "Cuota de Abogado/Semana (Opcional)",
+      "deducted-from-weekly-net": "Descontado del neto semanal",
+      "2-3-aww-comp-rate-3": "<span class=\"result-label\">2/3 del AWW (Tasa de Compensación)</span>\n              <span class=\"result-value\" id=\"ttResult\">—</span>",
+      "classification-rate": "<span class=\"result-label\">Tasa de Clasificación</span>\n              <span class=\"result-value gold\" id=\"classRateResult\">—</span>",
+      "bracket": "<span class=\"result-label\">Rango</span>\n              <span class=\"result-value\" id=\"bracketResult\">—</span>",
+      "max-weeks": "<span class=\"result-label\">Semanas Máximas</span>\n              <span class=\"result-value blue\" id=\"maxWeeksResult\">—</span>",
+      "award-fee-breakdown": "Desglose del Beneficio y la Cuota",
+      "total-award-rate-max-weeks": "<span class=\"result-row-label\">Beneficio Total (tasa × semanas máximas)</span>\n                <span class=\"result-row-val mono\" id=\"totalAwardResult\">—</span>",
+      "attorney-fee-15-weeks-rate": "<span class=\"result-row-label\" style=\"color:var(--gn);\">Cuota de Abogado (15 semanas × tasa)</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gn);\" id=\"attyFeeResult\">—</span>",
+      "weekly-net-after-fee-wk": "<span class=\"result-row-label\">Neto Semanal (después de la cuota/semana)</span>\n                <span class=\"result-row-val mono\" id=\"weeklyNetResult\">—</span>",
+      "total-net-to-claimant": "<span class=\"result-row-label\" style=\"color:var(--gd);font-weight:700;\">Neto Total para el Reclamante</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gd);font-weight:800;\" id=\"totalNetResult\">—</span>",
+      "what-is-lwec-loss-of": "¿Qué es LWEC (Pérdida de Capacidad para Ganar Salario)?",
+      "loss-of-wage-earning-capacity": "La pérdida de capacidad para ganar salario (Loss of Wage Earning Capacity, LWEC) es la medida que usa Nueva York para determinar cuánto reduce una lesión permanente no programada la capacidad de un trabajador lesionado para ganar salario. Cuando un trabajador alcanza la mejoría médica máxima (Maximum Medical Improvement, MMI) con una incapacidad parcial permanente que no está cubierta por el sistema de pérdida programada de uso — generalmente lesiones de columna, cabeza y sistémicas — la Junta de Compensación Laboral (Workers' Compensation Board) asigna un porcentaje de LWEC según el deterioro médico, las limitaciones funcionales y factores vocacionales como la edad, la educación y el historial laboral.",
+      "that-percentage-drives-both-the": "Ese porcentaje determina tanto la <strong style=\"color:var(--tx);\">tasa de beneficio semanal</strong> como el <strong style=\"color:var(--tx);\">número máximo de semanas</strong> durante las cuales se paga el beneficio, usando el sistema de rangos que se muestra abajo.",
+      "how-lwec-is-calculated-wcl": "Cómo se Calcula LWEC (Sección 15(3)(w) de la WCL)",
+      "the-weekly-lwec-classification-rate": "La tasa semanal de clasificación de LWEC equivale a <strong style=\"color:var(--tx);\">su porcentaje de LWEC × su tasa de compensación</strong> (2/3 de su salario semanal promedio, con el tope de la <a href=\"/calculators/rates\" style=\"color:var(--ac);\">tasa máxima legal</a> según su fecha de lesión). Por ejemplo, una clasificación de LWEC del 50% con una tasa de compensación de $750/semana produce $375/semana.",
+      "the-duration-is-capped-by": "La duración está limitada por la Sección 15(3)(w) de la WCL: el porcentaje de LWEC se ubica dentro de un rango que fija el máximo de semanas de beneficios — desde 225 semanas con 15% o menos hasta 525 semanas con más del 95%. Los trabajadores clasificados con incapacidad total permanente reciben beneficios de por vida.",
+      "not-sure-of-your-wage": "¿No está seguro de su cifra salarial? Establézcala primero con la <a href=\"/calculators/aww\" style=\"color:var(--ac);\">calculadora de salario semanal promedio (Average Weekly Wage, AWW)</a> según la Sección 14 de la WCL.",
+      "lwec-percentage-brackets-maximum-weeks": "Rangos de Porcentaje de LWEC y Semanas Máximas",
+      "classification": "Clasificación",
+      "lwec-range": "Rango % de LWEC",
+      "total-industrial": "Total (Industrial)",
+      "lifetime": "De por vida",
+      "15-or-less": "15% o menos",
+      "attorney-fee-is-assessed-as": "El honorario del abogado se calcula como 15 semanas × la tasa de clasificación, y se deduce del monto total del pago. Para las clasificaciones \"Total (Industrial)\", los beneficios continúan de por vida.",
+      "lwec-vs-schedule-loss-of": "LWEC frente a Pérdida Programada del Uso (Schedule Loss of Use, SLU)",
+      "new-york-permanency-awards-come": "Los pagos por incapacidad permanente en Nueva York vienen en dos formas. Un pago por <strong style=\"color:var(--tx);\">Pérdida Programada del Uso (Schedule Loss of Use, SLU)</strong> paga un número fijo de semanas por la pérdida permanente del uso de una extremidad — brazo, mano, pierna, pie, dedos, visión u oído — bajo WCL §15(3), incluso si usted ya volvió a trabajar con salario completo. <strong style=\"color:var(--tx);\">LWEC</strong> cubre lesiones permanentes no programadas (columna, cabeza, afecciones sistémicas) con beneficios semanales pagados durante una duración limitada. Un caso generalmente se resuelve bajo uno u otro marco para una lesión determinada.",
+      "think-your-injury-may-be": "¿Cree que su lesión puede ser una pérdida programada? Calcule el pago con la <a href=\"/calculators/slu\" style=\"color:var(--ac);\">calculadora gratuita de Pérdida Programada del Uso (SLU)</a>.",
+      "go-to-slu-calculator": "Ir a la calculadora de SLU",
+      "the-weekly-classification-rate-equals": "La tasa de clasificación semanal es igual a su porcentaje de LWEC multiplicado por su tasa de compensación (dos tercios de su salario semanal promedio (Average Weekly Wage, AWW), con un tope en el <a href=\"/calculators/rates\" style=\"color:var(--ac);\">máximo legal</a> según su fecha de la lesión). Por ejemplo, un 50% de LWEC con una tasa de compensación de $750 paga $375 por semana.",
+      "no-a-schedule-loss-of": "No. Un <a href=\"/calculators/slu\" style=\"color:var(--ac);\">pago por Pérdida Programada del Uso (SLU)</a> paga un número fijo de semanas por la pérdida permanente del uso de una extremidad bajo WCL §15(3). LWEC compensa lesiones permanentes no programadas — columna, cabeza y afecciones sistémicas — con beneficios semanales durante una duración limitada.",
+      "attorneys-are-typically-awarded-15": "Por lo general, a los abogados se les otorgan 15 semanas multiplicadas por la tasa de clasificación semanal, que se deducen del pago y están sujetas a la aprobación del Workers' Compensation Board bajo WCL §24. Esta calculadora muestra el desglose completo del honorario y el monto neto para el reclamante.",
+      "calculate-lwec-benefits-manage-hearings": "Calcule los beneficios de LWEC, administre audiencias y siga el historial de su caso desde su teléfono.",
+      "disclaimer-this-calculator-is-provided": "<strong>Aviso legal:</strong> Esta calculadora se ofrece únicamente con fines informativos y no constituye asesoría legal. Los cálculos de LWEC se basan en la ley vigente de compensación para trabajadores del estado de Nueva York y en las regulaciones del Department of Financial Services. El porcentaje de clasificación lo determina el Workers' Compensation Board y puede variar según la evidencia médica, la evaluación vocacional y los resultados de las audiencias. Consulte a un abogado calificado en compensación para trabajadores para obtener orientación sobre su caso específico.",
+      "text": "LWEC ⓘ"
+    },
+    "radiculopathy": {
+      "meta": {
+        "description": "Calculadora gratuita de radiculopatía de NYS que utiliza el sistema de puntos de las Guías de Deterioro de 2012 (2012 Impairment Guidelines). Puntúe hallazgos de imágenes, EMG, motores, sensoriales y de reflejos.",
+        "og-title": "Calculadora de Radiculopatía — Lesión Nerviosa en Compensación Laboral de NYS",
+        "og-description": "Calculadora gratuita de gravedad de radiculopatía que utiliza las Guías de Deterioro de NYS de 2012 (Tablas S11.4–S11.7). Puntuación de raíces nerviosas cervicales y lumbares.",
+        "twitter-description": "Calculadora gratuita de gravedad de radiculopatía que utiliza las Guías de Deterioro de NYS de 2012 (Tablas S11.4–S11.7).",
+        "title": "Calculadora de Radiculopatía de NYS — Guías de 2012"
+      },
+      "jsonld": {
+        "nys-radiculopathy-calculator": "Calculadora de Radiculopatía de NYS",
+        "free-nys-radiculopathy-calculator-using": "Calculadora gratuita de radiculopatía de NYS que utiliza el sistema de puntos de las Guías de Deterioro de 2012 (Tablas S11.4–S11.7).",
+        "what-is-radiculopathy-in-a": "¿Qué es la radiculopatía en un caso de compensación laboral?",
+        "radiculopathy-is-nerve-root-compression": "La radiculopatía es la compresión o irritación de una raíz nerviosa — generalmente en el cuello o la parte baja de la espalda — que causa dolor irradiado, entumecimiento o debilidad en un brazo o una pierna. En las evaluaciones de incapacidad permanente de Nueva York, esto eleva la clasificación de gravedad de una afección de la columna según las Guías de Deterioro de 2012.",
+        "how-do-the-2012-guidelines": "¿Cómo puntúan las Guías de 2012 la radiculopatía?",
+        "tables-s11-4-through-s11": "Las Tablas S11.4 a S11.7 asignan puntos por hallazgos de imágenes, EMG, motores, sensoriales, de reflejos y de signos de tensión. El total de puntos ubica la afección de la columna en una clasificación de gravedad, que alimenta la Clase de Deterioro Médico utilizada en la clasificación.",
+        "does-the-severity-ranking-decide": "¿La clasificación de gravedad determina mi porcentaje de LWEC?",
+        "it-is-the-medical-impairment": "Es un dato de deterioro médico, pero no toda la respuesta — el porcentaje de Pérdida de la Capacidad de Ganar Salario (Loss of Wage Earning Capacity, LWEC) también considera las limitaciones funcionales y factores vocacionales como la edad, la educación y el historial laboral."
+      },
+      "home-calculators-radiculopathy-calculator": "<a href=\"/\">Inicio</a> &gt; <a href=\"/calculators/\">Calculadoras</a> &gt; <span>Calculadora de Radiculopatía</span>",
+      "score-radiculopathy-findings-using-the": "Puntúe los hallazgos de radiculopatía utilizando las Guías de Deterioro de NYS de 2012 (Tablas S11.4, S11.4(a), S11.4(b), S11.5, S11.6, S11.7) para determinar la clasificación de gravedad para la clasificación del deterioro de la columna.",
+      "step-1-injury-location": "<span class=\"calc-header-title\">Paso 1: Ubicación de la Lesión</span>",
+      "spine-region": "Región de la Columna",
+      "select-region": "Seleccione una región...",
+      "cervical": "Cervical",
+      "lumbar": "Lumbar",
+      "primary-nerve-root": "Raíz Nerviosa Primaria",
+      "select-region-first": "Seleccione primero la región...",
+      "determines-max-sensory-motor-values": "Determina los valores máximos sensoriales/motores según las Tablas S11.5 &amp; S11.6",
+      "nerve-root": "Raíz Nerviosa",
+      "max-sensory-deficit": "Déficit Sensorial Máximo",
+      "max-weakness": "Debilidad Máxima",
+      "step-2-score-findings-table": "<span class=\"calc-header-title\">Paso 2: Puntuación de los hallazgos (Tabla S11.4)</span>\n        <span class=\"calc-header-title\" style=\"color:var(--txM);font-size:10px;\">Guías de Deficiencia de 2012</span>",
+      "imaging": "Estudios de imagen",
+      "significant-disc-abnormalities-displacing-ne": "Anomalías discales importantes que desplazan tejido nervioso y/o compresión ósea/mecánica de la raíz nerviosa en los estudios de imagen, en correlación con el cuadro clínico.",
+      "no-0-pts": "No (0 pts)",
+      "yes-16-pts": "Sí (16 pts)",
+      "emg-abnormalities": "Anomalías del EMG",
+      "fibrillation-potentials-and-or-positive": "Potenciales de fibrilación y/o ondas positivas agudas en al menos 2 músculos en la distribución de la(s) raíz(ces) nerviosa(s) afectada(s).",
+      "yes-6-pts": "Sí (6 pts)",
+      "muscle-weakness": "Debilidad muscular",
+      "table-s11-4-a": "Tabla S11.4(a)",
+      "objective-muscle-weakness-scored-by": "Debilidad muscular objetiva puntuada por grado motor. Valor de la Tabla S11.4(a), limitado por el máximo de la raíz nerviosa de la Tabla S11.5 o S11.6.",
+      "grade-0-no-contraction-20": "<strong>Grado 0</strong> (sin contracción) = 20 &nbsp;|&nbsp;\n              <strong>Grado 1</strong> (contracción leve, sin movimiento) = 20 &nbsp;|&nbsp;\n              <strong>Grado 2</strong> (movimiento, sin gravedad) = 18 &nbsp;|&nbsp;\n              <strong>Grado 3</strong> (contra la gravedad, sin resistencia) = 6 &nbsp;|&nbsp;\n              <strong>Grado 4–5</strong> (contra resistencia / normal) = 0",
+      "grade-5-normal-0-pts": "Grado 5 — Normal (0 pts)",
+      "grade-4-against-gravity-w": "Grado 4 — Contra la gravedad con algo de resistencia (0 pts)",
+      "grade-3-against-gravity-no": "Grado 3 — Contra la gravedad, sin resistencia (6 pts)",
+      "grade-2-gravity-eliminated-18": "Grado 2 — Sin gravedad (18 pts)",
+      "grade-1-slight-contraction-no": "Grado 1 — Contracción leve, sin movimiento (20 pts)",
+      "grade-0-no-contraction-20-2": "Grado 0 — Sin contracción (20 pts)",
+      "muscle-atrophy": "Atrofia muscular",
+      "unilateral-muscle-atrophy-shown-by": "Atrofia muscular unilateral demostrada por mediciones circunferenciales bilaterales (pantorrilla, muslo, brazo o antebrazo) o inspección de los músculos de la mano/pie. Una diferencia &ge;2 cm en puntos óseos comparables es significativa.",
+      "sensory-involvement": "Afectación sensorial",
+      "table-s11-4-b": "Tabla S11.4(b)",
+      "reproducible-alteration-of-sensation-sharp": "Alteración reproducible de la sensación (punzante/roma, tacto ligero) compatible con una distribución dermatómica específica. Limitado por el máximo de la raíz nerviosa de la Tabla S11.5 o S11.6.",
+      "anesthesia-total-sensory-loss-6": "<strong>Anestesia</strong> (pérdida sensorial total) = 6 &nbsp;|&nbsp;\n              <strong>Comprometida</strong> (sensación disminuida o alterada) = 4 &nbsp;|&nbsp;\n              <strong>Normal</strong> = 0",
+      "normal-no-loss-0-pts": "Normal — sin pérdida (0 pts)",
+      "compromised-diminished-altered-4-pts": "Comprometida — disminuida/alterada (4 pts)",
+      "anesthesia-total-sensory-loss-6-2": "Anestesia — pérdida sensorial total (6 pts)",
+      "reflex-changes": "Cambios en los reflejos",
+      "deep-tendon-reflexes-biceps-triceps": "Reflejos tendinosos profundos (bíceps, tríceps, braquiorradial, rotuliano, aquíleo) comparados con el lado no afectado. Una diferencia de &ge;1 grado es significativa.",
+      "0-absent-6-pts-present": "<strong>0 (Ausente)</strong> = 6 pts &nbsp;|&nbsp;\n              <strong>+ (Presente pero disminuido)</strong> = 4 pts &nbsp;|&nbsp;\n              <strong>++ o +++ (Normal/Aumentado)</strong> = 0 pts",
+      "normal-increased-0-pts": "Normal / Aumentado — ++, +++ (0 pts)",
+      "present-but-diminished-4-pts": "Presente pero disminuido — + (4 pts)",
+      "absent-0-6-pts": "Ausente — 0 (6 pts)",
+      "tension-compression-signs": "Signos de tensión / compresión",
+      "spurling-s-sign-cervical-straight": "Signo de Spurling (cervical), elevación de pierna recta (L5/S1) o estiramiento femoral (L2–L4).",
+      "yes-4-pts": "Sí (4 pts)",
+      "total-points-0": "<span class=\"point-total-label\">Puntos totales</span>\n          <span class=\"point-total-value\" id=\"totalPoints\">0</span>",
+      "severity-ranking": "Clasificación de gravedad",
+      "severity-ranking-reference-tables-s11": "<span class=\"calc-header-title\">Referencia de clasificación de gravedad (Tablas S11.7(a) y S11.7(b))</span>",
+      "table-s11-7-a-cervical": "Tabla S11.7(a): Cervical y torácico"
+    }
+  }
+}

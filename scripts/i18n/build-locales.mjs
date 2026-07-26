@@ -19,6 +19,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const ROOT = path.resolve(new URL('../../', import.meta.url).pathname);
 const ORIGIN = 'https://thecompdesk.com';
@@ -26,6 +27,8 @@ const CHECK = process.argv.includes('--check');
 
 const locales = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/locales.json'), 'utf8'));
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/pages.json'), 'utf8'));
+const SLOTS_PATH = path.join(ROOT, 'i18n/.slots.json');
+const SLOTS = fs.existsSync(SLOTS_PATH) ? JSON.parse(fs.readFileSync(SLOTS_PATH, 'utf8')) : {};
 
 const TARGETS = locales.locales.filter((l) => l.prefix);          // the 9 prefixed locales
 const ALL = locales.locales;                                       // incl. en at root
@@ -175,14 +178,105 @@ const BANNER = (file, code) =>
   `<!-- GENERATED FILE — do not edit. Source: /${file} · locale: ${code}\n` +
   `     Regenerate with: node scripts/i18n/build-locales.mjs -->\n`;
 
-/** Apply a catalog to the page. No-op in Stage 3A (no catalogs on disk yet). */
-function translate(html, catalog) {
+/**
+ * Substitute a locale's strings into the page by byte offset, using the slot table that
+ * the extractor recorded against the annotated English source.
+ *
+ * Offsets rather than a DOM walk, so this script needs no HTML parser and the repo stays
+ * dependency-free — which is what lets the site keep deploying as pure static with no
+ * build step. The trade is that the offsets are only valid for the exact bytes they were
+ * measured against, so every file is sha256-checked first and a mismatch is fatal.
+ *
+ * A missing or empty translation falls through to English, key by key — the same
+ * behaviour as the app's catalog, so a half-translated locale renders as a mix rather
+ * than as blanks.
+ */
+function substitute(html, file, catalog, enUrl, locUrl) {
+  const rec = SLOTS[file];
+  if (!rec) return html;
   if (!catalog) return html;
-  return html.replace(/(<[^>]*\bdata-i18n="([^"]+)"[^>]*>)([\s\S]*?)(<\/)/g, (m, open, key, body, close) => {
-    const val = key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), catalog);
-    return typeof val === 'string' && val !== '' ? `${open}${val}${close}` : m;
-  });
+
+  const val = (k) => {
+    const v = k.split('.').reduce((o, kk) => (o == null ? undefined : o[kk]), catalog);
+    return typeof v === 'string' && v !== '' ? v : null;
+  };
+
+  // JSON-LD slots share a block: parse once, set every pointer, re-serialize once.
+  const jsonBlocks = new Map();
+  for (const s of rec.slots) {
+    if (!s.j) continue;
+    const id = `${s.s}:${s.e}`;
+    if (!jsonBlocks.has(id)) jsonBlocks.set(id, { s: s.s, e: s.e, ptrs: [] });
+    jsonBlocks.get(id).ptrs.push(s);
+  }
+
+  const edits = [];
+  for (const s of rec.slots) {
+    if (s.j) continue;
+    const v = val(s.k);
+    if (v === null) continue;
+    edits.push({ s: s.s, e: s.e, text: s.a ? escapeAttr(v) : v });
+  }
+  for (const [, blk] of jsonBlocks) {
+    let data;
+    try { data = JSON.parse(html.slice(blk.s, blk.e)); } catch { continue; }
+    let touched = false;
+    for (const p of blk.ptrs) {
+      const v = val(p.k);
+      if (v === null) continue;
+      const path = p.j.split('/').filter(Boolean);
+      let cur = data;
+      for (let i = 0; i < path.length - 1 && cur != null; i++) cur = cur[path[i]];
+      if (cur && typeof cur === 'object') { cur[path[path.length - 1]] = v; touched = true; }
+    }
+    // Any self-URL inside the block must point at THIS locale's page, or the structured
+    // data contradicts the canonical we just rewrote.
+    const retarget = (o) => {
+      if (Array.isArray(o)) return o.forEach(retarget);
+      if (!o || typeof o !== 'object') return;
+      for (const [k, v] of Object.entries(o)) {
+        if (typeof v === 'string') { if (v === enUrl) { o[k] = locUrl; touched = true; } }
+        else retarget(v);
+      }
+    };
+    retarget(data);
+    if (touched) edits.push({ s: blk.s, e: blk.e, text: '\n' + JSON.stringify(data, null, 2) + '\n' });
+  }
+
+  edits.sort((a, b) => b.s - a.s);        // back-to-front so earlier offsets stay valid
+  let out = html;
+  for (const ed of edits) out = out.slice(0, ed.s) + ed.text + out.slice(ed.e);
+  return out;
 }
+
+/** Attribute values are spliced inside double quotes, so a literal `"` must be escaped. */
+const escapeAttr = (s) => s.replace(/"/g, '&quot;');
+
+/**
+ * Convenience-translation notice, injected at the top of <body> on the LOCALE copies of
+ * the legal pages only (pages flagged legalNotice in the manifest). English never gets it
+ * — English is the governing version, so the line would be nonsense there.
+ *
+ * It renders from the catalog, so it is reviewed text in every locale rather than model
+ * free-text, and it falls back to the English sentence if a locale is missing the key.
+ */
+function injectLegalNotice(html, catalog, loc) {
+  const val = catalog && catalog.shared && catalog.shared.translationNotice;
+  const text = (typeof val === 'string' && val !== '') ? val : EN_NOTICE;
+  const banner =
+    `<div class="i18n-translation-notice" role="note" lang="${loc.code}">${text}</div>\n`;
+  const m = html.match(/<body\b[^>]*>/i);
+  if (!m) return html;
+  const at = m.index + m[0].length;
+  return html.slice(0, at) + '\n' + banner + html.slice(at);
+}
+
+const EN_NOTICE = (() => {
+  try {
+    const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/en.json'), 'utf8'));
+    return en.shared.translationNotice;
+  } catch { return 'This translation is provided for convenience; the English version governs.'; }
+})();
 
 // ---------------------------------------------------------------------------
 
@@ -203,21 +297,39 @@ for (const page of PAGES) {
   const srcAbs = path.join(ROOT, page.file);
   if (!fs.existsSync(srcAbs)) throw new Error(`manifest lists a missing file: ${page.file}`);
   const original = fs.readFileSync(srcAbs, 'utf8');
+
+  // The slot offsets were measured against these exact bytes. If the English source has
+  // been edited since extraction, every offset is wrong and substituting would silently
+  // corrupt all nine locales — so refuse rather than guess.
+  const rec = SLOTS[page.file];
+  if (rec) {
+    const sha = crypto.createHash('sha256').update(original).digest('hex');
+    if (sha !== rec.sha256) {
+      throw new Error(
+        `${page.file} changed since extraction — i18n/.slots.json offsets are stale.\n` +
+        `Re-run the extractor before building locales.`);
+    }
+  }
+
   const base = stripGenerated(original);
 
   // 1. English source: hreflang + runtime only. Copy is byte-unchanged.
   emit(page.file, injectHead(base, page.route));
 
   // 2. One copy per prefixed locale.
+  //    Substitution happens FIRST, on the pristine annotated bytes the offsets were
+  //    measured against. The URL/lang rewrites run after, so a link inside a translated
+  //    paragraph still gets locale-prefixed.
   for (const loc of TARGETS) {
-    let out = base;
+    let out = substitute(original, page.file, loadCatalog(loc.code), urlFor(page.route, ALL[0]), urlFor(page.route, loc));
+    out = stripGenerated(out);
     out = absolutizeRefs(out, page.file);
     out = setHtmlLang(out, loc);
     out = setCanonical(out, page.route, loc);
     out = setSocial(out, page.route, loc);
     out = localizeLinks(out, loc);
     out = injectHead(out, page.route);
-    out = translate(out, loadCatalog(loc.code));
+    if (page.legalNotice) out = injectLegalNotice(out, loadCatalog(loc.code), loc);
     out = BANNER(page.file, loc.code) + out;
     emit(path.relative(ROOT, outFor(page.file, loc)), out);
   }

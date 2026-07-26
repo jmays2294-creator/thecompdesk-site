@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-    <title>Delete Account - The Comp Desk</title>
+    <title data-i18n="delete-account.meta.title" data-i18n="delete-account.meta.title">Delete Account - The Comp Desk</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -236,49 +236,49 @@
 </head>
 <body>
     <nav>
-        <a href="/" class="nav-brand">The Comp Desk</a>
+        <a href="/" class="nav-brand" data-i18n="shared.the-comp-desk" data-i18n="shared.the-comp-desk">The Comp Desk</a>
         <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/#features">Features</a></li>
-            <li><a href="/#pricing">Pricing</a></li>
+            <li data-i18n="delete-account.home" data-i18n="delete-account.home"><a href="/">Home</a></li>
+            <li data-i18n="delete-account.features" data-i18n="delete-account.features"><a href="/#features">Features</a></li>
+            <li data-i18n="delete-account.pricing" data-i18n="delete-account.pricing"><a href="/#pricing">Pricing</a></li>
         </ul>
     </nav>
     <div class="container">
         <div class="delete-card">
             <div id="deleteForm">
                 <div class="delete-icon">&#9888;</div>
-                <h1 class="delete-title">Delete Your Account</h1>
-                <p class="delete-message">This action is permanent and cannot be undone. All your data will be permanently removed from The Comp Desk.</p>
+                <h1 class="delete-title" data-i18n="delete-account.delete-your-account" data-i18n="delete-account.delete-your-account">Delete Your Account</h1>
+                <p class="delete-message" data-i18n="delete-account.this-action-is-permanent-and" data-i18n="delete-account.this-action-is-permanent-and">This action is permanent and cannot be undone. All your data will be permanently removed from The Comp Desk.</p>
                 <div class="warning-box">
-                    <h3>What will be deleted:</h3>
+                    <h3 data-i18n="delete-account.what-will-be-deleted" data-i18n="delete-account.what-will-be-deleted">What will be deleted:</h3>
                     <ul>
-                        <li>Your profile and account information</li>
-                        <li>All saved calculations and case data</li>
-                        <li>Your subscription (if active, it will be canceled)</li>
-                        <li>Digital signature and attorney profile data</li>
+                        <li data-i18n="delete-account.your-profile-and-account-information" data-i18n="delete-account.your-profile-and-account-information">Your profile and account information</li>
+                        <li data-i18n="delete-account.all-saved-calculations-and-case" data-i18n="delete-account.all-saved-calculations-and-case">All saved calculations and case data</li>
+                        <li data-i18n="delete-account.your-subscription-if-active-it" data-i18n="delete-account.your-subscription-if-active-it">Your subscription (if active, it will be canceled)</li>
+                        <li data-i18n="delete-account.digital-signature-and-attorney-profile" data-i18n="delete-account.digital-signature-and-attorney-profile">Digital signature and attorney profile data</li>
                     </ul>
                 </div>
                 <div class="form-group">
-                    <label for="email">Confirm your email address</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your account email" required>
+                    <label for="email" data-i18n="delete-account.confirm-your-email-address" data-i18n="delete-account.confirm-your-email-address">Confirm your email address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your account email" required data-i18n-attr="placeholder:delete-account.enter-your-account-email.placeholder" data-i18n-attr="placeholder:delete-account.enter-your-account-email.placeholder">
                 </div>
                 <div class="form-group">
-                    <label for="confirm">Type "DELETE" to confirm</label>
-                    <input type="text" id="confirm" name="confirm" placeholder="DELETE" autocomplete="off">
+                    <label for="confirm" data-i18n="delete-account.type-delete-to-confirm" data-i18n="delete-account.type-delete-to-confirm">Type "DELETE" to confirm</label>
+                    <input type="text" id="confirm" name="confirm" placeholder="DELETE" autocomplete="off" data-i18n-attr="placeholder:delete-account.delete.placeholder" data-i18n-attr="placeholder:delete-account.delete.placeholder">
                 </div>
                 <div class="button-row">
-                    <a href="/" class="button button-cancel">Cancel</a>
-                    <button type="button" id="deleteBtn" class="button button-delete" disabled onclick="handleDelete()">Delete Account</button>
+                    <a href="/" class="button button-cancel" data-i18n="delete-account.cancel" data-i18n="delete-account.cancel">Cancel</a>
+                    <button type="button" id="deleteBtn" class="button button-delete" disabled onclick="handleDelete()" data-i18n="delete-account.delete-account" data-i18n="delete-account.delete-account">Delete Account</button>
                 </div>
-                <div class="contact-note">
+                <div class="contact-note" data-i18n="delete-account.need-help-instead-contact-us" data-i18n="delete-account.need-help-instead-contact-us">
                     Need help instead? Contact us at <a href="mailto:contact@thecompdesk.com">contact@thecompdesk.com</a>
                 </div>
             </div>
             <div id="successState" class="success-state">
                 <div class="success-icon">&#10003;</div>
-                <h1 class="delete-title">Account Deleted</h1>
-                <p class="delete-message">Your account and all associated data have been permanently deleted. If you had an active subscription, it has been canceled and no further charges will be made.</p>
-                <a href="/" class="button button-cancel" style="display:inline-block; flex:none; padding:0.75rem 3rem;">Return Home</a>
+                <h1 class="delete-title" data-i18n="delete-account.account-deleted" data-i18n="delete-account.account-deleted">Account Deleted</h1>
+                <p class="delete-message" data-i18n="delete-account.your-account-and-all-associated" data-i18n="delete-account.your-account-and-all-associated">Your account and all associated data have been permanently deleted. If you had an active subscription, it has been canceled and no further charges will be made.</p>
+                <a href="/" class="button button-cancel" style="display:inline-block; flex:none; padding:0.75rem 3rem;" data-i18n="delete-account.return-home" data-i18n="delete-account.return-home">Return Home</a>
             </div>
         </div>
     </div>

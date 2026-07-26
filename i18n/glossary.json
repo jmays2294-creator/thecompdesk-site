@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "description": "Translation contract for The Comp Desk. Read by scripts/generate-translations.mjs and injected into the model's system prompt for every batch. Human reviewers should treat `terms[].translations` as the approved wording for a locale — once a slot is filled, the generator is told to use it verbatim.",
+  "sourceLocale": "en",
+  "targetLocales": [
+    "es",
+    "zh-Hans",
+    "ru",
+    "bn",
+    "ht",
+    "ko",
+    "ar",
+    "ur",
+    "fr",
+    "pl"
+  ],
+  "rtlLocales": [
+    "ar",
+    "ur"
+  ],
+  "rules": {
+    "placeholders": "Never translate, reorder the characters of, or add spaces inside a {placeholder}. Copy each one exactly as it appears in the source, including case. You may move a placeholder within the sentence when the target language's word order requires it, but every placeholder in the source must appear exactly once in the translation.",
+    "register": "Write for an injured worker with no legal training, reading on a phone, possibly under stress. Use the plainest everyday words the language allows. Prefer the polite-but-direct second person that a public-service agency would use (usted / vous / вы / 존댓말). Never use legalese where a common word exists.",
+    "brevity": "UI labels must stay short — buttons and tabs should not grow more than about 1.5x the English character count, or they break the layout. Prefer a shorter accurate word over a longer literal one.",
+    "legalTerms": "New York Workers' Compensation terms of art are legally meaningful. When a term appears in `terms` below, translate the concept plainly and keep the English term or abbreviation in parentheses on first use, e.g. Spanish: 'salario semanal promedio (Average Weekly Wage, AWW)'. Never invent an abbreviation in the target language.",
+    "doNotTranslate": "Items in `doNotTranslate` are product names, agency names, statute citations, and official form numbers. Reproduce them character-for-character in Latin script even in Arabic, Urdu, Bengali, Korean, and Chinese text — a worker has to match them against a paper form.",
+    "punctuation": "Use the target language's own punctuation and quotation marks. Keep the source's sentence count. Do not add exclamation marks the source does not have.",
+    "currencyAndDates": "Leave currency symbols, amounts, and date formats exactly as the source renders them — they are produced by code, not copy.",
+    "noEmbellishment": "Translate only. Do not add explanations, disclaimers, honorifics, or marketing language that is not in the source string.",
+    "rtl": "For ar and ur, write natural right-to-left text. Do not insert directional control characters; the app sets <html dir=\"rtl\">. Latin-script terms and form numbers stay Latin and will render correctly via bidi."
+  },
+  "doNotTranslate": [
+    "The Comp Desk",
+    "Comp Buddy",
+    "Job Buddy",
+    "Road to Recovery",
+    "Workers' Compensation Board",
+    "New York State Workers' Compensation Board",
+    "WCB",
+    "WCL",
+    "C-3",
+    "C-4",
+    "C-4.3",
+    "C-8.1",
+    "C-257",
+    "C-258.1",
+    "OC-400.1",
+    "OC-110A",
+    "RB-89",
+    "WC-14",
+    "AWW",
+    "SLU",
+    "LWEC",
+    "TTD",
+    "TPD",
+    "PPD",
+    "PTD",
+    "IME",
+    "MTG",
+    "MMI",
+    "CCP",
+    "ROM",
+    "EMG",
+    "Section 32",
+    "Section 15(3)",
+    "Section 114-a",
+    "Section 137",
+    "§ 32",
+    "§ 15(3)",
+    "§ 114-a",
+    "§ 137",
+    "Pro",
+    "Firm"
+  ],
+  "terms": [
+    {
+      "term": "Average Weekly Wage",
+      "abbr": "AWW",
+      "definition": "The worker's average gross weekly earnings before the injury; every cash benefit is calculated from it.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Schedule Loss of Use",
+      "abbr": "SLU",
+      "definition": "A fixed number of weeks of benefits for permanent loss of use of an arm, leg, hand, foot, eye, ear, or other listed body part.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Loss of Wage Earning Capacity",
+      "abbr": "LWEC",
+      "definition": "The percentage by which a permanent non-schedule injury reduces the worker's ability to earn wages.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Independent Medical Examination",
+      "abbr": "IME",
+      "definition": "An examination by a doctor chosen by the insurance carrier, not by the worker.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Temporary Total Disability",
+      "abbr": "TTD",
+      "definition": "The worker cannot work at all right now, but the condition is expected to change.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Temporary Partial Disability",
+      "abbr": "TPD",
+      "definition": "The worker can do some work right now, but less than before the injury.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Permanent Partial Disability",
+      "abbr": "PPD",
+      "definition": "A lasting impairment that still leaves some ability to work.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Maximum Medical Improvement",
+      "abbr": "MMI",
+      "definition": "The point at which the condition is not expected to improve further with treatment.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "carrier",
+      "abbr": null,
+      "definition": "The workers' compensation insurance company (or self-insured employer) responsible for paying the claim. NOT a shipping company or a phone carrier — mistranslating this is the single most common error.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "claim",
+      "abbr": null,
+      "definition": "The worker's workers' compensation case before the Board.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "hearing",
+      "abbr": null,
+      "definition": "A proceeding before a Workers' Compensation Law Judge, often held virtually.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "award",
+      "abbr": null,
+      "definition": "Money the Board orders the carrier to pay the worker.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Section 32 settlement",
+      "abbr": null,
+      "definition": "A voluntary agreement that closes all or part of a claim, usually for a lump sum. Keep the citation 'Section 32' in Latin script.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "date of accident",
+      "abbr": "DOA",
+      "definition": "The date the injury happened, or the date of disablement for an occupational disease. It controls which benefit rates apply.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "attorney fee",
+      "abbr": null,
+      "definition": "A fee approved by the Board and taken out of the worker's award — never billed to the worker up front.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    },
+    {
+      "term": "Medical Treatment Guidelines",
+      "abbr": "MTG",
+      "definition": "The New York State rules that say which treatments are pre-authorized for a given body part.",
+      "translations": {
+        "es": null,
+        "zh-Hans": null,
+        "ru": null,
+        "bn": null,
+        "ht": null,
+        "ko": null,
+        "ar": null,
+        "ur": null,
+        "fr": null,
+        "pl": null
+      }
+    }
+  ],
+  "derivedLocales": {
+    "zh-Hant": {
+      "from": "zh-Hans",
+      "method": "OpenCC Simplified->Traditional script transform (scripts/derive-zh-hant.mjs, variant t)",
+      "note": "Same language, same wording, different script. Never translate separately — it would cost money AND create two divergent catalogs. Region-tuned variants twp (Taiwan) / hk (Hong Kong) can be derived from the same source later."
+    }
+  }
+}
