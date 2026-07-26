@@ -80,7 +80,7 @@
       "translations": {
         "es": "salario semanal promedio (Average Weekly Wage, AWW)",
         "zh-Hans": "平均周工资（Average Weekly Wage，AWW）",
-        "ru": null,
+        "ru": "средняя недельная заработная плата (Average Weekly Wage, AWW)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -97,7 +97,7 @@
       "translations": {
         "es": "pérdida de uso programada (Schedule Loss of Use, SLU)",
         "zh-Hans": "肢体功能丧失赔偿（Schedule Loss of Use，SLU）",
-        "ru": null,
+        "ru": "компенсация за утрату функции конечности (Schedule Loss of Use, SLU)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -114,7 +114,7 @@
       "translations": {
         "es": "pérdida de capacidad para generar ingresos (Loss of Wage Earning Capacity, LWEC)",
         "zh-Hans": "工资收入能力丧失（Loss of Wage Earning Capacity，LWEC）",
-        "ru": null,
+        "ru": "утрата трудоспособности по заработку (Loss of Wage Earning Capacity, LWEC)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -131,7 +131,7 @@
       "translations": {
         "es": "examen médico independiente (Independent Medical Examination, IME)",
         "zh-Hans": "独立医学鉴定（Independent Medical Examination，IME）",
-        "ru": null,
+        "ru": "независимое медицинское освидетельствование (Independent Medical Examination, IME)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -148,7 +148,7 @@
       "translations": {
         "es": "incapacidad total temporal (Temporary Total Disability, TTD)",
         "zh-Hans": "暂时完全丧失劳动能力（Temporary Total Disability，TTD）",
-        "ru": null,
+        "ru": "временная полная нетрудоспособность (Temporary Total Disability, TTD)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -165,7 +165,7 @@
       "translations": {
         "es": "incapacidad parcial temporal (Temporary Partial Disability, TPD)",
         "zh-Hans": "暂时部分丧失劳动能力（Temporary Partial Disability，TPD）",
-        "ru": null,
+        "ru": "временная частичная нетрудоспособность (Temporary Partial Disability, TPD)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -182,7 +182,7 @@
       "translations": {
         "es": "incapacidad parcial permanente (Permanent Partial Disability, PPD)",
         "zh-Hans": "永久部分丧失劳动能力（Permanent Partial Disability，PPD）",
-        "ru": null,
+        "ru": "постоянная частичная нетрудоспособность (Permanent Partial Disability, PPD)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -199,7 +199,7 @@
       "translations": {
         "es": "mejoría médica máxima (Maximum Medical Improvement, MMI)",
         "zh-Hans": "医疗状况已达最大改善（Maximum Medical Improvement，MMI）",
-        "ru": null,
+        "ru": "точка максимального медицинского улучшения (Maximum Medical Improvement, MMI)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -216,7 +216,7 @@
       "translations": {
         "es": "aseguradora",
         "zh-Hans": "保险公司",
-        "ru": null,
+        "ru": "страховая компания",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -233,7 +233,7 @@
       "translations": {
         "es": "reclamo",
         "zh-Hans": "索赔",
-        "ru": null,
+        "ru": "дело о компенсации",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -250,7 +250,7 @@
       "translations": {
         "es": "audiencia",
         "zh-Hans": "听证会",
-        "ru": null,
+        "ru": "слушание",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -267,7 +267,7 @@
       "translations": {
         "es": "compensación otorgada",
         "zh-Hans": "裁定赔偿金",
-        "ru": null,
+        "ru": "присуждённая выплата",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -284,7 +284,7 @@
       "translations": {
         "es": "convenio de liquidación (Section 32 settlement)",
         "zh-Hans": "Section 32 和解协议",
-        "ru": null,
+        "ru": "мировое соглашение Section 32",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -301,7 +301,7 @@
       "translations": {
         "es": "fecha del accidente (date of accident, DOA)",
         "zh-Hans": "事故发生日期（date of accident，DOA）",
-        "ru": null,
+        "ru": "дата несчастного случая (date of accident, DOA)",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -318,7 +318,7 @@
       "translations": {
         "es": "honorarios del abogado",
         "zh-Hans": "律师费",
-        "ru": null,
+        "ru": "гонорар адвоката",
         "bn": null,
         "ht": null,
         "ko": null,
@@ -335,7 +335,7 @@
       "translations": {
         "es": "Pautas de Tratamiento Médico (Medical Treatment Guidelines, MTG)",
         "zh-Hans": "医疗治疗指南（Medical Treatment Guidelines，MTG）",
-        "ru": null,
+        "ru": "Руководство по медицинскому лечению (Medical Treatment Guidelines, MTG)",
         "bn": null,
         "ht": null,
         "ko": null,
