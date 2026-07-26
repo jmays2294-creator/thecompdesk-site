@@ -19,7 +19,10 @@ Disallow: /workspace
 Disallow: /workspace.html
 
 # Auth-gated tools (redirect to login anyway)
-Disallow: /tools/find-doctor
+# 2026-07-25: /tools/find-doctor un-blocked. The "redirects to login" note was stale —
+# the page has no auth gate (no requireAuth / getSession / login redirect anywhere in
+# it). It is a public worker-facing tool and is being translated into 9 locales, which
+# a Disallow would have kept out of the index entirely.
 Disallow: /tools/settlement
 
 # Dashboard (auth-gated)
