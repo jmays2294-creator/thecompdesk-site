@@ -118,9 +118,9 @@
   <script src="/js/i18n-locale.js" defer></script>
 </head>
 <body class="tcd-skinned" data-no-brand-bg="true">
-  <nav class="tcd-nav" aria-label="Primary" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
+  <nav class="tcd-nav" aria-label="Principal" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
     <div class="tcd-nav-inner">
-      <a class="tcd-wordmark" href="/es/?replay=1" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The <span class="accent">Comp</span> Desk</a>
+      <a class="tcd-wordmark" href="/es/?replay=1" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The<span class="accent"> Comp</span> Desk</a>
       <div class="tcd-nav-links" data-i18n="shared.attorneys-calculators-workspace-learn" data-i18n="shared.attorneys-calculators-workspace-learn">
         <a href="/attorneys">Abogados</a>
         <a href="/es/calculators/">Calculadoras</a>
@@ -145,7 +145,7 @@
     <!-- Calculator -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title" data-i18n="shared.calculator" data-i18n="shared.calculator">Calculator</h2>
+        <h2 class="calc-header-title" data-i18n="shared.calculator" data-i18n="shared.calculator">Calculadora</h2>
       </div>
       <div class="calc-body">
 
@@ -155,22 +155,22 @@
             <label class="field-label" for="awwInput" data-i18n="shared.average-weekly-wage-aww" data-i18n="shared.average-weekly-wage-aww">Salario Semanal Promedio (Average Weekly Wage, AWW)</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="awwInput" data-fieldhelp="aww" value="1125.00" step="0.01" aria-label="Average weekly wage" data-i18n-attr="aria-label:shared.average-weekly-wage" data-i18n-attr="aria-label:shared.average-weekly-wage">
+              <input type="number" id="awwInput" data-fieldhelp="aww" value="1125.00" step="0.01" aria-label="Salario semanal promedio" data-i18n-attr="aria-label:shared.average-weekly-wage" data-i18n-attr="aria-label:shared.average-weekly-wage">
             </div>
             <span class="field-hint" data-i18n="calculators.lwec.2-3-aww-comp-rate" data-i18n="calculators.lwec.2-3-aww-comp-rate">2/3 del AWW = tasa de compensación (calculada automáticamente)</span>
           </div>
           <div class="field-group">
-            <label class="field-label" for="maxRate" data-i18n="shared.maximum-rate-9432" data-i18n="shared.maximum-rate-9432">Maximum Rate <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" title="Per NYS WCB Subject No. 046-1805 — max/min eff. 7/1/2026. Click for source." style="color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;">&#9432;</a></label>
+            <label class="field-label" for="maxRate" data-i18n="shared.maximum-rate-9432" data-i18n="shared.maximum-rate-9432">Tasa Máxima <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" title="Per NYS WCB Subject No. 046-1805 — max/min eff. 7/1/2026. Click for source." style="color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;">&#9432;</a></label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="maxRate" value="1281.50" step="0.01" aria-label="Statutory maximum weekly rate" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate">
+              <input type="number" id="maxRate" value="1281.50" step="0.01" aria-label="Tasa semanal máxima legal" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate">
             </div>
-            <span class="field-hint" id="maxRateHint" data-i18n="shared.current-max-1-281-50" data-i18n="shared.current-max-1-281-50">Current max: $1,281.50 (7/1/2026)</span>
+            <span class="field-hint" id="maxRateHint" data-i18n="shared.current-max-1-281-50" data-i18n="shared.current-max-1-281-50">Máximo actual: $1,281.50 (7/1/2026)</span>
           </div>
           <div class="field-group">
             <label class="field-label" for="doiDate" data-i18n="shared.date-of-injury" data-i18n="shared.date-of-injury">Fecha de la Lesión</label>
-            <input type="date" id="doiDate" data-fieldhelp="doa" aria-label="Date of injury — auto-fills max rate" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills">
-            <span class="field-hint" data-i18n="shared.auto-fills-max-rate" data-i18n="shared.auto-fills-max-rate">Auto-fills max rate</span>
+            <input type="date" id="doiDate" data-fieldhelp="doa" aria-label="Fecha de la lesión — completa automáticamente la tasa máxima" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills">
+            <span class="field-hint" data-i18n="shared.auto-fills-max-rate" data-i18n="shared.auto-fills-max-rate">Completa automáticamente la tasa máxima</span>
           </div>
         </div>
 
@@ -243,7 +243,7 @@
 
           <!-- Equation -->
           <div id="equationBox" style="display:none;margin-top:14px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;" data-i18n="shared.calculation-breakdown" data-i18n="shared.calculation-breakdown">Calculation Breakdown</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;" data-i18n="shared.calculation-breakdown" data-i18n="shared.calculation-breakdown">Desglose del Cálculo</div>
             <pre id="equationText" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
           </div>
 
@@ -300,7 +300,7 @@
             <tr>
               <th data-i18n="calculators.lwec.classification" data-i18n="calculators.lwec.classification">Clasificación</th>
               <th data-i18n="calculators.lwec.lwec-range" data-i18n="calculators.lwec.lwec-range">Rango % de LWEC</th>
-              <th data-i18n="shared.max-weeks" data-i18n="shared.max-weeks">Max Weeks</th>
+              <th data-i18n="shared.max-weeks" data-i18n="shared.max-weeks">Semanas Máx.</th>
             </tr>
           </thead>
           <tbody>
