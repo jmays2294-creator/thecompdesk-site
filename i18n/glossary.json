@@ -79,7 +79,7 @@
       "definition": "The worker's average gross weekly earnings before the injury; every cash benefit is calculated from it.",
       "translations": {
         "es": "salario semanal promedio (Average Weekly Wage, AWW)",
-        "zh-Hans": null,
+        "zh-Hans": "平均周工资（Average Weekly Wage，AWW）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -96,7 +96,7 @@
       "definition": "A fixed number of weeks of benefits for permanent loss of use of an arm, leg, hand, foot, eye, ear, or other listed body part.",
       "translations": {
         "es": "pérdida de uso programada (Schedule Loss of Use, SLU)",
-        "zh-Hans": null,
+        "zh-Hans": "肢体功能丧失赔偿（Schedule Loss of Use，SLU）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -113,7 +113,7 @@
       "definition": "The percentage by which a permanent non-schedule injury reduces the worker's ability to earn wages.",
       "translations": {
         "es": "pérdida de capacidad para generar ingresos (Loss of Wage Earning Capacity, LWEC)",
-        "zh-Hans": null,
+        "zh-Hans": "工资收入能力丧失（Loss of Wage Earning Capacity，LWEC）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -130,7 +130,7 @@
       "definition": "An examination by a doctor chosen by the insurance carrier, not by the worker.",
       "translations": {
         "es": "examen médico independiente (Independent Medical Examination, IME)",
-        "zh-Hans": null,
+        "zh-Hans": "独立医学鉴定（Independent Medical Examination，IME）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -147,7 +147,7 @@
       "definition": "The worker cannot work at all right now, but the condition is expected to change.",
       "translations": {
         "es": "incapacidad total temporal (Temporary Total Disability, TTD)",
-        "zh-Hans": null,
+        "zh-Hans": "暂时完全丧失劳动能力（Temporary Total Disability，TTD）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -164,7 +164,7 @@
       "definition": "The worker can do some work right now, but less than before the injury.",
       "translations": {
         "es": "incapacidad parcial temporal (Temporary Partial Disability, TPD)",
-        "zh-Hans": null,
+        "zh-Hans": "暂时部分丧失劳动能力（Temporary Partial Disability，TPD）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -181,7 +181,7 @@
       "definition": "A lasting impairment that still leaves some ability to work.",
       "translations": {
         "es": "incapacidad parcial permanente (Permanent Partial Disability, PPD)",
-        "zh-Hans": null,
+        "zh-Hans": "永久部分丧失劳动能力（Permanent Partial Disability，PPD）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -198,7 +198,7 @@
       "definition": "The point at which the condition is not expected to improve further with treatment.",
       "translations": {
         "es": "mejoría médica máxima (Maximum Medical Improvement, MMI)",
-        "zh-Hans": null,
+        "zh-Hans": "医疗状况已达最大改善（Maximum Medical Improvement，MMI）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -215,7 +215,7 @@
       "definition": "The workers' compensation insurance company (or self-insured employer) responsible for paying the claim. NOT a shipping company or a phone carrier — mistranslating this is the single most common error.",
       "translations": {
         "es": "aseguradora",
-        "zh-Hans": null,
+        "zh-Hans": "保险公司",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -232,7 +232,7 @@
       "definition": "The worker's workers' compensation case before the Board.",
       "translations": {
         "es": "reclamo",
-        "zh-Hans": null,
+        "zh-Hans": "索赔",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -249,7 +249,7 @@
       "definition": "A proceeding before a Workers' Compensation Law Judge, often held virtually.",
       "translations": {
         "es": "audiencia",
-        "zh-Hans": null,
+        "zh-Hans": "听证会",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -266,7 +266,7 @@
       "definition": "Money the Board orders the carrier to pay the worker.",
       "translations": {
         "es": "compensación otorgada",
-        "zh-Hans": null,
+        "zh-Hans": "裁定赔偿金",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -283,7 +283,7 @@
       "definition": "A voluntary agreement that closes all or part of a claim, usually for a lump sum. Keep the citation 'Section 32' in Latin script.",
       "translations": {
         "es": "convenio de liquidación (Section 32 settlement)",
-        "zh-Hans": null,
+        "zh-Hans": "Section 32 和解协议",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -300,7 +300,7 @@
       "definition": "The date the injury happened, or the date of disablement for an occupational disease. It controls which benefit rates apply.",
       "translations": {
         "es": "fecha del accidente (date of accident, DOA)",
-        "zh-Hans": null,
+        "zh-Hans": "事故发生日期（date of accident，DOA）",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -317,7 +317,7 @@
       "definition": "A fee approved by the Board and taken out of the worker's award — never billed to the worker up front.",
       "translations": {
         "es": "honorarios del abogado",
-        "zh-Hans": null,
+        "zh-Hans": "律师费",
         "ru": null,
         "bn": null,
         "ht": null,
@@ -334,7 +334,7 @@
       "definition": "The New York State rules that say which treatments are pre-authorized for a given body part.",
       "translations": {
         "es": "Pautas de Tratamiento Médico (Medical Treatment Guidelines, MTG)",
-        "zh-Hans": null,
+        "zh-Hans": "医疗治疗指南（Medical Treatment Guidelines，MTG）",
         "ru": null,
         "bn": null,
         "ht": null,
