@@ -5,13 +5,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="tools.find-doctor.meta.title" data-i18n="tools.find-doctor.meta.title">Find a Workers' Comp Doctor in NYC | NYS Workers' Compensation | The Comp Desk</title>
-  <meta name="description" content="Find a workers' compensation doctor in New York City. Interactive map covering all five boroughs, helping injured workers find WCB-authorized providers experienced with New York workers' comp cases." data-i18n-attr="content:tools.find-doctor.meta.description" data-i18n-attr="content:tools.find-doctor.meta.description">
+  <title data-i18n="tools.find-doctor.meta.title" data-i18n="tools.find-doctor.meta.title">NYC 산재보상 의사 찾기 | NYS 산재보상 | The Comp Desk</title>
+  <meta name="description" content="뉴욕시에서 산재보상 의사를 찾으세요. 5개 자치구 전체를 다루는 대화형 지도로, 부상 근로자가 뉴욕 산재보상 사건 경험이 있는 WCB 승인 의료진을 찾도록 도와드립니다." data-i18n-attr="content:tools.find-doctor.meta.description" data-i18n-attr="content:tools.find-doctor.meta.description">
   <meta name="keywords" content="find workers comp doctor NYC, NYS workers compensation doctor, workers comp physician Manhattan Brooklyn Queens Bronx Staten Island, occupational medicine NYC, WC provider directory, workers comp treatment NY">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk" data-i18n-attr="content:tools.find-doctor.meta.og-title" data-i18n-attr="content:tools.find-doctor.meta.og-title">
-  <meta property="og:description" content="Interactive map of workers'-comp-experienced doctors across the five boroughs. Use your location to find providers near you." data-i18n-attr="content:tools.find-doctor.meta.og-description" data-i18n-attr="content:tools.find-doctor.meta.og-description">
+  <meta property="og:title" content="NYC 산재보상 의사 찾기 — The Comp Desk" data-i18n-attr="content:tools.find-doctor.meta.og-title" data-i18n-attr="content:tools.find-doctor.meta.og-title">
+  <meta property="og:description" content="5개 자치구 전역의 산재보상 경험이 있는 의사 대화형 지도. 위치를 사용해 근처 의료진을 찾아보세요." data-i18n-attr="content:tools.find-doctor.meta.og-description" data-i18n-attr="content:tools.find-doctor.meta.og-description">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Comp Desk">
   <meta property="og:url" content="https://thecompdesk.com/ko/tools/find-doctor">
@@ -19,8 +19,8 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk" data-i18n-attr="content:tools.find-doctor.meta.og-title" data-i18n-attr="content:tools.find-doctor.meta.og-title">
-  <meta name="twitter:description" content="Interactive five-borough map of NY workers'-comp-experienced doctors. Free." data-i18n-attr="content:tools.find-doctor.meta.twitter-description" data-i18n-attr="content:tools.find-doctor.meta.twitter-description">
+  <meta name="twitter:title" content="NYC 산재보상 의사 찾기 — The Comp Desk" data-i18n-attr="content:tools.find-doctor.meta.og-title" data-i18n-attr="content:tools.find-doctor.meta.og-title">
+  <meta name="twitter:description" content="뉴욕 산재보상 경험이 있는 의사의 5개 자치구 대화형 지도. 무료." data-i18n-attr="content:tools.find-doctor.meta.twitter-description" data-i18n-attr="content:tools.find-doctor.meta.twitter-description">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
 
   <!-- Canonical -->
@@ -28,66 +28,70 @@
 
   <!-- JSON-LD: WebApplication + FAQPage -->
   <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
-  [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Find a Workers' Comp Doctor (NYC)",
-      "url": "https://thecompdesk.com/tools/find-doctor",
-      "description": "Free interactive directory of NYC workers'-comp-experienced medical providers. Five-borough map with geolocation and deep-links to Apple/Google Maps.",
-      "applicationCategory": "MedicalApplication",
-      "operatingSystem": "All",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "creator": {
-        "@type": "Organization",
-        "name": "The Comp Desk",
-        "url": "https://thecompdesk.com"
-      },
-      "areaServed": {
-        "@type": "City",
-        "name": "New York City"
-      }
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "산재보상 의사 찾기 (NYC)",
+    "url": "https://thecompdesk.com/ko/tools/find-doctor",
+    "description": "NYC 산재보상 경험이 있는 의료진의 무료 대화형 디렉토리. 위치 확인 기능과 Apple/Google 지도 딥링크가 포함된 5개 자치구 지도.",
+    "applicationCategory": "MedicalApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Does my doctor need to be WCB-authorized to treat my workers' comp injury in New York?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Currently, yes. Apart from limited exceptions such as emergency care, a provider who treats an injured worker in New York generally must be authorized by the Workers' Compensation Board. Governor Hochul's 2026 'Universal Authorization' proposal would remove this requirement and allow any eligible licensed provider in good standing to treat workers' compensation patients, but it is not yet law; if enacted, it would take effect January 1, 2028. This directory focuses on providers experienced with workers' comp cases."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I choose my own doctor in a New York workers' compensation case?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Generally yes. For non-emergency treatment, you have the right to select your own treating physician, who currently must be WCB-authorized. For emergencies, you may be seen by whichever provider treats you. If your employer is part of a Preferred Provider Organization (PPO), you may be required to see a PPO provider for the first 30 days. Consult a workers' compensation attorney for case-specific guidance."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Which boroughs does the map cover?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "The map is bounded to the five boroughs of New York City: Manhattan, Brooklyn, Queens, the Bronx, and Staten Island. Pan and zoom are restricted to this region."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is the doctor finder free?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes — completely free, no signup required."
-          }
-        }
-      ]
+    "creator": {
+      "@type": "Organization",
+      "name": "The Comp Desk",
+      "url": "https://thecompdesk.com"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "뉴욕시"
     }
-  ]
-  </script>
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "뉴욕에서 산재보상 부상을 치료하려면 제 의사가 WCB 승인을 받아야 하나요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "현재는 그렇습니다. 응급 치료와 같은 제한된 예외를 제외하고, 뉴욕에서 부상 근로자를 치료하는 의료진은 일반적으로 Workers' Compensation Board의 승인을 받아야 합니다. Hochul 주지사의 2026년 'Universal Authorization' 제안은 이 요건을 없애고 자격을 갖춘 모든 면허 의료진이 산재보상 환자를 치료할 수 있도록 허용하려 하지만, 아직 법으로 제정되지 않았습니다. 제정될 경우 2028년 1월 1일부터 시행됩니다. 이 디렉토리는 산재보상 사건 경험이 있는 의료진에 중점을 둡니다."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "뉴욕 산재보상 사건에서 직접 의사를 선택할 수 있나요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "일반적으로 가능합니다. 응급이 아닌 치료의 경우, 현재 WCB 승인을 받아야 하는 주치의를 직접 선택할 권리가 있습니다. 응급 상황에서는 치료해주는 어떤 의료진에게든 진료를 받을 수 있습니다. 고용주가 우선공급자기구(Preferred Provider Organization, PPO)에 속해 있다면, 처음 30일 동안은 PPO 의료진에게 진료를 받아야 할 수 있습니다. 사건별 구체적인 안내는 산재보상 변호사와 상담하세요."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "지도는 어느 자치구를 다루나요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "지도는 뉴욕시의 5개 자치구 — 맨해튼, 브루클린, 퀸즈, 브롱크스, 스태튼 아일랜드 — 로 제한됩니다. 이동 및 확대/축소는 이 지역으로 제한됩니다."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "의사 찾기 서비스는 무료인가요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "네 — 완전히 무료이며 가입이 필요 없습니다."
+        }
+      }
+    ]
+  }
+]
+</script>
 
   <!-- Worker (Dawn) skin -->
   <link rel="stylesheet" href="/css/skins.css">
@@ -254,33 +258,33 @@
   <script src="/js/i18n-locale.js" defer></script>
 </head>
 <body class="tcd-skinned">
-  <a class="skip-link" href="#main" data-i18n="tools.find-doctor.skip-to-map" data-i18n="tools.find-doctor.skip-to-map">Skip to map</a>
+  <a class="skip-link" href="#main" data-i18n="tools.find-doctor.skip-to-map" data-i18n="tools.find-doctor.skip-to-map">지도로 건너뛰기</a>
 
   <div class="dawn-wash" aria-hidden="true"></div>
 
-  <nav class="tcd-nav" aria-label="Primary" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
+  <nav class="tcd-nav" aria-label="기본" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
     <div class="tcd-nav-inner">
-      <a class="tcd-wordmark" href="/ko/worker" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The <span class="accent">Comp</span> Desk</a>
+      <a class="tcd-wordmark" href="/ko/worker" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The <span class="accent">Comp</span> Desk </a>
       <div class="tcd-nav-links" data-i18n="shared.learn-find-a-doctor-calculators" data-i18n="shared.learn-find-a-doctor-calculators">
-        <a href="/learn">Learn</a>
-        <a href="/ko/tools/find-doctor">Find a Doctor</a>
-        <a href="/ko/calculators/">Calculators</a>
-        <a href="/ko/contact">Contact</a>
+        <a href="/learn">학습</a>
+        <a href="/ko/tools/find-doctor">의사 찾기</a>
+        <a href="/ko/calculators/">계산기</a>
+        <a href="/ko/contact">문의</a>
       </div>
       <div class="tcd-nav-right">
         <div data-audience-switch></div>
-        <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F" data-i18n="shared.sign-in" data-i18n="shared.sign-in">Sign in</a>
+        <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F" data-i18n="shared.sign-in" data-i18n="shared.sign-in">로그인</a>
       </div>
     </div>
   </nav>
 
   <!-- Legislation disclaimer (pinned right at the top, per Joel's spec) -->
-  <aside class="law-banner" role="note" aria-label="Workers' compensation legislation update" data-i18n-attr="aria-label:tools.find-doctor.workers-compensation-legislation-update.label" data-i18n-attr="aria-label:tools.find-doctor.workers-compensation-legislation-update.label">
+  <aside class="law-banner" role="note" aria-label="산재보상 법률 업데이트" data-i18n-attr="aria-label:tools.find-doctor.workers-compensation-legislation-update.label" data-i18n-attr="aria-label:tools.find-doctor.workers-compensation-legislation-update.label">
     <div class="inner">
       <div class="icon" aria-hidden="true">!</div>
       <div class="copy">
-        <h2 data-i18n="tools.find-doctor.proposed-universal-authorization" data-i18n="tools.find-doctor.proposed-universal-authorization">Proposed: Universal Authorization</h2>
-        <p data-i18n="tools.find-doctor.gov-hochul-s-2026-state" data-i18n="tools.find-doctor.gov-hochul-s-2026-state">Gov. Hochul's <strong>2026 State of the State</strong> proposal (re-proposed after 2025) <strong>would</strong> let any eligible licensed provider in good standing treat workers'-compensation patients without separate WCB authorization. It is <strong>not yet law</strong> &mdash; if enacted, it would take effect <strong>January 1, 2028</strong>. Until then, this map highlights providers experienced with WC cases. <a href="https://www.wcb.ny.gov/sots-universalauthorization/" target="_blank" rel="noopener noreferrer">Read the WCB proposal &rarr;</a></p>
+        <h2 data-i18n="tools.find-doctor.proposed-universal-authorization" data-i18n="tools.find-doctor.proposed-universal-authorization">제안: Universal Authorization</h2>
+        <p data-i18n="tools.find-doctor.gov-hochul-s-2026-state" data-i18n="tools.find-doctor.gov-hochul-s-2026-state">Hochul 주지사의 <strong>2026년 State of the State</strong> 제안(2025년 이후 재발의)은 자격을 갖춘 모든 면허 의료진이 별도의 WCB 승인 없이 산재보상 환자를 치료할 수 있도록 <strong>허용할 예정</strong>입니다. 이는 <strong>아직 법으로 제정되지 않았으며</strong> &mdash; 제정될 경우 <strong>2028년 1월 1일</strong>부터 시행됩니다. 그때까지 이 지도는 산재보상 사건 경험이 있는 의료진을 중점적으로 보여줍니다. <a href="https://www.wcb.ny.gov/sots-universalauthorization/" target="_blank" rel="noopener noreferrer">WCB 제안 읽어보기 &rarr;</a></p>
       </div>
     </div>
   </aside>
@@ -288,43 +292,43 @@
   <main id="main">
     <section class="hero">
       <div class="wrap">
-        <div class="badge" data-i18n="tools.find-doctor.nyc-five-borough-directory" data-i18n="tools.find-doctor.nyc-five-borough-directory">NYC Five-Borough Directory</div>
-        <h1 data-i18n="tools.find-doctor.find-a-workers-comp-doctor" data-i18n="tools.find-doctor.find-a-workers-comp-doctor">Find a <span>Workers' Comp Doctor</span> in NYC</h1>
-        <p class="sub" data-i18n="tools.find-doctor.interactive-map-of-providers-experienced" data-i18n="tools.find-doctor.interactive-map-of-providers-experienced">Interactive map of providers experienced with New York workers'-compensation cases. Use your location, browse by borough, and open directions in Apple or Google Maps with one tap.</p>
+        <div class="badge" data-i18n="tools.find-doctor.nyc-five-borough-directory" data-i18n="tools.find-doctor.nyc-five-borough-directory">NYC 5개 자치구 디렉토리</div>
+        <h1 data-i18n="tools.find-doctor.find-a-workers-comp-doctor" data-i18n="tools.find-doctor.find-a-workers-comp-doctor">NYC에서 <span>산재보상 의사</span> 찾기</h1>
+        <p class="sub" data-i18n="tools.find-doctor.interactive-map-of-providers-experienced" data-i18n="tools.find-doctor.interactive-map-of-providers-experienced">뉴욕 산재보상 사건 경험이 있는 의료진의 대화형 지도. 위치를 사용하고, 자치구별로 찾아보고, 한 번의 탭으로 Apple 또는 Google 지도에서 길찾기를 열어보세요.</p>
       </div>
     </section>
 
     <section class="search">
       <div class="wrap">
         <div class="search-grid">
-          <button id="locate" class="locate-btn" type="button" aria-label="Find doctors near my current location" data-i18n="tools.find-doctor.use-my-location" data-i18n-attr="aria-label:tools.find-doctor.find-doctors-near-my-current.label" data-i18n="tools.find-doctor.use-my-location" data-i18n-attr="aria-label:tools.find-doctor.find-doctors-near-my-current.label">
+          <button id="locate" class="locate-btn" type="button" aria-label="현재 위치 근처 의사 찾기" data-i18n="tools.find-doctor.use-my-location" data-i18n-attr="aria-label:tools.find-doctor.find-doctors-near-my-current.label" data-i18n="tools.find-doctor.use-my-location" data-i18n-attr="aria-label:tools.find-doctor.find-doctors-near-my-current.label">
             <span class="pin" aria-hidden="true"></span>
-            <span id="locate-label">Use my location</span>
+            <span id="locate-label">내 위치 사용</span>
           </button>
-          <select id="filter-borough" aria-label="Filter by borough" data-i18n-attr="aria-label:tools.find-doctor.filter-by-borough.label" data-i18n-attr="aria-label:tools.find-doctor.filter-by-borough.label">
-            <option value="" data-i18n="tools.find-doctor.all-five-boroughs" data-i18n="tools.find-doctor.all-five-boroughs">All five boroughs</option>
-            <option value="Manhattan" data-i18n="tools.find-doctor.manhattan" data-i18n="tools.find-doctor.manhattan">Manhattan</option>
-            <option value="Brooklyn" data-i18n="tools.find-doctor.brooklyn" data-i18n="tools.find-doctor.brooklyn">Brooklyn</option>
-            <option value="Queens" data-i18n="shared.queens" data-i18n="shared.queens">Queens</option>
-            <option value="Bronx" data-i18n="tools.find-doctor.the-bronx" data-i18n="tools.find-doctor.the-bronx">The Bronx</option>
-            <option value="Staten Island" data-i18n="tools.find-doctor.staten-island" data-i18n="tools.find-doctor.staten-island">Staten Island</option>
+          <select id="filter-borough" aria-label="자치구별 필터" data-i18n-attr="aria-label:tools.find-doctor.filter-by-borough.label" data-i18n-attr="aria-label:tools.find-doctor.filter-by-borough.label">
+            <option value="" data-i18n="tools.find-doctor.all-five-boroughs" data-i18n="tools.find-doctor.all-five-boroughs">5개 자치구 전체</option>
+            <option value="Manhattan" data-i18n="tools.find-doctor.manhattan" data-i18n="tools.find-doctor.manhattan">맨해튼</option>
+            <option value="Brooklyn" data-i18n="tools.find-doctor.brooklyn" data-i18n="tools.find-doctor.brooklyn">브루클린</option>
+            <option value="Queens" data-i18n="shared.queens" data-i18n="shared.queens">퀸즈</option>
+            <option value="Bronx" data-i18n="tools.find-doctor.the-bronx" data-i18n="tools.find-doctor.the-bronx">브롱크스</option>
+            <option value="Staten Island" data-i18n="tools.find-doctor.staten-island" data-i18n="tools.find-doctor.staten-island">스태튼 아일랜드</option>
           </select>
-          <select id="filter-specialty" aria-label="Filter by specialty" data-i18n-attr="aria-label:tools.find-doctor.filter-by-specialty.label" data-i18n-attr="aria-label:tools.find-doctor.filter-by-specialty.label">
-            <option value="" data-i18n="tools.find-doctor.all-specialties" data-i18n="tools.find-doctor.all-specialties">All specialties</option>
-            <option value="Orthopedics" data-i18n="tools.find-doctor.orthopedics" data-i18n="tools.find-doctor.orthopedics">Orthopedics</option>
-            <option value="Neurology" data-i18n="tools.find-doctor.neurology" data-i18n="tools.find-doctor.neurology">Neurology</option>
-            <option value="Pain Management" data-i18n="tools.find-doctor.pain-management" data-i18n="tools.find-doctor.pain-management">Pain Management</option>
-            <option value="Physical Therapy" data-i18n="tools.find-doctor.physical-therapy" data-i18n="tools.find-doctor.physical-therapy">Physical Therapy</option>
-            <option value="Chiropractic" data-i18n="tools.find-doctor.chiropractic" data-i18n="tools.find-doctor.chiropractic">Chiropractic</option>
-            <option value="Hand Surgery" data-i18n="tools.find-doctor.hand-surgery" data-i18n="tools.find-doctor.hand-surgery">Hand Surgery</option>
-            <option value="Occupational Medicine" data-i18n="tools.find-doctor.occupational-medicine" data-i18n="tools.find-doctor.occupational-medicine">Occupational Medicine</option>
-            <option value="Pulmonology" data-i18n="tools.find-doctor.pulmonology" data-i18n="tools.find-doctor.pulmonology">Pulmonology</option>
-            <option value="Podiatry" data-i18n="tools.find-doctor.podiatry" data-i18n="tools.find-doctor.podiatry">Podiatry</option>
-            <option value="Primary Care" data-i18n="tools.find-doctor.primary-care" data-i18n="tools.find-doctor.primary-care">Primary Care</option>
+          <select id="filter-specialty" aria-label="전문 분야별 필터" data-i18n-attr="aria-label:tools.find-doctor.filter-by-specialty.label" data-i18n-attr="aria-label:tools.find-doctor.filter-by-specialty.label">
+            <option value="" data-i18n="tools.find-doctor.all-specialties" data-i18n="tools.find-doctor.all-specialties">모든 전문 분야</option>
+            <option value="Orthopedics" data-i18n="tools.find-doctor.orthopedics" data-i18n="tools.find-doctor.orthopedics">정형외과</option>
+            <option value="Neurology" data-i18n="tools.find-doctor.neurology" data-i18n="tools.find-doctor.neurology">신경과</option>
+            <option value="Pain Management" data-i18n="tools.find-doctor.pain-management" data-i18n="tools.find-doctor.pain-management">통증 관리</option>
+            <option value="Physical Therapy" data-i18n="tools.find-doctor.physical-therapy" data-i18n="tools.find-doctor.physical-therapy">물리치료</option>
+            <option value="Chiropractic" data-i18n="tools.find-doctor.chiropractic" data-i18n="tools.find-doctor.chiropractic">카이로프랙틱</option>
+            <option value="Hand Surgery" data-i18n="tools.find-doctor.hand-surgery" data-i18n="tools.find-doctor.hand-surgery">수부외과</option>
+            <option value="Occupational Medicine" data-i18n="tools.find-doctor.occupational-medicine" data-i18n="tools.find-doctor.occupational-medicine">직업의학</option>
+            <option value="Pulmonology" data-i18n="tools.find-doctor.pulmonology" data-i18n="tools.find-doctor.pulmonology">호흡기내과</option>
+            <option value="Podiatry" data-i18n="tools.find-doctor.podiatry" data-i18n="tools.find-doctor.podiatry">족부의학</option>
+            <option value="Primary Care" data-i18n="tools.find-doctor.primary-care" data-i18n="tools.find-doctor.primary-care">1차 진료</option>
           </select>
-          <button id="search-btn" class="search-btn" type="button" aria-label="Search doctors and show them on the map" data-i18n-attr="aria-label:tools.find-doctor.search-doctors-and-show-them.label" data-i18n-attr="aria-label:tools.find-doctor.search-doctors-and-show-them.label">
+          <button id="search-btn" class="search-btn" type="button" aria-label="의사 검색 및 지도에 표시" data-i18n-attr="aria-label:tools.find-doctor.search-doctors-and-show-them.label" data-i18n-attr="aria-label:tools.find-doctor.search-doctors-and-show-them.label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
-            <span data-i18n="tools.find-doctor.search" data-i18n="tools.find-doctor.search">Search</span>
+            <span data-i18n="tools.find-doctor.search" data-i18n="tools.find-doctor.search">검색</span>
           </button>
         </div>
       </div>
@@ -333,10 +337,10 @@
     <section class="map-section">
       <div class="wrap">
         <div class="map-shell">
-          <div id="map" role="application" aria-label="Map of workers'-comp doctors across the five boroughs of New York City" data-i18n-attr="aria-label:tools.find-doctor.map-of-workers-comp-doctors.label" data-i18n-attr="aria-label:tools.find-doctor.map-of-workers-comp-doctors.label"></div>
+          <div id="map" role="application" aria-label="뉴욕시 5개 자치구 전역의 산재보상 의사 지도" data-i18n-attr="aria-label:tools.find-doctor.map-of-workers-comp-doctors.label" data-i18n-attr="aria-label:tools.find-doctor.map-of-workers-comp-doctors.label"></div>
           <div class="map-empty" id="map-empty">
-            <h3 data-i18n="tools.find-doctor.map-couldn-t-load" data-i18n="tools.find-doctor.map-couldn-t-load">Map couldn't load</h3>
-            <p data-i18n="tools.find-doctor.if-you-re-offline-or" data-i18n="tools.find-doctor.if-you-re-offline-or">If you're offline or have an ad-blocker active, the map may be blocked. The list below still works.</p>
+            <h3 data-i18n="tools.find-doctor.map-couldn-t-load" data-i18n="tools.find-doctor.map-couldn-t-load">지도를 불러올 수 없습니다</h3>
+            <p data-i18n="tools.find-doctor.if-you-re-offline-or" data-i18n="tools.find-doctor.if-you-re-offline-or">오프라인 상태이거나 광고 차단기가 활성화되어 있으면 지도가 차단될 수 있습니다. 아래 목록은 계속 작동합니다.</p>
           </div>
         </div>
       </div>
@@ -345,41 +349,41 @@
     <section class="results" aria-labelledby="results-heading">
       <div class="wrap">
         <div class="results-head">
-          <h2 id="results-heading" data-i18n="tools.find-doctor.doctors-near-you" data-i18n="tools.find-doctor.doctors-near-you">Doctors near you</h2>
-          <span class="count" id="results-count" aria-live="polite" data-i18n="tools.find-doctor.loading-directory" data-i18n="tools.find-doctor.loading-directory">Loading directory…</span>
+          <h2 id="results-heading" data-i18n="tools.find-doctor.doctors-near-you" data-i18n="tools.find-doctor.doctors-near-you">근처 의사</h2>
+          <span class="count" id="results-count" aria-live="polite" data-i18n="tools.find-doctor.loading-directory" data-i18n="tools.find-doctor.loading-directory">디렉토리 로딩 중…</span>
         </div>
         <div class="filter-banner" id="filter-banner">
           <span class="fb-text" id="filter-banner-text"></span>
-          <button class="fb-clear" id="filter-banner-clear" type="button" data-i18n="tools.find-doctor.show-curated-picks" data-i18n="tools.find-doctor.show-curated-picks">Show curated picks</button>
+          <button class="fb-clear" id="filter-banner-clear" type="button" data-i18n="tools.find-doctor.show-curated-picks" data-i18n="tools.find-doctor.show-curated-picks">엄선된 추천 보기</button>
         </div>
         <div id="doc-grid" class="doc-grid" hidden></div>
         <div id="empty-state" class="empty-state">
-          <h3 data-i18n="tools.find-doctor.directory-is-being-built" data-i18n="tools.find-doctor.directory-is-being-built">Directory is being built</h3>
-          <p data-i18n="tools.find-doctor.we-re-seeding-the-five" data-i18n="tools.find-doctor.we-re-seeding-the-five">We're seeding the five-borough doctor directory now. In the meantime, the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS Workers' Compensation Board provider search</a> and the <a href="https://npiregistry.cms.hhs.gov/search">NPI Registry</a> let you look up any licensed New York physician.</p>
-          <p style="margin-top:14px;font-size:13px;color:var(--skin-text-muted);" data-i18n="tools.find-doctor.if-you-re-a-workers" data-i18n="tools.find-doctor.if-you-re-a-workers">If you're a workers'-comp-experienced provider and want to be listed, <a href="mailto:hello@thecompdesk.com?subject=List%20me%20in%20the%20Find%20a%20Doctor%20directory">email us</a>.</p>
+          <h3 data-i18n="tools.find-doctor.directory-is-being-built" data-i18n="tools.find-doctor.directory-is-being-built">디렉토리 구축 중</h3>
+          <p data-i18n="tools.find-doctor.we-re-seeding-the-five" data-i18n="tools.find-doctor.we-re-seeding-the-five">현재 5개 자치구 의사 디렉토리를 구축하고 있습니다. 그동안 <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS Workers' Compensation Board 의료진 검색</a>과 <a href="https://npiregistry.cms.hhs.gov/search">NPI 등록소</a>에서 뉴욕의 면허 의료진을 조회할 수 있습니다.</p>
+          <p style="margin-top:14px;font-size:13px;color:var(--skin-text-muted);" data-i18n="tools.find-doctor.if-you-re-a-workers" data-i18n="tools.find-doctor.if-you-re-a-workers">산재보상 경험이 있는 의료진이시고 등록을 원하시면 <a href="mailto:hello@thecompdesk.com?subject=List%20me%20in%20the%20Find%20a%20Doctor%20directory">이메일을 보내주세요</a>.</p>
         </div>
       </div>
     </section>
 
     <section class="info">
       <div class="wrap">
-        <h2 data-i18n="shared.how-it-works-2" data-i18n="shared.how-it-works-2">How it works</h2>
-        <p class="section-sub" data-i18n="tools.find-doctor.three-steps-no-signup" data-i18n="tools.find-doctor.three-steps-no-signup">Three steps, no signup.</p>
+        <h2 data-i18n="shared.how-it-works-2" data-i18n="shared.how-it-works-2">이용 방법</h2>
+        <p class="section-sub" data-i18n="tools.find-doctor.three-steps-no-signup" data-i18n="tools.find-doctor.three-steps-no-signup">세 단계, 가입 불필요.</p>
         <div class="steps-grid">
           <div class="step-card">
             <div class="step-num">1</div>
-            <h3 data-i18n="tools.find-doctor.locate-yourself" data-i18n="tools.find-doctor.locate-yourself">Locate yourself</h3>
-            <p data-i18n="tools.find-doctor.tap-use-my-location-to" data-i18n="tools.find-doctor.tap-use-my-location-to">Tap "Use my location" to drop a pin where you are. The map zooms in and sorts the list by distance.</p>
+            <h3 data-i18n="tools.find-doctor.locate-yourself" data-i18n="tools.find-doctor.locate-yourself">위치 확인</h3>
+            <p data-i18n="tools.find-doctor.tap-use-my-location-to" data-i18n="tools.find-doctor.tap-use-my-location-to">"내 위치 사용"을 탭하여 현재 위치에 핀을 놓으세요. 지도가 확대되고 목록이 거리순으로 정렬됩니다.</p>
           </div>
           <div class="step-card">
             <div class="step-num">2</div>
-            <h3 data-i18n="tools.find-doctor.filter" data-i18n="tools.find-doctor.filter">Filter</h3>
-            <p data-i18n="tools.find-doctor.narrow-by-borough-or-specialty" data-i18n="tools.find-doctor.narrow-by-borough-or-specialty">Narrow by borough or specialty. The map updates as you filter.</p>
+            <h3 data-i18n="tools.find-doctor.filter" data-i18n="tools.find-doctor.filter">필터</h3>
+            <p data-i18n="tools.find-doctor.narrow-by-borough-or-specialty" data-i18n="tools.find-doctor.narrow-by-borough-or-specialty">자치구 또는 전문 분야로 좁혀보세요. 필터링하면 지도가 업데이트됩니다.</p>
           </div>
           <div class="step-card">
             <div class="step-num">3</div>
-            <h3 data-i18n="tools.find-doctor.get-directions" data-i18n="tools.find-doctor.get-directions">Get directions</h3>
-            <p data-i18n="tools.find-doctor.tap-open-in-maps-on" data-i18n="tools.find-doctor.tap-open-in-maps-on">Tap "Open in Maps" on any card to launch turn-by-turn navigation in Apple Maps (iOS/Mac) or Google Maps (everyone else).</p>
+            <h3 data-i18n="tools.find-doctor.get-directions" data-i18n="tools.find-doctor.get-directions">길찾기</h3>
+            <p data-i18n="tools.find-doctor.tap-open-in-maps-on" data-i18n="tools.find-doctor.tap-open-in-maps-on">카드에서 "지도에서 열기"를 탭하면 Apple 지도(iOS/Mac) 또는 Google 지도(그 외)에서 턴바이턴 내비게이션이 시작됩니다.</p>
           </div>
         </div>
       </div>
@@ -387,21 +391,21 @@
 
     <section class="info">
       <div class="wrap">
-        <h2 data-i18n="tools.find-doctor.find-by-injured-body-part" data-i18n="tools.find-doctor.find-by-injured-body-part">Find by injured body part or condition</h2>
-        <p class="section-sub" data-i18n="tools.find-doctor.tap-your-injury-to-pull" data-i18n="tools.find-doctor.tap-your-injury-to-pull">Tap your injury to pull every WCB-authorized provider for it — the full Workers' Compensation Board list, narrowed to your area. Use "Use my location" or pick a borough first to sort by distance.</p>
+        <h2 data-i18n="tools.find-doctor.find-by-injured-body-part" data-i18n="tools.find-doctor.find-by-injured-body-part">부상 부위 또는 질환으로 찾기</h2>
+        <p class="section-sub" data-i18n="tools.find-doctor.tap-your-injury-to-pull" data-i18n="tools.find-doctor.tap-your-injury-to-pull">부상을 탭하면 해당 부상에 대한 모든 WCB 승인 의료진을 불러옵니다 — Workers' Compensation Board의 전체 목록을 해당 지역으로 좁혀서 보여드립니다. 거리순 정렬을 위해 먼저 "내 위치 사용"을 탭하거나 자치구를 선택하세요.</p>
         <div class="body-parts-grid" id="body-parts-grid">
-          <button class="body-part-item" type="button" data-bp="Head & Brain"><h4 data-i18n="tools.find-doctor.head-brain" data-i18n="tools.find-doctor.head-brain">Head &amp; Brain</h4><p data-i18n="tools.find-doctor.neurology-neurosurgery" data-i18n="tools.find-doctor.neurology-neurosurgery">Neurology, neurosurgery</p></button>
-          <button class="body-part-item" type="button" data-bp="Neck & Spine"><h4 data-i18n="tools.find-doctor.neck-spine" data-i18n="tools.find-doctor.neck-spine">Neck &amp; Spine</h4><p data-i18n="tools.find-doctor.orthopedics-neurology" data-i18n="tools.find-doctor.orthopedics-neurology">Orthopedics, neurology</p></button>
-          <button class="body-part-item" type="button" data-bp="Shoulder & Arm"><h4 data-i18n="tools.find-doctor.shoulder-arm" data-i18n="tools.find-doctor.shoulder-arm">Shoulder &amp; Arm</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">Orthopedics, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Wrist & Hand"><h4 data-i18n="tools.find-doctor.wrist-hand" data-i18n="tools.find-doctor.wrist-hand">Wrist &amp; Hand</h4><p data-i18n="tools.find-doctor.hand-surgery-orthopedics" data-i18n="tools.find-doctor.hand-surgery-orthopedics">Hand surgery, orthopedics</p></button>
-          <button class="body-part-item" type="button" data-bp="Back & Lumbar"><h4 data-i18n="tools.find-doctor.back-lumbar" data-i18n="tools.find-doctor.back-lumbar">Back &amp; Lumbar</h4><p data-i18n="tools.find-doctor.orthopedics-neurology-pt" data-i18n="tools.find-doctor.orthopedics-neurology-pt">Orthopedics, neurology, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Hip & Pelvis"><h4 data-i18n="tools.find-doctor.hip-pelvis" data-i18n="tools.find-doctor.hip-pelvis">Hip &amp; Pelvis</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">Orthopedics, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Knee"><h4 data-i18n="shared.knee" data-i18n="shared.knee">Knee</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">Orthopedics, PT</p></button>
-          <button class="body-part-item" type="button" data-bp="Ankle & Foot"><h4 data-i18n="tools.find-doctor.ankle-foot" data-i18n="tools.find-doctor.ankle-foot">Ankle &amp; Foot</h4><p data-i18n="tools.find-doctor.orthopedics-podiatry" data-i18n="tools.find-doctor.orthopedics-podiatry">Orthopedics, podiatry</p></button>
-          <button class="body-part-item" type="button" data-bp="Lung & Respiratory"><h4 data-i18n="tools.find-doctor.lung-respiratory" data-i18n="tools.find-doctor.lung-respiratory">Lung &amp; Respiratory</h4><p data-i18n="tools.find-doctor.pulmonology-occupational-medicine" data-i18n="tools.find-doctor.pulmonology-occupational-medicine">Pulmonology, occupational medicine</p></button>
-          <button class="body-part-item" type="button" data-bp="Pain Management"><h4 data-i18n="tools.find-doctor.pain-management" data-i18n="tools.find-doctor.pain-management">Pain Management</h4><p data-i18n="tools.find-doctor.pain-specialists-pm-r" data-i18n="tools.find-doctor.pain-specialists-pm-r">Pain specialists, PM&amp;R</p></button>
-          <button class="body-part-item" type="button" data-bp="Multiple Injuries"><h4 data-i18n="tools.find-doctor.multiple-injuries" data-i18n="tools.find-doctor.multiple-injuries">Multiple Injuries</h4><p data-i18n="tools.find-doctor.primary-care-occupational-medicine" data-i18n="tools.find-doctor.primary-care-occupational-medicine">Primary care, occupational medicine</p></button>
-          <button class="body-part-item" type="button" data-bp="Stress / Mental"><h4 data-i18n="tools.find-doctor.stress-mental" data-i18n="tools.find-doctor.stress-mental">Stress / Mental</h4><p data-i18n="tools.find-doctor.psychiatry-psychology" data-i18n="tools.find-doctor.psychiatry-psychology">Psychiatry, psychology</p></button>
+          <button class="body-part-item" type="button" data-bp="Head & Brain"><h4 data-i18n="tools.find-doctor.head-brain" data-i18n="tools.find-doctor.head-brain">머리 및 뇌</h4><p data-i18n="tools.find-doctor.neurology-neurosurgery" data-i18n="tools.find-doctor.neurology-neurosurgery">신경과, 신경외과</p></button>
+          <button class="body-part-item" type="button" data-bp="Neck & Spine"><h4 data-i18n="tools.find-doctor.neck-spine" data-i18n="tools.find-doctor.neck-spine">목 및 척추</h4><p data-i18n="tools.find-doctor.orthopedics-neurology" data-i18n="tools.find-doctor.orthopedics-neurology">정형외과, 신경과</p></button>
+          <button class="body-part-item" type="button" data-bp="Shoulder & Arm"><h4 data-i18n="tools.find-doctor.shoulder-arm" data-i18n="tools.find-doctor.shoulder-arm">어깨 및 팔</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">정형외과, 물리치료</p></button>
+          <button class="body-part-item" type="button" data-bp="Wrist & Hand"><h4 data-i18n="tools.find-doctor.wrist-hand" data-i18n="tools.find-doctor.wrist-hand">손목 및 손</h4><p data-i18n="tools.find-doctor.hand-surgery-orthopedics" data-i18n="tools.find-doctor.hand-surgery-orthopedics">수부외과, 정형외과</p></button>
+          <button class="body-part-item" type="button" data-bp="Back & Lumbar"><h4 data-i18n="tools.find-doctor.back-lumbar" data-i18n="tools.find-doctor.back-lumbar">허리 및 요추</h4><p data-i18n="tools.find-doctor.orthopedics-neurology-pt" data-i18n="tools.find-doctor.orthopedics-neurology-pt">정형외과, 신경과, 물리치료</p></button>
+          <button class="body-part-item" type="button" data-bp="Hip & Pelvis"><h4 data-i18n="tools.find-doctor.hip-pelvis" data-i18n="tools.find-doctor.hip-pelvis">고관절 및 골반</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">정형외과, 물리치료</p></button>
+          <button class="body-part-item" type="button" data-bp="Knee"><h4 data-i18n="shared.knee" data-i18n="shared.knee">무릎</h4><p data-i18n="tools.find-doctor.orthopedics-pt" data-i18n="tools.find-doctor.orthopedics-pt">정형외과, 물리치료</p></button>
+          <button class="body-part-item" type="button" data-bp="Ankle & Foot"><h4 data-i18n="tools.find-doctor.ankle-foot" data-i18n="tools.find-doctor.ankle-foot">발목 및 발</h4><p data-i18n="tools.find-doctor.orthopedics-podiatry" data-i18n="tools.find-doctor.orthopedics-podiatry">정형외과, 족부의학</p></button>
+          <button class="body-part-item" type="button" data-bp="Lung & Respiratory"><h4 data-i18n="tools.find-doctor.lung-respiratory" data-i18n="tools.find-doctor.lung-respiratory">폐 및 호흡기</h4><p data-i18n="tools.find-doctor.pulmonology-occupational-medicine" data-i18n="tools.find-doctor.pulmonology-occupational-medicine">호흡기내과, 직업의학</p></button>
+          <button class="body-part-item" type="button" data-bp="Pain Management"><h4 data-i18n="tools.find-doctor.pain-management" data-i18n="tools.find-doctor.pain-management">통증 관리</h4><p data-i18n="tools.find-doctor.pain-specialists-pm-r" data-i18n="tools.find-doctor.pain-specialists-pm-r">통증 전문의, 재활의학(PM&R)</p></button>
+          <button class="body-part-item" type="button" data-bp="Multiple Injuries"><h4 data-i18n="tools.find-doctor.multiple-injuries" data-i18n="tools.find-doctor.multiple-injuries">복합 부상</h4><p data-i18n="tools.find-doctor.primary-care-occupational-medicine" data-i18n="tools.find-doctor.primary-care-occupational-medicine">1차 진료, 직업의학</p></button>
+          <button class="body-part-item" type="button" data-bp="Stress / Mental"><h4 data-i18n="tools.find-doctor.stress-mental" data-i18n="tools.find-doctor.stress-mental">스트레스/정신 건강</h4><p data-i18n="tools.find-doctor.psychiatry-psychology" data-i18n="tools.find-doctor.psychiatry-psychology">정신건강의학과, 심리학</p></button>
         </div>
       </div>
     </section>
@@ -411,29 +415,29 @@
         <h2 data-i18n="shared.faq" data-i18n="shared.faq">FAQ</h2>
         <div class="faq-container">
           <div class="faq-item">
-            <button class="faq-question" type="button" data-i18n="tools.find-doctor.does-my-doctor-need-to" data-i18n="tools.find-doctor.does-my-doctor-need-to"><span>Does my doctor need to be WCB-authorized?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer" data-i18n="tools.find-doctor.currently-yes-apart-from-limited" data-i18n="tools.find-doctor.currently-yes-apart-from-limited">Currently, yes. Apart from limited exceptions like emergency care, a provider who treats an injured worker in New York generally must be authorized by the Workers' Compensation Board. Governor Hochul's 2026 "Universal Authorization" proposal would remove that requirement for any eligible licensed provider in good standing, but it is not yet law — if enacted, it would take effect January 1, 2028.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.does-my-doctor-need-to" data-i18n="tools.find-doctor.does-my-doctor-need-to"><span>제 의사가 WCB 승인을 받아야 하나요?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.currently-yes-apart-from-limited" data-i18n="tools.find-doctor.currently-yes-apart-from-limited">현재는 그렇습니다. 응급 치료와 같은 제한된 예외를 제외하고, 뉴욕에서 부상 근로자를 치료하는 의료진은 일반적으로 Workers' Compensation Board의 승인을 받아야 합니다. Hochul 주지사의 2026년 "Universal Authorization" 제안은 자격을 갖춘 모든 면허 의료진에 대해 이 요건을 없애려 하지만, 아직 법으로 제정되지 않았습니다 — 제정될 경우 2028년 1월 1일부터 시행됩니다.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" data-i18n="tools.find-doctor.can-i-choose-my-own" data-i18n="tools.find-doctor.can-i-choose-my-own"><span>Can I choose my own doctor?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer" data-i18n="tools.find-doctor.generally-yes-for-non-emergency" data-i18n="tools.find-doctor.generally-yes-for-non-emergency">Generally yes. For non-emergency treatment, you have the right to select your own treating physician, who currently must be WCB-authorized. If your employer is part of a Preferred Provider Organization (PPO), you may be required to see a PPO provider for the first 30 days. A WC attorney can confirm what applies in your case.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.can-i-choose-my-own" data-i18n="tools.find-doctor.can-i-choose-my-own"><span>직접 의사를 선택할 수 있나요?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.generally-yes-for-non-emergency" data-i18n="tools.find-doctor.generally-yes-for-non-emergency">일반적으로 가능합니다. 응급이 아닌 치료의 경우, 현재 WCB 승인을 받아야 하는 주치의를 직접 선택할 권리가 있습니다. 고용주가 우선공급자기구(Preferred Provider Organization, PPO)에 속해 있다면, 처음 30일 동안은 PPO 의료진에게 진료를 받아야 할 수 있습니다. 산재보상 변호사가 사건에 적용되는 사항을 확인해드릴 수 있습니다.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" data-i18n="tools.find-doctor.which-boroughs-does-the-map" data-i18n="tools.find-doctor.which-boroughs-does-the-map"><span>Which boroughs does the map cover?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer" data-i18n="tools.find-doctor.all-five-manhattan-brooklyn-queens" data-i18n="tools.find-doctor.all-five-manhattan-brooklyn-queens">All five — Manhattan, Brooklyn, Queens, the Bronx, and Staten Island. Pan and zoom are restricted to this region. Outside NYC? Use the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS WCB provider search</a>.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.which-boroughs-does-the-map" data-i18n="tools.find-doctor.which-boroughs-does-the-map"><span>지도는 어느 자치구를 다루나요?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.all-five-manhattan-brooklyn-queens" data-i18n="tools.find-doctor.all-five-manhattan-brooklyn-queens">5개 자치구 전체 — 맨해튼, 브루클린, 퀸즈, 브롱크스, 스태튼 아일랜드입니다. 이동 및 확대/축소는 이 지역으로 제한됩니다. NYC 외 지역이신가요? <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS WCB 의료진 검색</a>을 이용하세요.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" data-i18n="tools.find-doctor.is-the-directory-free" data-i18n="tools.find-doctor.is-the-directory-free"><span>Is the directory free?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer" data-i18n="tools.find-doctor.yes-no-signup-no-paywall" data-i18n="tools.find-doctor.yes-no-signup-no-paywall">Yes — no signup, no paywall, no ads.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.is-the-directory-free" data-i18n="tools.find-doctor.is-the-directory-free"><span>디렉토리는 무료인가요?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.yes-no-signup-no-paywall" data-i18n="tools.find-doctor.yes-no-signup-no-paywall">네 — 가입, 유료 결제, 광고가 없습니다.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" data-i18n="tools.find-doctor.how-is-wc-experienced-determined" data-i18n="tools.find-doctor.how-is-wc-experienced-determined"><span>How is "WC-experienced" determined?</span><span class="faq-toggle"></span></button>
-            <div class="faq-answer" data-i18n="tools.find-doctor.listed-providers-either-a-self" data-i18n="tools.find-doctor.listed-providers-either-a-self">Listed providers either (a) self-identify as accepting workers'-comp patients and have a history of WC billing under the WCB authorization regime, or (b) have been recommended by attorneys actively practicing WC in New York. We do not accept payment for placement.</div>
+            <button class="faq-question" type="button" data-i18n="tools.find-doctor.how-is-wc-experienced-determined" data-i18n="tools.find-doctor.how-is-wc-experienced-determined"><span>"산재보상 경험"은 어떻게 판단하나요?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer" data-i18n="tools.find-doctor.listed-providers-either-a-self" data-i18n="tools.find-doctor.listed-providers-either-a-self">등록된 의료진은 (a) 산재보상 환자를 받는다고 자체적으로 밝히고 WCB 승인 체계 하에서 산재보상 청구 이력이 있거나, (b) 뉴욕에서 활발히 산재보상 업무를 하는 변호사들의 추천을 받았습니다. 저희는 등록 대가로 어떠한 비용도 받지 않습니다.</div>
           </div>
         </div>
 
         <div class="legal-disclaimer">
-          <p data-i18n="tools.find-doctor.disclaimer-this-directory-is-provided" data-i18n="tools.find-doctor.disclaimer-this-directory-is-provided"><strong>Disclaimer.</strong> This directory is provided for informational purposes only and does not constitute legal advice, medical advice, or a recommendation of any specific provider. It is not a substitute for consultation with a licensed attorney or physician. Always verify a provider's credentials, insurance acceptance, and current practice status before scheduling treatment. The Comp Desk does not endorse any specific healthcare provider and receives no payment in exchange for placement.</p>
+          <p data-i18n="tools.find-doctor.disclaimer-this-directory-is-provided" data-i18n="tools.find-doctor.disclaimer-this-directory-is-provided"><strong>면책 조항.</strong> 이 디렉토리는 정보 제공 목적으로만 제공되며 법률 자문, 의료 자문, 또는 특정 의료진에 대한 추천에 해당하지 않습니다. 면허를 소지한 변호사 또는 의사와의 상담을 대체할 수 없습니다. 치료 예약 전에 항상 의료진의 자격, 보험 수용 여부, 현재 진료 상태를 확인하세요. The Comp Desk는 특정 의료 서비스 제공자를 보증하지 않으며 등록 대가로 어떠한 비용도 받지 않습니다.</p>
         </div>
       </div>
     </section>
@@ -441,11 +445,11 @@
 
   <footer class="tcd-footer">
     <div class="wrap">
-      <p data-i18n="shared.2026-njj-document-services-inc" data-i18n="shared.2026-njj-document-services-inc">&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+      <p data-i18n="shared.2026-njj-document-services-inc" data-i18n="shared.2026-njj-document-services-inc">&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. 모든 권리 보유.</p>
       <p data-i18n="shared.privacy-contact-disclaimer" data-i18n="shared.privacy-contact-disclaimer">
-        <a href="/ko/legal/privacy">Privacy</a>
-        <a href="/ko/contact">Contact</a>
-        <a href="/ko/disclaimer">Disclaimer</a>
+        <a href="/ko/legal/privacy">개인정보처리방침</a>
+        <a href="/ko/contact">문의</a>
+        <a href="/ko/disclaimer">법적 고지</a>
       </p>
     </div>
   </footer>

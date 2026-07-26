@@ -5,10 +5,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="calculators.lwec.meta.og-title" data-i18n="calculators.lwec.meta.og-title">NYS LWEC Calculator — Loss of Wage Earning Capacity</title>
-  <meta name="description" content="Free NYS LWEC calculator. Estimate weekly benefits, bracket, max weeks, attorney fee, and net to claimant under New York workers' comp law." data-i18n-attr="content:calculators.lwec.meta.description" data-i18n-attr="content:calculators.lwec.meta.description">
-  <meta property="og:title" content="NYS LWEC Calculator — Loss of Wage Earning Capacity" data-i18n-attr="content:calculators.lwec.meta.og-title" data-i18n-attr="content:calculators.lwec.meta.og-title">
-  <meta property="og:description" content="Free calculator for NYS Loss of Wage Earning Capacity benefits with bracket system, max weeks, attorney fee, and net to claimant." data-i18n-attr="content:calculators.lwec.meta.og-description" data-i18n-attr="content:calculators.lwec.meta.og-description">
+  <title data-i18n="calculators.lwec.meta.og-title" data-i18n="calculators.lwec.meta.og-title">NYS LWEC 계산기 — 임금 소득 능력 상실</title>
+  <meta name="description" content="무료 NYS LWEC 계산기. 뉴욕 산재보상법에 따른 주간 보상금, 등급 구간, 최대 주수, 변호사 수임료, 청구인 실수령액을 추정하세요." data-i18n-attr="content:calculators.lwec.meta.description" data-i18n-attr="content:calculators.lwec.meta.description">
+  <meta property="og:title" content="NYS LWEC 계산기 — 임금 소득 능력 상실" data-i18n-attr="content:calculators.lwec.meta.og-title" data-i18n-attr="content:calculators.lwec.meta.og-title">
+  <meta property="og:description" content="등급 구간 시스템, 최대 주수, 변호사 수임료, 청구인 실수령액을 포함한 NYS 임금 소득 능력 상실 혜택을 위한 무료 계산기." data-i18n-attr="content:calculators.lwec.meta.og-description" data-i18n-attr="content:calculators.lwec.meta.og-description">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Comp Desk">
   <meta property="og:url" content="https://thecompdesk.com/ko/calculators/lwec">
@@ -16,73 +16,77 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="NYS LWEC Calculator — Loss of Wage Earning Capacity" data-i18n-attr="content:calculators.lwec.meta.og-title" data-i18n-attr="content:calculators.lwec.meta.og-title">
-  <meta name="twitter:description" content="Free calculator for NYS Loss of Wage Earning Capacity benefits with bracket system, max weeks, attorney fee, and net to claimant." data-i18n-attr="content:calculators.lwec.meta.og-description" data-i18n-attr="content:calculators.lwec.meta.og-description">
+  <meta name="twitter:title" content="NYS LWEC 계산기 — 임금 소득 능력 상실" data-i18n-attr="content:calculators.lwec.meta.og-title" data-i18n-attr="content:calculators.lwec.meta.og-title">
+  <meta name="twitter:description" content="등급 구간 시스템, 최대 주수, 변호사 수임료, 청구인 실수령액을 포함한 NYS 임금 소득 능력 상실 혜택을 위한 무료 계산기." data-i18n-attr="content:calculators.lwec.meta.og-description" data-i18n-attr="content:calculators.lwec.meta.og-description">
   <meta name="twitter:image" content="https://thecompdesk.com/images/og-lwec.png">
 
   <!-- JSON-LD: WebApplication -->
   <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "NYS LWEC Calculator",
-    "url": "https://thecompdesk.com/calculators/lwec",
-    "description": "Free NYS Loss of Wage Earning Capacity (LWEC) calculator. Bracket classification, max weeks, attorney fee, and net to claimant.",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "All",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "NYS LWEC 계산기",
+  "url": "https://thecompdesk.com/ko/calculators/lwec",
+  "description": "무료 NYS 임금 소득 능력 상실(LWEC) 계산기. 등급 분류, 최대 주수, 변호사 수임료, 청구인 실수령액.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
   }
-  </script>
+}
+</script>
 
   <!-- JSON-LD: FAQPage -->
   <script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What does LWEC mean in workers' comp?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "LWEC stands for Loss of Wage Earning Capacity — the percentage by which a permanent injury reduces your ability to earn wages. The Workers' Compensation Board sets it at permanency (classification) based on medical impairment, functional limitations, and vocational factors such as age, education, and work history."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How many weeks of LWEC benefits can I get in New York?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "WCL §15(3)(w) caps benefit weeks by LWEC percentage — from 225 weeks at 15% or less up to 525 weeks at over 95%. Workers found permanently totally disabled receive lifetime benefits."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How is the weekly LWEC rate calculated?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The weekly classification rate equals your LWEC percentage multiplied by your compensation rate (two-thirds of your average weekly wage, capped at the statutory maximum for your date of injury). For example, 50% LWEC with a $750 comp rate pays $375 per week."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is LWEC the same as a Schedule Loss of Use award?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "No. A Schedule Loss of Use (SLU) award pays a fixed number of weeks for permanent loss of use of an extremity under WCL §15(3). LWEC compensates non-schedule permanent injuries — spine, head, and systemic conditions — with weekly benefits over a capped duration."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What attorney fee comes out of an LWEC award?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Attorneys are typically awarded 15 weeks multiplied by the weekly classification rate, deducted from the award and subject to Workers' Compensation Board approval under WCL §24."
-        }
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "산재보상에서 LWEC은 무엇을 의미하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LWEC은 임금 소득 능력 상실(Loss of Wage Earning Capacity)의 약자로 — 영구 부상이 임금을 벌 수 있는 능력을 얼마나 감소시키는지를 나타내는 비율입니다. Workers' Compensation Board는 의학적 장해, 기능적 제한, 나이·학력·근무 이력 등의 직업적 요인을 바탕으로 영구장해(등급) 단계에서 이를 설정합니다."
       }
-    ]
-  }
-  </script>
+    },
+    {
+      "@type": "Question",
+      "name": "뉴욕에서 LWEC 보상금을 몇 주 동안 받을 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WCL §15(3)(w)는 LWEC 비율에 따라 보상 주수를 제한합니다 — 15% 이하는 225주부터 95% 초과는 525주까지입니다. 영구적 완전 장해로 판정된 근로자는 평생 보상금을 받습니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "주간 LWEC 요율은 어떻게 계산되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "주간 등급 요율은 LWEC 비율에 보상률(평균 주급의 3분의 2, 부상 날짜 기준 법정 최대액 상한)을 곱한 값입니다. 예를 들어 보상률이 $750인 경우 LWEC 50%는 주당 $375를 지급합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "LWEC은 Schedule Loss of Use 보상금과 같은가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아닙니다. Schedule Loss of Use(SLU) 보상금은 WCL §15(3)에 따라 사지의 영구적 사용 상실에 대해 고정된 주수를 지급합니다. LWEC은 척추, 머리, 전신 질환과 같이 목록에 없는 영구 부상에 대해 제한된 기간 동안 주간 보상금으로 보상합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "LWEC 보상금에서 변호사 수임료는 얼마나 차감되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "변호사는 일반적으로 주간 등급 요율에 15주를 곱한 금액을 받으며, 이는 보상금에서 차감되고 WCL §24에 따라 Workers' Compensation Board의 승인을 받아야 합니다."
+      }
+    }
+  ]
+}
+</script>
 
   <link rel="canonical" href="https://thecompdesk.com/ko/calculators/lwec">
   <link rel="stylesheet" href="/css/app.css">
@@ -114,82 +118,82 @@
   <script src="/js/i18n-locale.js" defer></script>
 </head>
 <body class="tcd-skinned" data-no-brand-bg="true">
-  <nav class="tcd-nav" aria-label="Primary" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
+  <nav class="tcd-nav" aria-label="기본" data-i18n-attr="aria-label:shared.primary" data-i18n-attr="aria-label:shared.primary">
     <div class="tcd-nav-inner">
-      <a class="tcd-wordmark" href="/ko/?replay=1" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The <span class="accent">Comp</span> Desk</a>
+      <a class="tcd-wordmark" href="/ko/?replay=1" aria-label="The Comp Desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk">The <span class="accent">Comp</span> Desk </a>
       <div class="tcd-nav-links" data-i18n="shared.attorneys-calculators-workspace-learn" data-i18n="shared.attorneys-calculators-workspace-learn">
-        <a href="/attorneys">Attorneys</a>
-        <a href="/ko/calculators/">Calculators</a>
-        <a href="/workspace-tour">Workspace</a>
-        <a href="/learn">Learn</a>
+        <a href="/attorneys">변호사</a>
+        <a href="/ko/calculators/">계산기</a>
+        <a href="/workspace-tour">워크스페이스</a>
+        <a href="/learn">학습</a>
       </div>
       <div class="tcd-nav-right">
         <div data-audience-switch></div>
-        <a class="tcd-nav-cta cta-btn" href="/auth_v2.html" data-i18n="shared.sign-in-sign-up" data-i18n="shared.sign-in-sign-up">Sign In / Sign Up</a>
+        <a class="tcd-nav-cta cta-btn" href="/auth_v2.html" data-i18n="shared.sign-in-sign-up" data-i18n="shared.sign-in-sign-up">로그인 / 회원가입</a>
       </div>
     </div>
   </nav>
 
   <div class="container">
     <div class="breadcrumb" data-i18n="calculators.lwec.home-calculators-lwec-calculator" data-i18n="calculators.lwec.home-calculators-lwec-calculator">
-      <a href="/ko/">Home</a> &gt; <a href="/ko/calculators/">Calculators</a> &gt; <span>LWEC Calculator</span>
+      <a href="/ko/">홈</a> &gt; <a href="/ko/calculators/">계산기</a> &gt; <span>LWEC 계산기</span>
     </div>
 
-    <h1 class="page-title" data-i18n="calculators.lwec.nys-loss-of-wage-earning" data-i18n="calculators.lwec.nys-loss-of-wage-earning">NYS Loss of Wage Earning Capacity (LWEC) Calculator</h1>
-    <p class="page-subtitle" data-i18n="calculators.lwec.calculate-loss-of-wage-earning" data-i18n="calculators.lwec.calculate-loss-of-wage-earning">Calculate Loss of Wage Earning Capacity classification rate, bracket, max weeks, attorney fee, and net to claimant under New York Workers' Compensation Law.</p>
+    <h1 class="page-title" data-i18n="calculators.lwec.nys-loss-of-wage-earning" data-i18n="calculators.lwec.nys-loss-of-wage-earning">NYS 임금 소득 능력 상실(LWEC) 계산기</h1>
+    <p class="page-subtitle" data-i18n="calculators.lwec.calculate-loss-of-wage-earning" data-i18n="calculators.lwec.calculate-loss-of-wage-earning">뉴욕 산재보상법에 따른 임금 소득 능력 상실 등급 요율, 등급 구간, 최대 주수, 변호사 수임료, 청구인 실수령액을 계산하세요.</p>
 
     <!-- Calculator -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title" data-i18n="shared.calculator" data-i18n="shared.calculator">Calculator</h2>
+        <h2 class="calc-header-title" data-i18n="shared.calculator" data-i18n="shared.calculator">계산기</h2>
       </div>
       <div class="calc-body">
 
         <!-- AWW inputs -->
         <div class="fields-row" style="margin-bottom:12px;">
           <div class="field-group">
-            <label class="field-label" for="awwInput" data-i18n="shared.average-weekly-wage-aww" data-i18n="shared.average-weekly-wage-aww">Average Weekly Wage (AWW)</label>
+            <label class="field-label" for="awwInput" data-i18n="shared.average-weekly-wage-aww" data-i18n="shared.average-weekly-wage-aww">평균 주급 (AWW)</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="awwInput" data-fieldhelp="aww" value="1125.00" step="0.01" aria-label="Average weekly wage" data-i18n-attr="aria-label:shared.average-weekly-wage" data-i18n-attr="aria-label:shared.average-weekly-wage">
+              <input type="number" id="awwInput" data-fieldhelp="aww" value="1125.00" step="0.01" aria-label="평균 주급" data-i18n-attr="aria-label:shared.average-weekly-wage" data-i18n-attr="aria-label:shared.average-weekly-wage">
             </div>
-            <span class="field-hint" data-i18n="calculators.lwec.2-3-aww-comp-rate" data-i18n="calculators.lwec.2-3-aww-comp-rate">2/3 AWW = comp rate (auto-calculated)</span>
+            <span class="field-hint" data-i18n="calculators.lwec.2-3-aww-comp-rate" data-i18n="calculators.lwec.2-3-aww-comp-rate">2/3 AWW = 보상률 (자동 계산)</span>
           </div>
           <div class="field-group">
-            <label class="field-label" for="maxRate" data-i18n="shared.maximum-rate-9432" data-i18n="shared.maximum-rate-9432">Maximum Rate <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" title="Per NYS WCB Subject No. 046-1805 — max/min eff. 7/1/2026. Click for source." style="color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;">&#9432;</a></label>
+            <label class="field-label" for="maxRate" data-i18n="shared.maximum-rate-9432" data-i18n="shared.maximum-rate-9432">최대 보상률 <a href="https://www.wcb.ny.gov/content/main/SubjectNos/sn046_1805.jsp" target="_blank" rel="noopener" title="NYS WCB Subject No. 046-1805 기준 — 최대/최소 시행 7/1/2026. 출처 보기." style="color:var(--ac);text-decoration:none;font-size:.78em;vertical-align:super;margin-left:3px;">&#9432;</a></label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="maxRate" value="1281.50" step="0.01" aria-label="Statutory maximum weekly rate" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate">
+              <input type="number" id="maxRate" value="1281.50" step="0.01" aria-label="법정 최대 주간 보상률" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate" data-i18n-attr="aria-label:shared.statutory-maximum-weekly-rate">
             </div>
-            <span class="field-hint" id="maxRateHint" data-i18n="shared.current-max-1-281-50" data-i18n="shared.current-max-1-281-50">Current max: $1,281.50 (7/1/2026)</span>
+            <span class="field-hint" id="maxRateHint" data-i18n="shared.current-max-1-281-50" data-i18n="shared.current-max-1-281-50">현재 최대액: $1,281.50 (7/1/2026)</span>
           </div>
           <div class="field-group">
-            <label class="field-label" for="doiDate" data-i18n="shared.date-of-injury" data-i18n="shared.date-of-injury">Date of Injury</label>
-            <input type="date" id="doiDate" data-fieldhelp="doa" aria-label="Date of injury — auto-fills max rate" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills">
-            <span class="field-hint" data-i18n="shared.auto-fills-max-rate" data-i18n="shared.auto-fills-max-rate">Auto-fills max rate</span>
+            <label class="field-label" for="doiDate" data-i18n="shared.date-of-injury" data-i18n="shared.date-of-injury">부상 날짜</label>
+            <input type="date" id="doiDate" data-fieldhelp="doa" aria-label="부상 날짜 — 최대 보상률 자동 입력" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills" data-i18n-attr="aria-label:shared.date-of-injury-auto-fills">
+            <span class="field-hint" data-i18n="shared.auto-fills-max-rate" data-i18n="shared.auto-fills-max-rate">최대 보상률 자동 입력</span>
           </div>
         </div>
 
         <div style="margin-bottom:14px;padding:8px 12px;background:var(--cardA);border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--txD);" data-i18n="calculators.lwec.2-3-aww-comp-rate-2" data-i18n="calculators.lwec.2-3-aww-comp-rate-2">
-          2/3 AWW (Comp Rate): <span id="compRateDisplay" style="color:var(--gd);font-weight:800;font-family:var(--mono);">—</span>
+          2/3 AWW (보상률): <span id="compRateDisplay" style="color:var(--gd);font-weight:800;font-family:var(--mono);">—</span>
         </div>
 
         <div class="fields-row">
           <div class="field-group">
-            <label class="field-label" for="lwecPercent" data-i18n="calculators.lwec.lwec-loss-percentage.text" data-i18n="calculators.lwec.lwec-loss-percentage.text">LWEC Loss Percentage</label>
+            <label class="field-label" for="lwecPercent" data-i18n="calculators.lwec.lwec-loss-percentage.text" data-i18n="calculators.lwec.lwec-loss-percentage.text">LWEC 상실 비율</label>
             <div class="field-wrap">
-              <input type="number" id="lwecPercent" min="0" max="100" value="25" aria-label="LWEC loss percentage" data-i18n-attr="aria-label:calculators.lwec.lwec-loss-percentage.label" data-i18n-attr="aria-label:calculators.lwec.lwec-loss-percentage.label">
+              <input type="number" id="lwecPercent" min="0" max="100" value="25" aria-label="LWEC 상실 비율" data-i18n-attr="aria-label:calculators.lwec.lwec-loss-percentage.label" data-i18n-attr="aria-label:calculators.lwec.lwec-loss-percentage.label">
               <span class="field-suffix">%</span>
             </div>
-            <span class="field-hint" data-i18n="calculators.lwec.0-100-loss-of-earning" data-i18n="calculators.lwec.0-100-loss-of-earning">0–100% loss of earning capacity</span>
+            <span class="field-hint" data-i18n="calculators.lwec.0-100-loss-of-earning" data-i18n="calculators.lwec.0-100-loss-of-earning">0–100% 소득 능력 상실</span>
           </div>
           <div class="field-group">
-            <label class="field-label" for="lwecFeePerWeek" data-i18n="calculators.lwec.attorney-fee-week-optional" data-i18n="calculators.lwec.attorney-fee-week-optional">Attorney Fee/Week (Optional)</label>
+            <label class="field-label" for="lwecFeePerWeek" data-i18n="calculators.lwec.attorney-fee-week-optional" data-i18n="calculators.lwec.attorney-fee-week-optional">주간 변호사 수임료 (선택 사항)</label>
             <div class="field-wrap">
               <span class="field-prefix">$</span>
-              <input type="number" id="lwecFeePerWeek" value="0" step="0.01" placeholder="0" aria-label="Weekly attorney fee amount" data-i18n-attr="aria-label:calculators.lwec.weekly-attorney-fee-amount.label" data-i18n-attr="aria-label:calculators.lwec.weekly-attorney-fee-amount.label">
+              <input type="number" id="lwecFeePerWeek" value="0" step="0.01" placeholder="0" aria-label="주간 변호사 수임료 금액" data-i18n-attr="aria-label:calculators.lwec.weekly-attorney-fee-amount.label" data-i18n-attr="aria-label:calculators.lwec.weekly-attorney-fee-amount.label">
             </div>
-            <span class="field-hint" data-i18n="calculators.lwec.deducted-from-weekly-net" data-i18n="calculators.lwec.deducted-from-weekly-net">Deducted from weekly net</span>
+            <span class="field-hint" data-i18n="calculators.lwec.deducted-from-weekly-net" data-i18n="calculators.lwec.deducted-from-weekly-net">주간 실수령액에서 차감</span>
           </div>
         </div>
 
@@ -197,41 +201,41 @@
         <div class="result-box" style="margin-top:16px;">
           <div class="result-grid">
             <div class="result-item" data-i18n="calculators.lwec.2-3-aww-comp-rate-3" data-i18n="calculators.lwec.2-3-aww-comp-rate-3">
-              <span class="result-label">2/3 AWW (Comp Rate)</span>
+              <span class="result-label">2/3 AWW (보상률)</span>
               <span class="result-value" id="ttResult">—</span>
             </div>
             <div class="result-item" data-i18n="calculators.lwec.classification-rate" data-i18n="calculators.lwec.classification-rate">
-              <span class="result-label">Classification Rate</span>
+              <span class="result-label">등급 요율</span>
               <span class="result-value gold" id="classRateResult">—</span>
             </div>
             <div class="result-item" data-i18n="calculators.lwec.bracket" data-i18n="calculators.lwec.bracket">
-              <span class="result-label">Bracket</span>
+              <span class="result-label">등급 구간</span>
               <span class="result-value" id="bracketResult">—</span>
             </div>
             <div class="result-item" data-i18n="calculators.lwec.max-weeks" data-i18n="calculators.lwec.max-weeks">
-              <span class="result-label">Max Weeks</span>
+              <span class="result-label">최대 주수</span>
               <span class="result-value blue" id="maxWeeksResult">—</span>
             </div>
           </div>
 
           <!-- Fee & Net breakdown -->
           <div id="feeBreakdown" style="display:none;margin-top:12px;border-top:1px solid var(--bd);padding-top:12px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;" data-i18n="calculators.lwec.award-fee-breakdown" data-i18n="calculators.lwec.award-fee-breakdown">Award &amp; Fee Breakdown</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:8px;letter-spacing:.5px;" data-i18n="calculators.lwec.award-fee-breakdown" data-i18n="calculators.lwec.award-fee-breakdown">보상금 및 수임료 내역</div>
             <div class="result-row-list">
               <div class="result-row-item" data-i18n="calculators.lwec.total-award-rate-max-weeks" data-i18n="calculators.lwec.total-award-rate-max-weeks">
-                <span class="result-row-label">Total Award (rate × max weeks)</span>
+                <span class="result-row-label">총 보상금 (요율 × 최대 주수)</span>
                 <span class="result-row-val mono" id="totalAwardResult">—</span>
               </div>
               <div class="result-row-item" data-i18n="calculators.lwec.attorney-fee-15-weeks-rate" data-i18n="calculators.lwec.attorney-fee-15-weeks-rate">
-                <span class="result-row-label" style="color:var(--gn);">Attorney Fee (15 weeks × rate)</span>
+                <span class="result-row-label" style="color:var(--gn);">변호사 수임료 (15주 × 요율)</span>
                 <span class="result-row-val mono" style="color:var(--gn);" id="attyFeeResult">—</span>
               </div>
               <div class="result-row-item" data-i18n="calculators.lwec.weekly-net-after-fee-wk" data-i18n="calculators.lwec.weekly-net-after-fee-wk">
-                <span class="result-row-label">Weekly Net (after fee/wk)</span>
+                <span class="result-row-label">주간 실수령액 (수임료 차감 후)</span>
                 <span class="result-row-val mono" id="weeklyNetResult">—</span>
               </div>
               <div class="result-row-item" style="border-top:1px solid var(--bd);padding-top:6px;margin-top:4px;" data-i18n="calculators.lwec.total-net-to-claimant" data-i18n="calculators.lwec.total-net-to-claimant">
-                <span class="result-row-label" style="color:var(--gd);font-weight:700;">Total Net to Claimant</span>
+                <span class="result-row-label" style="color:var(--gd);font-weight:700;">청구인 총 실수령액</span>
                 <span class="result-row-val mono" style="color:var(--gd);font-weight:800;" id="totalNetResult">—</span>
               </div>
             </div>
@@ -239,7 +243,7 @@
 
           <!-- Equation -->
           <div id="equationBox" style="display:none;margin-top:14px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;" data-i18n="shared.calculation-breakdown" data-i18n="shared.calculation-breakdown">Calculation Breakdown</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txM);margin-bottom:6px;letter-spacing:.5px;" data-i18n="shared.calculation-breakdown" data-i18n="shared.calculation-breakdown">계산 내역</div>
             <pre id="equationText" style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--tx);line-height:1.8;white-space:pre-wrap;word-break:break-word;"></pre>
           </div>
 
@@ -255,14 +259,14 @@
     <!-- What is LWEC -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title" data-fieldhelp="lwec" data-i18n="calculators.lwec.what-is-lwec-loss-of" data-i18n="calculators.lwec.what-is-lwec-loss-of">What Is LWEC (Loss of Wage Earning Capacity)?</h2>
+        <h2 class="calc-header-title" data-fieldhelp="lwec" data-i18n="calculators.lwec.what-is-lwec-loss-of" data-i18n="calculators.lwec.what-is-lwec-loss-of">LWEC(임금 소득 능력 상실)이란 무엇인가요?</h2>
       </div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.lwec.loss-of-wage-earning-capacity" data-i18n="calculators.lwec.loss-of-wage-earning-capacity">
-          Loss of Wage Earning Capacity (LWEC) is New York's measure of how much a permanent, non-schedule injury reduces an injured worker's ability to earn wages. When a worker reaches maximum medical improvement with a permanent partial disability that isn't covered by the Schedule Loss of Use system — typically spine, head, and systemic injuries — the Workers' Compensation Board assigns an LWEC percentage based on medical impairment, functional limitations, and vocational factors such as age, education, and work history.
+          임금 소득 능력 상실(LWEC)은 목록에 없는 영구 부상이 부상 근로자의 임금 소득 능력을 얼마나 감소시키는지를 나타내는 뉴욕주의 지표입니다. 근로자가 Schedule Loss of Use 제도에 포함되지 않는 영구 부분 장해 — 일반적으로 척추, 머리, 전신 부상 — 로 최대 의학적 호전에 도달하면, Workers' Compensation Board는 의학적 장해, 기능적 제한, 나이·학력·근무 이력 등의 직업적 요인을 바탕으로 LWEC 비율을 부여합니다.
         </p>
         <p style="color:var(--txD);line-height:1.8;" data-i18n="calculators.lwec.that-percentage-drives-both-the" data-i18n="calculators.lwec.that-percentage-drives-both-the">
-          That percentage drives both the <strong style="color:var(--tx);">weekly benefit rate</strong> and the <strong style="color:var(--tx);">maximum number of weeks</strong> the benefit is payable, using the bracket system shown below.
+          이 비율은 아래 표시된 등급 구간 시스템을 사용하여 <strong style="color:var(--tx);">주간 보상률</strong>과 보상금이 지급되는 <strong style="color:var(--tx);">최대 주수</strong>를 모두 결정합니다.
         </p>
       </div>
     </div>
@@ -270,17 +274,17 @@
     <!-- How LWEC is calculated -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title" data-i18n="calculators.lwec.how-lwec-is-calculated-wcl" data-i18n="calculators.lwec.how-lwec-is-calculated-wcl">How LWEC Is Calculated (WCL §15(3)(w))</h2>
+        <h2 class="calc-header-title" data-i18n="calculators.lwec.how-lwec-is-calculated-wcl" data-i18n="calculators.lwec.how-lwec-is-calculated-wcl">LWEC 계산 방법 (WCL §15(3)(w))</h2>
       </div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.lwec.the-weekly-lwec-classification-rate" data-i18n="calculators.lwec.the-weekly-lwec-classification-rate">
-          The weekly LWEC classification rate equals <strong style="color:var(--tx);">your LWEC percentage × your compensation rate</strong> (2/3 of your average weekly wage, capped at the <a href="/ko/calculators/rates" style="color:var(--ac);">statutory maximum rate</a> for your date of injury). For example, a 50% LWEC classification with a $750/week comp rate yields $375/week.
+          주간 LWEC 등급 요율은 <strong style="color:var(--tx);">LWEC 비율 × 보상률</strong>과 같습니다 (평균 주급의 2/3, 부상 날짜 기준 <a href="/ko/calculators/rates" style="color:var(--ac);">법정 최대 보상률</a> 상한). 예를 들어 주당 보상률이 $750인 경우 LWEC 50% 등급은 주당 $375를 산출합니다.
         </p>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.lwec.the-duration-is-capped-by" data-i18n="calculators.lwec.the-duration-is-capped-by">
-          The duration is capped by WCL §15(3)(w): the LWEC percentage falls into a bracket that sets the maximum weeks of benefits — from 225 weeks at 15% or less up to 525 weeks above 95%. Workers classified with a permanent total disability receive lifetime benefits.
+          기간은 WCL §15(3)(w)에 의해 제한됩니다: LWEC 비율은 최대 보상 주수를 결정하는 등급 구간에 속합니다 — 15% 이하는 225주부터 95% 초과는 525주까지입니다. 영구적 완전 장해로 등급이 매겨진 근로자는 평생 보상금을 받습니다.
         </p>
         <p style="color:var(--txD);line-height:1.8;" data-i18n="calculators.lwec.not-sure-of-your-wage" data-i18n="calculators.lwec.not-sure-of-your-wage">
-          Not sure of your wage figure? Establish it first with the <a href="/ko/calculators/aww" style="color:var(--ac);">Average Weekly Wage (AWW) calculator</a> under WCL §14.
+          임금 수치가 확실하지 않으신가요? WCL §14에 따른 <a href="/ko/calculators/aww" style="color:var(--ac);">평균 주급(AWW) 계산기</a>로 먼저 확인하세요.
         </p>
       </div>
     </div>
@@ -288,19 +292,19 @@
     <!-- LWEC Bracket Reference -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title" data-i18n="calculators.lwec.lwec-percentage-brackets-maximum-weeks" data-i18n="calculators.lwec.lwec-percentage-brackets-maximum-weeks">LWEC Percentage Brackets &amp; Maximum Weeks</h2>
+        <h2 class="calc-header-title" data-i18n="calculators.lwec.lwec-percentage-brackets-maximum-weeks" data-i18n="calculators.lwec.lwec-percentage-brackets-maximum-weeks">LWEC 비율 구간 및 최대 주수</h2>
       </div>
       <div class="calc-body" style="padding:0;">
         <table class="data-table" id="bracketTable">
           <thead>
             <tr>
-              <th data-i18n="calculators.lwec.classification" data-i18n="calculators.lwec.classification">Classification</th>
-              <th data-i18n="calculators.lwec.lwec-range" data-i18n="calculators.lwec.lwec-range">LWEC % Range</th>
-              <th data-i18n="shared.max-weeks" data-i18n="shared.max-weeks">Max Weeks</th>
+              <th data-i18n="calculators.lwec.classification" data-i18n="calculators.lwec.classification">등급</th>
+              <th data-i18n="calculators.lwec.lwec-range" data-i18n="calculators.lwec.lwec-range">LWEC % 범위</th>
+              <th data-i18n="shared.max-weeks" data-i18n="shared.max-weeks">최대 주수</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td data-i18n="calculators.lwec.total-industrial" data-i18n="calculators.lwec.total-industrial">Total (Industrial)</td><td>100%</td><td data-i18n="calculators.lwec.lifetime" data-i18n="calculators.lwec.lifetime">Lifetime</td></tr>
+            <tr><td data-i18n="calculators.lwec.total-industrial" data-i18n="calculators.lwec.total-industrial">전체 (산업재해)</td><td>100%</td><td data-i18n="calculators.lwec.lifetime" data-i18n="calculators.lwec.lifetime">평생</td></tr>
             <tr><td>96%+</td><td>96–100%</td><td>525</td></tr>
             <tr><td>91–95%</td><td>91–95%</td><td>500</td></tr>
             <tr><td>86–90%</td><td>86–90%</td><td>475</td></tr>
@@ -312,11 +316,11 @@
             <tr><td>41–50%</td><td>41–50%</td><td>300</td></tr>
             <tr><td>31–40%</td><td>31–40%</td><td>275</td></tr>
             <tr><td>16–30%</td><td>16–30%</td><td>250</td></tr>
-            <tr><td data-i18n="calculators.lwec.15-or-less" data-i18n="calculators.lwec.15-or-less">15% or less</td><td>0–15%</td><td>225</td></tr>
+            <tr><td data-i18n="calculators.lwec.15-or-less" data-i18n="calculators.lwec.15-or-less">15% 이하</td><td>0–15%</td><td>225</td></tr>
           </tbody>
         </table>
         <p style="color:var(--txM);font-size:11px;padding:10px 14px;" data-i18n="calculators.lwec.attorney-fee-is-assessed-as" data-i18n="calculators.lwec.attorney-fee-is-assessed-as">
-          Attorney fee is assessed as 15 weeks × the classification rate, deducted from the total award. For "Total (Industrial)" classifications, benefits continue for life.
+          변호사 수임료는 등급 요율에 15주를 곱한 금액으로 산정되며 총 보상금에서 차감됩니다. "전체 (산업재해)" 등급의 경우 보상금은 평생 지속됩니다.
         </p>
       </div>
     </div>
@@ -324,57 +328,57 @@
     <!-- LWEC vs SLU -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title" data-i18n="calculators.lwec.lwec-vs-schedule-loss-of" data-i18n="calculators.lwec.lwec-vs-schedule-loss-of">LWEC vs. Schedule Loss of Use (SLU)</h2>
+        <h2 class="calc-header-title" data-i18n="calculators.lwec.lwec-vs-schedule-loss-of" data-i18n="calculators.lwec.lwec-vs-schedule-loss-of">LWEC 대 Schedule Loss of Use (SLU)</h2>
       </div>
       <div class="calc-body">
         <p style="color:var(--txD);line-height:1.8;margin-bottom:12px;" data-i18n="calculators.lwec.new-york-permanency-awards-come" data-i18n="calculators.lwec.new-york-permanency-awards-come">
-          New York permanency awards come in two forms. A <strong style="color:var(--tx);">Schedule Loss of Use (SLU)</strong> award pays a fixed number of weeks for permanent loss of use of an extremity — arm, hand, leg, foot, fingers, vision, or hearing — under WCL §15(3), even if you're back at work at full pay. <strong style="color:var(--tx);">LWEC</strong> covers non-schedule permanent injuries (spine, head, systemic conditions) with weekly benefits paid over a capped duration. A case generally resolves under one framework or the other for a given injury.
+          뉴욕의 영구장해 보상금은 두 가지 형태로 나뉩니다. <strong style="color:var(--tx);">Schedule Loss of Use(SLU)</strong> 보상금은 WCL §15(3)에 따라 팔, 손, 다리, 발, 손가락, 시력, 청력 등 사지의 영구적 사용 상실에 대해 고정된 주수를 지급하며, 전액 임금을 받으며 복귀했더라도 지급됩니다. <strong style="color:var(--tx);">LWEC</strong>은 척추, 머리, 전신 질환 등 목록에 없는 영구 부상을 제한된 기간 동안 주간 보상금으로 다룹니다. 일반적으로 하나의 부상에 대해 사건은 둘 중 하나의 체계로 해결됩니다.
         </p>
         <p style="color:var(--txD);margin-bottom:14px;" data-i18n="calculators.lwec.think-your-injury-may-be" data-i18n="calculators.lwec.think-your-injury-may-be">
-          Think your injury may be a schedule loss? Estimate the award with the free <a href="/ko/calculators/slu" style="color:var(--ac);">Schedule Loss of Use (SLU) calculator</a>.
+          부상이 목록상 손실에 해당한다고 생각하시나요? 무료 <a href="/ko/calculators/slu" style="color:var(--ac);">Schedule Loss of Use(SLU) 계산기</a>로 보상금을 추정해보세요.
         </p>
-        <a href="/ko/calculators/slu" class="btn-secondary" data-i18n="calculators.lwec.go-to-slu-calculator" data-i18n="calculators.lwec.go-to-slu-calculator">Go to SLU Calculator</a>
+        <a href="/ko/calculators/slu" class="btn-secondary" data-i18n="calculators.lwec.go-to-slu-calculator" data-i18n="calculators.lwec.go-to-slu-calculator">SLU 계산기로 이동</a>
       </div>
     </div>
 
     <!-- FAQ -->
     <div class="calc-section">
       <div class="calc-header">
-        <h2 class="calc-header-title" data-i18n="shared.frequently-asked-questions" data-i18n="shared.frequently-asked-questions">Frequently Asked Questions</h2>
+        <h2 class="calc-header-title" data-i18n="shared.frequently-asked-questions" data-i18n="shared.frequently-asked-questions">자주 묻는 질문</h2>
       </div>
       <div class="calc-body">
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.what-does-lwec-mean-in" data-i18n="calculators.lwec.jsonld.what-does-lwec-mean-in">What does LWEC mean in workers' comp?</h3>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.what-does-lwec-mean-in" data-i18n="calculators.lwec.jsonld.what-does-lwec-mean-in">산재보상에서 LWEC은 무엇을 의미하나요?</h3>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.lwec.jsonld.lwec-stands-for-loss-of" data-i18n="calculators.lwec.jsonld.lwec-stands-for-loss-of">
-          LWEC stands for Loss of Wage Earning Capacity — the percentage by which a permanent injury reduces your ability to earn wages. The Workers' Compensation Board sets it at permanency (classification) based on medical impairment, functional limitations, and vocational factors such as age, education, and work history.
+          LWEC은 임금 소득 능력 상실(Loss of Wage Earning Capacity)의 약자로 — 영구 부상이 임금을 벌 수 있는 능력을 얼마나 감소시키는지를 나타내는 비율입니다. Workers' Compensation Board는 의학적 장해, 기능적 제한, 나이·학력·근무 이력 등의 직업적 요인을 바탕으로 영구장해(등급) 단계에서 이를 설정합니다.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.how-many-weeks-of-lwec" data-i18n="calculators.lwec.jsonld.how-many-weeks-of-lwec">How many weeks of LWEC benefits can I get in New York?</h3>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.how-many-weeks-of-lwec" data-i18n="calculators.lwec.jsonld.how-many-weeks-of-lwec">뉴욕에서 LWEC 보상금을 몇 주 동안 받을 수 있나요?</h3>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.lwec.jsonld.wcl-15-3-w-caps" data-i18n="calculators.lwec.jsonld.wcl-15-3-w-caps">
-          WCL §15(3)(w) caps benefit weeks by LWEC percentage — from 225 weeks at 15% or less up to 525 weeks at over 95%. Workers found permanently totally disabled receive lifetime benefits.
+          WCL §15(3)(w)는 LWEC 비율에 따라 보상 주수를 제한합니다 — 15% 이하는 225주부터 95% 초과는 525주까지입니다. 영구적 완전 장해로 판정된 근로자는 평생 보상금을 받습니다.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.how-is-the-weekly-lwec" data-i18n="calculators.lwec.jsonld.how-is-the-weekly-lwec">How is the weekly LWEC rate calculated?</h3>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.how-is-the-weekly-lwec" data-i18n="calculators.lwec.jsonld.how-is-the-weekly-lwec">주간 LWEC 요율은 어떻게 계산되나요?</h3>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.lwec.the-weekly-classification-rate-equals" data-i18n="calculators.lwec.the-weekly-classification-rate-equals">
-          The weekly classification rate equals your LWEC percentage multiplied by your compensation rate (two-thirds of your average weekly wage, capped at the <a href="/ko/calculators/rates" style="color:var(--ac);">statutory maximum</a> for your date of injury). For example, 50% LWEC with a $750 comp rate pays $375 per week.
+          주간 등급 요율은 LWEC 비율에 보상률(평균 주급의 3분의 2, 부상 날짜 기준 <a href="/ko/calculators/rates" style="color:var(--ac);">법정 최대액</a> 상한)을 곱한 값입니다. 예를 들어 보상률이 $750인 경우 LWEC 50%는 주당 $375를 지급합니다.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.is-lwec-the-same-as" data-i18n="calculators.lwec.jsonld.is-lwec-the-same-as">Is LWEC the same as a Schedule Loss of Use award?</h3>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.is-lwec-the-same-as" data-i18n="calculators.lwec.jsonld.is-lwec-the-same-as">LWEC은 Schedule Loss of Use 보상금과 같은가요?</h3>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:14px;" data-i18n="calculators.lwec.no-a-schedule-loss-of" data-i18n="calculators.lwec.no-a-schedule-loss-of">
-          No. A <a href="/ko/calculators/slu" style="color:var(--ac);">Schedule Loss of Use (SLU) award</a> pays a fixed number of weeks for permanent loss of use of an extremity under WCL §15(3). LWEC compensates non-schedule permanent injuries — spine, head, and systemic conditions — with weekly benefits over a capped duration.
+          아닙니다. <a href="/ko/calculators/slu" style="color:var(--ac);">Schedule Loss of Use(SLU) 보상금</a>은 WCL §15(3)에 따라 사지의 영구적 사용 상실에 대해 고정된 주수를 지급합니다. LWEC은 척추, 머리, 전신 질환과 같이 목록에 없는 영구 부상에 대해 제한된 기간 동안 주간 보상금으로 보상합니다.
         </p>
-        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.what-attorney-fee-comes-out" data-i18n="calculators.lwec.jsonld.what-attorney-fee-comes-out">What attorney fee comes out of an LWEC award?</h3>
+        <h3 style="font-size:13px;color:var(--tx);margin:0 0 6px;" data-i18n="calculators.lwec.jsonld.what-attorney-fee-comes-out" data-i18n="calculators.lwec.jsonld.what-attorney-fee-comes-out">LWEC 보상금에서 변호사 수임료는 얼마나 차감되나요?</h3>
         <p style="color:var(--txD);line-height:1.8;margin-bottom:0;" data-i18n="calculators.lwec.attorneys-are-typically-awarded-15" data-i18n="calculators.lwec.attorneys-are-typically-awarded-15">
-          Attorneys are typically awarded 15 weeks multiplied by the weekly classification rate, deducted from the award and subject to Workers' Compensation Board approval under WCL §24. This calculator shows the full fee and net-to-claimant breakdown.
+          변호사는 일반적으로 주간 등급 요율에 15주를 곱한 금액을 받으며, 이는 보상금에서 차감되고 WCL §24에 따라 Workers' Compensation Board의 승인을 받아야 합니다. 이 계산기는 전체 수임료와 청구인 실수령액 내역을 보여줍니다.
         </p>
       </div>
     </div>
 
     <!-- App CTA -->
     <div class="upgrade-banner">
-      <div class="upgrade-title" data-i18n="shared.full-featured-mobile-app" data-i18n="shared.full-featured-mobile-app">Full-Featured Mobile App</div>
-      <div class="upgrade-description" data-i18n="calculators.lwec.calculate-lwec-benefits-manage-hearings" data-i18n="calculators.lwec.calculate-lwec-benefits-manage-hearings">Calculate LWEC benefits, manage hearings, and track case history on the go.</div>
-      <button class="btn-primary" data-i18n="shared.download-the-app" data-i18n="shared.download-the-app">Download the App</button>
+      <div class="upgrade-title" data-i18n="shared.full-featured-mobile-app" data-i18n="shared.full-featured-mobile-app">모든 기능을 갖춘 모바일 앱</div>
+      <div class="upgrade-description" data-i18n="calculators.lwec.calculate-lwec-benefits-manage-hearings" data-i18n="calculators.lwec.calculate-lwec-benefits-manage-hearings">이동 중에도 LWEC 보상금을 계산하고, 심리를 관리하고, 사건 기록을 추적하세요.</div>
+      <button class="btn-primary" data-i18n="shared.download-the-app" data-i18n="shared.download-the-app">앱 다운로드</button>
     </div>
 
     <div class="disclaimer">
-      <p style="margin:0;" data-i18n="calculators.lwec.disclaimer-this-calculator-is-provided" data-i18n="calculators.lwec.disclaimer-this-calculator-is-provided"><strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. LWEC calculations are based on current New York State workers' compensation law and Department of Financial Services regulations. The classification percentage is determined by the Workers' Compensation Board and may vary based on medical evidence, vocational evaluation, and hearing outcomes. Consult a qualified workers' compensation attorney for guidance on your specific case.</p>
+      <p style="margin:0;" data-i18n="calculators.lwec.disclaimer-this-calculator-is-provided" data-i18n="calculators.lwec.disclaimer-this-calculator-is-provided"><strong>법적 고지:</strong> 이 계산기는 정보 제공 목적으로만 제공되며 법률 자문에 해당하지 않습니다. LWEC 계산은 현행 뉴욕주 산재보상법 및 금융서비스부 규정을 기반으로 합니다. 등급 비율은 Workers' Compensation Board가 결정하며 의료 증거, 직업 평가, 심리 결과에 따라 달라질 수 있습니다. 구체적인 사건에 대한 안내는 자격을 갖춘 산재보상 변호사와 상담하세요.</p>
     </div>
   </div>
 
