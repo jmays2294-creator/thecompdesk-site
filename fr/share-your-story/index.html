@@ -10,8 +10,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-<title data-i18n="share-your-story.meta.title" data-i18n="share-your-story.meta.title">Share Your Story - The Comp Desk</title>
-<meta name="description" content="Share your workers' compensation story with The Comp Desk. Privacy-first, opt-in only."  data-i18n-attr="content:share-your-story.meta.description" data-i18n-attr="content:share-your-story.meta.description"/>
+<title data-i18n="share-your-story.meta.title" data-i18n="share-your-story.meta.title">Partagez votre histoire - The Comp Desk</title>
+<meta name="description" content="Partagez votre parcours d'indemnisation des accidents du travail avec The Comp Desk. Confidentialité d'abord, participation volontaire uniquement."  data-i18n-attr="content:share-your-story.meta.description" data-i18n-attr="content:share-your-story.meta.description"/>
 <link rel="canonical" href="https://thecompdesk.com/fr/share-your-story" />
 
 <!-- JSON-LD Schema -->
@@ -19,8 +19,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "name": "Share Your Story — Injured Workers' Experiences",
-  "description": "Read and share real stories from injured workers navigating the NYS workers' compensation system.",
+  "name": "Partagez votre histoire — Expériences de travailleurs blessés",
+  "description": "Lisez et partagez de véritables histoires de travailleurs blessés naviguant dans le système d'indemnisation des accidents du travail de NYS.",
   "url": "https://thecompdesk.com/share-your-story/"
 }
 </script>
@@ -84,62 +84,62 @@
 </head>
 <body>
 <div class="wrap">
-  <h1 data-i18n="share-your-story.share-your-story" data-i18n="share-your-story.share-your-story">Share Your Story</h1>
-  <p class="sub" data-i18n="share-your-story.help-other-injured-workers-by" data-i18n="share-your-story.help-other-injured-workers-by">Help other injured workers by telling us what worked — and what didn't.</p>
+  <h1 data-i18n="share-your-story.share-your-story" data-i18n="share-your-story.share-your-story">Partagez votre histoire</h1>
+  <p class="sub" data-i18n="share-your-story.help-other-injured-workers-by" data-i18n="share-your-story.help-other-injured-workers-by">Aidez d'autres travailleurs blessés en nous racontant ce qui a fonctionné — et ce qui n'a pas fonctionné.</p>
 
   <div class="disclaimer" data-i18n="share-your-story.disclaimer-the-comp-desk-is" data-i18n="share-your-story.disclaimer-the-comp-desk-is">
-    <strong>Disclaimer.</strong> The Comp Desk is an information resource, not a law firm.
-    Submitting your story does not create an attorney–client relationship and is not legal advice.
-    We will only use what you share in the ways you explicitly consent to below. We do
-    <strong>not</strong> sell your information and we do <strong>not</strong> share it with any
-    third-party law firm. You can request permanent deletion at any time using the link in your
-    confirmation email.
+    <strong>Avis de non-responsabilité.</strong> The Comp Desk est une ressource d'information, pas un cabinet d'avocats.
+    Soumettre votre histoire ne crée pas de relation avocat–client et ne constitue pas un conseil juridique.
+    Nous n'utiliserons ce que vous partagez que de la manière à laquelle vous consentez explicitement ci-dessous. Nous ne
+    <strong>vendons pas</strong> vos informations et nous ne les <strong>partageons pas</strong> avec un
+    cabinet d'avocats tiers. Vous pouvez demander une suppression permanente à tout moment via le lien dans votre
+    e-mail de confirmation.
   </div>
 
   <form id="story-form" class="card" novalidate>
-    <label for="name" data-i18n="share-your-story.your-name-optional" data-i18n="share-your-story.your-name-optional">Your name <span class="hint">(optional)</span></label>
+    <label for="name" data-i18n="share-your-story.your-name-optional" data-i18n="share-your-story.your-name-optional">Votre nom <span class="hint">(facultatif)</span></label>
     <input id="name" name="name" type="text" autocomplete="name" />
 
-    <label for="state" data-i18n="share-your-story.state" data-i18n="share-your-story.state">State</label>
+    <label for="state" data-i18n="share-your-story.state" data-i18n="share-your-story.state">État</label>
     <input id="state" name="state" type="text" maxlength="60" />
 
-    <label for="injury_type" data-i18n="share-your-story.injury-type" data-i18n="share-your-story.injury-type">Injury type</label>
-    <input id="injury_type" name="injury_type" type="text" placeholder="e.g., back injury, repetitive strain"  data-i18n-attr="placeholder:share-your-story.e-g-back-injury-repetitive.placeholder" data-i18n-attr="placeholder:share-your-story.e-g-back-injury-repetitive.placeholder"/>
+    <label for="injury_type" data-i18n="share-your-story.injury-type" data-i18n="share-your-story.injury-type">Type de blessure</label>
+    <input id="injury_type" name="injury_type" type="text" placeholder="p. ex. blessure au dos, tension répétitive"  data-i18n-attr="placeholder:share-your-story.e-g-back-injury-repetitive.placeholder" data-i18n-attr="placeholder:share-your-story.e-g-back-injury-repetitive.placeholder"/>
 
-    <label for="what_helped" data-i18n="share-your-story.what-helped-you" data-i18n="share-your-story.what-helped-you">What helped you?</label>
+    <label for="what_helped" data-i18n="share-your-story.what-helped-you" data-i18n="share-your-story.what-helped-you">Qu'est-ce qui vous a aidé(e) ?</label>
     <textarea id="what_helped" name="what_helped"></textarea>
 
-    <label for="what_didnt" data-i18n="share-your-story.what-didn-t" data-i18n="share-your-story.what-didn-t">What didn't?</label>
+    <label for="what_didnt" data-i18n="share-your-story.what-didn-t" data-i18n="share-your-story.what-didn-t">Qu'est-ce qui n'a pas fonctionné ?</label>
     <textarea id="what_didnt" name="what_didnt"></textarea>
 
-    <label for="photo" data-i18n="share-your-story.photo-optional" data-i18n="share-your-story.photo-optional">Photo <span class="hint">(optional)</span></label>
+    <label for="photo" data-i18n="share-your-story.photo-optional" data-i18n="share-your-story.photo-optional">Photo <span class="hint">(facultatif)</span></label>
     <input id="photo" name="photo" type="file" accept="image/*" />
 
-    <label for="contact_email" data-i18n="share-your-story.email-so-we-can-send" data-i18n="share-your-story.email-so-we-can-send">Email <span class="hint">(so we can send you the deletion link)</span></label>
+    <label for="contact_email" data-i18n="share-your-story.email-so-we-can-send" data-i18n="share-your-story.email-so-we-can-send">E-mail <span class="hint">(pour que nous puissions vous envoyer le lien de suppression)</span></label>
     <input id="contact_email" name="contact_email" type="email" autocomplete="email" />
 
-    <label style="margin-top:22px" data-i18n="share-your-story.how-should-we-identify-you" data-i18n="share-your-story.how-should-we-identify-you">How should we identify you?</label>
+    <label style="margin-top:22px" data-i18n="share-your-story.how-should-we-identify-you" data-i18n="share-your-story.how-should-we-identify-you">Comment devrions-nous vous identifier ?</label>
     <div class="radio-group">
       <label><input type="radio" name="consent_display" value="first_name" /> Use my first name only</label>
       <label><input type="radio" name="consent_display" value="initials" /> Use my initials only</label>
       <label><input type="radio" name="consent_display" value="anonymous" checked /> Keep me fully anonymous</label>
     </div>
 
-    <label style="margin-top:18px" data-i18n="share-your-story.permissions" data-i18n="share-your-story.permissions">Permissions</label>
+    <label style="margin-top:18px" data-i18n="share-your-story.permissions" data-i18n="share-your-story.permissions">Autorisations</label>
     <div class="check">
       <input type="checkbox" id="consent_photo" name="consent_photo" />
-      <label for="consent_photo" data-i18n="share-your-story.you-may-use-the-photo" data-i18n="share-your-story.you-may-use-the-photo">You may use the photo I uploaded.</label>
+      <label for="consent_photo" data-i18n="share-your-story.you-may-use-the-photo" data-i18n="share-your-story.you-may-use-the-photo">Vous pouvez utiliser la photo que j'ai téléchargée.</label>
     </div>
     <div class="check">
       <input type="checkbox" id="consent_quotes" name="consent_quotes" />
-      <label for="consent_quotes" data-i18n="share-your-story.you-may-quote-my-words" data-i18n="share-your-story.you-may-quote-my-words">You may quote my words directly.</label>
+      <label for="consent_quotes" data-i18n="share-your-story.you-may-quote-my-words" data-i18n="share-your-story.you-may-quote-my-words">Vous pouvez citer mes propos directement.</label>
     </div>
 
-    <button id="submit-btn" type="submit" style="margin-top:22px" data-i18n="share-your-story.submit-my-story" data-i18n="share-your-story.submit-my-story">Submit my story</button>
+    <button id="submit-btn" type="submit" style="margin-top:22px" data-i18n="share-your-story.submit-my-story" data-i18n="share-your-story.submit-my-story">Soumettre mon histoire</button>
     <div id="result"></div>
   </form>
 
-  <p style="text-align:center;color:var(--txD);font-size:13px" data-i18n="share-your-story.back-to-the-comp-desk" data-i18n="share-your-story.back-to-the-comp-desk"><a href="/fr/">← Back to The Comp Desk</a></p>
+  <p style="text-align:center;color:var(--txD);font-size:13px" data-i18n="share-your-story.back-to-the-comp-desk" data-i18n="share-your-story.back-to-the-comp-desk"><a href="/fr/">← Retour à The Comp Desk</a></p>
 </div>
 
 <script type="module">
