@@ -1,0 +1,302 @@
+<!-- GENERATED FILE — do not edit. Source: /contact.html · locale: pl
+     Regenerate with: node scripts/i18n/build-locales.mjs -->
+<!DOCTYPE html>
+<html lang="pl" data-audience="worker" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact The Comp Desk — Call, Text, or Email Us</title>
+<meta name="description" content="Reach The Comp Desk by phone, text, or email. We answer questions from injured New York workers, attorneys, and partners. The Comp Desk is a software platform, not a law firm.">
+<meta name="keywords" content="contact The Comp Desk, contact comp buddy, workers compensation help NY, NYS workers comp app support">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Contact The Comp Desk">
+<meta property="og:description" content="Questions? Call, text, or email us. (929) 797-4797 · contact@thecompdesk.com">
+<meta property="og:url" content="https://thecompdesk.com/pl/contact">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Comp Desk">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Contact The Comp Desk">
+<meta name="twitter:description" content="Questions? Call, text, or email us.">
+
+<link rel="canonical" href="https://thecompdesk.com/pl/contact">
+
+<!-- JSON-LD: ContactPage + ContactPoint (preserved from prior page) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact The Comp Desk",
+  "url": "https://thecompdesk.com/contact",
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Comp Desk",
+    "url": "https://thecompdesk.com/",
+    "contactPoint": [{
+      "@type": "ContactPoint",
+      "telephone": "+1-929-797-4797",
+      "email": "contact@thecompdesk.com",
+      "contactType": "customer support",
+      "availableLanguage": ["English", "Spanish"],
+      "areaServed": "US"
+    }]
+  }
+}
+</script>
+
+<link rel="stylesheet" href="/css/skins.css">
+
+<style>
+/* Contact-local — re-use most of skins.css; only what's unique here */
+
+.contact-wash {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.45) 0%, rgba(214,230,242,0) 50%),
+    linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 30%, #F4EADB 100%);
+}
+[data-audience="attorney"] .contact-wash {
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.16) 0%, rgba(107,143,168,0) 60%),
+    radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+    linear-gradient(180deg, #0F1B33 0%, #0B1426 100%);
+}
+
+.contact-hero {
+  padding: clamp(56px, 8vh, 96px) 0 clamp(32px, 4vh, 56px);
+  text-align: center;
+}
+.contact-hero h1 {
+  font-size: clamp(34px, 5.5vw, 56px);
+  margin-bottom: 18px;
+}
+.contact-hero .lede {
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--skin-text-soft);
+  max-width: 56ch;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Method cards */
+.methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.method {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: var(--skin-card-shadow);
+  transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+}
+.method:hover { transform: translateY(-3px); border-color: var(--skin-accent); }
+.method .icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+  margin: 0 auto 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.method .icon svg { width: 26px; height: 26px; fill: var(--tcd-cream); }
+.method .label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--skin-text-muted);
+  margin-bottom: 10px;
+}
+.method .value {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+.method .value a { color: var(--skin-text); text-decoration: none; }
+.method .value a:hover { color: var(--skin-accent); }
+.method .note { font-size: 13.5px; color: var(--skin-text-muted); }
+
+/* Inline info blocks */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 720px) { .info-grid { grid-template-columns: 1fr; } }
+.info-block {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  padding: 24px 26px;
+}
+.info-block h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.info-block ul { list-style: none; padding: 0; margin: 0; }
+.info-block li {
+  padding: 7px 0 7px 22px;
+  position: relative;
+  font-size: 14.5px;
+  color: var(--skin-text-soft);
+  line-height: 1.55;
+}
+.info-block li::before {
+  content: "→";
+  position: absolute; left: 0;
+  color: var(--skin-accent);
+  font-weight: 700;
+}
+.info-block p {
+  font-size: 14.5px;
+  color: var(--skin-text-soft);
+  margin: 0 0 6px;
+  line-height: 1.6;
+}
+.info-block p.strong { color: var(--skin-text); font-weight: 600; }
+
+/* UPL */
+.upl {
+  background: rgba(232,119,34,0.08);
+  border: 1px solid rgba(232,119,34,0.30);
+  border-left: 4px solid var(--skin-accent);
+  border-radius: 14px;
+  padding: 18px 24px;
+  margin: 24px 0 0;
+}
+.upl strong { color: var(--skin-accent-deep); }
+[data-audience="attorney"] .upl strong { color: var(--skin-accent); }
+.upl p {
+  font-size: 14px;
+  color: var(--skin-text-soft);
+  line-height: 1.6;
+  margin: 0;
+}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1DQTVSWSM');
+</script>
+  <!-- i18n:hreflang (generated by scripts/i18n/build-locales.mjs — do not hand-edit) -->
+  <link rel="alternate" hreflang="en" href="https://thecompdesk.com/contact">
+  <link rel="alternate" hreflang="es" href="https://thecompdesk.com/es/contact">
+  <link rel="alternate" hreflang="zh-Hans" href="https://thecompdesk.com/zh-Hans/contact">
+  <link rel="alternate" hreflang="zh-Hant" href="https://thecompdesk.com/zh-Hant/contact">
+  <link rel="alternate" hreflang="ru" href="https://thecompdesk.com/ru/contact">
+  <link rel="alternate" hreflang="bn" href="https://thecompdesk.com/bn/contact">
+  <link rel="alternate" hreflang="ht" href="https://thecompdesk.com/ht/contact">
+  <link rel="alternate" hreflang="ko" href="https://thecompdesk.com/ko/contact">
+  <link rel="alternate" hreflang="fr" href="https://thecompdesk.com/fr/contact">
+  <link rel="alternate" hreflang="pl" href="https://thecompdesk.com/pl/contact">
+  <link rel="alternate" hreflang="x-default" href="https://thecompdesk.com/contact">
+  <!-- /i18n:hreflang -->
+  <script src="/js/i18n-locale.js" defer></script>
+</head>
+<body class="tcd-skinned">
+
+<div class="contact-wash" aria-hidden="true"></div>
+
+<nav class="tcd-nav" aria-label="Primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/pl/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+    <div class="tcd-nav-links">
+      <a href="/pl/worker">Worker</a>
+      <a href="/attorneys">Attorneys</a>
+      <a href="/pl/calculators/">Calculators</a>
+      <a href="/learn">Learn</a>
+    </div>
+    <div data-audience-switch></div>
+  </div>
+</nav>
+
+<main>
+
+  <section class="tcd-section contact-hero scene">
+    <div class="wrap stagger">
+      <span class="eyebrow" style="--i:0;">We're here to help</span>
+      <h1 style="--i:1;">Questions? Call, text, or email us.</h1>
+      <p class="lede" style="--i:2;">Whether you're an injured worker, an attorney, or a partner — reach us directly through any of the channels below. We answer fast.</p>
+    </div>
+  </section>
+
+  <section class="tcd-section scene" style="padding-top:0;">
+    <div class="wrap">
+
+      <div class="methods stagger">
+        <div class="method" style="--i:0;">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M19.5,3H4.5A1.5,1.5,0,0,0,3,4.5v15A1.5,1.5,0,0,0,4.5,21h15A1.5,1.5,0,0,0,21,19.5V4.5A1.5,1.5,0,0,0,19.5,3Zm-9.6,12.92a8.74,8.74,0,0,1-2.81-2.81,1,1,0,0,1,.13-1.21l.93-.93a1,1,0,0,0,.15-1.18L7.18,7.65a1,1,0,0,0-1.55-.27L4.74,8.27a1.5,1.5,0,0,0-.42,1.34A14.06,14.06,0,0,0,14.39,19.68a1.5,1.5,0,0,0,1.34-.42l.89-.89a1,1,0,0,0-.27-1.55L13.21,15.7a1,1,0,0,0-1.18.15l-.93.93A1,1,0,0,1,9.9,15.92Z"/></svg></div>
+          <div class="label">Phone</div>
+          <div class="value"><a href="tel:+19297974797">(929) 797-4797</a></div>
+          <div class="note">Call us directly</div>
+        </div>
+        <div class="method" style="--i:1;">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M20,2H4A2,2,0,0,0,2,4V22l4-4H20a2,2,0,0,0,2-2V4A2,2,0,0,0,20,2ZM7,9h10a1,1,0,0,1,0,2H7A1,1,0,0,1,7,9Zm7,5H7a1,1,0,0,1,0-2h7A1,1,0,0,1,14,14Z"/></svg></div>
+          <div class="label">Text</div>
+          <div class="value"><a href="sms:+19297974797">(929) 797-4797</a></div>
+          <div class="note">Same number — text anytime</div>
+        </div>
+        <div class="method" style="--i:2;">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M20,4H4A2,2,0,0,0,2,6V18a2,2,0,0,0,2,2H20a2,2,0,0,0,2-2V6A2,2,0,0,0,20,4Zm-.4,2L12,11.5,4.4,6ZM4,18V8l7.4,5.5a1,1,0,0,0,1.2,0L20,8V18Z"/></svg></div>
+          <div class="label">Email</div>
+          <div class="value"><a href="mailto:contact@thecompdesk.com">contact@thecompdesk.com</a></div>
+          <div class="note">We reply within 1 business day</div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-block">
+          <h3>Hours</h3>
+          <p class="strong">Monday – Friday · 9:00 AM – 6:00 PM ET</p>
+          <p>Texts and emails received outside business hours are returned the next business day. We answer in English and Spanish.</p>
+        </div>
+        <div class="info-block">
+          <h3>What we can help with</h3>
+          <ul>
+            <li>Account, billing, or login issues with The Comp Desk app</li>
+            <li>Questions about Comp Buddy (workers) or attorney tools</li>
+            <li>Pro or Firm tier inquiries</li>
+            <li>Press, partnerships, and bug reports</li>
+            <li>Help connecting with an experienced WC attorney</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="upl">
+        <p><strong>Important —</strong> The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney.</p>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="tcd-footer">
+  <div class="wrap">
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+    <p>
+      <a href="/pl/legal/privacy">Privacy</a>
+      <a href="/pl/legal/terms">Terms</a>
+      <a href="/pl/?replay=1">Replay intro</a>
+    </p>
+  </div>
+</footer>
+
+<!-- Universal contact-footer auto-injector is suppressed here — this page IS the contact surface. -->
+<script>document.body.setAttribute('data-no-contact-footer','true');</script>
+<script src="/js/audience-switcher.js"></script>
+
+  <script type="module" src="/js/nav-account.js"></script>
+</body>
+</html>

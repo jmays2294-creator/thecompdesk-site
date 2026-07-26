@@ -1,0 +1,904 @@
+<!-- GENERATED FILE — do not edit. Source: /tools/find-doctor.html · locale: bn
+     Regenerate with: node scripts/i18n/build-locales.mjs -->
+<!DOCTYPE html>
+<html lang="bn" data-audience="worker" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find a Workers' Comp Doctor in NYC | NYS Workers' Compensation | The Comp Desk</title>
+  <meta name="description" content="Find a workers' compensation doctor in New York City. Interactive map covering all five boroughs, helping injured workers find WCB-authorized providers experienced with New York workers' comp cases.">
+  <meta name="keywords" content="find workers comp doctor NYC, NYS workers compensation doctor, workers comp physician Manhattan Brooklyn Queens Bronx Staten Island, occupational medicine NYC, WC provider directory, workers comp treatment NY">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk">
+  <meta property="og:description" content="Interactive map of workers'-comp-experienced doctors across the five boroughs. Use your location to find providers near you.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="The Comp Desk">
+  <meta property="og:url" content="https://thecompdesk.com/bn/tools/find-doctor">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Find a Workers' Comp Doctor in NYC — The Comp Desk">
+  <meta name="twitter:description" content="Interactive five-borough map of NY workers'-comp-experienced doctors. Free.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://thecompdesk.com/bn/tools/find-doctor">
+
+  <!-- JSON-LD: WebApplication + FAQPage -->
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Find a Workers' Comp Doctor (NYC)",
+      "url": "https://thecompdesk.com/tools/find-doctor",
+      "description": "Free interactive directory of NYC workers'-comp-experienced medical providers. Five-borough map with geolocation and deep-links to Apple/Google Maps.",
+      "applicationCategory": "MedicalApplication",
+      "operatingSystem": "All",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "creator": {
+        "@type": "Organization",
+        "name": "The Comp Desk",
+        "url": "https://thecompdesk.com"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "New York City"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does my doctor need to be WCB-authorized to treat my workers' comp injury in New York?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Currently, yes. Apart from limited exceptions such as emergency care, a provider who treats an injured worker in New York generally must be authorized by the Workers' Compensation Board. Governor Hochul's 2026 'Universal Authorization' proposal would remove this requirement and allow any eligible licensed provider in good standing to treat workers' compensation patients, but it is not yet law; if enacted, it would take effect January 1, 2028. This directory focuses on providers experienced with workers' comp cases."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I choose my own doctor in a New York workers' compensation case?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Generally yes. For non-emergency treatment, you have the right to select your own treating physician, who currently must be WCB-authorized. For emergencies, you may be seen by whichever provider treats you. If your employer is part of a Preferred Provider Organization (PPO), you may be required to see a PPO provider for the first 30 days. Consult a workers' compensation attorney for case-specific guidance."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which boroughs does the map cover?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The map is bounded to the five boroughs of New York City: Manhattan, Brooklyn, Queens, the Bronx, and Staten Island. Pan and zoom are restricted to this region."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the doctor finder free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — completely free, no signup required."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+
+  <!-- Worker (Dawn) skin -->
+  <link rel="stylesheet" href="/css/skins.css">
+
+  <!-- Mapbox GL JS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
+
+  <style>
+    html{scroll-behavior:smooth;}
+    img{max-width:100%;display:block;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    .skip-link{position:absolute;top:-40px;left:0;background:var(--skin-accent);color:#fff;padding:8px 16px;z-index:300;border-radius:0 0 8px 0;}
+    .skip-link:focus{top:0;}
+
+    /* Sunrise wash behind the page (matches the worker home). */
+    .dawn-wash{position:fixed;inset:0;z-index:-1;pointer-events:none;
+      background:
+        radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.55) 0%, rgba(214,230,242,0) 50%),
+        linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 30%, #F4EADB 70%, #F0E0CB 100%);}
+
+    /* Legislative disclaimer banner — warm, on-brand "heads up". */
+    .law-banner{background:rgba(232,119,34,0.07);border-bottom:1px solid rgba(232,119,34,0.25);}
+    .law-banner .inner{max-width:var(--max-w);margin:0 auto;padding:14px var(--gutter);display:flex;align-items:flex-start;gap:14px;}
+    .law-banner .icon{flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:rgba(232,119,34,0.12);border:1px solid rgba(232,119,34,0.30);display:flex;align-items:center;justify-content:center;color:var(--skin-accent-deep);font-weight:800;font-size:16px;}
+    .law-banner .copy{flex:1;}
+    .law-banner h2{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--skin-accent-deep);letter-spacing:-0.005em;margin-bottom:4px;}
+    .law-banner p{font-size:14px;color:var(--skin-text-soft);line-height:1.55;margin:0;}
+    .law-banner p strong{color:var(--skin-text);}
+    .law-banner a{color:var(--skin-accent-deep);font-weight:700;white-space:nowrap;text-decoration:underline;}
+    .law-banner a:hover{color:var(--skin-text);}
+
+    /* Hero */
+    .hero{padding:clamp(36px,6vh,72px) 0 18px;text-align:center;}
+    .hero .badge{display:inline-block;font-family:var(--font-body);font-weight:700;text-transform:uppercase;letter-spacing:0.14em;font-size:11px;color:var(--skin-accent);margin-bottom:16px;}
+    .hero h1{font-family:var(--font-display);font-size:clamp(34px,5.4vw,56px);font-weight:700;color:var(--skin-text);letter-spacing:-0.02em;line-height:1.06;margin:0 auto 14px;}
+    .hero h1 span{color:var(--skin-accent);font-style:italic;font-weight:500;}
+    .hero .sub{font-size:clamp(16px,2vw,19px);color:var(--skin-text-soft);max-width:680px;margin:0 auto;line-height:1.55;}
+
+    /* Search bar */
+    .search{padding:24px 0 16px;}
+    .search-grid{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:10px;background:var(--skin-surface-elev);border:1px solid var(--skin-divider);border-radius:16px;padding:10px;box-shadow:var(--skin-card-shadow);}
+    @media(max-width:700px){.search-grid{grid-template-columns:1fr;}}
+    .search-grid select,.search-grid button{background:var(--skin-surface-warm);border:1px solid var(--skin-divider);border-radius:10px;padding:12px 14px;color:var(--skin-text);font-size:14px;font-weight:600;font-family:var(--font-body);}
+    .search-grid select:focus,.search-grid button:focus{outline:2px solid var(--skin-accent);outline-offset:1px;}
+    .search-grid .search-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--skin-accent);border-color:var(--skin-accent);color:var(--tcd-navy);font-weight:800;letter-spacing:0.2px;padding:12px 26px;cursor:pointer;transition:transform var(--rhythm-fast) var(--ease-out),background var(--rhythm-fast) var(--ease-out);}
+    .search-grid .search-btn:hover{transform:translateY(-1px);background:var(--skin-accent-soft);border-color:var(--skin-accent-soft);}
+    .search-grid .search-btn svg{width:15px;height:15px;}
+    .locate-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--skin-text);transition:background var(--rhythm-fast) var(--ease-out);}
+    .locate-btn:hover{background:var(--skin-divider);}
+    .locate-btn .pin{width:14px;height:14px;border-radius:50%;background:var(--skin-accent);box-shadow:0 0 0 3px rgba(232,119,34,0.22);flex:0 0 auto;}
+    .locate-btn.locating .pin{animation:pulse 1.2s infinite;}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.3);opacity:0.6;}}
+
+    /* Map */
+    .map-section{padding:8px 0 24px;scroll-margin-top:84px;}
+    .map-shell{position:relative;border:1px solid var(--skin-divider);border-radius:18px;overflow:hidden;background:#E7F0E4;box-shadow:var(--skin-card-shadow);}
+    #map{width:100%;height:520px;}
+    @media(max-width:768px){#map{height:420px;}}
+    .map-empty{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(248,246,241,0.92);color:var(--skin-text-soft);font-size:14px;padding:24px;text-align:center;}
+    .map-empty.show{display:flex;}
+    .map-empty h3{color:var(--skin-text);font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:8px;}
+    .map-fallback{padding:40px 24px;text-align:center;color:var(--skin-text-soft);font-size:14px;}
+    .map-fallback p{margin:8px auto;max-width:520px;}
+
+    /* Mapbox marker style */
+    .doc-pin{width:18px;height:18px;border-radius:50%;background:var(--skin-accent);border:2px solid #fff;cursor:pointer;box-shadow:0 1px 4px rgba(45,49,66,0.35);transition:transform 0.15s;}
+    .doc-pin:hover{transform:scale(1.2);}
+    .user-pin{width:14px;height:14px;border-radius:50%;background:#185FA5;border:2px solid #fff;box-shadow:0 0 0 4px rgba(24,95,165,0.30);}
+    .mapboxgl-popup-content{background:var(--skin-surface-elev)!important;color:var(--skin-text-soft)!important;border:1px solid var(--skin-divider)!important;border-radius:12px!important;padding:12px 14px!important;font-family:var(--font-body)!important;box-shadow:var(--skin-card-shadow)!important;}
+    .mapboxgl-popup-tip{border-top-color:var(--skin-surface-elev)!important;border-bottom-color:var(--skin-surface-elev)!important;}
+    .mapboxgl-popup-content strong{color:var(--skin-text);display:block;margin-bottom:4px;font-size:14px;font-family:var(--font-display);}
+    .mapboxgl-popup-content .meta{font-size:12px;color:var(--skin-text-muted);margin-bottom:8px;line-height:1.5;}
+    .mapboxgl-popup-content .actions{display:flex;gap:6px;flex-wrap:wrap;}
+    .mapboxgl-popup-content .actions a{font-size:12px;padding:5px 10px;border-radius:8px;background:var(--skin-surface-warm);color:var(--skin-text);font-weight:600;border:1px solid var(--skin-divider);}
+    .mapboxgl-popup-content .actions a:hover{background:var(--skin-accent);border-color:var(--skin-accent);text-decoration:none;color:var(--tcd-navy);}
+
+    /* Doctor results list */
+    .results{padding:24px 0 40px;}
+    .results-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+    .results-head h2{font-family:var(--font-display);font-size:24px;font-weight:600;color:var(--skin-text);}
+    .results-head .count{font-size:13px;color:var(--skin-text-muted);}
+    .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+    .doc-card{background:var(--skin-surface-elev);border:1px solid var(--skin-divider);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--skin-card-shadow);transition:border-color var(--rhythm-fast) var(--ease-out),transform var(--rhythm-fast) var(--ease-out);}
+    .doc-card:hover{border-color:var(--skin-accent);transform:translateY(-2px);}
+    .doc-card .name{font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--skin-text);line-height:1.3;}
+    .doc-card .specialty{font-size:13px;color:var(--skin-accent-deep);font-weight:700;}
+    .doc-card .addr{font-size:13px;color:var(--skin-text-soft);line-height:1.5;}
+    .doc-card .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--skin-text-muted);margin-top:2px;}
+    .doc-card .chip{padding:2px 8px;border-radius:10px;background:var(--skin-surface-warm);border:1px solid var(--skin-divider);color:var(--skin-text-soft);font-weight:600;}
+    .doc-card .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+    .doc-card .actions a{font-size:12px;padding:7px 12px;border-radius:8px;background:var(--skin-surface-warm);border:1px solid var(--skin-divider);color:var(--skin-text);font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+    .doc-card .actions a:hover{background:var(--skin-divider);color:var(--skin-text);text-decoration:none;}
+    .doc-card .actions a.primary{background:rgba(232,119,34,0.12);border-color:rgba(232,119,34,0.30);color:var(--skin-accent-deep);}
+    .doc-card .actions a.primary:hover{background:var(--skin-accent);color:var(--tcd-navy);}
+
+    .empty-state{text-align:center;padding:48px 24px;background:var(--skin-surface-elev);border:1px dashed var(--skin-divider);border-radius:14px;color:var(--skin-text-soft);box-shadow:var(--skin-card-shadow);}
+    .empty-state h3{color:var(--skin-text);font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:8px;}
+    .empty-state p{font-size:14px;max-width:460px;margin:0 auto 16px;line-height:1.6;}
+
+    /* Generic info sections (How it works, Body parts, FAQ) */
+    section.info{padding:48px 0;border-top:1px solid var(--skin-divider);}
+    section.info h2{font-family:var(--font-display);font-size:clamp(24px,3vw,34px);font-weight:600;color:var(--skin-text);margin-bottom:12px;text-align:center;letter-spacing:-0.01em;}
+    section.info .section-sub{text-align:center;color:var(--skin-text-soft);font-size:15px;margin-bottom:32px;max-width:600px;margin-left:auto;margin-right:auto;}
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+    @media(max-width:768px){.steps-grid{grid-template-columns:1fr;}}
+    .step-card{background:var(--skin-surface-elev);border:1px solid var(--skin-divider);border-radius:14px;padding:26px 22px;text-align:center;box-shadow:var(--skin-card-shadow);}
+    .step-card .step-num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,var(--skin-accent-soft),var(--skin-accent));color:var(--tcd-navy);font-weight:800;font-size:16px;margin-bottom:12px;}
+    .step-card h3{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--skin-text);margin-bottom:6px;}
+    .step-card p{font-size:13.5px;color:var(--skin-text-soft);line-height:1.6;}
+
+    .body-parts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+    .body-part-item{background:var(--skin-surface-elev);border:1px solid var(--skin-divider);border-radius:12px;padding:16px;text-align:center;cursor:pointer;font-family:inherit;box-shadow:var(--skin-card-shadow);transition:border-color .15s ease,box-shadow .15s ease,transform .08s ease;}
+    .body-part-item:hover{border-color:var(--skin-accent);transform:translateY(-2px);}
+    .body-part-item:active{transform:translateY(1px);}
+    .body-part-item:focus-visible{outline:2px solid var(--skin-accent);outline-offset:2px;}
+    .body-part-item.active{border-color:var(--skin-accent);background:var(--skin-surface-warm);box-shadow:0 0 0 2px var(--skin-accent) inset;}
+    .body-part-item h4{font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--skin-text);margin-bottom:4px;}
+    .body-part-item p{font-size:11.5px;color:var(--skin-text-muted);}
+    /* Active full-WCB-list filter banner above the results */
+    .filter-banner{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--skin-surface-warm);border:1px solid var(--skin-accent);border-radius:12px;padding:10px 14px;margin-bottom:14px;}
+    .filter-banner.show{display:flex;}
+    .filter-banner .fb-text{font-size:13px;color:var(--skin-text-soft);}
+    .filter-banner .fb-text strong{color:var(--skin-text);}
+    .filter-banner .fb-clear{margin-left:auto;background:var(--skin-surface-elev);border:1px solid var(--skin-divider);color:var(--skin-text);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .filter-banner .fb-clear:hover{border-color:var(--skin-accent);}
+
+    .faq-container{max-width:720px;margin:0 auto;}
+    .faq-item{border-bottom:1px solid var(--skin-divider);padding:16px 0;}
+    .faq-item .faq-question{width:100%;text-align:left;background:none;border:0;cursor:pointer;color:var(--skin-text);font-family:var(--font-display);font-weight:600;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;letter-spacing:-0.005em;}
+    .faq-item .faq-question:hover{color:var(--skin-accent-deep);}
+    .faq-item .faq-toggle{color:var(--skin-accent);font-size:22px;line-height:1;transition:transform 0.2s;}
+    .faq-item.open .faq-toggle{transform:rotate(45deg);}
+    .faq-item .faq-answer{max-height:0;overflow:hidden;transition:max-height 0.3s ease-out;color:var(--skin-text-soft);font-size:14.5px;line-height:1.65;}
+    .faq-item.open .faq-answer{max-height:600px;padding-top:10px;}
+
+    .legal-disclaimer{background:var(--skin-surface-elev);border:1px solid var(--skin-divider);border-radius:14px;padding:20px 22px;margin:32px 0;box-shadow:var(--skin-card-shadow);}
+    .legal-disclaimer p{font-size:12.5px;color:var(--skin-text-muted);line-height:1.7;}
+    .legal-disclaimer strong{color:var(--skin-text-soft);}
+
+    /* FAQ toggle button uses the shared "+" affordance instead of a chevron glyph */
+    .faq-item .faq-toggle::before{content:"+";}
+  </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1DQTVSWSM');
+</script>
+  <!-- i18n:hreflang (generated by scripts/i18n/build-locales.mjs — do not hand-edit) -->
+  <link rel="alternate" hreflang="en" href="https://thecompdesk.com/tools/find-doctor">
+  <link rel="alternate" hreflang="es" href="https://thecompdesk.com/es/tools/find-doctor">
+  <link rel="alternate" hreflang="zh-Hans" href="https://thecompdesk.com/zh-Hans/tools/find-doctor">
+  <link rel="alternate" hreflang="zh-Hant" href="https://thecompdesk.com/zh-Hant/tools/find-doctor">
+  <link rel="alternate" hreflang="ru" href="https://thecompdesk.com/ru/tools/find-doctor">
+  <link rel="alternate" hreflang="bn" href="https://thecompdesk.com/bn/tools/find-doctor">
+  <link rel="alternate" hreflang="ht" href="https://thecompdesk.com/ht/tools/find-doctor">
+  <link rel="alternate" hreflang="ko" href="https://thecompdesk.com/ko/tools/find-doctor">
+  <link rel="alternate" hreflang="fr" href="https://thecompdesk.com/fr/tools/find-doctor">
+  <link rel="alternate" hreflang="pl" href="https://thecompdesk.com/pl/tools/find-doctor">
+  <link rel="alternate" hreflang="x-default" href="https://thecompdesk.com/tools/find-doctor">
+  <!-- /i18n:hreflang -->
+  <script src="/js/i18n-locale.js" defer></script>
+</head>
+<body class="tcd-skinned">
+  <a class="skip-link" href="#main">Skip to map</a>
+
+  <div class="dawn-wash" aria-hidden="true"></div>
+
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/bn/worker" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/learn">Learn</a>
+        <a href="/bn/tools/find-doctor">Find a Doctor</a>
+        <a href="/bn/calculators/">Calculators</a>
+        <a href="/bn/contact">Contact</a>
+      </div>
+      <div class="tcd-nav-right">
+        <div data-audience-switch></div>
+        <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Legislation disclaimer (pinned right at the top, per Joel's spec) -->
+  <aside class="law-banner" role="note" aria-label="Workers' compensation legislation update">
+    <div class="inner">
+      <div class="icon" aria-hidden="true">!</div>
+      <div class="copy">
+        <h2>Proposed: Universal Authorization</h2>
+        <p>Gov. Hochul's <strong>2026 State of the State</strong> proposal (re-proposed after 2025) <strong>would</strong> let any eligible licensed provider in good standing treat workers'-compensation patients without separate WCB authorization. It is <strong>not yet law</strong> &mdash; if enacted, it would take effect <strong>January 1, 2028</strong>. Until then, this map highlights providers experienced with WC cases. <a href="https://www.wcb.ny.gov/sots-universalauthorization/" target="_blank" rel="noopener noreferrer">Read the WCB proposal &rarr;</a></p>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main">
+    <section class="hero">
+      <div class="wrap">
+        <div class="badge">NYC Five-Borough Directory</div>
+        <h1>Find a <span>Workers' Comp Doctor</span> in NYC</h1>
+        <p class="sub">Interactive map of providers experienced with New York workers'-compensation cases. Use your location, browse by borough, and open directions in Apple or Google Maps with one tap.</p>
+      </div>
+    </section>
+
+    <section class="search">
+      <div class="wrap">
+        <div class="search-grid">
+          <button id="locate" class="locate-btn" type="button" aria-label="Find doctors near my current location">
+            <span class="pin" aria-hidden="true"></span>
+            <span id="locate-label">Use my location</span>
+          </button>
+          <select id="filter-borough" aria-label="Filter by borough">
+            <option value="">All five boroughs</option>
+            <option value="Manhattan">Manhattan</option>
+            <option value="Brooklyn">Brooklyn</option>
+            <option value="Queens">Queens</option>
+            <option value="Bronx">The Bronx</option>
+            <option value="Staten Island">Staten Island</option>
+          </select>
+          <select id="filter-specialty" aria-label="Filter by specialty">
+            <option value="">All specialties</option>
+            <option value="Orthopedics">Orthopedics</option>
+            <option value="Neurology">Neurology</option>
+            <option value="Pain Management">Pain Management</option>
+            <option value="Physical Therapy">Physical Therapy</option>
+            <option value="Chiropractic">Chiropractic</option>
+            <option value="Hand Surgery">Hand Surgery</option>
+            <option value="Occupational Medicine">Occupational Medicine</option>
+            <option value="Pulmonology">Pulmonology</option>
+            <option value="Podiatry">Podiatry</option>
+            <option value="Primary Care">Primary Care</option>
+          </select>
+          <button id="search-btn" class="search-btn" type="button" aria-label="Search doctors and show them on the map">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+            <span>Search</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="map-section">
+      <div class="wrap">
+        <div class="map-shell">
+          <div id="map" role="application" aria-label="Map of workers'-comp doctors across the five boroughs of New York City"></div>
+          <div class="map-empty" id="map-empty">
+            <h3>Map couldn't load</h3>
+            <p>If you're offline or have an ad-blocker active, the map may be blocked. The list below still works.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" aria-labelledby="results-heading">
+      <div class="wrap">
+        <div class="results-head">
+          <h2 id="results-heading">Doctors near you</h2>
+          <span class="count" id="results-count" aria-live="polite">Loading directory…</span>
+        </div>
+        <div class="filter-banner" id="filter-banner">
+          <span class="fb-text" id="filter-banner-text"></span>
+          <button class="fb-clear" id="filter-banner-clear" type="button">Show curated picks</button>
+        </div>
+        <div id="doc-grid" class="doc-grid" hidden></div>
+        <div id="empty-state" class="empty-state">
+          <h3>Directory is being built</h3>
+          <p>We're seeding the five-borough doctor directory now. In the meantime, the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS Workers' Compensation Board provider search</a> and the <a href="https://npiregistry.cms.hhs.gov/search">NPI Registry</a> let you look up any licensed New York physician.</p>
+          <p style="margin-top:14px;font-size:13px;color:var(--skin-text-muted);">If you're a workers'-comp-experienced provider and want to be listed, <a href="mailto:hello@thecompdesk.com?subject=List%20me%20in%20the%20Find%20a%20Doctor%20directory">email us</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="info">
+      <div class="wrap">
+        <h2>How it works</h2>
+        <p class="section-sub">Three steps, no signup.</p>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Locate yourself</h3>
+            <p>Tap "Use my location" to drop a pin where you are. The map zooms in and sorts the list by distance.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Filter</h3>
+            <p>Narrow by borough or specialty. The map updates as you filter.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Get directions</h3>
+            <p>Tap "Open in Maps" on any card to launch turn-by-turn navigation in Apple Maps (iOS/Mac) or Google Maps (everyone else).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="info">
+      <div class="wrap">
+        <h2>Find by injured body part or condition</h2>
+        <p class="section-sub">Tap your injury to pull every WCB-authorized provider for it — the full Workers' Compensation Board list, narrowed to your area. Use "Use my location" or pick a borough first to sort by distance.</p>
+        <div class="body-parts-grid" id="body-parts-grid">
+          <button class="body-part-item" type="button" data-bp="Head & Brain"><h4>Head &amp; Brain</h4><p>Neurology, neurosurgery</p></button>
+          <button class="body-part-item" type="button" data-bp="Neck & Spine"><h4>Neck &amp; Spine</h4><p>Orthopedics, neurology</p></button>
+          <button class="body-part-item" type="button" data-bp="Shoulder & Arm"><h4>Shoulder &amp; Arm</h4><p>Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Wrist & Hand"><h4>Wrist &amp; Hand</h4><p>Hand surgery, orthopedics</p></button>
+          <button class="body-part-item" type="button" data-bp="Back & Lumbar"><h4>Back &amp; Lumbar</h4><p>Orthopedics, neurology, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Hip & Pelvis"><h4>Hip &amp; Pelvis</h4><p>Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Knee"><h4>Knee</h4><p>Orthopedics, PT</p></button>
+          <button class="body-part-item" type="button" data-bp="Ankle & Foot"><h4>Ankle &amp; Foot</h4><p>Orthopedics, podiatry</p></button>
+          <button class="body-part-item" type="button" data-bp="Lung & Respiratory"><h4>Lung &amp; Respiratory</h4><p>Pulmonology, occupational medicine</p></button>
+          <button class="body-part-item" type="button" data-bp="Pain Management"><h4>Pain Management</h4><p>Pain specialists, PM&amp;R</p></button>
+          <button class="body-part-item" type="button" data-bp="Multiple Injuries"><h4>Multiple Injuries</h4><p>Primary care, occupational medicine</p></button>
+          <button class="body-part-item" type="button" data-bp="Stress / Mental"><h4>Stress / Mental</h4><p>Psychiatry, psychology</p></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="info">
+      <div class="wrap">
+        <h2>FAQ</h2>
+        <div class="faq-container">
+          <div class="faq-item">
+            <button class="faq-question" type="button"><span>Does my doctor need to be WCB-authorized?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer">Currently, yes. Apart from limited exceptions like emergency care, a provider who treats an injured worker in New York generally must be authorized by the Workers' Compensation Board. Governor Hochul's 2026 "Universal Authorization" proposal would remove that requirement for any eligible licensed provider in good standing, but it is not yet law — if enacted, it would take effect January 1, 2028.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button"><span>Can I choose my own doctor?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer">Generally yes. For non-emergency treatment, you have the right to select your own treating physician, who currently must be WCB-authorized. If your employer is part of a Preferred Provider Organization (PPO), you may be required to see a PPO provider for the first 30 days. A WC attorney can confirm what applies in your case.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button"><span>Which boroughs does the map cover?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer">All five — Manhattan, Brooklyn, Queens, the Bronx, and Staten Island. Pan and zoom are restricted to this region. Outside NYC? Use the <a href="https://www.wcb.ny.gov/content/main/HealthProvider.jsp">NYS WCB provider search</a>.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button"><span>Is the directory free?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer">Yes — no signup, no paywall, no ads.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button"><span>How is "WC-experienced" determined?</span><span class="faq-toggle"></span></button>
+            <div class="faq-answer">Listed providers either (a) self-identify as accepting workers'-comp patients and have a history of WC billing under the WCB authorization regime, or (b) have been recommended by attorneys actively practicing WC in New York. We do not accept payment for placement.</div>
+          </div>
+        </div>
+
+        <div class="legal-disclaimer">
+          <p><strong>Disclaimer.</strong> This directory is provided for informational purposes only and does not constitute legal advice, medical advice, or a recommendation of any specific provider. It is not a substitute for consultation with a licensed attorney or physician. Always verify a provider's credentials, insurance acceptance, and current practice status before scheduling treatment. The Comp Desk does not endorse any specific healthcare provider and receives no payment in exchange for placement.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="tcd-footer">
+    <div class="wrap">
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+      <p>
+        <a href="/bn/legal/privacy">Privacy</a>
+        <a href="/bn/contact">Contact</a>
+        <a href="/bn/disclaimer">Disclaimer</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Configuration -->
+  <script src="/js/mapbox-config.js"></script>
+  <script>
+    window.SUPABASE_URL  = 'https://ltibymvlytodkemdeeox.supabase.co';
+    window.SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+  </script>
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+
+  <script>
+    // ── NYC five-borough bounds (City Planning, generously padded) ──
+    const NYC_BOUNDS = [
+      [-74.2591, 40.4774], // SW: Staten Island south tip
+      [-73.7004, 40.9176]  // NE: northeast Bronx
+    ];
+    const NYC_CENTER = [-73.9857, 40.7484]; // Midtown-ish, biased toward visible boroughs
+    const NYC_ZOOM = 10.4;
+
+    // Per-borough bounding boxes so "Search" flies the map straight to the selection.
+    const BOROUGH_BOUNDS = {
+      'Manhattan':     [[-74.0200, 40.7000], [-73.9070, 40.8800]],
+      'Brooklyn':      [[-74.0450, 40.5700], [-73.8330, 40.7390]],
+      'Queens':        [[-73.9620, 40.5400], [-73.7000, 40.8010]],
+      'Bronx':         [[-73.9340, 40.7850], [-73.7650, 40.9170]],
+      'Staten Island': [[-74.2590, 40.4900], [-74.0490, 40.6520]]
+    };
+
+    let map = null;
+    let userMarker = null;
+    let docsOnMap = [];         // docs currently plotted (for list-card click + bounds)
+    let mapReady = false;       // cluster source + layers added (after style load)
+    let pendingFc = null;       // GeoJSON staged before the style finished loading
+    let allDocs = [];           // curated featured doctor list from Supabase
+    let userLoc = null;         // {lat, lng}
+    let selectedBodyPart = '';  // active injury filter ('' = curated mode)
+    const MAX_LIST = 200;       // cap rendered cards (the map clusters the full set)
+
+    // Injured body part / condition → relevant specialties. Mirrors
+    // www/js/wc-doctors.js BODY_PART_SPECIALTIES (kept in sync by hand). `groups`
+    // match wc_doctors.specialty_group; `raw` are substrings matched against the
+    // raw wc_doctors.specialty column (covers the ~27k rows with no group).
+    const BP_SPEC = {
+      'Head & Brain':       { groups: ['Neurology'], raw: ['neurosurg'] },
+      'Neck & Spine':       { groups: ['Orthopedics','Neurology','Pain Management','Chiropractic','Physical Therapy'], raw: [] },
+      'Shoulder & Arm':     { groups: ['Orthopedics','Physical Therapy','Pain Management'], raw: [] },
+      'Wrist & Hand':       { groups: ['Hand Surgery','Orthopedics','Physical Therapy'], raw: [] },
+      'Back & Lumbar':      { groups: ['Orthopedics','Neurology','Physical Therapy','Pain Management','Chiropractic'], raw: [] },
+      'Hip & Pelvis':       { groups: ['Orthopedics','Physical Therapy','Pain Management'], raw: [] },
+      'Knee':               { groups: ['Orthopedics','Physical Therapy','Pain Management'], raw: [] },
+      'Ankle & Foot':       { groups: ['Orthopedics','Podiatry','Physical Therapy'], raw: [] },
+      'Lung & Respiratory': { groups: ['Pulmonology','Occupational Medicine'], raw: [] },
+      'Pain Management':    { groups: ['Pain Management','Neurology'], raw: ['anesthesiolog'] },
+      'Multiple Injuries':  { groups: ['Primary Care','Occupational Medicine','Orthopedics'], raw: [] },
+      'Stress / Mental':    { groups: [], raw: ['psycholog','psychiatr'] }
+    };
+    function qIn(v){ return /[ ,()"']/.test(v) ? '"' + v.replace(/"/g,'\\"') + '"' : v; }
+
+    // Full WCB-list query (the entire 54k geocoded directory, not just featured),
+    // narrowed by body part / specialty, scoped to a borough and/or a bounding
+    // box around the user. Returns rows sorted by distance when a location is set.
+    async function searchFullWeb(opts) {
+      opts = opts || {};
+      const p = new URLSearchParams();
+      p.append('select', 'id,name,practice_name,specialty:specialty_group,raw_specialty:specialty,subspecialty,borough,address,city,zip,lat,lng,phone,website,languages,accepting_new_patients');
+      p.append('lat', 'not.is.null'); p.append('lng', 'not.is.null');
+      if (opts.borough) p.append('borough', 'eq.' + opts.borough);
+      if (opts.userLoc) {
+        const miles = opts.radiusMiles || 25;
+        const dLat = miles / 69;
+        const dLng = miles / (69 * Math.max(0.2, Math.cos(opts.userLoc.lat * Math.PI / 180)));
+        p.append('lat', 'gte.' + (opts.userLoc.lat - dLat)); p.append('lat', 'lte.' + (opts.userLoc.lat + dLat));
+        p.append('lng', 'gte.' + (opts.userLoc.lng - dLng)); p.append('lng', 'lte.' + (opts.userLoc.lng + dLng));
+      }
+      let groups = [], raw = [];
+      if (opts.specialty) { groups = [opts.specialty]; }
+      else if (opts.bodyPart && BP_SPEC[opts.bodyPart]) { groups = BP_SPEC[opts.bodyPart].groups.slice(); raw = BP_SPEC[opts.bodyPart].raw.slice(); }
+      const ors = [];
+      if (groups.length) ors.push('specialty_group.in.(' + groups.map(qIn).join(',') + ')');
+      raw.forEach(r => ors.push('specialty.ilike.*' + r + '*'));
+      if (ors.length) p.append('or', '(' + ors.join(',') + ')');
+      p.append('order', 'name.asc');
+      p.append('limit', '500');
+      const url = `${window.SUPABASE_URL}/rest/v1/wc_doctors?` + p.toString();
+      const res = await fetch(url, { headers: { 'apikey': window.SUPABASE_ANON, 'Authorization': `Bearer ${window.SUPABASE_ANON}` } });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      let rows = await res.json();
+      rows.forEach(d => { if (!d.specialty && d.raw_specialty) d.specialty = d.raw_specialty; });
+      if (opts.userLoc) {
+        rows.sort((a, b) => (haversineMiles(opts.userLoc, { lat: a.lat, lng: a.lng }) ?? 1e9)
+                          - (haversineMiles(opts.userLoc, { lat: b.lat, lng: b.lng }) ?? 1e9));
+      }
+      return rows;
+    }
+
+    // ── Apple vs Google Maps detection ─────────────────────────────
+    function isApplePlatform() {
+      const ua = navigator.userAgent || '';
+      const plat = navigator.platform || '';
+      // iOS, iPadOS (Safari reports MacIntel on iPad), Mac desktop
+      if (/iPhone|iPad|iPod/.test(ua)) return true;
+      if (/^Mac/.test(plat) && navigator.maxTouchPoints > 1) return true; // iPadOS
+      if (/^Mac/.test(plat)) return true;
+      return false;
+    }
+    function mapsDeepLink(doc) {
+      const lat = doc.lat, lng = doc.lng;
+      const label = encodeURIComponent(doc.name + (doc.practice_name ? ' — ' + doc.practice_name : ''));
+      if (isApplePlatform()) {
+        return `https://maps.apple.com/?q=${label}&ll=${lat},${lng}&t=m`;
+      }
+      return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${encodeURIComponent(doc.name)}`;
+    }
+
+    // ── Init map ───────────────────────────────────────────────────
+    function initMap() {
+      const empty = document.getElementById('map-empty');
+      if (!window.mapboxgl) { empty.classList.add('show'); return; }
+      if (!window.MAPBOX_TOKEN || window.MAPBOX_TOKEN.includes('INSERT_YOUR')) {
+        console.warn('Mapbox token not set — map disabled.');
+        empty.classList.add('show');
+        empty.querySelector('h3').textContent = 'Map preview only';
+        empty.querySelector('p').textContent = 'Mapbox public token not configured on this deploy. The list below still works.';
+        return;
+      }
+      mapboxgl.accessToken = window.MAPBOX_TOKEN;
+      // Origin-open basemap (CartoDB Voyager — the normal, colorful street map with
+      // clear road/park/water outlines) + OpenMapTiles glyphs, instead of mapbox://
+      // style/glyphs, so the map + cluster-count labels render without depending on
+      // the Mapbox token's URL allowlist. Keeps Mapbox GL + native clustering.
+      const cartoStyle = { version: 8, glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        sources: { carto: { type: 'raster', tileSize: 256, attribution: '© OpenStreetMap contributors © CARTO',
+          tiles: ['a','b','c','d'].map(s => 'https://' + s + '.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png') } },
+        layers: [{ id: 'carto-base', type: 'raster', source: 'carto' }] };
+      map = new mapboxgl.Map({
+        container: 'map',
+        style: cartoStyle,
+        center: NYC_CENTER,
+        zoom: NYC_ZOOM,
+        minZoom: 9.5,
+        maxZoom: 17,
+        maxBounds: NYC_BOUNDS,   // hard-clip pan to the five boroughs
+        attributionControl: true,
+        cooperativeGestures: false
+      });
+      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+      // Geolocate control — same flow as the manual button, in the corner for power users.
+      map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: false,
+        showUserHeading: false
+      }), 'top-right');
+      // Native GeoJSON clustering (matches the app's Find a Doctor map) — added
+      // once the base style is ready, then fed via getSource('docs').setData().
+      map.on('load', addClusterLayers);
+    }
+
+    // ── Pin rendering (native Mapbox GL clustering — matches the app) ──────────
+    function docsToFC(docs) {
+      return { type: 'FeatureCollection', features: (docs || [])
+        .filter(d => d.lat != null && d.lng != null)
+        .map(d => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [Number(d.lng), Number(d.lat)] },
+          properties: {
+            name: d.name || 'Provider', specialty: d.specialty || '',
+            address: (d.address || '') + (d.borough ? ' · ' + d.borough : ''),
+            phone: d.phone ? String(d.phone).replace(/\D/g, '') : '', maps: mapsDeepLink(d)
+          } })) };
+    }
+    // Add the clustered source + layers once (on style load). Hundreds of NYC
+    // providers overlap badly as raw markers, so we cluster them; clusters expand
+    // on click and single providers show a popup. Same layout as the app.
+    function addClusterLayers() {
+      const accent = '#E87722'; // brand orange
+      map.addSource('docs', { type: 'geojson', data: pendingFc || { type: 'FeatureCollection', features: [] },
+        cluster: true, clusterMaxZoom: 14, clusterRadius: 48 });
+      map.addLayer({ id: 'doc-clusters', type: 'circle', source: 'docs', filter: ['has', 'point_count'], paint: {
+        'circle-color': accent, 'circle-opacity': 0.9,
+        'circle-radius': ['step', ['get', 'point_count'], 16, 10, 20, 25, 26, 100, 32],
+        'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff' } });
+      map.addLayer({ id: 'doc-cluster-count', type: 'symbol', source: 'docs', filter: ['has', 'point_count'],
+        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-font': ['Open Sans Bold'], 'text-size': 13 },
+        paint: { 'text-color': '#ffffff' } });
+      map.addLayer({ id: 'doc-unclustered', type: 'circle', source: 'docs', filter: ['!', ['has', 'point_count']], paint: {
+        'circle-color': accent, 'circle-radius': 8, 'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff' } });
+      map.on('click', 'doc-clusters', e => {
+        const f = map.queryRenderedFeatures(e.point, { layers: ['doc-clusters'] });
+        if (!f.length) return;
+        map.getSource('docs').getClusterExpansionZoom(f[0].properties.cluster_id, (err, z) => {
+          if (err) return; map.easeTo({ center: f[0].geometry.coordinates, zoom: z });
+        });
+      });
+      map.on('click', 'doc-unclustered', e => {
+        const p = e.features[0].properties, c = e.features[0].geometry.coordinates.slice();
+        const pop = `<strong>${escapeHtml(p.name)}</strong><div class="meta">${p.specialty ? escapeHtml(p.specialty) + '<br>' : ''}${p.address ? escapeHtml(p.address) : ''}</div><div class="actions"><a href="${escapeHtml(p.maps)}" target="_blank" rel="noopener">Open in Maps</a>${p.phone ? `<a href="tel:${escapeHtml(p.phone)}">Call</a>` : ''}</div>`;
+        new mapboxgl.Popup({ offset: 14, closeButton: false }).setLngLat(c).setHTML(pop).addTo(map);
+      });
+      ['doc-clusters', 'doc-unclustered'].forEach(ly => {
+        map.on('mouseenter', ly, () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', ly, () => { map.getCanvas().style.cursor = ''; });
+      });
+      mapReady = true;
+      if (pendingFc) { map.getSource('docs').setData(pendingFc); pendingFc = null; }
+    }
+    function renderPins(docs) {
+      if (!map) return;
+      docsOnMap = (docs || []).filter(d => d.lat != null && d.lng != null);
+      const fc = docsToFC(docsOnMap);
+      if (mapReady && map.getSource('docs')) map.getSource('docs').setData(fc);
+      else pendingFc = fc; // staged until the style finishes loading
+    }
+
+    // ── List rendering ────────────────────────────────────────────
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function haversineMiles(a, b) {
+      if (!a || !b) return null;
+      const toRad = x => x * Math.PI / 180;
+      const R = 3959;
+      const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+      const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+      return 2 * R * Math.asin(Math.sqrt(s));
+    }
+    function renderList(docs) {
+      const grid = document.getElementById('doc-grid');
+      const empty = document.getElementById('empty-state');
+      const count = document.getElementById('results-count');
+
+      if (!docs.length) {
+        grid.hidden = true;
+        empty.style.display = '';
+        count.textContent = '0 doctors';
+        return;
+      }
+      empty.style.display = 'none';
+      grid.hidden = false;
+      count.textContent = `${docs.length} doctor${docs.length === 1 ? '' : 's'}${userLoc ? ' · sorted by distance' : ''}`;
+      grid.innerHTML = docs.map(doc => {
+        const distance = userLoc ? haversineMiles(userLoc, { lat: doc.lat, lng: doc.lng }) : null;
+        return `
+          <article class="doc-card" data-id="${escapeHtml(doc.id)}">
+            <div class="name">${escapeHtml(doc.name)}</div>
+            ${doc.specialty ? `<div class="specialty">${escapeHtml(doc.specialty)}</div>` : ''}
+            ${doc.address ? `<div class="addr">${escapeHtml(doc.address)}${doc.borough ? ' · ' + escapeHtml(doc.borough) : ''}</div>` : ''}
+            <div class="meta">
+              ${distance != null ? `<span class="chip">${distance.toFixed(1)} mi</span>` : ''}
+              ${doc.accepting_new_patients === false ? `<span class="chip">Not accepting new</span>` : ''}
+              ${(doc.languages || []).slice(0,3).map(l => `<span class="chip">${escapeHtml(l)}</span>`).join('')}
+            </div>
+            <div class="actions">
+              <a class="primary" href="${mapsDeepLink(doc)}" target="_blank" rel="noopener">Open in Maps</a>
+              ${doc.phone ? `<a href="tel:${escapeHtml(doc.phone)}">Call</a>` : ''}
+              ${doc.website ? `<a href="${escapeHtml(doc.website)}" target="_blank" rel="noopener">Website</a>` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Clicking a card on desktop pans the map to that doctor + opens a popup.
+      grid.querySelectorAll('.doc-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.getAttribute('data-id');
+          const hit = docsOnMap.find(d => String(d.id) === id);
+          if (hit && map && hit.lat != null && hit.lng != null) {
+            map.flyTo({ center: [hit.lng, hit.lat], zoom: 14, speed: 1.2, curve: 1.4 });
+            const pop = `<strong>${escapeHtml(hit.name)}</strong><div class="meta">${hit.specialty ? escapeHtml(hit.specialty) + '<br>' : ''}${hit.address ? escapeHtml(hit.address) : ''}</div><div class="actions"><a href="${escapeHtml(mapsDeepLink(hit))}" target="_blank" rel="noopener">Open in Maps</a>${hit.phone ? `<a href="tel:${escapeHtml(String(hit.phone).replace(/\D/g, ''))}">Call</a>` : ''}</div>`;
+            new mapboxgl.Popup({ offset: 14, closeButton: false }).setLngLat([hit.lng, hit.lat]).setHTML(pop).addTo(map);
+          }
+        });
+      });
+    }
+
+    // ── Filtering ─────────────────────────────────────────────────
+    // Two modes: CURATED (default) filters the ~900 featured picks in-memory and
+    // keeps the map clean; FULL kicks in when an injury or specialty is chosen and
+    // queries the entire WCB directory server-side, tailored to the area.
+    function inFullMode() { return !!(selectedBodyPart || document.getElementById('filter-specialty').value); }
+
+    function setActiveBodyPartUI() {
+      document.querySelectorAll('#body-parts-grid .body-part-item').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-bp') === selectedBodyPart);
+      });
+    }
+    function updateBanner() {
+      const banner = document.getElementById('filter-banner');
+      const text = document.getElementById('filter-banner-text');
+      if (!inFullMode()) { banner.classList.remove('show'); return; }
+      const parts = [];
+      if (selectedBodyPart) parts.push('<strong>' + escapeHtml(selectedBodyPart) + '</strong>');
+      const s = document.getElementById('filter-specialty').value;
+      if (s) parts.push('<strong>' + escapeHtml(s) + '</strong>');
+      const b = document.getElementById('filter-borough').value;
+      const where = b ? ('in <strong>' + escapeHtml(b) + '</strong>')
+                      : (userLoc ? 'near you' : 'across all five boroughs');
+      text.innerHTML = 'Full WCB-authorized list for ' + (parts.join(' · ') || 'all specialties') + ' ' + where + '.';
+      banner.classList.add('show');
+    }
+
+    async function applyFilters() {
+      setActiveBodyPartUI();
+      updateBanner();
+      if (!inFullMode()) { applyFeatured(); return; }
+
+      const b = document.getElementById('filter-borough').value;
+      const s = document.getElementById('filter-specialty').value;
+      const count = document.getElementById('results-count');
+      count.textContent = 'Searching the WCB directory…';
+      try {
+        const rows = await searchFullWeb({ bodyPart: selectedBodyPart, specialty: s, borough: b, userLoc });
+        const total = rows.length;
+        renderPins(rows);                    // clustering handles the full set (≤500)
+        renderList(rows.slice(0, MAX_LIST)); // list stays capped for readability
+        if (total > MAX_LIST) {
+          count.textContent = `${total} providers — showing the first ${MAX_LIST}${userLoc ? ' by distance' : ''}. Narrow by borough or share your location.`;
+        } else {
+          count.textContent = `${total} provider${total === 1 ? '' : 's'}${userLoc ? ' · sorted by distance' : ''}`;
+        }
+      } catch (e) {
+        console.warn('Full WCB search failed:', e);
+        selectedBodyPart = '';
+        document.getElementById('filter-specialty').value = '';
+        setActiveBodyPartUI(); updateBanner();
+        applyFeatured();
+        count.textContent = 'Search unavailable right now — showing curated picks.';
+      }
+    }
+
+    // CURATED mode — filter the featured set in memory (original behavior).
+    function applyFeatured() {
+      const b = document.getElementById('filter-borough').value;
+      let docs = allDocs.slice();
+      if (b) docs = docs.filter(d => d.borough === b);
+      if (userLoc) {
+        docs.sort((x, y) => (haversineMiles(userLoc, { lat: x.lat, lng: x.lng }) ?? 1e9)
+                          - (haversineMiles(userLoc, { lat: y.lat, lng: y.lng }) ?? 1e9));
+      }
+      renderList(docs);
+      renderPins(docs);
+    }
+
+    // Fit the map to the current markers / selection.
+    function fitMapToResults() {
+      if (!map) return;
+      const b = document.getElementById('filter-borough').value;
+      if (userLoc) {
+        map.flyTo({ center: [userLoc.lng, userLoc.lat], zoom: 12.5, speed: 1.0, curve: 1.4, essential: true });
+      } else if (b && BOROUGH_BOUNDS[b]) {
+        map.fitBounds(BOROUGH_BOUNDS[b], { padding: 40, duration: 900, maxZoom: 14 });
+      } else if (docsOnMap.length) {
+        const bounds = new mapboxgl.LngLatBounds();
+        docsOnMap.forEach(d => bounds.extend([d.lng, d.lat]));
+        map.fitBounds(bounds, { padding: 50, duration: 900, maxZoom: 13 });
+      }
+    }
+
+    // ── Search: apply the chosen preferences, then bring the map into view
+    //    zoomed to the selection so results are immediately visible. ──────
+    async function runSearch() {
+      await applyFilters();
+      fitMapToResults();
+      const mapSection = document.querySelector('.map-section');
+      if (mapSection) mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── Geolocation ───────────────────────────────────────────────
+    function locateMe() {
+      const btn = document.getElementById('locate');
+      const label = document.getElementById('locate-label');
+      if (!navigator.geolocation) {
+        label.textContent = 'Location not supported';
+        return;
+      }
+      btn.classList.add('locating');
+      label.textContent = 'Locating…';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          btn.classList.remove('locating');
+          label.textContent = 'Located';
+          if (map) {
+            if (userMarker) userMarker.remove();
+            const el = document.createElement('div');
+            el.className = 'user-pin';
+            userMarker = new mapboxgl.Marker(el).setLngLat([userLoc.lng, userLoc.lat]).addTo(map);
+            // Smooth zoom-in to user — Mapbox flyTo replaces the "Remotion" idea.
+            map.flyTo({ center: [userLoc.lng, userLoc.lat], zoom: 13, speed: 1.0, curve: 1.4, essential: true });
+          }
+          applyFilters();
+        },
+        (err) => {
+          btn.classList.remove('locating');
+          label.textContent = err.code === 1 ? 'Location blocked' : 'Location unavailable';
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 }
+      );
+    }
+
+    // ── Doctor data load ──────────────────────────────────────────
+    async function loadDoctors() {
+      try {
+        // Curated, NYC-focused set: balanced ~20 providers per borough × specialty.
+        // `specialty:specialty_group` aliases the clean bucket label (e.g. "Orthopedics")
+        // so it matches the filter dropdown values exactly.
+        const url = `${window.SUPABASE_URL}/rest/v1/wc_doctors?select=id,name,practice_name,specialty:specialty_group,subspecialty,borough,address,lat,lng,phone,website,languages,accepting_new_patients&featured=eq.true&lat=not.is.null&lng=not.is.null&order=name.asc&limit=1500`;
+        const res = await fetch(url, {
+          headers: { 'apikey': window.SUPABASE_ANON, 'Authorization': `Bearer ${window.SUPABASE_ANON}` }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        allDocs = await res.json();
+      } catch (err) {
+        console.warn('Could not load wc_doctors:', err.message);
+        allDocs = [];
+      }
+      applyFilters();
+    }
+
+    // ── FAQ toggle ────────────────────────────────────────────────
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => btn.closest('.faq-item').classList.toggle('open'));
+    });
+
+    // ── Wire up ───────────────────────────────────────────────────
+    document.getElementById('locate').addEventListener('click', locateMe);
+    document.getElementById('filter-borough').addEventListener('change', applyFilters);
+    document.getElementById('filter-specialty').addEventListener('change', applyFilters);
+    document.getElementById('search-btn').addEventListener('click', runSearch);
+
+    // Injury grid → pull the full WCB list for that body part, tailored to the area.
+    document.querySelectorAll('#body-parts-grid .body-part-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const bp = btn.getAttribute('data-bp');
+        selectedBodyPart = (selectedBodyPart === bp) ? '' : bp; // toggle off if re-tapped
+        runSearch();
+      });
+    });
+    // Banner "Show curated picks" → clear all full-list filters, back to featured.
+    document.getElementById('filter-banner-clear').addEventListener('click', () => {
+      selectedBodyPart = '';
+      document.getElementById('filter-specialty').value = '';
+      applyFilters();
+    });
+
+    initMap();
+    loadDoctors();
+  </script>
+
+  <script src="/js/audience-switcher.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/header-attorney-cta.js" defer></script>
+  <script type="module" src="/js/nav-account.js"></script>
+</body>
+</html>

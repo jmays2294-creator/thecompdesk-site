@@ -1,0 +1,617 @@
+<!-- GENERATED FILE — do not edit. Source: /tools/ime-reminders.html · locale: bn
+     Regenerate with: node scripts/i18n/build-locales.mjs -->
+<!DOCTYPE html>
+<html lang="bn" data-audience="worker" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IME Reminders — Never Miss Your Medical Exam | The Comp Desk</title>
+  <meta name="description" content="Don't miss your Independent Medical Examination (IME) in New York. IME Reminders sends automatic push notifications, directions, and a 'What to Bring' checklist so you arrive prepared. Free for injured workers.">
+  <meta name="keywords" content="IME reminder workers comp, independent medical examination NY, what to bring to IME, don't miss IME workers compensation, IME notification, IME appointment tracker, workers comp exam reminder">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="IME Reminders — Never Miss Your Medical Exam">
+  <meta property="og:description" content="Automatic reminders, directions, and checklist for your Independent Medical Examination. Free in The Comp Desk app.">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+  <meta property="og:url" content="https://thecompdesk.com/bn/tools/ime-reminders">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="The Comp Desk">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="IME Reminders — Never Miss Your Medical Exam">
+  <meta name="twitter:description" content="Automatic reminders, directions, and checklist for your Independent Medical Examination.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://thecompdesk.com/bn/tools/ime-reminders">
+
+  <!-- JSON-LD: WebApplication + FAQPage -->
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "IME Reminders — The Comp Desk",
+      "url": "https://thecompdesk.com/tools/ime-reminders",
+      "description": "Automatic reminders, directions, and preparation checklists for your Independent Medical Examination in New York workers' compensation cases.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "iOS, Android, Web",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "creator": {
+        "@type": "Organization",
+        "name": "The Comp Desk",
+        "url": "https://thecompdesk.com"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is an Independent Medical Examination (IME)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "An IME is a medical examination arranged by the workers' compensation insurance carrier to assess your injury and level of disability. A doctor selected by the carrier — not your treating physician — examines you and reports to the Workers' Compensation Board. The IME doctor's findings can significantly affect your benefits, so it is important to be prepared and take the exam seriously."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if I miss my IME appointment?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Missing an IME without a valid medical reason can have serious consequences. Your benefits may be suspended, your case may be delayed, or a judge may decide issues based largely on the IME doctor's findings. Always notify the carrier and your attorney immediately if you cannot attend, and provide documentation if possible."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does an IME typically take?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most IMEs last between 30 minutes and 1.5 hours, depending on the complexity of the injury. The doctor takes your medical history, performs a physical examination, and may ask you to perform specific movements to assess your functional capacity. Allow extra time for check-in paperwork and travel."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I bring an attorney or support person to my IME?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Policies vary by doctor. Many IME doctors do not allow an attorney in the exam room, but you may be able to bring a support person who waits in the reception area. Call ahead to ask about the doctor's policy. You are generally allowed to take notes about what occurs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is IME Reminders free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. IME Reminders is free for all injured workers in The Comp Desk app — no subscription required."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+
+  <link rel="stylesheet" href="/css/skins.css">
+
+  <style>
+  /* ─── IME Reminders — local treatments layered on the Worker (Dawn) skin.
+         Only what's unique to this page; everything else inherits skins.css. */
+
+  /* Sunrise wash behind the page (matches the worker home). */
+  .dawn-wash {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.55) 0%, rgba(214,230,242,0) 50%),
+      linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 30%, #F4EADB 70%, #F0E0CB 100%);
+  }
+
+  /* Hero — asymmetric grid (copy + animated reminder device). */
+  .hero { padding: clamp(40px, 6vh, 80px) 0 clamp(28px, 4vh, 52px); }
+  .hero-grid {
+    display: grid; grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(32px, 5vw, 64px); align-items: center;
+  }
+  @media (max-width: 880px) { .hero-grid { grid-template-columns: 1fr; gap: 36px; } }
+  .hero h1 {
+    font-size: clamp(36px, 5.4vw, 60px); font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.06; margin: 16px 0 20px;
+  }
+  .hero h1 em { font-style: italic; color: var(--skin-accent); font-weight: 500; }
+  .hero .lede {
+    font-size: clamp(16px, 1.9vw, 20px); color: var(--skin-text-soft);
+    line-height: 1.55; max-width: 50ch; margin: 0 0 28px;
+  }
+  .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+  /* ─── Animated reminder device (re-themed to the light Dawn skin) ─── */
+  .reminder-anim { position: relative; justify-self: center; width: 100%; max-width: 360px; }
+  .device {
+    position: relative; background: var(--skin-surface-elev);
+    border: 1px solid var(--skin-divider); border-radius: 24px;
+    padding: 18px 18px 22px; box-shadow: var(--skin-card-shadow);
+  }
+  .device::before {
+    content: ""; position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+    width: 54px; height: 5px; border-radius: 3px; background: var(--skin-divider);
+  }
+  .device-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 4px 16px; border-bottom: 1px solid var(--skin-divider); margin-bottom: 14px;
+  }
+  .bell {
+    position: relative; flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+    display: flex; align-items: center; justify-content: center; color: var(--tcd-cream);
+    transform-origin: 50% 6px;
+  }
+  .bell svg { width: 23px; height: 23px; }
+  .bell .dot {
+    position: absolute; top: 7px; right: 8px; width: 10px; height: 10px; border-radius: 50%;
+    background: #E24B4A; border: 2px solid var(--skin-surface-elev);
+  }
+  .device-head .ht { flex: 1; }
+  .device-head .ht .t1 { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--skin-text); letter-spacing: -0.01em; }
+  .device-head .ht .t2 { font-size: 12px; color: var(--skin-text-muted); font-weight: 600; }
+
+  .notif {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--skin-surface-warm); border: 1px solid var(--skin-divider);
+    border-radius: 13px; padding: 12px 13px; margin-bottom: 10px;
+  }
+  .notif .ico { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .notif .ico svg { width: 17px; height: 17px; }
+  .notif.w .ico { background: rgba(55,138,221,0.14); color: #185FA5; }
+  .notif.d .ico { background: rgba(232,119,34,0.16); color: var(--skin-accent-deep); }
+  .notif.h .ico { background: rgba(91,185,127,0.18); color: #3f9c6a; }
+  .notif .nt { flex: 1; min-width: 0; }
+  .notif .nt .lead { font-size: 13.5px; font-weight: 700; color: var(--skin-text); }
+  .notif .nt .meta { font-size: 11.5px; color: var(--skin-text-muted); }
+  .notif .when { flex: 0 0 auto; font-size: 11px; font-weight: 800; color: var(--skin-text-muted); letter-spacing: 0.02em; }
+
+  .ready {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 4px; padding: 11px; border-radius: 12px;
+    background: rgba(91,185,127,0.14); border: 1px solid rgba(91,185,127,0.32);
+    color: #3f9c6a; font-size: 13px; font-weight: 800;
+  }
+  .ready svg { width: 17px; height: 17px; }
+
+  /* Motion is opt-in and gentle, matching the worker skin's slow pacing. */
+  @media (prefers-reduced-motion: no-preference) {
+    .bell { animation: ring 4.6s ease-in-out infinite; }
+    .bell .dot { animation: dotpop 4.6s ease-in-out infinite; }
+    .notif { opacity: 0; transform: translateY(14px); animation: slidein 4.6s ease-in-out infinite; }
+    .notif:nth-of-type(1) { animation-delay: 0.2s; }
+    .notif:nth-of-type(2) { animation-delay: 0.95s; }
+    .notif:nth-of-type(3) { animation-delay: 1.7s; }
+    .ready { opacity: 0; transform: scale(0.94); animation: readyin 4.6s ease-in-out infinite; animation-delay: 2.5s; }
+    @keyframes ring { 0%,72%,100%{transform:rotate(0);}74%{transform:rotate(11deg);}77%{transform:rotate(-9deg);}80%{transform:rotate(7deg);}83%{transform:rotate(-5deg);}86%{transform:rotate(0);} }
+    @keyframes dotpop { 0%,68%{transform:scale(0);opacity:0;}72%{transform:scale(1.25);opacity:1;}86%,100%{transform:scale(1);opacity:1;} }
+    @keyframes slidein { 0%,4%{opacity:0;transform:translateY(14px);}14%,86%{opacity:1;transform:translateY(0);}97%,100%{opacity:0;transform:translateY(-8px);} }
+    @keyframes readyin { 0%,46%{opacity:0;transform:scale(0.94);}56%,86%{opacity:1;transform:scale(1);}97%,100%{opacity:0;transform:scale(0.97);} }
+  }
+
+  /* Disclaimer strip (matches the worker home .upl). */
+  .upl {
+    max-width: 880px; margin: 8px auto 0;
+    background: rgba(232,119,34,0.06); border: 1px solid rgba(232,119,34,0.25);
+    border-left: 4px solid var(--skin-accent); border-radius: 12px;
+    padding: 14px 22px; color: var(--skin-text-soft); font-size: 14px;
+    line-height: 1.55; text-align: center;
+  }
+  .upl strong { color: var(--skin-accent-deep); }
+
+  /* Section heading block. */
+  .section-head { text-align: center; max-width: 680px; margin: 0 auto 36px; }
+  .section-head h2 { margin-bottom: 12px; }
+  .section-head p { font-size: 16px; color: var(--skin-text-soft); }
+
+  /* Why-it-matters — warm warning panel (mirrors the worker .upl tone, scaled up). */
+  .warn-box {
+    max-width: 880px; margin: 0 auto;
+    background: rgba(232,119,34,0.07); border: 1px solid rgba(232,119,34,0.25);
+    border-left: 4px solid var(--skin-accent); border-radius: 16px;
+    padding: 28px 30px;
+  }
+  .warn-box h3 { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--skin-text); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.01em; }
+  .warn-box h3 svg { width: 24px; height: 24px; flex: 0 0 auto; color: var(--skin-accent); }
+  .warn-box p { color: var(--skin-text-soft); font-size: 15.5px; line-height: 1.7; margin-bottom: 12px; }
+  .warn-box p:last-child { margin-bottom: 0; }
+  .warn-box strong { color: var(--skin-accent-deep); }
+
+  /* Feature cards. */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 820px) { .features-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 540px) { .features-grid { grid-template-columns: 1fr; } }
+  .feature-card {
+    background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+    border-radius: var(--skin-card-radius); padding: 26px 24px; box-shadow: var(--skin-card-shadow);
+    transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+  }
+  .feature-card:hover { transform: translateY(-4px); border-color: var(--skin-accent); }
+  .feature-card .ficon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+    display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+  }
+  .feature-card .ficon svg { width: 23px; height: 23px; color: var(--tcd-cream); }
+  .feature-card h3 { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--skin-text); margin-bottom: 8px; }
+  .feature-card p { font-size: 14.5px; color: var(--skin-text-soft); line-height: 1.55; margin: 0; }
+
+  /* How it works — numbered steps. */
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 768px) { .steps-grid { grid-template-columns: 1fr; } }
+  .step-card {
+    background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+    border-radius: 14px; padding: 26px 22px; text-align: center; box-shadow: var(--skin-card-shadow);
+  }
+  .step-card .step-num {
+    display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+    border-radius: 50%; background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+    color: var(--tcd-navy); font-weight: 800; font-size: 15px; margin-bottom: 14px;
+  }
+  .step-card h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--skin-text); margin-bottom: 7px; }
+  .step-card p { font-size: 14px; color: var(--skin-text-soft); line-height: 1.55; margin: 0; }
+
+  /* What to bring — checklist panel. */
+  .bring-box {
+    background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+    border-radius: var(--skin-card-radius); box-shadow: var(--skin-card-shadow);
+    padding: 32px 32px 28px;
+  }
+  .bring-box h3 { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--skin-text); margin-bottom: 22px; }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; }
+  @media (max-width: 640px) { .checklist { grid-template-columns: 1fr; } }
+  .check-item { display: flex; align-items: flex-start; gap: 12px; }
+  .check-item .box {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 8px; margin-top: 1px;
+    background: #5BB97F; color: #fff; display: flex; align-items: center; justify-content: center;
+  }
+  .check-item .box svg { width: 14px; height: 14px; }
+  .check-item .lbl { font-size: 14px; color: var(--skin-text-soft); line-height: 1.55; }
+  .check-item .lbl strong { display: block; color: var(--skin-text); font-size: 14.5px; font-weight: 700; margin-bottom: 1px; }
+
+  /* FAQ — details/summary accordion (matches worker home). */
+  .faq-list { max-width: 720px; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid var(--skin-divider); padding: 16px 0; }
+  .faq-item summary {
+    font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--skin-text);
+    cursor: pointer; list-style: none; display: flex; justify-content: space-between;
+    align-items: center; gap: 16px; letter-spacing: -0.005em;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: "+"; font-size: 22px; color: var(--skin-accent); font-weight: 400; line-height: 1; transition: transform 200ms ease; }
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-item p { font-size: 14.5px; color: var(--skin-text-soft); line-height: 1.65; margin: 10px 0 0; max-width: 64ch; }
+
+  /* Closing CTA — warm panel (mirrors the worker .lawyer-cta). */
+  .cta-band {
+    background:
+      radial-gradient(60% 100% at 50% 0%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+      var(--skin-surface-elev);
+    border: 1px solid var(--skin-divider); border-radius: 24px;
+    padding: clamp(40px, 6vw, 60px); text-align: center; box-shadow: var(--skin-card-shadow);
+  }
+  .cta-band h2 { margin-bottom: 14px; }
+  .cta-band p { font-size: 17px; color: var(--skin-text-soft); max-width: 52ch; margin: 0 auto 26px; }
+  .cta-band .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* Comp Buddy band. */
+  .buddy-band {
+    background: var(--skin-surface-warm); border: 1px solid var(--skin-divider);
+    border-radius: var(--skin-card-radius); padding: 38px 32px; text-align: center;
+  }
+  .buddy-band .eyebrow { margin-bottom: 12px; }
+  .buddy-band h3 { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--skin-text); margin-bottom: 10px; letter-spacing: -0.01em; }
+  .buddy-band p { font-size: 16px; color: var(--skin-text-soft); max-width: 52ch; margin: 0 auto 20px; }
+
+  /* Legal disclaimer + privacy. */
+  .legal-disclaimer { max-width: 880px; margin: 32px auto 8px; background: var(--skin-surface-elev); border: 1px solid var(--skin-divider); border-radius: 14px; padding: 20px 22px; }
+  .legal-disclaimer p { font-size: 13px; color: var(--skin-text-muted); line-height: 1.7; margin: 0; }
+  .legal-disclaimer strong { color: var(--skin-text-soft); }
+  .privacy-note { text-align: center; color: var(--skin-text-muted); font-size: 12.5px; margin: 0 0 8px; }
+  </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1DQTVSWSM');
+</script>
+  <!-- i18n:hreflang (generated by scripts/i18n/build-locales.mjs — do not hand-edit) -->
+  <link rel="alternate" hreflang="en" href="https://thecompdesk.com/tools/ime-reminders">
+  <link rel="alternate" hreflang="es" href="https://thecompdesk.com/es/tools/ime-reminders">
+  <link rel="alternate" hreflang="zh-Hans" href="https://thecompdesk.com/zh-Hans/tools/ime-reminders">
+  <link rel="alternate" hreflang="zh-Hant" href="https://thecompdesk.com/zh-Hant/tools/ime-reminders">
+  <link rel="alternate" hreflang="ru" href="https://thecompdesk.com/ru/tools/ime-reminders">
+  <link rel="alternate" hreflang="bn" href="https://thecompdesk.com/bn/tools/ime-reminders">
+  <link rel="alternate" hreflang="ht" href="https://thecompdesk.com/ht/tools/ime-reminders">
+  <link rel="alternate" hreflang="ko" href="https://thecompdesk.com/ko/tools/ime-reminders">
+  <link rel="alternate" hreflang="fr" href="https://thecompdesk.com/fr/tools/ime-reminders">
+  <link rel="alternate" hreflang="pl" href="https://thecompdesk.com/pl/tools/ime-reminders">
+  <link rel="alternate" hreflang="x-default" href="https://thecompdesk.com/tools/ime-reminders">
+  <!-- /i18n:hreflang -->
+  <script src="/js/i18n-locale.js" defer></script>
+</head>
+<body class="tcd-skinned">
+
+  <div class="dawn-wash" aria-hidden="true"></div>
+
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/bn/worker" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/learn">Learn</a>
+        <a href="/bn/tools/find-doctor">Find a Doctor</a>
+        <a href="/bn/calculators/">Calculators</a>
+        <a href="/bn/contact">Contact</a>
+      </div>
+      <div class="tcd-nav-right">
+        <div data-audience-switch></div>
+        <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ─── Hero ─── -->
+    <section class="tcd-section hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Free for injured workers</span>
+          <h1>Never miss your <em>IME</em> again.</h1>
+          <p class="lede">Automatic reminders, built-in directions, and a "what to bring" checklist for your Independent Medical Examination — so you walk in on time, organized, and ready.</p>
+          <div class="ctas">
+            <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="btn primary">Download for iOS</a>          </div>
+        </div>
+
+        <!-- Animated reminder device (CSS/SVG motion graphic) -->
+        <div class="reminder-anim" aria-hidden="true">
+          <div class="device">
+            <div class="device-head">
+              <div class="bell">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="dot"></span>
+              </div>
+              <div class="ht">
+                <div class="t1">IME Reminders</div>
+                <div class="t2">Dr. Reyes · Orthopedics</div>
+              </div>
+            </div>
+
+            <div class="notif w">
+              <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+              <div class="nt"><div class="lead">Your IME is in 1 week</div><div class="meta">Tap to review what to bring</div></div>
+              <div class="when">−7d</div>
+            </div>
+
+            <div class="notif d">
+              <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 16 14"></polyline></svg></div>
+              <div class="nt"><div class="lead">Tomorrow at 10:00 AM</div><div class="meta">450 Lexington Ave · directions ready</div></div>
+              <div class="when">−1d</div>
+            </div>
+
+            <div class="notif h">
+              <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7z"></path><polyline points="9 12 11 14 15 10"></polyline></svg></div>
+              <div class="nt"><div class="lead">Leave in 2 hours</div><div class="meta">Bring ID, records, medication list</div></div>
+              <div class="when">−2h</div>
+            </div>
+
+            <div class="ready">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              You're prepared and on time
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap" style="margin-top:28px;">
+        <div class="upl">
+          <strong>Important:</strong> The Comp Desk is a software platform, not a law firm. IME Reminders helps you stay organized — it does not give legal advice or guarantee any outcome in your case.
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Why it matters ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="warn-box">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Why you can't miss your IME
+          </h3>
+          <p>In a New York workers' compensation case, the IME is often a turning point. The carrier's doctor examines you and reports findings that the judge and the Workers' Compensation Board may rely on. Missing the exam — even unintentionally — can result in your benefits being <strong>suspended</strong>, your case being delayed, or issues being decided without your medical picture fully presented.</p>
+          <p>IME Reminders sends you push notifications <strong>1 week, 1 day, and 2 hours before</strong> your exam, plus directions and a preparation checklist, so the appointment never slips by.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── What you get ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">What you get</span>
+          <h2>Everything you need to show up ready.</h2>
+          <p>On time, organized, and prepared — without the stress of keeping track of it all yourself.</p>
+        </div>
+        <div class="features-grid stagger">
+          <div class="feature-card" style="--i:0;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
+            <h3>Three smart reminders</h3>
+            <p>Push notifications at 1 week, 1 day, and 2 hours before your exam — so you're never caught off guard.</p>
+          </div>
+          <div class="feature-card" style="--i:1;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></div>
+            <h3>Built-in directions</h3>
+            <p>Open turn-by-turn navigation to the doctor's office in Apple or Google Maps with one tap.</p>
+          </div>
+          <div class="feature-card" style="--i:2;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
+            <h3>"What to bring" checklist</h3>
+            <p>Never forget your ID, insurance card, or medical records. Check items off as you pack.</p>
+          </div>
+          <div class="feature-card" style="--i:3;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+            <h3>IME calendar</h3>
+            <p>Track every appointment in one place and see upcoming exams at a glance.</p>
+          </div>
+          <div class="feature-card" style="--i:4;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"></path></svg></div>
+            <h3>Always free</h3>
+            <p>No subscription required. IME Reminders is available to every injured worker using The Comp Desk.</p>
+          </div>
+          <div class="feature-card" style="--i:5;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
+            <h3>Doctor info on hand</h3>
+            <p>See the examining doctor's specialty, address, and contact details right next to the appointment.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── How it works ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">How it works</span>
+          <h2>Three steps, under two minutes.</h2>
+        </div>
+        <div class="steps-grid stagger">
+          <div class="step-card" style="--i:0;">
+            <div class="step-num">1</div>
+            <h3>Add your IME</h3>
+            <p>Enter the exam date, time, doctor's name, and location in The Comp Desk app.</p>
+          </div>
+          <div class="step-card" style="--i:1;">
+            <div class="step-num">2</div>
+            <h3>Get reminded</h3>
+            <p>Receive automatic notifications 1 week, 1 day, and 2 hours before — no setup needed.</p>
+          </div>
+          <div class="step-card" style="--i:2;">
+            <div class="step-num">3</div>
+            <h3>Arrive ready</h3>
+            <p>Open directions, run through your checklist, and walk into your exam confident.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── What to bring ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Come prepared</span>
+          <h2>What to bring to your IME.</h2>
+          <p>Have these ready before you leave the house.</p>
+        </div>
+        <div class="bring-box">
+          <h3>Essential documents &amp; items</h3>
+          <div class="checklist">
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Photo identification</strong>Driver's license, passport, or state ID so the doctor can verify your identity.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Insurance / claim info</strong>Your workers' comp claim number and any carrier correspondence about the exam.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Medical records</strong>Recent imaging (X-ray, MRI), treatment notes, or reports from your treating doctor.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Medication list</strong>All medications and dosages — or bring the bottles with you.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Treatment timeline</strong>Dates of surgery, physical therapy, or procedures related to your injury.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Comfortable clothing</strong>Clothes you can move in — the doctor may ask you to perform movements.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Notepad &amp; pen</strong>Jot down what was examined and discussed — it creates a record of the visit.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>List of symptoms</strong>Note your symptoms and how they affect daily life — be specific and honest.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── FAQ ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Common questions</span>
+          <h2>What injured workers ask about IMEs.</h2>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What is an Independent Medical Examination (IME)?</summary>
+            <p>An IME is a medical examination arranged by the workers' compensation insurance carrier to assess your injury and level of disability. A doctor selected by the carrier — not your treating physician — examines you and reports to the Workers' Compensation Board. Because those findings can significantly affect your benefits, it's important to be prepared and take the exam seriously.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What happens if I miss my IME appointment?</summary>
+            <p>Missing an IME without a valid reason can have serious consequences — your benefits may be suspended, your case may be delayed, or a judge may decide issues based largely on the IME doctor's findings. Always notify the carrier and your attorney immediately if you cannot attend, and provide documentation when possible.</p>
+          </details>
+          <details class="faq-item">
+            <summary>How long does an IME usually take?</summary>
+            <p>Most IMEs last 30 minutes to 1.5 hours, depending on the complexity of your injury. The doctor takes your history, performs a physical exam, and may ask you to perform specific movements to assess function. Allow extra time for check-in paperwork and travel.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I bring an attorney or support person?</summary>
+            <p>Policies vary by doctor. Many IME doctors do not allow an attorney in the exam room, but you may be able to bring a support person who waits in the reception area. Call ahead to confirm the doctor's policy. You are generally allowed to take notes about what occurs during the exam.</p>
+          </details>
+          <details class="faq-item">
+            <summary>How should I behave during my IME?</summary>
+            <p>Be honest, professional, and respectful. Describe your symptoms and limitations accurately — don't exaggerate or minimize. The IME doctor works for the carrier, so they are evaluating your claim objectively. Answer questions directly, and ask for clarification if you don't understand something.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is IME Reminders really free?</summary>
+            <p>Yes — IME Reminders is free for every injured worker in The Comp Desk app. No subscription, no paywall.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Closing CTA ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="cta-band stagger">
+          <span class="eyebrow" style="--i:0;">Get started</span>
+          <h2 style="--i:1;">Get organized. Stay prepared.</h2>
+          <p style="--i:2;">Download The Comp Desk, add your IME, and let the reminders, directions, and checklist do the rest — free for injured workers.</p>
+          <div class="ctas" style="--i:3;">
+            <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="btn primary">Download for iOS</a>          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Comp Buddy band ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="buddy-band">
+          <span class="eyebrow">Part of Comp Buddy</span>
+          <h3>IME Reminders is just one feature.</h3>
+          <p>Find a doctor, file your claim, estimate your benefits, learn your rights, and connect with an attorney — see everything Comp Buddy offers injured workers.</p>
+          <a href="/bn/worker" class="btn link">Explore everything Comp Buddy does</a>
+        </div>
+
+        <div class="legal-disclaimer">
+          <p><strong>Disclaimer.</strong> This tool is provided for informational purposes only and does not constitute legal or medical advice. IME Reminders helps you stay organized and prepared, but cannot guarantee any outcome in your workers' compensation case. The results of your Independent Medical Examination are determined by the examining doctor's findings and the Workers' Compensation Board's evaluation. For guidance on your specific situation, consult a qualified workers' compensation attorney.</p>
+        </div>
+        <p class="privacy-note">Your appointment data is stored securely and is never sold to third parties. See our <a href="/bn/legal/privacy">Privacy Policy</a>.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="tcd-footer">
+    <div class="wrap">
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+      <p>
+        <a href="/bn/legal/privacy">Privacy</a>
+        <a href="/bn/contact">Contact</a>
+        <a href="/bn/disclaimer">Disclaimer</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="/js/audience-switcher.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/header-attorney-cta.js" defer></script>
+  <script type="module" src="/js/nav-account.js"></script>
+</body>
+</html>

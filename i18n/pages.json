@@ -1,0 +1,56 @@
+{
+  "_comment": "Phase 3 locale-routing manifest. 'route' is the clean URL (vercel.json cleanUrls:true). Only pages listed here get locale copies and hreflang alternates. Tier 2 pages and cookie-only pages are deliberately absent — see i18n/TIERS.md.",
+  "pages": [
+    { "file": "index.html",                              "route": "/" },
+    { "file": "worker.html",                             "route": "/worker" },
+    { "file": "connect-with-attorney.html",              "route": "/connect-with-attorney" },
+    { "file": "contact.html",                            "route": "/contact" },
+    { "file": "pricing.html",                            "route": "/pricing" },
+    { "file": "confirmed.html",                          "route": "/confirmed" },
+    { "file": "delete-account.html",                     "route": "/delete-account" },
+    { "file": "share-your-story/index.html",             "route": "/share-your-story" },
+    { "file": "calculators/index.html",                  "route": "/calculators/" },
+    { "file": "calculators/aww.html",                    "route": "/calculators/aww" },
+    { "file": "calculators/benefit-rate.html",           "route": "/calculators/benefit-rate" },
+    { "file": "calculators/ccp-award.html",              "route": "/calculators/ccp-award" },
+    { "file": "calculators/lwec.html",                   "route": "/calculators/lwec" },
+    { "file": "calculators/radiculopathy.html",          "route": "/calculators/radiculopathy" },
+    { "file": "calculators/rates.html",                  "route": "/calculators/rates" },
+    { "file": "calculators/slu.html",                    "route": "/calculators/slu" },
+    { "file": "settlement-calculator.html",              "route": "/settlement-calculator" },
+    { "file": "tools/claim-filing.html",                 "route": "/tools/claim-filing" },
+    { "file": "tools/find-doctor.html",                  "route": "/tools/find-doctor" },
+    { "file": "tools/ime-reminders.html",                "route": "/tools/ime-reminders" },
+    { "file": "tools/medical-travel.html",               "route": "/tools/medical-travel" },
+    { "file": "tools/medical-treatment-guidelines.html", "route": "/tools/medical-treatment-guidelines" },
+    { "file": "tools/mileage.html",                      "route": "/tools/mileage" },
+    { "file": "tools/utdm.html",                         "route": "/tools/utdm" },
+    { "file": "tools/work-search.html",                  "route": "/tools/work-search" },
+    { "file": "tools/learning/index.html",               "route": "/tools/learning/" },
+    { "file": "legal/privacy.html",                      "route": "/legal/privacy" },
+    { "file": "legal/terms.html",                        "route": "/legal/terms" },
+    { "file": "disclaimer.html",                         "route": "/disclaimer" },
+    { "file": "extension.html",                          "route": "/extension" },
+    { "file": "extension-privacy.html",                  "route": "/extension-privacy" },
+    { "file": "job-buddy.html",                          "route": "/job-buddy" },
+    { "file": "coming-soon.html",                        "route": "/coming-soon" }
+  ],
+  "cookieOnly": {
+    "_comment": "Translated client-side off the lang cookie. Deliberately noindex/robots-disallowed, so NO locale URL and NO hreflang entry. Owner-approved 2026-07-25.",
+    "files": [
+      "auth.html",
+      "auth_v2.html",
+      "auth/login.html",
+      "auth/signup.html",
+      "auth/callback.html",
+      "reset-password.html",
+      "set-password.html",
+      "404.html"
+    ]
+  },
+  "deferred": {
+    "_comment": "HELD OUT OF PHASE 3. /learn/ has a pre-existing IA defect: 11 flat articles (in sitemap) compete with 15 nested articles (self-canonical, not in sitemap) on the same target keywords. Translating both would multiply the cannibalization by 9. Resolve the IA in its own session before adding these to pages[].",
+      "reason": "learn-ia-cannibalization",
+    "globs": ["learn.html", "learn/**"]
+  }
+}

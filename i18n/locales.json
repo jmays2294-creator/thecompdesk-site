@@ -1,0 +1,17 @@
+{
+  "_comment": "Locale registry for thecompdesk.com. Codes MUST match the app exactly (zh-Hans / zh-Hant, never zh-CN / zh-TW). 'ar' and 'ur' are Phase 4 (RTL) and deliberately absent. Keep in lockstep with the app's www/js/i18n.js LOCALES.",
+  "source": "en",
+  "sourceAtRoot": true,
+  "locales": [
+    { "code": "en",      "endonym": "English",         "english": "English",             "dir": "ltr", "prefix": null },
+    { "code": "es",      "endonym": "Español",         "english": "Spanish",             "dir": "ltr", "prefix": "/es" },
+    { "code": "zh-Hans", "endonym": "简体中文",          "english": "Chinese (Simplified)", "dir": "ltr", "prefix": "/zh-Hans" },
+    { "code": "zh-Hant", "endonym": "繁體中文",          "english": "Chinese (Traditional)","dir": "ltr", "prefix": "/zh-Hant" },
+    { "code": "ru",      "endonym": "Русский",         "english": "Russian",             "dir": "ltr", "prefix": "/ru" },
+    { "code": "bn",      "endonym": "বাংলা",             "english": "Bengali",             "dir": "ltr", "prefix": "/bn" },
+    { "code": "ht",      "endonym": "Kreyòl Ayisyen",  "english": "Haitian Creole",      "dir": "ltr", "prefix": "/ht" },
+    { "code": "ko",      "endonym": "한국어",            "english": "Korean",              "dir": "ltr", "prefix": "/ko" },
+    { "code": "fr",      "endonym": "Français",        "english": "French",              "dir": "ltr", "prefix": "/fr" },
+    { "code": "pl",      "endonym": "Polski",          "english": "Polish",              "dir": "ltr", "prefix": "/pl" }
+  ]
+}

@@ -1,0 +1,614 @@
+<!-- GENERATED FILE — do not edit. Source: /tools/medical-travel.html · locale: es
+     Regenerate with: node scripts/i18n/build-locales.mjs -->
+<!DOCTYPE html>
+<html lang="es" data-audience="worker" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical &amp; Travel Reimbursement (C-257) for NY Workers' Comp | The Comp Desk</title>
+  <meta name="description" content="Get reimbursed for the cost of getting to treatment. The Comp Desk tracks your subway/bus fares, rideshares, car mileage at the WCB rate, prescriptions, and medical supplies — then builds your C-257 to file with the New York Workers' Compensation Board.">
+  <meta name="keywords" content="C-257 form, workers comp travel reimbursement NY, mileage reimbursement workers compensation, medical travel expenses workers comp, prescription reimbursement workers comp, WCB mileage rate, claimant record of medical and travel expenses">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Medical &amp; Travel Reimbursement (C-257) — The Comp Desk">
+  <meta property="og:description" content="Track your fares, mileage, and prescriptions to and from treatment, then generate your C-257 for the Workers' Compensation Board.">
+  <meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+  <meta property="og:url" content="https://thecompdesk.com/es/tools/medical-travel">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="The Comp Desk">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Medical &amp; Travel Reimbursement (C-257) — The Comp Desk">
+  <meta name="twitter:description" content="Track fares, mileage, and prescriptions to and from treatment, then generate your C-257.">
+  <meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://thecompdesk.com/es/tools/medical-travel">
+
+  <!-- JSON-LD: WebApplication + FAQPage -->
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Medical & Travel Reimbursement (C-257) — The Comp Desk",
+      "url": "https://thecompdesk.com/tools/medical-travel",
+      "description": "Track subway and bus fares, rideshares, car mileage at the WCB rate, prescriptions, and medical supplies incurred traveling to and from treatment, then generate the C-257 Claimant's Record of Medical and Travel Expenses for the New York Workers' Compensation Board.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "iOS, Android, Web",
+      "offers": { "@type": "Offer", "price": "9.99", "priceCurrency": "USD" },
+      "creator": {
+        "@type": "Organization",
+        "name": "The Comp Desk",
+        "url": "https://thecompdesk.com"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What travel expenses can I be reimbursed for in a workers' comp case?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "New York workers' compensation reimburses the necessary expenses of traveling to and from authorized treatment — subway and bus fares, taxis and rideshares, mileage in your own car, tolls, and parking. It also reimburses prescribed medicine and medical supplies you paid for out of pocket. Because the rule covers going to and from care, trips are counted round trip."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the C-257 form?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The C-257, Claimant's Record of Medical and Travel Expenses and Request for Reimbursement, is the official New York Workers' Compensation Board form you use to itemize your medical and travel expenses and request payment. The Comp Desk fills it in from the trips and receipts you log."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the mileage reimbursement rate for workers' comp travel?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Chair of the Workers' Compensation Board sets the mileage rate. It is effective-dated, so a trip is reimbursed at the rate in force on the date you traveled — for example 70.0 cents per mile in 2025 and 72.5 cents per mile in 2026. The Comp Desk applies the correct rate automatically based on each trip's date."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to keep my receipts?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — keep your original receipts for prescriptions, supplies, taxis, and rideshares. The Comp Desk lets you snap a photo or attach a PDF of each receipt so it is filed by date and ready to send with your C-257. Mileage in your own car does not need a receipt; it is calculated from the distance and the WCB rate."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I send my C-257 to the Workers' Compensation Board?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Comp Desk generates your completed C-257 and opens your device's email to the Board's filing address with the form and your receipts attached for you to review and send. You also serve a copy on the insurance carrier. The app never sends anything on its own — you always review and tap send."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Medical & Travel tracking free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Medical & Travel tracking is part of Comp Buddy, the injured-worker companion in The Comp Desk. Comp Buddy is $9.99 per month and includes the reimbursement tracker, the C-257 generator, accident and notice evidence, and more."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+
+  <link rel="stylesheet" href="/css/skins.css">
+
+  <style>
+  /* ─── Medical & Travel — local treatments layered on the Worker (Dawn) skin.
+         Only what's unique to this page; everything else inherits skins.css.
+         (Shared structure mirrors /tools/ime-reminders for visual parity.) */
+
+  /* Sunrise wash behind the page (matches the worker home). */
+  .dawn-wash {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.55) 0%, rgba(214,230,242,0) 50%),
+      linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 30%, #F4EADB 70%, #F0E0CB 100%);
+  }
+
+  /* Hero — asymmetric grid (copy + animated expense device). */
+  .hero { padding: clamp(40px, 6vh, 80px) 0 clamp(28px, 4vh, 52px); }
+  .hero-grid {
+    display: grid; grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(32px, 5vw, 64px); align-items: center;
+  }
+  @media (max-width: 880px) { .hero-grid { grid-template-columns: 1fr; gap: 36px; } }
+  .hero h1 {
+    font-size: clamp(36px, 5.4vw, 60px); font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.06; margin: 16px 0 20px;
+  }
+  .hero h1 em { font-style: italic; color: var(--skin-accent); font-weight: 500; }
+  .hero .lede {
+    font-size: clamp(16px, 1.9vw, 20px); color: var(--skin-text-soft);
+    line-height: 1.55; max-width: 50ch; margin: 0 0 28px;
+  }
+  .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+  /* ─── Animated expense device (re-themed to the light Dawn skin) ─── */
+  .reminder-anim { position: relative; justify-self: center; width: 100%; max-width: 360px; }
+  .device {
+    position: relative; background: var(--skin-surface-elev);
+    border: 1px solid var(--skin-divider); border-radius: 24px;
+    padding: 18px 18px 22px; box-shadow: var(--skin-card-shadow);
+  }
+  .device::before {
+    content: ""; position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+    width: 54px; height: 5px; border-radius: 3px; background: var(--skin-divider);
+  }
+  .device-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 4px 16px; border-bottom: 1px solid var(--skin-divider); margin-bottom: 14px;
+  }
+  .bell {
+    position: relative; flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+    display: flex; align-items: center; justify-content: center; color: var(--tcd-cream);
+  }
+  .bell svg { width: 23px; height: 23px; }
+  .device-head .ht { flex: 1; }
+  .device-head .ht .t1 { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--skin-text); letter-spacing: -0.01em; }
+  .device-head .ht .t2 { font-size: 12px; color: var(--skin-text-muted); font-weight: 600; }
+
+  .notif {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--skin-surface-warm); border: 1px solid var(--skin-divider);
+    border-radius: 13px; padding: 12px 13px; margin-bottom: 10px;
+  }
+  .notif .ico { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .notif .ico svg { width: 17px; height: 17px; }
+  .notif.w .ico { background: rgba(55,138,221,0.14); color: #185FA5; }
+  .notif.d .ico { background: rgba(232,119,34,0.16); color: var(--skin-accent-deep); }
+  .notif.h .ico { background: rgba(91,185,127,0.18); color: #3f9c6a; }
+  .notif .nt { flex: 1; min-width: 0; }
+  .notif .nt .lead { font-size: 13.5px; font-weight: 700; color: var(--skin-text); }
+  .notif .nt .meta { font-size: 11.5px; color: var(--skin-text-muted); }
+  .notif .when { flex: 0 0 auto; font-size: 12.5px; font-weight: 800; color: var(--skin-text); letter-spacing: 0.01em; font-family: var(--font-display); }
+
+  .ready {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 4px; padding: 11px; border-radius: 12px;
+    background: rgba(91,185,127,0.14); border: 1px solid rgba(91,185,127,0.32);
+    color: #3f9c6a; font-size: 13px; font-weight: 800;
+  }
+  .ready svg { width: 17px; height: 17px; }
+
+  /* Motion is opt-in and gentle, matching the worker skin's slow pacing. */
+  @media (prefers-reduced-motion: no-preference) {
+    .notif { opacity: 0; transform: translateY(14px); animation: slidein 4.6s ease-in-out infinite; }
+    .notif:nth-of-type(1) { animation-delay: 0.2s; }
+    .notif:nth-of-type(2) { animation-delay: 0.95s; }
+    .notif:nth-of-type(3) { animation-delay: 1.7s; }
+    .ready { opacity: 0; transform: scale(0.94); animation: readyin 4.6s ease-in-out infinite; animation-delay: 2.5s; }
+    @keyframes slidein { 0%,4%{opacity:0;transform:translateY(14px);}14%,86%{opacity:1;transform:translateY(0);}97%,100%{opacity:0;transform:translateY(-8px);} }
+    @keyframes readyin { 0%,46%{opacity:0;transform:scale(0.94);}56%,86%{opacity:1;transform:scale(1);}97%,100%{opacity:0;transform:scale(0.97);} }
+  }
+
+  /* Disclaimer strip (matches the worker home .upl). */
+  .upl {
+    max-width: 880px; margin: 8px auto 0;
+    background: rgba(232,119,34,0.06); border: 1px solid rgba(232,119,34,0.25);
+    border-left: 4px solid var(--skin-accent); border-radius: 12px;
+    padding: 14px 22px; color: var(--skin-text-soft); font-size: 14px;
+    line-height: 1.55; text-align: center;
+  }
+  .upl strong { color: var(--skin-accent-deep); }
+
+  /* Section heading block. */
+  .section-head { text-align: center; max-width: 680px; margin: 0 auto 36px; }
+  .section-head h2 { margin-bottom: 12px; }
+  .section-head p { font-size: 16px; color: var(--skin-text-soft); }
+
+  /* Why-it-matters — warm panel (mirrors the worker .upl tone, scaled up). */
+  .warn-box {
+    max-width: 880px; margin: 0 auto;
+    background: rgba(232,119,34,0.07); border: 1px solid rgba(232,119,34,0.25);
+    border-left: 4px solid var(--skin-accent); border-radius: 16px;
+    padding: 28px 30px;
+  }
+  .warn-box h3 { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--skin-text); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.01em; }
+  .warn-box h3 svg { width: 24px; height: 24px; flex: 0 0 auto; color: var(--skin-accent); }
+  .warn-box p { color: var(--skin-text-soft); font-size: 15.5px; line-height: 1.7; margin-bottom: 12px; }
+  .warn-box p:last-child { margin-bottom: 0; }
+  .warn-box strong { color: var(--skin-accent-deep); }
+
+  /* Feature cards. */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 820px) { .features-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 540px) { .features-grid { grid-template-columns: 1fr; } }
+  .feature-card {
+    background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+    border-radius: var(--skin-card-radius); padding: 26px 24px; box-shadow: var(--skin-card-shadow);
+    transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+  }
+  .feature-card:hover { transform: translateY(-4px); border-color: var(--skin-accent); }
+  .feature-card .ficon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+    display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+  }
+  .feature-card .ficon svg { width: 23px; height: 23px; color: var(--tcd-cream); }
+  .feature-card h3 { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--skin-text); margin-bottom: 8px; }
+  .feature-card p { font-size: 14.5px; color: var(--skin-text-soft); line-height: 1.55; margin: 0; }
+
+  /* How it works — numbered steps. */
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 768px) { .steps-grid { grid-template-columns: 1fr; } }
+  .step-card {
+    background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+    border-radius: 14px; padding: 26px 22px; text-align: center; box-shadow: var(--skin-card-shadow);
+  }
+  .step-card .step-num {
+    display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+    border-radius: 50%; background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+    color: var(--tcd-navy); font-weight: 800; font-size: 15px; margin-bottom: 14px;
+  }
+  .step-card h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--skin-text); margin-bottom: 7px; }
+  .step-card p { font-size: 14px; color: var(--skin-text-soft); line-height: 1.55; margin: 0; }
+
+  /* What counts — checklist panel. */
+  .bring-box {
+    background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+    border-radius: var(--skin-card-radius); box-shadow: var(--skin-card-shadow);
+    padding: 32px 32px 28px;
+  }
+  .bring-box h3 { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--skin-text); margin-bottom: 22px; }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; }
+  @media (max-width: 640px) { .checklist { grid-template-columns: 1fr; } }
+  .check-item { display: flex; align-items: flex-start; gap: 12px; }
+  .check-item .box {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 8px; margin-top: 1px;
+    background: #5BB97F; color: #fff; display: flex; align-items: center; justify-content: center;
+  }
+  .check-item .box svg { width: 14px; height: 14px; }
+  .check-item .lbl { font-size: 14px; color: var(--skin-text-soft); line-height: 1.55; }
+  .check-item .lbl strong { display: block; color: var(--skin-text); font-size: 14.5px; font-weight: 700; margin-bottom: 1px; }
+
+  /* FAQ — details/summary accordion (matches worker home). */
+  .faq-list { max-width: 720px; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid var(--skin-divider); padding: 16px 0; }
+  .faq-item summary {
+    font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--skin-text);
+    cursor: pointer; list-style: none; display: flex; justify-content: space-between;
+    align-items: center; gap: 16px; letter-spacing: -0.005em;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: "+"; font-size: 22px; color: var(--skin-accent); font-weight: 400; line-height: 1; transition: transform 200ms ease; }
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-item p { font-size: 14.5px; color: var(--skin-text-soft); line-height: 1.65; margin: 10px 0 0; max-width: 64ch; }
+
+  /* Closing CTA — warm panel (mirrors the worker .lawyer-cta). */
+  .cta-band {
+    background:
+      radial-gradient(60% 100% at 50% 0%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+      var(--skin-surface-elev);
+    border: 1px solid var(--skin-divider); border-radius: 24px;
+    padding: clamp(40px, 6vw, 60px); text-align: center; box-shadow: var(--skin-card-shadow);
+  }
+  .cta-band h2 { margin-bottom: 14px; }
+  .cta-band p { font-size: 17px; color: var(--skin-text-soft); max-width: 52ch; margin: 0 auto 26px; }
+  .cta-band .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* Comp Buddy band. */
+  .buddy-band {
+    background: var(--skin-surface-warm); border: 1px solid var(--skin-divider);
+    border-radius: var(--skin-card-radius); padding: 38px 32px; text-align: center;
+  }
+  .buddy-band .eyebrow { margin-bottom: 12px; }
+  .buddy-band h3 { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--skin-text); margin-bottom: 10px; letter-spacing: -0.01em; }
+  .buddy-band p { font-size: 16px; color: var(--skin-text-soft); max-width: 52ch; margin: 0 auto 20px; }
+
+  /* Legal disclaimer + privacy. */
+  .legal-disclaimer { max-width: 880px; margin: 32px auto 8px; background: var(--skin-surface-elev); border: 1px solid var(--skin-divider); border-radius: 14px; padding: 20px 22px; }
+  .legal-disclaimer p { font-size: 13px; color: var(--skin-text-muted); line-height: 1.7; margin: 0; }
+  .legal-disclaimer strong { color: var(--skin-text-soft); }
+  .privacy-note { text-align: center; color: var(--skin-text-muted); font-size: 12.5px; margin: 0 0 8px; }
+  </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1DQTVSWSM');
+</script>
+  <!-- i18n:hreflang (generated by scripts/i18n/build-locales.mjs — do not hand-edit) -->
+  <link rel="alternate" hreflang="en" href="https://thecompdesk.com/tools/medical-travel">
+  <link rel="alternate" hreflang="es" href="https://thecompdesk.com/es/tools/medical-travel">
+  <link rel="alternate" hreflang="zh-Hans" href="https://thecompdesk.com/zh-Hans/tools/medical-travel">
+  <link rel="alternate" hreflang="zh-Hant" href="https://thecompdesk.com/zh-Hant/tools/medical-travel">
+  <link rel="alternate" hreflang="ru" href="https://thecompdesk.com/ru/tools/medical-travel">
+  <link rel="alternate" hreflang="bn" href="https://thecompdesk.com/bn/tools/medical-travel">
+  <link rel="alternate" hreflang="ht" href="https://thecompdesk.com/ht/tools/medical-travel">
+  <link rel="alternate" hreflang="ko" href="https://thecompdesk.com/ko/tools/medical-travel">
+  <link rel="alternate" hreflang="fr" href="https://thecompdesk.com/fr/tools/medical-travel">
+  <link rel="alternate" hreflang="pl" href="https://thecompdesk.com/pl/tools/medical-travel">
+  <link rel="alternate" hreflang="x-default" href="https://thecompdesk.com/tools/medical-travel">
+  <!-- /i18n:hreflang -->
+  <script src="/js/i18n-locale.js" defer></script>
+</head>
+<body class="tcd-skinned">
+
+  <div class="dawn-wash" aria-hidden="true"></div>
+
+  <nav class="tcd-nav" aria-label="Primary">
+    <div class="tcd-nav-inner">
+      <a class="tcd-wordmark" href="/es/worker" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+      <div class="tcd-nav-links">
+        <a href="/learn">Learn</a>
+        <a href="/es/tools/find-doctor">Find a Doctor</a>
+        <a href="/es/calculators/">Calculators</a>
+        <a href="/es/contact">Contact</a>
+      </div>
+      <div class="tcd-nav-right">
+        <div data-audience-switch></div>
+        <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ─── Hero ─── -->
+    <section class="tcd-section hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Comp Buddy feature</span>
+          <h1>Get paid back for <em>every trip</em> to treatment.</h1>
+          <p class="lede">Workers' comp reimburses your fares, mileage, and prescriptions going to and from care — most injured workers never claim it. Log a trip, snap a receipt, and Comp Buddy builds your C-257 to file with the Board.</p>
+          <div class="ctas">
+            <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="btn primary">Download for iOS</a>          </div>
+        </div>
+
+        <!-- Animated expense device (CSS/SVG motion graphic) -->
+        <div class="reminder-anim" aria-hidden="true">
+          <div class="device">
+            <div class="device-head">
+              <div class="bell">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg>
+              </div>
+              <div class="ht">
+                <div class="t1">Medical &amp; Travel</div>
+                <div class="t2">WCB Case G1234567</div>
+              </div>
+            </div>
+
+            <div class="notif w">
+              <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17l-1 4M19 17l1 4"></path><circle cx="7.5" cy="14.5" r="1.5"></circle><circle cx="16.5" cy="14.5" r="1.5"></circle></svg></div>
+              <div class="nt"><div class="lead">Mileage · round trip</div><div class="meta">12.4 mi × 2 × $0.725/mi</div></div>
+              <div class="when">$17.98</div>
+            </div>
+
+            <div class="notif d">
+              <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="16" rx="3"></rect><line x1="5" y1="14" x2="19" y2="14"></line><line x1="9" y1="22" x2="8" y2="19"></line><line x1="15" y1="22" x2="16" y2="19"></line></svg></div>
+              <div class="nt"><div class="lead">Subway · round trip</div><div class="meta">Home ⇄ Dr. Rivera</div></div>
+              <div class="when">$5.80</div>
+            </div>
+
+            <div class="notif h">
+              <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5a4.95 4.95 0 0 1-7-7l6-6a4.95 4.95 0 0 1 7 7z"></path><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"></line></svg></div>
+              <div class="nt"><div class="lead">Naproxen 500mg</div><div class="meta">Pharmacy receipt attached</div></div>
+              <div class="when">$12.40</div>
+            </div>
+
+            <div class="ready">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              C-257 ready to file · $36.18
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap" style="margin-top:28px;">
+        <div class="upl">
+          <strong>Important:</strong> The Comp Desk is a software platform, not a law firm. The Medical &amp; Travel tracker helps you organize your expenses and prepare your C-257 — it does not give legal advice or guarantee reimbursement in your case.
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Why it matters ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="warn-box">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+            Money you're owed — and usually leave behind
+          </h3>
+          <p>Every trip to your doctor, the pharmacy, physical therapy, or an Independent Medical Examination has a cost — and in a New York workers' compensation case, you're entitled to be paid back for it. That includes <strong>subway and bus fares, taxis and rideshares, mileage in your own car, tolls, parking, prescriptions, and medical supplies</strong>.</p>
+          <p>Most injured workers never claim it, because the receipts pile up and the C-257 form feels like one more thing to figure out. The Medical &amp; Travel tracker keeps every expense together as you go and turns it into a filed-ready form, so the reimbursement you've earned doesn't slip away.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── What you get ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">What you get</span>
+          <h2>Your receipts, organized into a refund.</h2>
+          <p>Capture each expense the moment it happens — the form fills itself in behind the scenes.</p>
+        </div>
+        <div class="features-grid stagger">
+          <div class="feature-card" style="--i:0;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></div>
+            <h3>Scan your receipts</h3>
+            <p>Snap a photo or attach a PDF of a pharmacy, taxi, or rideshare receipt. Each one is filed by date and ready to send.</p>
+          </div>
+          <div class="feature-card" style="--i:1;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17l-1 4M19 17l1 4"></path><circle cx="7.5" cy="14.5" r="1.5"></circle><circle cx="16.5" cy="14.5" r="1.5"></circle></svg></div>
+            <h3>Automatic mileage</h3>
+            <p>Enter your start and the provider — we measure the driving distance and apply the WCB rate for that date, round trip by default.</p>
+          </div>
+          <div class="feature-card" style="--i:2;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="16" rx="3"></rect><line x1="5" y1="14" x2="19" y2="14"></line><line x1="9" y1="22" x2="8" y2="19"></line><line x1="15" y1="22" x2="16" y2="19"></line></svg></div>
+            <h3>Fares, logged in seconds</h3>
+            <p>Tie a subway, bus, taxi, or rideshare trip to a treatment appointment so the origin, destination, and date fill in for you.</p>
+          </div>
+          <div class="feature-card" style="--i:3;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5a4.95 4.95 0 0 1-7-7l6-6a4.95 4.95 0 0 1 7 7z"></path><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"></line></svg></div>
+            <h3>Medicine &amp; supplies</h3>
+            <p>Add prescriptions and medical supplies you paid for out of pocket, with the receipt attached as proof.</p>
+          </div>
+          <div class="feature-card" style="--i:4;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg></div>
+            <h3>One-tap C-257</h3>
+            <p>Your expenses become the official Claimant's Record of Medical and Travel Expenses — itemized, totaled, and ready to file.</p>
+          </div>
+          <div class="feature-card" style="--i:5;">
+            <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.17L4 17.17z"></path><line x1="8" y1="9" x2="16" y2="9"></line><polyline points="13 13 16 16 21 11"></polyline></svg></div>
+            <h3>Send to the Board</h3>
+            <p>Open your email to the WCB with the C-257 and your receipts attached. You always review and tap send — nothing goes out on its own.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── How it works ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">How it works</span>
+          <h2>Three steps, from receipt to refund.</h2>
+        </div>
+        <div class="steps-grid stagger">
+          <div class="step-card" style="--i:0;">
+            <div class="step-num">1</div>
+            <h3>Tell us how you travel</h3>
+            <p>A quick first-run setup — subway, rideshare, your own car — and your home address as the starting point for trips.</p>
+          </div>
+          <div class="step-card" style="--i:1;">
+            <div class="step-num">2</div>
+            <h3>Log each trip &amp; receipt</h3>
+            <p>After every appointment, add the trip or snap the receipt. Mileage and fares calculate themselves; everything files by date.</p>
+          </div>
+          <div class="step-card" style="--i:2;">
+            <div class="step-num">3</div>
+            <h3>Generate &amp; send your C-257</h3>
+            <p>When you're ready, generate the completed form and open your email to the Board with everything attached to review and send.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── What counts ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">What counts</span>
+          <h2>Expenses you can claim.</h2>
+          <p>If it was necessary to get to or pay for your authorized treatment, it likely belongs on your C-257.</p>
+        </div>
+        <div class="bring-box">
+          <h3>Reimbursable medical &amp; travel costs</h3>
+          <div class="checklist">
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Subway &amp; bus fares</strong>MTA and other public-transit fares to and from treatment — counted round trip.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Taxis &amp; rideshares</strong>Uber, Lyft, and taxi trips when you needed them to reach care — with the receipt attached.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Mileage in your own car</strong>Reimbursed at the WCB rate in force on the date you drove — 72.5¢/mi in 2026.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Tolls &amp; parking</strong>Bridge and tunnel tolls and parking fees incurred getting to your appointments.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Prescribed medicine</strong>Medications your doctor prescribed for your work injury that you paid for yourself.</div></div>
+            <div class="check-item"><div class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="lbl"><strong>Medical supplies</strong>Braces, crutches, slings, and other durable medical equipment you purchased.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── FAQ ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Common questions</span>
+          <h2>What injured workers ask about reimbursement.</h2>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What travel expenses can I be reimbursed for?</summary>
+            <p>New York workers' compensation reimburses the necessary expenses of traveling to and from authorized treatment — subway and bus fares, taxis and rideshares, mileage in your own car, tolls, and parking — plus prescribed medicine and medical supplies you paid for out of pocket. Because the rule covers going to and from care, trips are counted round trip.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What is the C-257 form?</summary>
+            <p>The C-257, Claimant's Record of Medical and Travel Expenses and Request for Reimbursement, is the official Workers' Compensation Board form you use to itemize your medical and travel expenses and request payment. The Comp Desk fills it in from the trips and receipts you log and produces a ready-to-file copy.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What is the mileage rate?</summary>
+            <p>The Chair of the Workers' Compensation Board sets the mileage rate, and it's effective-dated — a trip is reimbursed at the rate in force on the day you traveled (for example 70.0¢ per mile in 2025 and 72.5¢ per mile in 2026). The Comp Desk applies the correct rate automatically for each trip's date.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Do I need to keep my receipts?</summary>
+            <p>Keep your original receipts for prescriptions, supplies, taxis, and rideshares. In the app you snap a photo or attach a PDF of each one so it's filed by date and sent with your C-257. Mileage in your own car doesn't need a receipt — it's calculated from the distance and the WCB rate.</p>
+          </details>
+          <details class="faq-item">
+            <summary>How do I send my C-257 to the Board?</summary>
+            <p>The Comp Desk generates your completed C-257 and opens your device's email to the Board's filing address with the form and your receipts attached, for you to review and send. You also serve a copy on the insurance carrier. The app never sends anything on its own — you always review and tap send.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is Medical &amp; Travel tracking free?</summary>
+            <p>It's part of Comp Buddy, the injured-worker companion in The Comp Desk ($9.99/month), which also includes the C-257 generator, accident &amp; notice evidence, settlement tools, and more.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Closing CTA ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="cta-band stagger">
+          <span class="eyebrow" style="--i:0;">Get started</span>
+          <h2 style="--i:1;">Stop leaving your reimbursement on the table.</h2>
+          <p style="--i:2;">Download The Comp Desk, log your trips and receipts as you go, and let Comp Buddy turn them into a filed-ready C-257.</p>
+          <div class="ctas" style="--i:3;">
+            <a href="https://apps.apple.com/us/app/the-comp-desk/id6761267639" class="btn primary">Download for iOS</a>          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Comp Buddy band ─── -->
+    <section class="tcd-section scene">
+      <div class="wrap">
+        <div class="buddy-band">
+          <span class="eyebrow">Part of Comp Buddy</span>
+          <h3>Medical &amp; Travel is just one feature.</h3>
+          <p>Find a doctor, file your claim, track your IME, estimate your benefits, gather your accident evidence, and connect with an attorney — see everything Comp Buddy offers injured workers.</p>
+          <a href="/es/worker" class="btn link">Explore everything Comp Buddy does</a>
+        </div>
+
+        <div class="legal-disclaimer">
+          <p><strong>Disclaimer.</strong> This tool is provided for informational purposes only and does not constitute legal advice. The Medical &amp; Travel tracker helps you organize your expenses and prepare the C-257, but cannot guarantee that any expense will be reimbursed. Reimbursement is determined by the insurance carrier and the Workers' Compensation Board. Keep your original receipts, and for guidance on your specific situation consult a qualified workers' compensation attorney.</p>
+        </div>
+        <p class="privacy-note">Your expense data and receipts are stored securely and are never sold to third parties. See our <a href="/es/legal/privacy">Privacy Policy</a>.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="tcd-footer">
+    <div class="wrap">
+      <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+      <p>
+        <a href="/es/legal/privacy">Privacy</a>
+        <a href="/es/contact">Contact</a>
+        <a href="/es/disclaimer">Disclaimer</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="/js/audience-switcher.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script src="/js/footer-contact.js" defer></script>
+  <script src="/js/header-attorney-cta.js" defer></script>
+  <script type="module" src="/js/nav-account.js"></script>
+</body>
+</html>

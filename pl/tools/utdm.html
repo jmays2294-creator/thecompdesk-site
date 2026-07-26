@@ -1,0 +1,279 @@
+<!-- GENERATED FILE — do not edit. Source: /tools/utdm.html · locale: pl
+     Regenerate with: node scripts/i18n/build-locales.mjs -->
+<!DOCTYPE html>
+<html lang="pl" data-audience="worker" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial De Novo Motion Tracker (UTDM) — NY Workers' Comp | The Comp Desk</title>
+<meta name="description" content="Track upcoming Trial De Novo Motion (UTDM) deadlines on your NYS workers' compensation cases. Free monitoring tool for injured workers and attorneys — never miss a hearing.">
+<link rel="canonical" href="https://thecompdesk.com/pl/tools/utdm">
+<meta property="og:title" content="Trial De Novo Motion Tracker (UTDM) — NY Workers' Comp | The Comp Desk">
+<meta property="og:description" content="Track upcoming Trial De Novo Motion (UTDM) deadlines on NYS workers' compensation cases. Free for injured workers and attorneys.">
+<meta property="og:image" content="https://thecompdesk.com/images/og-home.png">
+<meta property="og:url" content="https://thecompdesk.com/pl/tools/utdm">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Comp Desk">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Trial De Novo Motion Tracker (UTDM) — NY Workers' Comp | The Comp Desk">
+<meta name="twitter:description" content="Track upcoming Trial De Novo Motion deadlines on NYS workers' compensation cases.">
+<meta name="twitter:image" content="https://thecompdesk.com/images/og-home.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Trial De Novo Motion (UTDM) Tracker",
+  "description": "Free deadline-monitoring tool for upcoming Trial De Novo Motions on New York workers' compensation cases.",
+  "url": "https://thecompdesk.com/tools/utdm",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "publisher": { "@type": "Organization", "name": "The Comp Desk", "url": "https://thecompdesk.com/" }
+}
+</script>
+
+    <link rel="stylesheet" href="/css/skins.css">
+
+    <style>
+    /* ─── UTDM Monitoring — local treatments on the Worker (Dawn) skin.
+           Only what's unique to this page; the rest inherits skins.css. */
+
+    /* Sunrise wash behind the page (matches the worker home). */
+    .dawn-wash {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.55) 0%, rgba(214,230,242,0) 50%),
+        linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 30%, #F4EADB 70%, #F0E0CB 100%);
+    }
+
+    /* Hero. */
+    .hero { padding: clamp(40px, 6vh, 80px) 0 clamp(20px, 3vh, 36px); text-align: center; }
+    .hero h1 {
+      font-size: clamp(36px, 5.4vw, 60px); font-weight: 700;
+      letter-spacing: -0.02em; line-height: 1.06; margin: 16px auto 18px; max-width: 16ch;
+    }
+    .hero h1 em { font-style: italic; color: var(--skin-accent); font-weight: 500; }
+    .hero .lede {
+      font-size: clamp(16px, 1.9vw, 20px); color: var(--skin-text-soft);
+      line-height: 1.55; max-width: 56ch; margin: 0 auto 28px;
+    }
+    .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+    /* Soft badge for the "coming soon" status. */
+    .soon-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(232,119,34,0.10); border: 1px solid rgba(232,119,34,0.30);
+      color: var(--skin-accent-deep); border-radius: 999px;
+      padding: 6px 14px; font-size: 12px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .soon-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--skin-accent); }
+
+    /* Section heading block. */
+    .section-head { text-align: center; max-width: 680px; margin: 0 auto 36px; }
+    .section-head h2 { margin-bottom: 12px; }
+    .section-head p { font-size: 16px; color: var(--skin-text-soft); }
+
+    /* Feature cards. */
+    .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 820px; margin: 0 auto; }
+    @media (max-width: 640px) { .features-grid { grid-template-columns: 1fr; } }
+    .feature-card {
+      background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+      border-radius: var(--skin-card-radius); padding: 26px 24px; box-shadow: var(--skin-card-shadow);
+      transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .feature-card:hover { transform: translateY(-4px); border-color: var(--skin-accent); }
+    .feature-card .ficon {
+      flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+      background: linear-gradient(140deg, var(--skin-accent-soft), var(--skin-accent));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .feature-card .ficon svg { width: 22px; height: 22px; color: var(--tcd-cream); }
+    .feature-card h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--skin-text); margin: 2px 0 0; }
+    .feature-card .fc-body p { font-size: 14.5px; color: var(--skin-text-soft); line-height: 1.55; margin: 6px 0 0; }
+
+    /* Notify / waitlist panel. */
+    .notify-box {
+      max-width: 620px; margin: 0 auto;
+      background: var(--skin-surface-elev); border: 1px solid var(--skin-divider);
+      border-radius: var(--skin-card-radius); box-shadow: var(--skin-card-shadow);
+      padding: 32px 30px; text-align: center;
+    }
+    .notify-box h3 { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--skin-text); margin-bottom: 8px; letter-spacing: -0.01em; }
+    .notify-box p { font-size: 15px; color: var(--skin-text-soft); margin-bottom: 18px; }
+    .email-form { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+    @media (max-width: 480px) { .email-form { flex-direction: column; } }
+    .email-form input {
+      flex: 1; padding: 13px 16px; border: 1px solid var(--skin-divider);
+      border-radius: 12px; background: var(--skin-surface-warm); color: var(--skin-text);
+      font-size: 15px; font-family: var(--font-body); outline: none;
+      transition: border-color var(--rhythm-fast) var(--ease-out);
+    }
+    .email-form input::placeholder { color: var(--skin-text-muted); }
+    .email-form input:focus { border-color: var(--skin-accent); }
+    .email-form button {
+      padding: 13px 24px; background: var(--skin-accent); border: 1px solid var(--skin-accent);
+      color: var(--tcd-navy); border-radius: 12px; font-size: 15px; font-weight: 800;
+      font-family: var(--font-body); cursor: pointer; white-space: nowrap;
+      transition: transform var(--rhythm-fast) var(--ease-out), background var(--rhythm-fast) var(--ease-out);
+    }
+    .email-form button:hover { transform: translateY(-1px); background: var(--skin-accent-soft); }
+    .success-message {
+      display: none; margin-top: 14px; padding: 11px 16px; border-radius: 12px;
+      background: rgba(91,185,127,0.14); border: 1px solid rgba(91,185,127,0.32);
+      color: #3f9c6a; font-size: 14px; font-weight: 700;
+    }
+
+    /* Disclaimer strip (matches the worker home .upl). */
+    .upl {
+      max-width: 720px; margin: 32px auto 0;
+      background: rgba(232,119,34,0.06); border: 1px solid rgba(232,119,34,0.25);
+      border-left: 4px solid var(--skin-accent); border-radius: 12px;
+      padding: 14px 22px; color: var(--skin-text-soft); font-size: 14px;
+      line-height: 1.55; text-align: center;
+    }
+    .upl strong { color: var(--skin-accent-deep); }
+    </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1DQTVSWSM');
+</script>
+  <!-- i18n:hreflang (generated by scripts/i18n/build-locales.mjs — do not hand-edit) -->
+  <link rel="alternate" hreflang="en" href="https://thecompdesk.com/tools/utdm">
+  <link rel="alternate" hreflang="es" href="https://thecompdesk.com/es/tools/utdm">
+  <link rel="alternate" hreflang="zh-Hans" href="https://thecompdesk.com/zh-Hans/tools/utdm">
+  <link rel="alternate" hreflang="zh-Hant" href="https://thecompdesk.com/zh-Hant/tools/utdm">
+  <link rel="alternate" hreflang="ru" href="https://thecompdesk.com/ru/tools/utdm">
+  <link rel="alternate" hreflang="bn" href="https://thecompdesk.com/bn/tools/utdm">
+  <link rel="alternate" hreflang="ht" href="https://thecompdesk.com/ht/tools/utdm">
+  <link rel="alternate" hreflang="ko" href="https://thecompdesk.com/ko/tools/utdm">
+  <link rel="alternate" hreflang="fr" href="https://thecompdesk.com/fr/tools/utdm">
+  <link rel="alternate" hreflang="pl" href="https://thecompdesk.com/pl/tools/utdm">
+  <link rel="alternate" hreflang="x-default" href="https://thecompdesk.com/tools/utdm">
+  <!-- /i18n:hreflang -->
+  <script src="/js/i18n-locale.js" defer></script>
+</head>
+<body class="tcd-skinned">
+
+    <div class="dawn-wash" aria-hidden="true"></div>
+
+    <nav class="tcd-nav" aria-label="Primary">
+      <div class="tcd-nav-inner">
+        <a class="tcd-wordmark" href="/pl/worker" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+        <div class="tcd-nav-links">
+          <a href="/learn">Learn</a>
+          <a href="/pl/tools/find-doctor">Find a Doctor</a>
+          <a href="/pl/calculators/">Calculators</a>
+          <a href="/pl/contact">Contact</a>
+        </div>
+        <div class="tcd-nav-right">
+          <div data-audience-switch></div>
+          <a class="tcd-nav-cta" href="/auth_v2.html?redirect=%2Fdashboard%2F">Sign in</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+
+      <!-- ─── Hero ─── -->
+      <section class="tcd-section hero">
+        <div class="wrap">
+          <span class="soon-badge"><span class="dot" aria-hidden="true"></span>Coming soon</span>
+          <h1>Stay ahead of your <em>treatment</em> deadlines.</h1>
+          <p class="lede">Monitor your medical treatment reports and stay on top of your Utilization Threshold Decision Making (UTDM) process. Get alerts when treatment reports are due and track your medical provider's compliance.</p>
+          <div class="ctas">
+            <a href="/subscribe/" class="btn primary">Get Comp Buddy</a>
+            <a href="/pl/" class="btn ghost">Back to dashboard</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Key features ─── -->
+      <section class="tcd-section scene">
+        <div class="wrap">
+          <div class="section-head">
+            <span class="eyebrow">What's coming</span>
+            <h2>Never miss a treatment milestone.</h2>
+            <p>Deadlines tracked, alerts sent, compliance watched — so nothing slips by.</p>
+          </div>
+          <div class="features-grid stagger">
+            <div class="feature-card" style="--i:0;">
+              <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+              <div class="fc-body"><h3>Track report deadlines</h3><p>Track treatment report deadlines so you always know what's due next.</p></div>
+            </div>
+            <div class="feature-card" style="--i:1;">
+              <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
+              <div class="fc-body"><h3>Alerts before they're due</h3><p>Get alerts before reports are due — well ahead of any deadline.</p></div>
+            </div>
+            <div class="feature-card" style="--i:2;">
+              <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.8 8.4 9 9 5.2-.6 9-4 9-9V7z"></path><polyline points="9 12 11 14 15 10"></polyline></svg></div>
+              <div class="fc-body"><h3>Provider compliance</h3><p>Monitor medical provider compliance across your treatment plan.</p></div>
+            </div>
+            <div class="feature-card" style="--i:3;">
+              <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>
+              <div class="fc-body"><h3>Always informed</h3><p>Stay informed about your treatment plan at every step.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Notify ─── -->
+      <section class="tcd-section scene">
+        <div class="wrap">
+          <div class="notify-box">
+            <h3>Get notified when this launches</h3>
+            <p>We'll email you the moment UTDM Monitoring goes live — no spam, just the heads-up.</p>
+            <form class="email-form" id="notifyForm">
+              <input type="email" placeholder="Enter your email" required>
+              <button type="submit">Notify Me</button>
+            </form>
+            <div class="success-message">Thanks! You'll be notified when UTDM Monitoring launches.</div>
+          </div>
+
+          <div class="upl">
+            <strong>Heads up:</strong> The Comp Desk is a software platform, not a law firm. Our tools help you stay organized — they don't give legal advice or guarantee any outcome in your case.
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="tcd-footer">
+      <div class="wrap">
+        <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+        <p>
+          <a href="/pl/legal/privacy">Privacy</a>
+          <a href="/pl/contact">Contact</a>
+          <a href="/pl/disclaimer">Disclaimer</a>
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Waitlist email capture — vanilla, no auth. Preserves the original
+      // notify-form behavior (clear input, flash a success note for 3s).
+      (function () {
+        var form = document.getElementById('notifyForm');
+        if (!form) return;
+        var successMessage = document.querySelector('.success-message');
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var input = form.querySelector('input[type="email"]');
+          input.value = '';
+          successMessage.style.display = 'block';
+          setTimeout(function () { successMessage.style.display = 'none'; }, 3000);
+        });
+      })();
+    </script>
+    <script src="/js/audience-switcher.js"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script src="/js/footer-contact.js" defer></script>
+    <script src="/js/header-attorney-cta.js" defer></script>
+  <script type="module" src="/js/nav-account.js"></script>
+</body>
+</html>
