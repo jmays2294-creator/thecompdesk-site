@@ -73,11 +73,40 @@ const RUNTIME_RE = /[ \t]*<script src="\/js\/i18n-locale\.js" defer><\/script>\n
 const RUNTIME_TAG = '  <script src="/js/i18n-locale.js" defer></script>';
 
 /** Strip any previously-generated i18n block so the script is idempotent. */
-const stripGenerated = (html) => html.replace(HREFLANG_RE, '').replace(RUNTIME_RE, '');
+const stripGenerated = (html) => html.replace(HREFLANG_RE, '').replace(FONTS_RE, '').replace(RUNTIME_RE, '');
 
-/** Insert the hreflang block + runtime tag immediately before </head>. */
-function injectHead(html, route) {
-  const block = `${hreflangBlock(route)}\n${RUNTIME_TAG}\n`;
+/**
+ * Google Fonts families a locale needs on top of DM Sans (Latin + Latin-ext only).
+ * Measured from the catalogs: see css/i18n-fonts.css for the per-locale codepoint counts.
+ * `Noto Sans` goes on EVERY locale including English — it is what covers the arrow and
+ * fraction glyphs (U+2192 etc.) that DM Sans lacks.
+ */
+const FONT_FAMILIES = {
+  'zh-Hans': ['Noto+Sans', 'Noto+Sans+SC'],
+  'zh-Hant': ['Noto+Sans', 'Noto+Sans+TC'],
+  ko: ['Noto+Sans', 'Noto+Sans+KR'],
+  bn: ['Noto+Sans', 'Noto+Sans+Bengali'],
+  ru: ['Noto+Sans'],
+  en: ['Noto+Sans'], es: ['Noto+Sans'], ht: ['Noto+Sans'],
+  fr: ['Noto+Sans'], pl: ['Noto+Sans'],
+};
+
+function fontBlock(code) {
+  const fams = FONT_FAMILIES[code] || ['Noto+Sans'];
+  const q = fams.map((f) => `family=${f}:wght@400;500;600;700`).join('&');
+  return [
+    '  <!-- i18n:fonts (generated — do not hand-edit) -->',
+    '  <link rel="stylesheet" href="/css/i18n-fonts.css">',
+    `  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?${q}&display=swap">`,
+    '  <!-- /i18n:fonts -->',
+  ].join('\n');
+}
+
+const FONTS_RE = /[ \t]*<!-- i18n:fonts[\s\S]*?<!-- \/i18n:fonts -->\n?/g;
+
+/** Insert the hreflang block, font block, and runtime tag immediately before </head>. */
+function injectHead(html, route, code) {
+  const block = `${hreflangBlock(route)}\n${fontBlock(code)}\n${RUNTIME_TAG}\n`;
   const i = html.search(/<\/head>/i);
   if (i === -1) throw new Error('no </head>');
   return html.slice(0, i) + block + html.slice(i);
@@ -298,12 +327,18 @@ for (const page of PAGES) {
   if (!fs.existsSync(srcAbs)) throw new Error(`manifest lists a missing file: ${page.file}`);
   const original = fs.readFileSync(srcAbs, 'utf8');
 
-  // The slot offsets were measured against these exact bytes. If the English source has
-  // been edited since extraction, every offset is wrong and substituting would silently
-  // corrupt all nine locales — so refuse rather than guess.
+  // Slot offsets are measured against the STRIPPED source — the page with every
+  // generated block removed. Measuring against the assembled page instead would mean any
+  // change to a generated block's size shifted every body slot and invalidated the whole
+  // table; this way blocks can grow or shrink freely.
+  //
+  // The hash still guards the thing that actually matters: if the English COPY was edited
+  // since extraction, every offset is wrong and substituting would silently corrupt all
+  // nine locales, so refuse rather than guess.
+  const base = stripGenerated(original);
   const rec = SLOTS[page.file];
   if (rec) {
-    const sha = crypto.createHash('sha256').update(original).digest('hex');
+    const sha = crypto.createHash('sha256').update(base).digest('hex');
     if (sha !== rec.sha256) {
       throw new Error(
         `${page.file} changed since extraction — i18n/.slots.json offsets are stale.\n` +
@@ -311,24 +346,21 @@ for (const page of PAGES) {
     }
   }
 
-  const base = stripGenerated(original);
-
-  // 1. English source: hreflang + runtime only. Copy is byte-unchanged.
-  emit(page.file, injectHead(base, page.route));
+  // 1. English source: generated blocks only. Copy is byte-unchanged.
+  emit(page.file, injectHead(base, page.route, 'en'));
 
   // 2. One copy per prefixed locale.
-  //    Substitution happens FIRST, on the pristine annotated bytes the offsets were
-  //    measured against. The URL/lang rewrites run after, so a link inside a translated
-  //    paragraph still gets locale-prefixed.
+  //    Substitution happens FIRST, on the stripped bytes the offsets were measured
+  //    against. The URL/lang rewrites run after, so a link inside a translated paragraph
+  //    still gets locale-prefixed.
   for (const loc of TARGETS) {
-    let out = substitute(original, page.file, loadCatalog(loc.code), urlFor(page.route, ALL[0]), urlFor(page.route, loc));
-    out = stripGenerated(out);
+    let out = substitute(base, page.file, loadCatalog(loc.code), urlFor(page.route, ALL[0]), urlFor(page.route, loc));
     out = absolutizeRefs(out, page.file);
     out = setHtmlLang(out, loc);
     out = setCanonical(out, page.route, loc);
     out = setSocial(out, page.route, loc);
     out = localizeLinks(out, loc);
-    out = injectHead(out, page.route);
+    out = injectHead(out, page.route, loc.code);
     if (page.legalNotice) out = injectLegalNotice(out, loadCatalog(loc.code), loc);
     out = BANNER(page.file, loc.code) + out;
     emit(path.relative(ROOT, outFor(page.file, loc)), out);

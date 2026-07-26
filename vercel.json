@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+
+  "_comment_install": "This is a pure static site: nothing at deploy time imports node_modules. package.json exists only so the i18n tooling has npm scripts, and its one dependency (opencc-js) is build-time-only — zh-Hant is derived locally and the result is committed. Without this override, the presence of package.json makes Vercel run npm install on every deploy, adding a registry failure mode to a site that previously had none.",
+  "installCommand": "echo 'static site - skipping install'",
   "redirects": [
     {
       "source": "/calculators/pro.html",

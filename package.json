@@ -8,7 +8,7 @@
     "i18n:verify": "node scripts/i18n/verify.mjs",
     "i18n:derive-zh-hant": "node scripts/i18n/derive-zh-hant.mjs"
   },
-  "dependencies": {
+  "devDependencies": {
     "opencc-js": "^1.0.5"
   }
 }
