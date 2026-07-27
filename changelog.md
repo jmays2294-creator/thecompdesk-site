@@ -5,6 +5,50 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-07-26
+
+### Phase 3 i18n — 9 locale scripts, and two deliberate architecture decisions worth remembering
+
+Locale pages for es · zh-Hans · zh-Hant · ru · bn · ht · ko · fr · pl now ship script
+coverage. Two calls made here point in opposite directions on the same question — how much
+third-party surface the render path may depend on — and both were deliberate.
+
+**Fonts come from the Google Fonts CDN, NOT self-hosted.** DM Sans is Latin + Latin-ext only;
+measured against the finished catalogs it leaves 1099 codepoints uncovered in zh-Hans, 1116 in
+zh-Hant, 642 in ko, 79 in ru (Cyrillic), 71 in bn — plus 8 on *every* locale including English
+(arrows/math, notably U+2192 in "Calculate my AWW →"), a gap that predated this work.
+
+The app self-hosts subsets because a Capacitor bundle must render offline. This site already
+loaded DM Sans from that CDN on every page, so same-origin Noto faces were judged consistent
+with its existing architecture. **The consequence, stated plainly: the site now has a
+third-party dependency on the render path.** If fonts.googleapis.com is unreachable, non-Latin
+locales fall back to whatever the OS ships. This is the same class of concern as letting Vercel
+run `npm install` on deploy — which was decided the OTHER way in the same phase (see below) —
+and the difference is that a font fallback degrades, while a failed install takes the whole
+deploy down. If the site ever needs CDN independence, only the `@font-face` sources move.
+
+**By contrast, the deploy path was kept dependency-free.** Phase 3 introduced the repo's first
+`package.json` (for the i18n tooling and `opencc-js`). With `framework: null` and no build
+command, its mere presence makes Vercel start running `npm install` on a project that
+previously had no install step at all — a new failure mode on the repo carrying the organic
+footprint. `opencc-js` is now a devDependency (build-time only; zh-Hant is derived locally and
+the result committed) and `vercel.json` overrides `installCommand` so deploys stay inert.
+
+### Known debt — CSS tokenization
+
+`css/i18n-fonts.css` cannot rely on redefining the `--font` token alone. Several pages, and
+some inline `<style>` blocks in the calculators, hardcode `font-family: 'DM Sans', system-ui, …`
+instead of using `var(--font)`. Verified in-browser: with the token override alone, zh-Hant
+computed to plain DM Sans and Noto Sans TC never loaded. The stylesheet therefore carries
+locale-qualified element selectors to out-specify those rules.
+
+**Logged as debt, deliberately not fixed in this phase.** The correct fix is to route every
+`font-family` through the token, which touches calculator pages and is out of scope for a
+translation phase. Until then, any NEW page that hardcodes a font family will silently render
+non-Latin locales from OS fallbacks.
+
+---
+
 ## 2026-07-06
 
 ### CCP "% of Rate" fix — divide by the true (uncapped) ⅔ AWW, clamp at 100%
