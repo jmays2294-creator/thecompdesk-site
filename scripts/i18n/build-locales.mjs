@@ -97,6 +97,7 @@ function fontBlock(code) {
   return [
     '  <!-- i18n:fonts (generated — do not hand-edit) -->',
     '  <link rel="stylesheet" href="/css/i18n-fonts.css">',
+    '  <link rel="stylesheet" href="/css/i18n-picker.css">',
     `  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?${q}&display=swap">`,
     '  <!-- /i18n:fonts -->',
   ].join('\n');

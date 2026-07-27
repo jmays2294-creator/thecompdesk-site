@@ -1,0 +1,124 @@
+/* ============================================================================
+ * i18n-picker.css — the language control.
+ *
+ * Two affordances, one API (js/i18n-locale.js):
+ *   .cd-globe        a compact control, pinned top-right on every page, so someone who
+ *                    landed deep from a search result can switch without going home
+ *   .cd-locale-picker an inline row of language names, used under the video on the intro
+ *                    page where the choice should be unmissable on arrival
+ *
+ * Logical properties throughout (inset-inline, padding-inline, border-inline) so the
+ * Phase 4 RTL pass gets this control for free.
+ * ========================================================================== */
+
+/* ── the globe ─────────────────────────────────────────────────────────── */
+.cd-globe-wrap {
+  position: fixed;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  z-index: 9000;
+}
+/* Inside a real nav it should sit in the flow, not float over the page. */
+#app-nav .cd-globe-wrap,
+.cd-globe-wrap[data-inline] {
+  position: static;
+  z-index: auto;
+}
+
+.cd-globe {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-block: 6px;
+  padding-inline: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: rgba(255, 255, 255, 0.86);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #1c2433;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+.cd-globe:hover { border-color: rgba(127, 127, 127, 0.6); }
+.cd-globe:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.cd-globe .cd-globe-icon { font-size: 15px; line-height: 1; }
+.cd-globe .cd-globe-label {
+  max-inline-size: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── the dropdown ──────────────────────────────────────────────────────── */
+.cd-globe-panel {
+  position: absolute;
+  inset-block-start: calc(100% + 8px);
+  inset-inline-end: 0;
+  min-inline-size: 210px;
+  max-block-size: min(70vh, 460px);
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(127, 127, 127, 0.28);
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18);
+  display: none;
+}
+.cd-globe-wrap.is-open .cd-globe-panel { display: block; }
+.cd-globe-panel a {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-block: 7px;
+  padding-inline: 10px;
+  border-radius: 8px;
+  color: #1c2433;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.25;
+}
+.cd-globe-panel a:hover { background: rgba(127, 127, 127, 0.12); }
+.cd-globe-panel a[aria-current] { font-weight: 700; }
+.cd-globe-panel .cd-en { font-size: 11px; opacity: 0.6; font-weight: 400; }
+
+/* ── the inline row (intro page) ───────────────────────────────────────── */
+.cd-locale-picker {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+  max-inline-size: 640px;
+  margin-inline: auto;
+}
+.cd-locale-opt {
+  color: inherit;
+  opacity: 0.72;
+  font-size: 13px;
+  text-decoration: none;
+  padding-block: 2px;
+  border-block-end: 1px solid transparent;
+}
+.cd-locale-opt:hover { opacity: 1; }
+.cd-locale-opt.is-current {
+  opacity: 1;
+  font-weight: 600;
+  border-block-end-color: currentColor;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cd-globe { background: rgba(22, 30, 48, 0.86); color: #eef2f8; border-color: rgba(255,255,255,0.22); }
+  .cd-globe-panel { background: #131c2e; border-color: rgba(255,255,255,0.16); }
+  .cd-globe-panel a { color: #eef2f8; }
+  .cd-globe-panel a:hover { background: rgba(255,255,255,0.10); }
+}
+
+@media (max-width: 420px) {
+  /* At phone width the endonym alone is enough; the code is redundant next to it. */
+  .cd-globe .cd-globe-label { max-inline-size: 8ch; }
+  .cd-globe-panel { min-inline-size: 190px; }
+}
+@media (prefers-reduced-motion: reduce) { .cd-globe { transition: none; } }

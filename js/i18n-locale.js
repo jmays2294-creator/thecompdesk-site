@@ -210,10 +210,145 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderPickers);
-  } else {
-    renderPickers();
+  /**
+   * The globe control, on every page.
+   *
+   * Self-bootstrapping, like js/header-attorney-cta.js, because this site has three
+   * different header implementations — 31 pages inject a nav via js/nav.js, 48 hand-write
+   * a static <nav>, 25 have none at all. Editing all of them would be 104 edits and a
+   * permanent maintenance liability; mounting from script reaches every page the same way.
+   *
+   * Placement, in order of preference:
+   *   1. an explicit [data-cd-locale-globe] mount, if a page wants to place it precisely
+   *   2. inside #app-nav, so on nav.js pages it sits in the header flow
+   *   3. fixed, pinned top-right — the fallback for static and nav-less pages
+   */
+  function renderGlobe() {
+    if (document.querySelector('.cd-globe-wrap')) return;      // idempotent
+    if (document.body.hasAttribute('data-no-locale-globe')) return;
+
+    var cur = fromUrl();
+    var meta = LOCALES.filter(function (l) { return l.code === cur; })[0] || LOCALES[0];
+
+    var wrap = document.createElement('div');
+    wrap.className = 'cd-globe-wrap';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cd-globe';
+    btn.setAttribute('aria-haspopup', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', 'Choose your language — ' + meta.english);
+    btn.innerHTML = '<span class="cd-globe-icon" aria-hidden="true">\u{1F310}</span>';
+    var lbl = document.createElement('span');
+    lbl.className = 'cd-globe-label';
+    lbl.lang = meta.code;
+    lbl.textContent = meta.endonym;
+    btn.appendChild(lbl);
+
+    var panel = document.createElement('div');
+    panel.className = 'cd-globe-panel';
+    panel.setAttribute('role', 'menu');
+
+    LOCALES.forEach(function (l) {
+      var a = document.createElement('a');
+      a.href = urlFor(l.code) || homeFor(l.code);
+      a.lang = l.code;
+      a.setAttribute('role', 'menuitem');
+      // Endonym first and largest: someone scanning for their language looks for বাংলা,
+      // not for the word "Bengali", which they may not read.
+      a.appendChild(document.createTextNode(l.endonym));
+      var en = document.createElement('span');
+      en.className = 'cd-en';
+      en.lang = 'en';
+      en.textContent = l.english;
+      a.appendChild(en);
+      if (l.code === cur) a.setAttribute('aria-current', 'true');
+      a.addEventListener('click', function () { remember(l.code); });
+      panel.appendChild(a);
+    });
+
+    var close = function () { wrap.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); };
+    var open = function () { wrap.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); };
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      wrap.classList.contains('is-open') ? close() : open();
+    });
+    document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(panel);
+
+    var explicit = document.querySelector('[data-cd-locale-globe]');
+    var nav = document.getElementById('app-nav');
+    if (explicit) { wrap.setAttribute('data-inline', ''); explicit.appendChild(wrap); }
+    else if (nav) { wrap.setAttribute('data-inline', ''); nav.appendChild(wrap); }
+    else document.body.appendChild(wrap);
   }
+
+  /**
+   * Keep the pinned globe from landing on top of another floating control.
+   *
+   * This site injects a "Contact an attorney" CTA into the top-right of many pages from
+   * js/header-attorney-cta.js, and the globe lands squarely on it. Rather than
+   * hard-coding that one selector, measure and step down past whatever is actually there
+   * — other pages float different things, and the app project already learned this the
+   * expensive way when its hamburger collided with the same CTA under RTL.
+   *
+   * Only applies to the fixed fallback; a globe placed inside a nav is in normal flow.
+   */
+  function avoidCollisions() {
+    var wrap = document.querySelector('.cd-globe-wrap');
+    if (!wrap || wrap.hasAttribute('data-inline')) return;
+    wrap.style.insetBlockStart = '';
+    var btn = wrap.querySelector('.cd-globe');
+    if (!btn) return;
+
+    for (var pass = 0; pass < 3; pass++) {
+      var g = btn.getBoundingClientRect();
+      var pushedTo = null;
+      var nodes = document.body.querySelectorAll('a, button, nav, header, [class*="cta"]');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (wrap.contains(el)) continue;
+        var pos = getComputedStyle(el).position;
+        if (pos !== 'fixed' && pos !== 'absolute' && pos !== 'sticky') continue;
+        var r = el.getBoundingClientRect();
+        if (!r.width || !r.height) continue;
+        var hits = !(r.right < g.left || r.left > g.right || r.bottom < g.top || r.top > g.bottom);
+        if (hits && (pushedTo === null || r.bottom > pushedTo)) pushedTo = r.bottom;
+      }
+      if (pushedTo === null) return;
+      wrap.style.insetBlockStart = Math.round(pushedTo + 8) + 'px';
+    }
+  }
+
+  function mountAll() {
+    renderPickers();
+    renderGlobe();
+    // after layout settles, and again once late-injected chrome (nav.js, the attorney
+    // CTA) has had a chance to appear
+    setTimeout(avoidCollisions, 0);
+    setTimeout(avoidCollisions, 400);
+  }
+
+  var _rz;
+  window.addEventListener('resize', function () {
+    clearTimeout(_rz);
+    _rz = setTimeout(avoidCollisions, 150);
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountAll);
+  } else {
+    mountAll();
+  }
+  // nav.js replaces #app-nav's innerHTML after its own load, which would wipe a globe
+  // mounted inside it. Re-mount once the nav settles.
+  window.addEventListener('load', function () { setTimeout(mountAll, 250); });
+
   CD.Locale.renderPickers = renderPickers;
+  CD.Locale.renderGlobe = renderGlobe;
+  CD.Locale.avoidCollisions = avoidCollisions;
 })();
