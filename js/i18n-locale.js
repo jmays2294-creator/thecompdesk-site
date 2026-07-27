@@ -22,7 +22,16 @@
   var LS_KEY = 'cd_locale';
   var YEAR = 60 * 60 * 24 * 365;
 
-  // Keep in lockstep with i18n/locales.json and the app's www/js/i18n.js LOCALES.
+  // MUST match i18n/locales.json — same codes, same ORDER (the picker renders in array
+  // order) — and the app's www/js/i18n.js LOCALES. Inline rather than fetched because the
+  // picker has to render on first paint; a fetch would show an empty control first.
+  //
+  // "Keep in lockstep" used to be the entire enforcement mechanism here, which is how the
+  // app shipped the same class of bug twice in Phase 4B. scripts/i18n/verify.mjs now
+  // parses this array and FAILS on any divergence from the registry.
+  //
+  // `dir` is deliberately NOT duplicated here: the server writes <html dir> from the
+  // registry at build time, so the runtime never needs it and cannot contradict it.
   var LOCALES = [
     { code: 'en',      endonym: 'English',        english: 'English' },
     { code: 'es',      endonym: 'Español',   english: 'Spanish' },
@@ -32,10 +41,17 @@
     { code: 'bn',      endonym: 'বাংলা', english: 'Bengali' },
     { code: 'ht',      endonym: 'Kreyòl Ayisyen', english: 'Haitian Creole' },
     { code: 'ko',      endonym: '한국어', english: 'Korean' },
+    { code: 'ar',      endonym: 'العربية', english: 'Arabic', draft: true },
+    { code: 'ur',      endonym: 'اردو', english: 'Urdu', draft: true },
     { code: 'fr',      endonym: 'Français',  english: 'French' },
     { code: 'pl',      endonym: 'Polski',         english: 'Polish' }
   ];
-  var CODES = LOCALES.map(function (l) { return l.code; });
+  // Draft locales are hidden from the picker and from language auto-detection: their
+  // pages exist but still carry English copy, so offering them would be a worse
+  // experience than not offering them. Mirrors "draft" in i18n/locales.json, which
+  // scripts/i18n/verify.mjs checks for agreement.
+  var SHOWN = LOCALES.filter(function (l) { return !l.draft; });
+  var CODES = SHOWN.map(function (l) { return l.code; });
   var PREFIXED = CODES.filter(function (c) { return c !== 'en'; });
 
   /**
@@ -184,10 +200,15 @@
       nav.className = 'cd-locale-picker';
       nav.setAttribute('aria-label', 'Choose your language');
 
-      LOCALES.forEach(function (l) {
+      SHOWN.forEach(function (l) {
         var a = document.createElement('a');
         a.href = urlFor(l.code) || homeFor(l.code);
         a.lang = l.code;
+        // dir="auto" resolves each option from its OWN first strong character, so العربية
+        // renders RTL inside an English page and Kreyòl Ayisyen renders LTR inside an
+        // Arabic one. It is the HTML equivalent of unicode-bidi:plaintext. Without it the
+        // option inherits the page direction and a mixed endonym can reorder.
+        a.dir = 'auto';
         a.className = 'cd-locale-opt';
         a.textContent = l.endonym;
         a.title = l.english;
@@ -243,6 +264,7 @@
     var lbl = document.createElement('span');
     lbl.className = 'cd-globe-label';
     lbl.lang = meta.code;
+    lbl.dir = 'auto';
     lbl.textContent = meta.endonym;
     btn.appendChild(lbl);
 
@@ -250,10 +272,11 @@
     panel.className = 'cd-globe-panel';
     panel.setAttribute('role', 'menu');
 
-    LOCALES.forEach(function (l) {
+    SHOWN.forEach(function (l) {
       var a = document.createElement('a');
       a.href = urlFor(l.code) || homeFor(l.code);
       a.lang = l.code;
+      a.dir = 'auto';
       a.setAttribute('role', 'menuitem');
       // Endonym first and largest: someone scanning for their language looks for বাংলা,
       // not for the word "Bengali", which they may not read.

@@ -78,3 +78,72 @@ html:lang(ru) :is(code,pre,.mono) {
 /* Bengali and Korean line boxes are taller than Latin at the same font-size; without
    this, headings clip against tight line-heights tuned for DM Sans. */
 html:lang(bn) body, html:lang(ko) body { line-height: 1.6; }
+
+/* ── RTL: Arabic + Urdu (Phase 4C) ───────────────────────────────────────────
+   Two DIFFERENT scripts of the same writing system, not two styles of one. Urdu in
+   Naskh is legible but reads as wrong to a native speaker, so ur gets Nastaliq even
+   though it is the heavier face.
+
+   NOTE THE STACK ORDER — it is INVERTED relative to the CJK rules above, deliberately.
+   There, 'DM Sans' leads so "The Comp Desk" keeps its brand type and the Han characters
+   fall through. Here the Arabic face leads. DM Sans has no Arabic glyphs at all, so
+   leading with it produces a MIXED-FACE line: Latin in DM Sans, Arabic in whatever comes
+   next. Both Noto Arabic faces carry a usable Latin, so leading with them keeps a whole
+   line in one face — which matters more on this site than in the app, because these are
+   long explanatory paragraphs dense with <bdi>-wrapped citations (C-3, WCL §15(3)) sitting
+   inside Arabic sentences. Same decision as the app's css/i18n-fonts.css, same reason. */
+html:lang(ar) {
+  --font: 'Noto Naskh Arabic', 'DM Sans', var(--font-i18n-fallback), 'Geeza Pro';
+}
+html:lang(ur) {
+  --font: 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', 'DM Sans', var(--font-i18n-fallback), 'Noto Nastaliq Urdu UI';
+}
+
+/* Same untokenised-page problem as the CJK block above: pages that hardcode
+   `font-family: 'DM Sans', …` would otherwise win and render Arabic from an OS fallback
+   — which is the specific failure Phase 4C was warned about, and it is a SILENT one,
+   because an OS Arabic face looks fine until you compare it to the intended one. */
+html:lang(ar), html:lang(ur) { font-family: var(--font); }
+html:lang(ar) body, html:lang(ur) body,
+html:lang(ar) :is(h1,h2,h3,h4,h5,h6,p,li,a,span,label,button,input,select,textarea,th,td,summary,figcaption,legend),
+html:lang(ur) :is(h1,h2,h3,h4,h5,h6,p,li,a,span,label,button,input,select,textarea,th,td,summary,figcaption,legend) {
+  font-family: var(--font);
+}
+html:lang(ar) :is(code,pre,.mono), html:lang(ur) :is(code,pre,.mono) {
+  font-family: var(--mono, ui-monospace, monospace);
+}
+
+/* Arabic line boxes run taller than Latin, same as bn/ko above. */
+html:lang(ar) body { line-height: 1.7; }
+
+/* ARABIC CLIPS TOO — not as badly as Nastaliq, but it clips, and the 4B pass on the app
+   only caught the Urdu case because Arabic passed THAT audit. Measured here on every
+   generated /ar/ page: .cd-globe-label wanted 18px in a 13px box, while the same element
+   in en/es/ur measured clean. Naskh's descenders on العربية exceed a line box tuned for
+   DM Sans, and the element is nowrap + overflow:hidden, so the clipping is silent —
+   the ellipsis logic still thinks the text fits.
+   Distinct from the ur block below: Naskh needs headroom, Nastaliq needs a cascade. */
+html:lang(ar) :is(.cd-locale-opt, .cd-globe-label, .cd-en, .nav-link, .card-title) {
+  line-height: 1.9;
+}
+
+/* URDU NEEDS ITS OWN VERTICAL PASS AND ARABIC DOES NOT. Nastaliq cascades each word
+   diagonally downward, so its glyphs are far taller than the em box and a line-height
+   tuned for Latin CLIPS the descenders. On the app this showed up as single-line
+   truncating labels slicing the bottom off a word while the ellipsis logic still thought
+   the text fit (.cd-rrmini-step-name wanted 37px in a 34px box). Arabic passed the same
+   audit clean — which is exactly why Nastaliq gets checked separately.
+   These are a FLOOR, not a preference. An Urdu page is legitimately taller than the
+   same page in Arabic. */
+html:lang(ur) body { line-height: 2.1; }
+html:lang(ur) :is(h1,h2,h3,h4,h5,h6) { line-height: 1.8; }
+html:lang(ur) :is(button,input,select,textarea,.btn,a.btn) {
+  line-height: 2.1;
+  height: auto;                 /* controls sized by min-height must grow, not clip */
+  padding-block: 0.55em;
+}
+/* Single-line truncating labels: nowrap + overflow:hidden + ellipsis hides the clipping
+   rather than revealing it, so these need the extra room explicitly. */
+html:lang(ur) :is(.cd-locale-opt, .cd-globe-label, .cd-en, .nav-link, .card-title, th) {
+  line-height: 2.4;
+}

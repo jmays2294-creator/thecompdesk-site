@@ -1,0 +1,144 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   rtl.css — Phase 4C. Overrides for what CSS logical properties CANNOT fix.
+
+   Loaded on EVERY locale page, last in <head> (see the i18n:fonts block emitted by
+   scripts/i18n/build-locales.mjs), so these win on specificity ties. Every rule is
+   scoped under [dir="rtl"], so the file is inert in the ten LTR locales — including
+   English, whose rendering this stage must not change at all.
+
+   WHY THIS FILE IS SMALLER THAN THE APP'S EQUIVALENT, AND WHY IT ISN'T EMPTY
+
+   The site's shared stylesheets (app.css, skins.css, brand-theme.css, the job-buddy
+   pair) were swept to logical properties in place — margin-inline-*, padding-inline-*,
+   border-inline-start, inset-inline-*, text-align:start. Those mirror themselves and
+   are absent here on purpose.
+
+   What is left falls into three buckets:
+
+     1. transforms and border-radius, which have no logical form we can rely on
+     2. direction-encoding values inside the 33 pages' INLINE <style> blocks. Those
+        blocks live in the English source pages, and Phase 4C's self-check requires
+        English to stay byte-identical — so they are mirrored from here rather than
+        rewritten at the source. That is a deliberate trade: a bigger override file in
+        exchange for not touching the English organic footprint.
+     3. bidi containment for value-bearing text (see the runtime-numbers block)
+
+   NOT here, on purpose — each of these is a trap that looks like a bug:
+     · `transform: translateX(-50%)` centring idioms. 18 of them across the localized
+       pages. They are direction-NEUTRAL: the element is centred, not offset toward a
+       side. Mirroring them breaks centring in RTL, and it passes LTR review because
+       LTR never exercises it. The app's 4A sweep converted four of these before the
+       mistake was caught.
+     · Chevrons that rotate 180deg to signal open/closed. That is a VERTICAL flip and
+       is identical in both directions.
+     · `‹ › « »` and paired brackets — the Unicode bidi algorithm mirrors these for
+       free. "Fixing" them double-flips them.
+     · `<input type="range">` — WebKit reverses the track under dir=rtl already, which
+       is the correct affordance for an RTL reader.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. direction-encoding transforms ──────────────────────────────────────
+   A hover nudge "forward" is +X in LTR and -X in RTL. */
+[dir="rtl"] body.tcd-skinned .btn.link:hover::after { transform: translateX(-4px); }
+
+/* The audience switch (worker <-> attorney). Its knob rest position was swept to
+   inset-inline-start, so only the travel needs flipping: the knob must move toward the
+   trailing edge, which is leftward under RTL. */
+[dir="rtl"] [data-audience="attorney"] .tcd-switch::after,
+[dir="rtl"] body.tcd-skinned[data-audience="attorney"] .tcd-switch::after {
+  transform: translateX(-100%);
+}
+
+/* ── 2. asymmetric border-radius ───────────────────────────────────────────
+   `border-radius: 0 6px 6px 0` rounds only the physical right-hand corners and contains
+   no direction keyword at all — neither a grep for "left"/"right" nor the property
+   sweep can see it. Found by reading the diff, which is how the app found its four.
+
+   Done as an override rather than with the logical corner longhands
+   (border-start-start-radius et al) on purpose: those need Safari 15, a year newer than
+   the Safari 14.1 floor the rest of this sweep sits on, and their failure mode is losing
+   the rounding in LTR TOO. An override degrades the other way — LTR keeps exactly what
+   it renders today on every browser, and only RTL depends on the newer feature.
+   (Values are TL TR BR BL; swapping the pairs mirrors them.) */
+[dir="rtl"] .info-note,
+[dir="rtl"] .info-card,
+[dir="rtl"] .disclaimer { border-radius: 6px 0 0 6px; }
+
+/* ── 3. RUNTIME AND VALUE-BEARING TEXT — bidi containment ──────────────────
+   The same defect class the app hit, and WORSE here: this site is explanatory legal
+   prose dense with statute citations and dollar figures, where the app is short UI
+   labels. Measured in an RTL paragraph:
+
+       $1,234.56       ->  1,234.56$
+       $1,145.43/wk    ->  wk/1,145.43$
+       62.5%           ->  %62.5
+       01/15/2026      ->  correct (digits + slashes resolve fine)
+
+   `plaintext`, NOT `isolate`. Measured on the app: plain `isolate` separates the element
+   from its surroundings but leaves the CONTENT's base direction inherited as RTL, so
+   "$1,145.43/wk" still came out "wk/$1,145.43" — the suffix on the wrong side.
+   `plaintext` sets base direction from the first strong character of the content, the CSS
+   equivalent of a U+2068 FSI: a numeric cell resolves LTR and reads correctly, while a
+   cell holding Arabic prose still resolves RTL. `direction: ltr` would fix the numbers
+   and break every one of those.
+
+   Presentation-only by construction — it never reaches a clipboard, a PDF, or a database
+   column. That distinction is why the app fixed this in CSS and NOT in its currency
+   formatter: the formatter's output is pasted into the OC-400.1 explanation field and
+   written into the filed PDF, so isolating there would embed invisible control characters
+   into documents filed with the Board. */
+[dir="rtl"] .calc-result,
+[dir="rtl"] .calc-out,
+[dir="rtl"] .result-value,
+[dir="rtl"] .stat-value,
+[dir="rtl"] .rate-cell,
+[dir="rtl"] .data-table td,
+[dir="rtl"] .jb-dist-val,
+[dir="rtl"] .badge,
+[dir="rtl"] time,
+[dir="rtl"] output {
+  unicode-bidi: plaintext;
+}
+
+/* Citations and form numbers wrapped by scripts/i18n/isolate-rtl.mjs. <bdi> already
+   isolates, and browsers default it to `unicode-bidi: isolate`; this is belt-and-braces
+   for any <bdi> a page author writes by hand with a CSS reset in scope that clobbers the
+   UA rule. Cheap, and the failure it guards against is silent. */
+[dir="rtl"] bdi { unicode-bidi: isolate; }
+
+/* ── 4. code and preformatted text ─────────────────────────────────────────
+   Code samples and preformatted blocks are Latin content regardless of the page
+   language, and they are the one place where a mirrored line is simply wrong. */
+[dir="rtl"] :is(code, pre, .mono, kbd, samp) {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ── 5. NUMERIC AND CURRENCY FIELDS ────────────────────────────────────────
+   Found by looking at a rendered /ur/ calculator, not by reading CSS: the statutory
+   maximum rate displayed as "1281.50 $" — the currency symbol after the amount.
+
+   `.field-wrap` is a flex row holding a `.field-prefix` ($) and an `input[type=number]`.
+   Mirroring the row is what a generic RTL sweep is supposed to do, and here it is wrong:
+   these are US dollar amounts on a New York workers' compensation site, and "$1,281.50"
+   is the form the worker will see on every Board notice and every pay stub they are
+   comparing against. The number is data, not prose.
+
+   Numeric entry runs LTR in Arabic and Urdu interfaces generally — digits are read
+   left-to-right in both — so the inputs themselves are forced LTR rather than merely
+   re-ordered. `text-align: start` then resolves to the left, which is where a partially
+   typed number should grow from. */
+[dir="rtl"] .field-wrap,
+[dir="rtl"] .jb-in-suf,
+[dir="rtl"] .jb-fld {
+  direction: ltr;
+}
+[dir="rtl"] :is(input[type="number"], input[type="date"], input[type="tel"], input[type="time"], input[type="month"]) {
+  direction: ltr;
+  text-align: start;
+}
+/* The label above such a field is still prose and must stay RTL — direction is inherited,
+   so anything textual inside a forced-LTR wrapper has to be handed back explicitly. */
+[dir="rtl"] .field-wrap :is(label, .field-note, .field-help, .hint) {
+  direction: rtl;
+}

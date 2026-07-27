@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "description": "Translation contract for The Comp Desk. Read by scripts/generate-translations.mjs and injected into the model's system prompt for every batch. Human reviewers should treat `terms[].translations` as the approved wording for a locale — once a slot is filled, the generator is told to use it verbatim.",
   "sourceLocale": "en",
   "targetLocales": [
@@ -27,7 +27,10 @@
     "punctuation": "Use the target language's own punctuation and quotation marks. Keep the source's sentence count. Do not add exclamation marks the source does not have.",
     "currencyAndDates": "Leave currency symbols, amounts, and date formats exactly as the source renders them — they are produced by code, not copy.",
     "noEmbellishment": "Translate only. Do not add explanations, disclaimers, honorifics, or marketing language that is not in the source string.",
-    "rtl": "For ar and ur, write natural right-to-left text. Do not insert directional control characters; the app sets <html dir=\"rtl\">. Latin-script terms and form numbers stay Latin and will render correctly via bidi."
+    "rtl": "For ar and ur, write natural right-to-left text. Do NOT insert directional control characters or <bdi> tags yourself — write clean prose with the do-not-translate tokens verbatim, and scripts/i18n/isolate-rtl.mjs wraps them mechanically as a post-pass. CORRECTION, 2026-07-27: the previous wording said Latin terms 'will render correctly via bidi'. That is FALSE and it is the single most expensive thing to get wrong here. Measured in-browser: a Latin token reorders whenever it STARTS with a neutral character or a digit. 'C-3' and 'WCL §15(3)' are safe because they start with a strong Latin letter; '§15(3)' renders ')3(15§' and '400.1-OC' renders 'OC-400.1' — a DIFFERENT, entirely plausible form number that a worker would then fail to match against paper. This site is explanatory legal prose dense with citations, so the exposure is far larger here than in the app's short UI labels.",
+    "isolationMechanism": "THE SITE USES <bdi> TAGS. The generator injects HTML (byte-offset substitution into the page source), so a <bdi> element renders as an element. The APP uses U+2068 FSI / U+2069 PDI characters instead, because its h() helper renders through textContent/createTextNode and an HTML tag there would be shown to the user as the literal text '<bdi>'. Two repos, two renderers — do not unify them, and do not copy an RTL catalog from one to the other.",
+    "arrows": "Write the arrow that points in the READING direction: '→' in LTR locales, '←' (U+2190) in ar and ur. The Unicode bidi algorithm mirrors paired brackets and quotation marks automatically but does NOT mirror arrow glyphs, and no stylesheet can flip a character. Author '←' from the start rather than fixing it later.",
+    "unverifiableTerms": "Nobody on this project reads Arabic or Urdu. Do not coin legal terminology in either. Where a term of art has no settled rendering, state the concept plainly and keep the English term — the standard already applied to ht and ko. Every ar/ur string ships translationsReviewed:false until a native-speaker pass."
   },
   "doNotTranslate": [
     "The Comp Desk",
@@ -353,8 +356,22 @@
   "derivedLocales": {
     "zh-Hant": {
       "from": "zh-Hans",
-      "method": "OpenCC Simplified->Traditional script transform (scripts/derive-zh-hant.mjs, variant t)",
-      "note": "Same language, same wording, different script. Never translate separately — it would cost money AND create two divergent catalogs. Region-tuned variants twp (Taiwan) / hk (Hong Kong) can be derived from the same source later."
+      "method": "OpenCC Simplified->Traditional script transform, scripts/i18n/derive-zh-hant.mjs, Converter({from:'cn', to:'twp'}) — TAIWAN standard WITH phrase conversion.",
+      "note": "Same language, same wording, different script. Never translate separately — it would cost money AND create two divergent catalogs. Corrected 2026-07-27: this said \"variant t\" and listed twp as a future option, but derive-zh-hant.mjs:21 has always used twp. 'twp' also swaps mainland vocabulary for Taiwanese (软件->軟體), which 't' does not — so the two are not interchangeable and the note mattered."
     }
-  }
+  },
+  "translationsReviewed": {
+    "es": false,
+    "zh-Hans": false,
+    "ru": false,
+    "bn": false,
+    "ht": false,
+    "ko": false,
+    "ar": false,
+    "ur": false,
+    "fr": false,
+    "pl": false,
+    "zh-Hant": false
+  },
+  "translationsReviewedNote": "false = the wording in `terms[].translations` is an UNREVIEWED HINT, not approved copy, so the generator passes it as guidance rather than as a verbatim lock. Flip a locale to true only after a native speaker has reviewed it."
 }

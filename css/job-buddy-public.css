@@ -57,7 +57,7 @@
 }
 
 /* ── Hero ──────────────────────────────────────────────────────────────── */
-.jb-hero { text-align: left; }
+.jb-hero { text-align: start; }
 .jb-eyebrow {
   font-size: 12.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
   color: var(--skin-accent-deep, #C85F0F); margin-bottom: 8px;
@@ -95,9 +95,9 @@
 .jb-ta { min-height: 64px; resize: vertical; line-height: 1.45; }
 
 .jb-in-suf { position: relative; display: flex; align-items: center; }
-.jb-suf { position: absolute; right: 12px; font-size: 12.5px; color: var(--skin-text-muted, #7A8095); pointer-events: none; }
-.jb-suf-pre { position: absolute; left: 12px; right: auto; font-weight: 600; color: var(--skin-text-soft); }
-.jb-in-suf .jb-suf-pre + .jb-input, .jb-fld .jb-suf-pre ~ .jb-input { padding-left: 24px; }
+.jb-suf { position: absolute; inset-inline-end: 12px; font-size: 12.5px; color: var(--skin-text-muted, #7A8095); pointer-events: none; }
+.jb-suf-pre { position: absolute; inset-inline-start: 12px; inset-inline-end: auto; font-weight: 600; color: var(--skin-text-soft); }
+.jb-in-suf .jb-suf-pre + .jb-input, .jb-fld .jb-suf-pre ~ .jb-input { padding-inline-start: 24px; }
 
 .jb-range { width: 100%; accent-color: var(--skin-accent, #E87722); }
 .jb-dist-val { font-weight: 700; color: var(--skin-accent-deep, #C85F0F); }
@@ -155,7 +155,7 @@
 .jb-re strong { color: var(--skin-accent-deep, #C85F0F); font-size: 16px; }
 .jb-re-calc { font-size: 12.5px; color: var(--skin-text-soft, #4D5266); }
 
-.jb-flags { margin: 10px 0 0; padding-left: 18px; }
+.jb-flags { margin: 10px 0 0; padding-inline-start: 18px; }
 .jb-flags li { font-size: 12.5px; color: #9A3412; line-height: 1.45; }
 
 .jb-card-actions { margin-top: 14px; }

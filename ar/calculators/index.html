@@ -1,0 +1,442 @@
+<!-- GENERATED FILE — do not edit. Source: /calculators/index.html · locale: ar
+     Regenerate with: node scripts/i18n/build-locales.mjs -->
+<!DOCTYPE html>
+<html lang="ar" data-audience="worker" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="calculators.meta.title">⁨Free NYS Workers' Comp Calculators — SLU, AWW, LWEC⁩</title>
+<meta name="description" content="⁨Free NYS workers' compensation calculators: SLU, AWW, LWEC, awards, and maximum rates. Calculate benefits and award values instantly.⁩" data-i18n-attr="content:calculators.meta.description">
+
+<meta property="og:title" content="⁨NYS Workers' Compensation Calculators — Free Online Tools⁩" data-i18n-attr="content:calculators.meta.og-title">
+<meta property="og:description" content="⁨Free NYS workers' compensation calculators for SLU, AWW, LWEC, awards, and rate lookups.⁩" data-i18n-attr="content:calculators.meta.og-description">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Comp Desk">
+<meta property="og:url" content="https://thecompdesk.com/ar/calculators/">
+<meta property="og:image" content="https://thecompdesk.com/images/og-calculators.png">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="⁨NYS Workers' Compensation Calculators⁩" data-i18n-attr="content:calculators.meta.twitter-title">
+<meta name="twitter:description" content="⁨Free NYS workers' compensation calculators for SLU, AWW, LWEC, awards, and rate lookups.⁩" data-i18n-attr="content:calculators.meta.og-description">
+<meta name="twitter:image" content="https://thecompdesk.com/images/og-calculators.png">
+
+<script type="application/ld+json" data-i18n-jsonld>
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "NYS Workers' Compensation Calculators",
+  "url": "https://thecompdesk.com/ar/calculators/",
+  "description": "Free NYS workers' compensation calculators: SLU, AWW, LWEC, Award, Rates, and advanced tools.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<link rel="canonical" href="https://thecompdesk.com/ar/calculators/">
+<link rel="stylesheet" href="/css/skins.css">
+
+<style>
+/* /calculators-local — audience-skinned index */
+
+.calc-wash {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(214,230,242,0.40) 0%, rgba(214,230,242,0) 50%),
+    linear-gradient(180deg, #FBF8F2 0%, #F8F6F1 30%, #F4EADB 100%);
+}
+[data-audience="attorney"] .calc-wash {
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(107,143,168,0.16) 0%, rgba(107,143,168,0) 60%),
+    radial-gradient(70% 60% at 80% 30%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+    linear-gradient(180deg, #0F1B33 0%, #0B1426 100%);
+}
+
+/* Hero — copy shifts by audience */
+.calc-hero {
+  padding: clamp(56px, 8vh, 96px) 0 clamp(32px, 5vh, 56px);
+  text-align: center;
+}
+.calc-hero h1,
+.calc-hero h2.hero-alt {
+  font-size: clamp(38px, 6vw, 60px);
+  margin-bottom: 18px;
+}
+.calc-hero h1 em,
+.calc-hero h2.hero-alt em {
+  font-style: italic;
+  color: var(--skin-accent);
+  font-weight: 500;
+}
+[data-audience="attorney"] .calc-hero h1 em,
+[data-audience="attorney"] .calc-hero h2.hero-alt em {
+  font-style: normal;
+  font-weight: 800;
+}
+.calc-hero .lede {
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--skin-text-soft);
+  max-width: 64ch;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+/* Audience-specific copy swaps. Hidden by default, shown by skin. */
+.aud-worker, .aud-attorney { display: none; }
+[data-audience="worker"]   .aud-worker   { display: block; }
+[data-audience="worker"]   .aud-worker.inline,
+[data-audience="attorney"] .aud-attorney.inline { display: inline; }
+[data-audience="attorney"] .aud-attorney { display: block; }
+
+/* Calculator cards grid */
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+.calc-card {
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: var(--skin-card-radius);
+  padding: 26px 24px;
+  transition: transform var(--rhythm-fast) var(--ease-out), border-color var(--rhythm-fast) var(--ease-out);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  box-shadow: var(--skin-card-shadow);
+  position: relative;
+}
+.calc-card:hover { transform: translateY(-4px); border-color: var(--skin-accent); }
+
+.calc-card .head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.calc-card .stat {
+  font-family: var(--font-numeric);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--skin-text);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.calc-card .badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.badge-free { color: #1F8E5C; background: rgba(91,199,154,0.14); }
+.badge-pro  { color: var(--skin-accent); background: rgba(232,119,34,0.14); }
+[data-audience="attorney"] .badge-free { color: #5BC79A; background: rgba(91,199,154,0.10); }
+
+.calc-card h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.005em;
+}
+[data-audience="attorney"] .calc-card h3 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.calc-card p {
+  font-size: 13.5px;
+  color: var(--skin-text-soft);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Role tag on cards — "For attorneys" framing for the clinical/permanency tools */
+.calc-card .badge-role {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: var(--skin-text-muted);
+  background: rgba(148,163,184,0.14);
+  margin-left: 6px;
+}
+
+/* Glossary term chips (worker-facing) + calculator group labels (P2-3 / P2-4) */
+.calc-terms {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 0 0 30px;
+}
+.calc-terms-label { font-size: 13.5px; font-weight: 600; color: var(--skin-text-soft); }
+.calc-term-chip {
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  color: var(--skin-text); background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  transition: border-color var(--rhythm-fast) var(--ease-out), color var(--rhythm-fast) var(--ease-out);
+}
+.calc-term-chip:hover { border-color: var(--skin-accent); color: var(--skin-accent-deep); }
+[data-audience="attorney"] .calc-term-chip:hover { color: var(--skin-accent); }
+
+.calc-group + .calc-group { margin-top: 40px; }
+.calc-group-label {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--skin-text); margin: 0 0 4px;
+}
+.calc-group-sub { font-size: 13.5px; color: var(--skin-text-soft); margin: 0 0 18px; max-width: 62ch; }
+
+/* Disclaimer block */
+.calc-disclaimer {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-left: 4px solid var(--skin-accent);
+  border-radius: 12px;
+}
+.calc-disclaimer p {
+  font-size: 13px;
+  color: var(--skin-text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+.calc-disclaimer strong { color: var(--skin-accent-deep); }
+[data-audience="attorney"] .calc-disclaimer strong { color: var(--skin-accent); }
+
+/* Cross-link to other side */
+.cross-link {
+  margin-top: 40px;
+  padding: 28px 32px;
+  background:
+    radial-gradient(60% 100% at 50% 0%, rgba(232,119,34,0.10) 0%, rgba(232,119,34,0) 60%),
+    var(--skin-surface-elev);
+  border: 1px solid var(--skin-divider);
+  border-radius: 18px;
+  text-align: center;
+}
+.cross-link h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.cross-link p {
+  font-size: 14.5px;
+  color: var(--skin-text-soft);
+  max-width: 56ch;
+  margin: 0 auto 16px;
+  line-height: 1.55;
+}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1DQTVSWSM');
+</script>
+  <!-- i18n:hreflang (generated by scripts/i18n/build-locales.mjs — do not hand-edit) -->
+  <link rel="alternate" hreflang="en" href="https://thecompdesk.com/calculators/">
+  <link rel="alternate" hreflang="es" href="https://thecompdesk.com/es/calculators/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://thecompdesk.com/zh-Hans/calculators/">
+  <link rel="alternate" hreflang="zh-Hant" href="https://thecompdesk.com/zh-Hant/calculators/">
+  <link rel="alternate" hreflang="ru" href="https://thecompdesk.com/ru/calculators/">
+  <link rel="alternate" hreflang="bn" href="https://thecompdesk.com/bn/calculators/">
+  <link rel="alternate" hreflang="ht" href="https://thecompdesk.com/ht/calculators/">
+  <link rel="alternate" hreflang="ko" href="https://thecompdesk.com/ko/calculators/">
+  <link rel="alternate" hreflang="fr" href="https://thecompdesk.com/fr/calculators/">
+  <link rel="alternate" hreflang="pl" href="https://thecompdesk.com/pl/calculators/">
+  <link rel="alternate" hreflang="x-default" href="https://thecompdesk.com/calculators/">
+  <!-- /i18n:hreflang -->
+  <!-- i18n:fonts (generated — do not hand-edit) -->
+  <link rel="stylesheet" href="/css/i18n-fonts.css">
+  <link rel="stylesheet" href="/css/i18n-picker.css">
+  <link rel="stylesheet" href="/css/rtl.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap">
+  <!-- /i18n:fonts -->
+  <script src="/js/i18n-locale.js" defer></script>
+</head>
+<body class="tcd-skinned">
+
+<div class="calc-wash" aria-hidden="true"></div>
+
+<nav class="tcd-nav" aria-label="⁨Primary⁩" data-i18n-attr="aria-label:shared.primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/ar/?replay=1" aria-label="⁨The Comp Desk⁩" data-i18n="shared.the-comp-desk-2" data-i18n-attr="aria-label:shared.the-comp-desk"><bdi>The <span class="accent">Comp</span> Desk</bdi></a>
+    <div class="tcd-nav-links" data-i18n="calculators.worker-attorneys-learn-contact">
+      <bdi><a href="/ar/worker">Worker</a>
+      <a href="/attorneys">Attorneys</a>
+      <a href="/learn">Learn</a>
+      <a href="/ar/contact">Contact</a></bdi>
+    </div>
+    <div class="tcd-nav-right">
+      <div data-audience-switch></div>
+      <a class="tcd-nav-cta cta-btn" href="/auth_v2.html" data-i18n="shared.sign-in-sign-up"><bdi>Sign In / Sign Up</bdi></a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <section class="tcd-section calc-hero scene">
+    <div class="wrap stagger">
+      <span class="eyebrow" style="--i:0;" data-i18n="calculators.free-calculators"><bdi>Free calculators</bdi></span>
+
+      <!-- Worker-side headline -->
+      <div class="aud-worker">
+        <h1 style="--i:1;" data-i18n="calculators.understand-the-numbers-in-your"><bdi>Understand the <em>numbers</em> in your case.</bdi></h1>
+        <p class="lede" style="--i:2;" data-i18n="calculators.free-tools-to-estimate-your"><bdi>Free tools to estimate your weekly benefit, your SLU award, your wage-earning capacity. Built by a workers' comp attorney — used by injured workers and lawyers across New York.</bdi></p>
+      </div>
+
+      <!-- Attorney-side headline -->
+      <div class="aud-attorney">
+        <h2 class="hero-alt" style="--i:1;" data-i18n="calculators.the-calculators-the-hearing-room"><bdi>The <em>calculators</em> the hearing room uses.</bdi></h2>
+        <p class="lede" style="--i:2;" data-i18n="calculators.free-cited-defensible-each-result"><bdi>Free, cited, defensible. Each result shows the WCL section, IME guideline, or Board rule it implements. Need more? The Pro Workspace adds permanency checking, fee equations, and case save/sync.</bdi></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="tcd-section scene" style="padding-top:0;">
+    <div class="wrap">
+      <!-- Glossary strip (P2-4): plain-English explainer for the key terms, via
+           the shared field-help modal. Every calculator is free; these chips just
+           demystify the words. -->
+      <div class="calc-terms" role="group" aria-label="⁨Common workers' compensation terms⁩" data-i18n-attr="aria-label:calculators.common-workers-compensation-terms.label">
+        <span class="calc-terms-label" data-i18n="calculators.new-to-these-terms"><bdi>New to these terms?</bdi></span>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('aww')" data-i18n="calculators.aww.text"><bdi>AWW ⓘ</bdi></button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('slu')" data-i18n="calculators.slu.text"><bdi>SLU ⓘ</bdi></button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('lwec')" data-i18n="calculators.lwec.text"><bdi>LWEC ⓘ</bdi></button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('ime')" data-i18n="calculators.ime"><bdi>IME ⓘ</bdi></button>
+        <button type="button" class="calc-term-chip" onclick="if(window.CD&amp;&amp;CD.FieldHelp)CD.FieldHelp.show('c3')" data-i18n="calculators.c-3"><bdi>C-3 ⓘ</bdi></button>
+      </div>
+
+      <!-- P2-3: worker-relevant calculators foregrounded; the clinical/permanency
+           tools are grouped and framed as attorney/clinician tools. -->
+      <div class="calc-group">
+        <h2 class="calc-group-label" data-i18n="calculators.for-injured-workers"><bdi>For injured workers</bdi></h2>
+        <p class="calc-group-sub" data-i18n="calculators.start-here-the-numbers-most"><bdi>Start here — the numbers most injured workers need. All free, no login.</bdi></p>
+        <div class="calc-grid stagger">
+
+          <a href="/ar/calculators/aww" class="calc-card" style="--i:0;">
+            <div class="head"><div class="stat" data-i18n="calculators.aww-2"><bdi>AWW</bdi></div><span class="badge badge-free" data-i18n="shared.free"><bdi>Free</bdi></span></div>
+            <h3 data-i18n="calculators.average-weekly-wage"><bdi>Average Weekly Wage</bdi></h3>
+            <p data-i18n="calculators.calculate-your-aww-under-wcl"><bdi>Calculate your AWW under WCL §14 and the 2/3 comp rate. Multi-employer, concurrent, and seasonal scenarios. Outputs the indemnity rate with citation.</bdi></p>
+          </a>
+
+          <a href="/ar/calculators/rates" class="calc-card" style="--i:1;">
+            <div class="head"><div class="stat" data-i18n="calculators.rate"><bdi>RATE</bdi></div><span class="badge badge-free" data-i18n="shared.free"><bdi>Free</bdi></span></div>
+            <h3 data-i18n="shared.rate-lookup"><bdi>Rate Lookup</bdi></h3>
+            <p data-i18n="calculators.maximum-compensation-rates-by-date"><bdi>Maximum compensation rates by date of injury — 1985 through present. The reference table for every fee equation and AWW calculation.</bdi></p>
+          </a>
+
+          <a href="/ar/calculators/slu" class="calc-card" style="--i:2;">
+            <div class="head"><div class="stat" data-i18n="calculators.slu-2"><bdi>SLU</bdi></div><span class="badge badge-free" data-i18n="shared.free"><bdi>Free</bdi></span></div>
+            <h3 data-i18n="calculators.schedule-loss-of-use"><bdi>Schedule Loss of Use</bdi></h3>
+            <p data-i18n="calculators.slu-permanency-awards-under-wcl"><bdi>SLU permanency awards under WCL §15(3) for every body part. Includes the 2024 Permanency Guidelines update and award calculation by AWW × loss % × statutory weeks.</bdi></p>
+          </a>
+
+          <a href="/ar/calculators/lwec" class="calc-card" style="--i:3;">
+            <div class="head"><div class="stat" data-i18n="shared.lwec"><bdi>LWEC</bdi></div><span class="badge badge-free" data-i18n="shared.free"><bdi>Free</bdi></span></div>
+            <h3 data-i18n="calculators.loss-of-wage-earning-capacity"><bdi>Loss of Wage Earning Capacity</bdi></h3>
+            <p data-i18n="calculators.lwec-classification-for-non-schedule"><bdi>LWEC classification for non-schedule injuries. Functional limitation × vocational factors with the Board's matrix logic and a printable summary.</bdi></p>
+          </a>
+
+        </div>
+      </div>
+
+      <div class="calc-group">
+        <h2 class="calc-group-label" data-i18n="calculators.for-attorneys-clinicians"><bdi>For attorneys &amp; clinicians</bdi></h2>
+        <p class="calc-group-sub" data-i18n="calculators.permanency-and-classified-award-tools"><bdi>Permanency and classified-award tools built for practitioners. Free to use — the Pro Workspace adds permanency checking, fee-app equations, and case save/sync for attorneys.</bdi></p>
+        <div class="calc-grid stagger">
+
+          <a href="/ar/calculators/ccp-award" class="calc-card" style="--i:0;">
+            <div class="head"><div class="stat" data-i18n="calculators.ccp"><bdi>CCP</bdi></div><span data-i18n="calculators.free-for-attorneys"><bdi><span class="badge badge-free">Free</span><span class="badge badge-role">For attorneys</span></bdi></span></div>
+            <h3 data-i18n="shared.ccp-award"><bdi>CCP Award</bdi></h3>
+            <p data-i18n="calculators.classified-compensation-ppd-ptd-and"><bdi>Classified compensation — PPD, PTD, and death benefit awards. Cap-week tracking and PPD vs SLU comparison.</bdi></p>
+          </a>
+
+          <a href="/ar/calculators/radiculopathy" class="calc-card" style="--i:1;">
+            <div class="head"><div class="stat" data-i18n="calculators.rad"><bdi>RAD</bdi></div><span data-i18n="calculators.free-for-attorneys"><bdi><span class="badge badge-free">Free</span><span class="badge badge-role">For attorneys</span></bdi></span></div>
+            <h3 data-i18n="shared.radiculopathy"><bdi>Radiculopathy</bdi></h3>
+            <p data-i18n="calculators.2012-impairment-guidelines-point-system"><bdi>2012 Impairment Guidelines point system (§S11.4–S11.7) for cervical and lumbar nerve root SLU. The IME-friendly chart with citations on every result.</bdi></p>
+          </a>
+
+          <a href="/calculators/spine-brain" class="calc-card" style="--i:2;">
+            <div class="head"><div class="stat" data-i18n="calculators.sb"><bdi>SB</bdi></div><span data-i18n="calculators.free-for-attorneys"><bdi><span class="badge badge-free">Free</span><span class="badge badge-role">For attorneys</span></bdi></span></div>
+            <h3 data-i18n="calculators.spine-brain"><bdi>Spine &amp; Brain</bdi></h3>
+            <p data-i18n="calculators.non-schedule-permanency-for-spine"><bdi>Non-schedule permanency for spine and brain injuries with the Board's severity-class scoring built in.</bdi></p>
+          </a>
+
+        </div>
+      </div>
+
+      <div class="calc-disclaimer">
+        <p data-i18n="calculators.disclaimer-these-calculators-are-provided"><bdi><strong>Disclaimer —</strong> These calculators are provided for informational purposes only and do not constitute legal advice. Results are based on current New York State Workers' Compensation Law and Department of Financial Services regulations. Actual benefits may vary based on individual circumstances, medical evidence, and adjudication by the Workers' Compensation Board.</bdi></p>
+      </div>
+
+      <!-- Cross-link: worker sees attorney pitch, attorney sees worker pitch -->
+      <div class="aud-worker">
+        <div class="cross-link">
+          <h3 data-i18n="calculators.are-you-an-attorney"><bdi>Are you an attorney?</bdi></h3>
+          <p data-i18n="calculators.the-comp-desk-pro-adds"><bdi>The Comp Desk Pro adds SLU permanency checking, fee app equation generation, case save/sync, and the Pro Workspace. $9.99 / month with a 14-day free trial.</bdi></p>
+          <a href="/attorneys" class="btn primary" data-i18n="calculators.see-the-comp-desk-pro"><bdi>See The Comp Desk Pro</bdi></a>
+        </div>
+      </div>
+
+      <div class="aud-attorney">
+        <div class="cross-link">
+          <h3 data-i18n="calculators.helping-a-claimant-figure-this"><bdi>Helping a claimant figure this out?</bdi></h3>
+          <p data-i18n="calculators.these-calculators-are-free-for"><bdi>These calculators are free for anyone. Share them with clients, injured workers, or co-counsel. The same math, same citations, no login required.</bdi></p>
+          <a href="/ar/worker" class="btn primary" data-i18n="calculators.see-the-worker-side"><bdi>See the Worker Side</bdi></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="tcd-footer">
+  <div class="wrap">
+    <p data-i18n="shared.2026-njj-document-services-inc"><bdi>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</bdi></p>
+    <p data-i18n="shared.privacy-contact-replay-intro">
+      <bdi><a href="/ar/legal/privacy">Privacy</a>
+      <a href="/ar/contact">Contact</a>
+      <a href="/ar/?replay=1">Replay intro</a></bdi>
+    </p>
+  </div>
+</footer>
+
+<noscript>
+  <div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:20px;color:#444;font-family:sans-serif;margin:20px;">
+    <strong>JavaScript Required:</strong> These interactive calculators require JavaScript to be enabled.
+    <h2>Available Calculators:</h2>
+    <ul>
+      <li><strong>AWW Calculator:</strong> Average Weekly Wage under WCL §14</li>
+      <li><strong>SLU Calculator:</strong> Schedule Loss of Use benefits under WCL §15(3)</li>
+      <li><strong>LWEC Calculator:</strong> Loss of Wage Earning Capacity benefits</li>
+      <li><strong>CCP Award Calculator:</strong> PPD, PTD, and death benefit awards</li>
+      <li><strong>Rate Lookup:</strong> Maximum compensation rates by year of injury</li>
+      <li><strong>Radiculopathy:</strong> 2012 Impairment Guidelines point system</li>
+      <li><strong>Spine &amp; Brain:</strong> Non-schedule permanency for spine and brain injuries</li>
+    </ul>
+  </div>
+</noscript>
+
+<!-- Shared field-help glossary component (powers the "New to these terms?" chips) -->
+<script src="/js/field-help-registry.js" defer></script>
+<script src="/js/field-help.js" defer></script>
+<script src="/js/audience-switcher.js"></script>
+
+  <script type="module" src="/js/nav-account.js"></script>
+</body>
+</html>

@@ -366,7 +366,7 @@ body.tcd-skinned .tcd-switch::after {
   position: absolute;
   top: 4px;
   bottom: 4px;
-  left: 4px;
+  inset-inline-start: 4px;
   width: calc(50% - 4px);
   background: var(--skin-accent);
   border-radius: 999px;
@@ -447,7 +447,7 @@ body.tcd-skinned footer.tcd-footer .wrap {
 }
 body.tcd-skinned footer.tcd-footer a {
   color: var(--skin-text-soft);
-  margin-right: 16px;
+  margin-inline-end: 16px;
 }
 
 /* ─── Reduced motion fallback ───────────────────────────────────────*/

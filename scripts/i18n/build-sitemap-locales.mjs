@@ -19,7 +19,11 @@ const ROOT = path.resolve(new URL('../../', import.meta.url).pathname);
 const ORIGIN = 'https://thecompdesk.com';
 const CHECK = process.argv.includes('--check');
 
-const locales = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/locales.json'), 'utf8')).locales;
+// draft locales are filtered out ENTIRELY — no <url> entry and no <xhtml:link> alternate.
+// A sitemap is a positive assertion that a URL is ready to index; /ar/ and /ur/ carry
+// English copy until their catalogs land. See "_draft" in i18n/locales.json.
+const locales = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/locales.json'), 'utf8'))
+  .locales.filter((l) => !l.draft);
 const pages = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/pages.json'), 'utf8')).pages;
 
 const urlFor = (route, loc) => {
