@@ -34,6 +34,38 @@ previously had no install step at all — a new failure mode on the repo carryin
 footprint. `opencc-js` is now a devDependency (build-time only; zh-Hant is derived locally and
 the result committed) and `vercel.json` overrides `installCommand` so deploys stay inert.
 
+### Recommended pattern for the APP's Phase 4a hamburger/CTA collision
+
+The site's pinned globe control landed squarely on the "Contact an attorney" CTA that
+`js/header-attorney-cta.js` floats top-right. That is the **same bug against the same
+CTA** that the app project has specced for P4a, where the Arabic hamburger collides with
+it. The app's spec calls for making that header a flex row so `dir` swaps order
+naturally, plus logical properties on the CTA.
+
+**The measure-and-step-down approach used here is the better fix, and P4a should inherit
+it rather than solve this twice.** After mount, the control measures its own box against
+every `fixed`/`absolute`/`sticky` element on the page and, on any intersection, shifts
+its `inset-block-start` below the lowest offender; it re-runs debounced on resize.
+See `renderGlobe()` / `avoidCollisions()` in `js/i18n-locale.js`.
+
+Why it beats the flex-row spec:
+
+- **It does not depend on the two controls sharing a parent.** Both the CTA and the globe
+  are injected by separate self-bootstrapping scripts onto pages with three different
+  header implementations. There is no common flex container to reorder, and creating one
+  would mean editing every page.
+- **It is direction-agnostic already.** A flex row fixes the collision only for the
+  direction you reasoned about; measuring finds it in LTR and RTL alike, which matters
+  because the app hits this specifically under RTL.
+- **It survives late-injected chrome.** The app's nav and CTA both mount after load; a
+  static layout rule is evaluated once, whereas the measurement re-runs.
+- **It degrades safely.** Worst case the control sits lower than ideal; it never overlaps
+  and never disappears.
+
+Caveat for whoever ports it: it only applies to a control in the fixed fallback position.
+A control placed inside a real nav is in normal flow and needs no adjustment — the
+implementation skips those via a `data-inline` marker.
+
 ### Known debt — CSS tokenization
 
 `css/i18n-fonts.css` cannot rely on redefining the `--font` token alone. Several pages, and
