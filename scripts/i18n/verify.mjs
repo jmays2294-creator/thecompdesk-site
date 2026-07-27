@@ -25,7 +25,9 @@ const read = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 
 const en = flat(read(path.join(I18N, 'en.json')));
 const enKeys = Object.keys(en);
-const dnt = read(path.join(I18N, 'glossary.json')).doNotTranslate || [];
+const glossary = read(path.join(I18N, 'glossary.json'));
+const dnt = glossary.doNotTranslate || [];
+const GTERMS = glossary.terms || [];
 const expected = read(path.join(I18N, 'locales.json')).locales
   .filter((l) => l.code !== 'en').map((l) => l.code);
 
@@ -87,7 +89,74 @@ const CORES = citationCores(dnt);
 }
 
 
+/**
+ * TERMINOLOGY CONSISTENCY.
+ *
+ * A glossary concept must render ONE way in a catalog. This is not pedantry: LWEC shipped
+ * with four different Spanish renderings across 18 occurrences, which reads to a worker
+ * like four different legal concepts.
+ *
+ * Anchored on the abbreviation rather than on fuzzy string similarity, because the
+ * glossary's own register rule produces a reliable shape on first use —
+ * `target phrase (English Term, ABBR)` — so the phrase immediately preceding the
+ * parenthetical IS the locale's rendering of that concept. Fullwidth parens are matched
+ * too, since the CJK catalogs use them.
+ *
+ * Advisory by default: the locked slots are still unreviewed model output (see the
+ * provenance work), so failing the build on them would enforce wording nobody has signed
+ * off. Pass --strict-terms to make it blocking once terms are ruled on.
+ */
+const STRICT_TERMS = process.argv.includes('--strict-terms');
+
+const normTerm = (s) => s
+  .replace(/<[^>]*>/g, ' ')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')   // strip accents so case/accent variants collapse
+  .toLowerCase()
+  .replace(/[«»"'']/g, '')
+  .replace(/\s+/g, ' ')
+  .replace(/^(?:el|la|los|las|un|una|de|del|le|la|les|un|une|des|the|a|an)\s+/, '')
+  .trim();
+
+function terminologyVariants(catalog, terms) {
+  const report = [];
+  for (const t of terms) {
+    if (!t.abbr) continue;
+    const re = new RegExp(`([^()（）<>.;:!?]{3,90}?)\\s*[（(][^)）]*\\b${esc(t.abbr)}\\s*[)）]`, 'g');
+    const nWords = t.term.trim().split(/\s+/).length;
+    const seen = new Map();
+
+    /**
+     * Keep only the term-sized TAIL of the capture. The regex necessarily grabs back to
+     * the previous punctuation, so "Calculadora gratuita del salario semanal promedio"
+     * and "Calculadora del salario semanal promedio" would otherwise look like two
+     * different renderings of AWW when the rendering is identical in both.
+     */
+    const tail = (phrase) => {
+      const words = phrase.trim().split(/\s+/);
+      if (words.length > 1) return words.slice(-Math.max(2, nWords)).join(' ');
+      return phrase.trim().slice(-12);          // CJK has no word breaks
+    };
+
+    for (const v of Object.values(catalog)) {
+      if (typeof v !== 'string') continue;
+      for (const m of v.matchAll(re)) {
+        const raw = tail(m[1]);
+        const norm = normTerm(raw);
+        if (!norm || norm.length < 3) continue;
+        if (norm === normTerm(t.term)) continue;   // the English term echoed, not a rendering
+        if (!seen.has(norm)) seen.set(norm, { count: 0, sample: raw });
+        seen.get(norm).count++;
+      }
+    }
+    if (seen.size > 1) {
+      report.push({ term: t.term, abbr: t.abbr, variants: [...seen.entries()].sort((a, b) => b[1].count - a[1].count) });
+    }
+  }
+  return report;
+}
+
 let hardFail = 0;
+let termWarnings = 0;
 console.log(`en.json: ${enKeys.length} keys · checking ${locales.length} locale(s)\n`);
 
 for (const code of locales) {
@@ -126,10 +195,28 @@ for (const code of locales) {
   show('missing', missing); show('extra', extra); show('tag-drift', tagDrift);
   show('placeholder-drift', phDrift); show('DNT-lost', dntLost);
   show('citation-translated', citeTranslated);
+
+  const termVars = terminologyVariants(t, GTERMS);
+  if (termVars.length) {
+    termWarnings += termVars.length;
+    if (STRICT_TERMS) hardFail++;
+    console.log(`           ${STRICT_TERMS ? 'TERM-INCONSISTENT' : 'term-inconsistent (advisory)'}: ${termVars.length} concept(s) render more than one way`);
+    for (const v of termVars) {
+      console.log(`             ${v.abbr} (${v.term}):`);
+      for (const [, info] of v.variants.slice(0, 5)) {
+        console.log(`               ${String(info.count).padStart(3)}x  ${info.sample}`);
+      }
+      if (v.variants.length > 5) console.log(`               …and ${v.variants.length - 5} more`);
+    }
+  }
 }
 
 const absent = expected.filter((c) => !fs.existsSync(path.join(I18N, `${c}.json`)));
 if (absent.length) console.log(`\nnot yet generated: ${absent.join(' ')}`);
 
+if (termWarnings && !STRICT_TERMS) {
+  console.log(`\nadvisory: ${termWarnings} terminology inconsistency group(s). Not blocking — the glossary's`);
+  console.log('locked translations are still unreviewed. Re-run with --strict-terms to enforce.');
+}
 console.log(hardFail ? `\nFAIL — ${hardFail} locale(s) have hard failures.` : '\nPASS — all checked locales are complete and intact.');
 process.exit(hardFail ? 1 : 0);
