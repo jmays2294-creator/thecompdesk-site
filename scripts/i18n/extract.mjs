@@ -96,8 +96,18 @@ const attrValueRange = (src, loc) => {
 /** units: {file, ns, kind, value, slugBase, tagInsertAt, range?, attr?, jsonPtr?} */
 const units = [];
 
+/**
+ * IDEMPOTENCE. Re-running the extractor on already-annotated files used to annotate them
+ * a second time — 2258 duplicate data-i18n attributes shipped that way on 2026-07-27
+ * (harmless, since every duplicate carried an identical value, but invalid HTML).
+ * Stripping prior annotations before parsing makes a re-run produce the same output as a
+ * first run.
+ */
+const ANNOT_RE = /\s+(?:data-i18n(?:-attr)?="[^"]*"|data-i18n-jsonld)/g;
+const deannotate = (h) => h.replace(ANNOT_RE, '');
+
 for (const page of manifest.pages) {
-  const src = fs.readFileSync(path.join(ROOT, page.file), 'utf8');
+  const src = deannotate(fs.readFileSync(path.join(ROOT, page.file), 'utf8'));
   const doc = parse(src, { sourceCodeLocationInfo: true });
   const ns = nsFor(page.route);
 
@@ -298,7 +308,7 @@ let annotations = 0;
 
 for (const page of manifest.pages) {
   const abs = path.join(ROOT, page.file);
-  const src = fs.readFileSync(abs, 'utf8');
+  const src = deannotate(fs.readFileSync(abs, 'utf8'));
   const mine = units.filter((u) => u.file === page.file);
 
   // attribute splices (insert into start tags), applied back-to-front

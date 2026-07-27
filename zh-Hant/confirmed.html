@@ -5,12 +5,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title data-i18n="confirmed.meta.og-title" data-i18n="confirmed.meta.og-title">電子郵箱已確認 — The Comp Desk</title>
-<meta name="description" content="您的電子郵箱已確認。請返回 The Comp Desk 應用登入，或在網頁上登入。" data-i18n-attr="content:confirmed.meta.description" data-i18n-attr="content:confirmed.meta.description">
+<title data-i18n="confirmed.meta.og-title">電子郵箱已確認 — The Comp Desk</title>
+<meta name="description" content="您的電子郵箱已確認。請返回 The Comp Desk 應用登入，或在網頁上登入。" data-i18n-attr="content:confirmed.meta.description">
 <meta name="robots" content="index,follow">
 
 <!-- JSON-LD Schema -->
-<script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
+<script type="application/ld+json" data-i18n-jsonld>
 {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -23,8 +23,8 @@
 <link rel="canonical" href="https://thecompdesk.com/zh-Hant/confirmed">
 
 <!-- Open Graph -->
-<meta property="og:title" content="電子郵箱已確認 — The Comp Desk" data-i18n-attr="content:confirmed.meta.og-title" data-i18n-attr="content:confirmed.meta.og-title">
-<meta property="og:description" content="您的電子郵箱已確認。請返回 The Comp Desk 應用登入。" data-i18n-attr="content:confirmed.meta.og-description" data-i18n-attr="content:confirmed.meta.og-description">
+<meta property="og:title" content="電子郵箱已確認 — The Comp Desk" data-i18n-attr="content:confirmed.meta.og-title">
+<meta property="og:description" content="您的電子郵箱已確認。請返回 The Comp Desk 應用登入。" data-i18n-attr="content:confirmed.meta.og-description">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Comp Desk">
 <meta property="og:url" content="https://thecompdesk.com/zh-Hant/confirmed">
@@ -111,37 +111,37 @@ footer a{color:#3a4a63;}
 <body>
   <main>
     <div class="shell">
-      <a href="/zh-Hant/" class="back" data-i18n="shared.back-to-the-comp-desk" data-i18n="shared.back-to-the-comp-desk">← 返回 The Comp Desk</a>
+      <a href="/zh-Hant/" class="back" data-i18n="shared.back-to-the-comp-desk">← 返回 The Comp Desk</a>
       <div class="card">
-        <img class="logo" src="/assets/hero/comp-desk.png" alt="The Comp Desk" data-i18n-attr="alt:shared.the-comp-desk" data-i18n-attr="alt:shared.the-comp-desk">
-        <div class="brand" data-i18n="shared.the-comp-desk" data-i18n="shared.the-comp-desk">The Comp Desk</div>
+        <img class="logo" src="/assets/hero/comp-desk.png" alt="The Comp Desk" data-i18n-attr="alt:shared.the-comp-desk">
+        <div class="brand" data-i18n="shared.the-comp-desk">The Comp Desk</div>
 
         <!-- SUCCESS (default) -->
         <div id="success">
           <div class="check" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
-          <h1 data-i18n="confirmed.your-email-is-confirmed" data-i18n="confirmed.your-email-is-confirmed">您的電子郵箱已確認 🎉</h1>
-          <p data-i18n="confirmed.thanks-for-joining-the-comp" data-i18n="confirmed.thanks-for-joining-the-comp">感謝您加入 The Comp Desk。您的賬戶已驗證並可以使用 —
+          <h1 data-i18n="confirmed.your-email-is-confirmed">您的電子郵箱已確認 🎉</h1>
+          <p data-i18n="confirmed.thanks-for-joining-the-comp">感謝您加入 The Comp Desk。您的賬戶已驗證並可以使用 —
              您現在可以返回應用登入。</p>
-          <div class="btns" data-i18n="confirmed.open-the-comp-desk-app" data-i18n="confirmed.open-the-comp-desk-app">
+          <div class="btns" data-i18n="confirmed.open-the-comp-desk-app">
             <!-- Universal/app link: capacitor.config.json registers the app for the
                  thecompdesk.com appLinks domain, so on a device with the app installed
                  this opens the native app; otherwise it falls back to the web sign-in. -->
             <a class="btn btn-primary" href="https://thecompdesk.com/auth">開啟 The Comp Desk 應用</a>
             <a class="btn btn-ghost" href="/auth_v2.html">在網頁上登入</a>
           </div>
-          <div class="hint" data-i18n="confirmed.on-your-phone-just-reopen" data-i18n="confirmed.on-your-phone-just-reopen">在手機上？只需重新開啟 The Comp Desk 應用，用您建立的電子郵箱和密碼登入即可。</div>
+          <div class="hint" data-i18n="confirmed.on-your-phone-just-reopen">在手機上？只需重新開啟 The Comp Desk 應用，用您建立的電子郵箱和密碼登入即可。</div>
         </div>
 
         <!-- ERROR (shown only if Supabase appends an expired/invalid token error) -->
         <div id="error-box">
-          <h1 style="font-size:21px;" data-i18n="confirmed.this-link-has-expired" data-i18n="confirmed.this-link-has-expired">此連結已過期</h1>
-          <p data-i18n="confirmed.confirmation-links-are-only-good" data-i18n="confirmed.confirmation-links-are-only-good">確認連結的有效期很短。請輸入您的電子郵箱，我們會為您重新發送一個。</p>
+          <h1 style="font-size:21px;" data-i18n="confirmed.this-link-has-expired">此連結已過期</h1>
+          <p data-i18n="confirmed.confirmation-links-are-only-good">確認連結的有效期很短。請輸入您的電子郵箱，我們會為您重新發送一個。</p>
           <div class="btns">
-            <input id="resend-email" class="email" type="email" placeholder="you@email.com" autocomplete="email" data-i18n-attr="placeholder:shared.you-email-com" data-i18n-attr="placeholder:shared.you-email-com">
-            <button class="btn btn-primary" id="resend-btn" onclick="resend()" data-i18n="confirmed.send-a-new-confirmation-email" data-i18n="confirmed.send-a-new-confirmation-email">傳送新的確認郵件</button>
-            <a class="btn btn-ghost" href="/auth_v2.html" data-i18n="confirmed.back-to-sign-in" data-i18n="confirmed.back-to-sign-in">返回登入</a>
+            <input id="resend-email" class="email" type="email" placeholder="you@email.com" autocomplete="email" data-i18n-attr="placeholder:shared.you-email-com">
+            <button class="btn btn-primary" id="resend-btn" onclick="resend()" data-i18n="confirmed.send-a-new-confirmation-email">傳送新的確認郵件</button>
+            <a class="btn btn-ghost" href="/auth_v2.html" data-i18n="confirmed.back-to-sign-in">返回登入</a>
           </div>
           <div id="msg"></div>
         </div>
@@ -150,8 +150,8 @@ footer a{color:#3a4a63;}
   </main>
 
   <footer>
-    <p data-i18n="shared.2026-njj-document-services-inc" data-i18n="shared.2026-njj-document-services-inc">&copy; 2026 NJJ Document Services, Inc.（以 The Comp Desk 名義運營）。版權所有。</p>
-    <p style="margin-top:6px;" data-i18n="shared.disclaimer-terms-of-use-privacy" data-i18n="shared.disclaimer-terms-of-use-privacy"><a href="/zh-Hant/disclaimer">免責宣告</a> &middot; <a href="/zh-Hant/legal/terms">使用條款</a> &middot; <a href="/zh-Hant/legal/privacy">隱私政策</a> &middot; <a href="/zh-Hant/contact">聯絡我們</a></p>
+    <p data-i18n="shared.2026-njj-document-services-inc">&copy; 2026 NJJ Document Services, Inc.（以 The Comp Desk 名義運營）。版權所有。</p>
+    <p style="margin-top:6px;" data-i18n="shared.disclaimer-terms-of-use-privacy"><a href="/zh-Hant/disclaimer">免責宣告</a> &middot; <a href="/zh-Hant/legal/terms">使用條款</a> &middot; <a href="/zh-Hant/legal/privacy">隱私政策</a> &middot; <a href="/zh-Hant/contact">聯絡我們</a></p>
   </footer>
 
   <script>

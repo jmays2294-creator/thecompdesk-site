@@ -10,12 +10,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-<title data-i18n="share-your-story.meta.title" data-i18n="share-your-story.meta.title">Поделитесь своей историей - The Comp Desk</title>
-<meta name="description" content="Поделитесь своей историей о компенсации работникам с The Comp Desk. Приоритет конфиденциальности, только по Вашему согласию."  data-i18n-attr="content:share-your-story.meta.description" data-i18n-attr="content:share-your-story.meta.description"/>
+<title data-i18n="share-your-story.meta.title">Поделитесь своей историей - The Comp Desk</title>
+<meta name="description" content="Поделитесь своей историей о компенсации работникам с The Comp Desk. Приоритет конфиденциальности, только по Вашему согласию."  data-i18n-attr="content:share-your-story.meta.description"/>
 <link rel="canonical" href="https://thecompdesk.com/ru/share-your-story" />
 
 <!-- JSON-LD Schema -->
-<script type="application/ld+json" data-i18n-jsonld data-i18n-jsonld>
+<script type="application/ld+json" data-i18n-jsonld>
 {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -89,10 +89,10 @@
 </head>
 <body>
 <div class="wrap">
-  <h1 data-i18n="share-your-story.share-your-story" data-i18n="share-your-story.share-your-story">Поделитесь своей историей</h1>
-  <p class="sub" data-i18n="share-your-story.help-other-injured-workers-by" data-i18n="share-your-story.help-other-injured-workers-by">Помогите другим травмированным работникам, рассказав, что сработало — а что нет.</p>
+  <h1 data-i18n="share-your-story.share-your-story">Поделитесь своей историей</h1>
+  <p class="sub" data-i18n="share-your-story.help-other-injured-workers-by">Помогите другим травмированным работникам, рассказав, что сработало — а что нет.</p>
 
-  <div class="disclaimer" data-i18n="share-your-story.disclaimer-the-comp-desk-is" data-i18n="share-your-story.disclaimer-the-comp-desk-is">
+  <div class="disclaimer" data-i18n="share-your-story.disclaimer-the-comp-desk-is">
     <strong>Отказ от ответственности.</strong> The Comp Desk — это информационный ресурс, а не юридическая фирма.
     Отправка Вашей истории не создаёт отношений «адвокат-клиент» и не является юридической консультацией.
     Мы используем то, чем Вы поделились, только так, как Вы явно разрешите ниже. Мы
@@ -102,49 +102,49 @@
   </div>
 
   <form id="story-form" class="card" novalidate>
-    <label for="name" data-i18n="share-your-story.your-name-optional" data-i18n="share-your-story.your-name-optional">Ваше имя <span class="hint">(необязательно)</span></label>
+    <label for="name" data-i18n="share-your-story.your-name-optional">Ваше имя <span class="hint">(необязательно)</span></label>
     <input id="name" name="name" type="text" autocomplete="name" />
 
-    <label for="state" data-i18n="share-your-story.state" data-i18n="share-your-story.state">Штат</label>
+    <label for="state" data-i18n="share-your-story.state">Штат</label>
     <input id="state" name="state" type="text" maxlength="60" />
 
-    <label for="injury_type" data-i18n="share-your-story.injury-type" data-i18n="share-your-story.injury-type">Тип травмы</label>
-    <input id="injury_type" name="injury_type" type="text" placeholder="например: травма спины, повторяющаяся нагрузка"  data-i18n-attr="placeholder:share-your-story.e-g-back-injury-repetitive.placeholder" data-i18n-attr="placeholder:share-your-story.e-g-back-injury-repetitive.placeholder"/>
+    <label for="injury_type" data-i18n="share-your-story.injury-type">Тип травмы</label>
+    <input id="injury_type" name="injury_type" type="text" placeholder="например: травма спины, повторяющаяся нагрузка"  data-i18n-attr="placeholder:share-your-story.e-g-back-injury-repetitive.placeholder"/>
 
-    <label for="what_helped" data-i18n="share-your-story.what-helped-you" data-i18n="share-your-story.what-helped-you">Что Вам помогло?</label>
+    <label for="what_helped" data-i18n="share-your-story.what-helped-you">Что Вам помогло?</label>
     <textarea id="what_helped" name="what_helped"></textarea>
 
-    <label for="what_didnt" data-i18n="share-your-story.what-didn-t" data-i18n="share-your-story.what-didn-t">Что не помогло?</label>
+    <label for="what_didnt" data-i18n="share-your-story.what-didn-t">Что не помогло?</label>
     <textarea id="what_didnt" name="what_didnt"></textarea>
 
-    <label for="photo" data-i18n="share-your-story.photo-optional" data-i18n="share-your-story.photo-optional">Фото <span class="hint">(необязательно)</span></label>
+    <label for="photo" data-i18n="share-your-story.photo-optional">Фото <span class="hint">(необязательно)</span></label>
     <input id="photo" name="photo" type="file" accept="image/*" />
 
-    <label for="contact_email" data-i18n="share-your-story.email-so-we-can-send" data-i18n="share-your-story.email-so-we-can-send">Электронная почта <span class="hint">(чтобы мы могли отправить Вам ссылку для удаления)</span></label>
+    <label for="contact_email" data-i18n="share-your-story.email-so-we-can-send">Электронная почта <span class="hint">(чтобы мы могли отправить Вам ссылку для удаления)</span></label>
     <input id="contact_email" name="contact_email" type="email" autocomplete="email" />
 
-    <label style="margin-top:22px" data-i18n="share-your-story.how-should-we-identify-you" data-i18n="share-your-story.how-should-we-identify-you">Как нам следует Вас указывать?</label>
+    <label style="margin-top:22px" data-i18n="share-your-story.how-should-we-identify-you">Как нам следует Вас указывать?</label>
     <div class="radio-group">
       <label><input type="radio" name="consent_display" value="first_name" /> Use my first name only</label>
       <label><input type="radio" name="consent_display" value="initials" /> Use my initials only</label>
       <label><input type="radio" name="consent_display" value="anonymous" checked /> Keep me fully anonymous</label>
     </div>
 
-    <label style="margin-top:18px" data-i18n="share-your-story.permissions" data-i18n="share-your-story.permissions">Разрешения</label>
+    <label style="margin-top:18px" data-i18n="share-your-story.permissions">Разрешения</label>
     <div class="check">
       <input type="checkbox" id="consent_photo" name="consent_photo" />
-      <label for="consent_photo" data-i18n="share-your-story.you-may-use-the-photo" data-i18n="share-your-story.you-may-use-the-photo">Вы можете использовать загруженное мной фото.</label>
+      <label for="consent_photo" data-i18n="share-your-story.you-may-use-the-photo">Вы можете использовать загруженное мной фото.</label>
     </div>
     <div class="check">
       <input type="checkbox" id="consent_quotes" name="consent_quotes" />
-      <label for="consent_quotes" data-i18n="share-your-story.you-may-quote-my-words" data-i18n="share-your-story.you-may-quote-my-words">Вы можете дословно цитировать мои слова.</label>
+      <label for="consent_quotes" data-i18n="share-your-story.you-may-quote-my-words">Вы можете дословно цитировать мои слова.</label>
     </div>
 
-    <button id="submit-btn" type="submit" style="margin-top:22px" data-i18n="share-your-story.submit-my-story" data-i18n="share-your-story.submit-my-story">Отправить мою историю</button>
+    <button id="submit-btn" type="submit" style="margin-top:22px" data-i18n="share-your-story.submit-my-story">Отправить мою историю</button>
     <div id="result"></div>
   </form>
 
-  <p style="text-align:center;color:var(--txD);font-size:13px" data-i18n="share-your-story.back-to-the-comp-desk" data-i18n="share-your-story.back-to-the-comp-desk"><a href="/ru/">← Назад к The Comp Desk</a></p>
+  <p style="text-align:center;color:var(--txD);font-size:13px" data-i18n="share-your-story.back-to-the-comp-desk"><a href="/ru/">← Назад к The Comp Desk</a></p>
 </div>
 
 <script type="module">

@@ -10,7 +10,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-    <title data-i18n="delete-account.meta.title" data-i18n="delete-account.meta.title">Usuń konto - The Comp Desk</title>
+    <title data-i18n="delete-account.meta.title">Usuń konto - The Comp Desk</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -243,49 +243,49 @@
 </head>
 <body>
     <nav>
-        <a href="/pl/" class="nav-brand" data-i18n="shared.the-comp-desk" data-i18n="shared.the-comp-desk">The Comp Desk</a>
+        <a href="/pl/" class="nav-brand" data-i18n="shared.the-comp-desk">The Comp Desk</a>
         <ul class="nav-links">
-            <li data-i18n="delete-account.home" data-i18n="delete-account.home"><a href="/pl/">Strona główna</a></li>
-            <li data-i18n="delete-account.features" data-i18n="delete-account.features"><a href="/pl/#features">Funkcje</a></li>
-            <li data-i18n="delete-account.pricing" data-i18n="delete-account.pricing"><a href="/pl/#pricing">Cennik</a></li>
+            <li data-i18n="delete-account.home"><a href="/pl/">Strona główna</a></li>
+            <li data-i18n="delete-account.features"><a href="/pl/#features">Funkcje</a></li>
+            <li data-i18n="delete-account.pricing"><a href="/pl/#pricing">Cennik</a></li>
         </ul>
     </nav>
     <div class="container">
         <div class="delete-card">
             <div id="deleteForm">
                 <div class="delete-icon">&#9888;</div>
-                <h1 class="delete-title" data-i18n="delete-account.delete-your-account" data-i18n="delete-account.delete-your-account">Usuń swoje konto</h1>
-                <p class="delete-message" data-i18n="delete-account.this-action-is-permanent-and" data-i18n="delete-account.this-action-is-permanent-and">Ta czynność jest trwała i nie można jej cofnąć. Wszystkie Twoje dane zostaną trwale usunięte z The Comp Desk.</p>
+                <h1 class="delete-title" data-i18n="delete-account.delete-your-account">Usuń swoje konto</h1>
+                <p class="delete-message" data-i18n="delete-account.this-action-is-permanent-and">Ta czynność jest trwała i nie można jej cofnąć. Wszystkie Twoje dane zostaną trwale usunięte z The Comp Desk.</p>
                 <div class="warning-box">
-                    <h3 data-i18n="delete-account.what-will-be-deleted" data-i18n="delete-account.what-will-be-deleted">Co zostanie usunięte:</h3>
+                    <h3 data-i18n="delete-account.what-will-be-deleted">Co zostanie usunięte:</h3>
                     <ul>
-                        <li data-i18n="delete-account.your-profile-and-account-information" data-i18n="delete-account.your-profile-and-account-information">Twój profil i dane konta</li>
-                        <li data-i18n="delete-account.all-saved-calculations-and-case" data-i18n="delete-account.all-saved-calculations-and-case">Wszystkie zapisane obliczenia i dane spraw</li>
-                        <li data-i18n="delete-account.your-subscription-if-active-it" data-i18n="delete-account.your-subscription-if-active-it">Twoja subskrypcja (jeśli aktywna, zostanie anulowana)</li>
-                        <li data-i18n="delete-account.digital-signature-and-attorney-profile" data-i18n="delete-account.digital-signature-and-attorney-profile">Podpis cyfrowy i dane profilu prawnika</li>
+                        <li data-i18n="delete-account.your-profile-and-account-information">Twój profil i dane konta</li>
+                        <li data-i18n="delete-account.all-saved-calculations-and-case">Wszystkie zapisane obliczenia i dane spraw</li>
+                        <li data-i18n="delete-account.your-subscription-if-active-it">Twoja subskrypcja (jeśli aktywna, zostanie anulowana)</li>
+                        <li data-i18n="delete-account.digital-signature-and-attorney-profile">Podpis cyfrowy i dane profilu prawnika</li>
                     </ul>
                 </div>
                 <div class="form-group">
-                    <label for="email" data-i18n="delete-account.confirm-your-email-address" data-i18n="delete-account.confirm-your-email-address">Potwierdź swój adres e-mail</label>
-                    <input type="email" id="email" name="email" placeholder="Wprowadź adres e-mail swojego konta" required data-i18n-attr="placeholder:delete-account.enter-your-account-email.placeholder" data-i18n-attr="placeholder:delete-account.enter-your-account-email.placeholder">
+                    <label for="email" data-i18n="delete-account.confirm-your-email-address">Potwierdź swój adres e-mail</label>
+                    <input type="email" id="email" name="email" placeholder="Wprowadź adres e-mail swojego konta" required data-i18n-attr="placeholder:delete-account.enter-your-account-email.placeholder">
                 </div>
                 <div class="form-group">
-                    <label for="confirm" data-i18n="delete-account.type-delete-to-confirm" data-i18n="delete-account.type-delete-to-confirm">Wpisz „DELETE”, aby potwierdzić</label>
-                    <input type="text" id="confirm" name="confirm" placeholder="DELETE" autocomplete="off" data-i18n-attr="placeholder:delete-account.delete.placeholder" data-i18n-attr="placeholder:delete-account.delete.placeholder">
+                    <label for="confirm" data-i18n="delete-account.type-delete-to-confirm">Wpisz „DELETE”, aby potwierdzić</label>
+                    <input type="text" id="confirm" name="confirm" placeholder="DELETE" autocomplete="off" data-i18n-attr="placeholder:delete-account.delete.placeholder">
                 </div>
                 <div class="button-row">
-                    <a href="/pl/" class="button button-cancel" data-i18n="delete-account.cancel" data-i18n="delete-account.cancel">Anuluj</a>
-                    <button type="button" id="deleteBtn" class="button button-delete" disabled onclick="handleDelete()" data-i18n="delete-account.delete-account" data-i18n="delete-account.delete-account">Usuń konto</button>
+                    <a href="/pl/" class="button button-cancel" data-i18n="delete-account.cancel">Anuluj</a>
+                    <button type="button" id="deleteBtn" class="button button-delete" disabled onclick="handleDelete()" data-i18n="delete-account.delete-account">Usuń konto</button>
                 </div>
-                <div class="contact-note" data-i18n="delete-account.need-help-instead-contact-us" data-i18n="delete-account.need-help-instead-contact-us">
+                <div class="contact-note" data-i18n="delete-account.need-help-instead-contact-us">
                     Potrzebujesz pomocy zamiast tego? Skontaktuj się z nami pod adresem <a href="mailto:contact@thecompdesk.com">contact@thecompdesk.com</a>
                 </div>
             </div>
             <div id="successState" class="success-state">
                 <div class="success-icon">&#10003;</div>
-                <h1 class="delete-title" data-i18n="delete-account.account-deleted" data-i18n="delete-account.account-deleted">Konto usunięte</h1>
-                <p class="delete-message" data-i18n="delete-account.your-account-and-all-associated" data-i18n="delete-account.your-account-and-all-associated">Twoje konto i wszystkie powiązane dane zostały trwale usunięte. Jeśli miałeś(-aś) aktywną subskrypcję, została ona anulowana i nie zostaną naliczone żadne dalsze opłaty.</p>
-                <a href="/pl/" class="button button-cancel" style="display:inline-block; flex:none; padding:0.75rem 3rem;" data-i18n="delete-account.return-home" data-i18n="delete-account.return-home">Powrót do strony głównej</a>
+                <h1 class="delete-title" data-i18n="delete-account.account-deleted">Konto usunięte</h1>
+                <p class="delete-message" data-i18n="delete-account.your-account-and-all-associated">Twoje konto i wszystkie powiązane dane zostały trwale usunięte. Jeśli miałeś(-aś) aktywną subskrypcję, została ona anulowana i nie zostaną naliczone żadne dalsze opłaty.</p>
+                <a href="/pl/" class="button button-cancel" style="display:inline-block; flex:none; padding:0.75rem 3rem;" data-i18n="delete-account.return-home">Powrót do strony głównej</a>
             </div>
         </div>
     </div>
