@@ -9,7 +9,7 @@ or waive a right — and it is small enough to actually review.
 
 | | keys | English words |
 |---|---:|---:|
-| full catalog | 1983 | 24,740 |
+| full catalog | 1984 | 24,740 |
 | **claimant-facing, load-bearing** | **150** | **5,181** |
 | attorney-facing commerce (lower priority) | 1 | 8 |
 

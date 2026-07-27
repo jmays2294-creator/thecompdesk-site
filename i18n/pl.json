@@ -140,7 +140,8 @@
     "the-comp-desk-4": "The <span>Comp</span> Desk",
     "this-application-is-for-informational": "Ta aplikacja służy wyłącznie celom informacyjnym i nie stanowi porady prawnej.",
     "translationNotice": "Niniejsze tłumaczenie ma charakter pomocniczy; wersja angielska jest wiążąca.",
-    "machineTranslationNotice": "Przetłumaczone automatycznie i jeszcze niesprawdzone przez człowieka."
+    "machineTranslationNotice": "Przetłumaczone automatycznie i jeszcze niesprawdzone przez człowieka.",
+    "reviewedTranslationNotice": "Przetłumaczone automatycznie i sprawdzone przez człowieka."
   },
   "worker": {
     "meta": {

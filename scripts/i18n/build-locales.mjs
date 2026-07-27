@@ -444,18 +444,45 @@ const escapeAttr = (s) => s.replace(/"/g, '&quot;');
  * same unreviewed machine-translated status; hiding that everywhere except the pages that
  * happen to have "legal" in their path disclosed it where it mattered least.
  *
- * Two sentences from two catalog keys, both first-class and translated per locale:
- *   machineTranslationNotice — provenance. What produced this text.
- *   translationNotice        — precedence. Which version governs.
+ * Two sentences, both first-class catalog keys translated per locale:
+ *   PROVENANCE  — what produced this text. Driven by the review flag, see below.
+ *   PRECEDENCE  — which version governs (translationNotice). Always present; a reviewed
+ *                 translation is still not the governing text.
  * Either falls back to its English sentence if a locale lacks the key; an English-language
  * disclosure is still a disclosure, whereas a missing one is not.
+ *
+ * THE PROVENANCE SENTENCE IS DRIVEN BY glossary.translationsReviewed, NOT HARDCODED.
+ * A static "not yet reviewed by a person" is correct today and becomes a lie the moment a
+ * locale passes review — under-claiming on the language carrying the most value, and only
+ * fixable by remembering to hand-edit a string that nobody is looking at. Wiring it to the
+ * provenance flag means flipping es to true in the glossary is the ONE edit that both
+ * records the review and tells every Spanish reader it happened. It also makes the flag
+ * load-bearing rather than documentation, which is the only reason a flag stays accurate.
+ *
+ *   translationsReviewed[code] === true   -> reviewedTranslationNotice
+ *   anything else (false, missing)        -> machineTranslationNotice
+ *
+ * Defaulting the MISSING case to the unreviewed wording is deliberate: a locale nobody
+ * has recorded a decision about has not been reviewed, and over-disclosing costs a
+ * sentence while under-disclosing costs a worker.
  */
+const REVIEWED = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/glossary.json'), 'utf8'))
+      .translationsReviewed || {};
+  } catch { return {}; }
+})();
+
 function injectLegalNotice(html, catalog, loc) {
   const pick = (k, fallback) => {
     const v = catalog && catalog.shared && catalog.shared[k];
     return (typeof v === 'string' && v !== '') ? v : fallback;
   };
-  const text = `${pick('machineTranslationNotice', EN_MT_NOTICE)} ${pick('translationNotice', EN_NOTICE)}`;
+  const reviewed = REVIEWED[loc.code] === true;
+  const provenance = reviewed
+    ? pick('reviewedTranslationNotice', EN_REVIEWED_NOTICE)
+    : pick('machineTranslationNotice', EN_MT_NOTICE);
+  const text = `${provenance} ${pick('translationNotice', EN_NOTICE)}`;
   const banner =
     `<div class="i18n-translation-notice" role="note" lang="${loc.code}" dir="${loc.dir}">${text}</div>\n`;
   const m = html.match(/<body\b[^>]*>/i);
@@ -472,6 +499,8 @@ const EN_NOTICE = EN_SHARED.translationNotice
   || 'This translation is provided for convenience; the English version governs.';
 const EN_MT_NOTICE = EN_SHARED.machineTranslationNotice
   || 'Translated automatically and not yet reviewed by a person.';
+const EN_REVIEWED_NOTICE = EN_SHARED.reviewedTranslationNotice
+  || 'Translated automatically and reviewed by a person.';
 
 // ---------------------------------------------------------------------------
 

@@ -140,7 +140,8 @@
     "the-comp-desk-4": "The <span>Comp</span> Desk",
     "this-application-is-for-informational": "Aplikasyon sa a se pou rezon enfòmasyon sèlman e li pa konstitye konsèy legal.",
     "translationNotice": "Tradiksyon sa a bay pou fasilite; vèsyon anglè a se sa ki gen otorite.",
-    "machineTranslationNotice": "Tradui otomatikman epi yon moun poko revize li."
+    "machineTranslationNotice": "Tradui otomatikman epi yon moun poko revize li.",
+    "reviewedTranslationNotice": "Tradui otomatikman epi yon moun revize li."
   },
   "worker": {
     "meta": {

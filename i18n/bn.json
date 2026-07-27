@@ -140,7 +140,8 @@
     "the-comp-desk-4": "The <span>Comp</span> Desk",
     "this-application-is-for-informational": "এই অ্যাপ্লিকেশনটি শুধুমাত্র তথ্যগত উদ্দেশ্যে এবং এটি আইনি পরামর্শ গঠন করে না।",
     "translationNotice": "এই অনুবাদটি সুবিধার জন্য প্রদান করা হয়েছে; ইংরেজি সংস্করণটি প্রাধান্য পাবে।",
-    "machineTranslationNotice": "স্বয়ংক্রিয়ভাবে অনূদিত, এখনও কোনো ব্যক্তি যাচাই করেননি।"
+    "machineTranslationNotice": "স্বয়ংক্রিয়ভাবে অনূদিত, এখনও কোনো ব্যক্তি যাচাই করেননি।",
+    "reviewedTranslationNotice": "স্বয়ংক্রিয়ভাবে অনূদিত এবং একজন ব্যক্তি যাচাই করেছেন।"
   },
   "worker": {
     "meta": {
