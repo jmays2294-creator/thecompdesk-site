@@ -1162,9 +1162,9 @@
     },
     "slu": {
       "meta": {
-        "description": "Calculadora gratuita de Pérdida permanente del uso de un miembro (Schedule Loss of Use, SLU) de NYS. Estime el valor de su compensación, deducciones por compensaciones previas, honorarios del abogado y el neto para el reclamante conforme a WCL §15(3).",
-        "og-title": "Calculadora SLU de NYS — Compensaciones por Pérdida permanente del uso de un miembro (Schedule Loss of Use, SLU)",
-        "og-description": "Calculadora gratuita de beneficios por Pérdida permanente del uso de un miembro (Schedule Loss of Use, SLU) de NYS conforme a WCL §15(3). Calcule compensaciones SLU al instante."
+        "description": "Calculadora gratuita de Pérdida permanente del uso (SLU) de NYS. Estime el valor de su compensación, deducciones por compensaciones previas, honorarios del abogado y el neto para el reclamante conforme a WCL §15(3).",
+        "og-title": "Calculadora SLU de NYS — Compensaciones por Pérdida permanente del uso (SLU)",
+        "og-description": "Calculadora gratuita de beneficios por Pérdida permanente del uso (SLU) de NYS conforme a WCL §15(3). Calcule compensaciones SLU al instante."
       },
       "add-another-body-part": {
         "label": "Agregar otra parte del cuerpo"
