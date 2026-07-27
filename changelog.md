@@ -34,6 +34,34 @@ previously had no install step at all — a new failure mode on the repo carryin
 footprint. `opencc-js` is now a devDependency (build-time only; zh-Hant is derived locally and
 the result committed) and `vercel.json` overrides `installCommand` so deploys stay inert.
 
+### Gate lesson — a check that strips what it is checking is blind to it
+
+The duplicate `data-i18n` bug reached production because the annotation gate strips every
+`data-i18n*` occurrence before comparing, so a duplicated attribute stripped exactly as
+cleanly as a single one. The gate proved the property it was written for (English
+rendering is unchanged) and was structurally incapable of seeing this one.
+
+`scripts/i18n/annotate-gate.mjs` now also asserts the OUTPUT property directly — no
+element carries a repeated `data-i18n*` attribute — and that the **extract → build
+pipeline** is a byte-level no-op. Pipeline, not extract alone: `extract.mjs` deliberately
+writes the page with generated blocks stripped, because that is what slot offsets are
+measured against, and `build-locales.mjs` re-injects them.
+
+Adding that assertion immediately caught three more defects in its own supporting
+changes, none of which shipped:
+
+1. `extract.mjs` measured offsets against the FULL page while `build-locales.mjs` expects
+   the STRIPPED page — every offset was wrong. The convention now lives in `extract.mjs`.
+2. The de-annotation regex used `\s+`, which swallows the newline in a multi-line start
+   tag and silently reformatted 182 lines of one page. It now removes exactly one leading
+   space, matching how annotations are inserted.
+3. `extract.mjs` had been committed without declaring its `parse5` dependency, so it could
+   not run from a clean checkout at all.
+
+The general lesson: when a check normalises away a class of difference in order to compare,
+it can never detect defects **within** that class. Assert the normalised-away property
+separately.
+
 ### Recommended pattern for the APP's Phase 4a hamburger/CTA collision
 
 The site's pinned globe control landed squarely on the "Contact an attorney" CTA that
