@@ -117,7 +117,7 @@ const normTerm = (s) => s
   .replace(/^(?:el|la|los|las|un|una|de|del|le|la|les|un|une|des|the|a|an)\s+/, '')
   .trim();
 
-function terminologyVariants(catalog, terms) {
+function terminologyVariants(catalog, terms, code) {
   const report = [];
   for (const t of terms) {
     if (!t.abbr) continue;
@@ -148,8 +148,14 @@ function terminologyVariants(catalog, terms) {
         seen.get(norm).count++;
       }
     }
-    if (seen.size > 1) {
-      report.push({ term: t.term, abbr: t.abbr, variants: [...seen.entries()].sort((a, b) => b[1].count - a[1].count) });
+    // A deliberate short form is NOT an inconsistency. The glossary's legalTerms rule
+    // asks for the full term on first use and a shortened form after, so any rendering
+    // that is a substring of the locale's canonical term is the same term at a different
+    // length. Only renderings that fall OUTSIDE the canonical are genuine variants.
+    const canon = t.translations && t.translations[code] ? normTerm(t.translations[code]) : null;
+    const genuine = [...seen.entries()].filter(([norm]) => !(canon && canon.indexOf(norm) !== -1));
+    if (genuine.length > 1 || (genuine.length === 1 && seen.size > 1 && !canon)) {
+      report.push({ term: t.term, abbr: t.abbr, variants: genuine.sort((a, b) => b[1].count - a[1].count) });
     }
   }
   return report;
@@ -196,7 +202,7 @@ for (const code of locales) {
   show('placeholder-drift', phDrift); show('DNT-lost', dntLost);
   show('citation-translated', citeTranslated);
 
-  const termVars = terminologyVariants(t, GTERMS);
+  const termVars = terminologyVariants(t, GTERMS, code);
   if (termVars.length) {
     termWarnings += termVars.length;
     if (STRICT_TERMS) hardFail++;

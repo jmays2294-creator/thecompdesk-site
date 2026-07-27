@@ -49,6 +49,20 @@ git push        # gh supplies the credential from the keyring
 
 If you find a literal token committed anywhere in the repo or in any agent instructions, treat it as compromised: rotate immediately in GitHub Settings → Developer settings → Personal access tokens.
 
+## vercel.json — closed schema, no comments
+
+`vercel.json` is validated against a strict schema. An unknown top-level key fails the
+deployment before the build even starts, with no build logs to look at. A `_comment_*`
+key added to explain a setting cost one ERROR deploy on 2026-07-27 — put rationale here
+instead.
+
+Current non-obvious setting: **`installCommand` is a deliberate no-op.** The repo has a
+root `package.json` for the i18n tooling, and its presence alone makes Vercel run
+`npm install` on a project that previously had no install step. Nothing at deploy time
+imports `node_modules` (the site is pure static; `opencc-js` is build-time only and the
+derived catalog is committed), so the install is skipped to keep a registry outage from
+being able to fail a deploy.
+
 ## Working-copy preflight checklist (do every time)
 
 1. `pwd` — confirm you're in `~/Code/thecompdesk-site/`. If not, stop.
