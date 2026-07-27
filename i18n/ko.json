@@ -139,7 +139,8 @@
     "2026-njj-document-services-inc-2": "&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. ",
     "the-comp-desk-4": "The <span>Comp</span> Desk",
     "this-application-is-for-informational": "이 애플리케이션은 정보 제공 목적으로만 제공되며 법률 자문에 해당하지 않습니다.",
-    "translationNotice": "이 번역은 편의를 위해 제공되며, 영어 버전이 우선합니다."
+    "translationNotice": "이 번역은 편의를 위해 제공되며, 영어 버전이 우선합니다.",
+    "machineTranslationNotice": "자동으로 번역되었으며 아직 사람이 검토하지 않았습니다."
   },
   "worker": {
     "meta": {

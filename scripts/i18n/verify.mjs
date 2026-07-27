@@ -103,9 +103,18 @@ function reconcileRegistry() {
       problems.push(`'${l.code}' has no "fonts" in the registry — build-locales.mjs refuses to `
                   + 'guess a font stack, because guessing renders the page from an OS fallback');
     }
-    if (l.prefix && !fs.existsSync(path.join(ROOT, l.prefix.slice(1)))) {
+    const dirExists = l.prefix && fs.existsSync(path.join(ROOT, l.prefix.slice(1)));
+    if (l.prefix && !l.draft && !dirExists) {
       problems.push(`'${l.code}' is in the registry but ${l.prefix}/ does not exist on disk — `
                   + 'run scripts/i18n/build-locales.mjs');
+    }
+    // The inverse matters more: a draft locale with pages on disk is a half-translated
+    // locale published to the open web. Unlinked is not unreachable — a crawler that has
+    // seen /es/ and /fr/ will try /ar/, and find an English page declaring lang="ar".
+    if (l.prefix && l.draft && dirExists) {
+      problems.push(`'${l.code}' is draft but ${l.prefix}/ EXISTS on disk — those pages are `
+                  + 'crawlable regardless of hreflang, sitemap or internal links. Delete the '
+                  + 'directory, or drop "draft" if the catalog has landed.');
     }
     if (!['ltr', 'rtl'].includes(l.dir)) {
       problems.push(`'${l.code}'.dir is ${JSON.stringify(l.dir)} — must be 'ltr' or 'rtl'; a wrong `

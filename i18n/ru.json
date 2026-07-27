@@ -139,7 +139,8 @@
     "2026-njj-document-services-inc-2": "&copy; 2026 NJJ Document Services, Inc. (работающая под названием The Comp Desk).",
     "the-comp-desk-4": "The<span> Comp</span> Desk",
     "this-application-is-for-informational": "Данное приложение предназначено исключительно для информационных целей и не является юридической консультацией.",
-    "translationNotice": "Данный перевод предоставлен для удобства; юридическую силу имеет версия на английском языке."
+    "translationNotice": "Данный перевод предоставлен для удобства; юридическую силу имеет версия на английском языке.",
+    "machineTranslationNotice": "Переведено автоматически и пока не проверено человеком."
   },
   "worker": {
     "meta": {
