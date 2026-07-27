@@ -103,8 +103,24 @@ const units = [];
  * Stripping prior annotations before parsing makes a re-run produce the same output as a
  * first run.
  */
-const ANNOT_RE = /\s+(?:data-i18n(?:-attr)?="[^"]*"|data-i18n-jsonld)/g;
-const deannotate = (h) => h.replace(ANNOT_RE, '');
+// Exactly ONE leading space, never \s+: annotations are always inserted with a single
+// space, and \s+ would swallow the newline in a multi-line start tag — which silently
+// reformatted 182 lines of one page before this was caught.
+const ANNOT_RE = / (?:data-i18n(?:-attr)?="[^"]*"|data-i18n-jsonld)/g;
+
+/**
+ * Slot offsets are measured against the STRIPPED source — generated blocks removed — so
+ * that changing the size of a generated block cannot invalidate the whole table.
+ * scripts/i18n/build-locales.mjs strips before substituting and re-injects afterwards, so
+ * the convention has to live here too or the two disagree and every offset is wrong.
+ */
+const GENERATED = [
+  /[ \t]*<!-- i18n:hreflang[\s\S]*?<!-- \/i18n:hreflang -->\n?/g,
+  /[ \t]*<!-- i18n:fonts[\s\S]*?<!-- \/i18n:fonts -->\n?/g,
+  /[ \t]*<script src="\/js\/i18n-locale\.js" defer><\/script>\n?/g,
+];
+const stripGenerated = (h) => GENERATED.reduce((a, re) => a.replace(re, ''), h);
+const deannotate = (h) => stripGenerated(h).replace(ANNOT_RE, '');
 
 for (const page of manifest.pages) {
   const src = deannotate(fs.readFileSync(path.join(ROOT, page.file), 'utf8'));
@@ -121,7 +137,7 @@ for (const page of manifest.pages) {
       const r = innerRange(el);
       if (r) {
         const v = src.slice(r[0], r[1]).trim();
-        if (isProse(v)) units.push({ file: page.file, ns, kind: 'text', value: v, slugBase: 'meta.title', insertAt, range: r });
+        if (isProse(v)) units.push({ file: page.file, ns, kind: 'text', value: v, slugBase: 'meta.title', tag: 'title', insertAt, range: r });
       }
       continue;
     }
@@ -160,7 +176,7 @@ for (const page of manifest.pages) {
         if (isProse(v)) {
           const lead = raw.length - raw.trimStart().length;
           units.push({ file: page.file, ns, kind: 'text', value: v, slugBase: slugFor(v),
-            insertAt, range: [r[0] + lead, r[0] + lead + v.length] });
+            tag, insertAt, range: [r[0] + lead, r[0] + lead + v.length] });
         }
       }
     }
@@ -338,7 +354,7 @@ for (const page of manifest.pages) {
   const shift = (pos) => attrSplices.reduce((acc, s) => acc + (s.offset <= pos ? s.text.length : 0), 0);
   const fileSlots = [];
   for (const u of mine) {
-    if (u.kind === 'text') fileSlots.push({ k: u.key, s: u.range[0] + shift(u.range[0]), e: u.range[1] + shift(u.range[1]) });
+    if (u.kind === 'text') fileSlots.push({ k: u.key, s: u.range[0] + shift(u.range[0]), e: u.range[1] + shift(u.range[1]), t: u.tag });
     else if (u.kind === 'attr') fileSlots.push({ k: u.key, s: u.attrLoc[0] + shift(u.attrLoc[0]), e: u.attrLoc[1] + shift(u.attrLoc[1]), a: u.attr });
     else fileSlots.push({ k: u.key, s: u.blockRange[0] + shift(u.blockRange[0]), e: u.blockRange[1] + shift(u.blockRange[1]), j: u.jsonPtr });
   }

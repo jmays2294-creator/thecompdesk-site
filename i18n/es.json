@@ -681,7 +681,7 @@
     "aww": {
       "meta": {
         "description": "Calculadora gratuita del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Divisor de 52 semanas, multiplicador de 200/260/300, horas extras y métodos de empleo concurrente.",
-        "og-title": "Calculadora del salario semanal promedio (Average Weekly Wage, AWW) — Compensación laboral de NYS",
+        "og-title": "Calculadora del salario semanal promedio (AWW) — Compensación laboral de NYS",
         "og-description": "Calculadora gratuita para los beneficios del salario semanal promedio (Average Weekly Wage, AWW) de NYS según WCL §14. Multiplicadores legales de 200/260/300, divisor directo y tablas de tasas de compensación.",
         "title": "Calculadora AWW de NYS — Salario semanal promedio (WCL §14)"
       },
@@ -983,7 +983,7 @@
         "attorneys-are-typically-awarded-15": "Por lo general, a los abogados se les otorgan 15 semanas multiplicadas por la tasa semanal de clasificación, deducidas del beneficio y sujetas a la aprobación de la Junta de Compensación Laboral (Workers' Compensation Board) según WCL §24."
       },
       "home-calculators-lwec-calculator": "<a href=\"/\">Inicio</a> &gt; <a href=\"/calculators/\">Calculadoras</a> &gt; <span>Calculadora de LWEC</span>",
-      "nys-loss-of-wage-earning": "Calculadora de NYS de pérdida de capacidad para ganar salario (Loss of Wage Earning Capacity, LWEC)",
+      "nys-loss-of-wage-earning": "Calculadora de NYS de pérdida de capacidad para ganar salario (LWEC)",
       "calculate-loss-of-wage-earning": "Calcule la tasa de clasificación por pérdida de capacidad para ganar salario, el rango, las semanas máximas, la cuota de abogado y el neto para el reclamante según la Ley de Compensación Laboral de Nueva York.",
       "2-3-aww-comp-rate": "2/3 del AWW = tasa de compensación (calculada automáticamente)",
       "2-3-aww-comp-rate-2": "2/3 del AWW (Tasa de Compensación): <span id=\"compRateDisplay\" style=\"color:var(--gd);font-weight:800;font-family:var(--mono);\">—</span>",
@@ -1189,7 +1189,7 @@
         "slu-covers-extremities-and-sensory": "El SLU cubre extremidades y pérdida sensorial: brazo, mano, dedos de la mano, pierna, pie, dedos del pie, visión y audición. Las lesiones permanentes en la columna, la cabeza o los sistemas internos se compensan en cambio mediante una clasificación de Pérdida de Capacidad para Generar Ingresos (LWEC)."
       },
       "home-calculators-slu-calculator": "<a href=\"/\">Inicio</a> &gt; <a href=\"/calculators/\">Calculadoras</a> &gt; <span>Calculadora SLU</span>",
-      "nys-schedule-loss-of-use": "Calculadora de Pérdida permanente del uso de un miembro (Schedule Loss of Use, SLU) de NYS",
+      "nys-schedule-loss-of-use": "Calculadora de Pérdida permanente del uso (SLU) de NYS",
       "calculate-schedule-loss-of-use": "Calcule los beneficios de Pérdida permanente del uso para lesiones en extremidades conforme a la Ley de Compensación Laboral de Nueva York §15(3). Incluye deducciones por compensaciones previas, honorarios del abogado y neto para el reclamante.",
       "enter-aww-comp-rate-auto": "Ingrese el AWW — la tasa de compensación se calcula automáticamente como 2/3 (con tope)",
       "slu-rate-2-3-aww": "Tasa SLU: <span id=\"sluRateDisplay\" style=\"color:var(--gd);font-weight:800;font-family:var(--mono);\">—</span>\n          <span style=\"font-size:10px;color:var(--txM);margin-left:8px;\">(2/3 del AWW con tope en el máximo legal)</span>",
@@ -1203,7 +1203,7 @@
       "net-to-claimant": "<span class=\"result-row-label\" style=\"color:var(--gd);font-weight:700;\">Neto para el Reclamante</span>\n                <span class=\"result-row-val mono\" style=\"color:var(--gd);font-weight:800;\" id=\"netClaimant\">—</span>",
       "generate-a-wcb-fee-application": "Genere una solicitud de honorarios de la WCB, prellenada con estos resultados.",
       "what-is-a-schedule-loss": "¿Qué Es una Compensación por Pérdida permanente del uso?",
-      "schedule-loss-of-use-slu": "La Pérdida permanente del uso (SLU) es un beneficio fijo disponible para los trabajadores lesionados en el estado de Nueva York conforme a la Ley de Compensación Laboral §15(3). A diferencia de los beneficios por incapacidad parcial permanente, el SLU otorga un número predeterminado de semanas de beneficios según la parte del cuerpo lesionada específica y el grado de pérdida de uso permanente.",
+      "schedule-loss-of-use-slu": "La Pérdida permanente del uso (SLU) es un beneficio fijo disponible para los trabajadores lesionados en el estado de Nueva York conforme a la Ley de Compensación Laboral §15(3). A diferencia de los beneficios por incapacidad parcial permanente, el SLU otorga un número predeterminado de semanas de beneficios según la parte del cuerpo lesionada específica y el grado de pérdida permanente del uso.",
       "many-injured-workers-think-of": "Muchos trabajadores lesionados piensan en la compensación SLU como su <strong style=\"color:var(--tx);\">\"convenio\"</strong> — si ha estado buscando una tabla de convenios de compensación laboral de NYS para una lesión de brazo, mano, pierna o pie, la tabla del §15(3) a continuación es esa tabla, y esta calculadora la convierte en una estimación en dólares del valor de su convenio SLU.",
       "how-slu-works-the-law": "<strong style=\"color:var(--tx);\">Cómo Funciona el SLU:</strong> La ley asigna un número máximo de semanas a cada parte del cuerpo. El beneficio se calcula multiplicando el porcentaje de pérdida de uso por las semanas máximas de esa parte del cuerpo, y luego multiplicando por la tasa SLU del trabajador (2/3 del AWW, con tope en el máximo legal correspondiente a la fecha de la lesión).",
       "prior-weeks-paid-at-tt": "<strong style=\"color:var(--tx);\">Semanas Previas Pagadas a Tasa TT (PHP):</strong> Las semanas pagadas a la tasa temporal total durante el período de curación pueden acreditarse y sumarse al cálculo del SLU, según la tabla de la parte del cuerpo.",
@@ -1486,7 +1486,7 @@
     "select-your-body-part": "Seleccione Su Parte del Cuerpo",
     "choose-the-injured-body-part": "Elija la parte del cuerpo lesionada de la tabla de WCL §15(3) — brazo, pierna, mano, pie, dedo de la mano, dedo del pie, ojo u oído.",
     "enter-your-loss": "Ingrese Su % de Pérdida",
-    "enter-the-percentage-of-permanent": "Ingrese el porcentaje de pérdida de uso permanente determinado por su médico tratante o el médico del IME.",
+    "enter-the-percentage-of-permanent": "Ingrese el porcentaje de pérdida permanente del uso determinado por su médico tratante o el médico del IME.",
     "see-your-estimate": "Vea Su Estimación",
     "get-an-instant-slu-award": "Obtenga una estimación instantánea de su compensación SLU a la tasa máxima actual, además del desglose de honorarios del abogado y el neto para el reclamante.",
     "quick-slu-estimate": "Estimación Rápida de SLU",
@@ -1546,7 +1546,7 @@
     "body-part-injured": "Parte del Cuerpo Lesionada",
     "different-body-parts-have-different": "Distintas partes del cuerpo tienen distintas tablas de semanas conforme a WCL §15(3). Una pérdida de brazo vale más semanas que una pérdida de dedo. Las lesiones no programadas (espalda, cuello) se evalúan de forma diferente y pueden respaldar sumas globales más altas.",
     "permanency-percentage": "Porcentaje de Permanencia",
-    "the-percentage-of-permanent-loss": "El porcentaje de pérdida de uso permanente (0-100%) se determina mediante evidencia médica — informes del médico tratante, hallazgos del IME y las guías de la Junta. Una mayor permanencia significa compensaciones y valor de convenio más altos.",
+    "the-percentage-of-permanent-loss": "El porcentaje de pérdida permanente del uso (0-100%) se determina mediante evidencia médica — informes del médico tratante, hallazgos del IME y las guías de la Junta. Una mayor permanencia significa compensaciones y valor de convenio más altos.",
     "your-date-of-injury-determines": "Su fecha de lesión determina qué tasa de compensación aplica. Las lesiones más antiguas usan tasas más bajas; las lesiones más recientes usan las tasas actuales más altas. Esto impacta significativamente tanto las compensaciones SLU como el valor del convenio Section 32.",
     "medical-treatment-needs": "Necesidades de Tratamiento Médico",
     "the-extent-of-future-medical": "El alcance de la atención médica futura necesaria afecta las negociaciones del convenio Section 32. Más necesidades de tratamiento continuo generalmente aumentan el valor del convenio. La cirugía futura, la terapia o la atención especializada influyen en la negociación.",

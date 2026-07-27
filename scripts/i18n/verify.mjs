@@ -161,8 +161,70 @@ function terminologyVariants(catalog, terms, code) {
   return report;
 }
 
+/**
+ * ORDER / ARTICLE VARIANTS of a canonical term.
+ *
+ * terminologyVariants() only sees a phrase when it sits immediately before an "(… ABBR)"
+ * parenthetical, so a term used in bare prose is invisible to it — which is how es shipped
+ * "pérdida permanente del uso" (30x), "pérdida permanente de uso" (5x) and
+ * "pérdida de uso permanente" (3x) as three spellings of one term.
+ *
+ * This scans the whole catalog for word-windows built from the canonical term's content
+ * words. Windows whose content-word SET is identical but whose surface text differs are
+ * the same term reordered or re-articled; that is reported separately from a genuinely
+ * different rendering, because the fix is different (normalise vs decide).
+ */
+const STOP = new Set(['de','del','la','el','los','las','un','una','y','o','a','en',
+  'the','of','a','an','for','to','и','в','на','le','la','les','du','des','w','z','na','i']);
+const words = (s) => normTerm(s).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+const contentWords = (s) => words(s).filter((w) => !STOP.has(w) && w.length > 2);
+
+function orderVariants(catalog, terms, code) {
+  const report = [];
+  for (const t of terms) {
+    const canon = t.translations && t.translations[code];
+    if (!canon) continue;
+    const core = contentWords(canon.replace(/[（(][^)）]*[)）]/g, ''));
+    if (core.length < 2) continue;
+    const need = new Set(core);
+
+    // Group by the CONTENT-WORD SEQUENCE, not the raw surface. Otherwise "salario semanal
+    // promedio", "su salario semanal promedio" and "del salario semanal promedio" read as
+    // three renderings when they are one term in three grammatical positions — the
+    // articles and pronouns belong to the sentence, not to the term.
+    const seqs = new Map();          // "a|b|c" -> {count, sample}
+    for (const v of Object.values(catalog)) {
+      if (typeof v !== 'string') continue;
+      const cw = contentWords(v.replace(/<[^>]*>/g, ' '));
+      for (let a = 0; a < cw.length; a++) {
+        for (let len = Math.min(2, core.length); len <= core.length && a + len <= cw.length; len++) {
+          const win = cw.slice(a, a + len);
+          if (!win.every((w) => need.has(w))) continue;
+          if (new Set(win).size !== win.length) continue;     // no repeats inside a term
+          if (len < core.length && len < 3) continue;         // 2-word windows only for 2-word terms
+          const seq = win.join('|');
+          if (!seqs.has(seq)) seqs.set(seq, { count: 0, sample: win.join(' ') });
+          seqs.get(seq).count++;
+        }
+      }
+    }
+
+    // Same word SET, different sequence == the term reordered or re-articled.
+    const bySet = new Map();
+    for (const [seq, info] of seqs) {
+      const set = seq.split('|').sort().join('|');
+      if (!bySet.has(set)) bySet.set(set, []);
+      bySet.get(set).push([info.sample, info.count]);
+    }
+    const groups = [...bySet.values()].filter((g) => g.length > 1);
+    if (groups.length) report.push({ term: t.term, abbr: t.abbr || t.term, groups });
+  }
+  return report;
+}
+
 let hardFail = 0;
 let termWarnings = 0;
+let orderWarnings = 0;
 console.log(`en.json: ${enKeys.length} keys · checking ${locales.length} locale(s)\n`);
 
 for (const code of locales) {
@@ -202,6 +264,19 @@ for (const code of locales) {
   show('placeholder-drift', phDrift); show('DNT-lost', dntLost);
   show('citation-translated', citeTranslated);
 
+  const ordVars = orderVariants(t, GTERMS, code);
+  if (ordVars.length) {
+    orderWarnings += ordVars.length;
+    if (STRICT_TERMS) hardFail++;
+    console.log(`           ${STRICT_TERMS ? 'ORDER-VARIANT' : 'order-variant (advisory)'}: ${ordVars.length} term(s) spelled more than one way`);
+    for (const v of ordVars) {
+      for (const g of v.groups.slice(0, 3)) {
+        console.log(`             ${v.abbr}: ` + g.sort((a, b) => b[1] - a[1])
+          .map(([s2, n]) => `${n}x "${s2}"`).join('  ·  '));
+      }
+    }
+  }
+
   const termVars = terminologyVariants(t, GTERMS, code);
   if (termVars.length) {
     termWarnings += termVars.length;
@@ -220,6 +295,9 @@ for (const code of locales) {
 const absent = expected.filter((c) => !fs.existsSync(path.join(I18N, `${c}.json`)));
 if (absent.length) console.log(`\nnot yet generated: ${absent.join(' ')}`);
 
+if (orderWarnings && !STRICT_TERMS) {
+  console.log(`\nadvisory: ${orderWarnings} order/article-variant group(s) — same words, different spelling.`);
+}
 if (termWarnings && !STRICT_TERMS) {
   console.log(`\nadvisory: ${termWarnings} terminology inconsistency group(s). Not blocking — the glossary's`);
   console.log('locked translations are still unreviewed. Re-run with --strict-terms to enforce.');

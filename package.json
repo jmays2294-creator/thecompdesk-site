@@ -9,6 +9,7 @@
     "i18n:derive-zh-hant": "node scripts/i18n/derive-zh-hant.mjs"
   },
   "devDependencies": {
-    "opencc-js": "^1.0.5"
+    "opencc-js": "^1.0.5",
+    "parse5": "^8.0.1"
   }
 }
