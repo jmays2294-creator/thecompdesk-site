@@ -121,6 +121,16 @@ body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
 @media(max-width:1040px){.web-body{grid-template-columns:1fr}.wb-rail{flex-direction:row;position:static;overflow:auto}
   .wb-rail figure{min-width:170px}}
 @media(max-width:640px){.web-hero-grid{grid-template-columns:1fr}.web-portrait{max-width:190px}.wb-two{grid-template-columns:1fr}}
+
+/* skins.css sets `body.tcd-skinned p { color: var(--skin-text-soft) }`. That token is
+   dark only on the Dawn skin — on the Attorney/dark skins it resolves to #DDE5F2/#BAC1D1,
+   which is near-white and illegible on these white cards. It also outranks a bare
+   `.wb-len p` (0,1,2 beats 0,1,1), so the page's own greys were being overridden too.
+   Pin every light-surface paragraph to a skin-independent colour. */
+body.tcd-skinned .wb-card p { color:#241F1B }
+body.tcd-skinned .wb-card .wb-len p { color:#5A5148 }
+body.tcd-skinned .wb-upl p { color:#5A5148 }
+body.tcd-skinned .wb-msg p { color:inherit }
 </style>
 </head>
 <body class="tcd-skinned">
@@ -380,10 +390,10 @@ body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
         '<small>' + fmtTime(s.start_ts) + '</small></button>';
     });
     box.innerHTML = html;
-    Array.prototype.forEach.call(box.querySelectorAll('.day'), function (b) {
+    Array.prototype.forEach.call(box.querySelectorAll('.wb-day'), function (b) {
       b.addEventListener('click', function () {
         state.slotId = b.dataset.id;
-        Array.prototype.forEach.call(box.querySelectorAll('.day'), function (x) {
+        Array.prototype.forEach.call(box.querySelectorAll('.wb-day'), function (x) {
           x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
         });
       });
@@ -403,8 +413,8 @@ body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
   function group(id, key, cb) {
     var wrap = $(id);
     wrap.addEventListener('click', function (e) {
-      var b = e.target.closest('.opt'); if (!b) return;
-      Array.prototype.forEach.call(wrap.querySelectorAll('.opt'), function (x) {
+      var b = e.target.closest('.wb-opt'); if (!b) return;
+      Array.prototype.forEach.call(wrap.querySelectorAll('.wb-opt'), function (x) {
         x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
       });
       cb(b.dataset[key]);
@@ -415,10 +425,10 @@ body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
 
   $('bookForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    var msg = $('msg'); msg.className = 'msg'; msg.textContent = '';
-    if (!state.slotId) { msg.className = 'msg err'; msg.textContent = 'Pick a time first.'; return; }
+    var msg = $('msg'); msg.className = 'wb-msg'; msg.textContent = '';
+    if (!state.slotId) { msg.className = 'wb-msg err'; msg.textContent = 'Pick a time first.'; return; }
     if (!$('org').value.trim() || !$('rep').value.trim() || !$('email').value.trim()) {
-      msg.className = 'msg err'; msg.textContent = 'Union, your name, and an email address are required.'; return;
+      msg.className = 'wb-msg err'; msg.textContent = 'Union, your name, and an email address are required.'; return;
     }
     $('submit').disabled = true; $('submit').textContent = 'Booking…';
     call({
@@ -440,18 +450,18 @@ body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
           rate_limited: 'That is a few bookings from the same address today. Email contact@thecompdesk.com and we will help.',
           bad_email: 'That email address does not look right.'
         }[b.error] || 'Something went wrong booking that. Email contact@thecompdesk.com and we will book it by hand.';
-        msg.className = 'msg err'; msg.textContent = why;
+        msg.className = 'wb-msg err'; msg.textContent = why;
         if (b.error === 'slot_taken' || b.error === 'month_full') loadSlots();
         return;
       }
-      msg.className = 'msg ok';
+      msg.className = 'wb-msg ok';
       msg.innerHTML = '<strong>Booked — ' + b.when + '.</strong> A confirmation is on its way to ' +
         $('email').value.trim() + ' with the join link and a way to cancel if plans change.';
       $('bookForm').reset(); state.slotId = null; loadSlots();
       msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }).catch(function () {
       $('submit').disabled = false; $('submit').textContent = 'Book this session';
-      msg.className = 'msg err';
+      msg.className = 'wb-msg err';
       msg.textContent = 'Could not reach the booking service. Email contact@thecompdesk.com and we will book it by hand.';
     });
   });
@@ -462,10 +472,10 @@ body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
     call({ action: 'cancel', token: cancel }).then(function (r) {
       var msg = $('msg');
       if (r.body && r.body.ok) {
-        msg.className = 'msg ok';
+        msg.className = 'wb-msg ok';
         msg.textContent = 'That session has been cancelled and the time is open again. You can book another below.';
       } else {
-        msg.className = 'msg err';
+        msg.className = 'wb-msg err';
         msg.textContent = 'We could not find that booking — it may already have been cancelled.';
       }
       $('book').scrollIntoView({ behavior: 'smooth', block: 'start' });
