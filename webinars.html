@@ -122,6 +122,53 @@ body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
   .wb-rail figure{min-width:170px}}
 @media(max-width:640px){.web-hero-grid{grid-template-columns:1fr}.web-portrait{max-width:190px}.wb-two{grid-template-columns:1fr}}
 
+/* ── Slide lightbox. Thumbnails are <button> so they are keyboard-reachable and
+      announced as controls; the enlarged view reuses the same 880x494 file, so
+      there is no second asset to keep in sync. ── */
+.wb-shot{display:block;width:100%;padding:0;border:0;background:none;font:inherit;cursor:zoom-in;
+  position:relative;overflow:hidden}
+.wb-shot img{width:100%;height:auto;display:block;transition:transform .18s ease}
+.wb-shot:hover img,.wb-shot:focus-visible img{transform:scale(1.04)}
+.wb-shot:focus-visible{outline:2px solid #E87722;outline-offset:-2px}
+.wb-shot::after{content:"⤢";position:absolute;right:6px;bottom:6px;width:21px;height:21px;
+  display:grid;place-items:center;border-radius:5px;background:rgba(11,20,38,.74);color:#fff;
+  font-size:11px;line-height:1;opacity:0;transition:opacity .18s ease;pointer-events:none}
+.wb-shot:hover::after,.wb-shot:focus-visible::after{opacity:1}
+
+.wb-lb{position:fixed;inset:0;z-index:9999;padding:24px;background:rgba(11,20,38,.9);
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}
+.wb-lb[hidden]{display:none}
+.wb-lb-fig{margin:0;width:100%;max-width:1080px;justify-self:center}
+.wb-lb-fig img{width:100%;height:auto;max-height:76vh;object-fit:contain;display:block;background:#fff;
+  border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.wb-lb-cap{margin-top:14px;text-align:center;line-height:1.5}
+.wb-lb-cap b{display:block;font-size:15.5px;color:#fff;margin-bottom:4px}
+.wb-lb-cap .wb-lb-desc{display:block;font-size:13.5px;color:#C4CEE0;max-width:70ch;margin:0 auto}
+.wb-lb-cap .wb-lb-count{display:block;margin-top:8px;font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;color:#8E9AB2}
+.wb-lb-close{position:absolute;top:14px;right:16px;width:38px;height:38px;font-size:19px}
+.wb-lb-nav{width:44px;height:44px;font-size:23px}
+.wb-lb-close,.wb-lb-nav{border-radius:50%;border:1px solid rgba(255,255,255,.26);
+  background:rgba(255,255,255,.11);color:#fff;line-height:1;cursor:pointer;font-family:inherit;
+  display:grid;place-items:center;padding:0}
+.wb-lb-close:hover,.wb-lb-nav:hover{background:rgba(255,255,255,.22)}
+.wb-lb-close:focus-visible,.wb-lb-nav:focus-visible{outline:2px solid #E87722;outline-offset:2px}
+body.wb-lb-open{overflow:hidden}
+/* Phones: flanking arrows would leave the slide barely wider than its thumbnail, so
+   drop them onto their own row and give the image the full width. */
+@media(max-width:640px){
+  .wb-lb{padding:12px;gap:14px;grid-template-columns:1fr;
+    grid-template-rows:auto auto;grid-template-areas:"fig" "nav";align-content:center}
+  .wb-lb-fig{grid-area:fig;align-self:center}
+  .wb-lb-prev{grid-area:nav;justify-self:start}
+  .wb-lb-next{grid-area:nav;justify-self:end}
+  .wb-lb-fig img{max-height:58vh}
+  .wb-lb-cap b{font-size:14px}
+  .wb-lb-cap .wb-lb-desc{font-size:12.5px}}
+@media(prefers-reduced-motion:reduce){
+  .wb-shot img{transition:none}
+  .wb-shot:hover img,.wb-shot:focus-visible img{transform:none}}
+
 /* skins.css sets `body.tcd-skinned p { color: var(--skin-text-soft) }`. That token is
    dark only on the Dawn skin — on the Attorney/dark skins it resolves to #DDE5F2/#BAC1D1,
    which is near-white and illegible on these white cards. It also outranks a bare
@@ -185,11 +232,11 @@ body.tcd-skinned .wb-msg p { color:inherit }
       <!-- left rail: real slides from the deck -->
       <aside class="wb-rail" aria-label="Slides from the session">
         <div class="wb-rail-label">From the deck</div>
-        <figure><img src="/assets/webinars/slide-01.jpg" alt="Title slide: Hurt at Work? What New York law actually gives you">
+        <figure><button type="button" class="wb-shot" data-cap="The opener"><img src="/assets/webinars/slide-01.jpg" alt="Title slide: Hurt at Work? What New York law actually gives you"></button>
           <figcaption>The opener</figcaption></figure>
-        <figure><img src="/assets/webinars/slide-04.jpg" alt="Slide: Give notice within 30 days">
+        <figure><button type="button" class="wb-shot" data-cap="The 30-day notice rule"><img src="/assets/webinars/slide-04.jpg" alt="Slide: Give notice within 30 days"></button>
           <figcaption>The 30-day notice rule</figcaption></figure>
-        <figure><img src="/assets/webinars/slide-06.jpg" alt="Slide: Two doctors, two very different jobs">
+        <figure><button type="button" class="wb-shot" data-cap="Treating doctor vs IME"><img src="/assets/webinars/slide-06.jpg" alt="Slide: Two doctors, two very different jobs"></button>
           <figcaption>Treating doctor vs IME</figcaption></figure>
       </aside>
 
@@ -324,11 +371,11 @@ body.tcd-skinned .wb-msg p { color:inherit }
       <!-- right rail -->
       <aside class="wb-rail" aria-label="More slides from the session">
         <div class="wb-rail-label">From the deck</div>
-        <figure><img src="/assets/webinars/slide-02.jpg" alt="Slide: the not-legal-advice disclaimer read at the start">
+        <figure><button type="button" class="wb-shot" data-cap="We open with this"><img src="/assets/webinars/slide-02.jpg" alt="Slide: the not-legal-advice disclaimer read at the start"></button>
           <figcaption>We open with this</figcaption></figure>
-        <figure><img src="/assets/webinars/slide-07.jpg" alt="Slide: the five mistakes that cost members the most">
+        <figure><button type="button" class="wb-shot" data-cap="The five mistakes"><img src="/assets/webinars/slide-07.jpg" alt="Slide: the five mistakes that cost members the most"></button>
           <figcaption>The five mistakes</figcaption></figure>
-        <figure><img src="/assets/webinars/slide-08.jpg" alt="Slide: questions and where to go next">
+        <figure><button type="button" class="wb-shot" data-cap="Q&amp;A and next steps"><img src="/assets/webinars/slide-08.jpg" alt="Slide: questions and where to go next"></button>
           <figcaption>Q&amp;A and next steps</figcaption></figure>
       </aside>
 
@@ -336,6 +383,20 @@ body.tcd-skinned .wb-msg p { color:inherit }
   </div>
 </section>
 </main>
+
+<div class="wb-lb" id="wb-lb" role="dialog" aria-modal="true" aria-label="Slide viewer" hidden>
+  <button type="button" class="wb-lb-close" id="wb-lb-close" aria-label="Close slide viewer">&times;</button>
+  <button type="button" class="wb-lb-nav wb-lb-prev" id="wb-lb-prev" aria-label="Previous slide">&lsaquo;</button>
+  <figure class="wb-lb-fig">
+    <img id="wb-lb-img" src="" alt="">
+    <figcaption class="wb-lb-cap">
+      <b id="wb-lb-title"></b>
+      <span class="wb-lb-desc" id="wb-lb-desc"></span>
+      <span class="wb-lb-count" id="wb-lb-count"></span>
+    </figcaption>
+  </figure>
+  <button type="button" class="wb-lb-nav wb-lb-next" id="wb-lb-next" aria-label="Next slide">&rsaquo;</button>
+</div>
 
 <footer class="tcd-footer">
   <div class="wrap">
@@ -346,6 +407,80 @@ body.tcd-skinned .wb-msg p { color:inherit }
 
 <script src="/js/audience-switcher.js"></script>
 <script type="module" src="/js/nav-account.js"></script>
+<script>
+/* Slide lightbox. Selectors here must match the classes emitted above — the .wb-*
+   namespacing pass previously left querySelectors on the old bare names and every
+   button in this page went inert, so keep the two in step. */
+(function () {
+  var shots = Array.prototype.slice.call(document.querySelectorAll('.wb-shot'));
+  var lb = document.getElementById('wb-lb');
+  if (!shots.length || !lb) return;
+
+  var img    = document.getElementById('wb-lb-img');
+  var title  = document.getElementById('wb-lb-title');
+  var desc   = document.getElementById('wb-lb-desc');
+  var count  = document.getElementById('wb-lb-count');
+  var closeB = document.getElementById('wb-lb-close');
+  var prevB  = document.getElementById('wb-lb-prev');
+  var nextB  = document.getElementById('wb-lb-next');
+  var focusables = [closeB, prevB, nextB];
+  var idx = 0, lastFocus = null;
+
+  function show(i) {
+    idx = (i + shots.length) % shots.length;
+    var thumb = shots[idx].querySelector('img');
+    img.src = thumb.src;
+    img.alt = thumb.alt;
+    title.textContent = shots[idx].getAttribute('data-cap') || '';
+    desc.textContent = thumb.alt || '';
+    count.textContent = 'Slide ' + (idx + 1) + ' of ' + shots.length;
+  }
+
+  function open(i) {
+    /* Store the trigger itself rather than document.activeElement — Safari does not
+       focus a <button> on click, so activeElement can still be <body> here and the
+       reader would be dropped at the top of the page on close. */
+    lastFocus = shots[i];
+    show(i);
+    lb.hidden = false;
+    document.body.classList.add('wb-lb-open');
+    closeB.focus();
+  }
+
+  function close() {
+    lb.hidden = true;
+    document.body.classList.remove('wb-lb-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  shots.forEach(function (s, i) {
+    s.addEventListener('click', function () { open(i); });
+  });
+
+  closeB.addEventListener('click', close);
+  prevB.addEventListener('click', function () { show(idx - 1); });
+  nextB.addEventListener('click', function () { show(idx + 1); });
+
+  /* Backdrop click closes; clicks on the figure or controls must not. */
+  lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (lb.hidden) return;
+    if (e.key === 'Escape')          { e.preventDefault(); close(); }
+    else if (e.key === 'ArrowLeft')  { e.preventDefault(); show(idx - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+    else if (e.key === 'Tab') {
+      /* Only three focusable controls, so cycle them explicitly rather than
+         letting focus escape to the page behind the dialog. */
+      e.preventDefault();
+      var at = focusables.indexOf(document.activeElement);
+      var to = e.shiftKey ? (at <= 0 ? focusables.length - 1 : at - 1)
+                          : (at >= focusables.length - 1 ? 0 : at + 1);
+      focusables[to].focus();
+    }
+  });
+})();
+</script>
 <script>
 (function () {
   var FN = 'https://ltibymvlytodkemdeeox.supabase.co/functions/v1/webinar-book';
