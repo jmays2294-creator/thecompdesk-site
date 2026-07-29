@@ -67,57 +67,60 @@ body.tcd-skinned .web-hero h1 em{color:#F0A867;font-style:normal}
 
 /* Layout with slide rails */
 .web-body{display:grid;grid-template-columns:150px minmax(0,1fr) 150px;gap:26px;align-items:start}
-.rail{display:flex;flex-direction:column;gap:14px;position:sticky;top:88px}
-.rail figure{margin:0;border:1px solid #E7DECB;border-radius:10px;overflow:hidden;background:#fff;
+.wb-rail{display:flex;flex-direction:column;gap:14px;position:sticky;top:88px}
+.wb-rail figure{margin:0;border:1px solid #E7DECB;border-radius:10px;overflow:hidden;background:#fff;
   box-shadow:0 2px 10px rgba(27,42,74,.06)}
-.rail img{width:100%;height:auto;display:block}
-.rail figcaption{font-size:10.5px;color:#5A5148;padding:6px 8px;line-height:1.4}
-.rail .rail-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#5A5148;font-weight:700}
+.wb-rail img{width:100%;height:auto;display:block}
+.wb-rail figcaption{font-size:10.5px;color:#5A5148;padding:6px 8px;line-height:1.4}
+.wb-rail .wb-rail-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#5A5148;font-weight:700}
 
-.card{background:#fff;border:1px solid #E7DECB;border-radius:14px;padding:22px 24px;margin-bottom:18px}
-body.tcd-skinned .card h2{margin:0 0 12px;font-size:19px;color:#1B2A4A;letter-spacing:-.3px}
-body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
-.lengths{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
-.len{border:1px solid #E7DECB;border-radius:12px;padding:15px 16px;background:#FBF9F4}
-.len b{display:block;font-size:22px;color:#E87722;letter-spacing:-.5px}
-.len .t{font-weight:700;font-size:13.5px;margin:2px 0 6px}
-.len p{margin:0;font-size:12.5px;line-height:1.55;color:#5A5148}
-.spine{margin:0;padding-left:20px;font-size:14px;line-height:1.85;color:#241F1B}
-.spine li::marker{color:#E87722;font-weight:700}
+.wb-card{background:#fff;border:1px solid #E7DECB;border-radius:14px;padding:22px 24px;margin-bottom:18px}
+body.tcd-skinned .wb-card h2{margin:0 0 12px;font-size:19px;color:#1B2A4A;letter-spacing:-.3px}
+body.tcd-skinned .wb-card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
+.wb-lengths{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.wb-len{border:1px solid #E7DECB;border-radius:12px;padding:15px 16px;background:#FBF9F4}
+.wb-len b{display:block;font-size:22px;color:#E87722;letter-spacing:-.5px}
+.wb-len .wb-t{font-weight:700;font-size:13.5px;margin:2px 0 6px}
+.wb-len p{margin:0;font-size:12.5px;line-height:1.55;color:#5A5148}
+.wb-spine{margin:0;padding-left:20px;font-size:14px;line-height:1.85;color:#241F1B}
+.wb-spine li::marker{color:#E87722;font-weight:700}
 
 /* Booking */
-.book{background:#fff;border:2px solid #1B2A4A;border-radius:14px;padding:24px;scroll-margin-top:80px}
-.steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.step{flex:1 1 150px;border:1px solid #E7DECB;border-radius:10px;padding:9px 12px;font-size:12px;color:#5A5148}
-.step b{display:block;color:#1B2A4A;font-size:12.5px}
-.opts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 6px}
-.opt{border:1px solid #E7DECB;background:#fff;border-radius:10px;padding:9px 14px;font:inherit;font-size:13.5px;
+.wb-book{background:#fff;border:2px solid #1B2A4A;border-radius:14px;padding:24px;scroll-margin-top:80px}
+.wb-steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.wb-step{flex:1 1 150px;border:1px solid #E7DECB;border-radius:10px;padding:9px 12px;font-size:12px;color:#5A5148}
+.wb-step b{display:block;color:#1B2A4A;font-size:12.5px}
+.wb-opts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+.wb-opt{border:1px solid #E7DECB;background:#fff;border-radius:10px;padding:9px 14px;font:inherit;font-size:13.5px;
   cursor:pointer;color:#241F1B}
-.opt[aria-pressed="true"]{background:#1B2A4A;border-color:#1B2A4A;color:#fff;font-weight:650}
-.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:12px 0 4px;
-  max-height:240px;overflow:auto;padding:2px}
-.day{border:1px solid #E7DECB;background:#fff;border-radius:10px;padding:9px 8px;font:inherit;font-size:12.5px;
+.wb-opt[aria-pressed="true"]{background:#1B2A4A;border-color:#1B2A4A;color:#fff;font-weight:650}
+.wb-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:12px 0 4px;
+  max-height:340px;overflow:auto;padding:2px;scroll-behavior:smooth}
+.wb-month{grid-column:1/-1;position:sticky;top:0;z-index:1;background:#fff;padding:8px 2px 5px;
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5A5148;
+  border-bottom:1px solid #E7DECB;margin-bottom:2px}
+.wb-day{border:1px solid #E7DECB;background:#fff;border-radius:10px;padding:9px 8px;font:inherit;font-size:12.5px;
   cursor:pointer;text-align:center;color:#241F1B}
-.day[aria-pressed="true"]{background:#E87722;border-color:#E87722;color:#fff;font-weight:700}
-.day small{display:block;color:#5A5148;font-size:10.5px}
-.day[aria-pressed="true"] small{color:#fff;opacity:.9}
-.field{display:grid;gap:5px;margin-bottom:12px}
-.field label{font-size:12.5px;font-weight:650;color:#1B2A4A}
-.field input,.field textarea,.field select{font:inherit;font-size:14px;padding:10px 12px;border:1px solid #E7DECB;
+.wb-day[aria-pressed="true"]{background:#E87722;border-color:#E87722;color:#fff;font-weight:700}
+.wb-day small{display:block;color:#5A5148;font-size:10.5px}
+.wb-day[aria-pressed="true"] small{color:#fff;opacity:.9}
+.wb-field{display:grid;gap:5px;margin-bottom:12px}
+.wb-field label{font-size:12.5px;font-weight:650;color:#1B2A4A}
+.wb-field input,.wb-field textarea,.wb-field select{font:inherit;font-size:14px;padding:10px 12px;border:1px solid #E7DECB;
   border-radius:10px;background:#fff;color:#241F1B;width:100%}
-.field textarea{min-height:76px;resize:vertical}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.btn{background:#E87722;color:#fff;border:none;border-radius:11px;padding:14px 24px;font:inherit;font-size:15px;
+.wb-field textarea{min-height:76px;resize:vertical}
+.wb-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wb-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.wb-btn{background:#E87722;color:#fff;border:none;border-radius:11px;padding:14px 24px;font:inherit;font-size:15px;
   font-weight:700;cursor:pointer}
-.btn:disabled{opacity:.55;cursor:not-allowed}
-.msg{margin-top:12px;font-size:13.5px;line-height:1.6;padding:12px 14px;border-radius:10px;display:none}
-.msg.err{display:block;background:#FDF1EC;border:1px solid #E8A98A;color:#8A3A12}
-.msg.ok{display:block;background:#EFF6F0;border:1px solid #A8C9AE;color:#1F6B3A}
-.upl{margin-top:26px;font-size:12px;color:#5A5148;line-height:1.7}
-@media(max-width:1040px){.web-body{grid-template-columns:1fr}.rail{flex-direction:row;position:static;overflow:auto}
-  .rail figure{min-width:170px}}
-@media(max-width:640px){.web-hero-grid{grid-template-columns:1fr}.web-portrait{max-width:190px}.two{grid-template-columns:1fr}}
+.wb-btn:disabled{opacity:.55;cursor:not-allowed}
+.wb-msg{margin-top:12px;font-size:13.5px;line-height:1.6;padding:12px 14px;border-radius:10px;display:none}
+.wb-msg.err{display:block;background:#FDF1EC;border:1px solid #E8A98A;color:#8A3A12}
+.wb-msg.ok{display:block;background:#EFF6F0;border:1px solid #A8C9AE;color:#1F6B3A}
+.wb-upl{margin-top:26px;font-size:12px;color:#5A5148;line-height:1.7}
+@media(max-width:1040px){.web-body{grid-template-columns:1fr}.wb-rail{flex-direction:row;position:static;overflow:auto}
+  .wb-rail figure{min-width:170px}}
+@media(max-width:640px){.web-hero-grid{grid-template-columns:1fr}.web-portrait{max-width:190px}.wb-two{grid-template-columns:1fr}}
 </style>
 </head>
 <body class="tcd-skinned">
@@ -170,8 +173,8 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
     <div class="web-body">
 
       <!-- left rail: real slides from the deck -->
-      <aside class="rail" aria-label="Slides from the session">
-        <div class="rail-label">From the deck</div>
+      <aside class="wb-rail" aria-label="Slides from the session">
+        <div class="wb-rail-label">From the deck</div>
         <figure><img src="/assets/webinars/slide-01.jpg" alt="Title slide: Hurt at Work? What New York law actually gives you">
           <figcaption>The opener</figcaption></figure>
         <figure><img src="/assets/webinars/slide-04.jpg" alt="Slide: Give notice within 30 days">
@@ -181,12 +184,12 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
       </aside>
 
       <div>
-        <div class="card">
+        <div class="wb-card">
           <h2>What your members walk away with</h2>
           <p style="margin:0 0 10px;font-size:14.5px;line-height:1.7;">Most injured workers lose ground in the
             first two weeks — not because their claim was weak, but because nobody told them what the clock was.
             The session turns vague anxiety into three dates and a short list of things not to do.</p>
-          <ol class="spine">
+          <ol class="wb-spine">
             <li>What counts as a work injury</li>
             <li>Telling your employer — the 30-day notice rule</li>
             <li>Filing the claim — and the two-year rule</li>
@@ -202,14 +205,14 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
           </ol>
         </div>
 
-        <div class="card">
+        <div class="wb-card">
           <h2>Pick the length that fits your meeting</h2>
-          <div class="lengths">
-            <div class="len"><b>15</b><div class="t">Tail end of a membership meeting</div>
+          <div class="wb-lengths">
+            <div class="wb-len"><b>15</b><div class="wb-t">Tail end of a membership meeting</div>
               <p>The three deadlines and the five mistakes. Fits into a meeting you already have on the calendar.</p></div>
-            <div class="len"><b>30</b><div class="t">A standalone session</div>
+            <div class="wb-len"><b>30</b><div class="wb-t">A standalone session</div>
               <p>The full claim lifecycle, benefit types, and the IME. The one most locals book.</p></div>
-            <div class="len"><b>60</b><div class="t">Steward-grade training</div>
+            <div class="wb-len"><b>60</b><div class="wb-t">Steward-grade training</div>
               <p>Everything above plus permanency, settlement, and how the CBA interacts. Runs as two 30-minute halves with a break.</p></div>
           </div>
           <h3>When we can do it</h3>
@@ -220,65 +223,65 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
         </div>
 
         <!-- BOOKING -->
-        <div class="card book" id="book">
+        <div class="wb-card wb-book" id="book">
           <h2>Book a session</h2>
-          <div class="steps">
-            <div class="step"><b>1. Length</b>How long you want</div>
-            <div class="step"><b>2. Time</b>Pick from real openings</div>
-            <div class="step"><b>3. Details</b>Who you are</div>
+          <div class="wb-steps">
+            <div class="wb-step"><b>1. Length</b>How long you want</div>
+            <div class="wb-step"><b>2. Time</b>Pick from real openings</div>
+            <div class="wb-step"><b>3. Details</b>Who you are</div>
           </div>
 
-          <div class="field"><label id="lenlab">Session length</label>
-            <div class="opts" role="group" aria-labelledby="lenlab" id="lenOpts">
-              <button type="button" class="opt" data-len="15" aria-pressed="false">15 minutes</button>
-              <button type="button" class="opt" data-len="30" aria-pressed="true">30 minutes</button>
-              <button type="button" class="opt" data-len="60" aria-pressed="false">60 minutes</button>
+          <div class="wb-field"><label id="lenlab">Session length</label>
+            <div class="wb-opts" role="group" aria-labelledby="lenlab" id="lenOpts">
+              <button type="button" class="wb-opt" data-len="15" aria-pressed="false">15 minutes</button>
+              <button type="button" class="wb-opt" data-len="30" aria-pressed="true">30 minutes</button>
+              <button type="button" class="wb-opt" data-len="60" aria-pressed="false">60 minutes</button>
             </div>
           </div>
 
-          <div class="field"><label id="kindlab">Session type</label>
-            <div class="opts" role="group" aria-labelledby="kindlab" id="kindOpts">
-              <button type="button" class="opt" data-kind="private" aria-pressed="true">Private — just our local</button>
-              <button type="button" class="opt" data-kind="open" aria-pressed="false">Join the open monthly session</button>
+          <div class="wb-field"><label id="kindlab">Session type</label>
+            <div class="wb-opts" role="group" aria-labelledby="kindlab" id="kindOpts">
+              <button type="button" class="wb-opt" data-kind="private" aria-pressed="true">Private — just our local</button>
+              <button type="button" class="wb-opt" data-kind="open" aria-pressed="false">Join the open monthly session</button>
             </div>
           </div>
 
-          <div class="field"><label id="whenlab">Available times <span style="font-weight:400;color:#5A5148">(Eastern)</span></label>
-            <div class="days" id="slots" role="group" aria-labelledby="whenlab">
+          <div class="wb-field"><label id="whenlab">Available times <span style="font-weight:400;color:#5A5148">(Eastern)</span></label>
+            <div class="wb-days" id="slots" role="group" aria-labelledby="whenlab">
               <p style="grid-column:1/-1;color:#5A5148;font-size:13px;margin:0;">Loading available times…</p>
             </div>
           </div>
 
           <form id="bookForm" autocomplete="on" novalidate>
-            <div class="two">
-              <div class="field"><label for="org">Union / local *</label>
+            <div class="wb-two">
+              <div class="wb-field"><label for="org">Union / local *</label>
                 <input id="org" name="org" required placeholder="e.g. CWA Local 1109"></div>
-              <div class="field"><label for="rep">Your name *</label>
+              <div class="wb-field"><label for="rep">Your name *</label>
                 <input id="rep" name="rep" required placeholder="First and last"></div>
             </div>
-            <div class="two">
-              <div class="field"><label for="title">Your title</label>
+            <div class="wb-two">
+              <div class="wb-field"><label for="title">Your title</label>
                 <input id="title" name="title" placeholder="e.g. Health &amp; Safety Director"></div>
-              <div class="field"><label for="phone">Phone</label>
+              <div class="wb-field"><label for="phone">Phone</label>
                 <input id="phone" name="phone" type="tel" placeholder="(555) 555-5555"></div>
             </div>
-            <div class="two">
-              <div class="field"><label for="email">Email *</label>
+            <div class="wb-two">
+              <div class="wb-field"><label for="email">Email *</label>
                 <input id="email" name="email" type="email" required placeholder="you@yourlocal.org"></div>
-              <div class="field"><label for="size">Roughly how many attending</label>
+              <div class="wb-field"><label for="size">Roughly how many attending</label>
                 <input id="size" name="size" type="number" min="1" max="5000" placeholder="e.g. 40"></div>
             </div>
-            <div class="field"><label for="topics">Anything your members ask about most?</label>
+            <div class="wb-field"><label for="topics">Anything your members ask about most?</label>
               <textarea id="topics" name="topics" placeholder="Optional — e.g. what happens at an IME, how the rate is figured"></textarea></div>
-            <div class="field" style="flex-direction:row;align-items:center;">
+            <div class="wb-field" style="flex-direction:row;align-items:center;">
               <label style="font-weight:400;font-size:13px;display:flex;gap:8px;align-items:flex-start;">
                 <input type="checkbox" id="cba" style="width:auto;margin-top:3px;">
                 <span>We'd also like the part about how our contract interacts with a comp claim.</span></label>
             </div>
-            <div class="hp"><label>Leave this empty<input id="website" name="website" tabindex="-1" autocomplete="off"></label></div>
+            <div class="wb-hp"><label>Leave this empty<input id="website" name="website" tabindex="-1" autocomplete="off"></label></div>
 
-            <button class="btn" id="submit" type="submit">Book this session</button>
-            <div class="msg" id="msg" role="status" aria-live="polite"></div>
+            <button class="wb-btn" id="submit" type="submit">Book this session</button>
+            <div class="wb-msg" id="msg" role="status" aria-live="polite"></div>
           </form>
 
           <p style="margin:16px 0 0;font-size:11.5px;color:#5A5148;line-height:1.7;">
@@ -287,7 +290,7 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
             given, and no one is asked to sign anything.</p>
         </div>
 
-        <div class="card">
+        <div class="wb-card">
           <h2>Who presents it</h2>
           <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;">
             <img src="/assets/webinars/joel-headshot-sm.jpg" alt="Joel Mays, Esq." width="120" height="120"
@@ -300,7 +303,7 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
           </div>
         </div>
 
-        <div class="upl">
+        <div class="wb-upl">
           <p><strong>Important —</strong> The Comp Desk is a software platform, not a law firm. This session is
             general educational information about New York Workers' Compensation Law. It is not legal advice, and
             attending does not create an attorney-client relationship with any attorney. Members with questions
@@ -309,8 +312,8 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
       </div>
 
       <!-- right rail -->
-      <aside class="rail" aria-label="More slides from the session">
-        <div class="rail-label">From the deck</div>
+      <aside class="wb-rail" aria-label="More slides from the session">
+        <div class="wb-rail-label">From the deck</div>
         <figure><img src="/assets/webinars/slide-02.jpg" alt="Slide: the not-legal-advice disclaimer read at the start">
           <figcaption>We open with this</figcaption></figure>
         <figure><img src="/assets/webinars/slide-07.jpg" alt="Slide: the five mistakes that cost members the most">
@@ -365,11 +368,18 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
           : 'No openings in the next 60 days. Email contact@thecompdesk.com and we will find a time.') + '</p>';
       return;
     }
-    box.innerHTML = list.map(function (s) {
-      return '<button type="button" class="day" data-id="' + s.id + '" aria-pressed="' +
+    var monthOf = function (iso) {
+      return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' }).format(new Date(iso));
+    };
+    var seen = null, html = '';
+    list.forEach(function (s) {
+      var m = monthOf(s.start_ts);
+      if (m !== seen) { html += '<div class="wb-month">' + m + '</div>'; seen = m; }
+      html += '<button type="button" class="wb-day" data-id="' + s.id + '" aria-pressed="' +
         (state.slotId === s.id ? 'true' : 'false') + '">' + fmtDay(s.start_ts) +
         '<small>' + fmtTime(s.start_ts) + '</small></button>';
-    }).join('');
+    });
+    box.innerHTML = html;
     Array.prototype.forEach.call(box.querySelectorAll('.day'), function (b) {
       b.addEventListener('click', function () {
         state.slotId = b.dataset.id;
@@ -381,7 +391,7 @@ body.tcd-skinned .card h3{margin:18px 0 6px;font-size:14px;color:#1B2A4A}
   }
 
   function loadSlots() {
-    call({ action: 'slots', days: 60 }).then(function (r) {
+    call({ action: 'slots', days: 90 }).then(function (r) {
       state.slots = (r.body && r.body.slots) || [];
       renderSlots();
     }).catch(function () {
