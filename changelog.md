@@ -5,6 +5,46 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-07-30
+
+### Workspace autosave — stop a silent anon-degrade from killing saves (and lying about it)
+
+A rejected Supabase refresh token (`POST /auth/v1/token → 400`) leaves supabase-js
+answering every request with **no Authorization header** — all PostgREST calls silently run
+as the `anon` role. Under RLS that is not an error: reads return `200 []`, and the guarded
+UPDATE matches 0 rows. `persistence.js` read that empty result as "first-time user," fired
+an INSERT that 401'd, and autosave was dead for the rest of the session while the header
+still showed a green "Pro · synced." Same failure shape as the Apr 27 RLS incident: a
+permission failure wearing an empty-result costume.
+
+Fix, per the fail-loud playbook (`js/workspace/persistence.js`, `js/workspace/app.js`,
+`workspace.html`):
+
+- **`_liveSession()` gate before every read/write** — verify the session exists, refresh it
+  when within 30s of expiry, and assert it belongs to `window.workspaceUserId`. No live
+  session → emit `workspace:auth-expired` and write nothing.
+- **Never INSERT over a row we've already seen** — a `_rowKnown` flag turns "row invisible"
+  into `WORKSPACE_ROW_INVISIBLE` instead of an INSERT that could clobber a real workspace.
+- **Fail loud on load** — `loadWorkspace()` throws `WORKSPACE_LOAD_AUTH_EXPIRED` instead of
+  returning null, so a dead session can't render an empty workspace that the next save
+  would persist over real work.
+- **Self-heal the frozen-remote version deadlock** — if the remote version hasn't moved
+  across 3 conflicting attempts there is no competing writer; adopt it and retry once
+  (`WORKSPACE_SAVE_VERSION_RESYNC`). A moving remote version still surfaces a real conflict.
+- **Say it plainly** — the save indicator gains a `signed-out` state ("Not saving — sign in
+  again"), workspace.html shows a red status line, and `supabase.auth.onAuthStateChange`
+  re-bridges `window.workspaceUserId` + fires `workspace:auth-recovered` so signing in on
+  any other tab resumes saving **without a reload** — nothing typed while stuck is lost.
+
+Deploy note: the ops drafting copy of `app.js` had drifted behind the deploy repo (it
+predated the tile-grid refactor, auto-hide toolbar, and per-tile error boundary), so the
+three fix hunks were rebased onto the repo's current `app.js` rather than copied wholesale.
+`persistence.js` was current and copied verbatim. The app's ESM copy
+(`www/js/workspace/persistence.js`) has the identical hole and is handled separately
+(bundle rebuild + native mirror).
+
+---
+
 ## 2026-07-26
 
 ### Phase 3 i18n — 9 locale scripts, and two deliberate architecture decisions worth remembering

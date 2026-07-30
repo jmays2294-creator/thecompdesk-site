@@ -288,16 +288,43 @@
     // v1.2 — OC-400.1 fee-app generator. Loads pdf-lib lazily on first open.
     await loadAndTransform('/js/workspace/feeapp.js');
 
-    const idleStatus = () => isAuthed
-      ? (tier === 'firm' ? 'Firm · synced'
-          : tier === 'pro' ? 'Pro · synced'
+    const idleStatus = () => window.workspaceUserId
+      ? ((window.currentTier || tier) === 'firm' ? 'Firm · synced'
+          : (window.currentTier || tier) === 'pro' ? 'Pro · synced'
           : 'Free · 1 tab synced')
       : 'Guest demo · sign in to save';
     setStatus(idleStatus(), 'var(--site-gn)');
     // Surface persistence errors loudly per the Apr 27 fail-loud playbook.
-    window.addEventListener('workspace:save-error', () => setStatus('Save error — see console', 'var(--site-gd)'));
+    window.addEventListener('workspace:save-error', (ev) => {
+      if (ev && ev.detail && ev.detail.authExpired) return; // auth-expired has its own copy
+      setStatus('Save error — see console', 'var(--site-gd)');
+    });
     window.addEventListener('workspace:load-error', () => setStatus('Load error — see console', '#ef4444'));
     window.addEventListener('workspace:saved', () => setStatus(idleStatus(), 'var(--site-gn)'));
+
+    // Sign-in died mid-session (refresh token rejected → the client silently
+    // falls back to the anon role, RLS returns empty sets, and nothing saves).
+    // Say so plainly instead of leaving a green "Pro · synced" lie on screen.
+    window.addEventListener('workspace:auth-expired', () => {
+      setStatus('Sign-in expired — nothing is saving. Sign in again in a new tab; your work stays on screen.', '#ef4444');
+    });
+
+    // Recovery WITHOUT a reload: supabase-js broadcasts a new session across
+    // tabs of the same origin, so signing in elsewhere re-arms this workspace
+    // and the next autosave flushes everything typed while it was stuck.
+    supabase.auth.onAuthStateChange((event, newSession) => {
+      const uid = (newSession && newSession.user && newSession.user.id) || null;
+      window.workspaceUserId = uid;
+      if (uid) {
+        if (window.WorkspacePersistence && window.WorkspacePersistence._sessionRecovered) {
+          window.WorkspacePersistence._sessionRecovered();
+        }
+        window.dispatchEvent(new CustomEvent('workspace:auth-recovered', { detail: { userId: uid } }));
+        setStatus(idleStatus(), 'var(--site-gn)');
+      } else if (event === 'SIGNED_OUT') {
+        window.dispatchEvent(new CustomEvent('workspace:auth-expired', { detail: { reason: 'signed-out' } }));
+      }
+    });
   } catch (e) {
     console.error('[workspace] BOOTSTRAP_FAILED', e);
     setStatus('Workspace failed to load — refresh or contact support.', '#ef4444');

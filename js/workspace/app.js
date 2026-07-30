@@ -389,9 +389,14 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
               {isFullscreen ? '⤢ Exit Full Screen' : '⤢ Full Screen'}
             </button>
           </div>
-          <div className={'save-indicator ' + (saveStatus === 'saving' ? 'saving' : saveStatus === 'error' ? 'error' : '')}>
+          <div
+            className={'save-indicator ' + (saveStatus === 'saving' ? 'saving' : (saveStatus === 'error' || saveStatus === 'signed-out') ? 'error' : '')}
+            title={saveStatus === 'signed-out'
+              ? 'Your sign-in expired, so nothing is being saved. Sign in again in another tab — this workspace keeps everything on screen and resumes saving automatically.'
+              : undefined}>
             <span className="dot"></span>
             {saveStatus === 'saving' ? 'Saving…'
+              : saveStatus === 'signed-out' ? 'Not saving — sign in again'
               : saveStatus === 'error' ? 'Save error'
               : saveStatus === 'offline' ? 'Offline'
               : 'Saved'}
@@ -1704,6 +1709,13 @@ function App() {
       };
 
       const result = await window.WorkspacePersistence.saveWorkspace(payload);
+      if (result.authExpired) {
+        // Sign-in died mid-session. Nothing was written — keep everything on
+        // screen, keep dirtyRef true, and tell the user plainly. The bootstrap
+        // re-arms us via workspace:auth-recovered when a session comes back.
+        setSaveStatus('signed-out');
+        return;
+      }
       if (result.ok) {
         // Sync the case index too (denormalized for the tab strip query)
         await window.WorkspacePersistence.syncCaseIndex(syncedTabs);
@@ -1783,13 +1795,25 @@ function App() {
 
   // ---------- Save error event surfaces toast ----------
   useEffect(() => {
-    const onSaveErr = () => setSaveStatus('error');
+    const onSaveErr = (ev) => setSaveStatus(ev && ev.detail && ev.detail.authExpired ? 'signed-out' : 'error');
     const onLoadErr = () => setSaveStatus('error');
+    const onAuthExpired = () => setSaveStatus('signed-out');
+    // A session came back (signed in again here or in another tab). Re-arm the
+    // debounced save by touching tab identity — everything the user typed while
+    // signed out is still in state, so it lands on the very next save.
+    const onAuthRecovered = () => {
+      setSaveStatus('saving');
+      setTabs(prev => prev.slice());
+    };
     window.addEventListener('workspace:save-error', onSaveErr);
     window.addEventListener('workspace:load-error', onLoadErr);
+    window.addEventListener('workspace:auth-expired', onAuthExpired);
+    window.addEventListener('workspace:auth-recovered', onAuthRecovered);
     return () => {
       window.removeEventListener('workspace:save-error', onSaveErr);
       window.removeEventListener('workspace:load-error', onLoadErr);
+      window.removeEventListener('workspace:auth-expired', onAuthExpired);
+      window.removeEventListener('workspace:auth-recovered', onAuthRecovered);
     };
   }, []);
 
