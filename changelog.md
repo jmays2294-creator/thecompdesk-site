@@ -5,6 +5,45 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-03 (later)
+
+### /dashboard — desktop tile layer: the design's actual big-screen layouts
+
+Joel's read on the first shell deploy was right: the vendored phone-column
+dashboards inside a desktop window still read as "an app on a phone." This adds
+`js/dashboard-web-v2.js` + `css/dashboard-web-v2.css` (web-only, never synced) —
+the render layer that produces what the P6–P10 / P11 design pages actually
+specify, on real data:
+
+- **Worker** — the launcher grid: a true-state hero across 4 of 6 columns (the
+  weekly estimate from `profiles.current_aww`, ⅔ capped at the DOA-period max
+  via calc-core/MAX_RATES; an honest CTA hero when no wage is on file) plus
+  nine feature tiles sized so every grid row fills exactly, opening the same
+  screens as before. The vendored launcher sections hide via
+  `[data-dashv2-hidden]`; the functional cards (tracker + gauge, case snapshot,
+  appointments, documents, upgrade) keep rendering below, untouched.
+- **Attorney** — P11's 48-hour clock: most-urgent open lead as the hero with a
+  live countdown ring, Call / Accept / Decline through the same
+  `respond_to_lead` RPC, a click-to-promote open queue, stats derived from the
+  real lead list, and the design's empty states with the vendored module's
+  honest copy. The command center below keeps Upcoming / This Month / Quick
+  Calc / Tools / Skills.
+
+Two defects caught in review, worth remembering:
+
+1. **`*/` inside a CSS comment.** The stylesheet header said `.wd-*/.cc-*` —
+   that `*/` terminates the comment, and the parser's error recovery silently
+   swallowed the first rule of the file (the hide rule, so nothing hid). Glob
+   pairs in CSS comments must be written spaced or spelled out.
+2. **Async repaint race.** The vendored attorney module's own fetch triggers a
+   full `CD.render()` while the v2 leads fetch is in flight; a completion
+   callback captured by the old block painted into a detached node and the new
+   block stuck on "Checking your leads…". Completion now notifies whatever
+   block is current (module-level `_notify`), and the shell re-tags rail
+   anchors after every async repaint via `CD.dashShellDecorate`.
+
+---
+
 ## 2026-08-03
 
 ### /dashboard — V2 web shell: window panel, persistent side rail, deep links
