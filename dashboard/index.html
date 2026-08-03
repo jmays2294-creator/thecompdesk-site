@@ -31,6 +31,7 @@
          The 1040 cap + responsive padding moved into .dash-shell there. -->
     <link rel="stylesheet" href="/css/tokens-v2.css">
     <link rel="stylesheet" href="/css/dashboard-shell-v2.css">
+    <link rel="stylesheet" href="/css/dashboard-web-v2.css">
     <style>
       #dashLoading {
         max-width: 680px; margin: 64px auto; padding: 0 20px; text-align: center;
@@ -99,6 +100,9 @@
   <script src="/js/dashboard/ime-reminders.js" defer></script>
   <script src="/js/dashboard/worker-dashboard.js" defer></script>
   <script src="/js/dashboard/attorney-dashboard.js" defer></script>
+  <!-- V2 desktop tile layer (P6–P11 design) — web-only, composes over the
+       vendored dashboards; must load before the host that calls it. -->
+  <script src="/js/dashboard-web-v2.js" defer></script>
   <script src="/js/dashboard-host.js" defer></script>
   <!-- Job Buddy screens (worker + firm), mounted in-place by dashboard-host showScreen -->
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>

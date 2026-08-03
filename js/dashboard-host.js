@@ -217,22 +217,33 @@
       return true;
     }
 
+    // Skip anything the V2 layer hid ([data-dashv2-hidden]) or that otherwise
+    // doesn't paint — scrolling to an invisible section reads as a dead link.
+    function visible(el) {
+      try { return !!el && el.getClientRects().length > 0; } catch (e) { return !!el; }
+    }
     function findWorkerSections() {
       var out = {};
-      out['dash-top'] = root.querySelector('.wd-hero') || root.firstElementChild;
+      var v2 = root.querySelector('.dashv2');
+      out['dash-top'] = v2 || root.querySelector('.wd-hero') || root.firstElementChild;
+      if (v2) out['dash-buddy'] = v2.querySelector('.wg');       // the tile grid IS the feature launcher
       var ap = root.querySelector('.wd-appts');
       if (ap) out['dash-dates'] = ap.closest('.wd-section') || ap;
       var dc = root.querySelector('.wd-docs');
       if (dc) out['dash-docs'] = dc.closest('.wd-section') || dc;
-      var labels = root.querySelectorAll('.wd-section-label');
-      for (var i = 0; i < labels.length; i++) {
-        if (/comp buddy features/i.test(labels[i].textContent || '')) { out['dash-buddy'] = labels[i]; break; }
+      if (!out['dash-buddy']) {
+        var labels = root.querySelectorAll('.wd-section-label');
+        for (var i = 0; i < labels.length; i++) {
+          if (/comp buddy features/i.test(labels[i].textContent || '')) { out['dash-buddy'] = labels[i]; break; }
+        }
       }
       return out;
     }
     function findAttorneySections() {
       var out = {};
-      out['dash-top'] = root.querySelector('.cc-hero') || root.firstElementChild;
+      var v2 = root.querySelector('.dashv2');
+      out['dash-top'] = v2 || root.querySelector('.cc-hero') || root.firstElementChild;
+      if (v2) out['dash-leads'] = v2.querySelector('.wg');       // the P11 leads block (null while loading)
       var titles = root.querySelectorAll('.cc-card-title');
       for (var i = 0; i < titles.length; i++) {
         var id = CC_TITLE_IDS[String(titles[i].textContent || '').trim().toLowerCase()];
@@ -279,7 +290,9 @@
         rail.removeAttribute('hidden');
         var found = isWorker ? findWorkerSections() : findAttorneySections();
         var present = {};
-        Object.keys(found).forEach(function (id) { if (tag(found[id], id)) present[id] = true; });
+        Object.keys(found).forEach(function (id) {
+          if (visible(found[id]) && tag(found[id], id)) present[id] = true;
+        });
         Object.keys(links).forEach(function (id) {
           links[id].style.display = present[id] ? '' : 'none';
         });
@@ -420,6 +433,13 @@
       var node = null;
       try { node = mod.render(ctx); }
       catch (e) { console.error('[dashboard-host] DASHBOARD_RENDER_FAILED', e); }
+      // V2 desktop tile layer (P6–P11 design): compose the tile grid / leads
+      // block above the vendored render and hide the sections it replaces.
+      // Any failure falls back to the vendored render untouched.
+      if (node && CD.WebDashV2 && typeof CD.WebDashV2.wrap === 'function') {
+        try { node = CD.WebDashV2.wrap(node, ctx, isWorker) || node; }
+        catch (e) { console.error('[dashboard-host] WEBDASHV2_FAILED', e); }
+      }
       root.innerHTML = '';
       if (node) root.appendChild(node);
       else root.appendChild(CD.h('p', { className: 'wd-disclaimer' }, 'Dashboard unavailable right now.'));
@@ -432,6 +452,9 @@
     var shell = null;
     try { shell = initShell(root, isWorker, render); }
     catch (e) { console.warn('[dashboard-host] SHELL_INIT_FAILED', e); }
+    // Async blocks (the P11 leads grid) repaint outside render(); they call
+    // this hook so freshly built sections get re-tagged for the rail.
+    if (shell) CD.dashShellDecorate = function () { try { shell.decorate(); } catch (e) {} };
 
     render();
   }

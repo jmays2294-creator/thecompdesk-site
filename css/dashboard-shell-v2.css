@@ -33,7 +33,10 @@
   --v2-glass-panel: color-mix(in srgb, var(--tcd-cream) 84%, transparent);
   --dash-win-shadow: 0 40px 90px -40px rgba(27, 42, 74, .35), 0 4px 12px rgba(27, 42, 74, .12);
 
-  max-inline-size: 1040px;      /* do not widen past 1040 — see header */
+  /* The design's window is 1136px: the 76px rail + a content column whose
+     GRID never widens past ~1040 (the vendored tiles are authored for that).
+     The shell cap is therefore the window plus page padding, not 1040. */
+  max-inline-size: 1184px;
   margin-inline: auto;
   padding: 28px 24px 56px;
 }

@@ -1,0 +1,279 @@
+/* ============================================================================
+ * dashboard-web-v2.css — the V2 DESKTOP TILE LAYER for /dashboard.
+ * ----------------------------------------------------------------------------
+ * The tile chrome, hero, and P11 leads styles from the Claude Design pages
+ * "P6–P10 Web Dashboards" / "P11 Attorney Leads Web" (the-comp-desk-design-
+ * system), converted from the .dc.html markup to classes. Values are kept
+ * verbatim from the design wherever possible; only the canvas-demo scaffolding
+ * (fixed pixel page widths, ribbon canvas) is dropped.
+ *
+ * WEB-ONLY: not synced from the app. Rendered by js/dashboard-web-v2.js inside
+ * the .dash-win shell; the vendored .wd-* and .cc-* modules are untouched
+ * (some of their sections are hidden via [data-dashv2-hidden] because the
+ * tile grid replaces them as the launcher). Skin follows <html data-audience>.
+ * Consumes tokens-v2.css + dashboard-shell-v2.css (the .wg grid lives there).
+ * ==========================================================================*/
+
+/* sections the tile grid replaces (hidden by the renderer, never removed) */
+[data-dashv2-hidden] { display: none !important; }
+
+.dashv2 { display: flex; flex-direction: column; gap: 16px; margin-block-end: 24px; }
+
+/* ── Header row: brand mark · segment chip · right meta (design header) ──── */
+.dashv2-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dashv2-brand {
+  display: flex; align-items: baseline; gap: 3px;
+  font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px;
+  letter-spacing: -.02em; color: var(--v2-text);
+}
+[data-audience="attorney"] .dashv2-brand {
+  font-family: 'Geist', 'DM Sans', sans-serif; font-weight: 800; letter-spacing: -.035em;
+}
+.dashv2-brand-dot {
+  display: block; inline-size: 6px; block-size: 6px; border-radius: 999px;
+  background: var(--v2-accent);
+  animation: dashv2-breathe 2.6s var(--v2-ease) infinite;
+}
+.dashv2-chip {
+  min-block-size: 26px; padding: 0 10px; border-radius: 999px;
+  background: var(--v2-surface-sunken); border: 1px solid var(--v2-border);
+  display: inline-flex; align-items: center;
+  font: 700 10px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--v2-accent-text);
+}
+.dashv2-meta {
+  margin-inline-start: auto;
+  font: 600 13px 'JetBrains Mono', monospace; color: var(--v2-text-mute);
+}
+
+/* greeting / headline row */
+.dashv2-greeting {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  font-family: 'Fraunces', serif; font-size: 31px; font-weight: 700;
+  letter-spacing: -.015em; line-height: 1.08; color: var(--v2-text);
+}
+[data-audience="attorney"] .dashv2-greeting {
+  font-family: 'Geist', 'DM Sans', sans-serif; font-weight: 800;
+  letter-spacing: -.035em; line-height: 1.05;
+}
+.dashv2-greeting .clock { font: 600 13px 'JetBrains Mono', monospace; color: var(--v2-danger-text, #C0392B); }
+[data-audience="attorney"] .dashv2-greeting .clock { color: #FF8B7A; }
+
+/* ── Tile chrome (design .tile, worker skin values) ──────────────────────── */
+.dashv2 .tile {
+  position: relative; cursor: pointer; will-change: transform;
+  border: 1px solid var(--v2-border); border-radius: 16px;
+  background: var(--v2-glass);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+  backdrop-filter: blur(12px) saturate(135%);
+  padding: 16px; display: flex; flex-direction: column; gap: 8px;
+  box-shadow: 0 1px 2px rgba(27,42,74,.07), 0 6px 14px -8px rgba(27,42,74,.16), 0 20px 44px -26px rgba(27,42,74,.24);
+  transition: transform var(--v2-dur) var(--v2-ease), box-shadow var(--v2-dur) var(--v2-ease), border-color var(--v2-dur) var(--v2-ease);
+}
+.dashv2 .tile > * { position: relative; z-index: 1; }
+.dashv2 .tile::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.16) 34%, rgba(255,255,255,0) 64%),
+              radial-gradient(90% 120px at 88% -18%, rgba(232,119,34,.13), rgba(232,119,34,0) 70%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(27,42,74,.07);
+}
+.dashv2 .tile:hover {
+  transform: translateY(-3px); border-color: var(--v2-accent);
+  box-shadow: 0 2px 4px rgba(27,42,74,.08), 0 14px 26px -10px rgba(27,42,74,.22), 0 34px 62px -30px rgba(27,42,74,.30);
+}
+.dashv2 .tile:active { transform: translateY(0) scale(.985); transition-duration: var(--v2-dur-fast); }
+.dashv2 .tile.is-static { cursor: default; }
+.dashv2 .tile.is-static:hover {
+  transform: none; border-color: var(--v2-border);
+  box-shadow: 0 1px 2px rgba(27,42,74,.07), 0 6px 14px -8px rgba(27,42,74,.16), 0 20px 44px -26px rgba(27,42,74,.24);
+}
+.dashv2 .tile:focus-visible, .dashv2 .btn:focus-visible { outline: 3px solid var(--v2-accent); outline-offset: 3px; }
+
+/* attorney skin: darker shadow stack + subtler gloss (design P11 values) */
+[data-audience="attorney"] .dashv2 .tile {
+  box-shadow: 0 1px 2px rgba(0,0,0,.36), 0 8px 20px -10px rgba(0,0,0,.48), 0 26px 54px -30px rgba(0,0,0,.62);
+}
+[data-audience="attorney"] .dashv2 .tile::after {
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02) 38%, rgba(255,255,255,0) 66%),
+              radial-gradient(90% 120px at 88% -18%, rgba(232,119,34,.20), rgba(232,119,34,0) 70%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.13), inset 0 -1px 0 rgba(0,0,0,.34);
+}
+[data-audience="attorney"] .dashv2 .tile:hover {
+  box-shadow: 0 2px 5px rgba(0,0,0,.4), 0 16px 30px -12px rgba(0,0,0,.55), 0 40px 72px -34px rgba(0,0,0,.7);
+}
+[data-audience="attorney"] .dashv2 .tile.is-static:hover {
+  box-shadow: 0 1px 2px rgba(0,0,0,.36), 0 8px 20px -10px rgba(0,0,0,.48), 0 26px 54px -30px rgba(0,0,0,.62);
+}
+
+/* hero tiles get the larger radius + padding from the design */
+.dashv2 .wg > [data-size="hero"].tile { padding: 20px; border-radius: 20px; }
+
+/* entrance: rise with stagger (design .rise) */
+@keyframes dashv2-rise { from { opacity: 0; transform: translateY(var(--v2-lift, 12px)); } to { opacity: 1; transform: none; } }
+@keyframes dashv2-breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.dashv2 .rise {
+  animation: dashv2-rise var(--v2-dur-slow) var(--v2-ease) both;
+  animation-delay: calc(min(var(--i, 0), 8) * var(--v2-stagger));
+}
+.dashv2 .pulse { animation: dashv2-breathe 1.5s var(--v2-ease) infinite; }
+
+/* ── Peer-tile internals (icon plate · label · desc · count) ─────────────── */
+.dashv2 .tile-row { display: flex; align-items: center; gap: 10px; }
+.dashv2 .tile-glyph {
+  inline-size: 34px; block-size: 34px; border-radius: 10px; flex: 0 0 auto;
+  background: var(--v2-surface-sunken); display: grid; place-items: center;
+  font: 600 13px 'JetBrains Mono', monospace; color: var(--v2-text-mute);
+}
+.dashv2 .tile-label { font-size: 16px; font-weight: 600; color: var(--v2-text); line-height: 1.3; }
+.dashv2 .tile-desc { font-size: 13px; color: var(--v2-text-mute); line-height: 1.45; text-wrap: pretty; }
+.dashv2 .tile-count { margin-block-start: auto; font: 600 20px 'JetBrains Mono', monospace; color: var(--v2-text); }
+.dashv2 .chev { margin-block-start: auto; font-size: 20px; color: var(--v2-text-mute); }
+.dashv2 .chev::after { content: "\2192"; }
+[dir="rtl"] .dashv2 .chev::after { content: "\2190"; }
+
+/* ── Buttons (design .btn) ───────────────────────────────────────────────── */
+.dashv2 .btn {
+  position: relative; cursor: pointer; border: 0; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 1px 2px rgba(27,42,74,.10), 0 6px 14px -8px rgba(27,42,74,.28);
+  transition: transform var(--v2-dur-fast) var(--v2-ease), filter var(--v2-dur) var(--v2-ease);
+}
+.dashv2 .btn::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 55%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset 0 -1px 0 rgba(0,0,0,.14);
+}
+.dashv2 .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.dashv2 .btn:active { transform: translateY(0) scale(.98); }
+.dashv2 .btn-primary {
+  min-block-size: 48px; padding: 0 22px; border-radius: 14px;
+  background: var(--v2-accent); color: var(--v2-on-accent);
+  font: 700 16px 'DM Sans', sans-serif;
+}
+.dashv2 .btn-ghost {
+  min-block-size: 48px; padding: 0 20px; border-radius: 14px;
+  background: transparent; border: 1px solid var(--v2-border); color: var(--v2-text);
+  font: 600 16px 'DM Sans', sans-serif; box-shadow: none;
+}
+.dashv2 .btn-ghost::after { display: none; }
+/* attorney CTAs are the denser 44px/radius-8 pair from P11 */
+[data-audience="attorney"] .dashv2 .btn-primary { min-block-size: 44px; padding: 0 18px; border-radius: 8px; font-size: 15px; }
+[data-audience="attorney"] .dashv2 .btn-ghost   { min-block-size: 44px; padding: 0 16px; border-radius: 8px; font-size: 15px; }
+.dashv2 .btn-danger { border-color: rgba(192,57,43,.55); color: var(--v2-danger-text, #FF8B7A); }
+
+/* ── Worker hero (P9 estimate hero) ──────────────────────────────────────── */
+.dashv2 .hero-eyebrow {
+  font: 700 10px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--v2-text-dim);
+}
+.dashv2 .hero-amt { font: 600 39px 'JetBrains Mono', monospace; color: var(--v2-text); line-height: 1.05; }
+.dashv2 .hero-unit { font-size: 20px; color: var(--v2-text-mute); line-height: 1.4; }
+.dashv2 .hero-title {
+  font-family: 'Fraunces', serif; font-size: 31px; font-weight: 700;
+  letter-spacing: -.015em; line-height: 1.1; color: var(--v2-text); text-wrap: pretty;
+}
+.dashv2 .hero-body { font-size: 16px; line-height: 1.5; color: var(--v2-text-mute); max-inline-size: 50ch; text-wrap: pretty; }
+.dashv2 .hero-ctas { display: flex; gap: 10px; margin-block-start: auto; flex-wrap: wrap; }
+
+/* ── P11 · attorney leads ────────────────────────────────────────────────── */
+.dashv2 .lead-hero { flex-direction: row; gap: 20px; }
+.dashv2 .lead-hero.is-urgent { border-color: rgba(192,57,43,.55); }
+.dashv2 .lead-ring-col { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.dashv2 .lead-ring {
+  position: relative; inline-size: 132px; block-size: 132px; border-radius: 999px;
+  display: grid; place-items: center;
+  background: conic-gradient(var(--v2-danger) 0 var(--ring, 50%), rgba(255,255,255,.12) var(--ring, 50%) 100%);
+}
+.dashv2 .lead-ring-inner {
+  inline-size: 104px; block-size: 104px; border-radius: 999px; background: #16223A;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+}
+.dashv2 .lead-ring-clock {
+  font: 700 22px 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;
+  color: var(--v2-danger-text, #FF8B7A); letter-spacing: -.02em;
+}
+.dashv2 .lead-ring-cap {
+  font: 700 8px 'DM Sans', sans-serif; letter-spacing: .5px; text-transform: uppercase;
+  color: var(--v2-text-dim);
+}
+.dashv2 .lead-ring-call {
+  font: 700 10px 'DM Sans', sans-serif; letter-spacing: .5px; text-transform: uppercase;
+  color: var(--v2-danger-text, #FF8B7A);
+}
+.dashv2 .lead-hero-main { flex: 1; display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; }
+.dashv2 .lead-hero-name {
+  font-family: 'Geist', 'DM Sans', sans-serif; font-size: 28px; font-weight: 800;
+  letter-spacing: -.035em; line-height: 1.06; color: var(--v2-text); text-wrap: pretty;
+}
+.dashv2 .lead-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.dashv2 .lead-fact {
+  padding: 10px; border-radius: 10px; background: var(--v2-surface-sunken);
+  border: 1px solid var(--v2-border); display: flex; flex-direction: column; gap: 3px; min-inline-size: 0;
+}
+.dashv2 .lead-fact .k { font: 700 8px 'DM Sans', sans-serif; letter-spacing: .5px; text-transform: uppercase; color: var(--v2-text-dim); }
+.dashv2 .lead-fact .v {
+  font: 700 15px 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;
+  color: var(--v2-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* open queue (44px rows, mono clocks) */
+.dashv2 .queue { gap: 2px; }
+.dashv2 .queue-hd { display: flex; align-items: baseline; gap: 8px; margin-block-end: 6px; }
+.dashv2 .queue-hd .k { font: 700 10px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--v2-text-dim); }
+.dashv2 .queue-hd .u { margin-inline-start: auto; font: 600 11px 'JetBrains Mono', monospace; color: var(--v2-text-dim); }
+.dashv2 .queue-row {
+  display: flex; align-items: center; gap: 10px; min-block-size: 44px; padding: 0 8px;
+  border-radius: 8px; background: transparent; border: 0; cursor: pointer;
+  text-align: start; inline-size: 100%; color: inherit; font: inherit;
+  transition: background var(--v2-dur-fast) var(--v2-ease);
+}
+.dashv2 .queue-row:hover { background: var(--v2-surface-sunken); }
+.dashv2 .queue-row:focus-visible { outline: 3px solid var(--v2-accent); outline-offset: 1px; }
+.dashv2 .queue-dot { inline-size: 6px; block-size: 6px; border-radius: 999px; flex: 0 0 auto; }
+.dashv2 .queue-body { display: flex; flex-direction: column; min-inline-size: 0; }
+.dashv2 .queue-name { font-size: 14px; font-weight: 600; color: var(--v2-text); line-height: 1.25; }
+.dashv2 .queue-sub { font-size: 11px; color: var(--v2-text-dim); line-height: 1.3; }
+.dashv2 .queue-left {
+  margin-inline-start: auto; font: 700 13px 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums; color: var(--v2-text);
+}
+
+/* stat tiles */
+.dashv2 .stat-k { font: 700 10px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--v2-text-dim); }
+.dashv2 .stat-row { display: flex; align-items: baseline; gap: 6px; }
+.dashv2 .stat-v { font: 700 31px 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -.02em; color: var(--v2-text); }
+.dashv2 .stat-u { font: 600 13px 'JetBrains Mono', monospace; color: var(--v2-text-dim); }
+.dashv2 .stat-d { font-size: 13px; color: var(--v2-text-mute); line-height: 1.45; text-wrap: pretty; }
+
+/* empty state (the design's "three silences" tile) */
+.dashv2 .empty-tile { min-block-size: 224px; padding: 18px; border-radius: 20px; gap: 10px; }
+.dashv2 .empty-tile.is-dashed { border-style: dashed; }
+.dashv2 .empty-glyph {
+  inline-size: 40px; block-size: 40px; border-radius: 12px;
+  background: var(--v2-surface-sunken); border: 1px solid var(--v2-border);
+  display: grid; place-items: center; font: 700 16px 'JetBrains Mono', monospace; color: var(--v2-text-dim);
+}
+.dashv2 .empty-eyebrow { font: 700 10px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--v2-text-dim); }
+.dashv2 .empty-title {
+  font-family: 'Geist', 'DM Sans', sans-serif; font-size: 20px; font-weight: 800;
+  letter-spacing: -.035em; line-height: 1.1; color: var(--v2-text); text-wrap: pretty;
+}
+[data-audience="worker"] .dashv2 .empty-title { font-family: 'Fraunces', serif; font-weight: 700; letter-spacing: -.015em; }
+.dashv2 .empty-body { font-size: 13px; color: var(--v2-text-mute); line-height: 1.5; text-wrap: pretty; }
+
+/* ── Responsive: hero internals stack under 768 (grid columns live in
+      dashboard-shell-v2.css) ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dashv2 .lead-hero { flex-direction: column; }
+  .dashv2 .hero-amt { font-size: 31px; }
+  .dashv2 .dashv2-greeting { font-size: 25px; }
+}
+@media (max-width: 560px) {
+  .dashv2 .lead-facts { grid-template-columns: 1fr 1fr; }
+  .dashv2 .dashv2-meta { margin-inline-start: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashv2 .rise, .dashv2 .pulse, .dashv2-brand-dot { animation: none !important; }
+  .dashv2 .tile:hover { transform: none; }
+}
