@@ -19,6 +19,9 @@
  *   4. Picks worker vs attorney by profiles.designation — exactly like the
  *      app's "designation bypass" — and sets <html data-audience> to match so
  *      the correct skin (from skins.css) is active.
+ *   5. Drives the V2 web shell (P6–P11 design): populates the persistent side
+ *      rail per designation and wires /dashboard#dash-… deep links that scroll
+ *      to and focus a section. Shell-level only — never forks the tiles.
  *
  * Public API:  window.CDDashboardHost.mount(rootEl, { user, profile, tier, supabase })
  * ==========================================================================*/
@@ -110,6 +113,183 @@
   };
 
   function tierLevel(t) { return ({ free: 0, comp_buddy: 1, pro: 2, firm: 3 })[t] || 0; }
+
+  // ── 3b. V2 web shell glue (P6–P11 design): the rail + deep links ─────────
+  // The persistent side rail replaces the app drawer on web — same segments,
+  // always visible, zero taps to switch. Deep links (/dashboard#dash-…) scroll
+  // to and FOCUS a section. Shell-level only: sections are found in the
+  // vendored dashboards' rendered DOM (stable class / card-title strings) and
+  // tagged with ids — the vendored modules are never forked. Everything here
+  // fail-softs: no #dashRail on the page, or a section that didn't render,
+  // simply hides the corresponding rail item.
+  var RAIL_ITEMS = {
+    worker: [
+      { k: 'Home',   id: 'dash-top' },
+      { k: 'Dates',  id: 'dash-dates' },    // appointments summary
+      { k: 'Docs',   id: 'dash-docs' },     // my documents / filings
+      { k: 'Buddy',  id: 'dash-buddy' },    // Comp Buddy features grid
+      { k: 'Doctor', href: '/tools/find-doctor' },
+      { k: 'Calc',   href: '/calculators' },
+      { k: 'Learn',  href: '/learn' }
+    ],
+    attorney: [
+      { k: 'Home',   id: 'dash-top' },
+      { k: 'Leads',  id: 'dash-leads' },    // Network Leads — the 48-hour clock
+      { k: 'Cases',  id: 'dash-cases' },    // Upcoming (firm cases)
+      { k: 'Calc',   id: 'dash-calc' },     // Quick Calc
+      { k: 'Tools',  id: 'dash-tools' },
+      { k: 'Skills', id: 'dash-skills' },
+      { k: 'Firm',   id: 'dash-firm' }      // firm tier only — hidden otherwise
+    ]
+  };
+  // Attorney card titles (stable strings in the vendored module) → section ids.
+  var CC_TITLE_IDS = {
+    'network leads': 'dash-leads',
+    'upcoming': 'dash-cases',
+    'quick calc': 'dash-calc',
+    'tools': 'dash-tools',
+    'review new skills': 'dash-skills',
+    'firm management': 'dash-firm'
+  };
+
+  function initShell(root, isWorker, rerender) {
+    var rail = document.getElementById('dashRail');
+    if (!rail || !root) return null;
+
+    function reduced() {
+      try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+      catch (e) { return false; }
+    }
+
+    var links = {};   // in-page items only, keyed by section id
+    rail.innerHTML = '';
+    RAIL_ITEMS[isWorker ? 'worker' : 'attorney'].forEach(function (it) {
+      var a = document.createElement('a');
+      a.textContent = it.k;
+      if (it.href) {
+        a.href = it.href;
+      } else {
+        a.href = '#' + it.id;
+        a.onclick = function (e) { if (e && e.preventDefault) e.preventDefault(); go(it.id); };
+        links[it.id] = a;
+      }
+      rail.appendChild(a);
+    });
+    rail.removeAttribute('hidden');
+
+    function setCurrent(id) {
+      Object.keys(links).forEach(function (k) {
+        if (k === id) links[k].setAttribute('aria-current', 'page');
+        else links[k].removeAttribute('aria-current');
+      });
+    }
+
+    // Scroll + focus a section. If the target is gone because an in-place
+    // screen (wizard, Job Buddy) replaced the dashboard, re-render first —
+    // the rail doubles as the way back.
+    function go(id) {
+      var el = document.getElementById(id);
+      if (!el) { try { rerender(); } catch (e) {} el = document.getElementById(id); }
+      if (!el) return;
+      try { window.history.replaceState(null, '', '#' + id); } catch (e) {}
+      var startDist = Math.abs(el.getBoundingClientRect().top);
+      try { el.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); }
+      catch (e) { el.scrollIntoView(); }
+      // Some engines silently drop smooth scrolls; if we've made no real
+      // progress toward the target, settle with an instant jump.
+      window.setTimeout(function () {
+        var d = Math.abs(el.getBoundingClientRect().top);
+        if (startDist > 300 && d > startDist * 0.75) {
+          try { el.scrollIntoView({ behavior: 'auto', block: 'start' }); } catch (e) {}
+        }
+      }, 700);
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+      try { el.focus({ preventScroll: true }); } catch (e) {}
+      setCurrent(id);
+    }
+
+    function tag(el, id) {
+      if (!el) return false;
+      if (!el.id) el.id = id;
+      if (el.id !== id) return false;   // never steal a pre-existing id
+      el.setAttribute('data-dash-anchor', '');
+      el.setAttribute('tabindex', '-1');
+      return true;
+    }
+
+    function findWorkerSections() {
+      var out = {};
+      out['dash-top'] = root.querySelector('.wd-hero') || root.firstElementChild;
+      var ap = root.querySelector('.wd-appts');
+      if (ap) out['dash-dates'] = ap.closest('.wd-section') || ap;
+      var dc = root.querySelector('.wd-docs');
+      if (dc) out['dash-docs'] = dc.closest('.wd-section') || dc;
+      var labels = root.querySelectorAll('.wd-section-label');
+      for (var i = 0; i < labels.length; i++) {
+        if (/comp buddy features/i.test(labels[i].textContent || '')) { out['dash-buddy'] = labels[i]; break; }
+      }
+      return out;
+    }
+    function findAttorneySections() {
+      var out = {};
+      out['dash-top'] = root.querySelector('.cc-hero') || root.firstElementChild;
+      var titles = root.querySelectorAll('.cc-card-title');
+      for (var i = 0; i < titles.length; i++) {
+        var id = CC_TITLE_IDS[String(titles[i].textContent || '').trim().toLowerCase()];
+        if (id && !out[id]) out[id] = titles[i].closest('.cc-card') || titles[i];
+      }
+      return out;
+    }
+
+    var observer = null;
+    function spy(ids) {
+      if (observer) { observer.disconnect(); observer = null; }
+      if (!window.IntersectionObserver) return;
+      observer = new IntersectionObserver(function (entries) {
+        // near the top of the page the hero is above the observation band —
+        // Home wins there, whatever card happens to sit mid-viewport
+        if (window.scrollY < 160 && links['dash-top']) { setCurrent('dash-top'); return; }
+        entries.forEach(function (en) {
+          if (en.isIntersecting && en.target.id && links[en.target.id]) setCurrent(en.target.id);
+        });
+      }, { rootMargin: '-35% 0px -60% 0px' });
+      ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && links[id]) observer.observe(el);
+      });
+    }
+
+    // Honour /dashboard#dash-… on arrival — content mounts long after the
+    // browser's native hash jump already missed, so we replay it (once).
+    var deepLinked = false;
+    function deepLink() {
+      if (deepLinked) return;
+      var id = String(window.location.hash || '').replace(/^#/, '');
+      if (id && document.getElementById(id)) { deepLinked = true; go(id); }
+    }
+    window.addEventListener('hashchange', function () {
+      var id = String(window.location.hash || '').replace(/^#/, '');
+      if (id) go(id);
+    });
+
+    return {
+      // Re-tag sections after each full dashboard render (async cards repaint
+      // through CD.render(), so this runs again and stays current).
+      decorate: function () {
+        rail.removeAttribute('hidden');
+        var found = isWorker ? findWorkerSections() : findAttorneySections();
+        var present = {};
+        Object.keys(found).forEach(function (id) { if (tag(found[id], id)) present[id] = true; });
+        Object.keys(links).forEach(function (id) {
+          links[id].style.display = present[id] ? '' : 'none';
+        });
+        spy(Object.keys(present));
+        deepLink();
+      },
+      // Intake gate: the rail navigates a dashboard that isn't there yet.
+      hide: function () { rail.setAttribute('hidden', 'hidden'); }
+    };
+  }
 
   // ── 4. Mount ─────────────────────────────────────────────────────────────
   function mount(root, opts) {
@@ -228,7 +408,7 @@
     }
 
     function render() {
-      if (renderIntakeIfNeeded()) return;
+      if (renderIntakeIfNeeded()) { if (shell) shell.hide(); return; }
       var mod = isWorker ? CD.WorkerDashboard : CD.AttorneyDashboard;
       if (!mod || typeof mod.render !== 'function') {
         console.error('[dashboard-host] shared dashboard module not loaded for designation=' + designation);
@@ -243,9 +423,15 @@
       root.innerHTML = '';
       if (node) root.appendChild(node);
       else root.appendChild(CD.h('p', { className: 'wd-disclaimer' }, 'Dashboard unavailable right now.'));
+      if (shell) { try { shell.decorate(); } catch (e) { console.warn('[dashboard-host] SHELL_DECORATE_FAILED', e); } }
     }
     // The attorney metric editor re-renders via CD.render() after edits.
     CD.render = render;
+
+    // V2 web shell: build the rail before first paint so decorate() can wire it.
+    var shell = null;
+    try { shell = initShell(root, isWorker, render); }
+    catch (e) { console.warn('[dashboard-host] SHELL_INIT_FAILED', e); }
 
     render();
   }

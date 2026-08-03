@@ -1,0 +1,96 @@
+/* ============================================================================
+ * tokens-v2.css — The Comp Desk V2 semantic token layer (website copy).
+ * ----------------------------------------------------------------------------
+ * Values are verbatim from the design-system project
+ * (the-comp-desk-design-system → tokens/v2.css, itself verbatim from the app's
+ * www/css/tokens-v2.css), plus the --tcd-* brand spine it builds on (from
+ * tokens/colors.css) because the site does not load that file anywhere else.
+ *
+ * THIS IS THE BASELINE. New components may reference ONLY --v2-* names.
+ * Never reach past this layer to --bg / --card / --ac / --skin-* — that is
+ * what makes the eventual restyle a token swap instead of a rewrite.
+ * ==========================================================================*/
+
+:root {
+  /* ── Brand spine (shared) ── */
+  --tcd-navy: #1B2A4A;
+  --tcd-orange: #E87722;
+  --tcd-orange-hot: #FF8B33;
+  --tcd-cream: #F8F6F1;
+  --tcd-cream-warm: #F0EBE0;
+
+  /* type scale: 1.250 (major third) from a 16px base — shared across skins */
+  --v2-text-xs: 10px;
+  --v2-text-sm: 13px;
+  --v2-text-base: 16px;
+  --v2-text-lg: 20px;
+  --v2-text-xl: 25px;
+  --v2-text-2xl: 31px;
+  --v2-text-3xl: 39px;
+
+  /* 4px spacing scale — aliases the app scale, one source of truth */
+  --v2-space-1: var(--space-1, 4px);
+  --v2-space-2: var(--space-2, 8px);
+  --v2-space-3: var(--space-3, 12px);
+  --v2-space-4: var(--space-4, 16px);
+  --v2-space-5: var(--space-5, 24px);
+  --v2-space-6: var(--space-6, 32px);
+  --v2-space-7: var(--space-7, 48px);
+  --v2-space-8: var(--space-8, 64px);
+
+  --v2-radius-sm: 6px;
+  --v2-radius-md: 12px;
+  --v2-radius-lg: 20px;
+  --v2-radius-full: 999px;
+
+  --v2-dur: 240ms;
+  --v2-ease: cubic-bezier(.32, .72, 0, 1);
+
+  /* semantic accents — brand primitives + hand-picked status companions */
+  --v2-accent: var(--tcd-orange);
+  --v2-accent-hover: var(--tcd-orange-hot);
+  --v2-success: #1E8E5A;
+  --v2-warn: #D69E2E;
+  --v2-danger: #C0392B;
+
+  /* always-light text for content over photo/video — --v2-text flips per skin
+     and would be wrong on a full-bleed background */
+  --v2-text-inverse: var(--tcd-cream);
+}
+
+/* WORKER SKIN — default. Cream surfaces, dark ink. Applies when
+   [data-audience="worker"] or the attribute is absent. */
+:root,
+[data-skin="worker"],
+[data-audience="worker"] {
+  --v2-surface: var(--tcd-cream);
+  --v2-surface-raised: #FFFFFF;
+  --v2-surface-sunken: var(--tcd-cream-warm);
+  --v2-border: #E4DAC7;
+  --v2-text: #241F1B;
+  --v2-text-mute: #5A5148;
+  --v2-text-dim: #8A8078;
+  --v2-elevation-1: 0 1px 3px rgba(36, 31, 27, .08);
+  --v2-elevation-2: 0 6px 20px rgba(36, 31, 27, .10);
+  --v2-elevation-3: 0 16px 40px rgba(36, 31, 27, .14);
+}
+
+/* ATTORNEY SKIN — dense, dark navy surfaces, cream text. */
+[data-skin="attorney"],
+[data-audience="attorney"] {
+  --v2-surface: var(--tcd-navy);
+  --v2-surface-raised: #22314F;
+  --v2-surface-sunken: #141F36;
+  --v2-border: rgba(240, 235, 224, .12);
+  --v2-text: var(--tcd-cream);
+  --v2-text-mute: #B7C0D4;
+  --v2-text-dim: #7C879E;
+  --v2-elevation-1: 0 1px 3px rgba(0, 0, 0, .35);
+  --v2-elevation-2: 0 8px 24px rgba(0, 0, 0, .45);
+  --v2-elevation-3: 0 20px 48px rgba(0, 0, 0, .55);
+}
+
+/* 1ms not 0, so transitions still fire their end events for anything listening */
+@media (prefers-reduced-motion: reduce) {
+  :root { --v2-dur: 1ms; }
+}

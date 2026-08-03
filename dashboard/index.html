@@ -26,21 +26,12 @@
     <link rel="stylesheet" href="/css/dashboard-attorney.css">
     <link rel="stylesheet" href="/css/job-buddy.css">
     <link rel="stylesheet" href="/css/job-buddy-wizard.css">
+    <!-- V2 web shell (P6–P11 design): token baseline + the window/rail chrome
+         around the vendored dashboards. Web-only, never synced from the app.
+         The 1040 cap + responsive padding moved into .dash-shell there. -->
+    <link rel="stylesheet" href="/css/tokens-v2.css">
+    <link rel="stylesheet" href="/css/dashboard-shell-v2.css">
     <style>
-      /* The shared dashboard owns its own surface; give it room and let its skin
-         (worker cream / attorney navy, set via <html data-audience>) show.
-         The .wd-*/.atty-* skins are sized for the app's narrow phone webview, so
-         on a wide desktop browser we constrain the mount to a comfortable,
-         centered reading column instead of letting it stretch edge-to-edge
-         (which reads as oversized/aggressive). App is unaffected — this lives in
-         the web-only mount page, not the shared dashboard CSS. */
-      #dashRoot {
-        min-height: 60vh;
-        max-width: 1040px;
-        margin: 0 auto;
-        padding: 28px 24px 56px;
-      }
-      @media (max-width: 640px) { #dashRoot { padding: 16px 16px 40px; } }
       #dashLoading {
         max-width: 680px; margin: 64px auto; padding: 0 20px; text-align: center;
         color: var(--skin-text-muted, #7A8095);
@@ -71,10 +62,17 @@
 
   <!-- The SAME dashboard module the app renders mounts here, chosen by the
        signed-in user's designation (worker → injured-worker dashboard,
-       attorney → attorney dashboard). -->
+       attorney → attorney dashboard). The V2 web shell (window panel + the
+       persistent side rail) wraps it; dashboard-host.js populates the rail
+       per designation and wires /dashboard#dash-… deep links. -->
   <main>
-    <div id="dashRoot">
-      <div id="dashLoading">Loading your dashboard…</div>
+    <div class="dash-shell">
+      <div class="dash-win">
+        <nav class="dash-rail" id="dashRail" aria-label="Dashboard sections" hidden></nav>
+        <div id="dashRoot" class="dash-win-main">
+          <div id="dashLoading">Loading your dashboard…</div>
+        </div>
+      </div>
     </div>
   </main>
 

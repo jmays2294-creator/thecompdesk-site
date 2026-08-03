@@ -1,0 +1,170 @@
+/* ============================================================================
+ * dashboard-shell-v2.css — the V2 WEB SHELL around the shared dashboards.
+ * ----------------------------------------------------------------------------
+ * Implements the shell-level design from "P6–P10 Web Dashboards" / "P11
+ * Attorney Leads Web" (Claude Design project, the-comp-desk-design-system):
+ *   · the .dash-win window panel (glass, 16px radius) with a persistent side
+ *     rail instead of a drawer — always visible, zero taps to switch
+ *   · rail narrows 76→60px at 768; below 560 it becomes a horizontal strip
+ *     across the top (never a drawer — you still have a pointer on web)
+ *   · hover / focus-visible affordances on the rail, deep-link focus ring on
+ *     dashboard sections (glue in js/dashboard-host.js)
+ *   · the page never widens past 1040 — the vendored tiles are authored for a
+ *     phone column and stretch past their content beyond that
+ *
+ * WEB-ONLY: this file is not synced from the app. It styles only the shell
+ * (.dash-shell scope) and never reaches into the vendored .wd-* / .cc-* tile
+ * internals — tile-level changes belong in www/ first, then vendor down.
+ * Consumes tokens-v2.css (load it first). Skin follows <html data-audience>.
+ * ==========================================================================*/
+
+.dash-shell {
+  /* shell motion + companions from the P6–P11 design pages (not in the v2
+     token baseline — they are shell-level, so they live with the shell) */
+  --v2-dur-fast: 140ms;
+  --v2-dur-slow: 380ms;
+  --v2-stagger: 55ms;
+  --v2-on-accent: #1B2A4A;
+  /* worker (default): orange as TEXT needs the darker AA-safe hue */
+  --v2-accent-text: #A8500C;
+  --v2-glass: rgba(255, 255, 255, .8);                     /* fallback */
+  --v2-glass: color-mix(in srgb, #FFFFFF 80%, transparent);
+  --v2-glass-panel: rgba(248, 246, 241, .84);              /* fallback */
+  --v2-glass-panel: color-mix(in srgb, var(--tcd-cream) 84%, transparent);
+  --dash-win-shadow: 0 40px 90px -40px rgba(27, 42, 74, .35), 0 4px 12px rgba(27, 42, 74, .12);
+
+  max-inline-size: 1040px;      /* do not widen past 1040 — see header */
+  margin-inline: auto;
+  padding: 28px 24px 56px;
+}
+[data-audience="attorney"] .dash-shell {
+  --v2-accent-text: #FFA95C;
+  --v2-glass: rgba(34, 49, 79, .76);                       /* fallback */
+  --v2-glass: color-mix(in srgb, #22314F 76%, transparent);
+  --v2-glass-panel: rgba(27, 42, 74, .82);                 /* fallback */
+  --v2-glass-panel: color-mix(in srgb, var(--tcd-navy) 82%, transparent);
+  --dash-win-shadow: 0 40px 90px -40px rgba(0, 0, 0, .7), 0 4px 12px rgba(0, 0, 0, .3);
+}
+
+/* ── The window panel ────────────────────────────────────────────────────── */
+.dash-win {
+  display: flex;
+  align-items: stretch;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--v2-border);
+  background: var(--v2-glass-panel);
+  /* NO backdrop-filter here, deliberately: the panel is as tall as the whole
+     dashboard, and blurring a 4000px+ element blows past GPU texture limits
+     (content below the fold silently stops painting). The page behind it is a
+     flat skin colour anyway, so the translucent tint alone reads as glass. */
+  box-shadow: var(--dash-win-shadow);
+}
+.dash-win-main {
+  flex: 1;
+  min-inline-size: 0;
+  padding: 20px;
+  min-block-size: 60vh;
+}
+
+/* ── The side rail — same keys as the app drawer, always visible ─────────── */
+.dash-rail {
+  flex: 0 0 auto;
+  inline-size: 76px;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  border-inline-end: 1px solid var(--v2-border);
+  background: var(--v2-surface-sunken);
+}
+.dash-rail a {
+  inline-size: 52px;
+  min-block-size: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  color: var(--v2-text-mute);
+  font: 600 10px var(--font-body, 'DM Sans', system-ui, sans-serif);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: background var(--v2-dur) var(--v2-ease), color var(--v2-dur) var(--v2-ease);
+}
+.dash-rail a:hover { background: var(--v2-glass); color: var(--v2-accent-text); }
+.dash-rail a[aria-current="page"] {
+  background: var(--v2-glass);
+  color: var(--v2-accent-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 1px 3px rgba(27, 42, 74, .12);
+}
+.dash-rail a:focus-visible { outline: 3px solid var(--v2-accent); outline-offset: 3px; }
+
+/* ── Deep links: /dashboard#dash-… scrolls + focuses a section ───────────── */
+.dash-shell [data-dash-anchor] { scroll-margin-block-start: 84px; }
+.dash-shell [data-dash-anchor]:focus {
+  outline: 3px solid var(--v2-accent);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+/* the ring is a deep-link affordance, not a mouse one */
+.dash-shell [data-dash-anchor]:focus:not(:focus-visible) { outline: none; }
+.dash-shell [data-dash-anchor]:focus-visible {
+  outline: 3px solid var(--v2-accent);
+  outline-offset: 3px;
+}
+
+/* ── The v2 tile grid contract (P6) ──────────────────────────────────────── */
+/* Inert until the v2 tiles are vendored down from www/: 6 columns at 1040,
+   hero spans 4, std 3, cmp 2; 768 drops to 4 columns with the hero back to
+   full-bleed; 390 is the 2-column phone rhythm. Spans live on the tile,
+   never on the slot. */
+.dash-shell .wg { display: grid; gap: 14px; align-content: start; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.dash-shell .wg > [data-size="hero"] { grid-column: span 4; min-block-size: 236px; }
+.dash-shell .wg > [data-size="std"]  { grid-column: span 3; min-block-size: 132px; }
+.dash-shell .wg > [data-size="cmp"]  { grid-column: span 2; min-block-size: 112px; }
+@media (max-width: 900px) {
+  .dash-shell .wg { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dash-shell .wg > [data-size="hero"] { grid-column: 1 / -1; }
+  .dash-shell .wg > [data-size="std"]  { grid-column: span 4; }
+  .dash-shell .wg > [data-size="cmp"]  { grid-column: span 2; }
+}
+@media (max-width: 480px) {
+  .dash-shell .wg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dash-shell .wg > [data-size="hero"] { grid-column: 1 / -1; }
+  .dash-shell .wg > [data-size="std"]  { grid-column: span 2; }
+  .dash-shell .wg > [data-size="cmp"]  { grid-column: span 1; }
+}
+
+/* ── Breakpoints for the shell itself ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dash-rail { inline-size: 60px; }
+  .dash-rail a { inline-size: 44px; min-block-size: 44px; font-size: 9px; border-radius: 12px; }
+  .dash-win-main { padding: 16px; }
+}
+@media (max-width: 640px) {
+  .dash-shell { padding: 16px 12px 40px; }
+}
+@media (max-width: 560px) {
+  /* horizontal strip, never a drawer */
+  .dash-win { flex-direction: column; }
+  .dash-rail {
+    inline-size: auto;
+    flex-direction: row;
+    padding: 10px 12px;
+    gap: 4px;
+    overflow-x: auto;
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--v2-border);
+  }
+  .dash-rail a { inline-size: auto; min-inline-size: 44px; padding: 0 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-shell *, .dash-shell *::before, .dash-shell *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
