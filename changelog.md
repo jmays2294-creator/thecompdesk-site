@@ -5,6 +5,41 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-03
+
+### /dashboard — V2 web shell: window panel, persistent side rail, deep links
+
+Implements the shell-level scope of the "P6–P10 Web Dashboards" and "P11 Attorney Leads
+Web" pages from the Claude Design project (the-comp-desk-design-system). The vendored
+dashboards (`.wd-*` worker, `.cc-*` attorney — synced from `www/`, may not fork) are
+untouched; everything landed in the web-only shell around them:
+
+- **`css/tokens-v2.css`** — the V2 semantic token baseline (`--v2-*`), values verbatim
+  from the design system's `tokens/v2.css` plus the `--tcd-*` brand spine it builds on.
+  New components reference only `--v2-*` names — never `--bg`/`--skin-*` — so the
+  eventual restyle is a token swap, not a rewrite.
+- **`css/dashboard-shell-v2.css`** — the `.dash-win` glass panel and `.dash-rail`:
+  76px rail at desktop, 60px at 768, a horizontal strip below 560 (never a drawer — on
+  web you still have a pointer). Focus-visible rings, deep-link focus styling, the 1040
+  width cap, and the inert `.wg` tile-grid contract ready for when the V2 tiles vendor
+  down. Deliberately **no `backdrop-filter` on the panel**: it is as tall as the whole
+  dashboard, and blurring a 4000px+ element blows GPU texture limits — content below
+  the fold silently stops painting. The page behind it is a flat skin colour, so the
+  translucent tint alone reads as glass.
+- **`js/dashboard-host.js`** (web-only adapter, not synced) — populates the rail per
+  designation (worker: Home/Dates/Docs/Buddy/Doctor/Calc/Learn; attorney:
+  Home/Leads/Cases/Calc/Tools/Skills/Firm), tags sections in the rendered DOM by stable
+  class/card-title, and wires `/dashboard#dash-…` deep links that scroll to **and
+  focus** a section. Scroll-spy drives `aria-current`; a stall fallback hard-jumps if
+  the engine drops the smooth scroll. Fail-soft throughout: a section that didn't
+  render (e.g. Firm Management on non-firm tiers) hides its rail item; a wizard
+  rendered in place makes the rail double as the way back (re-render, then scroll).
+
+Verified in a local harness with both designations before push: rail nav, deep links,
+Firm hiding on the pro tier, the mobile strip at 375px, zero console errors.
+
+---
+
 ## 2026-07-30
 
 ### Workspace autosave — stop a silent anon-degrade from killing saves (and lying about it)
