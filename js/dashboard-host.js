@@ -142,6 +142,44 @@
       { k: 'Firm',   id: 'dash-firm' }      // firm tier only — hidden otherwise
     ]
   };
+  // ── App-only screens ─────────────────────────────────────────────────────
+  // The vendored worker dashboard is GENERATED from www/ by sync-dashboard.sh
+  // ("never hand-edit them; this script overwrites them verbatim"), so the two
+  // tiles below cannot be removed at source without forking the shared module —
+  // and they must NOT be, because both work correctly in the native app. They
+  // are broken on WEB only: js/mt/* and js/evidence/* have never been deployed
+  // to this repo, native-mail.js is absent, and showScreen() below routes
+  // neither id. The result was a Mileage & Travel tile (tier 'free', so every
+  // visitor saw it) and an Accident & Notice tile that did nothing at all when
+  // clicked. Suppressed here in the web-only shell instead, which survives the
+  // next sync. Delete this block as part of a real launch, not before.
+  var APP_ONLY_SCREENS = { mt: 1, 'accident-notice': 1 };
+  var APP_ONLY_TILE_TITLES = { 'mileage & travel': 1, 'accident & notice evidence': 1 };
+
+  // Fail-soft by construction: an unknown title matches nothing and the pass is
+  // a no-op, exactly like the rail's missing-section behaviour above.
+  function hideAppOnlyTiles(root) {
+    if (!root || !root.querySelectorAll) return;
+    var n = 0;
+    Array.prototype.forEach.call(root.querySelectorAll('.wd-fcard'), function (card) {
+      var t = card.querySelector('.wd-fcard-title');
+      if (!t) return;
+      var key = (t.textContent || '').trim().toLowerCase();
+      if (!APP_ONLY_TILE_TITLES[key]) return;
+      card.style.display = 'none';
+      card.setAttribute('aria-hidden', 'true');
+      n++;
+    });
+    // Also the "Open Accident & Notice →" link in the documents section, which
+    // is a second entry point the tile pass doesn't cover (it lives in a wrapper
+    // that only un-hides once app-captured evidence exists).
+    Array.prototype.forEach.call(root.querySelectorAll('.wd-docs-an'), function (w) {
+      w.style.display = 'none';
+      w.setAttribute('aria-hidden', 'true');
+    });
+    return n;
+  }
+
   // Attorney card titles (stable strings in the vendored module) → section ids.
   var CC_TITLE_IDS = {
     'network leads': 'dash-leads',
@@ -342,6 +380,16 @@
       return true;
     }
     function showScreen(screen) {
+      // Backstop for the app-only screens (see APP_ONLY_SCREENS above). The tile
+      // pass hides the usual entry points, but a deep link or a tile rendered
+      // before the pass ran would otherwise fall through to SCREEN_URLS, find no
+      // entry, and silently do nothing — the exact dead click this fixes.
+      if (APP_ONLY_SCREENS[screen]) {
+        if (typeof console !== 'undefined' && console.info) {
+          console.info('[dashboard-host] "' + screen + '" is app-only on web — no route; ignoring.');
+        }
+        return;
+      }
       if (screen === 'job_buddy' && CD.renderJobBuddy) { renderScreenInPlace(CD.renderJobBuddy()); return; }
       if (screen === 'firm_job_buddy' && CD.renderFirmJobBuddy) { renderScreenInPlace(CD.renderFirmJobBuddy()); return; }
       // IME Reminders renders IN-PLACE on the website (same pattern as Job
@@ -443,6 +491,11 @@
       root.innerHTML = '';
       if (node) root.appendChild(node);
       else root.appendChild(CD.h('p', { className: 'wd-disclaimer' }, 'Dashboard unavailable right now.'));
+      // AFTER the V2 wrap, so it sees the final composed DOM whichever layer
+      // won. V2's own WORKER_TILES carry neither app-only screen, but the
+      // vendored .wd-fcard grid and the .wd-docs-an link can still survive it.
+      try { hideAppOnlyTiles(root); }
+      catch (e) { console.warn('[dashboard-host] APP_ONLY_TILE_PASS_FAILED', e); }
       if (shell) { try { shell.decorate(); } catch (e) { console.warn('[dashboard-host] SHELL_DECORATE_FAILED', e); } }
     }
     // The attorney metric editor re-renders via CD.render() after edits.

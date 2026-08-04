@@ -86,10 +86,16 @@
   <!-- Shared "Talk to an attorney" CTA component (CD.AttorneyCTA) — must load
        before its consumers (c3-wizard, worker-dashboard). Vendored from www/js/components/. -->
   <script src="/js/components/attorney-cta.js" defer></script>
-  <script src="/js/uploads/evidence-uploader.js" defer></script>
-  <script src="/js/mt/mt-tracker.js" defer></script>
-  <script src="/js/mt/c257-pdf.js" defer></script>
-  <script src="/js/evidence/accident-notice.js" defer></script>
+  <!-- REMOVED 2026-08-04: evidence-uploader.js, mt/mt-tracker.js, mt/c257-pdf.js
+       and evidence/accident-notice.js were referenced here but have NEVER been
+       deployed to this repo — all four 404'd on every /dashboard/ page load.
+       The Comp Buddy evidence + C-257 Medical & Travel flows are APP-ONLY: they
+       depend on js/native-mail.js (also absent here) and js/dashboard-host.js
+       routes neither 'mt' nor 'accident-notice', so even with the files present
+       both tiles would still be dead. The host now hides those two tiles and
+       fail-softs the screen ids — see "app-only screens" in dashboard-host.js.
+       Restore these four tags ONLY as part of a real launch that also ships
+       native-mail.js and adds the routes. -->
   <script src="/js/dashboard/comp-buddy-intake.js" defer></script>
   <script src="/js/dashboard/c3-wizard.js" defer></script>
   <!-- Session 2: AWW Wizard (single source in www/js/dashboard/, vendored here
