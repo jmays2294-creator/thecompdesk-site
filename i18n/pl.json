@@ -685,7 +685,12 @@
     "if-they-don-t-reach": "Jeśli nie odezwie się na czas, automatycznie połączymy Cię z kolejnym dostępnym prawnikiem w Twojej okolicy.",
     "need-to-reach-us": "Potrzebujesz się z nami skontaktować?",
     "contact-thecompdesk-com": "contact@thecompdesk.com",
-    "the-comp-desk-is-a-2": "The Comp Desk to platforma programowa, a nie kancelaria prawna. Kontakt z nami nie tworzy relacji prawnik-klient z żadnym prawnikiem."
+    "the-comp-desk-is-a-2": "The Comp Desk to platforma programowa, a nie kancelaria prawna. Kontakt z nami nie tworzy relacji prawnik-klient z żadnym prawnikiem.",
+    "what-kind-of-claim-is": "Jakiego rodzaju jest to roszczenie?",
+    "one-accident-or-event": "<span class=\"claim-seg-title\">Jeden wypadek lub zdarzenie</span>",
+    "built-up-over-time-repetitive": "<span class=\"claim-seg-title\">Narastało z czasem</span>\n                  <span class=\"claim-seg-sub\">urazy z przeciążenia, utrata słuchu, schorzenia układu oddechowego lub wynikające z narażenia</span>",
+    "date-of-disablement-optional": "Data niezdolności do pracy (opcjonalnie)",
+    "roughly-when-the-condition-first": "Mniej więcej kiedy schorzenie po raz pierwszy uniemożliwiło Panu/Pani pracę — lub kiedy dowiedzieli się Państwo, że ma ono związek z pracą. W razie wątpliwości proszę pozostawić to pole puste; prawnik pomoże ustalić tę datę."
   },
   "contact": {
     "meta": {

@@ -685,7 +685,12 @@
     "if-they-don-t-reach": "S'il ne vous contacte pas à temps, nous vous connecterons automatiquement avec le prochain avocat disponible dans votre région.",
     "need-to-reach-us": "Besoin de nous joindre ?",
     "contact-thecompdesk-com": "contact@thecompdesk.com",
-    "the-comp-desk-is-a-2": "The Comp Desk est une plateforme logicielle, pas un cabinet d'avocats. Nous contacter ne crée pas de relation avocat-client avec un quelconque avocat."
+    "the-comp-desk-is-a-2": "The Comp Desk est une plateforme logicielle, pas un cabinet d'avocats. Nous contacter ne crée pas de relation avocat-client avec un quelconque avocat.",
+    "what-kind-of-claim-is": "De quel type de réclamation s'agit-il ?",
+    "one-accident-or-event": "<span class=\"claim-seg-title\">Un accident ou un événement</span>",
+    "built-up-over-time-repetitive": "<span class=\"claim-seg-title\">Développé avec le temps</span>\n                  <span class=\"claim-seg-sub\">microtraumatismes répétés, perte auditive, troubles respiratoires ou liés à une exposition</span>",
+    "date-of-disablement-optional": "Date d'incapacité (facultatif)",
+    "roughly-when-the-condition-first": "Approximativement quand l'affection vous a empêché de travailler pour la première fois, ou quand vous avez appris qu'elle était liée au travail. Si vous n'êtes pas sûr, laissez ce champ vide ; l'avocat vous aidera à la préciser."
   },
   "contact": {
     "meta": {

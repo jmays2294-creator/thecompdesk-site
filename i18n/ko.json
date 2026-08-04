@@ -685,7 +685,12 @@
     "if-they-don-t-reach": "제 시간에 연락드리지 못하면, 지역 내 다음으로 이용 가능한 변호사와 자동으로 연결해드립니다.",
     "need-to-reach-us": "저희에게 연락이 필요하신가요?",
     "contact-thecompdesk-com": "contact@thecompdesk.com",
-    "the-comp-desk-is-a-2": "The Comp Desk는 소프트웨어 플랫폼이며 법률 사무소가 아닙니다. 저희에게 연락하는 것은 어떠한 변호사와도 변호사-의뢰인 관계를 형성하지 않습니다."
+    "the-comp-desk-is-a-2": "The Comp Desk는 소프트웨어 플랫폼이며 법률 사무소가 아닙니다. 저희에게 연락하는 것은 어떠한 변호사와도 변호사-의뢰인 관계를 형성하지 않습니다.",
+    "what-kind-of-claim-is": "어떤 종류의 청구입니까?",
+    "one-accident-or-event": "<span class=\"claim-seg-title\">한 번의 사고 또는 사건</span>",
+    "built-up-over-time-repetitive": "<span class=\"claim-seg-title\">시간이 지나면서 발생</span>\n                  <span class=\"claim-seg-sub\">반복성 긴장, 청력 손실, 호흡기 또는 노출 관련 질환</span>",
+    "date-of-disablement-optional": "장애 발생일 (선택 사항)",
+    "roughly-when-the-condition-first": "질환으로 인해 처음 일을 할 수 없게 된 시기 또는 그것이 업무와 관련이 있음을 알게 된 시기를 대략적으로 적어 주십시오. 확실하지 않으면 비워 두십시오. 변호사가 날짜를 확정하는 데 도움을 드립니다."
   },
   "contact": {
     "meta": {

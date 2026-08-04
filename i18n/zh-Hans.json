@@ -685,7 +685,12 @@
     "if-they-don-t-reach": "如果他们未能及时联系您，我们会自动为您匹配所在地区下一位可用的律师。",
     "need-to-reach-us": "需要联系我们？",
     "contact-thecompdesk-com": "contact@thecompdesk.com",
-    "the-comp-desk-is-a-2": "The Comp Desk 是一个软件平台，不是律师事务所。联系我们不会与任何律师建立委托关系。"
+    "the-comp-desk-is-a-2": "The Comp Desk 是一个软件平台，不是律师事务所。联系我们不会与任何律师建立委托关系。",
+    "what-kind-of-claim-is": "这是哪一类索赔？",
+    "one-accident-or-event": "<span class=\"claim-seg-title\">一次事故或事件</span>",
+    "built-up-over-time-repetitive": "<span class=\"claim-seg-title\">长期逐渐形成</span>\n                  <span class=\"claim-seg-sub\">重复性劳损、听力损失、呼吸系统或接触性疾病</span>",
+    "date-of-disablement-optional": "丧失工作能力日期（可选）",
+    "roughly-when-the-condition-first": "大致是这种病症首次使您无法工作的时间，或者您得知它与工作有关的时间。如果不确定，可以留空；律师会帮助您确定具体日期。"
   },
   "contact": {
     "meta": {

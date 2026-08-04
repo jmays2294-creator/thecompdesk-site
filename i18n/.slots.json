@@ -1,6 +1,6 @@
 {
  "index.html": {
-  "sha256": "665b51dd05116d3a20e863b7119933e985a60b3c33384343833f71c79ad29197",
+  "sha256": "bf8b56aa1e47069e9d00b756b279fff3524d6a71e7e07fd04cd347584125c771",
   "slots": [
    {
     "k": "home.meta.title",
@@ -52,158 +52,200 @@
    },
    {
     "k": "home.the-comp-desk-choose-your.label",
-    "s": 19133,
-    "e": 19165,
+    "s": 21354,
+    "e": 21386,
     "a": "aria-label"
    },
    {
     "k": "home.the-comp-desk-replay-intro.label",
-    "s": 19341,
-    "e": 19369,
+    "s": 21562,
+    "e": 21590,
     "a": "aria-label"
    },
    {
     "k": "shared.the-comp-desk-2",
-    "s": 19481,
-    "e": 19522,
+    "s": 21702,
+    "e": 21743,
     "t": "a"
    },
    {
     "k": "home.joel-mays-esq-founder",
-    "s": 19605,
-    "e": 19681,
+    "s": 21826,
+    "e": 21902,
     "t": "p"
    },
    {
     "k": "home.go-to-dashboard",
-    "s": 19797,
-    "e": 19839,
+    "s": 22018,
+    "e": 22060,
     "t": "a"
    },
    {
     "k": "home.choose-your-audience.label",
-    "s": 23105,
-    "e": 23125,
+    "s": 25326,
+    "e": 25346,
     "a": "aria-label"
    },
    {
     "k": "home.enter-the-injured-worker-experience.label",
-    "s": 23274,
-    "e": 23309,
+    "s": 25495,
+    "e": 25530,
     "a": "aria-label"
    },
    {
     "k": "home.for-injured-workers-i-was",
-    "s": 30679,
-    "e": 30917,
+    "s": 32900,
+    "e": 33138,
     "t": "div"
    },
    {
     "k": "home.enter-the-attorney-experience.label",
-    "s": 31038,
-    "e": 31067,
+    "s": 33259,
+    "e": 33288,
     "a": "aria-label"
    },
    {
     "k": "home.slu-award",
-    "s": 31488,
-    "e": 31497,
+    "s": 33709,
+    "e": 33718,
     "t": "div"
    },
    {
     "k": "home.avg-weekly-wage",
-    "s": 31698,
-    "e": 31713,
+    "s": 33919,
+    "e": 33934,
     "t": "div"
    },
    {
     "k": "shared.lwec",
-    "s": 31906,
-    "e": 31910,
+    "s": 34127,
+    "e": 34131,
     "t": "div"
    },
    {
     "k": "shared.ccp-award",
-    "s": 32102,
-    "e": 32111,
+    "s": 34323,
+    "e": 34332,
     "t": "div"
    },
    {
     "k": "shared.radiculopathy",
-    "s": 32311,
-    "e": 32324,
+    "s": 34532,
+    "e": 34545,
     "t": "div"
    },
    {
     "k": "home.grade-ii",
-    "s": 32395,
-    "e": 32403,
+    "s": 34616,
+    "e": 34624,
     "t": "div"
    },
    {
     "k": "home.attorney-fee",
-    "s": 32548,
-    "e": 32560,
+    "s": 34769,
+    "e": 34781,
     "t": "div"
    },
    {
     "k": "home.indemnity-rate",
-    "s": 32759,
-    "e": 32773,
+    "s": 34980,
+    "e": 34994,
     "t": "div"
    },
    {
     "k": "home.slu-weeks",
-    "s": 32967,
-    "e": 32976,
+    "s": 35188,
+    "e": 35197,
     "t": "div"
    },
    {
     "k": "home.288-wks",
-    "s": 33046,
-    "e": 33053,
+    "s": 35267,
+    "e": 35274,
     "t": "div"
    },
    {
     "k": "home.for-attorneys-i-practice-wc",
-    "s": 33194,
-    "e": 33414,
+    "s": 35415,
+    "e": 35635,
     "t": "div"
    },
    {
     "k": "home.choose-your-path",
-    "s": 33835,
-    "e": 33851,
+    "s": 36056,
+    "e": 36072,
     "t": "p"
    },
    {
     "k": "home.popular-free-calculators.label",
-    "s": 33895,
-    "e": 33919,
+    "s": 36116,
+    "e": 36140,
     "a": "aria-label"
    },
    {
     "k": "home.nys-workers-comp-maximum-rates",
-    "s": 34038,
-    "e": 34284,
+    "s": 36259,
+    "e": 36505,
     "t": "nav"
    },
    {
     "k": "home.skip-cover-and-go-to.label",
-    "s": 34345,
-    "e": 34381,
+    "s": 36566,
+    "e": 36602,
     "a": "aria-label"
    },
    {
     "k": "home.skip-intro",
-    "s": 34471,
-    "e": 34483,
+    "s": 36692,
+    "e": 36704,
     "t": "a"
+   },
+   {
+    "k": "home.what-brings-you-here",
+    "s": 37221,
+    "e": 37242,
+    "t": "h2"
+   },
+   {
+    "k": "home.there-s-no-wrong-answer",
+    "s": 37318,
+    "e": 37377,
+    "t": "p"
+   },
+   {
+    "k": "home.i-was-hurt-at-work",
+    "s": 37700,
+    "e": 37874,
+    "t": "span"
+   },
+   {
+    "k": "home.my-injury-built-up-over",
+    "s": 38197,
+    "e": 38358,
+    "t": "span"
+   },
+   {
+    "k": "home.i-m-just-looking-around",
+    "s": 38680,
+    "e": 38821,
+    "t": "span"
+   },
+   {
+    "k": "home.i-want-to-understand-how",
+    "s": 39136,
+    "e": 39298,
+    "t": "span"
+   },
+   {
+    "k": "home.i-work-in-workers-comp",
+    "s": 39623,
+    "e": 39784,
+    "t": "span"
    }
   ]
  },
  "worker.html": {
-  "sha256": "3bb56033449c5ec94402ef263c98c4f1c78842f4a2ad7c1ac0c7bc924b560ec7",
+  "sha256": "f40cec4ad4acce293a8f57d1c7ac8eb5647d105203d99bc18df8f82ce6550f1f",
   "slots": [
    {
     "k": "worker.meta.title",
@@ -268,757 +310,757 @@
    {
     "k": "worker.learn-find-a-doctor-calculators",
     "s": 22651,
-    "e": 22812,
+    "e": 22851,
     "t": "div"
    },
    {
     "k": "shared.sign-in",
-    "s": 22997,
-    "e": 23004,
+    "s": 23036,
+    "e": 23043,
     "t": "a"
    },
    {
     "k": "worker.free-workers-compensation-companion",
-    "s": 23313,
-    "e": 23349,
+    "s": 23352,
+    "e": 23388,
     "t": "span"
    },
    {
     "k": "worker.after-a-work-injury-you",
-    "s": 23412,
-    "e": 23486,
+    "s": 23451,
+    "e": 23525,
     "t": "h1"
    },
    {
     "k": "worker.find-an-authorized-doctor-never",
-    "s": 23567,
-    "e": 23753,
+    "s": 23606,
+    "e": 23792,
     "t": "p"
    },
    {
     "k": "worker.start-your-claim",
-    "s": 23930,
-    "e": 23946,
+    "s": 23969,
+    "e": 23985,
     "t": "span"
    },
    {
     "k": "worker.file-your-form-c-3",
-    "s": 24007,
-    "e": 24086,
+    "s": 24046,
+    "e": 24125,
     "t": "p"
    },
    {
     "k": "shared.find-an-attorney",
-    "s": 24262,
-    "e": 24278,
+    "s": 24301,
+    "e": 24317,
     "t": "span"
    },
    {
     "k": "worker.get-matched-with-an-experienced",
-    "s": 24352,
-    "e": 24432,
+    "s": 24391,
+    "e": 24471,
     "t": "p"
    },
    {
     "k": "worker.find-a-doctor",
-    "s": 24577,
-    "e": 24590,
+    "s": 24616,
+    "e": 24629,
     "t": "span"
    },
    {
     "k": "worker.search-the-wcb-authorized-provider",
-    "s": 24667,
-    "e": 24755,
+    "s": 24706,
+    "e": 24794,
     "t": "p"
    },
    {
     "k": "shared.job-buddy",
-    "s": 24888,
-    "e": 24897,
+    "s": 24927,
+    "e": 24936,
     "t": "span"
    },
    {
     "k": "worker.find-light-duty-work-that",
-    "s": 24965,
-    "e": 25051,
+    "s": 25004,
+    "e": 25090,
     "t": "p"
    },
    {
     "k": "worker.at-a-glance.label",
-    "s": 25130,
-    "e": 25141,
+    "s": 25169,
+    "e": 25180,
     "a": "aria-label"
    },
    {
     "k": "shared.always-free",
-    "s": 25294,
-    "e": 25305,
+    "s": 25333,
+    "e": 25344,
     "t": "div"
    },
    {
     "k": "worker.wcb",
-    "s": 25384,
-    "e": 25387,
+    "s": 25423,
+    "e": 25426,
     "t": "div"
    },
    {
     "k": "worker.authorized-providers",
-    "s": 25448,
-    "e": 25468,
+    "s": 25487,
+    "e": 25507,
     "t": "div"
    },
    {
     "k": "worker.in-your-pocket",
-    "s": 25583,
-    "e": 25597,
+    "s": 25622,
+    "e": 25636,
     "t": "div"
    },
    {
     "k": "worker.ny",
-    "s": 25675,
-    "e": 25677,
+    "s": 25714,
+    "e": 25716,
     "t": "div"
    },
    {
     "k": "worker.workers-comp-focused",
-    "s": 25738,
-    "e": 25759,
+    "s": 25777,
+    "e": 25798,
     "t": "div"
    },
    {
     "k": "worker.get-the-comp-buddy-app.label",
-    "s": 25946,
-    "e": 25968,
+    "s": 25985,
+    "e": 26007,
     "a": "aria-label"
    },
    {
     "k": "worker.get-the-comp-buddy-app.label",
-    "s": 26121,
-    "e": 26143,
+    "s": 26160,
+    "e": 26182,
     "t": "span"
    },
    {
     "k": "shared.download-the-comp-desk-on",
-    "s": 26303,
-    "e": 26342,
+    "s": 26342,
+    "e": 26381,
     "a": "aria-label"
    },
    {
     "k": "shared.download-on-the-app-store",
-    "s": 26517,
-    "e": 26542,
+    "s": 26556,
+    "e": 26581,
     "a": "alt"
    },
    {
     "k": "worker.also-on-chrome",
-    "s": 26742,
-    "e": 26763,
+    "s": 26781,
+    "e": 26802,
     "t": "a"
    },
    {
     "k": "worker.important-the-comp-desk-is",
-    "s": 36585,
-    "e": 36747,
+    "s": 36624,
+    "e": 36786,
     "t": "div"
    },
    {
     "k": "worker.meet-comp-buddy",
-    "s": 37287,
-    "e": 37302,
+    "s": 37326,
+    "e": 37341,
     "t": "span"
    },
    {
     "k": "worker.everything-an-injured-worker-needs",
-    "s": 37376,
-    "e": 37430,
+    "s": 37415,
+    "e": 37469,
     "t": "h2"
    },
    {
     "k": "worker.from-the-day-you-get",
-    "s": 37487,
-    "e": 37606,
+    "s": 37526,
+    "e": 37645,
     "t": "p"
    },
    {
     "k": "worker.0-8-mi",
-    "s": 38331,
-    "e": 38551,
+    "s": 38370,
+    "e": 38590,
     "t": "div"
    },
    {
     "k": "worker.find-a-doctor",
-    "s": 38702,
-    "e": 38715,
+    "s": 38741,
+    "e": 38754,
     "t": "span"
    },
    {
     "k": "worker.the-right-care-authorized",
-    "s": 38784,
-    "e": 38811,
+    "s": 38823,
+    "e": 38850,
     "t": "h3"
    },
    {
     "k": "worker.search-the-nys-wcb-s",
-    "s": 38872,
-    "e": 39015,
+    "s": 38911,
+    "e": 39054,
     "t": "p"
    },
    {
     "k": "worker.search-providers",
-    "s": 39085,
-    "e": 39101,
+    "s": 39124,
+    "e": 39140,
     "t": "span"
    },
    {
     "k": "worker.upcoming-exam",
-    "s": 39389,
-    "e": 39443,
+    "s": 39428,
+    "e": 39482,
     "t": "div"
    },
    {
     "k": "worker.ime-in-3-days",
-    "s": 39542,
-    "e": 39555,
+    "s": 39581,
+    "e": 39594,
     "t": "div"
    },
    {
     "k": "worker.dr-chen-tue-9-30",
-    "s": 39800,
-    "e": 39848,
+    "s": 39839,
+    "e": 39887,
     "t": "div"
    },
    {
     "k": "shared.ime-reminders",
-    "s": 39984,
-    "e": 39997,
+    "s": 40023,
+    "e": 40036,
     "t": "span"
    },
    {
     "k": "worker.never-miss-an-ime",
-    "s": 40058,
-    "e": 40076,
+    "s": 40097,
+    "e": 40115,
     "t": "h3"
    },
    {
     "k": "worker.the-moment-an-exam-is",
-    "s": 40138,
-    "e": 40297,
+    "s": 40177,
+    "e": 40336,
     "t": "p"
    },
    {
     "k": "worker.see-how-reminders-work",
-    "s": 40373,
-    "e": 40395,
+    "s": 40412,
+    "e": 40434,
     "t": "span"
    },
    {
     "k": "worker.form-c-3-claim-step",
-    "s": 40685,
-    "e": 40775,
+    "s": 40724,
+    "e": 40814,
     "t": "div"
    },
    {
     "k": "worker.ready-to-file",
-    "s": 40990,
-    "e": 41222,
+    "s": 41029,
+    "e": 41261,
     "t": "div"
    },
    {
     "k": "worker.c-3-filing",
-    "s": 41355,
-    "e": 41365,
+    "s": 41394,
+    "e": 41404,
     "t": "span"
    },
    {
     "k": "worker.file-your-claim-guided",
-    "s": 41431,
-    "e": 41455,
+    "s": 41470,
+    "e": 41494,
     "t": "h3"
    },
    {
     "k": "worker.the-c-3-is-what",
-    "s": 41511,
-    "e": 41667,
+    "s": 41550,
+    "e": 41706,
     "t": "p"
    },
    {
     "k": "worker.start-your-c-3",
-    "s": 41735,
-    "e": 41749,
+    "s": 41774,
+    "e": 41788,
     "t": "span"
    },
    {
     "k": "worker.average-weekly-wage-wcl-14",
-    "s": 42041,
-    "e": 42093,
+    "s": 42080,
+    "e": 42132,
     "t": "div"
    },
    {
     "k": "worker.your-aww-across-52-weeks",
-    "s": 42272,
-    "e": 42296,
+    "s": 42311,
+    "e": 42335,
     "t": "div"
    },
    {
     "k": "worker.weekly-comp-rate-761-67",
-    "s": 42406,
-    "e": 42604,
+    "s": 42445,
+    "e": 42643,
     "t": "div"
    },
    {
     "k": "worker.aww-help",
-    "s": 42735,
-    "e": 42743,
+    "s": 42774,
+    "e": 42782,
     "t": "span"
    },
    {
     "k": "worker.know-what-you-re-owed",
-    "s": 42808,
-    "e": 42830,
+    "s": 42847,
+    "e": 42869,
     "t": "h3"
    },
    {
     "k": "worker.your-weekly-check-is-two",
-    "s": 42895,
-    "e": 43052,
+    "s": 42934,
+    "e": 43091,
     "t": "p"
    },
    {
     "k": "worker.estimate-your-aww",
-    "s": 43123,
-    "e": 43140,
+    "s": 43162,
+    "e": 43179,
     "t": "span"
    },
    {
     "k": "worker.beta",
-    "s": 43389,
-    "e": 43393,
+    "s": 43428,
+    "e": 43432,
     "t": "span"
    },
    {
     "k": "worker.light-duty-matches",
-    "s": 43499,
-    "e": 43530,
+    "s": 43538,
+    "e": 43569,
     "t": "div"
    },
    {
     "k": "worker.fits-restrictions-2-1-mi",
-    "s": 43858,
-    "e": 44048,
+    "s": 43897,
+    "e": 44087,
     "t": "div"
    },
    {
     "k": "worker.job-buddy-free-beta",
-    "s": 44190,
-    "e": 44278,
+    "s": 44229,
+    "e": 44317,
     "t": "span"
    },
    {
     "k": "worker.work-search-made-simple",
-    "s": 44345,
-    "e": 44370,
+    "s": 44384,
+    "e": 44409,
     "t": "h3"
    },
    {
     "k": "worker.real-openings-that-fit-your",
-    "s": 44438,
-    "e": 44588,
+    "s": 44477,
+    "e": 44627,
     "t": "p"
    },
    {
     "k": "worker.open-job-buddy",
-    "s": 44656,
-    "e": 44670,
+    "s": 44695,
+    "e": 44709,
     "t": "span"
    },
    {
     "k": "worker.learn-your-rights",
-    "s": 44952,
-    "e": 44982,
+    "s": 44991,
+    "e": 45021,
     "t": "div"
    },
    {
     "k": "worker.learn-your-rights-2",
-    "s": 45575,
-    "e": 45592,
+    "s": 45614,
+    "e": 45631,
     "t": "span"
    },
    {
     "k": "worker.the-system-in-plain-english",
-    "s": 45663,
-    "e": 45692,
+    "s": 45702,
+    "e": 45731,
     "t": "h3"
    },
    {
     "k": "worker.short-honest-guides-for-every",
-    "s": 45762,
-    "e": 45916,
+    "s": 45801,
+    "e": 45955,
     "t": "p"
    },
    {
     "k": "worker.browse-the-guides",
-    "s": 45987,
-    "e": 46004,
+    "s": 46026,
+    "e": 46043,
     "t": "span"
    },
    {
     "k": "worker.medical-travel-36-18",
-    "s": 46311,
-    "e": 46401,
+    "s": 46350,
+    "e": 46440,
     "t": "div"
    },
    {
     "k": "worker.c-257-ready",
-    "s": 46614,
-    "e": 46844,
+    "s": 46653,
+    "e": 46883,
     "t": "div"
    },
    {
     "k": "shared.medical-travel",
-    "s": 46981,
-    "e": 47001,
+    "s": 47020,
+    "e": 47040,
     "t": "span"
    },
    {
     "k": "worker.get-paid-back-for-every",
-    "s": 47068,
-    "e": 47097,
+    "s": 47107,
+    "e": 47136,
     "t": "h3"
    },
    {
     "k": "worker.workers-comp-reimburses-your-fares",
-    "s": 47172,
-    "e": 47356,
+    "s": 47211,
+    "e": 47395,
     "t": "p"
    },
    {
     "k": "worker.track-your-reimbursements",
-    "s": 47435,
-    "e": 47460,
+    "s": 47474,
+    "e": 47499,
     "t": "span"
    },
    {
     "k": "worker.matching-your-county",
-    "s": 47789,
-    "e": 47824,
+    "s": 47828,
+    "e": 47863,
     "t": "div"
    },
    {
     "k": "worker.neutral-round-robin-no-fee",
-    "s": 48179,
-    "e": 48216,
+    "s": 48218,
+    "e": 48255,
     "t": "div"
    },
    {
     "k": "shared.find-an-attorney",
-    "s": 48355,
-    "e": 48371,
+    "s": 48394,
+    "e": 48410,
     "t": "span"
    },
    {
     "k": "worker.a-lawyer-on-your-side",
-    "s": 48436,
-    "e": 48459,
+    "s": 48475,
+    "e": 48498,
     "t": "h3"
    },
    {
     "k": "worker.neutral-round-robin-matching-with",
-    "s": 48533,
-    "e": 48699,
+    "s": 48572,
+    "e": 48738,
     "t": "p"
    },
    {
     "k": "worker.connect-with-an-attorney",
-    "s": 48777,
-    "e": 48801,
+    "s": 48816,
+    "e": 48840,
     "t": "span"
    },
    {
     "k": "worker.create-a-free-account-to",
-    "s": 49028,
-    "e": 49112,
+    "s": 49067,
+    "e": 49151,
     "t": "p"
    },
    {
     "k": "worker.create-your-free-account",
-    "s": 49238,
-    "e": 49262,
+    "s": 49277,
+    "e": 49301,
     "t": "a"
    },
    {
     "k": "worker.your-case-stage-by-stage",
-    "s": 49552,
-    "e": 49577,
+    "s": 49591,
+    "e": 49616,
     "t": "span"
    },
    {
     "k": "worker.every-ny-workers-comp-case",
-    "s": 49643,
-    "e": 49691,
+    "s": 49682,
+    "e": 49730,
     "t": "h2"
    },
    {
     "k": "worker.knowing-where-you-are-tells",
-    "s": 49755,
-    "e": 49843,
+    "s": 49794,
+    "e": 49882,
     "t": "p"
    },
    {
     "k": "worker.file-your-claim",
-    "s": 50023,
-    "e": 50038,
+    "s": 50062,
+    "e": 50077,
     "t": "h3"
    },
    {
     "k": "worker.report-the-injury-file-the",
-    "s": 50103,
-    "e": 50176,
+    "s": 50142,
+    "e": 50215,
     "t": "p"
    },
    {
     "k": "worker.get-your-benefits",
-    "s": 50364,
-    "e": 50381,
+    "s": 50403,
+    "e": 50420,
     "t": "h3"
    },
    {
     "k": "worker.your-aww-under-wcl-14",
-    "s": 50441,
-    "e": 50505,
+    "s": 50480,
+    "e": 50544,
     "t": "p"
    },
    {
     "k": "worker.medical-evidence",
-    "s": 50675,
-    "e": 50691,
+    "s": 50714,
+    "e": 50730,
     "t": "h3"
    },
    {
     "k": "worker.imes-treating-physician-reports-medical",
-    "s": 50769,
-    "e": 50852,
+    "s": 50808,
+    "e": 50891,
     "t": "p"
    },
    {
     "k": "worker.permanency",
-    "s": 51034,
-    "e": 51044,
+    "s": 51073,
+    "e": 51083,
     "t": "h3"
    },
    {
     "k": "worker.slu-awards-lwec-classification-what",
-    "s": 51118,
-    "e": 51191,
+    "s": 51157,
+    "e": 51230,
     "t": "p"
    },
    {
     "k": "worker.settlement",
-    "s": 51343,
-    "e": 51353,
+    "s": 51382,
+    "e": 51392,
     "t": "h3"
    },
    {
     "k": "worker.section-32-settlements-closing-your",
-    "s": 51427,
-    "e": 51492,
+    "s": 51466,
+    "e": 51531,
     "t": "p"
    },
    {
     "k": "worker.explore-every-stage-in-detail",
-    "s": 51625,
-    "e": 51692,
+    "s": 51664,
+    "e": 51731,
     "t": "p"
    },
    {
     "k": "worker.a-simple-example",
-    "s": 51951,
-    "e": 51967,
+    "s": 51990,
+    "e": 52006,
     "t": "span"
    },
    {
     "k": "worker.one-missed-ime-can-cost",
-    "s": 52045,
-    "e": 52084,
+    "s": 52084,
+    "e": 52123,
     "t": "h2"
    },
    {
     "k": "worker.independent-medical-exams-are-the",
-    "s": 52243,
-    "e": 52531,
+    "s": 52282,
+    "e": 52570,
     "t": "p"
    },
    {
     "k": "worker.see-how-ime-reminders-work",
-    "s": 52624,
-    "e": 52702,
+    "s": 52663,
+    "e": 52741,
     "t": "p"
    },
    {
     "k": "worker.june-2026",
-    "s": 52831,
-    "e": 52840,
+    "s": 52870,
+    "e": 52879,
     "t": "div"
    },
    {
     "k": "worker.s-m-t-w-t",
-    "s": 52901,
-    "e": 52999,
+    "s": 52940,
+    "e": 53038,
     "t": "div"
    },
    {
     "k": "worker.ime-dr-chen-9-30",
-    "s": 53899,
-    "e": 53923,
+    "s": 53938,
+    "e": 53962,
     "t": "div"
    },
    {
     "k": "shared.common-questions",
-    "s": 54176,
-    "e": 54192,
+    "s": 54215,
+    "e": 54231,
     "t": "span"
    },
    {
     "k": "worker.the-questions-injured-workers-ask",
-    "s": 54265,
-    "e": 54305,
+    "s": 54304,
+    "e": 54344,
     "t": "h2"
    },
    {
     "k": "worker.do-i-have-to-pay",
-    "s": 54443,
-    "e": 54476,
+    "s": 54482,
+    "e": 54515,
     "t": "summary"
    },
    {
     "k": "worker.no-in-new-york-claimant",
-    "s": 54543,
-    "e": 54822,
+    "s": 54582,
+    "e": 54861,
     "t": "p"
    },
    {
     "k": "worker.what-is-an-ime-and",
-    "s": 54938,
-    "e": 54980,
+    "s": 54977,
+    "e": 55019,
     "t": "summary"
    },
    {
     "k": "worker.an-independent-medical-examination-is",
-    "s": 55061,
-    "e": 55362,
+    "s": 55100,
+    "e": 55401,
     "t": "p"
    },
    {
     "k": "worker.how-is-my-weekly-benefit",
-    "s": 55484,
-    "e": 55520,
+    "s": 55523,
+    "e": 55559,
     "t": "summary"
    },
    {
     "k": "worker.your-weekly-indemnity-rate-is",
-    "s": 55593,
-    "e": 55955,
+    "s": 55632,
+    "e": 55994,
     "t": "p"
    },
    {
     "k": "worker.what-is-schedule-loss-of",
-    "s": 56077,
-    "e": 56112,
+    "s": 56116,
+    "e": 56151,
     "t": "summary"
    },
    {
     "k": "worker.slu-is-a-permanent-award",
-    "s": 56180,
-    "e": 56504,
+    "s": 56219,
+    "e": 56543,
     "t": "p"
    },
    {
     "k": "worker.what-if-the-carrier-denies",
-    "s": 56628,
-    "e": 56664,
+    "s": 56667,
+    "e": 56703,
     "t": "summary"
    },
    {
     "k": "worker.you-request-a-hearing-a",
-    "s": 56731,
-    "e": 57027,
+    "s": 56770,
+    "e": 57066,
     "t": "p"
    },
    {
     "k": "shared.does-the-comp-desk-recommend",
-    "s": 57153,
-    "e": 57201,
+    "s": 57192,
+    "e": 57240,
     "t": "summary"
    },
    {
     "k": "worker.no-attorney-matching-is-mechanical",
-    "s": 57279,
-    "e": 57459,
+    "s": 57318,
+    "e": 57498,
     "t": "p"
    },
    {
     "k": "worker.ready-to-talk-to-a",
-    "s": 57952,
-    "e": 57978,
+    "s": 57991,
+    "e": 58017,
     "t": "span"
    },
    {
     "k": "worker.you-don-t-pay-a",
-    "s": 58048,
-    "e": 58088,
+    "s": 58087,
+    "e": 58127,
     "t": "h2"
    },
    {
     "k": "worker.in-new-york-claimant-side",
-    "s": 58165,
-    "e": 58427,
+    "s": 58204,
+    "e": 58466,
     "t": "p"
    },
    {
     "k": "worker.connect-with-an-attorney-download",
-    "s": 58600,
-    "e": 58824,
+    "s": 58639,
+    "e": 58863,
     "t": "div"
    },
    {
     "k": "worker.workers-compensation-in-new-york",
-    "s": 58972,
-    "e": 59155,
+    "s": 59011,
+    "e": 59194,
     "t": "p"
    },
    {
     "k": "worker.joel-mays-esq-nys-workers",
-    "s": 59236,
-    "e": 59317,
+    "s": 59275,
+    "e": 59356,
     "t": "p"
    },
    {
     "k": "worker.connect-with-a-workers-compensation.label",
-    "s": 59553,
-    "e": 59598,
+    "s": 59592,
+    "e": 59637,
     "a": "aria-label"
    },
    {
     "k": "shared.close",
-    "s": 59855,
-    "e": 59860,
+    "s": 59894,
+    "e": 59899,
     "a": "aria-label"
    },
    {
     "k": "shared.2026-njj-document-services-inc",
-    "s": 60586,
-    "e": 60667,
+    "s": 60625,
+    "e": 60706,
     "t": "p"
    },
    {
     "k": "shared.privacy-contact-replay-intro",
-    "s": 60734,
-    "e": 60845,
+    "s": 60773,
+    "e": 60884,
     "t": "p"
    }
   ]
  },
  "connect-with-attorney.html": {
-  "sha256": "10b0247e040ac9d4eb45341048282dad44c1624a074b68feccca44aef0c1b6b2",
+  "sha256": "f9d40d86ed4b4e7dbef099e7a38622548d25db21599185d9a3fe596e30f4d2b3",
   "slots": [
    {
     "k": "connect-with-attorney.meta.og-title",
@@ -1130,1760 +1172,1790 @@
    },
    {
     "k": "shared.primary",
-    "s": 27070,
-    "e": 27077,
+    "s": 28373,
+    "e": 28380,
     "a": "aria-label"
    },
    {
     "k": "shared.the-comp-desk",
-    "s": 27215,
-    "e": 27228,
+    "s": 28518,
+    "e": 28531,
     "a": "aria-label"
    },
    {
     "k": "shared.the-comp-desk-2",
-    "s": 27314,
-    "e": 27355,
+    "s": 28617,
+    "e": 28658,
     "t": "a"
    },
    {
     "k": "connect-with-attorney.worker-attorneys-calculators-learn",
-    "s": 27471,
-    "e": 27624,
+    "s": 28774,
+    "e": 28927,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.free-for-injured-workers",
-    "s": 27846,
-    "e": 27870,
+    "s": 29149,
+    "e": 29173,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.connect-with-the-right-attorney",
-    "s": 27953,
-    "e": 28008,
+    "s": 29256,
+    "e": 29311,
     "t": "h1"
    },
    {
     "k": "connect-with-attorney.a-transparent-neutral-attorney-connection",
-    "s": 28111,
-    "e": 28321,
+    "s": 29414,
+    "e": 29624,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.get-connected-free",
-    "s": 28504,
-    "e": 28524,
+    "s": 29807,
+    "e": 29827,
     "t": "button"
    },
    {
     "k": "shared.how-it-works",
-    "s": 28622,
-    "e": 28634,
+    "s": 29925,
+    "e": 29937,
     "t": "a"
    },
    {
     "k": "connect-with-attorney.how-it-works-for-injured",
-    "s": 28835,
-    "e": 28867,
+    "s": 30138,
+    "e": 30170,
     "t": "h2"
    },
    {
     "k": "connect-with-attorney.three-simple-steps-to-connect",
-    "s": 28966,
-    "e": 29021,
+    "s": 30269,
+    "e": 30324,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.tell-us-about-your-case",
-    "s": 29201,
-    "e": 29224,
+    "s": 30504,
+    "e": 30527,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.submit-your-county-injury-type",
-    "s": 29308,
-    "e": 29468,
+    "s": 30611,
+    "e": 30771,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.we-connect-you",
-    "s": 29623,
-    "e": 29637,
+    "s": 30926,
+    "e": 30940,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.your-information-is-sent-to",
-    "s": 29718,
-    "e": 29863,
+    "s": 31021,
+    "e": 31166,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.the-attorney-contacts-you",
-    "s": 30029,
-    "e": 30054,
+    "s": 31332,
+    "e": 31357,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.a-licensed-nys-workers-compensation",
-    "s": 30143,
-    "e": 30287,
+    "s": 31446,
+    "e": 31590,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.start-your-case-it-s",
-    "s": 30512,
-    "e": 30539,
+    "s": 31815,
+    "e": 31842,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.no-account-needed-takes-about",
-    "s": 30681,
-    "e": 30722,
+    "s": 31984,
+    "e": 32025,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.our-transparency-promise",
-    "s": 30905,
-    "e": 30929,
+    "s": 32208,
+    "e": 32232,
     "t": "h2"
    },
    {
     "k": "connect-with-attorney.six-core-principles-that-make",
-    "s": 31028,
-    "e": 31081,
+    "s": 32331,
+    "e": 32384,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.no-paid-placement",
-    "s": 31256,
-    "e": 31273,
+    "s": 32559,
+    "e": 32576,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.attorneys-cannot-pay-for-priority",
-    "s": 31360,
-    "e": 31466,
+    "s": 32663,
+    "e": 32769,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.flat-lead-fee-only",
-    "s": 31625,
-    "e": 31643,
+    "s": 32928,
+    "e": 32946,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.attorneys-pay-a-flat-per",
-    "s": 31721,
-    "e": 31815,
+    "s": 33024,
+    "e": 33118,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.random-order-every-time",
-    "s": 31979,
-    "e": 32002,
+    "s": 33282,
+    "e": 33305,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.every-visitor-sees-a-different",
-    "s": 32086,
-    "e": 32213,
+    "s": 33389,
+    "e": 33516,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.no-endorsements",
-    "s": 32369,
-    "e": 32384,
+    "s": 33672,
+    "e": 33687,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.listing-is-purely-informational-the",
-    "s": 32473,
-    "e": 32585,
+    "s": 33776,
+    "e": 33888,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.no-tracking",
-    "s": 32737,
-    "e": 32748,
+    "s": 34040,
+    "e": 34051,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.we-don-t-monitor-which",
-    "s": 32824,
-    "e": 32932,
+    "s": 34127,
+    "e": 34235,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.owner-excluded",
-    "s": 33088,
-    "e": 33102,
+    "s": 34391,
+    "e": 34405,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.joel-mays-firm-shulman-hill",
-    "s": 33183,
-    "e": 33370,
+    "s": 34486,
+    "e": 34673,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.join-the-network-pay-only",
-    "s": 33953,
-    "e": 34001,
+    "s": 35256,
+    "e": 35304,
     "t": "h2"
    },
    {
     "k": "connect-with-attorney.purchase-lead-credits-when-an",
-    "s": 34096,
-    "e": 34435,
+    "s": 35399,
+    "e": 35738,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.how-it-works-1-purchase",
-    "s": 34547,
-    "e": 34957,
+    "s": 35850,
+    "e": 36260,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.single-lead",
-    "s": 35127,
-    "e": 35138,
+    "s": 36430,
+    "e": 36441,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.1-credit",
-    "s": 35272,
-    "e": 35280,
+    "s": 36575,
+    "e": 36583,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.99-lead",
-    "s": 35363,
-    "e": 35373,
+    "s": 36666,
+    "e": 36676,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.most-popular",
-    "s": 35524,
-    "e": 35536,
+    "s": 36827,
+    "e": 36839,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.starter",
-    "s": 35620,
-    "e": 35627,
+    "s": 36923,
+    "e": 36930,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.3-credits",
-    "s": 35763,
-    "e": 35772,
+    "s": 37066,
+    "e": 37075,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.83-lead",
-    "s": 35855,
-    "e": 35865,
+    "s": 37158,
+    "e": 37168,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.standard",
-    "s": 36004,
-    "e": 36012,
+    "s": 37307,
+    "e": 37315,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.5-credits",
-    "s": 36148,
-    "e": 36157,
+    "s": 37451,
+    "e": 37460,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.89-80-lead",
-    "s": 36243,
-    "e": 36256,
+    "s": 37546,
+    "e": 37559,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.volume",
-    "s": 36393,
-    "e": 36399,
+    "s": 37696,
+    "e": 37702,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.10-credits",
-    "s": 36536,
-    "e": 36546,
+    "s": 37839,
+    "e": 37849,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.79-90-lead",
-    "s": 36632,
-    "e": 36645,
+    "s": 37935,
+    "e": 37948,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.no-monthly-fees-no-setup",
-    "s": 36831,
-    "e": 36933,
+    "s": 38134,
+    "e": 38236,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.join-our-attorney-referral-network",
-    "s": 37095,
-    "e": 37129,
+    "s": 38398,
+    "e": 38432,
     "t": "button"
    },
    {
     "k": "shared.frequently-asked-questions",
-    "s": 37291,
-    "e": 37317,
+    "s": 38594,
+    "e": 38620,
     "t": "h2"
    },
    {
     "k": "connect-with-attorney.common-questions-about-how-the",
-    "s": 37417,
-    "e": 37462,
+    "s": 38720,
+    "e": 38765,
     "t": "p"
    },
    {
     "k": "shared.does-the-comp-desk-recommend",
-    "s": 37658,
-    "e": 37706,
+    "s": 38961,
+    "e": 39009,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.no-the-comp-desk-does",
-    "s": 37798,
-    "e": 38045,
+    "s": 39101,
+    "e": 39348,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.jsonld.how-are-attorneys-assigned-to",
-    "s": 38252,
-    "e": 38290,
+    "s": 39555,
+    "e": 39593,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.attorneys-are-assigned-through-neutral",
-    "s": 38399,
-    "e": 38748,
+    "s": 39702,
+    "e": 40051,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.jsonld.why-is-the-owner-s",
-    "s": 38944,
-    "e": 38994,
+    "s": 40247,
+    "e": 40297,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.to-avoid-conflict-of-interest",
-    "s": 39094,
-    "e": 39420,
+    "s": 40397,
+    "e": 40723,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.jsonld.how-much-does-it-cost",
-    "s": 39619,
-    "e": 39670,
+    "s": 40922,
+    "e": 40973,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.attorneys-purchase-lead-credits-a",
-    "s": 39774,
-    "e": 40126,
+    "s": 41077,
+    "e": 41429,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.jsonld.what-if-i-accept-a",
-    "s": 40322,
-    "e": 40373,
+    "s": 41625,
+    "e": 41676,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.if-you-document-3-contact",
-    "s": 40469,
-    "e": 40668,
+    "s": 41772,
+    "e": 41971,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.jsonld.can-i-request-removal-from",
-    "s": 40872,
-    "e": 40911,
+    "s": 42175,
+    "e": 42214,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.yes-any-attorney-can-request",
-    "s": 41010,
-    "e": 41214,
+    "s": 42313,
+    "e": 42517,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.injured-at-work",
-    "s": 41410,
-    "e": 41426,
+    "s": 42713,
+    "e": 42729,
     "t": "h2"
    },
    {
     "k": "connect-with-attorney.submit-your-case-details-and",
-    "s": 41504,
-    "e": 41638,
+    "s": 42807,
+    "e": 42941,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.get-connected-free",
-    "s": 41791,
-    "e": 41811,
+    "s": 43094,
+    "e": 43114,
     "t": "button"
    },
    {
     "k": "shared.2026-njj-document-services-inc",
-    "s": 42093,
-    "e": 42174,
+    "s": 43396,
+    "e": 43477,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.the-comp-desk-is-a",
-    "s": 42281,
-    "e": 42564,
+    "s": 43584,
+    "e": 43867,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.privacy-contact-join-attorney-network",
-    "s": 42684,
-    "e": 42852,
+    "s": 43987,
+    "e": 44155,
     "t": "p"
    },
    {
     "k": "shared.close",
-    "s": 43166,
-    "e": 43171,
+    "s": 44469,
+    "e": 44474,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.tell-us-about-your-case",
-    "s": 43970,
-    "e": 43993,
+    "s": 45273,
+    "e": 45296,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.we-ll-match-you-with",
-    "s": 44069,
-    "e": 44115,
+    "s": 45372,
+    "e": 45418,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.county",
-    "s": 44320,
-    "e": 44353,
+    "s": 45623,
+    "e": 45656,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.select-your-county",
-    "s": 44494,
-    "e": 44515,
+    "s": 45797,
+    "e": 45818,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.albany",
-    "s": 44605,
-    "e": 44611,
+    "s": 45908,
+    "e": 45914,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.allegany",
-    "s": 44705,
-    "e": 44713,
+    "s": 46008,
+    "e": 46016,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.bronx",
-    "s": 44801,
-    "e": 44806,
+    "s": 46104,
+    "e": 46109,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.broome",
-    "s": 44896,
-    "e": 44902,
+    "s": 46199,
+    "e": 46205,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.cattaraugus",
-    "s": 45002,
-    "e": 45013,
+    "s": 46305,
+    "e": 46316,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.cayuga",
-    "s": 45103,
-    "e": 45109,
+    "s": 46406,
+    "e": 46412,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.chautauqua",
-    "s": 45207,
-    "e": 45217,
+    "s": 46510,
+    "e": 46520,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.chemung",
-    "s": 45309,
-    "e": 45316,
+    "s": 46612,
+    "e": 46619,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.chenango",
-    "s": 45410,
-    "e": 45418,
+    "s": 46713,
+    "e": 46721,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.clinton",
-    "s": 45510,
-    "e": 45517,
+    "s": 46813,
+    "e": 46820,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.columbia",
-    "s": 45611,
-    "e": 45619,
+    "s": 46914,
+    "e": 46922,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.cortland",
-    "s": 45713,
-    "e": 45721,
+    "s": 47016,
+    "e": 47024,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.delaware",
-    "s": 45815,
-    "e": 45823,
+    "s": 47118,
+    "e": 47126,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.dutchess",
-    "s": 45917,
-    "e": 45925,
+    "s": 47220,
+    "e": 47228,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.erie",
-    "s": 46011,
-    "e": 46015,
+    "s": 47314,
+    "e": 47318,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.essex",
-    "s": 46103,
-    "e": 46108,
+    "s": 47406,
+    "e": 47411,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.franklin",
-    "s": 46202,
-    "e": 46210,
+    "s": 47505,
+    "e": 47513,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.fulton",
-    "s": 46300,
-    "e": 46306,
+    "s": 47603,
+    "e": 47609,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.genesee",
-    "s": 46398,
-    "e": 46405,
+    "s": 47701,
+    "e": 47708,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.greene",
-    "s": 46495,
-    "e": 46501,
+    "s": 47798,
+    "e": 47804,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.hamilton",
-    "s": 46595,
-    "e": 46603,
+    "s": 47898,
+    "e": 47906,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.herkimer",
-    "s": 46697,
-    "e": 46705,
+    "s": 48000,
+    "e": 48008,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.jefferson",
-    "s": 46801,
-    "e": 46810,
+    "s": 48104,
+    "e": 48113,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.kings-brooklyn",
-    "s": 46918,
-    "e": 46934,
+    "s": 48221,
+    "e": 48237,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.lewis",
-    "s": 47022,
-    "e": 47027,
+    "s": 48325,
+    "e": 48330,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.livingston",
-    "s": 47125,
-    "e": 47135,
+    "s": 48428,
+    "e": 48438,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.madison",
-    "s": 47227,
-    "e": 47234,
+    "s": 48530,
+    "e": 48537,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.monroe",
-    "s": 47324,
-    "e": 47330,
+    "s": 48627,
+    "e": 48633,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.montgomery",
-    "s": 47428,
-    "e": 47438,
+    "s": 48731,
+    "e": 48741,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.nassau",
-    "s": 47528,
-    "e": 47534,
+    "s": 48831,
+    "e": 48837,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.new-york-manhattan",
-    "s": 47650,
-    "e": 47670,
+    "s": 48953,
+    "e": 48973,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.niagara",
-    "s": 47762,
-    "e": 47769,
+    "s": 49065,
+    "e": 49072,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.oneida",
-    "s": 47859,
-    "e": 47865,
+    "s": 49162,
+    "e": 49168,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.onondaga",
-    "s": 47959,
-    "e": 47967,
+    "s": 49262,
+    "e": 49270,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.ontario",
-    "s": 48059,
-    "e": 48066,
+    "s": 49362,
+    "e": 49369,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.orange",
-    "s": 48156,
-    "e": 48162,
+    "s": 49459,
+    "e": 49465,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.orleans",
-    "s": 48254,
-    "e": 48261,
+    "s": 49557,
+    "e": 49564,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.oswego",
-    "s": 48351,
-    "e": 48357,
+    "s": 49654,
+    "e": 49660,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.otsego",
-    "s": 48447,
-    "e": 48453,
+    "s": 49750,
+    "e": 49756,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.putnam",
-    "s": 48543,
-    "e": 48549,
+    "s": 49846,
+    "e": 49852,
     "t": "option"
    },
    {
     "k": "shared.queens",
-    "s": 48624,
-    "e": 48630,
+    "s": 49927,
+    "e": 49933,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.rensselaer",
-    "s": 48728,
-    "e": 48738,
+    "s": 50031,
+    "e": 50041,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.richmond-staten-island",
-    "s": 48862,
-    "e": 48886,
+    "s": 50165,
+    "e": 50189,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.rockland",
-    "s": 48980,
-    "e": 48988,
+    "s": 50283,
+    "e": 50291,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.saratoga",
-    "s": 49082,
-    "e": 49090,
+    "s": 50385,
+    "e": 50393,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.schenectady",
-    "s": 49190,
-    "e": 49201,
+    "s": 50493,
+    "e": 50504,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.schoharie",
-    "s": 49297,
-    "e": 49306,
+    "s": 50600,
+    "e": 50609,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.schuyler",
-    "s": 49400,
-    "e": 49408,
+    "s": 50703,
+    "e": 50711,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.seneca",
-    "s": 49498,
-    "e": 49504,
+    "s": 50801,
+    "e": 50807,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.st-lawrence",
-    "s": 49605,
-    "e": 49617,
+    "s": 50908,
+    "e": 50920,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.steuben",
-    "s": 49709,
-    "e": 49716,
+    "s": 51012,
+    "e": 51019,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.suffolk",
-    "s": 49808,
-    "e": 49815,
+    "s": 51111,
+    "e": 51118,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.sullivan",
-    "s": 49909,
-    "e": 49917,
+    "s": 51212,
+    "e": 51220,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.tioga",
-    "s": 50005,
-    "e": 50010,
+    "s": 51308,
+    "e": 51313,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.tompkins",
-    "s": 50104,
-    "e": 50112,
+    "s": 51407,
+    "e": 51415,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.ulster",
-    "s": 50202,
-    "e": 50208,
+    "s": 51505,
+    "e": 51511,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.warren",
-    "s": 50298,
-    "e": 50304,
+    "s": 51601,
+    "e": 51607,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.washington",
-    "s": 50402,
-    "e": 50412,
+    "s": 51705,
+    "e": 51715,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.wayne",
-    "s": 50500,
-    "e": 50505,
+    "s": 51803,
+    "e": 51808,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.westchester",
-    "s": 50605,
-    "e": 50616,
+    "s": 51908,
+    "e": 51919,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.wyoming",
-    "s": 50708,
-    "e": 50715,
+    "s": 52011,
+    "e": 52018,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.yates",
-    "s": 50803,
-    "e": 50808,
+    "s": 52106,
+    "e": 52111,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.injury-type",
-    "s": 50961,
-    "e": 50999,
+    "s": 52264,
+    "e": 52302,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.select-injury-type",
-    "s": 51145,
-    "e": 51166,
+    "s": 52448,
+    "e": 52469,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.back-spine",
-    "s": 51266,
-    "e": 51278,
+    "s": 52569,
+    "e": 52581,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.neck-cervical",
-    "s": 51384,
-    "e": 51399,
+    "s": 52687,
+    "e": 52702,
     "t": "option"
    },
    {
     "k": "shared.knee",
-    "s": 51470,
-    "e": 51474,
+    "s": 52773,
+    "e": 52777,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.shoulder",
-    "s": 51568,
-    "e": 51576,
+    "s": 52871,
+    "e": 52879,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.hip",
-    "s": 51660,
-    "e": 51663,
+    "s": 52963,
+    "e": 52966,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.ankle-foot",
-    "s": 51763,
-    "e": 51775,
+    "s": 53066,
+    "e": 53078,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.wrist-hand",
-    "s": 51875,
-    "e": 51887,
+    "s": 53178,
+    "e": 53190,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.head-brain-tbi",
-    "s": 51997,
-    "e": 52015,
+    "s": 53300,
+    "e": 53318,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.repetitive-stress-carpal-tunnel",
-    "s": 52157,
-    "e": 52190,
+    "s": 53460,
+    "e": 53493,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.occupational-disease",
-    "s": 52308,
-    "e": 52328,
+    "s": 53611,
+    "e": 53631,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.multiple-body-parts",
-    "s": 52444,
-    "e": 52463,
+    "s": 53747,
+    "e": 53766,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.other",
-    "s": 52551,
-    "e": 52556,
+    "s": 53854,
+    "e": 53859,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.case-stage",
-    "s": 52708,
-    "e": 52745,
+    "s": 54011,
+    "e": 54048,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.where-are-you-in-the",
-    "s": 52892,
-    "e": 52921,
+    "s": 54195,
+    "e": 54224,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.new-injury-haven-t-filed",
-    "s": 53045,
-    "e": 53083,
+    "s": 54348,
+    "e": 54386,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.claim-filed-waiting-for-hearing",
-    "s": 53213,
-    "e": 53246,
+    "s": 54516,
+    "e": 54549,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.open-case-looking-to-switch",
-    "s": 53376,
-    "e": 53415,
+    "s": 54679,
+    "e": 54718,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.my-claim-was-denied",
-    "s": 53524,
-    "e": 53543,
+    "s": 54827,
+    "e": 54846,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.previously-settled-want-to-reopen",
-    "s": 53682,
-    "e": 53717,
+    "s": 54985,
+    "e": 55020,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.not-sure-other",
-    "s": 53817,
-    "e": 53833,
+    "s": 55120,
+    "e": 55136,
     "t": "option"
    },
    {
+    "k": "connect-with-attorney.what-kind-of-claim-is",
+    "s": 55319,
+    "e": 55346,
+    "t": "label"
+   },
+   {
+    "k": "connect-with-attorney.one-accident-or-event",
+    "s": 55667,
+    "e": 55725,
+    "t": "button"
+   },
+   {
+    "k": "connect-with-attorney.built-up-over-time-repetitive",
+    "s": 55977,
+    "e": 56151,
+    "t": "button"
+   },
+   {
     "k": "connect-with-attorney.date-of-injury",
-    "s": 53989,
-    "e": 54030,
+    "s": 56413,
+    "e": 56454,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.approximate-date-is-fine",
-    "s": 54204,
-    "e": 54229,
+    "s": 56628,
+    "e": 56653,
+    "t": "div"
+   },
+   {
+    "k": "connect-with-attorney.date-of-disablement-optional",
+    "s": 56817,
+    "e": 56847,
+    "t": "label"
+   },
+   {
+    "k": "connect-with-attorney.roughly-when-the-condition-first",
+    "s": 57023,
+    "e": 57196,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.continue",
-    "s": 54408,
-    "e": 54416,
+    "s": 57375,
+    "e": 57383,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.a-few-more-details",
-    "s": 54669,
-    "e": 54687,
+    "s": 57636,
+    "e": 57654,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.help-the-attorney-understand-your",
-    "s": 54776,
-    "e": 54820,
+    "s": 57743,
+    "e": 57787,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.employer-name",
-    "s": 55032,
-    "e": 55072,
+    "s": 57999,
+    "e": 58039,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.company-you-were-working-for.placeholder",
-    "s": 55148,
-    "e": 55176,
+    "s": 58115,
+    "e": 58143,
     "a": "placeholder"
    },
    {
     "k": "connect-with-attorney.what-happened",
-    "s": 55429,
-    "e": 55470,
+    "s": 58396,
+    "e": 58437,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.a-word-or-two-is",
-    "s": 55695,
-    "e": 55757,
+    "s": 58662,
+    "e": 58724,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.body-parts-injured",
-    "s": 55890,
-    "e": 55935,
+    "s": 58857,
+    "e": 58902,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.body-view.label",
-    "s": 56061,
-    "e": 56070,
+    "s": 59028,
+    "e": 59037,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.front",
-    "s": 56344,
-    "e": 56349,
+    "s": 59311,
+    "e": 59316,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.back",
-    "s": 56554,
-    "e": 56558,
+    "s": 59521,
+    "e": 59525,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.head-and-face-open-head.label",
-    "s": 58229,
-    "e": 58261,
+    "s": 61196,
+    "e": 61228,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.neck.label",
-    "s": 58617,
-    "e": 58621,
+    "s": 61584,
+    "e": 61588,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.chest.label",
-    "s": 59016,
-    "e": 59021,
+    "s": 61983,
+    "e": 61988,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.abdomen.label",
-    "s": 59367,
-    "e": 59374,
+    "s": 62334,
+    "e": 62341,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.pelvis-and-groin.label",
-    "s": 59734,
-    "e": 59750,
+    "s": 62701,
+    "e": 62717,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-shoulder.label",
-    "s": 60249,
-    "e": 60262,
+    "s": 63216,
+    "e": 63229,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-upper-arm.label",
-    "s": 60583,
-    "e": 60597,
+    "s": 63550,
+    "e": 63564,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-elbow.label",
-    "s": 60852,
-    "e": 60862,
+    "s": 63819,
+    "e": 63829,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-forearm.label",
-    "s": 61327,
-    "e": 61339,
+    "s": 64294,
+    "e": 64306,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-hand-and-wrist-open.label",
-    "s": 61700,
-    "e": 61738,
+    "s": 64667,
+    "e": 64705,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-hip.label",
-    "s": 61978,
-    "e": 61986,
+    "s": 64945,
+    "e": 64953,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-thigh.label",
-    "s": 62535,
-    "e": 62545,
+    "s": 65502,
+    "e": 65512,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-knee.label",
-    "s": 62794,
-    "e": 62803,
+    "s": 65761,
+    "e": 65770,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-lower-leg.label",
-    "s": 63324,
-    "e": 63338,
+    "s": 66291,
+    "e": 66305,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-foot-and-ankle-open.label",
-    "s": 63725,
-    "e": 63763,
+    "s": 66692,
+    "e": 66730,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-shoulder.label",
-    "s": 64208,
-    "e": 64222,
+    "s": 67175,
+    "e": 67189,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-upper-arm.label",
-    "s": 64546,
-    "e": 64561,
+    "s": 67513,
+    "e": 67528,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-elbow.label",
-    "s": 64819,
-    "e": 64830,
+    "s": 67786,
+    "e": 67797,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-forearm.label",
-    "s": 65298,
-    "e": 65311,
+    "s": 68265,
+    "e": 68278,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-hand-and-wrist-open.label",
-    "s": 65674,
-    "e": 65713,
+    "s": 68641,
+    "e": 68680,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-hip.label",
-    "s": 65956,
-    "e": 65965,
+    "s": 68923,
+    "e": 68932,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-thigh.label",
-    "s": 66517,
-    "e": 66528,
+    "s": 69484,
+    "e": 69495,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-knee.label",
-    "s": 66780,
-    "e": 66790,
+    "s": 69747,
+    "e": 69757,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-lower-leg.label",
-    "s": 67314,
-    "e": 67329,
+    "s": 70281,
+    "e": 70296,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-foot-and-ankle-open.label",
-    "s": 67718,
-    "e": 67757,
+    "s": 70685,
+    "e": 70724,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.back-of-head-open-head.label",
-    "s": 70484,
-    "e": 70515,
+    "s": 73451,
+    "e": 73482,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.upper-cervical-back-and-neck.label",
-    "s": 70896,
-    "e": 70924,
+    "s": 73863,
+    "e": 73891,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.mid-thoracic-back.label",
-    "s": 71365,
-    "e": 71382,
+    "s": 74332,
+    "e": 74349,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.lower-lumbar-back.label",
-    "s": 71717,
-    "e": 71734,
+    "s": 74684,
+    "e": 74701,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.sacrum-and-tailbone.label",
-    "s": 72069,
-    "e": 72088,
+    "s": 75036,
+    "e": 75055,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-shoulder.label",
-    "s": 72570,
-    "e": 72584,
+    "s": 75537,
+    "e": 75551,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-upper-arm.label",
-    "s": 72908,
-    "e": 72923,
+    "s": 75875,
+    "e": 75890,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-elbow.label",
-    "s": 73181,
-    "e": 73192,
+    "s": 76148,
+    "e": 76159,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-forearm.label",
-    "s": 73660,
-    "e": 73673,
+    "s": 76627,
+    "e": 76640,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-hand-and-wrist-open.label",
-    "s": 74036,
-    "e": 74075,
+    "s": 77003,
+    "e": 77042,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-hip-and-buttock.label",
-    "s": 74420,
-    "e": 74441,
+    "s": 77387,
+    "e": 77408,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-thigh.label",
-    "s": 74835,
-    "e": 74846,
+    "s": 77802,
+    "e": 77813,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-knee.label",
-    "s": 75098,
-    "e": 75108,
+    "s": 78065,
+    "e": 78075,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-lower-leg-and-calf.label",
-    "s": 75632,
-    "e": 75656,
+    "s": 78599,
+    "e": 78623,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-foot-and-ankle-open.label",
-    "s": 76029,
-    "e": 76068,
+    "s": 78996,
+    "e": 79035,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-shoulder.label",
-    "s": 76512,
-    "e": 76525,
+    "s": 79479,
+    "e": 79492,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-upper-arm.label",
-    "s": 76846,
-    "e": 76860,
+    "s": 79813,
+    "e": 79827,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-elbow.label",
-    "s": 77115,
-    "e": 77125,
+    "s": 80082,
+    "e": 80092,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-forearm.label",
-    "s": 77590,
-    "e": 77602,
+    "s": 80557,
+    "e": 80569,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-hand-and-wrist-open.label",
-    "s": 77963,
-    "e": 78001,
+    "s": 80930,
+    "e": 80968,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-hip-and-buttock.label",
-    "s": 78343,
-    "e": 78363,
+    "s": 81310,
+    "e": 81330,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-thigh.label",
-    "s": 78754,
-    "e": 78764,
+    "s": 81721,
+    "e": 81731,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-knee.label",
-    "s": 79013,
-    "e": 79022,
+    "s": 81980,
+    "e": 81989,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-lower-leg-and-calf.label",
-    "s": 79543,
-    "e": 79566,
+    "s": 82510,
+    "e": 82533,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-foot-and-ankle-open.label",
-    "s": 79937,
-    "e": 79975,
+    "s": 82904,
+    "e": 82942,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.body-area-detail.label",
-    "s": 81984,
-    "e": 82000,
+    "s": 84951,
+    "e": 84967,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.detail",
-    "s": 82247,
-    "e": 82253,
+    "s": 85214,
+    "e": 85220,
     "t": "span"
    },
    {
     "k": "connect-with-attorney.done",
-    "s": 82392,
-    "e": 82396,
+    "s": 85359,
+    "e": 85363,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.head-skull-and-brain.label",
-    "s": 82959,
-    "e": 82980,
+    "s": 85926,
+    "e": 85947,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.face-scarring-or-disfigurement.label",
-    "s": 83340,
-    "e": 83371,
+    "s": 86307,
+    "e": 86338,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-eye.label",
-    "s": 83888,
-    "e": 83896,
+    "s": 86855,
+    "e": 86863,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-eye.label",
-    "s": 84301,
-    "e": 84310,
+    "s": 87268,
+    "e": 87277,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-ear-hearing.label",
-    "s": 84723,
-    "e": 84740,
+    "s": 87690,
+    "e": 87707,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-ear-hearing.label",
-    "s": 85215,
-    "e": 85233,
+    "s": 88182,
+    "e": 88200,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-wrist-and-hand.label",
-    "s": 87347,
-    "e": 87366,
+    "s": 90314,
+    "e": 90333,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-thumb.label",
-    "s": 87630,
-    "e": 87640,
+    "s": 90597,
+    "e": 90607,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-index-finger.label",
-    "s": 88137,
-    "e": 88154,
+    "s": 91104,
+    "e": 91121,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-middle-finger.label",
-    "s": 88651,
-    "e": 88669,
+    "s": 91618,
+    "e": 91636,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-ring-finger.label",
-    "s": 89178,
-    "e": 89194,
+    "s": 92145,
+    "e": 92161,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-little-finger.label",
-    "s": 89708,
-    "e": 89726,
+    "s": 92675,
+    "e": 92693,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-dorsal",
-    "s": 91155,
-    "e": 91168,
+    "s": 94122,
+    "e": 94135,
     "t": "text"
    },
    {
     "k": "connect-with-attorney.right-wrist-and-hand.label",
-    "s": 91875,
-    "e": 91895,
+    "s": 94842,
+    "e": 94862,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-thumb.label",
-    "s": 92160,
-    "e": 92171,
+    "s": 95127,
+    "e": 95138,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-index-finger.label",
-    "s": 92667,
-    "e": 92685,
+    "s": 95634,
+    "e": 95652,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-middle-finger.label",
-    "s": 93181,
-    "e": 93200,
+    "s": 96148,
+    "e": 96167,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-ring-finger.label",
-    "s": 93708,
-    "e": 93725,
+    "s": 96675,
+    "e": 96692,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-little-finger.label",
-    "s": 94238,
-    "e": 94257,
+    "s": 97205,
+    "e": 97224,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-dorsal",
-    "s": 95631,
-    "e": 95645,
+    "s": 98598,
+    "e": 98612,
     "t": "text"
    },
    {
     "k": "connect-with-attorney.left-ankle-and-foot.label",
-    "s": 96312,
-    "e": 96331,
+    "s": 99279,
+    "e": 99298,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-great-toe.label",
-    "s": 96603,
-    "e": 96617,
+    "s": 99570,
+    "e": 99584,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-second-toe.label",
-    "s": 97091,
-    "e": 97106,
+    "s": 100058,
+    "e": 100073,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-third-toe.label",
-    "s": 97581,
-    "e": 97595,
+    "s": 100548,
+    "e": 100562,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-fourth-toe.label",
-    "s": 98079,
-    "e": 98094,
+    "s": 101046,
+    "e": 101061,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left-fifth-toe.label",
-    "s": 98585,
-    "e": 98599,
+    "s": 101552,
+    "e": 101566,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.left",
-    "s": 99684,
-    "e": 99688,
+    "s": 102651,
+    "e": 102655,
     "t": "text"
    },
    {
     "k": "connect-with-attorney.right-ankle-and-foot.label",
-    "s": 100293,
-    "e": 100313,
+    "s": 103260,
+    "e": 103280,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-great-toe.label",
-    "s": 100586,
-    "e": 100601,
+    "s": 103553,
+    "e": 103568,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-second-toe.label",
-    "s": 101074,
-    "e": 101090,
+    "s": 104041,
+    "e": 104057,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-third-toe.label",
-    "s": 101564,
-    "e": 101579,
+    "s": 104531,
+    "e": 104546,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-fourth-toe.label",
-    "s": 102062,
-    "e": 102078,
+    "s": 105029,
+    "e": 105045,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right-fifth-toe.label",
-    "s": 102568,
-    "e": 102583,
+    "s": 105535,
+    "e": 105550,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.right",
-    "s": 103621,
-    "e": 103626,
+    "s": 106588,
+    "e": 106593,
     "t": "text"
    },
    {
     "k": "connect-with-attorney.tap-each-injured-area-tap",
-    "s": 103820,
-    "e": 103934,
+    "s": 106787,
+    "e": 106901,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.selected-body-parts.label",
-    "s": 104035,
-    "e": 104054,
+    "s": 107002,
+    "e": 107021,
     "a": "aria-label"
    },
    {
     "k": "connect-with-attorney.no-body-parts-selected-yet",
-    "s": 104212,
-    "e": 104290,
+    "s": 107179,
+    "e": 107257,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.other-body-part-any-language",
-    "s": 104487,
-    "e": 104517,
+    "s": 107454,
+    "e": 107484,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.e-g-rodilla-paule-plecy.placeholder",
-    "s": 104611,
-    "e": 104645,
+    "s": 107578,
+    "e": 107612,
     "a": "placeholder"
    },
    {
     "k": "connect-with-attorney.optional-type-any-body-part",
-    "s": 104848,
-    "e": 104920,
+    "s": 107815,
+    "e": 107887,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.back",
-    "s": 105095,
-    "e": 105099,
+    "s": 108062,
+    "e": 108066,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.continue",
-    "s": 105226,
-    "e": 105234,
+    "s": 108193,
+    "e": 108201,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.how-should-we-reach-you",
-    "s": 105500,
-    "e": 105524,
+    "s": 108467,
+    "e": 108491,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.an-attorney-will-contact-you",
-    "s": 105608,
-    "e": 105653,
+    "s": 108575,
+    "e": 108620,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.first-name.text",
-    "s": 105907,
-    "e": 105944,
+    "s": 108874,
+    "e": 108911,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.first-name.placeholder",
-    "s": 106019,
-    "e": 106029,
+    "s": 108986,
+    "e": 108996,
     "a": "placeholder"
    },
    {
     "k": "connect-with-attorney.last-name.text",
-    "s": 106268,
-    "e": 106304,
+    "s": 109235,
+    "e": 109271,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.last-name.placeholder",
-    "s": 106378,
-    "e": 106387,
+    "s": 109345,
+    "e": 109354,
     "a": "placeholder"
    },
    {
     "k": "connect-with-attorney.phone",
-    "s": 106673,
-    "e": 106705,
+    "s": 109640,
+    "e": 109672,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.email",
-    "s": 106937,
-    "e": 106969,
+    "s": 109904,
+    "e": 109936,
     "t": "label"
    },
    {
     "k": "shared.you-email-com",
-    "s": 107040,
-    "e": 107053,
+    "s": 110007,
+    "e": 110020,
     "a": "placeholder"
    },
    {
     "k": "connect-with-attorney.best-way-to-reach-you",
-    "s": 107286,
-    "e": 107307,
+    "s": 110253,
+    "e": 110274,
     "t": "label"
    },
    {
     "k": "connect-with-attorney.phone-or-email-either-is",
-    "s": 107462,
-    "e": 107493,
+    "s": 110429,
+    "e": 110460,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.phone-call-preferred",
-    "s": 107596,
-    "e": 107616,
+    "s": 110563,
+    "e": 110583,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.email-preferred",
-    "s": 107714,
-    "e": 107729,
+    "s": 110681,
+    "e": 110696,
     "t": "option"
    },
    {
     "k": "connect-with-attorney.i-agree-to-be-contacted",
-    "s": 108061,
-    "e": 108288,
+    "s": 111028,
+    "e": 111255,
     "t": "span"
    },
    {
     "k": "connect-with-attorney.i-understand-that-the-comp",
-    "s": 108512,
-    "e": 108733,
+    "s": 111479,
+    "e": 111700,
     "t": "span"
    },
    {
     "k": "connect-with-attorney.back",
-    "s": 109117,
-    "e": 109121,
+    "s": 112084,
+    "e": 112088,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.submit-my-case",
-    "s": 109250,
-    "e": 109264,
+    "s": 112217,
+    "e": 112231,
     "t": "button"
    },
    {
     "k": "connect-with-attorney.your-information-is-encrypted-and",
-    "s": 109452,
-    "e": 109526,
+    "s": 112419,
+    "e": 112493,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.thanks",
-    "s": 109839,
-    "e": 109845,
+    "s": 112806,
+    "e": 112812,
     "t": "h3"
    },
    {
     "k": "connect-with-attorney.a-new-york-workers-compensation",
-    "s": 109930,
-    "e": 110047,
+    "s": 112897,
+    "e": 113014,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.if-they-don-t-reach",
-    "s": 110176,
-    "e": 110287,
+    "s": 113143,
+    "e": 113254,
     "t": "p"
    },
    {
     "k": "connect-with-attorney.need-to-reach-us",
-    "s": 110709,
-    "e": 110726,
+    "s": 113676,
+    "e": 113693,
     "t": "strong"
    },
    {
     "k": "connect-with-attorney.contact-thecompdesk-com",
-    "s": 111009,
-    "e": 111032,
+    "s": 113976,
+    "e": 113999,
     "t": "a"
    },
    {
     "k": "connect-with-attorney.the-comp-desk-is-a-2",
-    "s": 111184,
-    "e": 111318,
+    "s": 114151,
+    "e": 114285,
     "t": "div"
    },
    {
     "k": "connect-with-attorney.done",
-    "s": 111465,
-    "e": 111469,
+    "s": 114432,
+    "e": 114436,
     "t": "button"
    }
   ]
@@ -3808,7 +3880,7 @@
   ]
  },
  "calculators/index.html": {
-  "sha256": "22638123d9a2ed3bd3ec4344dfece3942161d7324e2ef956d788d7e182ba89a0",
+  "sha256": "333cc99f96d665296d56b9e09883d1d1559ebbca9598477e126c5370e0cafbce",
   "slots": [
    {
     "k": "calculators.meta.title",
@@ -3877,333 +3949,333 @@
     "t": "a"
    },
    {
-    "k": "calculators.worker-attorneys-learn-contact",
-    "s": 8721,
-    "e": 8860,
+    "k": "calculators.worker-attorneys-learn-webinars-contact",
+    "s": 8730,
+    "e": 8908,
     "t": "div"
    },
    {
     "k": "shared.sign-in-sign-up",
-    "s": 9036,
-    "e": 9053,
+    "s": 9084,
+    "e": 9101,
     "t": "a"
    },
    {
     "k": "calculators.free-calculators",
-    "s": 9257,
-    "e": 9273,
+    "s": 9305,
+    "e": 9321,
     "t": "span"
    },
    {
     "k": "calculators.understand-the-numbers-in-your",
-    "s": 9431,
-    "e": 9476,
+    "s": 9479,
+    "e": 9524,
     "t": "h1"
    },
    {
     "k": "calculators.free-tools-to-estimate-your",
-    "s": 9573,
-    "e": 9749,
+    "s": 9621,
+    "e": 9797,
     "t": "p"
    },
    {
     "k": "calculators.the-calculators-the-hearing-room",
-    "s": 9940,
-    "e": 9987,
+    "s": 9988,
+    "e": 10035,
     "t": "h2"
    },
    {
     "k": "calculators.free-cited-defensible-each-result",
-    "s": 10090,
-    "e": 10283,
+    "s": 10138,
+    "e": 10331,
     "t": "p"
    },
    {
     "k": "calculators.common-workers-compensation-terms.label",
-    "s": 10665,
-    "e": 10699,
+    "s": 10713,
+    "e": 10747,
     "a": "aria-label"
    },
    {
     "k": "calculators.new-to-these-terms",
-    "s": 10864,
-    "e": 10883,
+    "s": 10912,
+    "e": 10931,
     "t": "span"
    },
    {
     "k": "calculators.aww.text",
-    "s": 11047,
-    "e": 11052,
+    "s": 11095,
+    "e": 11100,
     "t": "button"
    },
    {
     "k": "calculators.slu.text",
-    "s": 11218,
-    "e": 11223,
+    "s": 11266,
+    "e": 11271,
     "t": "button"
    },
    {
     "k": "calculators.lwec.text",
-    "s": 11391,
-    "e": 11397,
+    "s": 11439,
+    "e": 11445,
     "t": "button"
    },
    {
     "k": "calculators.ime",
-    "s": 11558,
-    "e": 11563,
+    "s": 11606,
+    "e": 11611,
     "t": "button"
    },
    {
     "k": "calculators.c-3",
-    "s": 11723,
-    "e": 11728,
+    "s": 11771,
+    "e": 11776,
     "t": "button"
    },
    {
     "k": "calculators.for-injured-workers",
-    "s": 12020,
-    "e": 12039,
+    "s": 12068,
+    "e": 12087,
     "t": "h2"
    },
    {
     "k": "calculators.start-here-the-numbers-most",
-    "s": 12131,
-    "e": 12202,
+    "s": 12179,
+    "e": 12250,
     "t": "p"
    },
    {
     "k": "calculators.aww-2",
-    "s": 12397,
-    "e": 12400,
+    "s": 12445,
+    "e": 12448,
     "t": "div"
    },
    {
     "k": "shared.free",
-    "s": 12461,
-    "e": 12465,
+    "s": 12509,
+    "e": 12513,
     "t": "span"
    },
    {
     "k": "calculators.average-weekly-wage",
-    "s": 12539,
-    "e": 12558,
+    "s": 12587,
+    "e": 12606,
     "t": "h3"
    },
    {
     "k": "calculators.calculate-your-aww-under-wcl",
-    "s": 12632,
-    "e": 12781,
+    "s": 12680,
+    "e": 12829,
     "t": "p"
    },
    {
     "k": "calculators.rate",
-    "s": 12952,
-    "e": 12956,
+    "s": 13000,
+    "e": 13004,
     "t": "div"
    },
    {
     "k": "shared.free",
-    "s": 13017,
-    "e": 13021,
+    "s": 13065,
+    "e": 13069,
     "t": "span"
    },
    {
     "k": "shared.rate-lookup",
-    "s": 13082,
-    "e": 13093,
+    "s": 13130,
+    "e": 13141,
     "t": "h3"
    },
    {
     "k": "calculators.maximum-compensation-rates-by-date",
-    "s": 13173,
-    "e": 13305,
+    "s": 13221,
+    "e": 13353,
     "t": "p"
    },
    {
     "k": "calculators.slu-2",
-    "s": 13475,
-    "e": 13478,
+    "s": 13523,
+    "e": 13526,
     "t": "div"
    },
    {
     "k": "shared.free",
-    "s": 13539,
-    "e": 13543,
+    "s": 13587,
+    "e": 13591,
     "t": "span"
    },
    {
     "k": "calculators.schedule-loss-of-use",
-    "s": 13618,
-    "e": 13638,
+    "s": 13666,
+    "e": 13686,
     "t": "h3"
    },
    {
     "k": "calculators.slu-permanency-awards-under-wcl",
-    "s": 13715,
-    "e": 13878,
+    "s": 13763,
+    "e": 13926,
     "t": "p"
    },
    {
     "k": "shared.lwec",
-    "s": 14043,
-    "e": 14047,
+    "s": 14091,
+    "e": 14095,
     "t": "div"
    },
    {
     "k": "shared.free",
-    "s": 14108,
-    "e": 14112,
+    "s": 14156,
+    "e": 14160,
     "t": "span"
    },
    {
     "k": "calculators.loss-of-wage-earning-capacity",
-    "s": 14196,
-    "e": 14225,
+    "s": 14244,
+    "e": 14273,
     "t": "h3"
    },
    {
     "k": "calculators.lwec-classification-for-non-schedule",
-    "s": 14307,
-    "e": 14451,
+    "s": 14355,
+    "e": 14499,
     "t": "p"
    },
    {
     "k": "calculators.for-attorneys-clinicians",
-    "s": 14618,
-    "e": 14648,
+    "s": 14666,
+    "e": 14696,
     "t": "h2"
    },
    {
     "k": "calculators.permanency-and-classified-award-tools",
-    "s": 14750,
-    "e": 14923,
+    "s": 14798,
+    "e": 14971,
     "t": "p"
    },
    {
     "k": "calculators.ccp",
-    "s": 15122,
-    "e": 15125,
+    "s": 15170,
+    "e": 15173,
     "t": "div"
    },
    {
     "k": "calculators.free-for-attorneys",
-    "s": 15180,
-    "e": 15273,
+    "s": 15228,
+    "e": 15321,
     "t": "span"
    },
    {
     "k": "shared.ccp-award",
-    "s": 15332,
-    "e": 15341,
+    "s": 15380,
+    "e": 15389,
     "t": "h3"
    },
    {
     "k": "calculators.classified-compensation-ppd-ptd-and",
-    "s": 15422,
-    "e": 15528,
+    "s": 15470,
+    "e": 15576,
     "t": "p"
    },
    {
     "k": "calculators.rad",
-    "s": 15706,
-    "e": 15709,
+    "s": 15754,
+    "e": 15757,
     "t": "div"
    },
    {
     "k": "calculators.free-for-attorneys",
-    "s": 15764,
-    "e": 15857,
+    "s": 15812,
+    "e": 15905,
     "t": "span"
    },
    {
     "k": "shared.radiculopathy",
-    "s": 15920,
-    "e": 15933,
+    "s": 15968,
+    "e": 15981,
     "t": "h3"
    },
    {
     "k": "calculators.2012-impairment-guidelines-point-system",
-    "s": 16018,
-    "e": 16167,
+    "s": 16066,
+    "e": 16215,
     "t": "p"
    },
    {
     "k": "calculators.sb",
-    "s": 16342,
-    "e": 16344,
+    "s": 16390,
+    "e": 16392,
     "t": "div"
    },
    {
     "k": "calculators.free-for-attorneys",
-    "s": 16399,
-    "e": 16492,
+    "s": 16447,
+    "e": 16540,
     "t": "span"
    },
    {
     "k": "calculators.spine-brain",
-    "s": 16558,
-    "e": 16575,
+    "s": 16606,
+    "e": 16623,
     "t": "h3"
    },
    {
     "k": "calculators.non-schedule-permanency-for-spine",
-    "s": 16654,
-    "e": 16756,
+    "s": 16702,
+    "e": 16804,
     "t": "p"
    },
    {
     "k": "calculators.disclaimer-these-calculators-are-provided",
-    "s": 16919,
-    "e": 17298,
+    "s": 16967,
+    "e": 17346,
     "t": "p"
    },
    {
     "k": "calculators.are-you-an-attorney",
-    "s": 17521,
-    "e": 17541,
+    "s": 17569,
+    "e": 17589,
     "t": "h3"
    },
    {
     "k": "calculators.the-comp-desk-pro-adds",
-    "s": 17607,
-    "e": 17762,
+    "s": 17655,
+    "e": 17810,
     "t": "p"
    },
    {
     "k": "calculators.see-the-comp-desk-pro",
-    "s": 17864,
-    "e": 17885,
+    "s": 17912,
+    "e": 17933,
     "t": "a"
    },
    {
     "k": "calculators.helping-a-claimant-figure-this",
-    "s": 18054,
-    "e": 18089,
+    "s": 18102,
+    "e": 18137,
     "t": "h3"
    },
    {
     "k": "calculators.these-calculators-are-free-for",
-    "s": 18163,
-    "e": 18308,
+    "s": 18211,
+    "e": 18356,
     "t": "p"
    },
    {
     "k": "calculators.see-the-worker-side",
-    "s": 18405,
-    "e": 18424,
+    "s": 18453,
+    "e": 18472,
     "t": "a"
    },
    {
     "k": "shared.2026-njj-document-services-inc",
-    "s": 18598,
-    "e": 18679,
+    "s": 18646,
+    "e": 18727,
     "t": "p"
    },
    {
     "k": "shared.privacy-contact-replay-intro",
-    "s": 18746,
-    "e": 18857,
+    "s": 18794,
+    "e": 18905,
     "t": "p"
    }
   ]

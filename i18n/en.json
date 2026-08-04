@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">For Attorneys</span>\n          <span class=\"title\">I practice WC law.</span>\n          <span class=\"desc\">SLU permanency, fee equations, the workspace — built by a practicing NYS WC attorney.</span>",
     "choose-your-path": "Choose your path",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">NYS Workers' Comp Maximum Rates</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">SLU Calculator</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">LWEC Calculator</a>",
-    "skip-intro": "Skip intro →"
+    "skip-intro": "Skip intro →",
+    "what-brings-you-here": "What brings you here?",
+    "there-s-no-wrong-answer": "There&rsquo;s no wrong answer, and you can change it later.",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">I was hurt at work in an accident</span>\n        <span class=\"cd-segment-sub\">A specific incident. A fall, a lift, a machine, a vehicle.</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">My injury built up over months or years</span>\n        <span class=\"cd-segment-sub\">From doing the same work over and over.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">I&rsquo;m just looking around</span>\n        <span class=\"cd-segment-sub\">Show me what this thing does.</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">I want to understand how NY workers&rsquo; comp works</span>\n        <span class=\"cd-segment-sub\">Start me at the beginning.</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">I work in workers&rsquo; comp</span>\n        <span class=\"cd-segment-sub\">Attorney, paralegal, rep, settlement coordinator.</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -139,9 +146,7 @@
     "2026-njj-document-services-inc-2": "&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk.",
     "the-comp-desk-4": "The <span>Comp</span> Desk",
     "this-application-is-for-informational": "This application is for informational purposes only and does not constitute legal advice.",
-    "translationNotice": "This translation is provided for convenience; the English version governs.",
-    "machineTranslationNotice": "Translated automatically and not yet reviewed by a person.",
-    "reviewedTranslationNotice": "Translated automatically and reviewed by a person."
+    "translationNotice": "This translation is provided for convenience; the English version governs."
   },
   "worker": {
     "meta": {
@@ -163,7 +168,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — Worker Companion"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Learn</a>\n      <a href=\"/tools/find-doctor\">Find a Doctor</a>\n      <a href=\"/calculators\">Calculators</a>\n      <a href=\"/contact\">Contact</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Learn</a>\n      <a href=\"/tools/find-doctor\">Find a Doctor</a>\n      <a href=\"/calculators\">Calculators</a>\n      <a href=\"/webinars\">Webinars</a>\n      <a href=\"/contact\">Contact</a>",
     "free-workers-compensation-companion": "Free workers' compensation companion",
     "after-a-work-injury-you": "After a work injury, you shouldn't have to figure this out <em>alone.</em>",
     "find-an-authorized-doctor-never": "Find an authorized doctor, never miss an IME, understand your rights, and connect with an experienced New York Workers' Comp attorney — all in one place. Always free for injured workers.",
@@ -647,8 +652,13 @@
     "my-claim-was-denied": "My Claim Was Denied",
     "previously-settled-want-to-reopen": "Previously Settled — Want to Reopen",
     "not-sure-other": "Not Sure / Other",
+    "what-kind-of-claim-is": "What kind of claim is this?",
+    "one-accident-or-event": "<span class=\"claim-seg-title\">One accident or event</span>",
+    "built-up-over-time-repetitive": "<span class=\"claim-seg-title\">Built up over time</span>\n                  <span class=\"claim-seg-sub\">repetitive strain, hearing loss, breathing or exposure conditions</span>",
     "date-of-injury": "Date of Injury <span class=\"req\">*</span>",
     "approximate-date-is-fine": "Approximate date is fine.",
+    "date-of-disablement-optional": "Date of Disablement (optional)",
+    "roughly-when-the-condition-first": "Roughly when the condition first kept you from working — or when you learned it was work-related. If you're not sure, leave it blank; the attorney will help you pin it down.",
     "continue": "Continue",
     "a-few-more-details": "A Few More Details",
     "help-the-attorney-understand-your": "Help the attorney understand your situation.",
@@ -1410,7 +1420,7 @@
       "disclaimer-this-calculator-is-provided": "<strong>Disclaimer:</strong> This calculator is provided for informational purposes only and does not constitute legal advice. SLU calculations are based on current New York State Workers' Compensation Law §15(3) and Department of Financial Services regulations. Actual awards are determined by the Workers' Compensation Board and may vary based on medical evidence, hearing decisions, and specific case circumstances. Consult a qualified workers' compensation attorney for guidance on your specific case.",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">Worker</a>\n      <a href=\"/attorneys\">Attorneys</a>\n      <a href=\"/learn\">Learn</a>\n      <a href=\"/contact\">Contact</a>",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">Worker</a>\n      <a href=\"/attorneys\">Attorneys</a>\n      <a href=\"/learn\">Learn</a>\n      <a href=\"/webinars\">Webinars</a>\n      <a href=\"/contact\">Contact</a>",
     "free-calculators": "Free calculators",
     "understand-the-numbers-in-your": "Understand the <em>numbers</em> in your case.",
     "free-tools-to-estimate-your": "Free tools to estimate your weekly benefit, your SLU award, your wage-earning capacity. Built by a workers' comp attorney — used by injured workers and lawyers across New York.",

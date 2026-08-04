@@ -515,7 +515,12 @@
       "description": "Conéctese con un abogado de compensación laboral de NYS con licencia a través de The Comp Desk. Asignación neutral y mecánica — sin avales, sin comisiones por referencia, sin colocación pagada. Gratis para trabajadores lesionados.",
       "og-title": "Conéctese con un Abogado de Compensación Laboral — The Comp Desk",
       "og-description": "Servicio neutral de conexión con abogados para compensación laboral en NY. Asignación mecánica, sin colocación pagada. Gratis para trabajadores lesionados."
-    }
+    },
+    "what-kind-of-claim-is": "¿Qué tipo de reclamo es este?",
+    "one-accident-or-event": "<span class=\"claim-seg-title\">Un accidente o suceso</span>",
+    "built-up-over-time-repetitive": "<span class=\"claim-seg-title\">Se desarrolló con el tiempo</span>\n                  <span class=\"claim-seg-sub\">lesiones por esfuerzo repetitivo, pérdida auditiva, afecciones respiratorias o por exposición</span>",
+    "date-of-disablement-optional": "Fecha de incapacidad (opcional)",
+    "roughly-when-the-condition-first": "Aproximadamente cuándo la afección le impidió trabajar por primera vez, o cuándo supo que estaba relacionada con el trabajo. Si no está seguro, déjelo en blanco; el abogado le ayudará a precisarla."
   },
   "contact": {
     "meta": {

@@ -259,6 +259,20 @@
     .field .hint{font-size:11px;color:var(--txM);margin-top:4px;}
     .field .error-msg{font-size:12px;color:#ef4444;margin-top:4px;display:none;}
     .field.has-error input,.field.has-error select,.field.has-error textarea{border-color:#ef4444;}
+    /* Claim-type segmented control (accident vs occupational disease). Logical
+       properties throughout so it mirrors correctly if an RTL locale is ever
+       generated for this page. */
+    .claim-seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    @media(max-width:480px){.claim-seg{grid-template-columns:1fr;}}
+    .claim-seg-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px;min-height:44px;background:rgba(6,8,15,0.6);border:1px solid var(--bd);border-radius:8px;color:var(--txD);font-family:inherit;font-size:13px;font-weight:600;text-align:start;cursor:pointer;transition:border-color 0.15s;}
+    .claim-seg-btn:hover{border-color:var(--ac);}
+    .claim-seg-btn:focus-visible{outline:2px solid var(--ac);outline-offset:2px;}
+    .claim-seg-btn[aria-checked="true"]{border-color:var(--ac);background:rgba(59,130,246,0.13);color:var(--wh);}
+    .claim-seg-title{font-size:13px;font-weight:700;line-height:1.25;}
+    .claim-seg-sub{font-size:12px;font-weight:400;line-height:1.35;color:var(--txM);}
+    .claim-seg-btn[aria-checked="true"] .claim-seg-sub{color:var(--txD);}
+    .field[hidden]{display:none;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
     .field.has-error .error-msg{display:block;}
 
     /* Consent checkboxes */
@@ -751,9 +765,29 @@
             </div>
 
             <div class="field">
+              <label id="claimTypeLabel" data-i18n="connect-with-attorney.what-kind-of-claim-is">What kind of claim is this?</label>
+              <div class="claim-seg" id="claimTypeGroup" role="radiogroup" aria-labelledby="claimTypeLabel">
+                <button type="button" class="claim-seg-btn" role="radio" data-value="accident" aria-checked="true" tabindex="0" data-i18n="connect-with-attorney.one-accident-or-event">
+                  <span class="claim-seg-title">One accident or event</span>
+                </button>
+                <button type="button" class="claim-seg-btn" role="radio" data-value="occupational_disease" aria-checked="false" tabindex="-1" data-i18n="connect-with-attorney.built-up-over-time-repetitive">
+                  <span class="claim-seg-title">Built up over time</span>
+                  <span class="claim-seg-sub">repetitive strain, hearing loss, breathing or exposure conditions</span>
+                </button>
+              </div>
+            </div>
+            <div class="sr-only" id="claimTypeLive" aria-live="polite"></div>
+
+            <div class="field" id="doaField">
               <label data-i18n="connect-with-attorney.date-of-injury">Date of Injury <span class="req">*</span></label>
               <input type="date" name="date_of_accident" required max="">
               <div class="hint" data-i18n="connect-with-attorney.approximate-date-is-fine">Approximate date is fine.</div>
+            </div>
+
+            <div class="field" id="dodField" hidden>
+              <label data-i18n="connect-with-attorney.date-of-disablement-optional">Date of Disablement (optional)</label>
+              <input type="date" name="date_of_disablement" max="">
+              <div class="hint" data-i18n="connect-with-attorney.roughly-when-the-condition-first">Roughly when the condition first kept you from working — or when you learned it was work-related. If you're not sure, leave it blank; the attorney will help you pin it down.</div>
             </div>
 
             <div class="wiz-btns">
@@ -1334,9 +1368,59 @@
     }
     document.addEventListener('DOMContentLoaded', initBodyDiagram);
 
-    // ── Set max date on DOA field ───────────────────────────────
+    // ── Set max date on both date fields ────────────────────────
     const doaField = document.querySelector('input[name="date_of_accident"]');
     if (doaField) doaField.max = new Date().toISOString().split('T')[0];
+    const dodInput = document.querySelector('input[name="date_of_disablement"]');
+    if (dodInput) dodInput.max = new Date().toISOString().split('T')[0];
+
+    // ── Claim type: accident vs occupational disease ─────────────
+    // An OD claimant frequently cannot name a single date. Until this control
+    // existed the form hard-required a date of accident, so the entire referral
+    // funnel was unusable for them. Vocabulary matches profiles.claim_type and
+    // the attorney_leads.claim_type CHECK (migration 106b) exactly.
+    const CLAIM_ACCIDENT = 'accident';
+    const CLAIM_OD = 'occupational_disease';
+    function getClaimType() {
+      const on = document.querySelector('#claimTypeGroup [role="radio"][aria-checked="true"]');
+      return on && on.dataset.value === CLAIM_OD ? CLAIM_OD : CLAIM_ACCIDENT;
+    }
+    function setClaimType(v) {
+      const isOD = v === CLAIM_OD;
+      document.querySelectorAll('#claimTypeGroup [role="radio"]').forEach(b => {
+        const on = b.dataset.value === v;
+        b.setAttribute('aria-checked', on ? 'true' : 'false');
+        b.tabIndex = on ? 0 : -1;
+      });
+      const doaWrap = document.getElementById('doaField');
+      const dodWrap = document.getElementById('dodField');
+      if (doaWrap) doaWrap.hidden = isOD;
+      if (dodWrap) dodWrap.hidden = !isOD;
+      // validateStep() selects [required]; dropping the attribute is what
+      // actually stops a HIDDEN date-of-injury field from blocking an OD
+      // submit with "Date of Injury is required."
+      if (doaField) { if (isOD) doaField.removeAttribute('required'); else doaField.setAttribute('required',''); }
+      // Values are never cleared — toggling back restores what was typed.
+      const descEl = document.querySelector('[name="accident_description"]');
+      if (descEl) descEl.placeholder = isOD
+        ? 'Briefly, what kind of work caused it and when did the symptoms start?'
+        : 'Briefly, how did the accident happen?';
+      const live = document.getElementById('claimTypeLive');
+      if (live) live.textContent = isOD
+        ? 'Occupational disease selected. Date of disablement, optional, is now shown instead of date of injury.'
+        : 'One accident or event selected. Date of injury is now shown and is required.';
+    }
+    document.querySelectorAll('#claimTypeGroup [role="radio"]').forEach(b => {
+      b.addEventListener('click', () => setClaimType(b.dataset.value));
+    });
+    const ctGroupEl = document.getElementById('claimTypeGroup');
+    if (ctGroupEl) ctGroupEl.addEventListener('keydown', e => {
+      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key) === -1) return;
+      e.preventDefault();
+      setClaimType(getClaimType() === CLAIM_OD ? CLAIM_ACCIDENT : CLAIM_OD);
+      const on = ctGroupEl.querySelector('[role="radio"][aria-checked="true"]');
+      if (on) on.focus();
+    });
 
     // ── Embed mode (loaded as iframe from index.html with ?embed=1) ──
     const IS_EMBED = new URLSearchParams(window.location.search).get('embed') === '1';
@@ -1494,6 +1578,21 @@
         }
       });
 
+      // date_of_disablement is OPTIONAL, so it never appears in the [required]
+      // NodeList above and must be checked explicitly. Blank stays valid — that
+      // is the whole point; the attorney establishes the date at intake.
+      if (step === 1 && getClaimType() === CLAIM_OD) {
+        const dodEl = document.querySelector('input[name="date_of_disablement"]');
+        const dodVal = (dodEl?.value || '').trim();
+        if (dodVal) {
+          const dd = new Date(dodVal);
+          if (isNaN(dd.getTime()) || dd > new Date()) {
+            dodEl.closest('.field')?.classList.add('has-error');
+            errors.push('Date of disablement cannot be in the future.');
+          }
+        }
+      }
+
       // Body diagram check on step 2 — must have at least one region selected OR freeform text
       if (step === 2) {
         const otherEl = document.getElementById('bodyOther');
@@ -1537,6 +1636,9 @@
       ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k => {
         if (params.get(k)) utm[k] = params.get(k);
       });
+      // Lets the funnel segment OD vs accident lead volume without joining
+      // attorney_leads. Matches the app's payload.utm.claim_type.
+      utm.claim_type = getClaimType();
 
       // Build body_parts: union of clicked regions + freeform "other" field
       const otherRaw = (document.getElementById('bodyOther')?.value || '').trim();
@@ -1554,7 +1656,11 @@
         last_name:            fd.get('last_name')?.trim(),
         phone:                fd.get('phone')?.trim(),
         email:                fd.get('email')?.trim().toLowerCase(),
-        date_of_accident:     fd.get('date_of_accident'),
+        claim_type:           getClaimType(),
+        // OD sends null: migration 106b's CHECK allows a null accident date
+        // ONLY when claim_type is occupational_disease.
+        date_of_accident:     getClaimType() === CLAIM_OD ? null : fd.get('date_of_accident'),
+        date_of_disablement:  getClaimType() === CLAIM_OD ? (fd.get('date_of_disablement') || null) : null,
         employer_name:        fd.get('employer_name')?.trim(),
         accident_description: fd.get('accident_description')?.trim(),
         injuries:             injuriesStr,

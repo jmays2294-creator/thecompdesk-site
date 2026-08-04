@@ -685,7 +685,12 @@
     "if-they-don-t-reach": "Si yo pa kontakte ou alè, n ap konekte ou otomatikman ak pwochen avoka disponib nan zòn ou.",
     "need-to-reach-us": "Bezwen kontakte nou?",
     "contact-thecompdesk-com": "contact@thecompdesk.com",
-    "the-comp-desk-is-a-2": "The Comp Desk se yon platfòm lojisyèl, se pa yon biwo avoka. Kontakte nou pa kreye yon relasyon avoka-kliyan ak okenn avoka."
+    "the-comp-desk-is-a-2": "The Comp Desk se yon platfòm lojisyèl, se pa yon biwo avoka. Kontakte nou pa kreye yon relasyon avoka-kliyan ak okenn avoka.",
+    "what-kind-of-claim-is": "Ki kalite reklamasyon sa a ye?",
+    "one-accident-or-event": "<span class=\"claim-seg-title\">Yon aksidan oswa yon evènman</span>",
+    "built-up-over-time-repetitive": "<span class=\"claim-seg-title\">Li devlope apre yon bon bout tan</span>\n                  <span class=\"claim-seg-sub\">tansyon repetitif, pèt tande, pwoblèm respirasyon oswa ekspozisyon</span>",
+    "date-of-disablement-optional": "Dat enkapasite (opsyonèl)",
+    "roughly-when-the-condition-first": "Apeprè lè kondisyon an te anpeche ou travay pou premye fwa — oswa lè ou te aprann li te gen rapò ak travay. Si ou pa sèten, kite li vid; avoka a ap ede ou presize li."
   },
   "contact": {
     "meta": {
