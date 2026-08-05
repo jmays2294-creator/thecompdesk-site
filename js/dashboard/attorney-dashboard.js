@@ -517,7 +517,19 @@
           consultPanel = CD.Consult.renderAttorneyPanel(ctx);
         }
       } catch (e) { console.error('[atty-dash] CONSULT_PANEL_FAILED', e); }
+
+      // Directory chat inbox. Same delegation shape as Consult: self-gating (returns
+      // null when the attorney has no directory listing), and wrapped so a fault in
+      // that module cannot take the dashboard down.
+      var inboxPanel = null;
+      try {
+        if (CD.DirectoryInbox && typeof CD.DirectoryInbox.renderPanel === 'function') {
+          inboxPanel = CD.DirectoryInbox.renderPanel(ctx);
+        }
+      } catch (e) { console.error('[atty-dash] DIRECTORY_INBOX_PANEL_FAILED', e); }
+
       var left = h('div', { className: 'cc-col' }, [
+        inboxPanel,
         renderSchedule(ctx),
         consultPanel,
         _card(ctx, { title: 'Network co-counsel cases', delay: '.3s' },
