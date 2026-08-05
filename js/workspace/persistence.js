@@ -1,4 +1,4 @@
-/* persistence.js — Supabase-backed save/load for the Pro Attorney Workspace.
+/* persistence.js — Supabase-backed save/load for the Pro Workspace.
  *
  * Replaces the artifact's sessionStorage block with UPSERTs to attorney_workspaces
  * (one row per user, JSONB workspace_data, integer version). Uses last-write-wins

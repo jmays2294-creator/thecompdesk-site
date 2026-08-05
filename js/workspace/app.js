@@ -1,4 +1,4 @@
-/* Pro Attorney Calculator Workspace — app.js
+/* Pro Workspace — app.js
  *
  * Refactored from the Claude-bundler artifact. Three substantive changes
  * relative to the source:
@@ -364,8 +364,8 @@ function AWWStrip({ state, set, computed, themeName, setTheme, saveStatus, onSav
         <span className="hdr-handle-label">{hdrCollapsed ? 'Toolbar' : ''}</span>
       </button>
       <div className="aww-row">
-        <div className="ws-title-label" title="Pro Attorney Calculator Workspace — set AWW &amp; DOI once; every tile updates.">
-          Pro Attorney Workspace
+        <div className="ws-title-label" title="Pro Workspace — set AWW &amp; DOI once; every tile updates.">
+          Pro Workspace
         </div>
         <div className="right-cluster">
           <div className="case-actions">

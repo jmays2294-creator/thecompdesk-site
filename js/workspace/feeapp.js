@@ -1,5 +1,5 @@
 /* feeapp.js — OC-400.1 (Application for Fee by Claimant's Attorney)
- * generator for the Pro Attorney Workspace.  v1.2.2.
+ * generator for the Pro Workspace.  v1.2.2.
  *
  * v1.2.2 — Profile cache flow
  * ---------------------------

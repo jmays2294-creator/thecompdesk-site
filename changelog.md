@@ -5,6 +5,86 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (P4)
+
+### "Pro Attorney Workspace" → "Pro Workspace"
+
+The product is for WC professionals, not only attorneys, and the name said
+otherwise on every surface that carried it.
+
+**A second variant nobody listed.** Alongside 20 instances of "Pro Attorney
+Workspace" there were 2 of **"Pro Attorney *Calculator* Workspace"** —
+`js/workspace/app.js` line 1 and the tooltip on line 367. A naive
+find-and-replace of the shorter string would have left "Pro Calculator
+Workspace" behind in a user-visible tooltip, so the longer variant is replaced
+first.
+
+Renamed across the live surfaces: `workspace.html` (title, meta description,
+in-development banner, H2), `dashboard/my-cases.html` (title),
+`extension.html` + its es/zh-Hans/zh-Hant mirrors, the three `js/workspace/*`
+files, and `sitemap.md`. **12 replacements, zero remaining on any live surface.**
+
+**i18n.** The catalog KEY (`extension.the-full-pro-attorney-workspace`) is
+deliberately unchanged — renaming it would cascade through all 12 catalogs and
+the verification gates. Only the values moved. Worth knowing: the phrase is a
+**do-not-translate product name held verbatim in English by every locale**
+(`El Pro Workspace completo…`, `基于浏览器的完整 Pro Workspace`), so this was a
+token swap, not translation work, and each locale page was asserted equal to its
+catalog value afterwards.
+
+**Two corrections to the plan, both load-bearing:**
+
+- `scripts/generate-translations.mjs` and `verify-translations.mjs` **do not
+  exist in this repo** — that is the app repo's flow. Here it is
+  `scripts/i18n/{extract,build-locales,verify}.mjs`, and there is no
+  source-hash file.
+- **The locale rebuild was deliberately NOT run.** `build-locales.mjs` is
+  all-or-nothing across 33 pages × 12 locales and `extract.mjs` rewrites the
+  English sources *and* `en.json` in place. Both would have churned the
+  uncommitted `index.html` / `calculators/index.html` work currently in the tree.
+  The three locale `extension.html` files were updated surgically instead, to
+  exactly the bytes a rebuild would emit from the updated catalogs.
+
+**A regression from P0, found and reported here.** Pinning supabase-js touched
+three English i18n sources (`confirmed.html`, `job-buddy.html`,
+`share-your-story/index.html`), which shifts byte offsets and staleness
+`i18n/.slots.json` — so `build-locales.mjs` now refuses to run with
+*"confirmed.html changed since extraction."* Nothing user-facing is broken (the
+locale pages are committed and Vercel runs no build, and the locale copies were
+pinned directly at the same time), but **`scripts/i18n/extract.mjs` must be
+re-run before the next locale build.** Left for a session where the tree is clean,
+because the extractor rewrites English sources in place.
+
+**The i18n verify gate is red, and was already red.** Run against a pristine
+`git archive HEAD` checkout it reports byte-identical numbers — es/zh-Hans/zh-Hant
+`missing 8 · extra 3 · tag-drift 1`, 9 locales failing — driven by untranslated
+`home.*` segment-picker keys already committed to `main`. This rename adds
+nothing to it. The pack's "i18n gates green" acceptance criterion was not
+achievable and is reported rather than claimed.
+
+**Retired pages removed.** `attorneys-legacy.html` and `home-legacy.html` are
+deleted: zero inbound links, absent from `sitemap.xml`, and — the actual problem
+— **no `noindex`**, so they were crawlable duplicate content. The now-dangling
+`/home-legacy.html → /home-legacy` redirect went with them. `for-attorneys.html`
+and `calculators/pro.html` keep the old string but are 301-shadowed
+(`→ /attorneys`, `→ /workspace/`) and never served, so they were left alone
+rather than maintained. `sitemap.xml` needed no change — the hits there were
+comments documenting a previous removal, not live `<loc>` entries.
+
+**Cross-repo parity: nothing to do.** The pack expected the string in
+`~/TheCompDesk/www/`; the app's shipping code (`www/`, `ios/`, `android/`) has
+**zero** occurrences. It survives there only in 2026-05-22 Lighthouse report
+artifacts, which are dated audit snapshots of the *website*. The Chrome extension
+repo is not present on this machine and remains outstanding.
+
+`changelog.md` and `seo/seo_audit_2026-05-08.md` keep the old name on purpose —
+they are records of what the product was called on those dates.
+
+Re-request indexing in Search Console for `/workspace` and `/dashboard/my-cases`;
+both titles changed.
+
+---
+
 ## 2026-08-05 (P3)
 
 ### One Pro dashboard, role-based default tiles — and four tiles that didn't exist
