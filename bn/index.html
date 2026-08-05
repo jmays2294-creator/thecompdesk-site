@@ -610,6 +610,88 @@ body {
    if Piece A can't autoplay; we surface the skyline composition instead. */
 body.no-video-bg .video-bg video { display: none; }
 body.no-video-bg .skyline { display: block; }
+
+/* ─── Phase 8: five-card segment picker (below the cover — additive only,
+       the cover stage above is untouched by Joel's decision). Same five
+       segments as the app's v2 onboarding picker; art shares the app's
+       Phase 8 flat-vector style. */
+.cd-segments {
+  position: relative;
+  z-index: 10;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 24px 72px;
+}
+.cd-segments h2 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: clamp(24px, 4vw, 32px);
+  text-align: center;
+  color: var(--skin-text, #F0EBE0);
+}
+.cd-segments-sub {
+  margin: 0 0 28px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--skin-text-muted, #9AA6BC);
+}
+.cd-segment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cd-segment-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px 14px 14px;
+  border-radius: 16px;
+  text-decoration: none;
+  background: color-mix(in srgb, #16243F 72%, transparent);
+  border: 1px solid rgba(240,235,224,0.10);
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+.cd-segment-card:hover,
+.cd-segment-card:focus-visible {
+  border-color: var(--skin-accent, #E87722);
+  background: color-mix(in srgb, #16243F 88%, transparent);
+  transform: translateY(-2px);
+}
+.cd-segment-card:focus-visible {
+  outline: 2px solid var(--skin-accent, #E87722);
+  outline-offset: 2px;
+}
+.cd-segment-art {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #1B2A4A;
+}
+.cd-segment-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cd-segment-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--skin-text, #F0EBE0);
+}
+.cd-segment-sub {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--skin-text-muted, #9AA6BC);
+}
+@media (max-width: 720px) {
+  .cd-segments { padding: 44px 16px 56px; }
+  .cd-segment-art { flex-basis: 60px; width: 60px; height: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cd-segment-card { transition: none; }
+  .cd-segment-card:hover, .cd-segment-card:focus-visible { transform: none; }
+}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
@@ -868,6 +950,53 @@ body.no-video-bg .skyline { display: block; }
 
 </main>
 
+<!-- ─── Phase 8: five-card segment picker — web parity with the app's v2
+     onboarding picker. Same five segments, same funnel event names
+     (onboarding.segment.*), distinguished in analytics_events by
+     surface='web'. Wired by /js/segment-picker.js; links are real hrefs so
+     the section works (and is crawlable) without JS. -->
+<section class="cd-segments" aria-labelledby="cd-segments-heading" data-cd-segment-picker>
+  <h2 id="cd-segments-heading" data-i18n="home.what-brings-you-here">What brings you here?</h2>
+  <p class="cd-segments-sub" data-i18n="home.there-s-no-wrong-answer">There&rsquo;s no wrong answer, and you can change it later.</p>
+  <div class="cd-segment-list">
+    <a class="cd-segment-card" href="/bn/worker" data-segment="accident">
+      <img class="cd-segment-art" src="/assets/segments/accident.webp" alt="" width="72" height="72" loading="lazy" decoding="async">
+      <span class="cd-segment-copy" data-i18n="home.i-was-hurt-at-work">
+        <span class="cd-segment-title">I was hurt at work in an accident</span>
+        <span class="cd-segment-sub">A specific incident. A fall, a lift, a machine, a vehicle.</span>
+      </span>
+    </a>
+    <a class="cd-segment-card" href="/bn/worker" data-segment="occupational">
+      <img class="cd-segment-art" src="/assets/segments/occupational.webp" alt="" width="72" height="72" loading="lazy" decoding="async">
+      <span class="cd-segment-copy" data-i18n="home.my-injury-built-up-over">
+        <span class="cd-segment-title">My injury built up over months or years</span>
+        <span class="cd-segment-sub">From doing the same work over and over.</span>
+      </span>
+    </a>
+    <a class="cd-segment-card" href="/bn/calculators/" data-segment="exploring">
+      <img class="cd-segment-art" src="/assets/segments/exploring.webp" alt="" width="72" height="72" loading="lazy" decoding="async">
+      <span class="cd-segment-copy" data-i18n="home.i-m-just-looking-around">
+        <span class="cd-segment-title">I&rsquo;m just looking around</span>
+        <span class="cd-segment-sub">Show me what this thing does.</span>
+      </span>
+    </a>
+    <a class="cd-segment-card" href="/learn" data-segment="learning">
+      <img class="cd-segment-art" src="/assets/segments/learning.webp" alt="" width="72" height="72" loading="lazy" decoding="async">
+      <span class="cd-segment-copy" data-i18n="home.i-want-to-understand-how">
+        <span class="cd-segment-title">I want to understand how NY workers&rsquo; comp works</span>
+        <span class="cd-segment-sub">Start me at the beginning.</span>
+      </span>
+    </a>
+    <a class="cd-segment-card" href="/attorneys" data-segment="professional">
+      <img class="cd-segment-art" src="/assets/segments/professional.webp" alt="" width="72" height="72" loading="lazy" decoding="async">
+      <span class="cd-segment-copy" data-i18n="home.i-work-in-workers-comp">
+        <span class="cd-segment-title">I work in workers&rsquo; comp</span>
+        <span class="cd-segment-sub">Attorney, paralegal, rep, settlement coordinator.</span>
+      </span>
+    </a>
+  </div>
+</section>
+
 <script src="/js/audience-switcher.js"></script>
 <script>
 // ─── Cover cinematic chain (added 2026-05-28 with Higgsfield asset pass,
@@ -951,6 +1080,16 @@ body.no-video-bg .skyline { display: block; }
     } catch (_) { /* never block the intro over an auth hiccup */ }
   })();
 </script>
+
+<!-- Phase 8: funnel analytics — the same SDK + frozen event registry as the
+     app (js/analytics/* are byte-identical copies of www/js/analytics/*),
+     writing to public.analytics_events with surface='web'. supa-lite must
+     load before track.js; events -> queue -> track order is load-bearing. -->
+<script src="/js/analytics/supa-lite.js"></script>
+<script src="/js/analytics/events.js"></script>
+<script src="/js/analytics/queue.js"></script>
+<script src="/js/analytics/track.js"></script>
+<script src="/js/segment-picker.js"></script>
 
 </body>
 </html>
