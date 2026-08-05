@@ -22,8 +22,17 @@
  * including find-attorney.html. See SILENT_OWNER_POLICY.md §Permitted carve-outs.
  */
 
-const fs = require('fs');
-const path = require('path');
+// ESM, not CommonJS: package.json declares "type": "module", so a `require()`
+// here throws ReferenceError before a single check runs. That is not
+// hypothetical — this file crashed on load from 2026-07-21 to 2026-08-05, and
+// the Directory Neutrality workflow failed 32 of 40 runs in 14 seconds each
+// while SILENT_OWNER_POLICY.md claimed the exclusion was "enforced in code".
+// A guard that cannot start is not a guard. Do not convert this back.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DATA_FILE = path.join(__dirname, '..', 'data', 'attorneys.json');
 
