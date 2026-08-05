@@ -191,7 +191,8 @@ function renderIndex(rows) {
   })}</script>`;
 
   return `${head({
-    title: 'Attorney Directory — New York Workers’ Compensation | The Comp Desk',
+    // Kept under ~60 chars so Google does not truncate it in results.
+    title: 'NY Workers’ Comp Attorney Directory | The Comp Desk',
     description: 'A small, curated directory of New York workers’ compensation attorneys. Listings are paid advertising. Attorney Advertising.',
     canonical: `${ORIGIN}/directory`,
     image: `${ORIGIN}/assets/webinars/joel-headshot.jpg`,
