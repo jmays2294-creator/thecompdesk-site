@@ -207,8 +207,16 @@
     if (btn) btn.disabled = true;
     typing(true);
 
-    post({ action: 'message', session_token: token, text: text })
+    // No chat row exists until this first send. Before then we carry the slug; the
+    // function mints the row and hands back the token, which we adopt for every
+    // subsequent action. This is what keeps a page view from creating a conversation.
+    var body = token
+      ? { action: 'message', session_token: token, text: text }
+      : { action: 'message', slug: SLUG, locale: document.documentElement.lang || 'en', text: text };
+
+    post(body)
       .then(function (r) {
+        if (r.session_token) token = r.session_token;
         typing(false);
         addMsg(r.reply, 'agent');
         if (r.widget === 'contact_capture') contactCard();

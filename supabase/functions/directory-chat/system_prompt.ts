@@ -133,18 +133,25 @@ Do not say anything about what he will think of it.`;
 
 // Extraction prompt for the two handoff artifacts. Kept separate so a change here
 // cannot perturb the conversational persona above.
-export const HANDOFF_EXTRACTION_PROMPT = `From the conversation, produce exactly two artifacts as JSON.
+export const HANDOFF_EXTRACTION_PROMPT = `You will be given a CONTACT block and a TRANSCRIPT. Produce exactly two artifacts as JSON.
+
+The TRANSCRIPT is labelled by speaker. VISITOR is the member of the public. ASSISTANT is
+the AI intake coordinator. You are summarising the VISITOR for the attorney. The
+assistant is never the subject of the summary and must never appear in it — not by
+name, not as "the intake coordinator", not as "on behalf of".
 
 "question_presented": ONE sentence. The visitor's actual ask, in their framing, not
 yours. Not a summary of the conversation — the thing they want to know or want done.
 
-"summary_for_attorney": 3 to 5 short lines, newline-separated:
-  who they are
+"summary_for_attorney": 3 to 5 short lines, newline-separated, in this order:
+  line 1: the visitor's NAME, taken verbatim from the CONTACT block. If the contact
+          block has no name, write exactly "Name not stated". Never put the
+          assistant's name here and never describe who is writing.
   what happened and what part of the body
   when
   claim status (filed / not filed / doctor seen / unknown)
   what they want
-  contact details on the last line
+  last line: contact details, from the CONTACT block
 
 Neutral and factual. No adjectives, no assessment, no advice, no view on the merits,
 no "strong case" or "worth pursuing," no recommended next steps. Do not add facts the

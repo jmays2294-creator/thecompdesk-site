@@ -240,6 +240,23 @@ async function modelTurn(chatId: string, profile: Record<string, string>, histor
 // applies to case_context, which is the good part of that file.
 const wrapVisitor = (t: string) => `<visitor_message>\n${t}\n</visitor_message>`;
 
+const PROFILE_COLS = 'id, slug, display_name, firm_name, chat_enabled, chat_agent_name, '
+  + 'chat_agent_avatar_url, chat_greeting, chat_banner_text, public_phone_display, '
+  + 'public_phone_e164, public_email, notify_email, notify_sms_e164';
+
+async function loadProfile(slug: string) {
+  const { data, error } = await db
+    .from('directory_profiles').select(PROFILE_COLS)
+    .eq('slug', slug).eq('status', 'published').maybeSingle();
+  if (error) throw new Error(`profile lookup failed: ${error.message}`);
+  return data;
+}
+
+function greetingFor(p: Record<string, string>) {
+  return p.chat_greeting
+    || `Hi — I'm ${p.chat_agent_name ?? 'Alina'}, the intake coordinator for ${p.display_name}. What's going on?`;
+}
+
 async function loadChat(token: string) {
   const { data, error } = await db
     .from('directory_chats')
@@ -278,40 +295,22 @@ Deno.serve(async (req) => {
 
   try {
     // ── start ────────────────────────────────────────────────────────────────
+    // ── start: CONFIG ONLY. Deliberately writes nothing. ─────────────────────
+    // This used to mint a directory_chats row, which meant every page view — and any
+    // JS-executing crawler — left an empty conversation behind on a page whose entire
+    // purpose is to rank. The row is now created lazily by the first `message`, so a
+    // chat exists only once a visitor has actually said something.
     if (action === 'start') {
       const slug = String(payload.slug ?? '');
       if (!slug) return fail('missing_slug', 'slug is required');
 
-      const { data: profile, error } = await db
-        .from('directory_profiles')
-        .select('id, slug, display_name, firm_name, chat_enabled, chat_agent_name, chat_agent_avatar_url, chat_greeting, chat_banner_text, public_phone_display, public_phone_e164, public_email')
-        .eq('slug', slug).eq('status', 'published')
-        .maybeSingle();
-      if (error) return fail('profile_lookup_failed', error.message, 500);
+      const profile = await loadProfile(slug);
       if (!profile) return fail('profile_not_found', `No published listing for "${slug}"`, 404);
       if (!profile.chat_enabled) return fail('chat_disabled', 'Chat is off for this listing', 403);
 
-      const token = mintToken();
-      const { data: chat, error: insErr } = await db.from('directory_chats').insert({
-        directory_profile_id: profile.id,
-        session_token: token,
-        locale: String(payload.locale ?? 'en'),
-        ip_hash: ipHash,
-        user_agent: (req.headers.get('user-agent') ?? '').slice(0, 500),
-      }).select('id').single();
-      if (insErr) return fail('chat_create_failed', insErr.message, 500);
-
-      const greeting = profile.chat_greeting
-        ?? `Hi — I'm ${profile.chat_agent_name ?? 'Alina'}, the intake coordinator for ${profile.display_name}. What's going on?`;
-
-      await db.from('directory_chat_messages').insert({
-        chat_id: chat.id, role: 'agent', body: greeting,
-      });
-      await logEvent(chat.id, 'spawned', { slug, prompt_version: SYSTEM_PROMPT_VERSION });
-
       return json({
         ok: true,
-        session_token: token,
+        session_token: null,           // minted on first send
         agent_name: profile.chat_agent_name ?? 'Alina',
         agent_avatar_url: profile.chat_agent_avatar_url ?? '/assets/directory/agent-alina.svg',
         banner_text: profile.chat_banner_text ?? `Speak with ${String(profile.display_name).split(/[\s,]+/)[0]} now`,
@@ -319,18 +318,56 @@ Deno.serve(async (req) => {
         fallback_phone: profile.public_phone_display,
         fallback_phone_e164: profile.public_phone_e164,
         fallback_email: profile.public_email,
-        greeting,
+        greeting: greetingFor(profile as Record<string, string>),
         consent_copy: CONSENT_COPY,
         consent_copy_version: CONSENT_COPY_VERSION,
       });
     }
 
-    // every remaining action needs a session
+    // ── session resolution ───────────────────────────────────────────────────
+    // `message` is the only action that may arrive without a session_token: on the
+    // visitor's first send the row does not exist yet. Everything else (consent,
+    // handoff, thread, visitor_reply) is impossible before a first message, so those
+    // still require a token.
     const token = String(payload.session_token ?? '');
-    if (!token) return fail('missing_session', 'session_token is required');
-    const chat = await loadChat(token);
-    if (!chat) return fail('session_not_found', 'Unknown session', 404);
-    const profile = (chat as Record<string, Record<string, string>>).directory_profiles;
+    let chat: Record<string, unknown> | null = null;
+    let profile: Record<string, string>;
+    let mintedToken: string | null = null;
+
+    if (!token) {
+      if (action !== 'message') return fail('missing_session', 'session_token is required');
+
+      const slug = String(payload.slug ?? '');
+      if (!slug) return fail('missing_slug', 'slug is required on the first message');
+
+      const p = await loadProfile(slug);
+      if (!p) return fail('profile_not_found', `No published listing for "${slug}"`, 404);
+      if (!p.chat_enabled) return fail('chat_disabled', 'Chat is off for this listing', 403);
+
+      mintedToken = mintToken();
+      const { data: created, error: insErr } = await db.from('directory_chats').insert({
+        directory_profile_id: p.id,
+        session_token: mintedToken,
+        locale: String(payload.locale ?? 'en'),
+        ip_hash: ipHash,
+        user_agent: (req.headers.get('user-agent') ?? '').slice(0, 500),
+      }).select('*').single();
+      if (insErr) return fail('chat_create_failed', insErr.message, 500);
+
+      // Persist the greeting the visitor was actually shown, so the stored transcript
+      // matches what happened on screen and the model sees its own opening line.
+      await db.from('directory_chat_messages').insert({
+        chat_id: created.id, role: 'agent', body: greetingFor(p as Record<string, string>),
+      });
+      await logEvent(created.id, 'spawned', { slug, prompt_version: SYSTEM_PROMPT_VERSION });
+
+      chat = created;
+      profile = p as unknown as Record<string, string>;
+    } else {
+      chat = await loadChat(token);
+      if (!chat) return fail('session_not_found', 'Unknown session', 404);
+      profile = (chat as Record<string, Record<string, string>>).directory_profiles;
+    }
 
     // ── message ──────────────────────────────────────────────────────────────
     if (action === 'message') {
@@ -348,12 +385,12 @@ Deno.serve(async (req) => {
         const reply = `Thanks — let me just take your details and get this to ${String(profile.display_name).split(/[\s,]+/)[0]} directly.`;
         await db.from('directory_chat_messages').insert({ chat_id: chat.id, role: 'agent', body: reply });
         await logEvent(chat.id, overBudget ? 'budget_exceeded' : 'rate_limited', { count: quota.count });
-        return json({ ok: true, reply, widget: 'contact_capture', degraded: true });
+        return json({ ok: true, reply, widget: 'contact_capture', degraded: true, session_token: mintedToken });
       }
 
       const reply = await modelTurn(chat.id, profile, [...(await history(chat.id))]);
       await db.from('directory_chat_messages').insert({ chat_id: chat.id, role: 'agent', body: reply });
-      return json({ ok: true, reply, widget: null });
+      return json({ ok: true, reply, widget: null, session_token: mintedToken });
     }
 
     // ── consent ──────────────────────────────────────────────────────────────
@@ -389,8 +426,19 @@ Deno.serve(async (req) => {
           system: HANDOFF_EXTRACTION_PROMPT,
           messages: [{
             role: 'user',
-            content: (await history(chat.id)).map((m) => `${m.role}: ${m.content}`).join('\n\n')
-              + `\n\ncontact: ${chat.visitor_name ?? ''} ${chat.visitor_email ?? ''} ${chat.visitor_phone_e164 ?? ''}`,
+            // Speaker labels are explicit, and the contact record is passed as its own
+            // structured block. Feeding the raw user/assistant role names instead made
+            // the model attribute the summary to the assistant — the first line came
+            // back as "Alina (intake) on behalf of visitor" rather than the visitor's
+            // name, which is the first thing the attorney reads on a phone.
+            content: 'CONTACT\n'
+              + `name: ${chat.visitor_name || '(not stated)'}\n`
+              + `email: ${chat.visitor_email || '(not stated)'}\n`
+              + `phone: ${chat.visitor_phone_e164 || '(not stated)'}\n\n`
+              + 'TRANSCRIPT\n'
+              + (await history(chat.id))
+                .map((m) => `${m.role === 'user' ? 'VISITOR' : 'ASSISTANT'}: ${m.content}`)
+                .join('\n\n'),
           }],
         });
         const raw = (res.content ?? []).filter((b: { type: string }) => b.type === 'text')
