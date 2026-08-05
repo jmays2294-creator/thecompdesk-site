@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">Pou Avoka</span>\n          <span class=\"title\">Mwen pratike lwa WC.</span>\n          <span class=\"desc\">Pèmanans SLU, ekwasyon onorè, espas travay la — fèt pa yon avoka WC NYS k ap pratike.</span>",
     "choose-your-path": "Chwazi chemen ou",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">To Maksimòm Konpansasyon Travayè NYS</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">Kalkilatè SLU</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">Kalkilatè LWEC</a>",
-    "skip-intro": "Sote entwodiksyon →"
+    "skip-intro": "Sote entwodiksyon →",
+    "what-brings-you-here": "Kisa ki mennen ou isit la?",
+    "there-s-no-wrong-answer": "Pa gen move repons, epi ou ka chanje l pita.",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">Mwen te blese nan travay nan yon aksidan</span>\n        <span class=\"cd-segment-sub\">Yon evènman presi. Yon tonbe, yon leve chay, yon machin, yon veyikil.</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">Blesi mwen an vin parèt sou plizyè mwa oswa ane</span>\n        <span class=\"cd-segment-sub\">Paske m ap fè menm travay la san rete.</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Mwen travay nan konpansasyon travayè</span>\n        <span class=\"cd-segment-sub\">Avoka, paralegal, reprezantan, koòdonatè règleman.</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">Mwen vle konprann kijan konpansasyon travayè NY fonksyone</span>\n        <span class=\"cd-segment-sub\">Kòmanse avè m depi nan konmansman.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">M ap sèlman gade</span>\n        <span class=\"cd-segment-sub\">Montre m sa bagay sa a fè.</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -163,7 +170,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — Konpayon Travayè"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Aprann</a>\n      <a href=\"/tools/find-doctor\">Jwenn yon Doktè</a>\n      <a href=\"/calculators\">Kalkilatè</a>\n      <a href=\"/contact\">Kontak</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Aprann</a>\n      <a href=\"/tools/find-doctor\">Jwenn yon Doktè</a>\n      <a href=\"/calculators\">Kalkilatè</a>\n      <a href=\"/webinars\">Webinè</a>\n      <a href=\"/contact\">Kontak</a>",
     "free-workers-compensation-companion": "Konpayon konpansasyon travayè gratis",
     "after-a-work-injury-you": "Apre yon aksidan travay, ou pa dwe gen pou figire sa <em>pou kont ou.</em>",
     "find-an-authorized-doctor-never": "Jwenn yon doktè otorize, pa janm rate yon IME, konprann dwa ou, epi konekte ak yon avoka Konpansasyon Travayè New York ki gen eksperyans — tout nan yon sèl kote. Toujou gratis pou travayè ki blese.",
@@ -1415,7 +1422,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>Avi Legal:</strong> Kalkilatè sa a bay pou rezon enfòmasyon sèlman e li pa konstitye konsèy legal. Kalkil SLU yo baze sou Lwa Konpansasyon Travayè Eta New York §15(3) aktyèl ak règleman Depatman Sèvis Finansye. Konpansasyon reyèl detèmine pa Workers' Compensation Board e yo ka varye baze sou prèv medikal, desizyon odyans, ak sikonstans espesifik ka a. Konsilte yon avoka konpansasyon travayè ki kalifye pou gid sou ka espesifik ou.",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">Travayè</a>\n      <a href=\"/attorneys\">Avoka</a>\n      <a href=\"/learn\">Aprann</a>\n      <a href=\"/contact\">Kontak</a>",
     "free-calculators": "Kalkilatè gratis",
     "understand-the-numbers-in-your": "Konprann <em>chif yo</em> nan ka ou.",
     "free-tools-to-estimate-your": "Zouti gratis pou estime benefis ou chak semèn, konpansasyon SLU ou, kapasite ou pou touche salè. Bati pa yon avoka konpansasyon travayè — itilize pa travayè ki blese ak avoka atravè New York.",
@@ -1452,7 +1458,8 @@
     "see-the-comp-desk-pro": "Gade The Comp Desk Pro",
     "helping-a-claimant-figure-this": "W ap ede yon reklamè konprann sa?",
     "these-calculators-are-free-for": "Kalkilatè sa yo gratis pou nenpòt moun. Pataje yo ak kliyan, travayè ki blese, oswa ko-avoka. Menm kalkil, menm sitasyon, pa gen koneksyon nesesè.",
-    "see-the-worker-side": "Gade Kote Travayè a"
+    "see-the-worker-side": "Gade Kote Travayè a",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">Travayè</a>\n      <a href=\"/attorneys\">Avoka</a>\n      <a href=\"/learn\">Aprann</a>\n      <a href=\"/webinars\">Webinè</a>\n      <a href=\"/contact\">Kontak</a>"
   },
   "settlement-calculator": {
     "meta": {
@@ -2264,7 +2271,7 @@
     "installs-in-desktop-chrome-reads": "Enstale nan Chrome biwo. Li sèlman sa ou siyale — gade <a href=\"/extension-privacy\">politik konfidansyalite ekstansyon an</a>.",
     "web-workspace": "Espas Travay Entènèt",
     "every-calculator-on-one-canvas": "Chak kalkilatè sou yon sèl kanva. Trennen, lage, chanje ka san w pa pèdi plas ou — e kounye a ouvè bay piblik la kòm yon demo gratis.",
-    "the-full-pro-attorney-workspace": "Espas Travay Avoka Pro konplè a, baze sou navigatè",
+    "the-full-pro-workspace-browser": "Espas Travay Pro konplè a, baze sou navigatè",
     "aww-once-every-tile-updates": "AWW yon fwa, chak tuil mete ajou",
     "free-single-tab-demo-no": "Demo yon-sèl-onglè gratis, pa gen koneksyon nesesè",
     "sign-in-to-save-cases": "Konekte pou sovgade ka epi debloke tuil Pro/Firm",

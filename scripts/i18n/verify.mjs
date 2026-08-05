@@ -322,6 +322,25 @@ function orderVariants(catalog, terms, code) {
 }
 
 let hardFail = 0;
+/**
+ * Keys that live in the locale catalogs and NOWHERE in en.json, by design.
+ *
+ * These two are the translation-provenance notices that build-locales.mjs
+ * stamps onto every generated locale page ("machine translated, not yet
+ * reviewed by a person" / "…reviewed by a person"). English is the SOURCE, so
+ * it has nothing to disclose and needs no such string — meaning en.json can
+ * never contain them, and the extra-key check flagged all nine locales forever.
+ *
+ * A gate that reports a failure nobody can ever fix is a gate people learn to
+ * ignore, so the exemption is narrow and named rather than the check being
+ * loosened. Anything else appearing in a locale but not in en.json is still a
+ * real orphan and still fails.
+ */
+const LOCALE_ONLY_KEYS = new Set([
+  'shared.machineTranslationNotice',
+  'shared.reviewedTranslationNotice',
+]);
+
 let termWarnings = 0;
 let orderWarnings = 0;
 console.log(`en.json: ${enKeys.length} keys · checking ${locales.length} locale(s)\n`);
@@ -332,7 +351,7 @@ for (const code of locales) {
   const t = flat(read(p));
 
   const missing = enKeys.filter((k) => typeof t[k] !== 'string' || t[k] === '');
-  const extra = Object.keys(t).filter((k) => !(k in en));
+  const extra = Object.keys(t).filter((k) => !(k in en) && !LOCALE_ONLY_KEYS.has(k));
   const tagDrift = enKeys.filter((k) => typeof t[k] === 'string' && t[k] !== '' && tagBag(en[k]) !== tagBag(t[k]));
   const phDrift = enKeys.filter((k) => typeof t[k] === 'string' && t[k] !== '' && phBag(en[k]) !== phBag(t[k]));
   const dntLost = enKeys.filter((k) => typeof t[k] === 'string' && t[k] !== '' &&

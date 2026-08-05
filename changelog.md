@@ -5,6 +5,54 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (i18n green)
+
+### The translation gate is green for the first time in this session
+
+`npm run i18n:verify`: **PASS — all checked locales are complete and intact**,
+1994/1994 in all nine, every counter zero. It had been red on `main` since before
+this session started.
+
+**72 translations written**, covering the seven segment-picker strings from the
+home-page work and the nav string that was superseded when `/webinars` shipped.
+Each locale uses the "workers' comp" rendering it *already* ships — `compensación
+laboral` (es), `工伤赔偿` (zh-Hans), `산재보상` (ko), `odszkodowania pracownicze`
+(pl), `indemnisation des accidents du travail` (fr) — taken from
+`home.meta.og-title` so the new copy agrees with the 1,986 strings already in
+place rather than inventing a second vocabulary. The `<span class="cd-segment-*">`
+wrappers and their indentation are copied byte-for-byte; only the text moves.
+zh-Hant was **derived** from zh-Hans via `npm run i18n:derive-zh-hant` (OpenCC
+twp), not hand-written, because that is this repo's flow.
+
+**Two fixes that fell out of the same pass.** The `tag-drift` on
+`worker.learn-find-a-doctor-calculators` was the same `/webinars` link, missing
+from all nine locale navs — added, reusing each locale's shipped link wording. The
+orphaned `calculators.worker-attorneys-learn-contact` (the pre-webinars nav) is
+deleted.
+
+**A gap in P4's key rename, caught by the gate.** P4 propagated
+`extension.the-full-pro-attorney-workspace` →
+`…-pro-workspace-browser` to only three catalogs — the three whose *value*
+contained that literal English string. Six others (ru, fr, ko, pl, bn, ht)
+carry the same key with the product name **translated**
+(`Полное рабочее пространство Pro для адвокатов`, `Espas Travay Avoka Pro`…), so a
+grep for the English phrase never saw them. Renamed in all six, with the
+"attorney" qualifier dropped from each value. Their existing choice to translate
+the product name where three locales keep it in English is pre-existing and left
+alone — unifying that is a copy decision, not a rename.
+
+**The extra-key check now exempts two keys, narrowly.**
+`shared.machineTranslationNotice` and `shared.reviewedTranslationNotice` are the
+translation-provenance notices `build-locales.mjs` stamps on every locale page.
+English is the SOURCE, so it has nothing to disclose and can never carry them —
+the check flagged all nine locales, permanently, for something nobody could fix. A
+gate that reports an unfixable failure is one people learn to ignore, so the
+exemption is a named two-item set rather than a loosened check. Proven still
+sharp: injecting a genuine orphan key fails with `extra 1` and exits 1; removing
+it exits 0.
+
+---
+
 ## 2026-08-05 (P4 follow-up)
 
 ### Stale i18n slots fixed — and the rebuild exposed that P0's locale fix was never going to survive

@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">변호사를 위해</span>\n          <span class=\"title\">저는 산재보상법을 다룹니다.</span>\n          <span class=\"desc\">SLU 영구장해, 수임료 계산식, 워크스페이스 — 현직 NYS 산재보상 변호사가 제작했습니다.</span>",
     "choose-your-path": "경로 선택",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">NYS 산재보상 최대 보상률</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">SLU 계산기</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">LWEC 계산기</a>",
-    "skip-intro": "인트로 건너뛰기 →"
+    "skip-intro": "인트로 건너뛰기 →",
+    "what-brings-you-here": "어떻게 오셨나요?",
+    "there-s-no-wrong-answer": "틀린 답은 없으며, 나중에 바꿀 수 있습니다.",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">직장에서 사고로 다쳤습니다</span>\n        <span class=\"cd-segment-sub\">특정한 사고. 넘어짐, 들어 올리기, 기계, 차량.</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">부상이 몇 달 또는 몇 년에 걸쳐 생겼습니다</span>\n        <span class=\"cd-segment-sub\">같은 일을 반복해서 하다가.</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">산재보상 분야에서 일합니다</span>\n        <span class=\"cd-segment-sub\">변호사, 법률 보조원, 대리인, 합의 조정자.</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">뉴욕 산재보상이 어떻게 돌아가는지 알고 싶습니다</span>\n        <span class=\"cd-segment-sub\">처음부터 알려주세요.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">그냥 둘러보는 중입니다</span>\n        <span class=\"cd-segment-sub\">무엇을 할 수 있는지 보여주세요.</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -163,7 +170,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — 근로자 동반자"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">학습</a>\n      <a href=\"/tools/find-doctor\">의사 찾기</a>\n      <a href=\"/calculators\">계산기</a>\n      <a href=\"/contact\">문의</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">학습</a>\n      <a href=\"/tools/find-doctor\">의사 찾기</a>\n      <a href=\"/calculators\">계산기</a>\n      <a href=\"/webinars\">웨비나</a>\n      <a href=\"/contact\">문의</a>",
     "free-workers-compensation-companion": "무료 산재보상 동반자",
     "after-a-work-injury-you": "직장에서 다친 후, <em>혼자서</em> 이 모든 것을 알아낼 필요는 없습니다.",
     "find-an-authorized-doctor-never": "승인된 의사를 찾고, IME를 놓치지 말고, 권리를 이해하고, 경험 많은 뉴욕 산재보상 변호사와 연결하세요 — 모두 한 곳에서. 부상 근로자에게는 항상 무료입니다.",
@@ -1415,7 +1422,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>법적 고지:</strong> 이 계산기는 정보 제공 목적으로만 제공되며 법률 자문에 해당하지 않습니다. SLU 계산은 현행 뉴욕주 산재보상법 §15(3) 및 금융서비스부 규정을 기반으로 합니다. 실제 보상금은 Workers' Compensation Board가 결정하며 의료 증거, 심리 결정, 구체적인 사건 상황에 따라 달라질 수 있습니다. 구체적인 사건에 대한 안내는 자격을 갖춘 산재보상 변호사와 상담하세요.",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">근로자</a>\n      <a href=\"/attorneys\">변호사</a>\n      <a href=\"/learn\">학습</a>\n      <a href=\"/contact\">문의</a>",
     "free-calculators": "무료 계산기",
     "understand-the-numbers-in-your": "사건의 <em>숫자</em>를 이해하세요.",
     "free-tools-to-estimate-your": "주간 보상금, SLU 보상금, 임금 소득 능력을 추정하는 무료 도구. 산재보상 변호사가 제작 — 뉴욕 전역의 부상 근로자와 변호사가 사용합니다.",
@@ -1452,7 +1458,8 @@
     "see-the-comp-desk-pro": "The Comp Desk Pro 보기",
     "helping-a-claimant-figure-this": "청구인이 이를 파악하도록 돕고 계신가요?",
     "these-calculators-are-free-for": "이 계산기들은 누구나 무료로 사용할 수 있습니다. 의뢰인, 부상 근로자, 또는 공동 변호인과 공유하세요. 동일한 계산, 동일한 근거, 로그인 불필요.",
-    "see-the-worker-side": "근로자용 보기"
+    "see-the-worker-side": "근로자용 보기",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">근로자</a>\n      <a href=\"/attorneys\">변호사</a>\n      <a href=\"/learn\">학습</a>\n      <a href=\"/webinars\">웨비나</a>\n      <a href=\"/contact\">문의</a>"
   },
   "settlement-calculator": {
     "meta": {
@@ -2264,7 +2271,7 @@
     "installs-in-desktop-chrome-reads": "데스크톱 Chrome에 설치됩니다. 강조 표시한 내용만 읽습니다 — <a href=\"/extension-privacy\">확장 프로그램 개인정보처리방침</a>을 참조하세요.",
     "web-workspace": "웹 워크스페이스",
     "every-calculator-on-one-canvas": "하나의 캔버스에 모든 계산기가 있습니다. 드래그하고, 놓고, 위치를 잃지 않고 사건을 전환하세요 — 이제 무료 데모로 일반에 공개되었습니다.",
-    "the-full-pro-attorney-workspace": "전체 Pro 변호사 워크스페이스, 브라우저 기반",
+    "the-full-pro-workspace-browser": "전체 Pro 워크스페이스, 브라우저 기반",
     "aww-once-every-tile-updates": "AWW를 한 번 입력하면 모든 타일이 업데이트됩니다",
     "free-single-tab-demo-no": "무료 단일 탭 데모, 로그인 불필요",
     "sign-in-to-save-cases": "로그인하여 사건을 저장하고 Pro/Firm 타일 잠금 해제",

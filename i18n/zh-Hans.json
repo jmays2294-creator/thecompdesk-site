@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">律师版块</span>\n          <span class=\"title\">我从事工伤赔偿法律工作。</span>\n          <span class=\"desc\">SLU 永久伤残评估、费用计算公式、工作台 — 由执业纽约州工伤赔偿律师打造。</span>",
     "choose-your-path": "选择您的方向",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">纽约州工伤赔偿最高费率</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">SLU 计算器</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">LWEC 计算器</a>",
-    "skip-intro": "跳过介绍 →"
+    "skip-intro": "跳过介绍 →",
+    "what-brings-you-here": "您为什么来到这里？",
+    "there-s-no-wrong-answer": "没有错误的答案，您以后可以更改。",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">我在工作中因事故受伤</span>\n        <span class=\"cd-segment-sub\">一次具体的事故。摔倒、搬举、机器、车辆。</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">我的伤是几个月或几年慢慢形成的</span>\n        <span class=\"cd-segment-sub\">因为反复做同样的工作。</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">我从事工伤赔偿工作</span>\n        <span class=\"cd-segment-sub\">律师、律师助理、代理人、和解协调员。</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">我想了解纽约工伤赔偿如何运作</span>\n        <span class=\"cd-segment-sub\">请从头开始讲。</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">我只是随便看看</span>\n        <span class=\"cd-segment-sub\">让我看看这个能做什么。</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -163,7 +170,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — 工人伴侣"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">学习中心</a>\n      <a href=\"/tools/find-doctor\">寻找医生</a>\n      <a href=\"/calculators\">计算器</a>\n      <a href=\"/contact\">联系我们</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">学习中心</a>\n      <a href=\"/tools/find-doctor\">寻找医生</a>\n      <a href=\"/calculators\">计算器</a>\n      <a href=\"/webinars\">网络研讨会</a>\n      <a href=\"/contact\">联系我们</a>",
     "free-workers-compensation-companion": "免费工伤赔偿伴侣",
     "after-a-work-injury-you": "工伤之后，您不应该独自<em>面对</em>这一切。",
     "find-an-authorized-doctor-never": "查找授权医生、不错过任何 IME、了解您的权利，并联系经验丰富的纽约州工伤赔偿律师 — 一站式完成。始终对受伤工人免费。",
@@ -1415,7 +1422,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>免责声明：</strong>本计算器仅供参考，不构成法律建议。SLU 的计算依据现行的《纽约州工伤赔偿法》§15(3) 及金融服务部的相关规定。实际赔偿金由工伤赔偿委员会（Workers' Compensation Board）确定，并可能因医疗证据、听证裁决和具体案情而有所不同。如需针对您具体案件的指导，请咨询合格的工伤赔偿律师。",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">工人</a>\n      <a href=\"/attorneys\">律师</a>\n      <a href=\"/learn\">学习中心</a>\n      <a href=\"/contact\">联系我们</a>",
     "free-calculators": "免费计算器",
     "understand-the-numbers-in-your": "了解您案件中的<em>数字</em>。",
     "free-tools-to-estimate-your": "免费工具，帮您估算每周赔偿金、SLU 赔偿金和收入能力。由工伤赔偿律师打造 — 被纽约州各地的受伤工人和律师使用。",
@@ -1452,7 +1458,8 @@
     "see-the-comp-desk-pro": "查看 The Comp Desk Pro",
     "helping-a-claimant-figure-this": "正在帮索赔人搞清楚这些吗？",
     "these-calculators-are-free-for": "这些计算器对所有人免费。可以分享给客户、受伤工人或共同代理律师。相同的计算方式，相同的引用依据，无需登录。",
-    "see-the-worker-side": "查看工人版块"
+    "see-the-worker-side": "查看工人版块",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">工人</a>\n      <a href=\"/attorneys\">律师</a>\n      <a href=\"/learn\">学习中心</a>\n      <a href=\"/webinars\">网络研讨会</a>\n      <a href=\"/contact\">联系我们</a>"
   },
   "settlement-calculator": {
     "meta": {

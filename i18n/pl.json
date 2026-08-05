@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">Dla prawników</span>\n          <span class=\"title\">Praktykuję prawo WC.</span>\n          <span class=\"desc\">Trwałość SLU, obliczenia honorariów, przestrzeń robocza — stworzone przez praktykującego prawnika WC stanu NY.</span>",
     "choose-your-path": "Wybierz swoją ścieżkę",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">Maksymalne stawki odszkodowań pracowniczych NYS</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">Kalkulator SLU</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">Kalkulator LWEC</a>",
-    "skip-intro": "Pomiń wprowadzenie →"
+    "skip-intro": "Pomiń wprowadzenie →",
+    "what-brings-you-here": "Co Cię tu sprowadza?",
+    "there-s-no-wrong-answer": "Nie ma złej odpowiedzi, a później możesz ją zmienić.",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">Doznałem urazu w pracy w wypadku</span>\n        <span class=\"cd-segment-sub\">Konkretne zdarzenie. Upadek, dźwiganie, maszyna, pojazd.</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">Mój uraz narastał przez miesiące lub lata</span>\n        <span class=\"cd-segment-sub\">Od wykonywania w kółko tej samej pracy.</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Pracuję w odszkodowaniach pracowniczych</span>\n        <span class=\"cd-segment-sub\">Prawnik, asystent prawny, przedstawiciel, koordynator ugód.</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">Chcę zrozumieć, jak działają odszkodowania pracownicze w NY</span>\n        <span class=\"cd-segment-sub\">Zacznij od początku.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Tylko się rozglądam</span>\n        <span class=\"cd-segment-sub\">Pokaż mi, co to potrafi.</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -163,7 +170,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — Towarzysz pracownika"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Dowiedz się więcej</a>\n      <a href=\"/tools/find-doctor\">Znajdź lekarza</a>\n      <a href=\"/calculators\">Kalkulatory</a>\n      <a href=\"/contact\">Kontakt</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Dowiedz się więcej</a>\n      <a href=\"/tools/find-doctor\">Znajdź lekarza</a>\n      <a href=\"/calculators\">Kalkulatory</a>\n      <a href=\"/webinars\">Webinaria</a>\n      <a href=\"/contact\">Kontakt</a>",
     "free-workers-compensation-companion": "Bezpłatny towarzysz ds. odszkodowań pracowniczych",
     "after-a-work-injury-you": "Po urazie w pracy nie musisz radzić sobie z tym <em>sam(a).</em>",
     "find-an-authorized-doctor-never": "Znajdź autoryzowanego lekarza, nigdy nie przegap IME, poznaj swoje prawa i skontaktuj się z doświadczonym prawnikiem ds. odszkodowań pracowniczych w Nowym Jorku — wszystko w jednym miejscu. Zawsze bezpłatnie dla poszkodowanych pracowników.",
@@ -1415,7 +1422,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>Zastrzeżenie prawne:</strong> Ten kalkulator jest udostępniany wyłącznie w celach informacyjnych i nie stanowi porady prawnej. Obliczenia SLU opierają się na aktualnym New York State Workers' Compensation Law §15(3) i regulacjach Department of Financial Services. Rzeczywiste świadczenia są ustalane przez Workers' Compensation Board i mogą się różnić w zależności od dowodów medycznych, decyzji z rozpraw, i konkretnych okoliczności sprawy. Skonsultuj się z wykwalifikowanym prawnikiem ds. odszkodowań pracowniczych w sprawie swojego konkretnego przypadku.",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">Pracownik</a>\n      <a href=\"/attorneys\">Prawnicy</a>\n      <a href=\"/learn\">Dowiedz się więcej</a>\n      <a href=\"/contact\">Kontakt</a>",
     "free-calculators": "Bezpłatne kalkulatory",
     "understand-the-numbers-in-your": "Zrozum <em>liczby</em> w swojej sprawie.",
     "free-tools-to-estimate-your": "Bezpłatne narzędzia do oszacowania Twojego tygodniowego świadczenia, świadczenia SLU, zdolności zarobkowej. Stworzone przez prawnika ds. odszkodowań pracowniczych — używane przez poszkodowanych pracowników i prawników w całym Nowym Jorku.",
@@ -1452,7 +1458,8 @@
     "see-the-comp-desk-pro": "Zobacz The Comp Desk Pro",
     "helping-a-claimant-figure-this": "Pomagasz poszkodowanemu to rozgryźć?",
     "these-calculators-are-free-for": "Te kalkulatory są bezpłatne dla wszystkich. Udostępnij je klientom, poszkodowanym pracownikom, lub współprawnikom. Te same obliczenia, te same podstawy prawne, bez logowania.",
-    "see-the-worker-side": "Zobacz stronę pracownika"
+    "see-the-worker-side": "Zobacz stronę pracownika",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">Pracownik</a>\n      <a href=\"/attorneys\">Prawnicy</a>\n      <a href=\"/learn\">Dowiedz się więcej</a>\n      <a href=\"/webinars\">Webinaria</a>\n      <a href=\"/contact\">Kontakt</a>"
   },
   "settlement-calculator": {
     "meta": {
@@ -2264,7 +2271,7 @@
     "installs-in-desktop-chrome-reads": "Instaluje się w komputerowej wersji Chrome. Odczytuje tylko to, co zaznaczysz — zobacz <a href=\"/extension-privacy\">politykę prywatności rozszerzenia</a>.",
     "web-workspace": "Przestrzeń robocza w przeglądarce",
     "every-calculator-on-one-canvas": "Każdy kalkulator na jednym płótnie. Przeciągaj, upuszczaj, przełączaj sprawy bez utraty miejsca — a teraz otwarte dla publiczności jako bezpłatne demo.",
-    "the-full-pro-attorney-workspace": "Pełna Przestrzeń robocza Pro Attorney, oparta na przeglądarce",
+    "the-full-pro-workspace-browser": "Pełna Przestrzeń robocza Pro, oparta na przeglądarce",
     "aww-once-every-tile-updates": "AWW raz, każdy kafelek się aktualizuje",
     "free-single-tab-demo-no": "Bezpłatne demo z jedną kartą, bez wymaganej rejestracji",
     "sign-in-to-save-cases": "Zaloguj się, aby zapisywać sprawy i odblokować kafelki Pro/Firm",

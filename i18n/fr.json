@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">Pour les avocats</span>\n          <span class=\"title\">Je pratique le droit du WC.</span>\n          <span class=\"desc\">Permanence SLU, calculs d'honoraires, l'espace de travail — créés par un avocat en exercice spécialisé en droit du travail de NYS.</span>",
     "choose-your-path": "Choisissez votre parcours",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">Taux maximums d'indemnisation des accidents du travail de NYS</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">Calculateur SLU</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">Calculateur LWEC</a>",
-    "skip-intro": "Ignorer l'intro →"
+    "skip-intro": "Ignorer l'intro →",
+    "what-brings-you-here": "Qu’est-ce qui vous amène ?",
+    "there-s-no-wrong-answer": "Il n’y a pas de mauvaise réponse, et vous pourrez la changer plus tard.",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">J’ai été blessé au travail dans un accident</span>\n        <span class=\"cd-segment-sub\">Un événement précis. Une chute, un port de charge, une machine, un véhicule.</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">Ma blessure s’est installée sur des mois ou des années</span>\n        <span class=\"cd-segment-sub\">À force de faire le même travail.</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Je travaille dans l’indemnisation des accidents du travail</span>\n        <span class=\"cd-segment-sub\">Avocat, parajuriste, représentant, coordinateur de règlements.</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">Je veux comprendre comment fonctionne l’indemnisation des accidents du travail à NY</span>\n        <span class=\"cd-segment-sub\">Reprenez depuis le début.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Je regarde simplement</span>\n        <span class=\"cd-segment-sub\">Montrez-moi ce que ça fait.</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -163,7 +170,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — Compagnon du travailleur"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Apprendre</a>\n      <a href=\"/tools/find-doctor\">Trouver un médecin</a>\n      <a href=\"/calculators\">Calculateurs</a>\n      <a href=\"/contact\">Contact</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Apprendre</a>\n      <a href=\"/tools/find-doctor\">Trouver un médecin</a>\n      <a href=\"/calculators\">Calculateurs</a>\n      <a href=\"/webinars\">Webinaires</a>\n      <a href=\"/contact\">Contact</a>",
     "free-workers-compensation-companion": "Compagnon gratuit d'indemnisation des accidents du travail",
     "after-a-work-injury-you": "Après un accident du travail, vous ne devriez pas avoir à gérer cela <em>seul(e).</em>",
     "find-an-authorized-doctor-never": "Trouvez un médecin agréé, ne manquez jamais un IME, comprenez vos droits et connectez-vous avec un avocat expérimenté en indemnisation des accidents du travail de New York — le tout en un seul endroit. Toujours gratuit pour les travailleurs blessés.",
@@ -1415,7 +1422,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>Avis de non-responsabilité :</strong> Ce calculateur est fourni à titre informatif uniquement et ne constitue pas un conseil juridique. Les calculs SLU sont basés sur le New York State Workers' Compensation Law §15(3) et les règlements du Department of Financial Services en vigueur. Les indemnités réelles sont déterminées par le Workers' Compensation Board et peuvent varier selon les preuves médicales, les décisions d'audience, et les circonstances spécifiques du dossier. Consultez un avocat qualifié en indemnisation des accidents du travail pour obtenir des conseils sur votre dossier spécifique.",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">Travailleur</a>\n      <a href=\"/attorneys\">Avocats</a>\n      <a href=\"/learn\">Apprendre</a>\n      <a href=\"/contact\">Contact</a>",
     "free-calculators": "Calculateurs gratuits",
     "understand-the-numbers-in-your": "Comprenez les <em>chiffres</em> de votre dossier.",
     "free-tools-to-estimate-your": "Outils gratuits pour estimer votre prestation hebdomadaire, votre indemnité SLU, votre capacité de gain. Créés par un avocat en indemnisation des accidents du travail — utilisés par des travailleurs blessés et des avocats dans tout New York.",
@@ -1452,7 +1458,8 @@
     "see-the-comp-desk-pro": "Voir The Comp Desk Pro",
     "helping-a-claimant-figure-this": "Vous aidez un demandeur à comprendre tout cela ?",
     "these-calculators-are-free-for": "Ces calculateurs sont gratuits pour tous. Partagez-les avec des clients, des travailleurs blessés, ou des co-conseils. Les mêmes calculs, les mêmes citations, aucune connexion requise.",
-    "see-the-worker-side": "Voir le côté travailleur"
+    "see-the-worker-side": "Voir le côté travailleur",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">Travailleur</a>\n      <a href=\"/attorneys\">Avocats</a>\n      <a href=\"/learn\">Apprendre</a>\n      <a href=\"/webinars\">Webinaires</a>\n      <a href=\"/contact\">Contact</a>"
   },
   "settlement-calculator": {
     "meta": {
@@ -2264,7 +2271,7 @@
     "installs-in-desktop-chrome-reads": "S'installe dans Chrome de bureau. Lit uniquement ce que vous surlignez — consultez la <a href=\"/extension-privacy\">politique de confidentialité de l'extension</a>.",
     "web-workspace": "Espace de travail web",
     "every-calculator-on-one-canvas": "Tous les calculateurs sur une seule toile. Glissez, déposez, changez de dossier sans perdre votre place — et maintenant ouvert au public en démo gratuite.",
-    "the-full-pro-attorney-workspace": "L'espace de travail Pro complet pour avocats, basé sur navigateur",
+    "the-full-pro-workspace-browser": "L'espace de travail Pro complet, basé sur navigateur",
     "aww-once-every-tile-updates": "AWW une fois, chaque module se met à jour",
     "free-single-tab-demo-no": "Démo gratuite à onglet unique, aucune connexion requise",
     "sign-in-to-save-cases": "Connectez-vous pour enregistrer des dossiers et débloquer les modules Pro/Firm",

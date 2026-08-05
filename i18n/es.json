@@ -1245,7 +1245,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>Aviso legal:</strong> Esta calculadora se ofrece únicamente con fines informativos y no constituye asesoría legal. Los cálculos de SLU se basan en la Ley de Compensación Laboral del Estado de Nueva York §15(3) vigente y en las regulaciones del Departamento de Servicios Financieros. Las compensaciones reales son determinadas por la Junta de Compensación Laboral (Workers' Compensation Board) y pueden variar según la evidencia médica, las decisiones de audiencia y las circunstancias específicas del caso. Consulte a un abogado de compensación laboral calificado para orientación sobre su caso específico.",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">Trabajador</a>\n      <a href=\"/attorneys\">Abogados</a>\n      <a href=\"/learn\">Aprender</a>\n      <a href=\"/contact\">Contacto</a>",
     "free-calculators": "Calculadoras gratuitas",
     "understand-the-numbers-in-your": "Entienda los <em>números</em> de su caso.",
     "free-tools-to-estimate-your": "Herramientas gratuitas para estimar su beneficio semanal, su compensación SLU, su capacidad para generar ingresos. Creadas por un abogado de compensación laboral — utilizadas por trabajadores lesionados y abogados en todo Nueva York.",
@@ -1282,7 +1281,8 @@
     "see-the-comp-desk-pro": "Ver The Comp Desk Pro",
     "helping-a-claimant-figure-this": "¿Está ayudando a un reclamante a resolver esto?",
     "these-calculators-are-free-for": "Estas calculadoras son gratuitas para cualquier persona. Compártalas con clientes, trabajadores lesionados o co-abogados. Los mismos cálculos, las mismas citas, sin necesidad de iniciar sesión.",
-    "see-the-worker-side": "Ver el Lado del Trabajador"
+    "see-the-worker-side": "Ver el Lado del Trabajador",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">Trabajador</a>\n      <a href=\"/attorneys\">Abogados</a>\n      <a href=\"/learn\">Aprender</a>\n      <a href=\"/webinars\">Seminarios web</a>\n      <a href=\"/contact\">Contacto</a>"
   },
   "home": {
     "meta": {
@@ -1325,7 +1325,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">Para abogados</span>\n          <span class=\"title\">Ejerzo el derecho de compensación laboral.</span>\n          <span class=\"desc\">Permanencia SLU, ecuaciones de honorarios, el espacio de trabajo — creado por un abogado de compensación laboral de NYS en ejercicio.</span>",
     "choose-your-path": "Elija su camino",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">Tasas máximas de compensación laboral de NYS</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">Calculadora de SLU</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">Calculadora de LWEC</a>",
-    "skip-intro": "Omitir introducción →"
+    "skip-intro": "Omitir introducción →",
+    "what-brings-you-here": "¿Qué lo trae por aquí?",
+    "there-s-no-wrong-answer": "No hay respuesta incorrecta, y puede cambiarla más adelante.",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">Me lesioné en el trabajo en un accidente</span>\n        <span class=\"cd-segment-sub\">Un hecho concreto. Una caída, un esfuerzo, una máquina, un vehículo.</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">Mi lesión se fue formando durante meses o años</span>\n        <span class=\"cd-segment-sub\">De hacer el mismo trabajo una y otra vez.</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Trabajo en compensación laboral</span>\n        <span class=\"cd-segment-sub\">Abogado, asistente legal, representante, coordinador de acuerdos.</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">Quiero entender cómo funciona la compensación laboral en NY</span>\n        <span class=\"cd-segment-sub\">Explíquemelo desde el principio.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Solo estoy mirando</span>\n        <span class=\"cd-segment-sub\">Muéstreme qué hace esto.</span>"
   },
   "worker": {
     "meta": {
@@ -1347,7 +1354,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — Compañero del Trabajador"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Aprender</a>\n      <a href=\"/tools/find-doctor\">Encontrar un Médico</a>\n      <a href=\"/calculators\">Calculadoras</a>\n      <a href=\"/contact\">Contacto</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Aprender</a>\n      <a href=\"/tools/find-doctor\">Encontrar un Médico</a>\n      <a href=\"/calculators\">Calculadoras</a>\n      <a href=\"/webinars\">Seminarios web</a>\n      <a href=\"/contact\">Contacto</a>",
     "free-workers-compensation-companion": "Compañero gratuito de compensación laboral",
     "after-a-work-injury-you": "Después de una lesión laboral, no debería tener que resolverlo <em>sin ayuda.</em>",
     "find-an-authorized-doctor-never": "Encuentre un médico autorizado, no se pierda ningún IME, conozca sus derechos y conéctese con un abogado de compensación laboral de Nueva York con experiencia — todo en un solo lugar. Siempre gratis para trabajadores lesionados.",

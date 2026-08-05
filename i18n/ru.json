@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">Для адвокатов</span>\n          <span class=\"title\">Я практикую право компенсации работникам.</span>\n          <span class=\"desc\">Постоянная утрата функции SLU, формулы гонораров, рабочее пространство — созданы практикующим адвокатом штата Нью-Йорк по вопросам компенсации работникам.</span>",
     "choose-your-path": "Выберите свой путь",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">Максимальные ставки компенсации штата Нью-Йорк</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">Калькулятор SLU</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">Калькулятор LWEC</a>",
-    "skip-intro": "Пропустить вступление →"
+    "skip-intro": "Пропустить вступление →",
+    "what-brings-you-here": "Что привело вас сюда?",
+    "there-s-no-wrong-answer": "Неправильного ответа нет, и вы сможете изменить его позже.",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">Я получил травму на работе в результате несчастного случая</span>\n        <span class=\"cd-segment-sub\">Конкретный случай. Падение, подъём тяжести, станок, транспорт.</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">Моя травма накапливалась месяцами или годами</span>\n        <span class=\"cd-segment-sub\">От одной и той же работы изо дня в день.</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Я работаю в сфере компенсации работникам</span>\n        <span class=\"cd-segment-sub\">Адвокат, помощник юриста, представитель, координатор урегулирования.</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">Я хочу понять, как устроена компенсация работникам в Нью-Йорке</span>\n        <span class=\"cd-segment-sub\">Начните с самого начала.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Я просто смотрю</span>\n        <span class=\"cd-segment-sub\">Покажите, что это умеет.</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -163,7 +170,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — помощник работника"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Обучение</a>\n      <a href=\"/tools/find-doctor\">Найти врача</a>\n      <a href=\"/calculators\">Калькуляторы</a>\n      <a href=\"/contact\">Контакты</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">Обучение</a>\n      <a href=\"/tools/find-doctor\">Найти врача</a>\n      <a href=\"/calculators\">Калькуляторы</a>\n      <a href=\"/webinars\">Вебинары</a>\n      <a href=\"/contact\">Контакты</a>",
     "free-workers-compensation-companion": "Бесплатный помощник по компенсации работникам",
     "after-a-work-injury-you": "После травмы на работе Вам не придётся разбираться во всём <em>в одиночку.</em>",
     "find-an-authorized-doctor-never": "Найдите авторизованного врача, не пропускайте IME, узнайте о своих правах и свяжитесь с опытным адвокатом по компенсации работникам штата Нью-Йорк — всё в одном месте. Всегда бесплатно для травмированных работников.",
@@ -1415,7 +1422,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>Отказ от ответственности:</strong> Этот калькулятор предоставляется исключительно в информационных целях и не является юридической консультацией. Расчёты SLU основаны на действующем Законе штата Нью-Йорк о компенсации работникам §15(3) и правилах Департамента финансовых услуг. Фактические компенсации определяются Комиссией по компенсации работникам (Workers' Compensation Board) и могут варьироваться в зависимости от медицинских доказательств, решений слушаний и конкретных обстоятельств дела. Проконсультируйтесь с квалифицированным адвокатом по компенсации работникам для получения рекомендаций по Вашему конкретному делу.",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">Работнику</a>\n      <a href=\"/attorneys\">Адвокатам</a>\n      <a href=\"/learn\">Обучение</a>\n      <a href=\"/contact\">Контакты</a>",
     "free-calculators": "Бесплатные калькуляторы",
     "understand-the-numbers-in-your": "Разберитесь в <em>цифрах</em> Вашего дела.",
     "free-tools-to-estimate-your": "Бесплатные инструменты для оценки Вашей еженедельной выплаты, компенсации SLU, трудоспособности по заработку. Созданы адвокатом по компенсации работникам — используются травмированными работниками и юристами по всему Нью-Йорку.",
@@ -1452,7 +1458,8 @@
     "see-the-comp-desk-pro": "Смотреть The Comp Desk Pro",
     "helping-a-claimant-figure-this": "Помогаете заявителю разобраться в этом?",
     "these-calculators-are-free-for": "Эти калькуляторы бесплатны для всех. Поделитесь ими с клиентами, травмированными работниками или соадвокатами. Те же расчёты, те же ссылки на источники, вход в систему не требуется.",
-    "see-the-worker-side": "Смотреть сторону работника"
+    "see-the-worker-side": "Смотреть сторону работника",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">Работнику</a>\n      <a href=\"/attorneys\">Адвокатам</a>\n      <a href=\"/learn\">Обучение</a>\n      <a href=\"/webinars\">Вебинары</a>\n      <a href=\"/contact\">Контакты</a>"
   },
   "settlement-calculator": {
     "meta": {
@@ -2264,7 +2271,7 @@
     "installs-in-desktop-chrome-reads": "Устанавливается в настольный Chrome. Читает только то, что Вы выделили — см. <a href=\"/extension-privacy\">политику конфиденциальности расширения</a>.",
     "web-workspace": "Веб-рабочее пространство",
     "every-calculator-on-one-canvas": "Все калькуляторы на одном холсте. Перетаскивайте, переключайте дела, не теряя своего места — и теперь открыто для всех как бесплатная демоверсия.",
-    "the-full-pro-attorney-workspace": "Полное рабочее пространство Pro для адвокатов, на основе браузера",
+    "the-full-pro-workspace-browser": "Полное рабочее пространство Pro, на основе браузера",
     "aww-once-every-tile-updates": "AWW один раз — обновляются все плитки",
     "free-single-tab-demo-no": "Бесплатная демоверсия в одной вкладке, вход не требуется",
     "sign-in-to-save-cases": "Войдите, чтобы сохранять дела и разблокировать плитки Pro/Firm",

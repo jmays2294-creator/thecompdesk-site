@@ -40,7 +40,14 @@
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">আইনজীবীদের জন্য</span>\n          <span class=\"title\">আমি WC আইন অনুশীলন করি।</span>\n          <span class=\"desc\">SLU স্থায়িত্ব, ফি সমীকরণ, ওয়ার্কস্পেস — একজন কর্মরত নিউ ইয়র্ক রাজ্যের WC আইনজীবীর তৈরি।</span>",
     "choose-your-path": "আপনার পথ বেছে নিন",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">নিউ ইয়র্ক রাজ্যের শ্রমিক ক্ষতিপূরণ সর্বোচ্চ হার</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">SLU ক্যালকুলেটর</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">LWEC ক্যালকুলেটর</a>",
-    "skip-intro": "পরিচিতি এড়িয়ে যান →"
+    "skip-intro": "পরিচিতি এড়িয়ে যান →",
+    "what-brings-you-here": "আপনি কী কারণে এসেছেন?",
+    "there-s-no-wrong-answer": "কোনো ভুল উত্তর নেই, আর আপনি পরে এটি বদলাতে পারবেন।",
+    "i-was-hurt-at-work": "<span class=\"cd-segment-title\">আমি কাজে দুর্ঘটনায় আহত হয়েছি</span>\n        <span class=\"cd-segment-sub\">একটি নির্দিষ্ট ঘটনা। পড়ে যাওয়া, ভারী তোলা, মেশিন, গাড়ি।</span>",
+    "my-injury-built-up-over": "<span class=\"cd-segment-title\">আমার আঘাত মাস বা বছর ধরে তৈরি হয়েছে</span>\n        <span class=\"cd-segment-sub\">বারবার একই কাজ করার কারণে।</span>",
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">আমি শ্রমিক ক্ষতিপূরণে কাজ করি</span>\n        <span class=\"cd-segment-sub\">আইনজীবী, প্যারালিগ্যাল, প্রতিনিধি, নিষ্পত্তি সমন্বয়কারী।</span>",
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">আমি বুঝতে চাই নিউ ইয়র্ক শ্রমিক ক্ষতিপূরণ কীভাবে কাজ করে</span>\n        <span class=\"cd-segment-sub\">একদম শুরু থেকে বলুন।</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">আমি শুধু দেখছি</span>\n        <span class=\"cd-segment-sub\">এটি কী করতে পারে দেখান।</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -163,7 +170,7 @@
     "jsonld": {
       "the-comp-desk-worker-companion": "The Comp Desk — শ্রমিক সহযোগী"
     },
-    "learn-find-a-doctor-calculators": "<a href=\"/learn\">শিখুন</a>\n      <a href=\"/tools/find-doctor\">ডাক্তার খুঁজুন</a>\n      <a href=\"/calculators\">ক্যালকুলেটর</a>\n      <a href=\"/contact\">যোগাযোগ</a>",
+    "learn-find-a-doctor-calculators": "<a href=\"/learn\">শিখুন</a>\n      <a href=\"/tools/find-doctor\">ডাক্তার খুঁজুন</a>\n      <a href=\"/calculators\">ক্যালকুলেটর</a>\n      <a href=\"/webinars\">ওয়েবিনার</a>\n      <a href=\"/contact\">যোগাযোগ</a>",
     "free-workers-compensation-companion": "বিনামূল্যে শ্রমিক ক্ষতিপূরণ সহযোগী",
     "after-a-work-injury-you": "কাজে আঘাত পাওয়ার পর, আপনাকে এটা <em>একা</em> সামলাতে হবে না।",
     "find-an-authorized-doctor-never": "অনুমোদিত ডাক্তার খুঁজুন, IME কখনো মিস করবেন না, আপনার অধিকার বুঝুন এবং একজন অভিজ্ঞ নিউ ইয়র্ক শ্রমিক ক্ষতিপূরণ আইনজীবীর সাথে যোগাযোগ করুন — সব এক জায়গায়। আহত শ্রমিকদের জন্য সর্বদা বিনামূল্যে।",
@@ -1415,7 +1422,6 @@
       "disclaimer-this-calculator-is-provided": "<strong>দাবিত্যাগ:</strong> এই ক্যালকুলেটর শুধুমাত্র তথ্যগত উদ্দেশ্যে প্রদান করা হয়েছে এবং এটি আইনি পরামর্শ নয়। SLU হিসাব নিউ ইয়র্ক রাজ্যের বর্তমান শ্রমিক ক্ষতিপূরণ আইন §15(3) এবং আর্থিক পরিষেবা বিভাগের নিয়মের উপর ভিত্তি করে। প্রকৃত ক্ষতিপূরণ Workers' Compensation Board কর্তৃক নির্ধারিত হয় এবং চিকিৎসাগত প্রমাণ, শুনানির সিদ্ধান্ত এবং নির্দিষ্ট মামলার পরিস্থিতির উপর ভিত্তি করে পরিবর্তিত হতে পারে। আপনার নির্দিষ্ট মামলার জন্য একজন যোগ্য শ্রমিক ক্ষতিপূরণ আইনজীবীর সাথে পরামর্শ করুন।",
       "text": "SLU ⓘ"
     },
-    "worker-attorneys-learn-contact": "<a href=\"/worker\">শ্রমিক</a>\n      <a href=\"/attorneys\">আইনজীবী</a>\n      <a href=\"/learn\">শিখুন</a>\n      <a href=\"/contact\">যোগাযোগ</a>",
     "free-calculators": "বিনামূল্যে ক্যালকুলেটর",
     "understand-the-numbers-in-your": "আপনার মামলার <em>সংখ্যাগুলো</em> বুঝুন।",
     "free-tools-to-estimate-your": "আপনার সাপ্তাহিক সুবিধা, SLU ক্ষতিপূরণ এবং মজুরি উপার্জন ক্ষমতা অনুমান করার বিনামূল্যে টুল। একজন শ্রমিক ক্ষতিপূরণ আইনজীবী দ্বারা নির্মিত — নিউ ইয়র্ক জুড়ে আহত শ্রমিক ও আইনজীবীরা ব্যবহার করেন।",
@@ -1452,7 +1458,8 @@
     "see-the-comp-desk-pro": "The Comp Desk Pro দেখুন",
     "helping-a-claimant-figure-this": "একজন দাবিদারকে এটি বুঝতে সাহায্য করছেন?",
     "these-calculators-are-free-for": "এই ক্যালকুলেটরগুলো সবার জন্য বিনামূল্যে। ক্লায়েন্ট, আহত শ্রমিক বা সহ-আইনজীবীদের সাথে শেয়ার করুন। একই গণনা, একই উৎস, লগইন প্রয়োজন নেই।",
-    "see-the-worker-side": "শ্রমিক দিক দেখুন"
+    "see-the-worker-side": "শ্রমিক দিক দেখুন",
+    "worker-attorneys-learn-webinars-contact": "<a href=\"/worker\">শ্রমিক</a>\n      <a href=\"/attorneys\">আইনজীবী</a>\n      <a href=\"/learn\">শিখুন</a>\n      <a href=\"/webinars\">ওয়েবিনার</a>\n      <a href=\"/contact\">যোগাযোগ</a>"
   },
   "settlement-calculator": {
     "meta": {
@@ -2264,7 +2271,7 @@
     "installs-in-desktop-chrome-reads": "ডেস্কটপ Chrome-এ ইনস্টল হয়। শুধুমাত্র আপনি যা হাইলাইট করেন তা পড়ে — <a href=\"/extension-privacy\">এক্সটেনশন গোপনীয়তা নীতি</a> দেখুন।",
     "web-workspace": "ওয়েব ওয়ার্কস্পেস",
     "every-calculator-on-one-canvas": "একটি ক্যানভাসে প্রতিটি ক্যালকুলেটর। আপনার জায়গা না হারিয়ে টেনে আনুন, ফেলুন, মামলা পরিবর্তন করুন — এবং এখন একটি বিনামূল্যে ডেমো হিসেবে জনসাধারণের জন্য উন্মুক্ত।",
-    "the-full-pro-attorney-workspace": "সম্পূর্ণ Pro আইনজীবী ওয়ার্কস্পেস, ব্রাউজার-ভিত্তিক",
+    "the-full-pro-workspace-browser": "সম্পূর্ণ Pro ওয়ার্কস্পেস, ব্রাউজার-ভিত্তিক",
     "aww-once-every-tile-updates": "একবার AWW, প্রতিটি টাইল হালনাগাদ হয়",
     "free-single-tab-demo-no": "বিনামূল্যে একক-ট্যাব ডেমো, সাইন ইনের প্রয়োজন নেই",
     "sign-in-to-save-cases": "মামলা সংরক্ষণ করতে এবং Pro/Firm টাইল আনলক করতে সাইন ইন করুন",
