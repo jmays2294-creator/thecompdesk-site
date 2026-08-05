@@ -37,7 +37,6 @@
       "destination": "/legal/terms",
       "permanent": true
     },
-
     {
       "source": "/for-attorneys",
       "destination": "/attorneys",
@@ -48,7 +47,6 @@
       "destination": "/attorneys",
       "permanent": true
     },
-
     {
       "source": "/hire-attorney",
       "destination": "/connect-with-attorney",
@@ -78,11 +76,6 @@
       "source": "/find-attorney-how-it-works.html",
       "destination": "/connect-with-attorney",
       "permanent": true
-    },
-    {
-      "source": "/home-legacy.html",
-      "destination": "/home-legacy",
-      "permanent": false
     }
   ],
   "headers": [
