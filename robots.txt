@@ -25,6 +25,10 @@ Disallow: /workspace.html
 # a Disallow would have kept out of the index entirely.
 Disallow: /tools/settlement
 
+# Per-visitor chat transcripts — tokenised, never indexable
+Disallow: /directory/thread
+Disallow: /directory/thread.html
+
 # Dashboard (auth-gated)
 Disallow: /dashboard/
 

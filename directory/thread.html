@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-audience="worker">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your conversation — The Comp Desk</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/css/skins.css">
+<style>
+  .th-wrap{max-width:640px;margin:0 auto;padding:26px 20px 60px}
+  .th-wrap h1{font-family:var(--font-display);font-size:26px;margin:0 0 4px;color:var(--skin-text)}
+  .th-sub{color:var(--skin-text-muted);font-size:14px;margin:0 0 20px}
+  .th-list{display:flex;flex-direction:column;gap:11px;margin-bottom:20px}
+  .th-msg{max-width:86%;padding:11px 14px;border-radius:14px;white-space:pre-wrap;
+    line-height:1.6;font-size:15px}
+  .th-them{background:var(--skin-surface-elev);border:1px solid var(--skin-divider);
+    align-self:flex-start;border-bottom-left-radius:5px;color:var(--skin-text-soft)}
+  .th-you{background:var(--tcd-navy);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+  .th-form{display:flex;gap:9px}
+  .th-form textarea{flex:1;border:1px solid var(--skin-divider);border-radius:11px;
+    padding:12px;font:inherit;min-height:88px;resize:vertical}
+  .th-send{background:var(--skin-accent);color:#fff;border:0;border-radius:11px;
+    padding:0 20px;font-weight:600;cursor:pointer;min-height:44px}
+  .th-send:disabled{opacity:.5}
+  .th-note{font-size:12px;line-height:1.6;color:var(--skin-text-muted);margin-top:20px}
+</style>
+</head>
+<body class="tcd-skinned">
+
+<div class="web-wash" aria-hidden="true"></div>
+
+<nav class="tcd-nav" aria-label="Primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+  </div>
+</nav>
+
+<main>
+  <div class="th-wrap">
+    <h1 id="th-title">Your conversation</h1>
+    <p class="th-sub" id="th-sub">Loading…</p>
+    <div class="th-list" id="th-list" role="log" aria-live="polite"></div>
+
+    <div class="th-form" id="th-form" hidden>
+      <textarea id="th-text" aria-label="Add a message" placeholder="Add anything you forgot…"></textarea>
+      <button class="th-send" id="th-send" type="button">Send</button>
+    </div>
+
+    <p class="th-note">Not legal advice. No attorney-client relationship is formed by using this chat.
+      The Comp Desk is a software platform, not a law firm, and does not provide legal services or
+      legal advice. Listings in this directory are paid advertising. The Comp Desk does not recommend,
+      endorse, rank, or vouch for any attorney listed. Contacting an attorney through this directory
+      does not create an attorney-client relationship. Prior results do not guarantee a similar outcome.</p>
+  </div>
+</main>
+
+<footer class="tcd-footer">
+  <div class="wrap">
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+    <p><a href="/privacy">Privacy</a> <a href="/legal/terms.html">Terms</a> <a href="/contact">Contact</a></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var FN = 'https://ltibymvlytodkemdeeox.supabase.co/functions/v1/directory-chat';
+  var token = new URLSearchParams(location.search).get('t');
+  var list = document.getElementById('th-list');
+  var sub = document.getElementById('th-sub');
+  var form = document.getElementById('th-form');
+  var text = document.getElementById('th-text');
+  var send = document.getElementById('th-send');
+
+  if (!token) { sub.textContent = 'This link is missing its conversation code.'; return; }
+
+  function post(body) {
+    return fetch(FN, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); })
+      .then(function (j) { if (!j.ok) throw new Error(j.code || 'error'); return j; });
+  }
+
+  function render(msgs) {
+    list.innerHTML = '';
+    msgs.forEach(function (m) {
+      var d = document.createElement('div');
+      d.className = 'th-msg ' + (m.role === 'visitor' ? 'th-you' : 'th-them');
+      d.textContent = m.body;
+      list.appendChild(d);
+    });
+  }
+
+  function load() {
+    return post({ action: 'thread', session_token: token }).then(function (r) {
+      sub.textContent = 'With ' + r.attorney_name;
+      render(r.messages || []);
+      form.hidden = false;
+    }).catch(function (e) {
+      sub.textContent = 'We could not load this conversation (' + e.message + '). '
+        + 'If you need to reach the office directly, use the contact details on the listing page.';
+    });
+  }
+
+  send.addEventListener('click', function () {
+    var v = text.value.trim();
+    if (!v) return;
+    send.disabled = true; send.textContent = 'Sending…';
+    post({ action: 'visitor_reply', session_token: token, text: v })
+      .then(function () { text.value = ''; return load(); })
+      .catch(function (e) { sub.textContent = 'That did not send (' + e.message + '). Please try again.'; })
+      .then(function () { send.disabled = false; send.textContent = 'Send'; });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

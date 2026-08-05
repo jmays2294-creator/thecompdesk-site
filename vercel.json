@@ -76,6 +76,11 @@
       "source": "/find-attorney-how-it-works.html",
       "destination": "/connect-with-attorney",
       "permanent": true
+    },
+    {
+      "source": "/attorney-directory",
+      "destination": "/directory",
+      "permanent": true
     }
   ],
   "headers": [

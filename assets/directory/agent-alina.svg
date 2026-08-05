@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img"
+     aria-label="Illustrated avatar of Alina, a virtual assistant">
+  <!--
+    Deliberately a flat illustration, not a photorealistic face.
+    A photoreal headshot of a person who does not exist is the version of an AI intake
+    agent that ends up as an exhibit. A drawn character reads as a brand mascot and
+    carries none of that. Keep it illustrative if this is ever redrawn.
+  -->
+  <defs>
+    <clipPath id="a-circle"><circle cx="48" cy="48" r="48"/></clipPath>
+  </defs>
+  <g clip-path="url(#a-circle)">
+    <rect width="96" height="96" fill="#F4EADB"/>
+    <circle cx="48" cy="88" r="34" fill="#1B2A4A"/>
+    <path d="M25 88c0-12 10-20 23-20s23 8 23 20z" fill="#2E4372"/>
+    <!-- hair back -->
+    <path d="M27 44c0-14 9-24 21-24s21 10 21 24c0 6-1 11-3 15l-4-3c1-4 2-8 2-12 0-10-7-17-16-17s-16 7-16 17c0 4 1 8 2 12l-4 3c-2-4-3-9-3-15z" fill="#3B2A22"/>
+    <!-- face -->
+    <ellipse cx="48" cy="47" rx="16" ry="18" fill="#E8B98F"/>
+    <!-- fringe -->
+    <path d="M32 42c1-9 7-15 16-15s15 6 16 15c-4-5-9-7-16-7s-12 2-16 7z" fill="#3B2A22"/>
+    <!-- eyes -->
+    <circle cx="42" cy="47" r="2.1" fill="#2D3142"/>
+    <circle cx="54" cy="47" r="2.1" fill="#2D3142"/>
+    <!-- smile -->
+    <path d="M43 54c1.6 2 3.1 2.9 5 2.9s3.4-.9 5-2.9" stroke="#8C5A3C" stroke-width="2"
+          stroke-linecap="round" fill="none"/>
+    <!-- collar -->
+    <path d="M40 68l8 7 8-7" stroke="#F8F6F1" stroke-width="3" fill="none" stroke-linejoin="round"/>
+  </g>
+</svg>

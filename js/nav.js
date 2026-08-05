@@ -439,6 +439,7 @@ function exploreDropdownHTML() {
       <div class="nav-dropdown-menu">
         <a href="/learn" class="nav-dropdown-item"><span class="ic">📚</span><span class="tx">Learn<small>WC guides &amp; articles</small></span></a>
         <a href="/webinars" class="nav-dropdown-item"><span class="ic">🎤</span><span class="tx">Webinars<small>Free sessions for union members</small></span></a>
+        <a href="/directory" class="nav-dropdown-item"><span class="ic">📇</span><span class="tx">Find an Attorney<small>Directory · attorney advertising</small></span></a>
         <a href="/marketplace" class="nav-dropdown-item"><span class="ic">🛍️</span><span class="tx">Marketplace<small>AI agents &amp; skills</small></span></a>
         <a href="/extension" class="nav-dropdown-item"><span class="ic">🧩</span><span class="tx">Apps<small>Chrome extension</small></span></a>
         <a href="/for-attorneys" class="nav-dropdown-item"><span class="ic">👔</span><span class="tx">For Professionals<small>Attorneys, paralegals &amp; WC pros</small></span></a>

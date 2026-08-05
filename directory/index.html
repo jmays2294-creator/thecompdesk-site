@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-audience="worker">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attorney Directory — New York Workers’ Compensation | The Comp Desk</title>
+<meta name="description" content="A small, curated directory of New York workers’ compensation attorneys. Listings are paid advertising. Attorney Advertising.">
+
+<meta property="og:title" content="Attorney Directory — New York Workers’ Compensation | The Comp Desk">
+<meta property="og:description" content="A small, curated directory of New York workers’ compensation attorneys. Listings are paid advertising. Attorney Advertising.">
+<meta property="og:url" content="https://thecompdesk.com/directory">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Comp Desk">
+<meta property="og:image" content="https://thecompdesk.com/assets/webinars/joel-headshot.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Attorney Directory — New York Workers’ Compensation | The Comp Desk">
+<meta name="twitter:description" content="A small, curated directory of New York workers’ compensation attorneys. Listings are paid advertising. Attorney Advertising.">
+<meta name="twitter:image" content="https://thecompdesk.com/assets/webinars/joel-headshot.jpg">
+
+<link rel="canonical" href="https://thecompdesk.com/directory">
+<link rel="stylesheet" href="/css/skins.css">
+<style>
+  .dir-wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  .dir-adlabel{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.10em;
+    text-transform:uppercase;color:var(--skin-text-muted);border:1px solid var(--skin-divider);
+    border-radius:999px;padding:5px 12px;background:var(--skin-surface-elev)}
+  .dir-head{padding:40px 0 8px}
+  .dir-head h1{font-family:var(--font-display);font-weight:var(--display-weight);
+    letter-spacing:var(--display-tracking);line-height:var(--display-leading);
+    font-size:clamp(30px,6vw,44px);margin:16px 0 10px;color:var(--skin-text)}
+  .dir-head .dir-sub{font-size:17px;line-height:var(--body-leading);color:var(--skin-text-soft);max-width:62ch;margin:0}
+  .dir-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));padding:26px 0 8px}
+  .dir-card{background:var(--skin-surface-elev);border:1px solid var(--skin-divider);
+    border-radius:var(--skin-card-radius);box-shadow:var(--skin-card-shadow);padding:22px;
+    display:flex;flex-direction:column;gap:12px}
+  .dir-card img{width:76px;height:76px;border-radius:14px;object-fit:cover;border:1px solid #E7DECB}
+  .dir-card h2{font-family:var(--font-display);font-size:20px;margin:0;color:var(--skin-text)}
+  .dir-card .dir-firm{font-size:14px;color:var(--skin-text-muted);margin:2px 0 0}
+  .dir-card .dir-headline{font-size:15px;line-height:1.6;color:var(--skin-text-soft);margin:0}
+  .dir-meta{font-size:13px;color:var(--skin-text-muted);margin:0}
+  .dir-cta{align-self:flex-start;background:var(--skin-accent);color:#fff;text-decoration:none;
+    font-weight:600;font-size:15px;padding:11px 18px;border-radius:10px;min-height:44px;
+    display:inline-flex;align-items:center}
+  .dir-cta:hover{background:var(--skin-accent-deep)}
+  .dir-alt{background:var(--skin-surface-warm);border:1px solid var(--skin-divider);
+    border-radius:14px;padding:18px 20px;margin:22px 0 44px;font-size:15px;line-height:1.65;color:var(--skin-text-soft)}
+  .dir-alt a{color:var(--skin-accent-deep);font-weight:600}
+  .dir-hero{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap;padding:34px 0 10px}
+  .dir-hero img{width:150px;height:150px;border-radius:18px;object-fit:cover;border:1px solid #E7DECB}
+  .dir-hero h1{font-family:var(--font-display);font-size:clamp(27px,5.4vw,38px);margin:14px 0 6px;
+    line-height:var(--display-leading);color:var(--skin-text)}
+  .dir-hero .dir-firm{font-size:16px;color:var(--skin-text-soft);margin:0 0 4px}
+  .dir-hero .dir-founder{font-size:14px;color:var(--skin-accent-deep);font-weight:600;margin:0}
+  .dir-sec{background:var(--skin-surface-elev);border:1px solid var(--skin-divider);
+    border-radius:var(--skin-card-radius);box-shadow:var(--skin-card-shadow);padding:24px;margin:20px 0}
+  .dir-sec h2{font-family:var(--font-display);font-size:21px;margin:0 0 12px;color:var(--skin-text)}
+  .dir-sec p{font-size:16px;line-height:1.75;color:var(--skin-text-soft);margin:0 0 13px}
+  .dir-sec p:last-child{margin-bottom:0}
+  .dir-list{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+  .dir-list li{background:var(--skin-surface-warm);border-radius:999px;padding:7px 14px;
+    font-size:14px;color:var(--skin-text-soft)}
+  .dir-creds{list-style:none;padding:0;margin:0}
+  .dir-creds li{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--skin-divider);
+    font-size:15px;line-height:1.6;flex-wrap:wrap}
+  .dir-creds li:last-child{border-bottom:0}
+  .dir-creds .k{color:var(--skin-text-muted);min-width:132px;flex:0 0 auto}
+  .dir-creds .v{color:var(--skin-text-soft);flex:1 1 220px}
+  .dir-contact a{display:inline-flex;align-items:center;min-height:44px;gap:8px;
+    font-size:16px;color:var(--skin-accent-deep);font-weight:600;text-decoration:none}
+  .dir-contact div{padding:6px 0}
+  .dir-disclaimer{font-size:12px;line-height:1.65;color:var(--skin-text-muted);
+    max-width:78ch;margin:0 auto 14px}
+  @media (max-width:520px){ .dir-hero img{width:104px;height:104px} }
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Attorney Directory — The Comp Desk","description":"Paid directory listings for New York workers’ compensation attorneys. Attorney Advertising.","url":"https://thecompdesk.com/directory","hasPart":[{"@type":"Attorney","name":"Joel-George Mays, Esq.","url":"https://thecompdesk.com/directory/joel-george-mays"}]}</script>
+</head>
+<body class="tcd-skinned">
+
+<div class="web-wash" aria-hidden="true"></div>
+
+<nav class="tcd-nav" aria-label="Primary">
+  <div class="tcd-nav-inner">
+    <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
+    <div class="tcd-nav-links">
+      <a href="/worker">Worker</a>
+      <a href="/attorneys">Attorneys</a>
+      <a href="/calculators">Calculators</a>
+      <a href="/learn">Learn</a>
+      <a href="/directory" aria-current="page">Directory</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="dir-wrap">
+    <header class="dir-head">
+      <span class="dir-adlabel">Attorney Advertising</span>
+      <h1>Attorney Directory</h1>
+      <p class="dir-sub">A short, hand-built list of New York workers&rsquo; compensation attorneys who
+        work directly with injured workers. Every listing here is paid advertising, and we keep it
+        small on purpose &mdash; you should be able to read all of it.</p>
+    </header>
+
+    <div class="dir-grid">
+        <article class="dir-card">
+          <img src="/assets/webinars/joel-headshot.jpg" alt="Joel-George Mays, Esq., Associate Attorney at Shulman &amp; Hill, PLLC" width="76" height="76">
+          <div>
+            <h2>Joel-George Mays, Esq.</h2>
+            <p class="dir-firm">Shulman &amp; Hill, PLLC</p>
+          </div>
+          <p class="dir-headline">The attorney who built the software other attorneys use.</p>
+          <p class="dir-meta">Serves: Statewide (New York)</p>
+          <p class="dir-meta">Languages: English</p>
+          <a class="dir-cta" href="/directory/joel-george-mays">View profile &rarr;</a>
+        </article>
+    </div>
+
+    <aside class="dir-alt">
+      Looking to be matched automatically instead? Our free connection service assigns attorneys by
+      neutral rotation &mdash; no paid placement, no referral fees, and the owner&rsquo;s firm is
+      permanently excluded from it. <a href="/connect-with-attorney">Use the free connection service &rarr;</a>
+    </aside>
+  </div>
+</main>
+
+<footer class="tcd-footer">
+  <div class="wrap">
+    <p class="dir-disclaimer">The Comp Desk is a software platform, not a law firm, and does not provide legal services or legal advice. Listings in this directory are paid advertising. The Comp Desk does not recommend, endorse, rank, or vouch for any attorney listed. Contacting an attorney through this directory does not create an attorney-client relationship. Prior results do not guarantee a similar outcome.</p>
+    <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
+    <p><a href="/privacy">Privacy</a> <a href="/legal/terms.html">Terms</a> <a href="/contact">Contact</a></p>
+  </div>
+</footer>
+</body>
+</html>

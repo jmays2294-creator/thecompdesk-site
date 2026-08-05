@@ -8,7 +8,8 @@
     "check:tiles": "node scripts/check-tile-routes.mjs",
     "i18n:build": "node scripts/i18n/build-locales.mjs",
     "i18n:verify": "node scripts/i18n/verify.mjs",
-    "i18n:derive-zh-hant": "node scripts/i18n/derive-zh-hant.mjs"
+    "i18n:derive-zh-hant": "node scripts/i18n/derive-zh-hant.mjs",
+    "build:directory": "node scripts/build-directory.mjs"
   },
   "devDependencies": {
     "opencc-js": "^1.0.5",
