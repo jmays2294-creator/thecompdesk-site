@@ -65,20 +65,20 @@
     '.cdc-nm{font-weight:600;font-size:14px;line-height:1.25}',
     '.cdc-role{font-size:11.5px;opacity:.82;line-height:1.25}',
     '.cdc-x{position:absolute;top:10px;right:8px;background:transparent;border:0;color:#fff;',
-    'font-size:22px;line-height:1;cursor:pointer;width:36px;height:36px;border-radius:8px}',
+    'font-size:22px;line-height:1;cursor:pointer;width:44px;height:44px;border-radius:8px}',
     '.cdc-x:hover{background:rgba(255,255,255,.14)}',
     '.cdc-thread{flex:1 1 auto;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F8F6F1}',
     '.cdc-msg{max-width:86%;padding:10px 13px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word}',
     '.cdc-agentmsg{background:#fff;border:1px solid rgba(45,49,66,.10);align-self:flex-start;border-bottom-left-radius:5px}',
     '.cdc-you{background:#1B2A4A;color:#fff;align-self:flex-end;border-bottom-right-radius:5px}',
-    '.cdc-sys{align-self:center;font-size:13px;color:#7A8095;text-align:center;max-width:94%}',
+    '.cdc-sys{align-self:center;font-size:13px;color:#4D5266;text-align:center;max-width:94%}',
     '.cdc-typing span{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;',
     'background:#9aa1b4;animation:cdcBlink 1.2s infinite}',
     '.cdc-typing span:nth-child(2){animation-delay:.2s}.cdc-typing span:nth-child(3){animation-delay:.4s}',
     '@keyframes cdcBlink{0%,80%,100%{opacity:.3}40%{opacity:1}}',
     '.cdc-chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 14px 10px;background:#F8F6F1}',
     '.cdc-chip{background:#fff;border:1px solid rgba(45,49,66,.16);border-radius:999px;padding:9px 14px;',
-    'font-size:13.5px;cursor:pointer;min-height:38px;color:#2D3142}',
+    'font-size:13.5px;cursor:pointer;min-height:44px;color:#2D3142}',
     '.cdc-chip:hover{border-color:#E87722;color:#C85F0F}',
     '.cdc-form{border-top:1px solid rgba(45,49,66,.10);padding:10px;display:flex;gap:8px;background:#fff}',
     '.cdc-form input{flex:1 1 auto;border:1px solid rgba(45,49,66,.18);border-radius:10px;padding:11px 12px;font:inherit;min-height:44px}',
@@ -91,8 +91,13 @@
     'border:1px solid rgba(45,49,66,.18);border-radius:9px;padding:11px 12px;font:inherit;margin-bottom:8px;min-height:44px}',
     '.cdc-consent{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.5;color:#4D5266;margin:2px 0 11px}',
     '.cdc-consent input{margin-top:2px;width:18px;height:18px;flex:0 0 auto}',
-    '.cdc-ft{padding:9px 14px;font-size:11px;line-height:1.5;color:#7A8095;background:#fff;border-top:1px solid rgba(45,49,66,.08);text-align:center}',
-    '.cdc-fallback a{color:#C85F0F;font-weight:600}'
+    '.cdc-ft{padding:9px 14px;font-size:11px;line-height:1.5;color:#4D5266;background:#fff;border-top:1px solid rgba(45,49,66,.08);text-align:center}',
+    '.cdc-fallback a{color:#C85F0F;font-weight:600}',
+    // 2.4.7: the UA default ring disappears against the navy header, so state it.
+    '.cdc-panel :focus-visible{outline:3px solid #E87722;outline-offset:2px;border-radius:6px}',
+    '.cdc-bubble:focus-visible{outline:3px solid #E87722;outline-offset:3px}',
+    '.cdc-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;',
+    'clip:rect(0 0 0 0);white-space:nowrap;border:0}'
   ].join('');
 
   // ── UI pieces ───────────────────────────────────────────────────────────────
@@ -192,7 +197,7 @@
 
   function lockInput(label) {
     var f = root.querySelector('.cdc-form');
-    if (f) f.innerHTML = '<div style="flex:1;text-align:center;color:#7A8095;font-size:13px;padding:10px">' + label + '</div>';
+    if (f) f.innerHTML = '<div style="flex:1;text-align:center;color:#4D5266;font-size:13px;padding:10px">' + label + '</div>';
     var c = root.querySelector('.cdc-chips'); if (c) c.remove();
   }
 
@@ -286,8 +291,16 @@
 
     root = h('div', {
       class: 'cdc-panel' + (reduced ? '' : ' cdc-anim'),
-      role: 'dialog', 'aria-modal': 'false', 'aria-label': 'Chat with the intake assistant'
+      role: 'dialog', 'aria-modal': 'false',
+      'aria-label': 'Chat with the intake assistant',
+      // WCAG 2.1.2 allows containing focus only if the user is told how to leave.
+      // Tab is cycled inside the panel, so Escape is announced here rather than left
+      // for the visitor to guess.
+      'aria-keyshortcuts': 'Escape',
+      'aria-describedby': 'cdc-escape-hint'
     }, [
+      h('p', { class: 'cdc-sr', id: 'cdc-escape-hint',
+        text: 'Press Escape to minimise this chat and return to the page.' }),
       h('div', { class: 'cdc-hd' }, [
         h('p', { class: 'cdc-banner', text: cfg.banner_text }),
         h('div', { class: 'cdc-agent' }, [

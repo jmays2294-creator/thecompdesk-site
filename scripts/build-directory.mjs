@@ -25,6 +25,11 @@ const ANON = process.env.SUPABASE_ANON_KEY
   || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
 const ORIGIN = 'https://thecompdesk.com';
 
+// NOTE ON COLOUR: secondary text uses --skin-text-soft (#4D5266, 7.74:1 on both our
+// surfaces), never --skin-text-muted (#7A8095, 3.93:1 on white / 3.63:1 on cream).
+// The muted token fails WCAG 2.1 AA 1.4.3, and the text it was applied to here was the
+// Attorney Advertising label and the required disclaimer — the two things on the page
+// that exist specifically to be read.
 // ── RPC 7.1 / 7.4(c): banned in all rendered copy. Build fails rather than ships. ──
 const BANNED = /\b(expert|specialist|specializes?|best|leading|top-rated|top |aggressive|guarantee[ds]?|winningest|#1|no\.\s*1)\b/i;
 
@@ -83,7 +88,7 @@ const FOOTER = `<footer class="tcd-footer">
 const STYLE = `<style>
   .dir-wrap{max-width:960px;margin:0 auto;padding:0 20px}
   .dir-adlabel{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.10em;
-    text-transform:uppercase;color:var(--skin-text-muted);border:1px solid var(--skin-divider);
+    text-transform:uppercase;color:var(--skin-text-soft);border:1px solid var(--skin-divider);
     border-radius:999px;padding:5px 12px;background:var(--skin-surface-elev)}
   .dir-head{padding:40px 0 8px}
   .dir-head h1{font-family:var(--font-display);font-weight:var(--display-weight);
@@ -96,9 +101,9 @@ const STYLE = `<style>
     display:flex;flex-direction:column;gap:12px}
   .dir-card img{width:76px;height:76px;border-radius:14px;object-fit:cover;border:1px solid #E7DECB}
   .dir-card h2{font-family:var(--font-display);font-size:20px;margin:0;color:var(--skin-text)}
-  .dir-card .dir-firm{font-size:14px;color:var(--skin-text-muted);margin:2px 0 0}
+  .dir-card .dir-firm{font-size:14px;color:var(--skin-text-soft);margin:2px 0 0}
   .dir-card .dir-headline{font-size:15px;line-height:1.6;color:var(--skin-text-soft);margin:0}
-  .dir-meta{font-size:13px;color:var(--skin-text-muted);margin:0}
+  .dir-meta{font-size:13px;color:var(--skin-text-soft);margin:0}
   .dir-cta{align-self:flex-start;background:var(--skin-accent);color:#fff;text-decoration:none;
     font-weight:600;font-size:15px;padding:11px 18px;border-radius:10px;min-height:44px;
     display:inline-flex;align-items:center}
@@ -124,12 +129,12 @@ const STYLE = `<style>
   .dir-creds li{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--skin-divider);
     font-size:15px;line-height:1.6;flex-wrap:wrap}
   .dir-creds li:last-child{border-bottom:0}
-  .dir-creds .k{color:var(--skin-text-muted);min-width:132px;flex:0 0 auto}
+  .dir-creds .k{color:var(--skin-text-soft);min-width:132px;flex:0 0 auto}
   .dir-creds .v{color:var(--skin-text-soft);flex:1 1 220px}
   .dir-contact a{display:inline-flex;align-items:center;min-height:44px;gap:8px;
     font-size:16px;color:var(--skin-accent-deep);font-weight:600;text-decoration:none}
   .dir-contact div{padding:6px 0}
-  .dir-disclaimer{font-size:12px;line-height:1.65;color:var(--skin-text-muted);
+  .dir-disclaimer{font-size:12px;line-height:1.65;color:var(--skin-text-soft);
     max-width:78ch;margin:0 auto 14px}
   @media (max-width:520px){ .dir-hero img{width:104px;height:104px} }
 </style>`;
@@ -302,7 +307,7 @@ function renderListing(r) {
       <h2>Contact</h2>
       ${r.public_phone_display ? `<div><a href="tel:${esc(r.public_phone_e164)}">${esc(r.public_phone_display)}</a></div>` : ''}
       ${r.public_email ? `<div><a href="mailto:${esc(r.public_email)}">${esc(r.public_email)}</a></div>` : ''}
-      ${r.office_address ? `<div style="color:var(--skin-text-muted);font-size:15px">${esc(r.office_address)}</div>` : ''}
+      ${r.office_address ? `<div style="color:var(--skin-text-soft);font-size:15px">${esc(r.office_address)}</div>` : ''}
     </section>
 
     <aside class="dir-alt">
