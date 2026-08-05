@@ -37,9 +37,11 @@
 > or the firm is now listed, and every advertising surface carries a label and a
 > disclaimer.
 >
-> The label and the `/` legal line are translated in all nine locales. The translations are
-> recomposed from sentences already shipped and reviewed in those catalogs, not newly
-> drafted legal copy.
+> The `/` legal line is translated in all nine locales, recomposed from sentences already
+> shipped and reviewed in those catalogs rather than newly drafted. **The "Attorney
+> Advertising" label is NOT translated** — it is the statutory phrase and stays in English
+> on every locale, enforced by `doNotTranslate` in `i18n/glossary.json` rather than left to
+> convention.
 
 ## The protected interest
 
@@ -188,11 +190,17 @@ what discharges that duty.
     a law firm, that contact creates no attorney-client relationship, and that it does not
     endorse, certify, or recommend specific attorneys.
 
-    The label and that line are **translated in all nine locales**, not left in English. A
-    disclosure the reader cannot read discloses nothing; the same reasoning that put the
-    conflict disclosure on every mirror of carve-out 1 applies here. The wording is
-    recomposed from sentences already shipped and reviewed in those catalogs rather than
-    newly drafted.
+    **The label reads "Attorney Advertising" in every locale, in English** — it is the
+    statutory phrase from NY RPC 7.1(f), and a translation is not that phrase. This is
+    enforced, not conventional: "Attorney Advertising" is in `i18n/glossary.json`
+    `doNotTranslate`, so `scripts/i18n/verify.mjs` fails the build (DNT-lost) if any
+    locale renders it in the target language. Decided 2026-08-05; an earlier version of
+    this carve-out translated it.
+
+    The **surrounding legal line is translated** in all nine locales — that one is
+    explanatory prose rather than a fixed legal term, and a disclosure the reader cannot
+    read discloses nothing. Its wording is recomposed from sentences already shipped and
+    reviewed in those catalogs rather than newly drafted.
 
 ## Still prohibited, everywhere
 
