@@ -26,18 +26,19 @@
 > `contributor-agreement.html`) and one is a non-rendered source comment
 > (`calculators/radiculopathy.html`).
 >
-> **Left unresolved on purpose.** The same sweep found three further live surfaces naming
-> the operator that are *not* carved out: **`/attorneys`** (first-person attorney bio naming
-> the firm, plus a credential claim in the FAQ), **`/worker`** and its nine mirrors (founder
-> signature naming the firm), and **`/`** and its nine mirrors (a "Founder" credit line).
-> Under this policy those are advertising surfaces: they belong either inside a carve-out
-> carrying the conditions of the directory section, or off the site. They are recorded here
-> undecided rather than silently permitted — an unlisted surface is not an approved one.
+> **`/attorneys` resolved — carve-out 10, same day.** It was the substantive one: a
+> first-person attorney bio naming the firm, with no Attorney Advertising label and no
+> disclaimer of any kind. Both were added and the page carved out on the directory's terms.
 >
-> Two related findings from the same sweep, also undecided: **no page carries an "Attorney
-> Advertising" label**, including `/attorneys` and `/webinars`; and **`/attorneys` and `/`
-> carry no non-law-firm disclaimer at all**, while `/worker`, `/webinars` and
-> `/connect-with-attorney` each carry one inline.
+> **Still unresolved.** Two live surfaces name the operator outside any carve-out:
+> **`/worker`** and its nine mirrors (founder signature naming the firm) and **`/`** and its
+> nine mirrors (a "Founder" credit line). Both are lighter than `/attorneys` — a signature
+> and a credit, not a bio or a credential claim — but under this policy they are still
+> unlisted, and an unlisted surface is not an approved one. Neither carries a disclaimer.
+>
+> Also still open: **`/webinars` carries no "Attorney Advertising" label**, though it names
+> a presenting attorney. It is carved out (4) for the naming, but that carve-out predates
+> the label condition and does not impose one.
 
 ## The protected interest
 
@@ -148,6 +149,25 @@ what discharges that duty.
    recording who verified the impairment table against the 2012 NYS Impairment Guidelines,
    and on what date. **Not rendered** — no user-facing surface on these pages names anyone.
    Provenance for a medical-guideline table belongs with the table.
+
+10. **`attorneys.html`** (`/attorneys`) — the professional landing page. It carries a
+    first-person bio naming the operator and Shulman & Hill, PLLC, and an FAQ statement
+    that the calculators are built and maintained by a practising NYS WC attorney. That is
+    attorney advertising, and it is permitted here on the **same terms as the directory**,
+    because the terms are what discharge the duty — not silence:
+
+    a. A visible **"Attorney Advertising"** label in the header region (NY RPC 7.1(f)),
+       above the nav so it is seen without scrolling. **Do not move it below the fold** —
+       a label nobody reaches is not a label.
+    b. The full non-law-firm / no-endorsement / no-attorney-client disclaimer in the
+       footer, which must also state that the free connection service assigns by neutral
+       rotation and that the operator's firm is permanently excluded from it.
+    c. Nothing on the page may claim or imply that The Comp Desk endorses, recommends, or
+       ranks any attorney — including the operator.
+
+    Both (a) and (b) were absent until 2026-08-05; the page carried the advertising
+    without either. Admission status ("a practising NYS WC attorney") is permitted
+    context here; a bar or registration number as a marketing credential is not.
 
 ## Still prohibited, everywhere
 

@@ -593,6 +593,42 @@ body.no-skyline-bg .workspace-wash {
   .atty-mock .lead.fresh { animation: lead-in 0.7s var(--ease-out) both; }
   @keyframes lead-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 }
+/* ── Attorney Advertising label + legal disclaimer ──────────────────────────
+   Required by SILENT_OWNER_POLICY.md for a surface that identifies the operator
+   as a practising attorney. Styled with the page's own skin tokens so it reads
+   as part of the design rather than a bolt-on, but deliberately NOT decorative:
+   the label must stay legible and above the fold. */
+.attorney-advertising{
+  background:var(--skin-surface-elev);
+  border-bottom:1px solid var(--skin-divider);
+  color:var(--skin-text-muted);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  text-align:center;
+  padding:7px 16px;
+  line-height:1.4;
+}
+.tcd-legal-disclaimer{
+  max-width:78ch;
+  margin:0 auto 14px;
+  font-size:12px;
+  line-height:1.75;
+  color:var(--skin-text-muted);
+  text-wrap:pretty;
+}
+.tcd-legal-disclaimer a{
+  color:var(--skin-text-muted);
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.tcd-legal-disclaimer a:hover{ color:var(--skin-accent); }
+.tcd-legal-disclaimer a:focus-visible{
+  outline:2px solid var(--skin-accent);
+  outline-offset:2px;
+}
+@media print{ .attorney-advertising{ position:static; } }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
@@ -614,6 +650,13 @@ body.no-skyline-bg .workspace-wash {
   </video>
 </div>
 <div class="workspace-wash" aria-hidden="true"></div>
+
+<!-- Attorney Advertising label (NY RPC 7.1(f)), required by SILENT_OWNER_POLICY.md
+     for any surface that identifies the operator as a practising attorney. This
+     page does: it carries a first-person bio naming Shulman & Hill, PLLC and an
+     FAQ credential claim. Sits above the nav so it is visible without scrolling,
+     which is the point of the label — do not move it below the fold. -->
+<div class="attorney-advertising" role="note">Attorney Advertising</div>
 
 <nav class="tcd-nav" aria-label="Primary">
   <div class="tcd-nav-inner">
@@ -1011,6 +1054,22 @@ body.no-skyline-bg .workspace-wash {
 
 <footer class="tcd-footer">
   <div class="wrap">
+    <!-- Non-law-firm / no-endorsement / no-attorney-client disclaimer, required by
+         SILENT_OWNER_POLICY.md alongside the Attorney Advertising label above.
+         Wording follows js/disclaimer.js so every surface says the same thing;
+         the no-endorsement sentence is specific to this page, which names a
+         practising attorney and describes a neutral connection service. -->
+    <p class="tcd-legal-disclaimer">
+      The Comp Desk is a software platform operated by NJJ Document Services, Inc.
+      It is not a law firm and does not provide legal advice. Use of this site does
+      not create an attorney-client relationship. The Comp Desk does not endorse,
+      recommend, or rank any attorney, and its free attorney connection service
+      assigns matters by neutral rotation — the operator's own firm,
+      Shulman &amp; Hill, PLLC, is permanently excluded from it.
+      <a href="/connect-with-attorney">How the connection service works</a> &middot;
+      <a href="/legal/terms">Terms of Use</a> &middot;
+      <a href="/disclaimer">Disclaimer</a>
+    </p>
     <p>&copy; 2026 NJJ Document Services, Inc. d/b/a The Comp Desk. All rights reserved.</p>
     <p>
       <a href="/privacy">Privacy</a>
