@@ -24,6 +24,9 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const OPENPHONE_API_KEY = Deno.env.get('OPENPHONE_API_KEY'); // optional; see sendSms
+// The Quo (formerly OpenPhone) number messages are sent FROM. Platform-level rather
+// than per-listing: one sending number serves every listing's notifications.
+const OPENPHONE_FROM = Deno.env.get('OPENPHONE_FROM_E164');
 const SITE_ORIGIN = Deno.env.get('SITE_ORIGIN') ?? 'https://thecompdesk.com';
 
 const MODEL = 'claude-haiku-4-5-20251001';
@@ -152,19 +155,27 @@ async function sendEmail(to: string, subject: string, html: string, replyTo?: st
   }
 }
 
-// No SMS provider is wired into this codebase. This is a real implementation behind a
-// key that is not currently set; with the key unset it logs notify_skipped_sms and the
-// handoff continues. It must never be reported as "SMS works" until the key is set and
+// No SMS provider is wired into this codebase. This is a real implementation behind two
+// env vars that are not currently set; with either absent it logs notify_skipped_sms and
+// the handoff continues. It must never be reported as "SMS works" until both are set and
 // a real send has been observed.
+//
+// Corrected 2026-08-05 against the live API reference. The first draft was wrong twice
+// and would have 400'd on the first real attempt:
+//   • host — OpenPhone is now Quo. api.openphone.com 301s to quo.com and the API base is
+//     api.quo.com. The old host was written from memory.
+//   • `from` is REQUIRED (a Quo number, E.164 or a PN… id) and was not being sent at all.
+// `to` is an array of 1-10 recipients; content is 1-1600 chars.
 async function sendSms(toE164: string, body: string) {
   if (!OPENPHONE_API_KEY) return { ok: false, skipped: true, error: 'OPENPHONE_API_KEY unset' };
+  if (!OPENPHONE_FROM) return { ok: false, skipped: true, error: 'OPENPHONE_FROM_E164 unset' };
   try {
-    const r = await fetch('https://api.openphone.com/v1/messages', {
+    const r = await fetch('https://api.quo.com/v1/messages', {
       method: 'POST',
       headers: { Authorization: OPENPHONE_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to: [toE164], content: body }),
+      body: JSON.stringify({ from: OPENPHONE_FROM, to: [toE164], content: body.slice(0, 1600) }),
     });
-    if (!r.ok) return { ok: false, skipped: false, error: await r.text() };
+    if (!r.ok) return { ok: false, skipped: false, error: `HTTP ${r.status}: ${(await r.text()).slice(0, 300)}` };
     return { ok: true, skipped: false, error: null };
   } catch (e) {
     return { ok: false, skipped: false, error: String(e) };
