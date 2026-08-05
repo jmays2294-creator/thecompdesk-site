@@ -371,7 +371,11 @@ async function getProfile(userId) {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('designation, user_type, full_name, current_aww, has_attorney, doa, wcb_case_number, home_city, occupation, job_buddy_enabled')
+      // profession drives the dashboard's default tile layout (migration 109).
+      // It is an EXPLICIT column list, so a new column is invisible until it is
+      // named here — omitting it would silently give every professional the
+      // fallback layout with nothing in the console to explain why.
+      .select('designation, user_type, profession, full_name, current_aww, has_attorney, doa, wcb_case_number, home_city, occupation, job_buddy_enabled')
       .eq('id', userId)
       .single();
 

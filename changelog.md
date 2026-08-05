@@ -5,6 +5,70 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (P3)
+
+### One Pro dashboard, role-based default tiles — and four tiles that didn't exist
+
+`profession` (shipped hours earlier) now sets the *starting* layout of the
+professional dashboard. It does not restrict capability: every tile is reachable
+by any Pro user, and unknown or NULL profession falls back to the attorney set,
+never an empty dashboard.
+
+**The proposed paralegal set was mostly tiles with no page behind them.** Before
+building anything, every destination was resolved against the filesystem and then
+against production. Of the roles proposed for paralegals — Forms & Filings,
+C-257 Medical & Travel, Deadlines/Reminders — only one had a real page. There is
+no `/tools/forms`, no `/tools/filings`, no `/tools/deadlines`. Shipping that set
+verbatim would have reproduced the 2026-08-04 defect four times over on the exact
+surface it happened on. The real equivalents are `/tools/medical-travel` (a
+genuine 44KB C-257 page) and `/tools/ime-reminders`.
+
+Three more findings from the same sweep:
+
+- **`/tools/mileage`, `/tools/utdm` and `/tools/work-search` are live but carry a
+  "Coming soon" badge.** Excluded from every default set — a tile that opens a
+  placeholder isn't a dead click, but it isn't a feature either.
+- **"Fee App (OC-400.1)" has no standalone destination.** It is generated inside
+  the Pro Workspace from the active tile, and appears as a modal on the SLU and
+  CCP/Award calculators. Rather than a second name for a door already on the
+  board, the Workspace tile names it in its description.
+- **`getProfile()` selects an explicit column list and did not include
+  `profession`.** Left alone, every professional would have silently received the
+  fallback layout with nothing in the console to explain why. Added.
+
+**`dashboard_config` cannot hold per-user layouts.** The pack's rule "persist the
+user's own arrangement in dashboard_config and let it win" is not implementable
+as written: the table is a **singleton** (`id integer default 1`, no `user_id`),
+holding one global manifest row — currently `{}`, never populated. Per-user
+arrangement needs its own table plus a rearrange UI; `resolve()` is structured so
+a saved order can win when that exists, but it is NOT in this pass.
+
+**Two guards, because one is not enough.** `js/dashboard-tiles.js` drops any tile
+id with no route before it reaches the DOM and logs loudly;
+`scripts/check-tile-routes.mjs` (`npm run check:tiles`) asserts at build time that
+every destination resolves on disk, that no default set is empty, that no set
+names an undefined id, and warns when a destination is a "Coming soon" page. The
+guard was proven to go red on all three failure modes and green when restored —
+a gate that cannot fail is not a gate.
+
+Verified: all seven professions plus NULL and a bogus value resolve to a
+non-empty, correct set; all 12 distinct destinations return 200 **in production**;
+every rendered tile is keyboard-reachable with a working handler; and the worker
+dashboard is untouched (one section, no tools block).
+
+**Copy.** The audience is now "WC professionals": the shared nav dropdown reads
+"For Professionals — Attorneys, paralegals & WC pros" and /dashboard's nav item
+reads "Professionals". **URLs deliberately unchanged** — `/for-attorneys` and
+`/attorneys` keep their SEO equity and inbound Google Ads traffic. Both strings
+were safe to edit directly: `js/nav.js` carries zero `data-i18n` and neither
+string appears in any catalog, and `/dashboard` has no locale mirror. The
+remaining "attorney"-as-audience copy on the home and extension pages **does**
+live in the i18n catalogs and is deliberately left for a proper i18n-sync pass
+(`scripts/generate-translations.mjs` + `verify-translations.mjs`) — hand-editing
+those desyncs all 12 locales.
+
+---
+
 ## 2026-08-05 (later still)
 
 ### "Attorney" becomes "professional": profiles.profession + intake

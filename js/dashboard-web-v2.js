@@ -510,6 +510,60 @@
     _tick = setInterval(update, step);
   }
 
+  /**
+   * Role-based tool tiles for the professional dashboard.
+   *
+   * ONE dashboard: profiles.profession sets the STARTING layout, it never
+   * restricts capability — every tile here is reachable by any Pro user, and the
+   * "All calculators" route is always one hop away.
+   *
+   * Every tile carries a real href, and js/dashboard-tiles.js drops any id whose
+   * destination is missing before it reaches the DOM (with
+   * scripts/check-tile-routes.mjs asserting the same at build time). That pairing
+   * is deliberate: on 2026-08-04 this dashboard shipped two tiles that rendered,
+   * invited a click, and did nothing.
+   *
+   * Fail-soft: if js/dashboard-tiles.js did not load, this returns null and the
+   * leads block above renders exactly as it did before.
+   */
+  function proTilesBlock(ctx) {
+    if (!window.TCDProTiles) {
+      console.error('[dashboard-web-v2] dashboard-tiles.js missing — tool tiles skipped');
+      return null;
+    }
+    var profile = ctx.profile || {};
+    var tiles;
+    try {
+      tiles = window.TCDProTiles.resolve(profile.profession || null);
+    } catch (e) {
+      console.error('[dashboard-web-v2] tile resolve failed', e);
+      return null;
+    }
+    if (!tiles || !tiles.length) return null;
+
+    var block = el('section', 'dashv2');
+    block.appendChild(headerRow('Your tools', tiles.length + ' shortcuts'));
+
+    var grid = el('div', 'grid');
+    tiles.forEach(function (spec, idx) {
+      var t = tileBase('cmp', idx + 1, true);
+      var row = el('div', 'tile-row');
+      row.appendChild(el('span', 'tile-glyph', spec.g));
+      row.appendChild(el('span', 'tile-label', spec.label));
+      t.appendChild(row);
+      t.appendChild(el('span', 'tile-desc', spec.desc));
+      t.appendChild(el('span', 'chev'));
+      var open = function () { window.location.href = spec.href; };
+      t.onclick = open;
+      t.onkeydown = function (e) {
+        if (e && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(); }
+      };
+      grid.appendChild(t);
+    });
+    block.appendChild(grid);
+    return block;
+  }
+
   function attorneyBlock(ctx) {
     var block = el('section', 'dashv2');
     var uid = (ctx.user && ctx.user.id) || null;
@@ -586,6 +640,13 @@
       var frag = document.createDocumentFragment();
       var block = isWorker ? workerBlock(ctx) : attorneyBlock(ctx);
       frag.appendChild(block);
+      // Role-based tool tiles sit directly under the leads block on the
+      // professional dashboard. Returns null (and renders nothing) if the
+      // manifest failed to load — never a blank section.
+      if (!isWorker) {
+        var tools = proTilesBlock(ctx);
+        if (tools) frag.appendChild(tools);
+      }
       if (vendoredNode) {
         if (isWorker) pruneWorker(vendoredNode); else pruneAttorney(vendoredNode);
         frag.appendChild(vendoredNode);

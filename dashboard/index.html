@@ -53,7 +53,7 @@
     <div class="tcd-nav-inner">
       <a class="tcd-wordmark" href="/?replay=1" aria-label="The Comp Desk">The <span class="accent">Comp</span> Desk</a>
       <div class="tcd-nav-links">
-        <a href="/attorneys">Attorneys</a>
+        <a href="/attorneys">Professionals</a>
         <a href="/calculators">Calculators</a>
         <a href="/workspace/">Workspace</a>
         <a href="/subscribe">Subscribe</a>
@@ -108,6 +108,9 @@
   <script src="/js/dashboard/attorney-dashboard.js" defer></script>
   <!-- V2 desktop tile layer (P6–P11 design) — web-only, composes over the
        vendored dashboards; must load before the host that calls it. -->
+  <!-- Per-profession default tile layouts. Must load BEFORE dashboard-web-v2.js,
+       which reads window.TCDProTiles. Both are web-only and never synced. -->
+  <script src="/js/dashboard-tiles.js" defer></script>
   <script src="/js/dashboard-web-v2.js" defer></script>
   <script src="/js/dashboard-host.js" defer></script>
   <!-- Job Buddy screens (worker + firm), mounted in-place by dashboard-host showScreen -->

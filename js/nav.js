@@ -441,7 +441,7 @@ function exploreDropdownHTML() {
         <a href="/webinars" class="nav-dropdown-item"><span class="ic">🎤</span><span class="tx">Webinars<small>Free sessions for union members</small></span></a>
         <a href="/marketplace" class="nav-dropdown-item"><span class="ic">🛍️</span><span class="tx">Marketplace<small>AI agents &amp; skills</small></span></a>
         <a href="/extension" class="nav-dropdown-item"><span class="ic">🧩</span><span class="tx">Apps<small>Chrome extension</small></span></a>
-        <a href="/for-attorneys" class="nav-dropdown-item"><span class="ic">👔</span><span class="tx">For Attorneys<small>Pro &amp; Firm tools</small></span></a>
+        <a href="/for-attorneys" class="nav-dropdown-item"><span class="ic">👔</span><span class="tx">For Professionals<small>Attorneys, paralegals &amp; WC pros</small></span></a>
       </div>
     </li>
   `;

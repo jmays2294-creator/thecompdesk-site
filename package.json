@@ -5,6 +5,7 @@
   "description": "Static site + i18n build tooling for thecompdesk.com",
   "scripts": {
     "check:refs": "node scripts/check-asset-refs.mjs",
+    "check:tiles": "node scripts/check-tile-routes.mjs",
     "i18n:build": "node scripts/i18n/build-locales.mjs",
     "i18n:verify": "node scripts/i18n/verify.mjs",
     "i18n:derive-zh-hant": "node scripts/i18n/derive-zh-hant.mjs"
