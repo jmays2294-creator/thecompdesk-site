@@ -5,6 +5,69 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (repo-doctor)
+
+### The pre-flight gate hard-failed inside every git worktree
+
+`467a7fe` · deploy `dpl_4wc6W6JY…` READY · no site content changed
+
+Check 2 of `skills/repo-doctor/scripts/check.sh` tested for a `.git/` **directory**.
+In a linked worktree `.git` is a **file** holding one line — `gitdir: <path>` — so
+the check reported *"No `.git/` directory … this is not a git repository"* and the
+run exited 1 / **DO NOT PROCEED**. CLAUDE.md makes the doctor a hard gate before any
+edit, commit, or push, so a healthy worktree was blocked from doing any work at all.
+A false positive on a gate is worse than a missing check: it trains you to bypass the
+gate, and the gate exists because of the May 3 incident.
+
+**The lock check was the sharper half of the bug.** A worktree's index and its
+`index.lock` live in `<main-clone>/.git/worktrees/<name>/`, not beside the working
+copy. The old code tested `.git/index.lock` relative to the working tree — a path
+that can never exist in a worktree. Had the directory test somehow passed, the
+crashed-git-operation check would have been silently vacuous rather than wrong,
+which is the harder failure to notice.
+
+**Fixed** by resolving the pointer before testing anything: `.git` as a directory is
+used as-is; `.git` as a file matching `^gitdir: ` has its target resolved (absolute,
+or relative to the working copy — git writes relative pointers under
+`--relative-paths`), normalised through `pwd -P`, and the `index.lock` and
+`git status` checks run against *that* path. Submodules come along for free, since
+their `.git` is the same kind of pointer file; only worktrees were tested.
+
+A `.git` file still fails when it should, with remediation matched to the fault
+rather than the old generic "cd to the actual clone": no `gitdir:` line is
+**malformed**; a pointer to a directory that no longer exists is an **orphaned
+worktree** whose main clone was moved or deleted, remediated with `git worktree
+prune`. Checks 1 and 3–7 are untouched — they already behaved correctly in a
+worktree. `SKILL.md`'s check list was one line out of date once the behaviour
+changed and was updated with it.
+
+**Verified** across seven cases: a real worktree, the main clone (unchanged — still
+reports `✓ .git/ present`), a non-repo directory, a malformed `.git` file, a dangling
+pointer, a planted `index.lock` inside a worktree's own gitdir (correctly caught),
+and a hand-written relative pointer. Then end-to-end against merged `main`: a fresh
+`git worktree add` now yields `6 passed · 1 warning · 0 failures`.
+
+**Two things found while doing it, neither fixed:**
+
+- **Check 1 only tests the working-copy path.** A worktree in a safe location whose
+  *main clone* sits in iCloud would pass the cloud-sync check, because the real
+  `.git` lives with the main clone and is never examined. Pre-existing, and out of
+  scope here; the resolved gitdir is now available to that check should it ever be
+  worth closing.
+- **Check 4 can cry wolf on a cold index.** The pre-merge run reported 33 modified
+  files in the main clone (`calculators/*.html`, `coming-soon.html`, …); one minute
+  later `git status` was clean and `git diff HEAD` empty. They were stat-only mtime
+  differences that git resolved on first content comparison — nothing was modified
+  and nothing was at risk in the merge. Worth knowing before the warning gets
+  ignored on the day it means something.
+
+**Merged to `main` directly, bypassing branch protection.** GitHub reported
+*"Bypassed rule violations for refs/heads/main: Changes must be made through a pull
+request"* — Joel's admin privileges let the push through rather than rejecting it.
+Deliberate and requested, recorded here because the rule exists.
+
+---
+
 ## 2026-08-05 (record correction)
 
 ### What commit 48e8fae actually contained
