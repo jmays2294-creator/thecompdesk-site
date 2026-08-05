@@ -11,6 +11,8 @@
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.min.js"></script>
+<!-- Profession values — must match migration 109 CHECK constraint. -->
+<script src="/js/professions.js"></script>
 <style>
 :root{--bg:#06080f;--card:#0e1322;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.08);--gn:#2dd4a0;--rd:#ef4444;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--font:'DM Sans',system-ui,sans-serif;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -28,6 +30,12 @@ h1{font-size:21px;font-weight:800;color:var(--wh);margin-bottom:6px;}
 .submit:disabled{opacity:.5;cursor:not-allowed;}
 .msg{font-size:12.5px;margin-bottom:14px;padding:10px 12px;border-radius:8px;display:none;line-height:1.5;}
 .msg.error{display:block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+.prof-label{display:block;font-size:12px;color:var(--txD);font-weight:600;margin:16px 0 7px;}
+#prof-mount select,#prof-mount input{width:100%;padding:11px 13px;background:var(--bg);border:1px solid var(--bd);border-radius:9px;color:var(--tx);font-size:14px;font-family:var(--font);outline:none;}
+#prof-mount select:focus,#prof-mount input:focus{border-color:var(--ac);}
+#prof-mount select option{background:var(--card);color:var(--tx);}
+#prof-mount input{margin-top:8px;}
+#prof-mount input[hidden]{display:none;}
 .spin{width:34px;height:34px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:sp .8s linear infinite;margin:24px auto;}
 @keyframes sp{to{transform:rotate(360deg);}}
 </style>
@@ -67,8 +75,9 @@ h1{font-size:21px;font-weight:800;color:var(--wh);margin-bottom:6px;}
  *
  * designation stays a BINARY ROUTER ('worker' | 'attorney'). Everything that
  * gates on designation==='attorney' keeps working untouched; the UI simply
- * calls that side "works in workers' comp" rather than "attorney". P2 adds
- * profiles.profession to tell attorneys from paralegals — see the seam below.
+ * calls that side "works in workers' comp" rather than "attorney". Which KIND
+ * of professional they are is profiles.profession (migration 109), collected by
+ * the picker below and shown only on that branch.
  */
 const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
@@ -100,25 +109,64 @@ function renderForm(firstName) {
       <div class="opt-d">Attorney, paralegal, case manager, or other WC professional.</div>
     </button>
 
-    <!-- ═══ P2 SEAM ═══
-         When profiles.profession ships, render the profession <select> HERE,
-         revealed only when data-v="attorney" is selected, and add its value to
-         the profile update in save(). Do NOT widen designation to carry the
-         profession: a missed gate would route a paralegal into the injured-worker
-         dashboard, and those gates are spread across the website, the app, the
-         workspace and the Chrome extension. -->
+    <!-- profiles.profession (migration 109). Revealed only on the professional
+         branch — profession describes that side and stays NULL for workers.
+         designation is deliberately NOT widened to carry it: a missed gate
+         would route a paralegal into the injured-worker dashboard, and those
+         gates are spread across the website, the app, the workspace and the
+         Chrome extension. -->
+    <div id="prof-wrap" hidden>
+      <label class="prof-label" for="cp-profession">Which best describes your role?</label>
+      <div id="prof-mount"></div>
+    </div>
 
     <button type="button" class="submit" id="go" disabled>Continue</button>
   `;
+
+  // Render the profession picker once, then show/hide it with the fork.
+  // Guarded: if professions.js failed to load we simply never show the field
+  // and write NULL — /account can correct it later. Better than a dead page.
+  try {
+    if (window.TCDProfessions) {
+      document.getElementById('prof-mount').innerHTML =
+        window.TCDProfessions.selectHtml('cp-profession', '', 'Select your role…') +
+        window.TCDProfessions.otherInputHtml('cp-profession-other', '', true);
+      window.TCDProfessions.bindOther('cp-profession', 'cp-profession-other');
+      document.getElementById('cp-profession').addEventListener('change', refreshGate);
+      document.getElementById('cp-profession-other').addEventListener('input', refreshGate);
+    }
+  } catch (e) { console.error('[complete-profile] profession picker failed', e); }
 
   document.querySelectorAll('.opt').forEach(b => {
     b.addEventListener('click', () => {
       choice = b.dataset.v;
       document.querySelectorAll('.opt').forEach(x => x.classList.toggle('sel', x === b));
-      document.getElementById('go').disabled = false;
+      const wrap = document.getElementById('prof-wrap');
+      if (wrap) wrap.hidden = (choice !== 'attorney');
+      refreshGate();
     });
   });
   document.getElementById('go').addEventListener('click', save);
+}
+
+/**
+ * Continue is enabled once the answer is complete: a fork choice, plus — on the
+ * professional branch — a profession, plus free text when that profession is
+ * 'other' (profiles_profession_other_chk requires the pair to agree).
+ */
+function professionValues() {
+  if (choice !== 'attorney' || !window.TCDProfessions) return { profession: null, profession_other: null };
+  return window.TCDProfessions.readValues('cp-profession', 'cp-profession-other');
+}
+
+function refreshGate() {
+  const go = document.getElementById('go');
+  if (!go) return;
+  if (!choice) { go.disabled = true; return; }
+  if (choice !== 'attorney') { go.disabled = false; return; }
+  if (!document.getElementById('cp-profession')) { go.disabled = false; return; } // picker absent
+  const v = professionValues();
+  go.disabled = !v.profession || (v.profession === 'other' && !v.profession_other);
 }
 
 function fail(text) {
@@ -146,13 +194,21 @@ async function save() {
     //    auth/callback.html reads, so it must be written even if the profile
     //    write below fails — otherwise the user is asked on every sign-in.
     const { error: authErr } = await sb.auth.updateUser({
-      data: { user_type: choice, tcd_onboarded: true }
+      data: {
+        user_type: choice,
+        profession: professionValues().profession,
+        tcd_onboarded: true
+      }
     });
     if (authErr) throw authErr;
 
     // 2) Correct the profiles row the trigger defaulted to 'worker'.
     const patch = { designation: choice, user_type: choice };
     if (providerName) patch.full_name = providerName;
+    // profession is NULL for workers by design; the CHECK permits NULL.
+    const pv = professionValues();
+    patch.profession = pv.profession;
+    patch.profession_other = pv.profession_other;
 
     const { error: profErr } = await sb
       .from('profiles').update(patch).eq('id', user.id);

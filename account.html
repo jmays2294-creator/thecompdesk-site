@@ -279,6 +279,15 @@
            Darkened for contrast; dark cards/forms keep their light text. */
         .account-header h1 { color: #16223d; }
         .account-header p { color: #3a4a63; }
+        #professionMount select, #professionMount input {
+            width: 100%; max-width: 420px; padding: 0.75rem 0.9rem;
+            background: var(--bg); border: 1px solid var(--bd); border-radius: 8px;
+            color: var(--tx); font-size: 0.95rem; font-family: inherit; outline: none;
+        }
+        #professionMount select:focus, #professionMount input:focus { border-color: var(--ac); }
+        #professionMount select option { background: var(--card); color: var(--tx); }
+        #professionMount input { margin-top: 0.6rem; }
+        #professionMount input[hidden] { display: none; }
     </style>
 <!-- Brand theme overlay (brand_guidelines.md v1.0.0) -->
 <link rel="stylesheet" href="/css/brand-theme.css">
@@ -321,6 +330,20 @@
             <div class="info-group">
                 <div class="info-label">Email</div>
                 <div class="info-value" id="userEmail">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Your Role (WC professionals only — profiles.profession, migration 109).
+             Editable on purpose: the 19 accounts that existed before this column
+             shipped were all backfilled to 'attorney', which is right for most of
+             them and wrong for any paralegal or case manager. This is where they
+             (or Joel) fix it without a support round-trip. -->
+        <div class="section hidden" id="professionSection">
+            <h2 class="section-title">Your Role</h2>
+            <p style="color:var(--txD);font-size:0.95rem;margin-bottom:1.25rem;">This tailors your dashboard to how you actually work. It does not change what you can access — every Pro tool stays available whatever you pick.</p>
+            <div id="professionMount"></div>
+            <div class="button-group">
+                <button class="button button-primary" id="professionSaveBtn" type="button">Save role</button>
             </div>
         </div>
 
@@ -394,6 +417,8 @@
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1"></script>
+    <!-- Profession values — must match migration 109 CHECK constraint. -->
+    <script src="/js/professions.js"></script>
     <!-- SimpleWebAuthn browser helper (passkeys) -->
     <script src="https://unpkg.com/@simplewebauthn/browser@13/dist/bundle/index.umd.min.js"></script>
     <script>
@@ -427,6 +452,7 @@
                 // Load user profile
                 await loadUserProfile();
                 renderWorkerProfile();
+                renderProfessionSection();
                 await renderSubscriptionInfo();
 
                 // Biometric-grade auth surfaces (independent of subscription)
@@ -468,6 +494,62 @@
                     tier: 'free',
                     subscription_status: 'none'
                 };
+            }
+        }
+
+        // ─── Your Role (profiles.profession, migration 109) ───
+        // Professional-side only. designation stays the access router; this is
+        // descriptive, so saving it can never change what the user can reach.
+        function renderProfessionSection() {
+            const p = userProfile || {};
+            const section = document.getElementById('professionSection');
+            if (!section) return;
+            // Gate on designation, exactly like the worker panel does.
+            if ((p.designation || 'worker') !== 'attorney') { section.classList.add('hidden'); return; }
+            if (!window.TCDProfessions) {
+                // professions.js failed to load — show nothing rather than an
+                // empty card the user cannot use.
+                console.error('[account] professions.js missing; role editor hidden');
+                section.classList.add('hidden');
+                return;
+            }
+            const mount = document.getElementById('professionMount');
+            mount.innerHTML =
+                window.TCDProfessions.selectHtml('acct-profession', p.profession || '', 'Select your role…') +
+                window.TCDProfessions.otherInputHtml('acct-profession-other', p.profession_other || '', (p.profession || '') !== 'other');
+            window.TCDProfessions.bindOther('acct-profession', 'acct-profession-other');
+            section.classList.remove('hidden');
+
+            const btn = document.getElementById('professionSaveBtn');
+            if (btn && btn.dataset.bound !== '1') {
+                btn.dataset.bound = '1';
+                btn.addEventListener('click', saveProfession);
+            }
+        }
+
+        async function saveProfession() {
+            const btn = document.getElementById('professionSaveBtn');
+            const v = window.TCDProfessions.readValues('acct-profession', 'acct-profession-other');
+            if (!v.profession) { showMessage('Please choose a role first.', 'error'); return; }
+            if (v.profession === 'other' && !v.profession_other) { showMessage('Please tell us your role.', 'error'); return; }
+
+            btn.disabled = true; const label = btn.textContent; btn.textContent = 'Saving…';
+            try {
+                const { error } = await sb.from('profiles')
+                    .update({ profession: v.profession, profession_other: v.profession_other })
+                    .eq('id', currentUser.id);
+                if (error) throw error;
+                // Keep the local copy in step so a re-render does not revert the UI.
+                userProfile.profession = v.profession;
+                userProfile.profession_other = v.profession_other;
+                showMessage('Role updated.', 'success');
+            } catch (e) {
+                // Fail loud (CLAUDE.md): a silent no-op here looks like success
+                // and leaves the wrong dashboard in place.
+                console.error('[account] PROFESSION_SAVE_FAILED', e);
+                showMessage('Could not save your role. Please try again.', 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = label;
             }
         }
 

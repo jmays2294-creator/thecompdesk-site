@@ -5,6 +5,68 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (later still)
+
+### "Attorney" becomes "professional": profiles.profession + intake
+
+Paralegals, legal assistants, settlement coordinators and case managers all work
+in comp, and the signup form only offered them "Attorney."
+
+**`designation` stays a binary router** — `'worker'` vs `'attorney'`. Nothing that
+gates on `designation === 'attorney'` changes behaviour, and the diff contains no
+change to any designation comparison. Which *kind* of professional someone is now
+lives in a new, purely descriptive `profiles.profession`. Widening `designation`
+was rejected: a single missed gate would route a paralegal into the injured-worker
+dashboard, and those gates are spread across the website, the app, the workspace
+and the Chrome extension. A column no gate reads cannot break a gate.
+
+**Migration 109** adds `profession` (CHECK: attorney · paralegal ·
+settlement_coordinator · legal_assistant · case_manager · adjuster · other) plus
+`profession_other` free text, constrained to be non-NULL only when
+profession='other' so the long tail is observable instead of vanishing into an
+unlabelled bucket. 19 existing `designation='attorney'` rows backfilled to
+'attorney'; the 18 workers left NULL. Preflight passed all four lints, and three
+things were checked by hand that the lints don't cover: no existing row can
+violate either constraint, neither column name already existed, and — the one
+that would have silently broken the picker — `profiles` carries **table-level**
+grants (`pg_attribute.attacl` is NULL on all 92 columns), so the new columns
+inherit UPDATE. A column-level grant regime would have left every save failing.
+
+**Migration 110** teaches `handle_new_user()` about it. This trigger fires inside
+the signup transaction, so anything that raises here fails the *account
+creation*, not just the profile write — and `raw_user_meta_data` is
+client-supplied. A payload of `profession: 'wizard'` would have hit
+check_violation and taken signup down for that user. Unknown values now collapse
+to NULL instead. Two smaller hardenings in the same spirit: `user_type` goes
+through `NULLIF(...,'')` so an empty string yields 'worker' rather than writing
+`''` into designation (matching neither side of every gate), and
+`profession_other` is cleared unless profession='other'. Smoke-tested against six
+payloads inside a forced rollback — including the bogus value, which correctly
+wrote NULL rather than raising — leaving zero test users behind.
+
+**Intake, in three places.** Signup step 1 relabels to "I work in workers' comp" /
+"I'm an injured worker" while writing the identical `'attorney'` value; step 2
+becomes "Your Practice" with a required role picker; the post-OAuth completion
+step from P1 shows the same picker on the professional branch only; and
+`/account` gains an editable "Your Role" card so the 19 backfilled accounts can
+self-correct without a support round-trip. The values live in one file,
+`js/professions.js` — machine-checked this run to match the CHECK constraint
+exactly — rather than being retyped on three surfaces and drifting.
+
+**Data fix.** Two accounts had `designation='worker'` on a paid Pro tier.
+`jmays2294@gmail.com` (1 workspace, 5 attorney cases, 21 calculations — and, as it
+happens, the only OAuth user on the platform, carrying google+apple+email
+identities linked into a single user) is now attorney/attorney.
+`fuzzy.rb@gmail.com` was **deliberately left alone** and is reported instead: 0
+workspaces, 0 attorney cases, 0 calculations since 2026-06-22 despite Stripe-paid
+Pro. Nothing in the data says which side they belong on, and flipping a paying
+user's designation silently moves their dashboard.
+
+`get_my_entitlement()` verified untouched — it references neither column and is
+still STABLE SECURITY DEFINER.
+
+---
+
 ## 2026-08-05 (later)
 
 ### Sign in with Google and Apple on the website
