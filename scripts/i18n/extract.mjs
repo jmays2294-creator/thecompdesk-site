@@ -26,7 +26,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-const ROOT = '/Users/joel/Code/thecompdesk-site';
+// Derived from this file's location, matching every sibling script in scripts/i18n/.
+// This was a hardcoded '/Users/joel/Code/thecompdesk-site' until 2026-08-05, which meant
+// running the extractor from a git worktree, a second clone, or CI silently rewrote the
+// 33 English pages in that one absolute path instead of the tree you were working in —
+// stripping their generated hreflang/font blocks (extract removes what build-locales
+// re-adds), with no error and no indication anything had gone to the wrong place.
+const ROOT = path.resolve(new URL('../../', import.meta.url).pathname);
 const DRY = process.argv.includes('--dry');
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/pages.json'), 'utf8'));
 
