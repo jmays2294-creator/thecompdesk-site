@@ -47,17 +47,54 @@ fi
 # ====================================================================
 # Check 2: Git repo sanity
 # ====================================================================
-if [ ! -d .git ]; then
-  fail "No \`.git/\` directory at \`$ABS_PATH\` — this is not a git repository.
+# `.git` is a DIRECTORY in a normal clone, but a FILE in a linked worktree
+# (`git worktree add`) or a submodule — one line, `gitdir: <path>`, pointing at
+# the real git directory (e.g. `<main-clone>/.git/worktrees/<name>`). That git
+# directory holds this working copy's own index and index.lock, so the lockfile
+# and health checks below run against the RESOLVED path. Testing only for a
+# directory here hard-failed every worktree with "not a git repository".
+GIT_DIR=""
+GIT_DIR_LABEL="\`.git/\`"
+GITFILE_BROKEN=""
+if [ -d .git ]; then
+  GIT_DIR=".git"
+elif [ -f .git ]; then
+  GITDIR_PTR=$(sed -n 's/^gitdir: *//p' .git 2>/dev/null | head -1 | tr -d '\r' | sed 's/[[:space:]]*$//')
+  if [ -z "$GITDIR_PTR" ]; then
+    GITFILE_BROKEN="malformed"
+  else
+    # A gitdir pointer may be absolute or relative to the working copy.
+    case "$GITDIR_PTR" in
+      /*) RESOLVED_GITDIR="$GITDIR_PTR" ;;
+      *)  RESOLVED_GITDIR="$ABS_PATH/$GITDIR_PTR" ;;
+    esac
+    if [ -d "$RESOLVED_GITDIR" ]; then
+      GIT_DIR="$(cd "$RESOLVED_GITDIR" && pwd -P)"
+      GIT_DIR_LABEL="linked git directory \`$GIT_DIR\`"
+    else
+      GITFILE_BROKEN="dangling"
+    fi
+  fi
+fi
+
+if [ "$GITFILE_BROKEN" = "malformed" ]; then
+  fail "\`.git\` at \`$ABS_PATH\` is a file but contains no \`gitdir:\` pointer — this is not a usable git repository.
+  **Remediation:** \`cd\` to the actual clone. If this was a worktree, re-create it with \`git worktree add\` from the main clone."
+elif [ "$GITFILE_BROKEN" = "dangling" ]; then
+  fail "\`.git\` at \`$ABS_PATH\` points to \`$GITDIR_PTR\`, which does not exist — orphaned worktree or submodule.
+  The main clone it was created from has been moved or deleted.
+  **Remediation:** run \`git worktree prune\` in the main clone and re-create this worktree, or \`cd\` to the main clone instead."
+elif [ -z "$GIT_DIR" ]; then
+  fail "No \`.git/\` directory or \`.git\` gitdir file at \`$ABS_PATH\` — this is not a git repository.
   **Remediation:** \`cd\` to the actual clone, or run \`git clone <url>\` first."
-elif [ -f .git/index.lock ]; then
-  fail "\`.git/index.lock\` is present — a git operation crashed or another process is holding the lock.
-  **Remediation:** if no other git process is running (\`ps aux | grep git\`), \`rm .git/index.lock\` and retry."
+elif [ -f "$GIT_DIR/index.lock" ]; then
+  fail "\`$GIT_DIR/index.lock\` is present — a git operation crashed or another process is holding the lock.
+  **Remediation:** if no other git process is running (\`ps aux | grep git\`), \`rm $GIT_DIR/index.lock\` and retry."
 elif ! git status >/dev/null 2>&1; then
   fail "\`git status\` failed — repo is corrupted or partially initialized.
   **Remediation:** back up the working tree, then \`git fsck --full\` to investigate."
 else
-  pass "Git repository is healthy (\`.git/\` present, no lockfile, status clean)"
+  pass "Git repository is healthy ($GIT_DIR_LABEL present, no lockfile, status clean)"
 fi
 
 # ====================================================================

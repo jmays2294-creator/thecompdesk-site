@@ -38,7 +38,7 @@ Without arguments, it checks the current directory. The script runs seven diagno
 ## What it checks
 
 1. **Path safety** — the repo is NOT inside `~/Library/Mobile Documents/`, `~/Library/CloudStorage/`, `~/Dropbox/`, `~/OneDrive/`, `~/Google Drive/`, or `~/Box/`. See `references/cloud-sync-paths.md` for the full pattern list.
-2. **Git repo sanity** — `.git/` exists, no `index.lock`, `git status` exits cleanly.
+2. **Git repo sanity** — a git directory exists, no `index.lock`, `git status` exits cleanly. Linked worktrees and submodules are supported: there `.git` is a *file* holding `gitdir: <path>`, and the lockfile check runs against that resolved path. A `.git` file with a missing or dangling pointer still fails, with an orphaned-worktree remediation.
 3. **Origin freshness** — `git fetch origin` succeeds; current branch is in sync with `origin/<branch>`. Lists missing commits if behind.
 4. **Working tree cleanliness** — no uncommitted changes, or lists them for review.
 5. **Sync-conflict zombies** — no files matching the iCloud `<name> 2.<ext>` pattern or Dropbox `<name> (Conflicted copy).<ext>` pattern.
