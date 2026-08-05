@@ -47,7 +47,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">Моя травма накапливалась месяцами или годами</span>\n        <span class=\"cd-segment-sub\">От одной и той же работы изо дня в день.</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Я работаю в сфере компенсации работникам</span>\n        <span class=\"cd-segment-sub\">Адвокат, помощник юриста, представитель, координатор урегулирования.</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">Я хочу понять, как устроена компенсация работникам в Нью-Йорке</span>\n        <span class=\"cd-segment-sub\">Начните с самого начала.</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Я просто смотрю</span>\n        <span class=\"cd-segment-sub\">Покажите, что это умеет.</span>"
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Я просто смотрю</span>\n        <span class=\"cd-segment-sub\">Покажите, что это умеет.</span>",
+    "the-comp-desk-is-a": "The Comp Desk — это программная платформа, а не юридическая фирма. Обращение к нам не создаёт отношений адвокат-клиент с каким-либо адвокатом. Мы не одобряем, не сертифицируем и не рекомендуем конкретных адвокатов."
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -148,7 +149,8 @@
     "this-application-is-for-informational": "Данное приложение предназначено исключительно для информационных целей и не является юридической консультацией.",
     "translationNotice": "Данный перевод предоставлен для удобства; юридическую силу имеет версия на английском языке.",
     "machineTranslationNotice": "Переведено автоматически и пока не проверено человеком.",
-    "reviewedTranslationNotice": "Переведено автоматически и проверено человеком."
+    "reviewedTranslationNotice": "Переведено автоматически и проверено человеком.",
+    "attorney-advertising": "Реклама юридических услуг"
   },
   "worker": {
     "meta": {

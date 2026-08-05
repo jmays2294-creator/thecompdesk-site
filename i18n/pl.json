@@ -47,7 +47,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">Mój uraz narastał przez miesiące lub lata</span>\n        <span class=\"cd-segment-sub\">Od wykonywania w kółko tej samej pracy.</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Pracuję w odszkodowaniach pracowniczych</span>\n        <span class=\"cd-segment-sub\">Prawnik, asystent prawny, przedstawiciel, koordynator ugód.</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">Chcę zrozumieć, jak działają odszkodowania pracownicze w NY</span>\n        <span class=\"cd-segment-sub\">Proszę zacząć od początku.</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Tylko się rozglądam</span>\n        <span class=\"cd-segment-sub\">Proszę mi pokazać, co to potrafi.</span>"
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Tylko się rozglądam</span>\n        <span class=\"cd-segment-sub\">Proszę mi pokazać, co to potrafi.</span>",
+    "the-comp-desk-is-a": "The Comp Desk to platforma programowa, a nie kancelaria prawna. Kontakt z nami nie tworzy relacji prawnik-klient z żadnym prawnikiem. Nie polecamy, nie certyfikujemy ani nie rekomendujemy konkretnych prawników."
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -148,7 +149,8 @@
     "this-application-is-for-informational": "Ta aplikacja służy wyłącznie celom informacyjnym i nie stanowi porady prawnej.",
     "translationNotice": "Niniejsze tłumaczenie ma charakter pomocniczy; wersja angielska jest wiążąca.",
     "machineTranslationNotice": "Przetłumaczone automatycznie i jeszcze niesprawdzone przez człowieka.",
-    "reviewedTranslationNotice": "Przetłumaczone automatycznie i sprawdzone przez człowieka."
+    "reviewedTranslationNotice": "Przetłumaczone automatycznie i sprawdzone przez człowieka.",
+    "attorney-advertising": "Reklama prawnicza"
   },
   "worker": {
     "meta": {

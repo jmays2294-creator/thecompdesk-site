@@ -47,7 +47,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">Ma blessure s’est installée sur des mois ou des années</span>\n        <span class=\"cd-segment-sub\">À force de faire le même travail.</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Je travaille dans l’indemnisation des accidents du travail</span>\n        <span class=\"cd-segment-sub\">Avocat, parajuriste, représentant, coordinateur de règlements.</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">Je veux comprendre comment fonctionne l’indemnisation des accidents du travail à NY</span>\n        <span class=\"cd-segment-sub\">Reprenez depuis le début.</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Je regarde simplement</span>\n        <span class=\"cd-segment-sub\">Montrez-moi ce que ça fait.</span>"
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Je regarde simplement</span>\n        <span class=\"cd-segment-sub\">Montrez-moi ce que ça fait.</span>",
+    "the-comp-desk-is-a": "The Comp Desk est une plateforme logicielle, pas un cabinet d'avocats. Nous contacter ne crée pas de relation avocat-client avec un quelconque avocat. Nous n'approuvons, ne certifions ni ne recommandons d'avocats spécifiques."
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -148,7 +149,8 @@
     "this-application-is-for-informational": "Cette application est fournie à titre informatif uniquement et ne constitue pas un conseil juridique.",
     "translationNotice": "Cette traduction est fournie à titre de commodité ; la version anglaise fait foi.",
     "machineTranslationNotice": "Traduit automatiquement et pas encore relu par une personne.",
-    "reviewedTranslationNotice": "Traduit automatiquement et relu par une personne."
+    "reviewedTranslationNotice": "Traduit automatiquement et relu par une personne.",
+    "attorney-advertising": "Publicité d'avocat"
   },
   "worker": {
     "meta": {

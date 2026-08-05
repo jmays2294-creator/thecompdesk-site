@@ -47,7 +47,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">আমার আঘাত মাস বা বছর ধরে তৈরি হয়েছে</span>\n        <span class=\"cd-segment-sub\">বারবার একই কাজ করার কারণে।</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">আমি শ্রমিক ক্ষতিপূরণে কাজ করি</span>\n        <span class=\"cd-segment-sub\">আইনজীবী, প্যারালিগ্যাল, প্রতিনিধি, নিষ্পত্তি সমন্বয়কারী।</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">আমি বুঝতে চাই নিউ ইয়র্ক শ্রমিক ক্ষতিপূরণ কীভাবে কাজ করে</span>\n        <span class=\"cd-segment-sub\">একদম শুরু থেকে বলুন।</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">আমি শুধু দেখছি</span>\n        <span class=\"cd-segment-sub\">এটি কী করতে পারে দেখান।</span>"
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">আমি শুধু দেখছি</span>\n        <span class=\"cd-segment-sub\">এটি কী করতে পারে দেখান।</span>",
+    "the-comp-desk-is-a": "The Comp Desk একটি সফটওয়্যার প্ল্যাটফর্ম, কোনো আইন সংস্থা নয়। আমাদের সাথে যোগাযোগ করা কোনো আইনজীবীর সাথে অ্যাটর্নি-ক্লায়েন্ট সম্পর্ক তৈরি করে না। আমরা নির্দিষ্ট আইনজীবীর অনুমোদন, প্রত্যয়ন বা সুপারিশ করি না।"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -148,7 +149,8 @@
     "this-application-is-for-informational": "এই অ্যাপ্লিকেশনটি শুধুমাত্র তথ্যগত উদ্দেশ্যে এবং এটি আইনি পরামর্শ গঠন করে না।",
     "translationNotice": "এই অনুবাদটি সুবিধার জন্য প্রদান করা হয়েছে; ইংরেজি সংস্করণটি প্রাধান্য পাবে।",
     "machineTranslationNotice": "স্বয়ংক্রিয়ভাবে অনূদিত, এখনও কোনো ব্যক্তি যাচাই করেননি।",
-    "reviewedTranslationNotice": "স্বয়ংক্রিয়ভাবে অনূদিত এবং একজন ব্যক্তি যাচাই করেছেন।"
+    "reviewedTranslationNotice": "স্বয়ংক্রিয়ভাবে অনূদিত এবং একজন ব্যক্তি যাচাই করেছেন।",
+    "attorney-advertising": "আইনজীবী বিজ্ঞাপন"
   },
   "worker": {
     "meta": {

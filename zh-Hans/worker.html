@@ -650,6 +650,17 @@ a.show-card:hover { transform: translateY(-4px); border-color: var(--skin-accent
   }
   @keyframes scan-sweep { 0% { transform: translateY(-40px); } 100% { transform: translateY(180px); } }
 }
+
+/* ── Attorney Advertising label ─────────────────────────────────────────────
+   Required by SILENT_OWNER_POLICY.md. Page skin tokens, deliberately plain:
+   it must stay legible, not become decoration. */
+.attorney-advertising{
+  background:var(--skin-surface-elev,#162034);
+  border-bottom:1px solid var(--skin-divider,#26314a);
+  color:var(--skin-text-muted,#b5bfd3);
+  font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; text-align:center; padding:7px 16px; line-height:1.4;
+}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
@@ -685,6 +696,11 @@ a.show-card:hover { transform: translateY(-4px); border-color: var(--skin-accent
 
 
 <div class="dawn-wash" aria-hidden="true"></div>
+
+<!-- Attorney Advertising label (NY RPC 7.1(f)), required by SILENT_OWNER_POLICY.md
+     for any surface naming the operator as a practising attorney. Above the nav so
+     it is seen without scrolling — do not move it below the fold. -->
+<div class="attorney-advertising" role="note" data-i18n="shared.attorney-advertising">律师广告</div>
 
 <nav class="tcd-nav" aria-label="主要" data-i18n-attr="aria-label:shared.primary">
   <div class="tcd-nav-inner">

@@ -98,7 +98,8 @@
     "this-application-is-for-informational": "Esta aplicación tiene fines informativos únicamente y no constituye asesoría legal.",
     "translationNotice": "Esta traducción se ofrece como cortesía; la versión en inglés prevalece.",
     "machineTranslationNotice": "Traducido automáticamente y aún no revisado por una persona.",
-    "reviewedTranslationNotice": "Traducido automáticamente y revisado por una persona."
+    "reviewedTranslationNotice": "Traducido automáticamente y revisado por una persona.",
+    "attorney-advertising": "Publicidad de abogados"
   },
   "connect-with-attorney": {
     "company-you-were-working-for": {
@@ -1332,7 +1333,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">Mi lesión se fue formando durante meses o años</span>\n        <span class=\"cd-segment-sub\">De hacer el mismo trabajo una y otra vez.</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Trabajo en compensación laboral</span>\n        <span class=\"cd-segment-sub\">Abogado, asistente legal, representante, coordinador de acuerdos.</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">Quiero entender cómo funciona la compensación laboral en NY</span>\n        <span class=\"cd-segment-sub\">Explíquemelo desde el principio.</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Solo estoy mirando</span>\n        <span class=\"cd-segment-sub\">Muéstreme qué hace esto.</span>"
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Solo estoy mirando</span>\n        <span class=\"cd-segment-sub\">Muéstreme qué hace esto.</span>",
+    "the-comp-desk-is-a": "The Comp Desk es una plataforma de software, no un bufete de abogados. Contactarnos no crea una relación abogado-cliente con ningún abogado. No avalamos, certificamos ni recomendamos abogados específicos."
   },
   "worker": {
     "meta": {

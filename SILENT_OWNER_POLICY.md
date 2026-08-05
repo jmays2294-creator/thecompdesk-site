@@ -30,15 +30,16 @@
 > first-person attorney bio naming the firm, with no Attorney Advertising label and no
 > disclaimer of any kind. Both were added and the page carved out on the directory's terms.
 >
-> **Still unresolved.** Two live surfaces name the operator outside any carve-out:
-> **`/worker`** and its nine mirrors (founder signature naming the firm) and **`/`** and its
-> nine mirrors (a "Founder" credit line). Both are lighter than `/attorneys` — a signature
-> and a credit, not a bio or a credential claim — but under this policy they are still
-> unlisted, and an unlisted surface is not an approved one. Neither carries a disclaimer.
+> **Sweep closed — carve-outs 11 and 12, same day.** `/worker` and `/` (each with nine
+> mirrors) named the operator outside any carve-out; both now carry the Attorney
+> Advertising label, `/` gained a closing legal line, and both are carved out. `/webinars`
+> gained the label its carve-out had never required. Every surface that names the operator
+> or the firm is now listed, and every advertising surface carries a label and a
+> disclaimer.
 >
-> Also still open: **`/webinars` carries no "Attorney Advertising" label**, though it names
-> a presenting attorney. It is carved out (4) for the naming, but that carve-out predates
-> the label condition and does not impose one.
+> The label and the `/` legal line are translated in all nine locales. The translations are
+> recomposed from sentences already shipped and reviewed in those catalogs, not newly
+> drafted legal copy.
 
 ## The protected interest
 
@@ -124,7 +125,10 @@ what discharges that duty.
    section above.
 
 4. **`webinars.html`** — free educational sessions for union members, presented by a named
-   attorney. Naming the presenter is inherent to the format.
+   attorney. Naming the presenter is inherent to the format. **Requires the Attorney
+   Advertising label** (added 2026-08-05; this carve-out predated the condition and did
+   not impose one). The page already carries the non-law-firm / no-attorney-client
+   disclaimer inline.
 
 5. **`tests/directory-exclusion.test.js`** — the automated guard. The forbidden-string list
    in this file must contain the literal owner-name and firm-name variants in order to do
@@ -168,6 +172,27 @@ what discharges that duty.
     Both (a) and (b) were absent until 2026-08-05; the page carried the advertising
     without either. Admission status ("a practising NYS WC attorney") is permitted
     context here; a bar or registration number as a marketing credential is not.
+
+11. **`worker.html`** (`/worker`) and its nine locale mirrors — the injured-worker landing
+    page, which closes with a founder signature naming the operator and Shulman & Hill,
+    PLLC. Lighter than carve-out 10 (a signature, not a bio or a credential claim), but it
+    is still an attorney's name on a page addressed to injured workers, so it carries the
+    **Attorney Advertising label**. The non-law-firm / no-attorney-client disclaimer and
+    the no-endorsement language were already present and translated
+    (`worker.important-the-comp-desk-is`, `worker.no-attorney-matching-is-mechanical`) —
+    do not remove either.
+
+12. **`index.html`** (`/`) and its nine locale mirrors — the cover page, which carries a
+    "Joel Mays, Esq. · Founder" credit. Carries the **Attorney Advertising label** and,
+    since this page has no footer, a closing legal line stating that The Comp Desk is not
+    a law firm, that contact creates no attorney-client relationship, and that it does not
+    endorse, certify, or recommend specific attorneys.
+
+    The label and that line are **translated in all nine locales**, not left in English. A
+    disclosure the reader cannot read discloses nothing; the same reasoning that put the
+    conflict disclosure on every mirror of carve-out 1 applies here. The wording is
+    recomposed from sentences already shipped and reviewed in those catalogs rather than
+    newly drafted.
 
 ## Still prohibited, everywhere
 

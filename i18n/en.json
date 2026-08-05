@@ -47,7 +47,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">My injury built up over months or years</span>\n        <span class=\"cd-segment-sub\">From doing the same work over and over.</span>",
     "i-m-just-looking-around": "<span class=\"cd-segment-title\">I&rsquo;m just looking around</span>\n        <span class=\"cd-segment-sub\">Show me what this thing does.</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">I want to understand how NY workers&rsquo; comp works</span>\n        <span class=\"cd-segment-sub\">Start me at the beginning.</span>",
-    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">I work in workers&rsquo; comp</span>\n        <span class=\"cd-segment-sub\">Attorney, paralegal, rep, settlement coordinator.</span>"
+    "i-work-in-workers-comp": "<span class=\"cd-segment-title\">I work in workers&rsquo; comp</span>\n        <span class=\"cd-segment-sub\">Attorney, paralegal, rep, settlement coordinator.</span>",
+    "the-comp-desk-is-a": "The Comp Desk is a software platform, not a law firm. Contacting us does not create an attorney-client relationship with any attorney. We do not endorse, certify, or recommend specific attorneys."
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -62,6 +63,7 @@
     "date-of-injury-auto-fills": "Date of injury — auto-fills max rate",
     "enter-your-email": "Enter your email",
     "job-buddy": "Job Buddy",
+    "attorney-advertising": "Attorney Advertising",
     "the-comp-desk-2": "The <span class=\"accent\">Comp</span> Desk",
     "lwec": "LWEC",
     "ccp-award": "CCP Award",

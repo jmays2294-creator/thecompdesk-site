@@ -47,7 +47,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">Blesi mwen an vin parèt sou plizyè mwa oswa ane</span>\n        <span class=\"cd-segment-sub\">Paske m ap fè menm travay la san rete.</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Mwen travay nan konpansasyon travayè</span>\n        <span class=\"cd-segment-sub\">Avoka, paralegal, reprezantan, koòdonatè règleman.</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">Mwen vle konprann kijan konpansasyon travayè NY fonksyone</span>\n        <span class=\"cd-segment-sub\">Kòmanse avè m depi nan konmansman.</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">M ap sèlman gade</span>\n        <span class=\"cd-segment-sub\">Montre m sa bagay sa a fè.</span>"
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">M ap sèlman gade</span>\n        <span class=\"cd-segment-sub\">Montre m sa bagay sa a fè.</span>",
+    "the-comp-desk-is-a": "The Comp Desk se yon platfòm lojisyèl, se pa yon biwo avoka. Kontakte nou pa kreye yon relasyon avoka-kliyan ak okenn avoka. Nou pa andose, sètifye, oswa rekòmande avoka espesifik."
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -148,7 +149,8 @@
     "this-application-is-for-informational": "Aplikasyon sa a se pou rezon enfòmasyon sèlman e li pa konstitye konsèy legal.",
     "translationNotice": "Tradiksyon sa a bay pou fasilite; vèsyon anglè a se sa ki gen otorite.",
     "machineTranslationNotice": "Tradui otomatikman epi yon moun poko revize li.",
-    "reviewedTranslationNotice": "Tradui otomatikman epi yon moun revize li."
+    "reviewedTranslationNotice": "Tradui otomatikman epi yon moun revize li.",
+    "attorney-advertising": "Piblisite Avoka"
   },
   "worker": {
     "meta": {

@@ -178,11 +178,27 @@ body.tcd-skinned .wb-card p { color:#241F1B }
 body.tcd-skinned .wb-card .wb-len p { color:#5A5148 }
 body.tcd-skinned .wb-upl p { color:#5A5148 }
 body.tcd-skinned .wb-msg p { color:inherit }
+
+/* ── Attorney Advertising label ─────────────────────────────────────────────
+   Required by SILENT_OWNER_POLICY.md. Page skin tokens, deliberately plain:
+   it must stay legible, not become decoration. */
+.attorney-advertising{
+  background:var(--skin-surface-elev,#162034);
+  border-bottom:1px solid var(--skin-divider,#26314a);
+  color:var(--skin-text-muted,#b5bfd3);
+  font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; text-align:center; padding:7px 16px; line-height:1.4;
+}
 </style>
 </head>
 <body class="tcd-skinned">
 
 <div class="web-wash" aria-hidden="true"></div>
+
+<!-- Attorney Advertising label (NY RPC 7.1(f)), required by SILENT_OWNER_POLICY.md
+     for any surface naming the operator as a practising attorney. Above the nav so
+     it is seen without scrolling — do not move it below the fold. -->
+<div class="attorney-advertising" role="note">Attorney Advertising</div>
 
 <nav class="tcd-nav" aria-label="Primary">
   <div class="tcd-nav-inner">

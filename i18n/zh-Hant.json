@@ -47,7 +47,8 @@
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">我的傷是幾個月或幾年慢慢形成的</span>\n        <span class=\"cd-segment-sub\">因為反覆做同樣的工作。</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">我從事工傷賠償工作</span>\n        <span class=\"cd-segment-sub\">律師、律師助理、代理人、和解協調員。</span>",
     "i-want-to-understand-how": "<span class=\"cd-segment-title\">我想了解紐約工傷賠償如何運作</span>\n        <span class=\"cd-segment-sub\">請從頭開始講。</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">我只是隨便看看</span>\n        <span class=\"cd-segment-sub\">讓我看看這個能做什麼。</span>"
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">我只是隨便看看</span>\n        <span class=\"cd-segment-sub\">讓我看看這個能做什麼。</span>",
+    "the-comp-desk-is-a": "The Comp Desk 是一個軟體平臺，不是律師事務所。聯絡我們不會與任何律師建立委託關係。 我們不會認可、認證或推薦任何特定律師。"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
@@ -148,7 +149,8 @@
     "this-application-is-for-informational": "本應用僅供參考，不構成法律建議。",
     "translationNotice": "本翻譯僅供參考；以英文版本為準。",
     "machineTranslationNotice": "本頁面由機器翻譯，尚未經人工校對。",
-    "reviewedTranslationNotice": "本頁面由機器翻譯，並經人工校對。"
+    "reviewedTranslationNotice": "本頁面由機器翻譯，並經人工校對。",
+    "attorney-advertising": "律師廣告"
   },
   "worker": {
     "meta": {

@@ -692,6 +692,23 @@ body.no-video-bg .skyline { display: block; }
   .cd-segment-card { transition: none; }
   .cd-segment-card:hover, .cd-segment-card:focus-visible { transform: none; }
 }
+
+/* ── Attorney Advertising label + cover legal line ──────────────────────────
+   Required by SILENT_OWNER_POLICY.md; this page carries a founder credit.
+   Deliberately plain — a compliance label must stay legible, not decorate. */
+.attorney-advertising{
+  background:var(--skin-surface-elev,#162034);
+  border-bottom:1px solid var(--skin-divider,#26314a);
+  color:var(--skin-text-muted,#b5bfd3);
+  font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; text-align:center; padding:7px 16px; line-height:1.4;
+}
+.cover-legal{ padding:18px 20px 26px; text-align:center; }
+.cover-legal p{
+  max-width:70ch; margin:0 auto;
+  font-family:var(--font-body); font-size:12px; line-height:1.7;
+  color:var(--skin-text-muted,#b5bfd3); text-wrap:pretty;
+}
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-P1DQTVSWSM"></script>
@@ -725,6 +742,11 @@ body.no-video-bg .skyline { display: block; }
 <body>
 
 <main class="cover" aria-label="The Comp Desk — 경로 선택" data-i18n-attr="aria-label:home.the-comp-desk-choose-your.label">
+
+  <!-- Attorney Advertising label (NY RPC 7.1(f)), required by SILENT_OWNER_POLICY.md:
+       this page carries a "Joel Mays, Esq. · Founder" credit. Above the header so it
+       is seen without scrolling — do not move it below the fold. -->
+  <div class="attorney-advertising" role="note" data-i18n="shared.attorney-advertising">변호사 광고</div>
 
   <header class="cover-top">
     <div class="brand-banner">
@@ -1090,6 +1112,10 @@ body.no-video-bg .skyline { display: block; }
 <script src="/js/analytics/queue.js"></script>
 <script src="/js/analytics/track.js"></script>
 <script src="/js/segment-picker.js"></script>
+
+<div class="cover-legal">
+  <p data-i18n="home.the-comp-desk-is-a">The Comp Desk는 소프트웨어 플랫폼이며 법률 사무소가 아닙니다. 저희에게 연락하는 것은 어떠한 변호사와도 변호사-의뢰인 관계를 형성하지 않습니다. 저희는 특정 변호사를 보증, 인증, 추천하지 않습니다.</p>
+</div>
 
 </body>
 </html>
