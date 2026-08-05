@@ -104,10 +104,15 @@ const STYLE = `<style>
   .dir-card .dir-firm{font-size:14px;color:var(--skin-text-soft);margin:2px 0 0}
   .dir-card .dir-headline{font-size:15px;line-height:1.6;color:var(--skin-text-soft);margin:0}
   .dir-meta{font-size:13px;color:var(--skin-text-soft);margin:0}
-  .dir-cta{align-self:flex-start;background:var(--skin-accent-cta);color:#fff;text-decoration:none;
-    font-weight:600;font-size:15px;padding:11px 18px;border-radius:10px;min-height:44px;
-    display:inline-flex;align-items:center}
-  .dir-cta:hover{background:#94480A}
+  /* Specificity note: skins.css has  body.tcd-skinned a { color: var(--skin-accent) }
+     at (0,1,1). A bare .dir-cta is (0,1,0) and LOSES, so the label inherited the accent
+     colour and rendered orange-on-orange — an invisible button. Scoping to
+     body.tcd-skinned .dir-cta is (0,2,0) and wins. Any new <a> styled as a filled
+     button on this site needs the same treatment. */
+  body.tcd-skinned .dir-cta{align-self:flex-start;background:var(--skin-accent-cta);
+    color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:11px 18px;
+    border-radius:10px;min-height:44px;display:inline-flex;align-items:center}
+  body.tcd-skinned .dir-cta:hover{background:#94480A;color:#fff}
   .dir-alt{background:var(--skin-surface-warm);border:1px solid var(--skin-divider);
     border-radius:14px;padding:18px 20px;margin:22px 0 44px;font-size:15px;line-height:1.65;color:var(--skin-text-soft)}
   .dir-alt a{color:var(--skin-accent-deep);font-weight:600}
