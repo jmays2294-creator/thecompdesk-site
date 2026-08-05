@@ -5,6 +5,36 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (pl register)
+
+### Polish switched to formal address — it was the only locale using informal
+
+Joel's call on review of the segment-picker translations. Checking it against the
+other locales showed Polish was genuinely the outlier, not the new copy: for the
+identical string "Choose your path", es ships *Elija su camino* (usted), fr
+*Choisissez votre parcours* (vous), ru *Выберите свой путь* (вы) and zh-Hans
+*选择您的方向* (您) — all formal — while pl shipped *Wybierz swoją ścieżkę*,
+informal. ht has no T-V distinction and ko is nominal, so neither takes a side.
+
+The seven segment strings now use **Państwo** for direct address (the Polish
+equivalent of usted/vous/вы, and gender-neutral, which matters when the reader's
+gender is unknown) and **"proszę" + infinitive** for imperatives — the standard
+formal imperative; the Państwo form (*niech Państwo zaczną*) is unnatural in UI
+copy.
+
+Fixed three more in the same pass, because they render on the **same screen** and
+would otherwise have put both registers in one view: `home.choose-your-path`,
+`home.choose-your-audience.label` and the home `og-description`. The Polish home
+page now reads in one register throughout.
+
+**Still outstanding, and bigger than this pass:** roughly 229 other Polish strings
+across the rest of the site still use informal forms (*Dowiedz się*, *Sprawdź*,
+*Zobacz*, *możesz*, *Twój*). This changed only what shares a screen with the
+picker. Converting the remainder is a real translation pass, not a find-and-replace
+— Polish imperatives change shape rather than taking a prefix.
+
+---
+
 ## 2026-08-05 (i18n green)
 
 ### The translation gate is green for the first time in this session

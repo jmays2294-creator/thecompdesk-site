@@ -1,90 +1,161 @@
 # Silent Owner Policy
 
-**Status:** Active. Hard compliance requirement, not a stylistic choice.
+**Status:** Active, as amended 2026-08-05.
+
+> **Amendment note — 2026-08-05.** This policy was originally written as a blanket
+> anonymity rule: the owner's name, likeness, and firm were prohibited on every public
+> surface. That rule has not described this project's actual practice for some time.
+> `webinars.html` shipped in July 2026 with the owner named in the meta description, a
+> `Person` node in its JSON-LD, two headshots, and a personal bio. The contributor grep
+> this file used to prescribe returned 91 files, not zero.
+>
+> Rather than leave a compliance document the project knowingly does not meet — which is
+> worse than having none, because it is written evidence of an unmet standard — the policy
+> is narrowed here to the interest it was actually protecting: **the neutrality of the free
+> round-robin attorney connection service.** Founder anonymity is no longer claimed and is
+> no longer required. Everything that protects connection-service neutrality is retained
+> and, in the case of the public conflict disclosure, strengthened.
+>
+> Superseded in this amendment: the blanket prohibitions on the owner's name, photograph,
+> and personal bio; the `Organization`-schema-only rule; the "no single human founder"
+> phrasing rule; and the contributor grep in the former "For contributors" section.
+
+## The protected interest
+
+The Comp Desk LLC is operated by a person who also maintains an active New York Workers'
+Compensation law practice at Shulman & Hill PLLC. The conflict this creates is specific and
+narrow: **The Comp Desk operates a free attorney connection service that assigns injured
+workers to attorneys by neutral rotation.** If the operator's own firm could receive
+assignments from that service, the service would not be neutral, and every public claim of
+neutrality would be false.
+
+The rule that follows exists to protect that one thing. It is not a general anonymity rule.
 
 ## The rule
 
-The Comp Desk LLC is operated by a silent owner who also maintains an active New York Workers' Compensation law practice. To eliminate any conflict-of-interest exposure between the product and that practice, **no public-facing surface of The Comp Desk may identify, describe, or allude to the owner personally, or to the owner's law firm**, except inside the narrow carve-outs listed below.
+**The operator and the operator's firm are permanently excluded from the free attorney
+connection service** (`/connect-with-attorney`, `/find-attorney`, and the
+`participating_attorneys` data path that feeds them). This exclusion is:
 
-This applies to every artifact a user, regulator, journalist, search engine, or AI crawler could see — including but not limited to:
+- absolute — no assignment, no listing, no rotation slot, under any circumstance;
+- enforced in code, not merely in policy, by `tests/directory-exclusion.test.js`, which runs
+  on every push and pull request to `main` via `.github/workflows/directory-neutrality.yml`;
+- publicly disclosed on `/connect-with-attorney` in both body copy and FAQ JSON-LD.
 
-- Website copy, page titles, meta descriptions, OpenGraph and Twitter cards
-- Structured data (JSON-LD): use `Organization` schema only — never `Person`
-- Sitemaps, robots.txt, and any other deploy artifacts
-- README files, repository descriptions, public commit messages
-- Email "from" names, signatures, support footers, and transactional templates
-- App store listings, privacy policies, terms of service
-- Marketing assets (images, video, audio, decks, PDFs, social posts)
-- Press releases and media kits
-- Any "About," "Team," "Founder," "Meet the…," or signature block
-- Domain WHOIS, ad accounts, payment processor display names where avoidable
+No paid placement, referral fee, bidding, or ranking may influence connection-service
+assignment for any attorney, excluded or not.
+
+## Permitted: disclosed attorney advertising
+
+The Comp Desk also operates a **paid Attorney Directory** at `/directory`. The directory is
+a different product from the connection service and is governed by different rules.
+
+On `/directory` and its listing pages, the following are **permitted**:
+
+- The operator's name, photograph, likeness, credentials, and personal biography
+- `Person` and `Attorney` JSON-LD, including `worksFor` naming Shulman & Hill PLLC
+- First-person and founder-attributable voice ("founded by," "built by")
+- The operator's own paid listing, on the same terms available to any other listing
+
+Subject to these conditions, each of which is load-bearing:
+
+1. Every directory page carries a visible **"Attorney Advertising"** label in the header
+   region (NY RPC 7.1(f)) and the full non-law-firm / no-endorsement / no-attorney-client
+   disclaimer in the footer.
+2. Directory listings are disclosed as **paid advertising** wherever a reasonable reader
+   might otherwise mistake them for a neutral recommendation.
+3. The directory and the connection service are **described as independent** wherever
+   either is described, so that no reader concludes a paid listing affects neutral
+   assignment. It does not, and must not be permitted to.
+4. Nothing on a directory page may claim, imply, or be styled to suggest that The Comp Desk
+   recommends, endorses, ranks, or vouches for any listed attorney — including the operator.
+
+Attorney advertising is permitted here because it is **disclosed**. The prohibition this
+policy replaced was never protecting readers from knowing who built the product; it was
+protecting them from an undisclosed thumb on a neutral scale. Disclosure, not silence, is
+what discharges that duty.
+
+## Permitted (carve-outs) — surfaces that may name the operator or the firm
+
+1. **`connect-with-attorney.html`** and its nine locale mirrors — the primary public
+   conflict-disclosure point. This page names the operator and the operator's firm and
+   explains that the firm is permanently excluded from the neutral connection service.
+
+   **The disclosure is load-bearing. Do not scrub it.** Any change that *removes* the
+   disclosure must be rejected. Any change that *narrows its scope* must be rejected unless
+   it simultaneously discloses at least as much — as the 2026-08-05 amendment did, which
+   re-scoped the exclusion to the connection service while newly disclosing the operator's
+   paid participation in the directory. **Disclosure may be made more specific. It may never
+   be made smaller.**
+
+2. **`find-attorney.html`** — the connection-service lead page. Shulman & Hill PLLC may be
+   named here only as an *excluded* firm in disclosure copy. It may **not** appear as a
+   participating firm, in a firm card, or in `data/attorneys.json`. (This reverses the
+   former carve-out, which permitted the firm to be listed as a participant. That
+   permission was never exercised, and it contradicted the public exclusion claim.)
+   Map sort order is distance-based only — unit-tested in `tests/find-attorney-map-sort.test.js`.
+   The page must display the required disclaimer block: *"The Comp Desk is an information
+   service. Submitting this form is a request to be contacted by a participating New York
+   workers' compensation attorney. It is not legal advice and does not create an
+   attorney-client relationship until a participating attorney accepts your matter in
+   writing."*
+
+3. **`/directory` and `/directory/<slug>`** — disclosed paid attorney advertising, per the
+   section above.
+
+4. **`webinars.html`** — free educational sessions for union members, presented by a named
+   attorney. Naming the presenter is inherent to the format.
+
+5. **`tests/directory-exclusion.test.js`** — the automated guard. The forbidden-string list
+   in this file must contain the literal owner-name and firm-name variants in order to do
+   its job. **Add to that list, never remove from it. Do not weaken this file.** If a check
+   needs to ignore it, add the path to an allowlist — do not edit the test.
+
+6. **`SILENT_OWNER_POLICY.md`** (this file) — self-referential and unavoidable.
+
+## Still prohibited, everywhere
+
+- Any listing, assignment, or appearance of the operator or the operator's firm **in the
+  connection service** or its data path, in any form.
+- Any claim that the connection service is neutral that is not, at the time it is published,
+  literally true.
+- Any representation that the paid directory is neutral, curated on merit, endorsed, or
+  ranked by The Comp Desk.
+- Bar number, attorney registration number, or licensure identifier used as a marketing
+  credential. (Factual admission status — "admitted in New York" — is permitted and is
+  required context on an attorney-advertising surface.)
+- The operator's personal mobile number or any personal contact routed outside published
+  business channels.
 
 ## Substitutions
 
-When a human-attributable name would normally appear, use one of:
+Where the product speaks in its own voice rather than an attorney's, continue to use:
 
-- **The Comp Desk LLC** — for legal, corporate, copyright, and operational references
-- **The Comp Desk Team** — for general product voice
-- **The Comp Desk Editorial Team** — for bylined editorial / blog content
-- **Comp Buddy** — for in-app and marketing voice where the mascot persona fits
+- **The Comp Desk LLC** — legal, corporate, copyright, operational references
+- **The Comp Desk Team** — general product voice
+- **The Comp Desk Editorial Team** — bylined editorial / blog content
+- **Comp Buddy** — in-app and marketing voice where the mascot persona fits
+- Role-based contact addresses (`support@`, `privacy@`) for platform contact
 
-For contact, use role-based brand addresses (`support@thecompdesk.com`, `privacy@thecompdesk.com`) — never a personal name in the local-part.
-
-## Specifically prohibited
-
-- The owner's first or last name, initials, or nicknames
-- The owner's photograph, voice, signature image, or likeness in any form
-- The owner's personal phone number or any phone number traceable to them
-- The name, domain, address, or branding of the owner's law firm
-- Any phrase that implies a single human founder ("founded by," "created by," "I built this," "as an attorney I…")
-- First-person singular voice in copy that could be attributed to a specific person
-- Bar number, attorney registration number, or any licensure identifier
-
-## Permitted (carve-outs)
-
-The "zero hits outside `back-burner/`" rule has the following deliberate exceptions. These are the **only** places in the repo where the owner's name or firm name may appear. Any new occurrence outside this list is a violation.
-
-1. **`connect-with-attorney.html`** — the sole permitted *public* disclosure point. This page discloses the conflict of interest in its FAQ (and FAQ JSON-LD): it names the operator and the operator's firm and explains that the firm is permanently excluded from the neutral round-robin attorney connection network, enforced in code. The disclosure is a load-bearing feature of the page; do not scrub it. Any change to this page that *removes* the disclosure must be rejected. (The former disclosure page, `find-attorney-how-it-works.html`, was retired on 2026-07-05 to a `noindex` redirect stub pointing at `/connect-with-attorney`; it no longer carries any owner or firm reference.)
-
-2. **`find-attorney.html`** — the lead-generation page. This is the **sole page where Shulman & Hill PLLC may be named as a participating firm**. The following strict rules apply inside this carve-out:
-   - The firm name `Shulman & Hill PLLC` may appear on the page and in dynamic firm cards loaded from the `participating_attorneys` Supabase view.
-   - The operator's **personal name** (Joel Mays) must **not** appear anywhere on this page.
-   - The operator's **photograph, voice, or likeness** must **not** appear.
-   - The operator's **personal bio** must **not** appear (firm bio is permissible if it describes the firm generically, not the individual).
-   - The firm appears alongside all other participating attorneys; no preferential placement, styling, or ordering may be applied to Shulman & Hill relative to other listed firms.
-   - Sort order on the map is distance-based only — enforced and unit-tested in `tests/find-attorney-map-sort.test.js`.
-   - The page must display the required disclaimer block: *"The Comp Desk is an information service. Submitting this form is a request to be contacted by a participating New York workers' compensation attorney. It is not legal advice and does not create an attorney-client relationship until a participating attorney accepts your matter in writing."*
-
-3. **`tests/directory-exclusion.test.js`** — privacy safeguard. The forbidden-string list in this CI test must contain the literal owner-name and firm-name variants in order to do its job: failing the build if any of those strings ever appear in `data/attorneys.json`. Removing the strings would defeat the test. Do not weaken this file. If the project's CI grep needs to ignore it, add the path to the grep allowlist — do not edit the test.
-
-4. **`SILENT_OWNER_POLICY.md`** (this file) — the policy itself names the prohibited tokens in its grep example so contributors can run the check. Self-referential and unavoidable.
-
-Everything else must stay clean.
-
-## Permitted product-origin language
-
-- Generic descriptions of the product's origin ("born in hearings," "built for the hearing room")
-- Statements that the product was built by people with NYS Workers' Compensation experience, **without naming them**
-- Mascot-led voice (Comp Buddy + the Comp Desk calculator character)
-- Anonymized or opt-in user testimonials
-- The corporate parent name where legally required (currently `NJJ Document Services, Inc. d/b/a The Comp Desk`)
+The corporate parent name where legally required is
+`NJJ Document Services, Inc. d/b/a The Comp Desk`.
 
 ## For contributors
 
-Before opening a PR, run:
+The former blanket grep is retired — it returned 91 files and could not pass, which made it
+useless as a gate. The meaningful check is automated and narrow:
 
-```
-grep -riE "Joel|Mays|Shulman|786-?815-?4612" \
-  --exclude-dir=.git --exclude-dir=back-burner --exclude-dir=node_modules \
-  --exclude=SILENT_OWNER_POLICY.md \
-  --exclude=connect-with-attorney.html \
-  --exclude=find-attorney.html \
-  --exclude=directory-exclusion.test.js \
-  .
+```bash
+node tests/directory-exclusion.test.js
 ```
 
-This must return zero hits. If it returns anything, the PR is blocked until it returns clean.
+This must exit 0. It fails the build if the operator or the operator's firm appears in the
+connection-service data path, or if a directory listing is added without a dated,
+policy-referenced exemption. It runs on every push and PR to `main`.
 
-If your change introduces any human-attributable content outside the three carve-outs above, it will be rejected. If you are unsure whether something crosses the line, assume it does and ask.
+If you are adding a surface that names the operator or the firm, it must fall inside a
+carve-out above. If it does not, either it belongs in a carve-out — amend this file in the
+same commit, with a date — or it does not belong on the site.
 
-Anything shelved under this policy lives in `back-burner/` — do not delete it, and do not deploy it.
+Anything shelved under this policy lives in `back-burner/` — do not delete it, and do not
+deploy it.

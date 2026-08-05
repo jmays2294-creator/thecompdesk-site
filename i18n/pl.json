@@ -3,7 +3,7 @@
     "meta": {
       "description": "The Comp Desk to platforma NY ds. odszkodowań pracowniczych stworzona przez praktykującego prawnika WC. Bezpłatne narzędzia dla poszkodowanych pracowników, profesjonalne kalkulatory dla prawników.",
       "og-title": "The Comp Desk — Narzędzia NY ds. odszkodowań pracowniczych",
-      "og-description": "Bezpłatnie dla poszkodowanych pracowników. Stworzone dla prawników. Wybierz swoją ścieżkę.",
+      "og-description": "Bezpłatnie dla poszkodowanych pracowników. Stworzone dla prawników. Proszę wybrać swoją ścieżkę.",
       "title": "The Comp Desk — Narzędzia ds. odszkodowań pracowniczych dla stanu Nowy Jork"
     },
     "the-comp-desk-choose-your": {
@@ -13,7 +13,7 @@
       "label": "The Comp Desk — odtwórz wprowadzenie"
     },
     "choose-your-audience": {
-      "label": "Wybierz swój profil"
+      "label": "Proszę wybrać swój profil"
     },
     "enter-the-injured-worker-experience": {
       "label": "Przejdź do sekcji dla poszkodowanego pracownika"
@@ -38,16 +38,16 @@
     "slu-weeks": "Tygodnie SLU",
     "288-wks": "288 tyg.",
     "for-attorneys-i-practice-wc": "<span class=\"eyebrow\">Dla prawników</span>\n          <span class=\"title\">Praktykuję prawo WC.</span>\n          <span class=\"desc\">Trwałość SLU, obliczenia honorariów, przestrzeń robocza — stworzone przez praktykującego prawnika WC stanu NY.</span>",
-    "choose-your-path": "Wybierz swoją ścieżkę",
+    "choose-your-path": "Proszę wybrać swoją ścieżkę",
     "nys-workers-comp-maximum-rates": "<a href=\"/calculators/rates\">Maksymalne stawki odszkodowań pracowniczych NYS</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/slu\">Kalkulator SLU</a><span class=\"sep\" aria-hidden=\"true\">·</span><a href=\"/calculators/lwec\">Kalkulator LWEC</a>",
     "skip-intro": "Pomiń wprowadzenie →",
-    "what-brings-you-here": "Co Cię tu sprowadza?",
-    "there-s-no-wrong-answer": "Nie ma złej odpowiedzi, a później możesz ją zmienić.",
+    "what-brings-you-here": "Co Państwa tu sprowadza?",
+    "there-s-no-wrong-answer": "Nie ma złej odpowiedzi, a później mogą ją Państwo zmienić.",
     "i-was-hurt-at-work": "<span class=\"cd-segment-title\">Doznałem urazu w pracy w wypadku</span>\n        <span class=\"cd-segment-sub\">Konkretne zdarzenie. Upadek, dźwiganie, maszyna, pojazd.</span>",
     "my-injury-built-up-over": "<span class=\"cd-segment-title\">Mój uraz narastał przez miesiące lub lata</span>\n        <span class=\"cd-segment-sub\">Od wykonywania w kółko tej samej pracy.</span>",
     "i-work-in-workers-comp": "<span class=\"cd-segment-title\">Pracuję w odszkodowaniach pracowniczych</span>\n        <span class=\"cd-segment-sub\">Prawnik, asystent prawny, przedstawiciel, koordynator ugód.</span>",
-    "i-want-to-understand-how": "<span class=\"cd-segment-title\">Chcę zrozumieć, jak działają odszkodowania pracownicze w NY</span>\n        <span class=\"cd-segment-sub\">Zacznij od początku.</span>",
-    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Tylko się rozglądam</span>\n        <span class=\"cd-segment-sub\">Pokaż mi, co to potrafi.</span>"
+    "i-want-to-understand-how": "<span class=\"cd-segment-title\">Chcę zrozumieć, jak działają odszkodowania pracownicze w NY</span>\n        <span class=\"cd-segment-sub\">Proszę zacząć od początku.</span>",
+    "i-m-just-looking-around": "<span class=\"cd-segment-title\">Tylko się rozglądam</span>\n        <span class=\"cd-segment-sub\">Proszę mi pokazać, co to potrafi.</span>"
   },
   "shared": {
     "the-comp-desk": "The Comp Desk",
