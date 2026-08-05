@@ -82,7 +82,7 @@
     '.cdc-chip:hover{border-color:#E87722;color:#C85F0F}',
     '.cdc-form{border-top:1px solid rgba(45,49,66,.10);padding:10px;display:flex;gap:8px;background:#fff}',
     '.cdc-form input{flex:1 1 auto;border:1px solid rgba(45,49,66,.18);border-radius:10px;padding:11px 12px;font:inherit;min-height:44px}',
-    '.cdc-send{background:#E87722;color:#fff;border:0;border-radius:10px;padding:0 17px;font-weight:600;cursor:pointer;min-height:44px}',
+    '.cdc-send{background:#B0560A;color:#fff;border:0;border-radius:10px;padding:0 17px;font-weight:600;cursor:pointer;min-height:44px}',
     '.cdc-send:disabled{opacity:.5;cursor:default}',
     '.cdc-card{background:#fff;border:1px solid rgba(45,49,66,.14);border-radius:14px;padding:14px;align-self:stretch}',
     '.cdc-card h3{margin:0 0 4px;font-size:15px}',

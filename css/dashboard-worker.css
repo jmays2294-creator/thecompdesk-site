@@ -85,7 +85,7 @@
 .wd-sp-card:focus-visible { box-shadow: 0 0 0 3px var(--skin-accent-soft), var(--skin-card-shadow); }
 .wd-sp-bar {
   position: absolute; top: 0; left: 0; height: 3px; width: 0;
-  background: var(--skin-accent); border-radius: 0 3px 3px 0;
+  background: var(--skin-accent-cta); border-radius: 0 3px 3px 0;
   opacity: .6;
 }
 .wd-sp-pad { padding: var(--space-5, 24px); }
@@ -142,7 +142,7 @@
   transition: width var(--rhythm-med, 400ms) var(--ease-out, ease),
               background var(--rhythm-med, 400ms) var(--ease-out, ease);
 }
-.wd-sp-dot.is-active { width: 26px; background: var(--skin-accent); }
+.wd-sp-dot.is-active { width: 26px; background: var(--skin-accent-cta); }
 
 /* ── Desktop sizing (website /dashboard/ only) ────────────────────────────
  * The whole worker skin is scaled for the app's narrow phone webview. On a
@@ -189,7 +189,7 @@
 }
 .wd-btn:active { transform: scale(.97); }
 .wd-btn-sm { min-height: 40px; font-size: 14px; padding: 0 16px; }
-.wd-btn-primary { background: var(--skin-accent); color: #fff; }
+.wd-btn-primary { background: var(--skin-accent-cta); color: #fff; }
 .wd-btn-primary:hover { filter: brightness(1.05); }
 .wd-btn-accent {
   background: linear-gradient(135deg, var(--skin-accent), var(--skin-accent-deep));
@@ -459,7 +459,7 @@
 .cd-rrmini-dot.done { background: var(--skin-accent-soft); box-shadow: inset 0 0 0 1.5px var(--skin-accent); }
 .cd-rrmini-dot.done .cd-rrmini-dot-ico { filter: none; opacity: 1; }
 .cd-rrmini-dot.current {
-  background: var(--skin-accent); box-shadow: 0 4px 14px rgba(232,119,34,.4);
+  background: var(--skin-accent-cta); box-shadow: 0 4px 14px rgba(232,119,34,.4);
   transform: scale(1.18);
 }
 .cd-rrmini-dot.current .cd-rrmini-dot-ico { filter: none; opacity: 0; } /* avatar covers it */

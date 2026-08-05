@@ -36,9 +36,16 @@
   --skin-text: #2D3142;
   --skin-text-soft: #4D5266;
   --skin-text-muted: #7A8095;
-  --skin-accent: #E87722;
+  --skin-accent: #B0560A;   /* ink on the LIGHT surface: 2.74:1 -> 4.65:1 */
+/* --skin-accent-cta: the accent as a BACKGROUND behind white text.
+     Separate from --skin-accent because the token was doing two incompatible jobs.
+     As ink, the right value depends on the skin's surface; as a button fill behind
+     white text it does not — white on #E87722 is 2.96:1 and fails AA on every skin,
+     while white on #B0560A is 5.02:1 and passes on all of them. Same value in all
+     three skins on purpose. Use this for filled buttons; use --skin-accent for ink. */
+  --skin-accent-cta: #B0560A;
   --skin-accent-soft: #F4C28C;
-  --skin-accent-deep: #C85F0F;
+  --skin-accent-deep: #94480A;  /* ink/hover on light: 3.81:1 -> 6.4:1 */
   --skin-divider: rgba(45, 49, 66, 0.10);
   --skin-card-shadow: 0 6px 30px rgba(45, 49, 66, 0.08), 0 2px 8px rgba(45, 49, 66, 0.04);
   --skin-card-radius: 18px;
@@ -85,6 +92,7 @@
   --skin-text-soft: #DDE5F2;
   --skin-text-muted: #B5BFD3;
   --skin-accent: #E87722;
+  --skin-accent-cta: #B0560A;
   --skin-accent-soft: #FF8B33;
   --skin-accent-deep: #B85808;
   --skin-divider: rgba(240, 235, 224, 0.12);
@@ -118,6 +126,7 @@
   --skin-text-soft: #BAC1D1;
   --skin-text-muted: #6E7791;
   --skin-accent: #E87722;
+  --skin-accent-cta: #B0560A;
   --skin-accent-soft: #F4C28C;
   --skin-divider: rgba(240, 235, 224, 0.10);
   --font-display: 'Fraunces', Georgia, serif;
@@ -191,7 +200,7 @@ body.tcd-skinned .btn {
     transform var(--rhythm-fast) var(--ease-out);
 }
 body.tcd-skinned .btn.primary {
-  background: var(--skin-accent);
+  background: var(--skin-accent-cta);
   color: var(--tcd-navy);
   border-color: var(--skin-accent);
 }
@@ -303,7 +312,7 @@ body.tcd-skinned .tcd-nav-cta {
   align-items: center;
   padding: 9px 18px;
   border-radius: 999px;
-  background: var(--skin-accent);
+  background: var(--skin-accent-cta);
   color: var(--tcd-navy);
   font-weight: 700;
   font-size: 14px;
@@ -368,7 +377,7 @@ body.tcd-skinned .tcd-switch::after {
   bottom: 4px;
   inset-inline-start: 4px;
   width: calc(50% - 4px);
-  background: var(--skin-accent);
+  background: var(--skin-accent-cta);
   border-radius: 999px;
   transition: transform var(--rhythm-base) var(--ease-out);
   z-index: 0;
