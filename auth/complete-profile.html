@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Tell us who you are — The Comp Desk</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#06080f;--card:#0e1322;--bd:#1c2d4a;--ac:#4f8ff7;--acG:rgba(79,143,247,0.08);--gn:#2dd4a0;--rd:#ef4444;--tx:#dce4f0;--txD:#8899b4;--txM:#5a6a82;--wh:#f4f6fa;--font:'DM Sans',system-ui,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card{max-width:440px;width:100%;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:28px 26px;}
+h1{font-size:21px;font-weight:800;color:var(--wh);margin-bottom:6px;}
+.sub{font-size:13px;color:var(--txD);line-height:1.6;margin-bottom:22px;}
+.opt{display:block;width:100%;text-align:left;background:transparent;border:1.5px solid var(--bd);border-radius:12px;padding:15px 16px;margin-bottom:11px;cursor:pointer;font-family:var(--font);transition:border-color .12s,background .12s;}
+.opt:hover{border-color:var(--ac);background:var(--acG);}
+.opt.sel{border-color:var(--ac);background:var(--acG);}
+.opt:focus-visible{outline:2px solid var(--ac);outline-offset:2px;}
+.opt-t{font-size:15px;font-weight:700;color:var(--wh);margin-bottom:3px;}
+.opt-d{font-size:12px;color:var(--txD);line-height:1.5;}
+.submit{width:100%;padding:13px;background:var(--ac);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:8px;}
+.submit:disabled{opacity:.5;cursor:not-allowed;}
+.msg{font-size:12.5px;margin-bottom:14px;padding:10px 12px;border-radius:8px;display:none;line-height:1.5;}
+.msg.error{display:block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+.spin{width:34px;height:34px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:sp .8s linear infinite;margin:24px auto;}
+@keyframes sp{to{transform:rotate(360deg);}}
+</style>
+<link rel="stylesheet" href="/css/brand-theme.css">
+<script src="/js/brand-bg.js" defer></script>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="spin"></div>
+</div>
+
+<script>
+/**
+ * Post-OAuth profile completion — "Tell us who you are".
+ *
+ * WHY THIS PAGE EXISTS
+ * ────────────────────
+ * public.handle_new_user() builds the profiles row from
+ * raw_user_meta_data->>'user_type':
+ *
+ *     COALESCE(NEW.raw_user_meta_data->>'user_type', 'worker')   -- user_type
+ *     COALESCE(NEW.raw_user_meta_data->>'user_type', 'worker')   -- designation
+ *
+ * The email signup flow sets user_type explicitly. OAUTH DOES NOT — Google and
+ * Apple populate raw_user_meta_data with their own claims (name, email,
+ * avatar_url, full_name, sub) and nothing else. So EVERY Google/Apple signup
+ * silently lands as designation='worker', including attorneys. This page is the
+ * correction, and it runs before the user ever reaches a dashboard.
+ *
+ * DETECTION — note the subtlety
+ * ─────────────────────────────
+ * You cannot detect an incomplete profile with "designation IS NULL": the
+ * COALESCE above means designation is NEVER null. The real signal is whether
+ * the user ever *declared* anything, which lives in user_metadata.user_type —
+ * absent for OAuth, present for every email signup. auth/callback.html keys off
+ * that, and this page writes it, so the question is asked exactly once.
+ *
+ * designation stays a BINARY ROUTER ('worker' | 'attorney'). Everything that
+ * gates on designation==='attorney' keeps working untouched; the UI simply
+ * calls that side "works in workers' comp" rather than "attorney". P2 adds
+ * profiles.profession to tell attorneys from paralegals — see the seam below.
+ */
+const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const params  = new URLSearchParams(location.search);
+const nextUrl = params.get('next') || '/dashboard/';
+
+let choice = null;
+let session = null;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function go(dest){ location.replace(dest); }
+
+function renderForm(firstName) {
+  document.getElementById('card').innerHTML = `
+    <h1>${firstName ? 'Welcome, ' + esc(firstName) + '!' : 'Welcome!'}</h1>
+    <div class="sub">One quick question so we can set up the right tools for you.</div>
+    <div class="msg" id="msg"></div>
+
+    <button type="button" class="opt" data-v="worker">
+      <div class="opt-t">I'm an injured worker</div>
+      <div class="opt-d">Track your claim, estimate your benefits, and find help.</div>
+    </button>
+
+    <button type="button" class="opt" data-v="attorney">
+      <div class="opt-t">I work in workers' comp</div>
+      <div class="opt-d">Attorney, paralegal, case manager, or other WC professional.</div>
+    </button>
+
+    <!-- ═══ P2 SEAM ═══
+         When profiles.profession ships, render the profession <select> HERE,
+         revealed only when data-v="attorney" is selected, and add its value to
+         the profile update in save(). Do NOT widen designation to carry the
+         profession: a missed gate would route a paralegal into the injured-worker
+         dashboard, and those gates are spread across the website, the app, the
+         workspace and the Chrome extension. -->
+
+    <button type="button" class="submit" id="go" disabled>Continue</button>
+  `;
+
+  document.querySelectorAll('.opt').forEach(b => {
+    b.addEventListener('click', () => {
+      choice = b.dataset.v;
+      document.querySelectorAll('.opt').forEach(x => x.classList.toggle('sel', x === b));
+      document.getElementById('go').disabled = false;
+    });
+  });
+  document.getElementById('go').addEventListener('click', save);
+}
+
+function fail(text) {
+  const m = document.getElementById('msg');
+  if (m) { m.className = 'msg error'; m.textContent = text; }
+  const g = document.getElementById('go');
+  if (g) { g.disabled = false; g.textContent = 'Continue'; }
+}
+
+async function save() {
+  if (!choice) return;
+  const btn = document.getElementById('go');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const user = session.user;
+  const md   = user.user_metadata || {};
+  // Apple returns the user's name ONLY on the very first authorization, and many
+  // users pick "Hide My Email". Whatever the provider gave us is all we will
+  // ever get, so carry it through rather than letting it evaporate.
+  const providerName = md.full_name || md.name || null;
+
+  try {
+    // 1) Record the declaration on the auth user. This is the flag
+    //    auth/callback.html reads, so it must be written even if the profile
+    //    write below fails — otherwise the user is asked on every sign-in.
+    const { error: authErr } = await sb.auth.updateUser({
+      data: { user_type: choice, tcd_onboarded: true }
+    });
+    if (authErr) throw authErr;
+
+    // 2) Correct the profiles row the trigger defaulted to 'worker'.
+    const patch = { designation: choice, user_type: choice };
+    if (providerName) patch.full_name = providerName;
+
+    const { error: profErr } = await sb
+      .from('profiles').update(patch).eq('id', user.id);
+
+    if (profErr) {
+      // Fail loud (CLAUDE.md): a silent failure here strands an attorney on the
+      // injured-worker dashboard with no clue why.
+      console.error('[complete-profile] PROFILE_UPDATE_FAILED', profErr);
+      fail('We saved your choice but could not finish setting up your account. Please contact support if the wrong dashboard loads.');
+      setTimeout(() => go(nextUrl), 2600);
+      return;
+    }
+
+    go(choice === 'attorney' ? '/dashboard/' : nextUrl);
+  } catch (e) {
+    console.error('[complete-profile] SAVE_FAILED', e);
+    fail('Could not save that. Please try again.');
+  }
+}
+
+(async () => {
+  try {
+    const { data: { session: s }, error } = await sb.auth.getSession();
+    if (error) throw error;
+    if (!s) { go('/auth_v2.html?redirect=' + encodeURIComponent(nextUrl)); return; }
+    session = s;
+
+    const md = s.user.user_metadata || {};
+    // Already declared (any email signup, or a returning social user) — never
+    // ask twice.
+    if (md.user_type || md.tcd_onboarded === true) { go(nextUrl); return; }
+
+    const full = md.full_name || md.name || '';
+    renderForm(full ? String(full).trim().split(/\s+/)[0] : '');
+  } catch (e) {
+    // Fail OPEN: never trap a signed-in user on this page. Worst case they keep
+    // the trigger's default and can fix it from /account.
+    console.error('[complete-profile] INIT_FAILED', e);
+    go(nextUrl);
+  }
+})();
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

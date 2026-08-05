@@ -413,7 +413,11 @@
                 const { data: { session } } = await sb.auth.getSession();
 
                 if (!session) {
-                    window.location.href = '/auth.html';
+                    // auth_v2.html is the live sign-in page and the only one
+                    // carrying the Google/Apple buttons; /auth.html is the
+                    // retired predecessor (301'd in vercel.json). Carry the
+                    // destination so the user lands back here after signing in.
+                    window.location.href = '/auth_v2.html?redirect=' + encodeURIComponent('/account');
                     return;
                 }
 

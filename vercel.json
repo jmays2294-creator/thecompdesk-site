@@ -3,6 +3,16 @@
   "installCommand": "echo 'static site - skipping install'",
   "redirects": [
     {
+      "source": "/auth.html",
+      "destination": "/auth_v2.html",
+      "permanent": true
+    },
+    {
+      "source": "/auth",
+      "destination": "/auth_v2.html",
+      "permanent": true
+    },
+    {
       "source": "/calculators/pro.html",
       "destination": "/workspace/",
       "permanent": true

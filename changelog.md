@@ -5,6 +5,90 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (later)
+
+### Sign in with Google and Apple on the website
+
+The website had no social sign-in at all. Native iOS shipped it back in Phase 4
+(`594a571`), but that proves nothing about the web: native uses
+`signInWithIdToken`, which validates against the provider's *Client IDs* list
+alone — which is why iOS shipped with an empty Apple secret. The web uses the
+OAuth redirect flow, which **does** require the signed client secret on the
+Supabase provider.
+
+**Provider state, probed rather than assumed.** Hitting
+`/auth/v1/authorize?provider=…` directly:
+
+- **Google** — 302s to Google with the correct web client ID and
+  `redirect_uri=…/auth/v1/callback`. Wired.
+- **Apple** — `400 {"code":400,"error_code":"validation_failed","msg":"Unsupported
+  provider: missing OAuth secret"}`. The Supabase field wants a **JWT** signed
+  from the `.p8`, not the `.p8` itself.
+
+**The flow is implicit, not PKCE — this changes the callback.** `signInWithOAuth`
+on this project emits an authorize URL with **no `code_challenge`**, and stashes
+no code verifier. Tokens therefore come back in the URL **fragment** and
+`detectSessionInUrl` consumes them; `exchangeCodeForSession` is *not* the path
+here. `auth/callback.html` keeps a `?code=` branch purely as a no-op safety net
+in case `flowType` is ever switched to `'pkce'`.
+
+**The trap: OAuth users have no `designation`.** `public.handle_new_user()` builds
+the profiles row as:
+
+```sql
+COALESCE(NEW.raw_user_meta_data->>'user_type', 'worker')   -- user_type AND designation
+```
+
+Email signup sets `user_type` explicitly. OAuth does not — Google and Apple
+supply only their own claims (`name`, `email`, `avatar_url`, `full_name`, `sub`).
+So **every** Google/Apple signup would silently file as `designation='worker'`,
+attorneys included. New `auth/complete-profile.html` asks the question once,
+before the user reaches any dashboard, and writes both `designation` and
+`user_type`.
+
+Note the detection subtlety: you *cannot* test `designation IS NULL`, because the
+COALESCE above means it never is. The real signal is whether the user ever
+**declared** anything, which lives in `user_metadata.user_type` — absent for
+OAuth, present for every email signup. Existing users are therefore never
+re-prompted. `designation` stays a binary router; the UI just calls that side
+"I work in workers' comp". The profession picker from P2 has a marked seam in
+that file.
+
+**Three live sign-in surfaces, not one.** `auth_v2.html` (password + MFA) is the
+main page, but `/account` sends users to `auth/login.html` + `auth/signup.html`,
+which are **magic-link** — a method `auth_v2` does not offer, so 301'ing them
+would have deleted passwordless sign-in. All three got the buttons. `auth.html`
+was a genuine dead duplicate of `auth_v2` reached only from `account.html`; it is
+now 301'd and that hard redirect points at `auth_v2` carrying `?redirect=`.
+
+`js/social-auth.js` is a **classic script, not a module** — deliberately, one day
+after a dangling ESM import took `/dashboard/my-cases` down. If it fails to load
+we lose two buttons; the email/password form underneath is untouched.
+
+Verified: both buttons render above the form in all three `auth_v2` modes and on
+both magic-link pages, re-bound correctly across mode switches; `?redirect=` and
+`?next=` survive the whole round trip into `/auth/callback`; the eight routing
+cases (new Google, new Apple with Hide My Email, returning social, email users
+with and without metadata, null/malformed sessions) all resolve correctly and
+none throw; the completion form gates Continue on a choice and escapes the
+provider-supplied name; and every existing handler on `auth_v2` — password login,
+MFA challenge, recovery, worker signup, attorney signup — is intact.
+
+**Not yet working, and why.** Apple stays broken until the ES256 client secret
+JWT is pasted into the Supabase Apple provider — the button is live, so it will
+land on that raw 400 until then. Two other things cannot be verified from
+outside: whether Google's client secret is the current one (it only fails at
+token exchange, after real user consent), and whether
+`https://thecompdesk.com/auth/callback` is in Supabase's Redirect URLs allowlist
+— validation happens on the return leg only, and a missing entry silently sends
+users to SITE_URL instead. Both need a real sign-in to confirm.
+
+**Apple JWT expiry: Apple caps it at 6 months.** Whoever mints it must record the
+expiry date here and set a calendar reminder — when Apple sign-in starts throwing
+"missing OAuth secret" again, an expired secret is the first thing to check.
+
+---
+
 ## 2026-08-05
 
 ### /dashboard/my-cases — an import of a file that was never written, and the 162 more it led us to

@@ -47,7 +47,7 @@ p{font-size:14px;color:var(--txD);line-height:1.5;}
   <div class="error-box" id="error-box">
     <div class="err-title">Sign-in failed</div>
     <div class="err-msg" id="error-msg">The link may have expired or already been used.</div>
-    <a href="/auth/login" class="btn">Try again</a>
+    <a href="/auth/login" class="btn" id="retry-link">Try again</a>
   </div>
 </div>
 
@@ -60,6 +60,10 @@ const params  = new URLSearchParams(window.location.search);
 const nextUrl = params.get('next') || '/account';
 
 function showError(msg) {
+  // Carry the destination back to the retry page, so a failed sign-in does not
+  // also lose where the user was trying to go.
+  const retry = document.getElementById('retry-link');
+  if (retry) retry.href = '/auth/login?next=' + encodeURIComponent(nextUrl);
   document.getElementById('spinner').style.display = 'none';
   document.getElementById('title').textContent = 'Something went wrong';
   document.getElementById('subtitle').style.display = 'none';
@@ -68,24 +72,83 @@ function showError(msg) {
   if (msg) document.getElementById('error-msg').textContent = msg;
 }
 
+/**
+ * Where does a freshly-authenticated user actually go?
+ *
+ * Magic-link users have always declared who they are at signup, so they go
+ * straight to `next`. OAUTH USERS HAVE NOT: Google and Apple populate
+ * raw_user_meta_data with their own claims only, so public.handle_new_user()
+ * hits its COALESCE fallback and silently files EVERY social signup as
+ * designation='worker' — attorneys included.
+ *
+ * Detection cannot be "designation IS NULL" — that COALESCE means designation is
+ * never null. The honest signal is whether the user ever *declared* anything,
+ * which is user_metadata.user_type: absent for OAuth, present for every email
+ * signup. /auth/complete-profile writes it, so the question is asked once.
+ */
+function destinationFor(session) {
+  try {
+    const u  = session && session.user;
+    const md = (u && u.user_metadata) || {};
+    const provider = (u && u.app_metadata && u.app_metadata.provider) || '';
+    const isSocial = provider === 'google' || provider === 'apple';
+    const declared = !!md.user_type || md.tcd_onboarded === true;
+
+    if (isSocial && !declared) {
+      return '/auth/complete-profile?next=' + encodeURIComponent(nextUrl);
+    }
+  } catch (e) {
+    // Fail OPEN — a bad read here must not strand a signed-in user.
+    console.error('[callback] ROUTING_FAILED', e);
+  }
+  return nextUrl;
+}
+
+let routed = false;
+function routeOnce(session, delayMs) {
+  if (routed) return;
+  routed = true;
+  const dest = destinationFor(session);
+  setTimeout(() => { window.location.replace(dest); }, delayMs || 0);
+}
+
 // Supabase sends the session tokens as a URL fragment (#access_token=...&refresh_token=...)
-// after magic-link click. The JS client detects and exchanges them automatically.
+// after a magic-link click AND after the OAuth redirect — verified 2026-08-05:
+// signInWithOAuth on this project emits no code_challenge, i.e. the implicit
+// flow, so detectSessionInUrl consumes the fragment and no code exchange is
+// needed. The ?code= branch below is a defensive no-op unless flowType is ever
+// switched to 'pkce'.
 sb.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session) {
     // Small delay so the "Signing you in…" message is briefly visible
-    setTimeout(() => { window.location.href = nextUrl; }, 600);
+    routeOnce(session, 600);
   }
 });
 
 // Fallback: check for an existing session (handles page reload after fragment consumed)
 (async () => {
+  // Defensive: if this project is ever switched to the PKCE flow, the provider
+  // returns ?code= instead of a fragment and it must be exchanged explicitly.
+  const code = params.get('code');
+  if (code) {
+    try {
+      const { data, error: xErr } = await sb.auth.exchangeCodeForSession(code);
+      if (xErr) { showError(xErr.message); return; }
+      if (data && data.session) { routeOnce(data.session, 300); return; }
+    } catch (e) {
+      console.error('[callback] CODE_EXCHANGE_FAILED', e);
+      showError('We could not complete sign-in. Please try again.');
+      return;
+    }
+  }
+
   const { data: { session }, error } = await sb.auth.getSession();
   if (error) {
     showError(error.message);
     return;
   }
   if (session) {
-    window.location.href = nextUrl;
+    routeOnce(session, 0);
     return;
   }
 
@@ -97,8 +160,11 @@ sb.auth.onAuthStateChange((event, session) => {
     return;
   }
 
-  // If no session and no error after 5s, assume the link was bad
+  // If no session and no error after 5s, assume the link was bad.
+  // `routed` guards the case where onAuthStateChange already fired and the
+  // browser is mid-navigation — showing "expired" then would be a plain lie.
   setTimeout(() => {
+    if (routed) return;
     const box = document.getElementById('error-box');
     if (box.style.display === 'none' || !box.style.display) {
       showError('The sign-in link may have expired. Please request a new one.');
