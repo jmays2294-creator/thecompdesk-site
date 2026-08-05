@@ -5,6 +5,126 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (compliance sweep)
+
+### Every surface naming the operator, swept against the policy — and the guard that had not run since July
+
+`SILENT_OWNER_POLICY.md` protects one thing: the neutrality of the free
+round-robin attorney connection service. It lists **carve-outs** — the surfaces
+permitted to name the operator or the firm — and its own contributor rule says a
+naming surface must either fall inside one or not be on the site. Nobody had
+checked the list against the site.
+
+**The list was incomplete, not the pages.** Sweeping every served page for the
+canonical forbidden strings (taken from the enforcement test, not guessed) found
+them in **53 HTML files across 8 base surfaces**. Six were outside every
+carve-out. Four turned out to be legitimate and simply unlisted — added as
+carve-outs 7–9 and 11–12:
+
+| Surface | Why it names the operator |
+|---|---|
+| `legal/terms.html` +9 | §1.3 and §2.4 **are** the founder-firm disclosure |
+| `contributor-agreement.html` | §8.2 — naming is what makes the fee-sharing clause operative |
+| `calculators/radiculopathy.html` +9 | a **non-rendered** source comment recording who verified the impairment table |
+| `worker.html` +9 | founder signature on the injured-worker page |
+| `index.html` +9 | a "Joel Mays, Esq. · Founder" credit |
+
+**The one that mattered: `/attorneys`.** A first-person attorney bio naming
+Shulman & Hill, PLLC, plus an FAQ credential claim — with **no Attorney
+Advertising label and no disclaimer of any kind**. It now carries both (measured
+8.36:1 and 11.73:1 contrast, comfortably past WCAG AA) and is carve-out 10, on the
+directory's terms. `/worker`, `/` and `/webinars` got the same treatment;
+carve-out 4 was amended to require the label it had never imposed.
+
+---
+
+### The enforcement claim was false for two weeks
+
+The policy states the exclusion is *"enforced in code, not merely in policy, by
+`tests/directory-exclusion.test.js`, which runs on every push and pull request to
+`main`."*
+
+**It ran and crashed on every one.** `package.json` declares `"type": "module"`
+(added in `b17c900`, an i18n commit), so `const fs = require('fs')` threw
+`ReferenceError` before a single check executed. The Directory Neutrality workflow
+failed **32 of its last 40 runs**, in 14 seconds each. Last green: **2026-07-21**.
+
+Three constructs needed converting, not the two that were obvious — both
+`require()` calls **and `__dirname`**, which does not exist in ESM either. The
+filename was deliberately left alone: the policy names that exact path, and
+renaming to `.cjs` would have meant chasing it through the policy and the
+workflow.
+
+Proven in both directions rather than trusted: injecting a Shulman & Hill record
+into `data/attorneys.json` exits 1 naming both strings; removing it exits 0.
+Before the fix it exited non-zero for everyone, always, for reasons having nothing
+to do with neutrality — which is the worst kind of red, because it looks like a
+working guard right up until someone reads the log.
+
+**No live exposure in the window** — the roster is empty and `/directory` 404s, so
+there was nothing to guard. The guard would simply have been just as dead on the
+day a real listing landed.
+
+Worth noting how it hid: the first time this session ran that test, it passed.
+The working tree still held a concurrent session's uncommitted ESM rewrite. Only
+once that moved into its own worktree did `main`'s true state show. A green result
+read off someone else's uncommitted fix is not a green result.
+
+---
+
+### "Attorney Advertising" stays in English — and that is now enforced
+
+Initially the label shipped translated into all nine locales (*Publicidad de
+abogados*, *변호사 광고*, *Реклама юридических услуг*, …), on the reasoning that a
+disclosure the reader cannot read discloses nothing. Joel's call reversed it: the
+label is the statutory phrase from NY RPC 7.1(f), and a translation of it is not
+that phrase.
+
+Rather than overwrite nine values and hope, **"Attorney Advertising" was added to
+`i18n/glossary.json` `doNotTranslate`**, so `verify.mjs` now fails the build via
+its DNT-lost check if any locale renders it in the target language. Proven:
+re-translating it in `es` reports `DNT-lost: shared.attorney-advertising` and
+exits 1. Without the glossary entry this was a convention the next translation
+pass would quietly have undone.
+
+The **surrounding legal line stays translated** — explanatory prose, not a fixed
+legal term. Its wording is recomposed from sentences already shipped and reviewed
+in those catalogs (`worker.important-the-comp-desk-is`,
+`worker.no-attorney-matching-is-mechanical`), so 18 translations introduced no new
+legal copy beyond the two-word label.
+
+Full i18n cycle: 2 new keys, 0 removed, zh-Hant derived via OpenCC, 297 locale
+pages rebuilt. `i18n:verify` **PASS 1996/1996** across all nine with `DNT-lost 0`;
+`build --check` 0; `check:refs` green.
+
+---
+
+### Where it stands
+
+All **12 carve-outs** are listed, every surface naming the operator is accounted
+for, and all four advertising surfaces (`/attorneys`, `/`, `/worker`,
+`/webinars`) carry a label and a disclaimer. The three carve-outs without labels —
+a non-rendered source comment, a contract, and the legal terms — are not
+advertising.
+
+The two rules most likely to erode are now **machine-enforced rather than
+documented**: the connection-service exclusion (`directory-neutrality.yml`, green
+again) and the English label (`doNotTranslate`).
+
+Interlocking work from the concurrent attorney-directory session landed on `main`
+alongside this and is **not** described here — `90f8912` took the ESM repair above
+and extended the guard to the paid directory with dated per-slug exemptions and an
+explicit vacuous-run warning; `eeca20b` and `848710f` re-scoped the disclosure and
+added the directory schema. Those are that session's to write up.
+
+Still open, and recorded in the policy rather than silently permitted:
+`/directory` 404s, so the whole "Permitted: disclosed attorney advertising"
+section grants permissions on a surface that does not exist yet; and carve-out 2
+describes disclaimer copy on `find-attorney.html`, which 301s to
+`/connect-with-attorney` and is never served.
+
+---
+
 ## 2026-08-05 (repo-doctor)
 
 ### The pre-flight gate hard-failed inside every git worktree
