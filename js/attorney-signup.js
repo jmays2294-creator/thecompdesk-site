@@ -11,14 +11,13 @@
  *   4. Confirmation screen (shown after ?signup=success return)
  */
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+// The ONE shared client — see js/supabase-client.js. This module used to build
+// its own, giving any page that also loaded auth.js two competing
+// GoTrueClient instances on the same auth storage key.
+import { supabase, SUPABASE_URL } from '/js/supabase-client.js';
 
 // ── Config ─────────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://ltibymvlytodkemdeeox.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
-const CHECKOUT_FN   = `${SUPABASE_URL}/functions/v1/create-attorney-checkout`;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+const CHECKOUT_FN = `${SUPABASE_URL}/functions/v1/create-attorney-checkout`;
 
 // ── DOM helpers ────────────────────────────────────────────────
 function $(id) { return document.getElementById(id); }

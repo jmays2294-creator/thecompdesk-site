@@ -5,6 +5,82 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05
+
+### /dashboard/my-cases — an import of a file that was never written, and the 162 more it led us to
+
+**Every visitor to My Cases, at every tier, sat on "Verifying your subscription…"
+forever.** Not a tier bug — `get_my_entitlement()`, `getEffectiveTier()` and the
+paywall gate were all correct and are untouched.
+
+`my-cases.html:635` statically imported `../js/calc-history-sync.js`. That file
+had never existed, in any branch, since the import was added on May 8. Because a
+**static ESM specifier that fails to resolve aborts the entire module**, the
+whole `<script type="module">` block never ran — and that block is the only thing
+that hides `#verify-overlay`, which rendered visible by default. The page had no
+way to recover: the code that would have unstuck it was inside the thing that
+died.
+
+Same class as the 2026-08-04 dead `<script>` tags, one order of magnitude worse.
+A missing `<script src>` costs you one feature. A missing ESM specifier costs you
+the page.
+
+**The module is now written, not stubbed.** `js/calc-history-sync.js` does the
+cross-surface sync that was promised: a Realtime `postgres_changes` subscription
+on `calculation_history`, so a save on the iOS app repaints an open browser tab.
+Two things worth knowing before touching it:
+
+- The table is already in the `supabase_realtime` publication — verified, no
+  migration needed.
+- It has **REPLICA IDENTITY DEFAULT**, so a delete's `old_record` carries only the
+  primary key. `user_id` is not in the payload, so the obvious
+  `filter: user_id=eq.<id>` on DELETE can *never* match — it would connect
+  cleanly, look right, and silently drop every cross-surface delete forever.
+  DELETE is therefore subscribed unfiltered; we still receive those events
+  because RLS is not applied to deletes, and the refetch they trigger re-reads
+  through RLS, so it costs one redundant scoped query and discloses nothing.
+  INSERT and UPDATE are filtered normally.
+
+**Three safety nets, because the page had none.** `#verify-overlay` now renders
+hidden and is shown by JS; init is wrapped in try/catch/**finally** that drops the
+overlay on every path; and a watchdog armed before the first `await` fails open at
+8s with a non-blocking toast. All three fail *open* — the data is RLS-protected,
+so the worst case is a free user seeing an empty shell rather than a paying
+attorney locked out. Note the ordering: only the markup change survives a dead
+module, which is exactly the failure we had.
+
+**Two independent causes, both closed.** `auth.js`, `entitlements.js` and
+`attorney-signup.js` each built their own `createClient()` — three GoTrueClients
+sharing one `localStorage` key and one `navigator.locks` lock, able to deadlock
+`getSession()` and produce this same hang by a different route. They now share
+`js/supabase-client.js`, which also survives being loaded under both `/js/…` and
+`../js/…` specifiers. And every `supabase-js` reference sitewide is pinned to
+`@2.112.1` — 25 of them resolved a fully unpinned major (`…/supabase-js/+esm`),
+one upstream v3 publish away from breaking every authenticated page on the site
+with no deploy on our side; the rest were major-pinned `@2` but floated on patch.
+
+**The guard found 162 more.** `scripts/check-asset-refs.mjs` (`npm run
+check:refs`) walks every HTML file plus the module graph behind it and asserts
+each local reference exists on disk. First run: **163 dangling refs across 73
+files**. The one we knew about, and 162 we did not — every locale calculator and
+learning page imports `../js/auth.js`, which from `/bn/calculators/` resolves to
+`/bn/js/auth.js`. There is no `js/` directory under any locale. Confirmed 404 in
+production, meaning auth and nav had been dead on all nine non-English locales'
+calculator pages. Rewritten to root-absolute `/js/…`; the guard is green.
+
+Proven, not assumed: with the import deliberately broken in a scratch copy the
+overlay stays hidden and the spinner never appears (fail-open holds even when the
+module is entirely dead); the guard flags that same break and exits 1; the shared
+client is one instance across every import path with no "Multiple GoTrueClient"
+warning; the Realtime channel reaches `joined`; and `startCalcHistorySync` /
+`stopCalcHistorySync` were fired at eleven malformed-argument cases without
+throwing — a sync failure must never be able to take the page down again.
+
+Still to confirm signed in as a Pro user: that live sync actually repaints on a
+cross-surface save. Everything above was verified without a Pro session.
+
+---
+
 ## 2026-08-04
 
 ### /dashboard — two tiles that did nothing, and four scripts that were never here

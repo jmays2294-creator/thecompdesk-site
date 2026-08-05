@@ -10,13 +10,12 @@
  *   await requirePro(userId);  // throws PaywallError (402) if gated; no-op if PRO_ENABLED=false
  */
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import { PRO_ENABLED } from '/js/featureFlags.js';
 
-const SUPA_URL = 'https://ltibymvlytodkemdeeox.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
-
-const supabase = createClient(SUPA_URL, SUPA_KEY);
+// The ONE shared client — see js/supabase-client.js. This module used to build
+// its own, which meant any page importing both auth.js and entitlements.js ran
+// two GoTrueClient instances contending over the same auth storage and lock.
+import { supabase } from '/js/supabase-client.js';
 
 /**
  * Error thrown by requirePro() when a free user tries to access a Pro feature

@@ -545,10 +545,17 @@
     </div>
   </nav>
 
-  <!-- Verifying subscription (shown first, while the entitlement RPC resolves).
-       Starts visible so the page never flashes the paywall before the tier is
-       known. JS hides it once the tier is confirmed. -->
-  <div id="verify-overlay" class="pro-gate-overlay">
+  <!-- Verifying subscription, shown while the entitlement RPC resolves.
+
+       Starts HIDDEN and is shown by JS (2026-08-05). It used to render visible
+       by default, which meant that if the module that hides it never ran — as
+       happened when a missing ESM import killed the whole module script
+       block — every visitor sat on this spinner forever, at every tier. An
+       overlay that blocks the page must never be able to outlive the script
+       that owns it, so the failure mode is now "no spinner" rather than
+       "permanent spinner". The brief paywall flash this risks is handled by JS
+       showing this overlay immediately on init, before the first await. -->
+  <div id="verify-overlay" class="pro-gate-overlay" style="display:none;">
     <div class="pro-gate-box">
       <div style="font-size:40px;">🔄</div>
       <h2>Verifying your subscription…</h2>
@@ -1049,136 +1056,218 @@
       window.location.href = '/workspace/?case=' + encodeURIComponent(selectedCase?.case_name || '') + '&load=' + calc.id;
     }
 
+    // ─── Non-blocking degradation notice ───
+    // Per the "fail loud, never silent" rule: when we fail open, the user is
+    // told, rather than being handed a silently-incomplete page. Non-blocking
+    // by design — it must never become a second thing that can trap the user.
+    function showStuckToast(message) {
+      try {
+        if (document.getElementById('my-cases-stuck-toast')) return;
+        const el = document.createElement('div');
+        el.id = 'my-cases-stuck-toast';
+        el.setAttribute('role', 'status');
+        el.style.cssText = [
+          'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%)',
+          'z-index:99999', 'background:rgba(245,158,11,.96)', 'color:#111',
+          'padding:12px 18px', 'border-radius:8px', 'max-width:min(520px,92vw)',
+          'font:600 13px/1.5 var(--font,system-ui)', 'box-shadow:0 8px 24px rgba(0,0,0,.35)',
+          'display:flex', 'gap:12px', 'align-items:center',
+        ].join(';');
+        el.innerHTML = '<span style="flex:1"></span>'
+          + '<button type="button" aria-label="Dismiss" '
+          + 'style="background:transparent;border:0;font-size:16px;cursor:pointer;color:inherit;line-height:1">×</button>';
+        el.firstChild.textContent = message;
+        el.querySelector('button').addEventListener('click', () => el.remove());
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 12000);
+      } catch (e) {
+        console.warn('[my-cases] toast failed (ignored)', e);
+      }
+    }
+
     // ─── Init ───
+    //
+    // Structured so the page CANNOT get stuck behind the verifying overlay
+    // (2026-08-05). Three independent safety nets, because the failure that
+    // took this page down was invisible to all of the old ones:
+    //
+    //   1. try/catch/finally — the finally ALWAYS hides #verify-overlay, so no
+    //      throw anywhere in init can leave the spinner up.
+    //   2. A watchdog armed BEFORE the first await — if init wedges on a hung
+    //      promise (no throw, no resolve), it reveals the page anyway at 8s.
+    //   3. #verify-overlay renders hidden in markup — if this whole module dies
+    //      at import time, the user gets the page instead of a dead spinner.
+    //
+    // All three FAIL OPEN. The data is RLS-protected, so the worst case is a
+    // genuinely-free user seeing an empty shell — infinitely better than
+    // locking out a paying attorney.
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await getUser();
-      if (!user) return;
+      const verifyOverlayEl = document.getElementById('verify-overlay');
+      let settled = false;
 
-      // Single source of truth: the get_my_entitlement() RPC (migration 026),
-      // resolved server-side and immune to the client JWT-hydration race that
-      // caused the recurring false paywall. Returns a CONFIRMED tier, or null
-      // when it genuinely couldn't be determined.
-      const effectiveTier = await getEffectiveTier(user.session);
-      console.log('[my-cases] tier resolved:', { effective: effectiveTier });
+      // Show the spinner now (markup keeps it hidden — see the comment on the
+      // element). This is before any await, so it is not subject to the hang.
+      if (verifyOverlayEl) verifyOverlayEl.style.display = 'flex';
 
-      const verifyOverlay = document.getElementById('verify-overlay');
-      const proGate = document.getElementById('pro-gate-overlay');
+      const revealPage = () => {
+        if (verifyOverlayEl) verifyOverlayEl.style.display = 'none';
+        const layout = document.getElementById('casesLayout');
+        if (layout && layout.style.display === 'none') layout.style.display = 'grid';
+      };
 
-      // Show the paywall ONLY on a CONFIRMED non-Pro tier. On null/unknown we
-      // FAIL OPEN to the layout — data is RLS-protected, so the worst case is a
-      // genuinely-free user briefly seeing an empty My Cases shell, which is far
-      // better than locking out a paying attorney.
-      if (effectiveTier != null && !hasAccess(effectiveTier, ['pro', 'firm'])) {
-        verifyOverlay.style.display = 'none';
-        proGate.style.display = 'flex';
-        renderNav(user.session, effectiveTier);
-        return;
-      }
+      // ── Safety net 2: watchdog, armed before the first await ──
+      const watchdog = setTimeout(() => {
+        if (settled) return;
+        console.error('[my-cases] INIT_TIMEOUT — entitlement check did not settle in 8s; failing open');
+        revealPage();
+        showStuckToast('Still checking your subscription — showing your cases in the meantime.');
+      }, 8000);
 
-      currentUser = { session: user.session, tier: effectiveTier || user.tier || 'pro' };
-      renderNav(user.session, currentUser.tier);
+      try {
+        const user = await getUser();
+        if (!user) { settled = true; clearTimeout(watchdog); return; }
 
-      // Hide both overlays, show layout
-      verifyOverlay.style.display = 'none';
-      proGate.style.display = 'none';
-      document.getElementById('casesLayout').style.display = 'grid';
+        // Single source of truth: the get_my_entitlement() RPC (migration 026),
+        // resolved server-side and immune to the client JWT-hydration race that
+        // caused the recurring false paywall. Returns a CONFIRMED tier, or null
+        // when it genuinely couldn't be determined.
+        const effectiveTier = await getEffectiveTier(user.session);
+        console.log('[my-cases] tier resolved:', { effective: effectiveTier });
 
-      // Load cases
-      allCases = await getUserCases(user.session.user.id);
-      renderCaseList();
+        const verifyOverlay = document.getElementById('verify-overlay');
+        const proGate = document.getElementById('pro-gate-overlay');
 
-      // Search
-      document.getElementById('caseSearch').addEventListener('input', e => {
-        renderCaseList(e.target.value);
-      });
-
-      // Sort buttons
-      document.querySelectorAll('.sort-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          currentSort = btn.dataset.sort;
-          document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b === btn));
-          renderCaseList(document.getElementById('caseSearch').value);
-        });
-      });
-
-      // Refresh button
-      document.getElementById('refreshBtn').addEventListener('click', async () => {
-        allCases = await getUserCases(user.session.user.id);
-        if (selectedCase) {
-          const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
-          if (refreshed) selectCase(refreshed);
+        // Show the paywall ONLY on a CONFIRMED non-Pro tier. On null/unknown we
+        // FAIL OPEN to the layout — data is RLS-protected, so the worst case is a
+        // genuinely-free user briefly seeing an empty My Cases shell, which is far
+        // better than locking out a paying attorney.
+        if (effectiveTier != null && !hasAccess(effectiveTier, ['pro', 'firm'])) {
+          verifyOverlay.style.display = 'none';
+          proGate.style.display = 'flex';
+          renderNav(user.session, effectiveTier);
+          return;
         }
-        renderCaseList(document.getElementById('caseSearch').value);
-      });
 
-      // Bulk action bar — Clear + Delete selected (N)
-      document.getElementById('bulkActionClear').addEventListener('click', () => {
-        selectedIds.clear();
-        document.querySelectorAll('.row-select:checked').forEach(cb => { cb.checked = false; });
-        updateBulkBar();
-      });
-      document.getElementById('bulkActionDelete').addEventListener('click', async () => {
-        const n = selectedIds.size;
-        if (!n) return;
-        const ok = await cdConfirm({
-          title: `Delete ${n} ${n === 1 ? 'case' : 'cases'}?`,
-          message: `Delete ${n} selected ${n === 1 ? 'calculation' : 'calculations'}? This cannot be undone.`,
-          okLabel: `Delete ${n}`,
+        currentUser = { session: user.session, tier: effectiveTier || user.tier || 'pro' };
+        renderNav(user.session, currentUser.tier);
+
+        // Hide both overlays, show layout
+        verifyOverlay.style.display = 'none';
+        proGate.style.display = 'none';
+        document.getElementById('casesLayout').style.display = 'grid';
+
+        // Load cases
+        allCases = await getUserCases(user.session.user.id);
+        renderCaseList();
+
+        // Search
+        document.getElementById('caseSearch').addEventListener('input', e => {
+          renderCaseList(e.target.value);
         });
-        if (!ok) return;
-        const ids = Array.from(selectedIds);
-        const btn = document.getElementById('bulkActionDelete');
-        btn.disabled = true;
-        btn.textContent = 'Deleting...';
-        await runDelete(ids);
-        btn.disabled = false;
-      });
 
-      // Auto-select case from URL param
-      const params = new URLSearchParams(window.location.search);
-      const caseName = params.get('case');
-      if (caseName) {
-        const c = allCases.find(x => x.case_name === caseName);
-        if (c) selectCase(c);
-      }
+        // Sort buttons
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            currentSort = btn.dataset.sort;
+            document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+            renderCaseList(document.getElementById('caseSearch').value);
+          });
+        });
 
-      // ─── Cross-surface sync (May 8, 2026) ───
-      // When a save/update/delete happens on the iOS/Android app or another
-      // tab, the Realtime channel fires and we refetch + re-render so the
-      // user doesn't have to hit the Refresh button.
-      const syncHandle = startCalcHistorySync({
-        supabase,
-        userId: user.session.user.id,
-        onChange: async () => {
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
           allCases = await getUserCases(user.session.user.id);
           if (selectedCase) {
             const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
-            if (refreshed) {
-              // Prune any selection IDs that no longer exist after the realtime
-              // refresh (cross-surface delete from app/another tab).
-              const liveIds = new Set(refreshed.calculations.map(c => String(c.id)));
-              Array.from(selectedIds).forEach(id => { if (!liveIds.has(id)) selectedIds.delete(id); });
-              selectCase(refreshed);
-            } else {
-              selectedCase = null;
-              selectedIds.clear();
-              updateBulkBar();
-            }
+            if (refreshed) selectCase(refreshed);
           }
-          const search = document.getElementById('caseSearch');
-          renderCaseList(search ? search.value : '');
-        },
-      });
+          renderCaseList(document.getElementById('caseSearch').value);
+        });
 
-      // Surface subscribe errors as a non-blocking inline notice (per the
-      // Apr 27 "fail loud, not silent" playbook in CLAUDE.md). The Refresh
-      // button stays as a manual fallback so the page is never stuck.
-      window.addEventListener('calchistory:error', (e) => {
-        console.warn('[my-cases] live sync degraded — Refresh button still works:', e.detail);
-      });
+        // Bulk action bar — Clear + Delete selected (N)
+        document.getElementById('bulkActionClear').addEventListener('click', () => {
+          selectedIds.clear();
+          document.querySelectorAll('.row-select:checked').forEach(cb => { cb.checked = false; });
+          updateBulkBar();
+        });
+        document.getElementById('bulkActionDelete').addEventListener('click', async () => {
+          const n = selectedIds.size;
+          if (!n) return;
+          const ok = await cdConfirm({
+            title: `Delete ${n} ${n === 1 ? 'case' : 'cases'}?`,
+            message: `Delete ${n} selected ${n === 1 ? 'calculation' : 'calculations'}? This cannot be undone.`,
+            okLabel: `Delete ${n}`,
+          });
+          if (!ok) return;
+          const ids = Array.from(selectedIds);
+          const btn = document.getElementById('bulkActionDelete');
+          btn.disabled = true;
+          btn.textContent = 'Deleting...';
+          await runDelete(ids);
+          btn.disabled = false;
+        });
 
-      // SPA-style cleanup if the user navigates away.
-      window.addEventListener('beforeunload', () => stopCalcHistorySync(syncHandle));
+        // Auto-select case from URL param
+        const params = new URLSearchParams(window.location.search);
+        const caseName = params.get('case');
+        if (caseName) {
+          const c = allCases.find(x => x.case_name === caseName);
+          if (c) selectCase(c);
+        }
+
+        // ─── Cross-surface sync (May 8, 2026) ───
+        // When a save/update/delete happens on the iOS/Android app or another
+        // tab, the Realtime channel fires and we refetch + re-render so the
+        // user doesn't have to hit the Refresh button.
+        const syncHandle = startCalcHistorySync({
+          supabase,
+          userId: user.session.user.id,
+          onChange: async () => {
+            allCases = await getUserCases(user.session.user.id);
+            if (selectedCase) {
+              const refreshed = allCases.find(c => c.case_name === selectedCase.case_name);
+              if (refreshed) {
+                // Prune any selection IDs that no longer exist after the realtime
+                // refresh (cross-surface delete from app/another tab).
+                const liveIds = new Set(refreshed.calculations.map(c => String(c.id)));
+                Array.from(selectedIds).forEach(id => { if (!liveIds.has(id)) selectedIds.delete(id); });
+                selectCase(refreshed);
+              } else {
+                selectedCase = null;
+                selectedIds.clear();
+                updateBulkBar();
+              }
+            }
+            const search = document.getElementById('caseSearch');
+            renderCaseList(search ? search.value : '');
+          },
+        });
+
+        // Surface subscribe errors as a non-blocking inline notice (per the
+        // Apr 27 "fail loud, not silent" playbook in CLAUDE.md). The Refresh
+        // button stays as a manual fallback so the page is never stuck.
+        window.addEventListener('calchistory:error', (e) => {
+          console.warn('[my-cases] live sync degraded — Refresh button still works:', e.detail);
+        });
+
+        // SPA-style cleanup if the user navigates away.
+        window.addEventListener('beforeunload', () => stopCalcHistorySync(syncHandle));
+
+      } catch (e) {
+        // ── Safety net 1a: nothing in init may leave the user on a spinner ──
+        // We do not know the tier, so we FAIL OPEN to the layout, consistent
+        // with the null-tier policy above. RLS is what protects the data.
+        console.error('[my-cases] INIT_FAILED', e);
+        revealPage();
+        showStuckToast('We had trouble confirming your subscription. Your cases may be incomplete — try Refresh.');
+      } finally {
+        // ── Safety net 1b: the overlay comes down on EVERY path ──
+        // Only the overlay. Revealing the layout here would show the case list
+        // behind the paywall to a confirmed-free user.
+        settled = true;
+        clearTimeout(watchdog);
+        if (verifyOverlayEl) verifyOverlayEl.style.display = 'none';
+      }
     });
   </script>
 <script src="/js/disclaimer.js" defer></script>

@@ -3,14 +3,11 @@
  * Provides Supabase client and auth utilities for all protected pages
  */
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-// Supabase client configuration
-const supabaseUrl = 'https://ltibymvlytodkemdeeox.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0aWJ5bXZseXRvZGtlbWRlZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjA1NjYsImV4cCI6MjA5MDM5NjU2Nn0.b5oQqQIdgJRc0DEP2k7kMVdCRzfyfnuAwjVNZlbVyak';
-
-// Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// The ONE shared client. This module used to call createClient() itself, as did
+// entitlements.js and attorney-signup.js — three GoTrueClient instances fighting
+// over one localStorage key and one navigator.locks lock, which can deadlock
+// getSession(). See js/supabase-client.js for the full story.
+import { supabase } from '/js/supabase-client.js';
 
 // ────────────────────────────────────────────────────────────────────────
 // Tier-fetch error tracking — restored 2026-05-13 per smoke test Bug A3.
