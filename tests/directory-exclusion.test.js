@@ -2,39 +2,47 @@
 /**
  * directory-exclusion.test.js
  *
- * Hard-fails the build if the site owner's firm or the site owner personally
- * appears anywhere in the Find an Attorney directory data file.
+ * Enforces SILENT_OWNER_POLICY.md in code, on two distinct surfaces:
  *
- * The Comp Desk is operated by a practicing NYS Workers' Compensation attorney
- * (Joel Mays, of Shulman and Hill PLLC). Because of that conflict of interest,
- * his firm and he personally are PERMANENTLY EXCLUDED from /find-attorney.html.
- * The exclusion is enforced here in code, not just in policy. If this test ever
- * fails, do NOT "fix" it by editing the forbidden list — fix it by removing the
- * forbidden entity from data/attorneys.json.
+ *   (A) THE NEUTRAL CONNECTION SERVICE  — data/attorneys.json
+ *       The site operator (Joel Mays, of Shulman and Hill PLLC) and his firm are
+ *       PERMANENTLY EXCLUDED from the free round-robin attorney connection service.
+ *       Nothing may relax this. If this half of the test fails, do NOT "fix" it by
+ *       editing the forbidden list — fix it by removing the forbidden entity from
+ *       data/attorneys.json.
+ *
+ *   (B) THE PAID ATTORNEY DIRECTORY     — data/directory-listings.json
+ *       A separate, disclosed attorney-advertising product in which the operator IS
+ *       permitted to participate (SILENT_OWNER_POLICY.md, amended 2026-08-05). A
+ *       listing bearing a forbidden string is allowed ONLY if its slug appears in
+ *       DIRECTORY_EXEMPTIONS below, with a date and a reason. Any other occurrence
+ *       fails the build.
+ *
+ * Why (B) exists: before 2026-08-05 this test scanned only data/attorneys.json. A
+ * directory-backed page naming the operator would not have tripped it — the guard
+ * would have gone green while looking at the wrong file. That is a proxy-pass, and
+ * it is the exact failure this half is here to prevent.
+ *
+ * VACUITY: a guard that scans an empty dataset is not a passing guard, it is an
+ * un-run one. This test reports scanned-record counts and explicitly declares a
+ * vacuous run rather than printing a confident PASS over nothing.
  *
  * Run: `node tests/directory-exclusion.test.js`
  * Exits 0 on pass, 1 on fail. Wired into .github/workflows/directory-neutrality.yml.
- *
- * CARVE-OUT (2026-04-06): find-attorney.html is an approved carve-out where
- * Shulman & Hill PLLC may appear as a participating firm per SILENT_OWNER_POLICY.md.
- * This test scans ONLY data/attorneys.json (not HTML), so the carve-out does not
- * affect this test. The personal name "Joel Mays" remains forbidden everywhere,
- * including find-attorney.html. See SILENT_OWNER_POLICY.md §Permitted carve-outs.
  */
 
-// ESM, not CommonJS: package.json declares "type": "module", so a `require()`
-// here throws ReferenceError before a single check runs. That is not
-// hypothetical — this file crashed on load from 2026-07-21 to 2026-08-05, and
-// the Directory Neutrality workflow failed 32 of 40 runs in 14 seconds each
-// while SILENT_OWNER_POLICY.md claimed the exclusion was "enforced in code".
-// A guard that cannot start is not a guard. Do not convert this back.
+// NOTE: package.json sets "type": "module". This file must be ESM. It was CommonJS
+// until 2026-08-05, which meant `node tests/directory-exclusion.test.js` threw
+// "require is not defined" on every CI run from 2026-07-21 onward — the guard was
+// not passing vacuously, it was not executing at all. Do not reintroduce require().
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const DATA_FILE = path.join(__dirname, '..', 'data', 'attorneys.json');
+const ATTORNEYS_FILE = path.join(__dirname, '..', 'data', 'attorneys.json');
+const DIRECTORY_FILE = path.join(__dirname, '..', 'data', 'directory-listings.json');
 
 // Forbidden substrings (case-insensitive). Intentionally broad to catch typos
 // and variants. Add to this list, never remove from it.
@@ -50,58 +58,179 @@ const FORBIDDEN = [
     'shulmanandhill.com',
 ];
 
+/**
+ * Slugs permitted to carry a forbidden string in the PAID DIRECTORY only.
+ * Each entry requires an approval date and a reason. Adding an entry here is a
+ * policy act: it must be accompanied by a matching carve-out in
+ * SILENT_OWNER_POLICY.md. It grants nothing on the connection service.
+ */
+const DIRECTORY_EXEMPTIONS = [
+    {
+        slug: 'joel-george-mays',
+        approved: '2026-08-05',
+        approvedBy: 'Joel Mays (site owner)',
+        reason:
+            'Disclosed paid attorney-advertising listing in /directory. Permitted by ' +
+            'SILENT_OWNER_POLICY.md as amended 2026-08-05 (§"Permitted: disclosed ' +
+            'attorney advertising"). Confers no connection-service eligibility.',
+    },
+];
+
+let failures = 0;
+let meaningfulAssertions = 0;
+
 function fail(msg) {
-    console.error('\u001b[31m\u2717 directory-exclusion FAILED:\u001b[0m ' + msg);
+    console.error('[31m✗ directory-exclusion FAILED:[0m ' + msg);
+    failures++;
+}
+function note(msg) {
+    console.log('  • ' + msg);
+}
+function warn(msg) {
+    console.log('[33m⚠ ' + msg + '[0m');
+}
+
+function hitsIn(str) {
+    const lower = String(str).toLowerCase();
+    return FORBIDDEN.filter(s => lower.includes(s));
+}
+
+// ---------------------------------------------------------------------------
+// (A) Connection service — absolute exclusion, no exemptions possible.
+// ---------------------------------------------------------------------------
+if (!fs.existsSync(ATTORNEYS_FILE)) {
+    fail('data/attorneys.json not found at ' + ATTORNEYS_FILE);
+} else {
+    let parsed;
+    try {
+        parsed = JSON.parse(fs.readFileSync(ATTORNEYS_FILE, 'utf8'));
+    } catch (e) {
+        fail('data/attorneys.json is not valid JSON: ' + e.message);
+        parsed = null;
+    }
+
+    if (parsed) {
+        // Schema-doc fields may MENTION the forbidden names to document the
+        // exclusion. Scan only the live data arrays.
+        const scanTarget = JSON.stringify({
+            regions: parsed.regions || [],
+            attorneys: parsed.attorneys || [],
+        });
+
+        const hits = hitsIn(scanTarget);
+        if (hits.length) {
+            fail(
+                'Forbidden owner/firm strings found in CONNECTION SERVICE data: ' +
+                hits.join(', ') +
+                '\n  The site operator and his firm are permanently excluded from the' +
+                '\n  neutral connection service. This exclusion has NO exemptions.' +
+                '\n  Remove the listing from data/attorneys.json.'
+            );
+        }
+
+        if (!Array.isArray(parsed.attorneys)) {
+            fail('data/attorneys.json: "attorneys" must be an array.');
+        } else {
+            for (const a of parsed.attorneys) {
+                if (!a || typeof a !== 'object') fail('Non-object entry in attorneys array.');
+                else if (!a.name || !a.region) {
+                    fail('Attorney entry missing required field name/region: ' + JSON.stringify(a));
+                }
+            }
+            const n = parsed.attorneys.length;
+            note('connection service: scanned ' + n + ' attorney record(s) across ' +
+                 (parsed.regions || []).length + ' region(s)');
+            if (n > 0) meaningfulAssertions++;
+            else warn('connection service roster is EMPTY — this half of the guard ' +
+                      'asserted nothing about live listings.');
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// (B) Paid directory — exclusion with explicit, dated, slug-scoped exemptions.
+// ---------------------------------------------------------------------------
+if (!fs.existsSync(DIRECTORY_FILE)) {
+    warn('data/directory-listings.json not found — directory guard asserted nothing. ' +
+         'Expected once /directory has been generated (npm run build:directory).');
+} else {
+    let dir;
+    try {
+        dir = JSON.parse(fs.readFileSync(DIRECTORY_FILE, 'utf8'));
+    } catch (e) {
+        fail('data/directory-listings.json is not valid JSON: ' + e.message);
+        dir = null;
+    }
+
+    if (dir) {
+        const listings = Array.isArray(dir.listings) ? dir.listings : null;
+        if (!listings) {
+            fail('data/directory-listings.json: "listings" must be an array.');
+        } else {
+            const exemptSlugs = new Set(DIRECTORY_EXEMPTIONS.map(e => e.slug));
+
+            for (const l of listings) {
+                if (!l || typeof l !== 'object') {
+                    fail('Non-object entry in directory listings array.');
+                    continue;
+                }
+                if (!l.slug) {
+                    fail('Directory listing missing required field "slug": ' + JSON.stringify(l));
+                    continue;
+                }
+
+                const hits = hitsIn(JSON.stringify(l));
+                if (hits.length && !exemptSlugs.has(l.slug)) {
+                    fail(
+                        'Forbidden owner/firm strings in directory listing "' + l.slug +
+                        '": ' + hits.join(', ') +
+                        '\n  A directory listing may carry these strings ONLY with a dated' +
+                        '\n  entry in DIRECTORY_EXEMPTIONS in this file, matched by an amended' +
+                        '\n  carve-out in SILENT_OWNER_POLICY.md. Add the exemption deliberately' +
+                        '\n  or remove the listing — do not edit the FORBIDDEN list.'
+                    );
+                }
+            }
+
+            // An exemption that no longer matches a live listing is stale; an
+            // exemption is a standing permission and must not outlive its subject.
+            for (const ex of DIRECTORY_EXEMPTIONS) {
+                if (!listings.some(l => l && l.slug === ex.slug)) {
+                    warn('DIRECTORY_EXEMPTIONS entry "' + ex.slug + '" matches no live ' +
+                         'listing — remove it if the listing is gone.');
+                }
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(ex.approved || '')) {
+                    fail('DIRECTORY_EXEMPTIONS entry "' + ex.slug +
+                         '" has no valid ISO approval date.');
+                }
+                if (!ex.reason || ex.reason.length < 20) {
+                    fail('DIRECTORY_EXEMPTIONS entry "' + ex.slug +
+                         '" has no substantive reason.');
+                }
+            }
+
+            note('paid directory: scanned ' + listings.length + ' listing(s), ' +
+                 exemptSlugs.size + ' exemption(s) on file');
+            if (listings.length > 0) meaningfulAssertions++;
+            else warn('directory manifest is EMPTY — this half of the guard asserted ' +
+                      'nothing about live listings.');
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+if (failures) {
+    console.error('\n[31m' + failures + ' failure(s).[0m');
     process.exit(1);
 }
-function pass(msg) {
-    console.log('\u001b[32m\u2713 directory-exclusion PASSED:\u001b[0m ' + msg);
+
+if (meaningfulAssertions === 0) {
+    console.log('[33m⚠ directory-exclusion: VACUOUS RUN[0m — no live records ' +
+                'were scanned on either surface.\n  Structural checks passed, but this run ' +
+                'is not evidence of neutrality.');
+} else {
+    console.log('[32m✓ directory-exclusion PASSED:[0m no forbidden ' +
+                'owner/firm strings outside dated exemptions (' + meaningfulAssertions +
+                '/2 surface(s) carried live records).');
 }
-
-if (!fs.existsSync(DATA_FILE)) {
-    fail('data/attorneys.json not found at ' + DATA_FILE);
-}
-
-const raw = fs.readFileSync(DATA_FILE, 'utf8');
-
-// Schema-doc fields are allowed to MENTION the forbidden names for the purpose
-// of documenting the exclusion. We strip the documentation field before scanning.
-let parsed;
-try {
-    parsed = JSON.parse(raw);
-} catch (e) {
-    fail('data/attorneys.json is not valid JSON: ' + e.message);
-}
-
-const scanTarget = JSON.stringify({
-    regions: parsed.regions || [],
-    attorneys: parsed.attorneys || [],
-}).toLowerCase();
-
-const hits = FORBIDDEN.filter(s => scanTarget.includes(s));
-
-if (hits.length) {
-    fail(
-        'Forbidden owner/firm strings found in directory data: ' +
-        hits.join(', ') +
-        '\n  The site owner (Joel Mays) and his firm (Shulman and Hill PLLC) are' +
-        '\n  permanently excluded from /find-attorney.html. Remove the listing.'
-    );
-}
-
-// Sanity: attorneys must be an array.
-if (!Array.isArray(parsed.attorneys)) {
-    fail('data/attorneys.json: "attorneys" must be an array.');
-}
-
-// Sanity: every attorney must have a name + region.
-for (const a of parsed.attorneys) {
-    if (!a || typeof a !== 'object') fail('Non-object entry in attorneys array.');
-    if (!a.name || !a.region) fail('Attorney entry missing required field name/region: ' + JSON.stringify(a));
-}
-
-pass(
-    'No forbidden strings in directory data. ' +
-    parsed.attorneys.length + ' attorney(s) listed across ' +
-    (parsed.regions || []).length + ' region(s).'
-);
+process.exit(0);
