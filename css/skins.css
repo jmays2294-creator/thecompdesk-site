@@ -94,7 +94,9 @@
   --skin-accent: #E87722;
   --skin-accent-cta: #B0560A;
   --skin-accent-soft: #FF8B33;
-  --skin-accent-deep: #B85808;
+  --skin-accent-deep: #F8842A;  /* a:hover on dark. Was #B85808 = 3.62/3.27/2.82 FAIL:
+                                   "deep" means darker, which is the wrong direction on a
+                                   dark surface. Now lighter than --skin-accent: 6.80/6.13/5.30. */
   --skin-divider: rgba(240, 235, 224, 0.12);
   --skin-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(240, 235, 224, 0.06);
   --skin-card-radius: 14px;
@@ -124,7 +126,8 @@
   --skin-surface-elev: #131F38;
   --skin-text: #F0EBE0;
   --skin-text-soft: #BAC1D1;
-  --skin-text-muted: #6E7791;
+  --skin-text-muted: #7E869D;  /* was #6E7791 = 4.12/3.68 FAIL on this skin's two
+                                   surfaces. Now 5.06/4.52. */
   --skin-accent: #E87722;
   --skin-accent-cta: #B0560A;
   --skin-accent-soft: #F4C28C;

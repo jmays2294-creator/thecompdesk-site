@@ -22,7 +22,7 @@
   /* ── Command-center palette (navy, the approved design's exact values) ── */
   --cc-bg:#0a1424; --cc-bg2:#0c182b; --cc-surface:#13243f; --cc-surface2:#17294a; --cc-raise:#1d325a;
   --cc-border:rgba(231,237,247,.10); --cc-border2:rgba(231,237,247,.18);
-  --cc-text:#f3ede2; --cc-text2:#a7b2c4; --cc-text3:#6c7689;
+  --cc-text:#f3ede2; --cc-text2:#a7b2c4; --cc-text3:#939baa; /* was #6c7689 = 3.38:1 on --cc-surface, FAIL. Now 5.56/5.17/4.53. */
   --cc-accent:#ef7d22; --cc-accent2:#ff9a4d; --cc-glow:rgba(239,125,34,.42);
   --cc-good:#34c98a; --cc-bad:#f0584e; --cc-grid:rgba(231,237,247,.045);
   --cc-ease:cubic-bezier(.22,.61,.36,1);
