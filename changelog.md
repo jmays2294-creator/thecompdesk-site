@@ -5,6 +5,65 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (record correction)
+
+### What commit 48e8fae actually contained
+
+`48e8fae` is titled for the Polish register change, and it also carries a full
+rewrite of **`SILENT_OWNER_POLICY.md`** (90 → 161 lines). That file was not part of
+the Polish work and is not described by that commit message.
+
+It belongs to a **concurrent session** building the attorney directory, working out
+of `.claude/worktrees/attorney-directory` (branch `worktree-attorney-directory`).
+That session wrote the policy into the main working tree at 18:23:19; a `git add -A`
+here swept it into a commit 36 seconds later. Staging by name — which every other
+commit in this session used — would not have picked it up. The content is finished
+and correct, so it stays; this entry exists so the history is not misleading, and so
+the directory session knows its policy amendment is already on `main` and does not
+need committing again. No other commit in this session contains work it does not
+name.
+
+**Its companion is not on `main`.** The amended policy describes enforcement across
+two surfaces — the neutral connection service *and* the paid directory, with dated
+per-slug exemptions. The committed `tests/directory-exclusion.test.js` still scans
+only `data/attorneys.json`; the two-surface version is the directory session's work
+and has since moved into its worktree. So `main` currently carries the amended
+policy with the older, single-surface guard. Not a live exposure — there is no
+directory to guard yet — but the policy is ahead of its enforcement until that
+session lands.
+
+**What the policy now says.** It was a blanket founder-anonymity rule; it is now
+scoped to the interest it was actually protecting — the neutrality of the free
+round-robin attorney connection service. The operator and their firm remain
+permanently excluded from that service. Founder anonymity is no longer claimed:
+the operator may be named, pictured, and biographied on the (unbuilt) paid
+`/directory` and on `webinars.html`, subject to Attorney Advertising labelling and
+paid-placement disclosure. The amendment note gives the reason plainly — the old
+rule had not described actual practice since `webinars.html` shipped in July, and
+a compliance document the project knowingly does not meet is worse than none.
+
+**Verified while documenting it,** since the policy makes an enforcement claim:
+
+- Every artifact it names exists — `tests/directory-exclusion.test.js`,
+  `.github/workflows/directory-neutrality.yml`,
+  `tests/find-attorney-map-sort.test.js`, `data/attorneys.json`, `back-burner/`.
+- `node tests/directory-exclusion.test.js` exits **0**, as the policy requires —
+  but it prints **"VACUOUS RUN … not evidence of neutrality"**, because the
+  connection-service roster is empty and `data/directory-listings.json` does not
+  exist. The structural checks pass; nothing was asserted about live listings.
+  The guard is honest about its own reach, which is the right design — it simply
+  has nothing to guard yet. It starts doing real work when the roster is populated
+  or `/directory` is generated.
+- **`/directory` returns 404** — it is not built. The whole "Permitted: disclosed
+  attorney advertising" section therefore grants permissions on a surface that does
+  not yet exist. Policy ahead of product, which is the safe order.
+- **`/find-attorney` 301s to `/connect-with-attorney`.** Carve-out 2 describes
+  disclaimer copy on `find-attorney.html`, a file that is never served. The live
+  disclosure obligation sits on `/connect-with-attorney`, which carve-out 1 covers,
+  so nothing is undisclosed — but that carve-out documents an unreachable page.
+
+---
+
 ## 2026-08-05 (pl register)
 
 ### Polish switched to formal address — it was the only locale using informal
