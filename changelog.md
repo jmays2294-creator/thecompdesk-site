@@ -5,6 +5,54 @@ Repository: `github.com/jmays2294-creator/thecompdesk-site`
 
 ---
 
+## 2026-08-05 (P4 follow-up)
+
+### Stale i18n slots fixed — and the rebuild exposed that P0's locale fix was never going to survive
+
+`scripts/i18n/extract.mjs` re-run, then `build-locales.mjs`. The blocker
+(*"confirmed.html changed since extraction"*, caused by P0's supabase-js pin
+shifting byte offsets) is gone: `build-locales.mjs --check` now exits 0.
+
+**The rebuild reverted P0's locale import fix, and the guard caught it.** P0
+rewrote `../js/auth.js` → `/js/auth.js` in 162 places across the *generated*
+locale pages. Those pages are emitted from the English sources, which still said
+`../js/auth.js` — correct at English's depth, wrong once copied into
+`/bn/calculators/`. So the first rebuild dutifully re-broke all nine locales, and
+`npm run check:refs` went from 0 dangling refs to 162 in one command. **P0's fix
+was applied to the output, not the source; it was always going to be overwritten
+by the next build.** Fixed properly this time: 24 specifiers made root-absolute in
+the 11 English sources, so every generated copy inherits a path that is correct at
+any depth. Verified `/bn/calculators/slu.html` now emits `/js/auth.js` straight
+from the build.
+
+That is the second time this session a guard earned its place. The first run of
+`check:refs` found the original 162; this run caught them coming back.
+
+**The extractor renamed the catalog key — unavoidably.** Keys are slugs derived
+from the English text, so changing the value regenerated
+`extension.the-full-pro-attorney-workspace` →
+`extension.the-full-pro-workspace-browser`. P4 deliberately avoided a key rename,
+but that is not achievable through this pipeline: the extractor owns key naming.
+Left half-done it was a live regression — `en.json` had the new key, the three
+translated catalogs still had the old one, and es/zh-Hans/zh-Hant were rendering
+the **English** string. The rename was propagated to all three catalogs (values
+preserved), rebuilt, and each locale page confirmed to render its own translation
+again.
+
+**Nothing else moved.** The extractor strips the generated hreflang/font blocks
+from all 33 English sources and `build-locales.mjs` re-adds them, so those pages
+end byte-identical to HEAD; hreflang was verified present afterwards, since
+stopping between the two steps would have shipped 33 pages with no hreflang.
+`en.json` still holds exactly 1994 keys, and the `i18n:verify` gate reports
+numbers byte-identical to a pristine `git archive HEAD` checkout — still red for
+the pre-existing untranslated `home.*` segment-picker keys, still not this
+change's doing.
+
+The uncommitted `index.html` / `calculators/index.html` work and its 12 locale
+copies were snapshotted before the run and byte-compared after: untouched.
+
+---
+
 ## 2026-08-05 (P4)
 
 ### "Pro Attorney Workspace" → "Pro Workspace"

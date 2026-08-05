@@ -3487,7 +3487,7 @@
   ]
  },
  "confirmed.html": {
-  "sha256": "4883ce3f0c9176d4eeb17bad35f089b8f4563b711ebb4dc18dbe3a2afd7455b1",
+  "sha256": "a30bb7602ae75d5acac59ae5d7f403a3512115a5bcf82dfe26480eb469e7f02b",
   "slots": [
    {
     "k": "confirmed.meta.og-title",
@@ -3527,86 +3527,86 @@
    },
    {
     "k": "shared.back-to-the-comp-desk",
-    "s": 5209,
-    "e": 5232,
+    "s": 5215,
+    "e": 5238,
     "t": "a"
    },
    {
     "k": "shared.the-comp-desk",
-    "s": 5326,
-    "e": 5339,
+    "s": 5332,
+    "e": 5345,
     "a": "alt"
    },
    {
     "k": "shared.the-comp-desk",
-    "s": 5444,
-    "e": 5457,
+    "s": 5450,
+    "e": 5463,
     "t": "div"
    },
    {
     "k": "confirmed.your-email-is-confirmed",
-    "s": 5835,
-    "e": 5861,
+    "s": 5841,
+    "e": 5867,
     "t": "h1"
    },
    {
     "k": "confirmed.thanks-for-joining-the-comp",
-    "s": 5930,
-    "e": 6056,
+    "s": 5936,
+    "e": 6062,
     "t": "p"
    },
    {
     "k": "confirmed.open-the-comp-desk-app",
-    "s": 6147,
-    "e": 6582,
+    "s": 6153,
+    "e": 6588,
     "t": "div"
    },
    {
     "k": "confirmed.on-your-phone-just-reopen",
-    "s": 6676,
-    "e": 6773,
+    "s": 6682,
+    "e": 6779,
     "t": "div"
    },
    {
     "k": "confirmed.this-link-has-expired",
-    "s": 6994,
-    "e": 7015,
+    "s": 7000,
+    "e": 7021,
     "t": "h1"
    },
    {
     "k": "confirmed.confirmation-links-are-only-good",
-    "s": 7089,
-    "e": 7188,
+    "s": 7095,
+    "e": 7194,
     "t": "p"
    },
    {
     "k": "shared.you-email-com",
-    "s": 7299,
-    "e": 7312,
+    "s": 7305,
+    "e": 7318,
     "a": "placeholder"
    },
    {
     "k": "confirmed.send-a-new-confirmation-email",
-    "s": 7517,
-    "e": 7546,
+    "s": 7523,
+    "e": 7552,
     "t": "button"
    },
    {
     "k": "confirmed.back-to-sign-in",
-    "s": 7652,
-    "e": 7667,
+    "s": 7658,
+    "e": 7673,
     "t": "a"
    },
    {
     "k": "shared.2026-njj-document-services-inc",
-    "s": 7838,
-    "e": 7919,
+    "s": 7844,
+    "e": 7925,
     "t": "p"
    },
    {
     "k": "shared.disclaimer-terms-of-use-privacy",
-    "s": 8006,
-    "e": 8192,
+    "s": 8012,
+    "e": 8198,
     "t": "p"
    }
   ]
@@ -3749,7 +3749,7 @@
   ]
  },
  "share-your-story/index.html": {
-  "sha256": "2af22703f500936daffb11e190c5930ee945a2a680b4634ad0ab5b3ceeec68d9",
+  "sha256": "e005f375c162c9fb94021c1992042c4bd6ca4062624a5190b73fa0ef11433c24",
   "slots": [
    {
     "k": "share-your-story.meta.title",
@@ -4281,7 +4281,7 @@
   ]
  },
  "calculators/aww.html": {
-  "sha256": "96735a2c601a6beea3ddef085aae9d3769b1d085f05f05182829681b1e6f40c4",
+  "sha256": "b5059e0a0e257ede9a266a2516f5d61ff0a890e5eb1da4b8bb52fcc82fba8907",
   "slots": [
    {
     "k": "calculators.aww.meta.title",
@@ -4988,7 +4988,7 @@
   ]
  },
  "calculators/benefit-rate.html": {
-  "sha256": "f2874cbf0fbdf2df1a924ad678c676beedfb5bf4c3a7cf4e9891a95246f4dfea",
+  "sha256": "bb090d2334a10dbf69591362ec16e1243684051c22af072da23fc1a39d7ded7c",
   "slots": [
    {
     "k": "calculators.benefit-rate.meta.og-title",
@@ -5245,7 +5245,7 @@
   ]
  },
  "calculators/ccp-award.html": {
-  "sha256": "0b16a68ca1f5f9458867219d947c35103e38c13e48dfc4ee700a3d180721d923",
+  "sha256": "e2a55ccb35174806693b1ccc1facd47395bf13bf209ea24754cd29abb9dc727b",
   "slots": [
    {
     "k": "calculators.ccp-award.meta.title",
@@ -5916,7 +5916,7 @@
   ]
  },
  "calculators/lwec.html": {
-  "sha256": "19ff6ef41cfa9e23b120990b25dde224d3266f09505dc56d91361e3d914d8543",
+  "sha256": "ee3ba7f337a5aa2548ea25993d15164551e06244103c7cf7c01c6db4fac5151c",
   "slots": [
    {
     "k": "calculators.lwec.meta.og-title",
@@ -6443,7 +6443,7 @@
   ]
  },
  "calculators/radiculopathy.html": {
-  "sha256": "b1c28bd4d593dac3087ce370d695abe8b7642ee437b87b257c4d8c98e2c03dd5",
+  "sha256": "f1e84de4191efd7e23c704371e6923506a815bc1231028cc119b3a4b766116d1",
   "slots": [
    {
     "k": "calculators.radiculopathy.meta.title",
@@ -7078,7 +7078,7 @@
   ]
  },
  "calculators/rates.html": {
-  "sha256": "7f36b77ce9e7597051035faec9bbe8305aca9179a8d9d857dfb35edc5440e444",
+  "sha256": "6f07e530f5c25e6017b1cecf4f287172f8a0b87c42def0174f34cab911973afc",
   "slots": [
    {
     "k": "calculators.rates.meta.title",
@@ -7563,7 +7563,7 @@
   ]
  },
  "calculators/slu.html": {
-  "sha256": "a982f09233763649b45bf223fb010888359553f896571fcd344cd53fc3004fa3",
+  "sha256": "d1374a65b65cb8386d312f44507887ddd733df8c5ff2b9b8afbec4aa052b26cc",
   "slots": [
    {
     "k": "calculators.slu.meta.og-title",
@@ -12059,7 +12059,7 @@
   ]
  },
  "tools/learning/index.html": {
-  "sha256": "a52cf4809acd4080caa796350845d329b93f12425532aafdf1382021f102b60c",
+  "sha256": "3495ee1b8f1b3cca8a6941afa2ee26d1fad9896e0da19d669e41ecefddb75ec1",
   "slots": [
    {
     "k": "tools.learning.meta.og-title",
@@ -13441,7 +13441,7 @@
   ]
  },
  "extension.html": {
-  "sha256": "c161907a252a9c64714fee71a8cb33ceb4fc838eb529fde7b19425ab8f996767",
+  "sha256": "c85828e976c39998fa0526672016e219d438bca5e75a79bad1b7b20f3b7ae5ff",
   "slots": [
    {
     "k": "extension.meta.title",
@@ -13678,243 +13678,243 @@
     "t": "p"
    },
    {
-    "k": "extension.the-full-pro-attorney-workspace",
-    "s": 19169,
-    "e": 19215,
+    "k": "extension.the-full-pro-workspace-browser",
+    "s": 19168,
+    "e": 19205,
     "t": "li"
    },
    {
     "k": "extension.aww-once-every-tile-updates",
-    "s": 19285,
-    "e": 19313,
+    "s": 19275,
+    "e": 19303,
     "t": "li"
    },
    {
     "k": "extension.free-single-tab-demo-no",
-    "s": 19379,
-    "e": 19420,
+    "s": 19369,
+    "e": 19410,
     "t": "li"
    },
    {
     "k": "extension.sign-in-to-save-cases",
-    "s": 19484,
-    "e": 19531,
+    "s": 19474,
+    "e": 19521,
     "t": "li"
    },
    {
     "k": "extension.open-the-workspace",
-    "s": 19671,
-    "e": 19691,
+    "s": 19661,
+    "e": 19681,
     "t": "a"
    },
    {
     "k": "extension.one-engine-three-contexts",
-    "s": 19854,
-    "e": 19881,
+    "s": 19844,
+    "e": 19871,
     "t": "h2"
    },
    {
     "k": "extension.workers-comp-work-doesn-t",
-    "s": 19954,
-    "e": 20121,
+    "s": 19944,
+    "e": 20111,
     "t": "p"
    },
    {
     "k": "extension.in-the-hearing-room",
-    "s": 20271,
-    "e": 20290,
+    "s": 20261,
+    "e": 20280,
     "t": "h3"
    },
    {
     "k": "extension.ios-app-one-hand-aww",
-    "s": 20350,
-    "e": 20452,
+    "s": 20340,
+    "e": 20442,
     "t": "p"
    },
    {
     "k": "extension.in-your-inbox",
-    "s": 20582,
-    "e": 20595,
+    "s": 20572,
+    "e": 20585,
     "t": "h3"
    },
    {
     "k": "extension.chrome-extension-highlights-a-wage",
-    "s": 20669,
-    "e": 20794,
+    "s": 20659,
+    "e": 20784,
     "t": "p"
    },
    {
     "k": "extension.at-your-desk",
-    "s": 20923,
-    "e": 20935,
+    "s": 20913,
+    "e": 20925,
     "t": "h3"
    },
    {
     "k": "extension.web-workspace-for-the-deep",
-    "s": 21001,
-    "e": 21114,
+    "s": 20991,
+    "e": 21104,
     "t": "p"
    },
    {
     "k": "extension.all-in-sync",
-    "s": 21242,
-    "e": 21253,
+    "s": 21232,
+    "e": 21243,
     "t": "h3"
    },
    {
     "k": "extension.one-account-one-pro-firm",
-    "s": 21317,
-    "e": 21426,
+    "s": 21307,
+    "e": 21416,
     "t": "p"
    },
    {
     "k": "extension.what-the-chrome-extension-does",
-    "s": 21611,
-    "e": 21651,
+    "s": 21601,
+    "e": 21641,
     "t": "h2"
    },
    {
     "k": "extension.built-around-three-small-workflows",
-    "s": 21733,
-    "e": 21810,
+    "s": 21723,
+    "e": 21800,
     "t": "p"
    },
    {
     "k": "extension.highlight-a-wage-statement-right",
-    "s": 21995,
-    "e": 22183,
+    "s": 21985,
+    "e": 22173,
     "t": "div"
    },
    {
     "k": "extension.drop-an-ime-report-into",
-    "s": 22343,
-    "e": 22540,
+    "s": 22333,
+    "e": 22530,
     "t": "div"
    },
    {
     "k": "extension.run-the-fee-app-right",
-    "s": 22698,
-    "e": 22870,
+    "s": 22688,
+    "e": 22860,
     "t": "div"
    },
    {
     "k": "extension.permissions-are-narrow-on-purpose",
-    "s": 23021,
-    "e": 23387,
+    "s": 23011,
+    "e": 23377,
     "t": "p"
    },
    {
     "k": "extension.frequently-asked-questions",
-    "s": 23526,
-    "e": 23552,
+    "s": 23516,
+    "e": 23542,
     "t": "h2"
    },
    {
     "k": "extension.how-do-i-install-the",
-    "s": 23678,
-    "e": 23716,
+    "s": 23668,
+    "e": 23706,
     "t": "summary"
    },
    {
     "k": "extension.it-s-live-in-the",
-    "s": 23777,
-    "e": 23969,
+    "s": 23767,
+    "e": 23959,
     "t": "p"
    },
    {
     "k": "extension.does-the-extension-read-everything",
-    "s": 24098,
-    "e": 24142,
+    "s": 24088,
+    "e": 24132,
     "t": "summary"
    },
    {
     "k": "extension.no-the-extension-uses-the",
-    "s": 24212,
-    "e": 24688,
+    "s": 24202,
+    "e": 24678,
     "t": "p"
    },
    {
     "k": "extension.do-i-need-a-pro",
-    "s": 24798,
-    "e": 24856,
+    "s": 24788,
+    "e": 24846,
     "t": "summary"
    },
    {
     "k": "extension.no-free-calculators-aww-indemnity",
-    "s": 24934,
-    "e": 25155,
+    "s": 24924,
+    "e": 25145,
     "t": "p"
    },
    {
     "k": "extension.will-the-extension-sync-with",
-    "s": 25278,
-    "e": 25320,
+    "s": 25268,
+    "e": 25310,
     "t": "summary"
    },
    {
     "k": "extension.yes-sign-in-with-the",
-    "s": 25385,
-    "e": 25546,
+    "s": 25375,
+    "e": 25536,
     "t": "p"
    },
    {
     "k": "extension.is-there-an-android-version",
-    "s": 25668,
-    "e": 25696,
+    "s": 25658,
+    "e": 25686,
     "t": "summary"
    },
    {
     "k": "extension.not-yet-android-is-on",
-    "s": 25762,
-    "e": 25950,
+    "s": 25752,
+    "e": 25940,
     "t": "p"
    },
    {
     "k": "extension.who-runs-the-comp-desk",
-    "s": 26067,
-    "e": 26090,
+    "s": 26057,
+    "e": 26080,
     "t": "summary"
    },
    {
     "k": "extension.the-comp-desk-is-built",
-    "s": 26157,
-    "e": 26386,
+    "s": 26147,
+    "e": 26376,
     "t": "p"
    },
    {
     "k": "extension.start-where-you-are",
-    "s": 26560,
-    "e": 26580,
+    "s": 26550,
+    "e": 26570,
     "t": "h2"
    },
    {
     "k": "extension.ios-chrome-and-web-the",
-    "s": 26638,
-    "e": 26698,
+    "s": 26628,
+    "e": 26688,
     "t": "p"
    },
    {
     "k": "extension.download-on-app-store-open",
-    "s": 26781,
-    "e": 27154,
+    "s": 26771,
+    "e": 27144,
     "t": "div"
    },
    {
     "k": "shared.2026-njj-document-services-inc",
-    "s": 27274,
-    "e": 27355,
+    "s": 27264,
+    "e": 27345,
     "t": "p"
    },
    {
     "k": "shared.this-application-is-for-informational",
-    "s": 27424,
-    "e": 27513,
+    "s": 27414,
+    "e": 27503,
     "t": "p"
    },
    {
     "k": "extension.home-for-attorneys-extension-privacy",
-    "s": 27608,
-    "e": 27855,
+    "s": 27598,
+    "e": 27845,
     "t": "p"
    }
   ]
@@ -14207,7 +14207,7 @@
   ]
  },
  "job-buddy.html": {
-  "sha256": "984ffbd5341cf51f8da04d511c4ec71153db06c822682dd24fbcbac27424161f",
+  "sha256": "2f49df154f43f9c0215d8ec13b73009904337ab3e0407757dafa0906c042069d",
   "slots": [
    {
     "k": "job-buddy.meta.title",
