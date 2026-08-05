@@ -1,6 +1,6 @@
 # Silent Owner Policy
 
-**Status:** Active, as amended 2026-08-05.
+**Status:** Active, as amended 2026-08-05 (twice — see both amendment notes below).
 
 > **Amendment note — 2026-08-05.** This policy was originally written as a blanket
 > anonymity rule: the owner's name, likeness, and firm were prohibited on every public
@@ -19,6 +19,25 @@
 > Superseded in this amendment: the blanket prohibitions on the owner's name, photograph,
 > and personal bio; the `Organization`-schema-only rule; the "no single human founder"
 > phrasing rule; and the contributor grep in the former "For contributors" section.
+
+> **Second amendment — 2026-08-05.** Carve-outs 7–9 added after a sweep of every served
+> page against this list. All three were already live and already correct; the list was
+> incomplete, not the pages. Two are disclosure or contractual necessity (`legal/terms.html`,
+> `contributor-agreement.html`) and one is a non-rendered source comment
+> (`calculators/radiculopathy.html`).
+>
+> **Left unresolved on purpose.** The same sweep found three further live surfaces naming
+> the operator that are *not* carved out: **`/attorneys`** (first-person attorney bio naming
+> the firm, plus a credential claim in the FAQ), **`/worker`** and its nine mirrors (founder
+> signature naming the firm), and **`/`** and its nine mirrors (a "Founder" credit line).
+> Under this policy those are advertising surfaces: they belong either inside a carve-out
+> carrying the conditions of the directory section, or off the site. They are recorded here
+> undecided rather than silently permitted — an unlisted surface is not an approved one.
+>
+> Two related findings from the same sweep, also undecided: **no page carries an "Attorney
+> Advertising" label**, including `/attorneys` and `/webinars`; and **`/attorneys` and `/`
+> carry no non-law-firm disclaimer at all**, while `/worker`, `/webinars` and
+> `/connect-with-attorney` each carry one inline.
 
 ## The protected interest
 
@@ -112,6 +131,23 @@ what discharges that duty.
    needs to ignore it, add the path to an allowlist — do not edit the test.
 
 6. **`SILENT_OWNER_POLICY.md`** (this file) — self-referential and unavoidable.
+
+7. **`legal/terms.html`** and its nine locale mirrors — §1.3 "Relationship to Shulman &
+   Hill, PLLC (founder disclosure)" and §2.4 "Founder-firm exclusion". This is the same
+   disclosure obligation as carve-out 1, stated in the governing terms rather than on the
+   lead page, and it carries the same protection: **it may be made more specific; it may
+   never be made smaller.** A change that removes either section must be rejected.
+
+8. **`contributor-agreement.html`** — §8.2 names the operator and the firm in order to
+   establish that a contributor at the same firm is making a software contribution outside
+   the practice of law, and that no compensation derives from any firm, client, matter,
+   settlement, or recovery. The naming is what makes the clause operative; removing it
+   would defeat the conflict disclosure the clause exists to make.
+
+9. **`calculators/radiculopathy.html`** and its nine locale mirrors — a source comment
+   recording who verified the impairment table against the 2012 NYS Impairment Guidelines,
+   and on what date. **Not rendered** — no user-facing surface on these pages names anyone.
+   Provenance for a medical-guideline table belongs with the table.
 
 ## Still prohibited, everywhere
 
