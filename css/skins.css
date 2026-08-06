@@ -204,7 +204,9 @@ body.tcd-skinned .btn {
 }
 body.tcd-skinned .btn.primary {
   background: var(--skin-accent-cta);
-  color: var(--tcd-navy);
+  color: #fff;   /* white, not --tcd-navy: the CTA fill is
+                    defined as a background behind WHITE text (5.02:1). Navy on it
+                    is 2.83:1. */
   border-color: var(--skin-accent);
 }
 body.tcd-skinned .btn.primary:hover {
@@ -316,7 +318,9 @@ body.tcd-skinned .tcd-nav-cta {
   padding: 9px 18px;
   border-radius: 999px;
   background: var(--skin-accent-cta);
-  color: var(--tcd-navy);
+  color: #fff;   /* white, not --tcd-navy: the CTA fill is
+                    defined as a background behind WHITE text (5.02:1). Navy on it
+                    is 2.83:1. */
   font-weight: 700;
   font-size: 14px;
   line-height: 1;
