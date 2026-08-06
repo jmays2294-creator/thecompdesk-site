@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
     '#tcd-analytics-notice a{color:#4f8ff7;}',
     '#tcd-analytics-notice a:hover{text-decoration:underline;}',
     '#tcd-dismiss-btn{',
-      'background:#3b82f6;',
+      'background:#1d4ed8;',   // white on #3b82f6 was 3.68:1
       'color:#fff;',
       'border:none;',
       'border-radius:6px;',
@@ -63,7 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'white-space:nowrap;',
       'flex-shrink:0;',
     '}',
-    '#tcd-dismiss-btn:hover{background:#2563eb;}'
+    '#tcd-dismiss-btn:hover{background:#1e40af;}'  // was #2563eb, which passed at
+  // 5.17:1; darkened only to keep a visible hover delta from the new #1d4ed8 base
   ].join('');
   document.head.appendChild(styleEl);
 
