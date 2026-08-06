@@ -1451,7 +1451,7 @@
       persist();
       var ov = el('div', { style: 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px' });
       function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
-      var BTN_P = 'width:100%;margin-bottom:8px;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit';
+      var BTN_P = 'width:100%;margin-bottom:8px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit';
       var BTN_S = 'width:100%;background:transparent;color:#9ba1b0;border:1px solid #2e3145;border-radius:8px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit';
       var card = el('div', { style: 'background:#1a1d28;border:1px solid #2e3145;border-radius:14px;padding:24px 22px;max-width:380px;width:100%;text-align:center;color:#e8eaed;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif' }, [
         el('div', { style: 'font-size:34px;line-height:1;margin-bottom:12px', text: '🗂️' }),

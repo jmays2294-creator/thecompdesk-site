@@ -227,7 +227,7 @@ function renderConsentBanner() {
         border: 0; border-radius: 8px; padding: 8px 14px;
         font-weight: 600; cursor: pointer;
       }
-      #cd-consent-banner .cd-accept { background: #3b82f6; color: white; }
+      #cd-consent-banner .cd-accept { background: #1d4ed8; color: white; }
       #cd-consent-banner .cd-deny { background: #1f2a3d; color: #e6edf3; }
       #cd-consent-banner a { color: #93c5fd; }
     </style>
