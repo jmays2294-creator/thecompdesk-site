@@ -11,7 +11,7 @@
   --card: #111827;
   --cardA:#1a2234;
   --bd:   #1e3a5f;
-  --ac:   #3b82f6;
+  --ac:   #3b82f6;--ac-cta:#1d4ed8;
   --acG:  rgba(59, 130, 246, 0.10);
   --acD:  #1d4ed8;
   --gn:   #10b981;
@@ -328,7 +328,7 @@ textarea:focus {
    ============================================ */
 
 .btn-primary {
-  background: var(--ac);
+  background: var(--ac-cta);
   color: #fff;
   border: none;
   border-radius: 7px;

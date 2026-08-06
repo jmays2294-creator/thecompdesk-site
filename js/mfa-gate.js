@@ -63,7 +63,7 @@ function renderHardInterstitial() {
         Your role requires two-factor authentication, and the grace period has ended.
         Set it up to continue using your account.
       </p>
-      <a href="/account.html" style="display:inline-block;background:#4f8ff7;color:#fff;font-weight:600;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;">Set up two-factor</a>
+      <a href="/account.html" style="display:inline-block;background:#1d4ed8;color:#fff;font-weight:600;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;">Set up two-factor</a>
     </div>`;
   document.body.appendChild(overlay);
   document.documentElement.style.overflow = 'hidden';

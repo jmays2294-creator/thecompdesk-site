@@ -64,7 +64,7 @@
   .attyApp-counties label{display:inline-flex;align-items:center;gap:6px;background:rgba(79,143,247,0.10);border:1px solid rgba(79,143,247,0.25);color:#dce4f0;font-size:12px;font-weight:600;padding:6px 10px;border-radius:14px;cursor:pointer;margin:0;transition:background 0.15s,border-color 0.15s;}
   .attyApp-counties label:hover{background:rgba(79,143,247,0.20);}
   .attyApp-counties input[type=checkbox]{accent-color:#4f8ff7;width:14px;height:14px;margin:0;}
-  .attyApp-counties label.checked{background:#4f8ff7;border-color:#4f8ff7;color:#fff;}
+  .attyApp-counties label.checked{background:#1d4ed8;border-color:#4f8ff7;color:#fff;}
 
   .attyApp-error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;}
   .attyApp-error.visible{display:block;}
@@ -80,7 +80,7 @@
   .attyApp-confirm h3{font-size:22px;font-weight:800;color:#f4f6fa;margin:0 0 10px;}
   .attyApp-confirm p{font-size:14px;color:#8899b4;line-height:1.7;max-width:420px;margin:0 auto;}
   .attyApp-confirm .ref{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4f8ff7;background:rgba(79,143,247,0.12);padding:4px 12px;border-radius:6px;display:inline-block;margin-top:14px;}
-  .attyApp-confirm .done{margin-top:24px;display:inline-flex;align-items:center;gap:8px;background:#4f8ff7;color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:inherit;}
+  .attyApp-confirm .done{margin-top:24px;display:inline-flex;align-items:center;gap:8px;background:#1d4ed8;color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:inherit;}
 
   .attyApp-disclosure{font-size:11px;color:#5a6a82;text-align:center;margin-top:14px;line-height:1.5;}
   `;
