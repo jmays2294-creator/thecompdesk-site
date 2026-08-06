@@ -1,0 +1,17 @@
+{
+  "_comment": "Accepted a11y debt. The gate fails on NEW violations and on any increase in node count. Burn entries down; do not add without saying why in the commit.",
+  "recorded": "2026-08-06",
+  "accepted": {
+    "/attorneys :: color-contrast": 11,
+    "/learn :: color-contrast": 17,
+    "/learn :: link-in-text-block": 2,
+    "/connect-with-attorney :: color-contrast": 24,
+    "/connect-with-attorney :: label": 1,
+    "/connect-with-attorney :: select-name": 3,
+    "/pricing :: color-contrast": 21,
+    "/auth/login :: color-contrast": 4,
+    "/settlement-calculator :: color-contrast": 23,
+    "/settlement-calculator :: link-in-text-block": 2,
+    "/webinars :: color-contrast": 5
+  }
+}

@@ -59,7 +59,11 @@
     '.cdc-anim{animation:cdcIn .28s ease-out}',
     '@keyframes cdcIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}',
     '.cdc-hd{background:#1B2A4A;color:#fff;padding:14px 46px 14px 16px;position:relative}',
-    '.cdc-banner{font-weight:700;font-size:16px;margin:0 0 9px}',
+    // Scoped: .cdc-banner is a <p>, and skins.css has body.tcd-skinned p{color:
+    // var(--skin-text-soft)} at (0,1,1), which beats a bare class at (0,1,0). Unscoped,
+    // this rendered #4d5266 on the navy header — 1.83:1, near-invisible, and it sat
+    // that way through a manual screenshot review before axe caught it.
+    '.cdc-panel .cdc-banner{font-weight:700;font-size:16px;margin:0 0 9px;color:#fff}',
     '.cdc-agent{display:flex;align-items:center;gap:10px}',
     '.cdc-agent img{width:34px;height:34px;border-radius:50%;background:#F4EADB;flex:0 0 auto}',
     '.cdc-nm{font-weight:600;font-size:14px;line-height:1.25}',

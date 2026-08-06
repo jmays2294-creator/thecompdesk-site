@@ -1,0 +1,30 @@
+name: Accessibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  axe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      # Chromium only. axe measures RENDERED text, so a real engine is required —
+      # jsdom computes no styles and reports contrast defects as clean.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # Serves the repo over loopback and audits it, so this gate does not depend on a
+      # Vercel deploy having landed and can fail a PR before the change ships.
+      - name: axe-core WCAG 2.1 AA
+        run: npm run a11y

@@ -104,7 +104,16 @@ const STYLE = `<style>
   .dir-card .dir-firm{font-size:14px;color:var(--skin-text-soft);margin:2px 0 0}
   .dir-card .dir-headline{font-size:15px;line-height:1.6;color:var(--skin-text-soft);margin:0}
   .dir-meta{font-size:13px;color:var(--skin-text-soft);margin:0}
-  /* Specificity note: skins.css has  body.tcd-skinned a { color: var(--skin-accent) }
+  /* SPECIFICITY — read before adding any rule that colours an <a> or a <p> here.
+     skins.css carries  body.tcd-skinned a { color: var(--skin-accent) }  at (0,1,2)
+     and  body.tcd-skinned p { color: var(--skin-text-soft) }  at (0,1,1).
+     A bare .foo is (0,1,0); a bare .foo a is (0,1,1). Both lose. This has bitten three
+     times: the View-profile button rendering orange-on-orange and invisible, the chat
+     banner rendering #4d5266 on navy at 1.83:1, and the reciprocal link below at
+     4.21:1 on the warm surface. Scope to body.tcd-skinned .foo — (0,2,x) — and let
+     npm run a11y confirm it, because two of those three passed a manual review.
+
+     Original note: skins.css has  body.tcd-skinned a { color: var(--skin-accent) }
      at (0,1,1). A bare .dir-cta is (0,1,0) and LOSES, so the label inherited the accent
      colour and rendered orange-on-orange — an invisible button. Scoping to
      body.tcd-skinned .dir-cta is (0,2,0) and wins. Any new <a> styled as a filled
@@ -115,7 +124,7 @@ const STYLE = `<style>
   body.tcd-skinned .dir-cta:hover{background:#94480A;color:#fff}
   .dir-alt{background:var(--skin-surface-warm);border:1px solid var(--skin-divider);
     border-radius:14px;padding:18px 20px;margin:22px 0 44px;font-size:15px;line-height:1.65;color:var(--skin-text-soft)}
-  .dir-alt a{color:var(--skin-accent-deep);font-weight:600}
+  body.tcd-skinned .dir-alt a{color:#7A3A08;font-weight:600}
   .dir-hero{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap;padding:34px 0 10px}
   .dir-hero img{width:150px;height:150px;border-radius:18px;object-fit:cover;border:1px solid #E7DECB}
   .dir-hero h1{font-family:var(--font-display);font-size:clamp(27px,5.4vw,38px);margin:14px 0 6px;
