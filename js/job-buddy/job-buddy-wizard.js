@@ -64,7 +64,14 @@
   var CERT_PRESETS    = ['OSHA-10', 'OSHA-30', 'Food Handler', 'Basic Computer', 'Bilingual'];
   var LANG_PRESETS    = ['English', 'Spanish', 'Polish', 'Russian', 'Haitian Creole', 'Mandarin', 'Bengali'];
 
-  var DISCLAIMER = 'This tool is for informational purposes only and does not constitute legal advice.';
+  // Resolved at RENDER time. As a plain constant this captured English when the file
+  // parsed — before a locale exists — so it never followed a language change. The
+  // English text remains the fallback argument for the pre-i18n boot window.
+  var DISCLAIMER = function () {
+    return (window.CD && CD.t)
+      ? CD.t('legal.informationalOnly', 'This tool is for informational purposes only and does not constitute legal advice.')
+      : 'This tool is for informational purposes only and does not constitute legal advice.';
+  };
 
   // ─── tiny DOM helper (mirrors job-buddy-public.js el()) ───────────────────
   function el(tag, attrs, kids) {
@@ -515,7 +522,7 @@
           : 'I confirm this information is accurate and current. I understand it is saved on this device only until I sign in.')
       ]));
 
-      mount.appendChild(el('p', { class: 'jbw-disclaimer' }, DISCLAIMER));
+      mount.appendChild(el('p', { class: 'jbw-disclaimer' }, DISCLAIMER()));
     }
 
     // ── save ──

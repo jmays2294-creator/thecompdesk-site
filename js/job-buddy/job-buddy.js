@@ -34,7 +34,14 @@
     return 'js/job-buddy/';
   })();
 
-  var DISCLAIMER = 'This tool is for informational purposes only and does not constitute legal advice.';
+  // Resolved at RENDER time. As a plain constant this captured English when the file
+  // parsed — before a locale exists — so it never followed a language change. The
+  // English text remains the fallback argument for the pre-i18n boot window.
+  var DISCLAIMER = function () {
+    return (window.CD && CD.t)
+      ? CD.t('legal.informationalOnly', 'This tool is for informational purposes only and does not constitute legal advice.')
+      : 'This tool is for informational purposes only and does not constitute legal advice.';
+  };
 
   // ─── helpers ──────────────────────────────────────────────────────────────
   function _loggedIn() { return !!(CD.currentUser && CD.supa); }
@@ -211,9 +218,15 @@
       });
   };
 
-  // On-demand live match against the freshest cached listings (when the feed is empty).
+  // On-demand live match against the freshest cached listings.
   // `override` (optional) = { aww, doa } entered inline on the Feed tab.
-  JB.matchNow = function (override) {
+  // `opts` (optional)     = { offset, limit } — paginates a window of cached listings so the
+  //   Feed tab's "Load more" can page through the whole cached pool 8 at a time instead of
+  //   re-matching the same newest slice on every tap. Returns `exhausted:true` when the page
+  //   came back short (no more listings to page into).
+  JB.matchNow = function (override, opts) {
+    var offset = (opts && opts.offset > 0) ? opts.offset : 0;
+    var limit = (opts && opts.limit > 0) ? opts.limit : 8;
     // FREE + guest-capable: signed-in callers match against their saved restrictions;
     // guests match against their device-local restrictions via the anon edge-fn path.
     var ap = _awwAndPpd(override);
@@ -221,11 +234,11 @@
     // absent we still match listings to the worker's medical restrictions (no early reject).
     return Promise.all([
       JB.getRestriction(),
-      CD.supa.from('job_listings').select('*').order('fetched_at', { ascending: false }).limit(8)
+      CD.supa.from('job_listings').select('*').order('fetched_at', { ascending: false }).range(offset, offset + limit - 1)
     ]).then(function (res) {
       var rp = res[0], listings = (res[1].data || []);
       if (!rp || !rp.confirmed_by_user) throw new Error('Set and confirm your work restrictions first — then tap Refresh.');
-      if (!listings.length) return { results: [], tags: [] };
+      if (!listings.length) return { results: [], tags: [], exhausted: true };
       var p = CD.currentProfile || {};
       var byExt = {};
       listings.forEach(function (l) { byExt[l.external_id] = l; });
@@ -278,7 +291,9 @@
               job_listings: byExt[r.external_id] || null
             };
           }).filter(function (t) { return t.job_listings; });
-        var out = { results: results, tags: tags };
+        // exhausted: the raw window came back short of the page size, so there are no more
+        // cached listings to page into — the caller hides "Load more".
+        var out = { results: results, tags: tags, exhausted: listings.length < limit };
         if (failed) {
           // Every batch failed → treat as a hard error so the caller shows the failure, not "no matches".
           if (failed === chunks.length) throw new Error('Couldn’t match your feed right now — please try again.');
@@ -690,7 +705,7 @@
       else renderLog(body);
     }
     paintTabs(); root.appendChild(tabs); root.appendChild(body); paintBody();
-    root.appendChild(H('p', { className: 'cd-jb-disclaimer' }, DISCLAIMER));
+    root.appendChild(H('p', { className: 'cd-jb-disclaimer' }, DISCLAIMER()));
 
     // Former guest just signed in → migrate their device-local data into the account
     // once, then repaint so the freshly-synced restrictions/log show up.
@@ -834,6 +849,32 @@
     });
   }
 
+  // ─── Feed ranking ─────────────────────────────────────────────────────────
+  // Surface the jobs most in line with the worker's restrictions first: rank by the
+  // Restriction + AWW fit tier (strong → moderate → weak → unknown), then a confirmed
+  // restriction match above an unknown one, then newest. Applied to BOTH the precomputed
+  // daily feed and every live-matched page so the closest fits always sit at the top.
+  var _FIT_RANK = { strong: 0, moderate: 1, weak: 2, unknown: 3 };
+  var _MATCH_RANK = { yes: 0, unknown: 1, no: 2 };
+  function _fitRank(t) {
+    var s = (t && t.restriction_aww_fit_score && t.restriction_aww_fit_score.score) || 'unknown';
+    return _FIT_RANK.hasOwnProperty(s) ? _FIT_RANK[s] : 3;
+  }
+  function _matchRank(t) {
+    var m = (t && t.restriction_match) || 'unknown';
+    return _MATCH_RANK.hasOwnProperty(m) ? _MATCH_RANK[m] : 1;
+  }
+  function _rankTags(tags) {
+    return (tags || []).slice().sort(function (a, b) {
+      var d = _fitRank(a) - _fitRank(b);
+      if (d) return d;
+      d = _matchRank(a) - _matchRank(b);
+      if (d) return d;
+      // Newest first within a fit tier.
+      return String(b.tagged_at || '').localeCompare(String(a.tagged_at || ''));
+    });
+  }
+
   // ─── Feed tab ─────────────────────────────────────────────────────────────
   function renderFeed(mount) {
     var H = _hh();
@@ -857,25 +898,30 @@
         bar.appendChild(awwIn); bar.appendChild(doaIn);
       }
 
-      function doMatch() {
-        status.textContent = 'Finding jobs within your restrictions…';
-        return JB.matchNow(override).then(function (r) {
-          // A partial batch failure still paints what matched — just flag the gap.
-          status.textContent = (r && r.partialError) || '';
-          paint((r && r.tags) || []);
-        }).catch(function (e) {
-          status.textContent = (e && e.message) || 'Nothing to match yet.';
-          paint([]);
+      // ── Feed state ──
+      // Accumulate loaded jobs across pages, dedupe by external_id, and page 8 new jobs per
+      // "Load more" tap so the worker keeps expanding the list instead of re-pulling the same
+      // slice. Fit-first ranking is re-applied across the whole accumulated set on every paint.
+      var PAGE = 8;
+      var loaded = [];       // accumulated feed tags (across pages + the precomputed feed)
+      var seen = {};         // external_id -> true (dedupe guard)
+      var offset = 0;        // start of the next live-match window
+      var exhausted = false; // no more cached listings to page into
+      var attempted = false; // a load has run (so the empty state / Load more are meaningful)
+      var busy = false;
+
+      function _extId(t) { return t && t.job_listings && t.job_listings.external_id; }
+      function _absorb(newTags) {
+        var added = 0;
+        (newTags || []).forEach(function (t) {
+          var id = _extId(t);
+          if (!id || seen[id]) return;
+          seen[id] = true; loaded.push(t); added++;
         });
-      }
-      // Debounced auto re-match when the worker fills AWW/DOA inline — no manual Refresh needed.
-      var reTimer = null;
-      function reMatchSoon() {
-        if (reTimer) clearTimeout(reTimer);
-        reTimer = setTimeout(function () { if (override.aww || override.doa) doMatch(); }, 900);
+        return added;
       }
 
-      refreshBtn.onclick = function () { doMatch(); };
+      refreshBtn.onclick = function () { doReset(); };
       bar.appendChild(refreshBtn); bar.appendChild(status);
       // External search (deep-link only — we display nothing scraped from these)
       var ext = H('div', { className: 'cd-jb-ext' }, [
@@ -889,23 +935,92 @@
       var listWrap = H('div', { className: 'cd-jb-feedlist' });
       mount.appendChild(listWrap);
 
-      function paint(items) {
+      // "Load more" — pages the next PAGE cached listings, matches, dedupes, and appends.
+      var moreWrap = H('div', { className: 'cd-jb-more' });
+      var moreBtn = H('button', { className: 'cd-jb-btn ghost cd-jb-loadmore' }, 'Load more jobs');
+      moreBtn.onclick = function () { loadMore(); };
+      moreWrap.appendChild(moreBtn);
+      mount.appendChild(moreWrap);
+
+      function renderMore() {
+        // Show only once a load has run and there are more listings to page into.
+        moreWrap.style.display = (attempted && !exhausted) ? '' : 'none';
+      }
+
+      function paint() {
+        var items = _rankTags(loaded);
         listWrap.innerHTML = '';
-        if (!items || !items.length) {
+        if (!items.length) {
           listWrap.appendChild(H('div', { className: 'cd-jb-empty' }, [
             H('div', { className: 'cd-jb-empty-icon' }, '🎯'),
             H('h3', {}, 'No matches yet'),
             H('p', {}, 'Confirm your work restrictions and we’ll surface jobs within your limits. Tap “Refresh feed” to match the newest listings now, or search Indeed / LinkedIn directly.')
           ]));
+          renderMore();
           return;
         }
         items.forEach(function (t) { listWrap.appendChild(_feedCard(t)); });
+        renderMore();
+      }
+
+      // Fresh live match from the top — used by Refresh and by inline AWW/DOA edits (so the
+      // reduced-earnings estimate re-applies). Clears the accumulated set first.
+      function doReset() {
+        if (busy) return;
+        busy = true; moreBtn.disabled = true;
+        loaded = []; seen = {}; offset = 0; exhausted = false;
+        status.textContent = 'Finding jobs within your restrictions…';
+        return JB.matchNow(override, { offset: 0, limit: PAGE }).then(function (r) {
+          offset = PAGE;
+          exhausted = !!(r && r.exhausted);
+          _absorb(r && r.tags);
+          status.textContent = (r && r.partialError) || '';
+        }).catch(function (e) {
+          status.textContent = (e && e.message) || 'Nothing to match yet.';
+        }).then(function () {
+          attempted = true; busy = false; moreBtn.disabled = false;
+          moreBtn.textContent = 'Load more jobs';
+          paint();
+        });
+      }
+
+      // Append the next page of matches (deduped) without disturbing what's already shown.
+      function loadMore() {
+        if (busy || exhausted) return;
+        busy = true; moreBtn.disabled = true; moreBtn.textContent = 'Loading…';
+        var startOffset = offset;
+        return JB.matchNow(override, { offset: startOffset, limit: PAGE }).then(function (r) {
+          offset = startOffset + PAGE;
+          exhausted = !!(r && r.exhausted);
+          var added = _absorb(r && r.tags);
+          if (r && r.partialError) status.textContent = r.partialError;
+          else if (!added && !exhausted) status.textContent = 'No new matches on that page — tap again for more.';
+          else status.textContent = '';
+        }).catch(function (e) {
+          status.textContent = (e && e.message) || 'Couldn’t load more right now.';
+        }).then(function () {
+          busy = false; moreBtn.disabled = false; moreBtn.textContent = 'Load more jobs';
+          paint();
+        });
+      }
+
+      // Debounced auto re-match when the worker fills AWW/DOA inline — no manual Refresh needed.
+      var reTimer = null;
+      function reMatchSoon() {
+        if (reTimer) clearTimeout(reTimer);
+        reTimer = setTimeout(function () { if (override.aww || override.doa) doReset(); }, 900);
       }
 
       if (tags.length) {
-        paint(tags);   // precomputed daily feed
+        // Precomputed daily feed (free, instant). Seed the accumulator + dedupe guard, then let
+        // "Load more" page forward via live match. Start the live offset past the precomputed
+        // window so the first Load more surfaces new jobs; the seen[] guard cleans up any overlap.
+        _absorb(tags);
+        offset = loaded.length;
+        attempted = true;
+        paint();
       } else {
-        doMatch();     // auto-match the freshest listings on open — no manual Refresh needed
+        doReset(); // auto-match the freshest listings on open — no manual Refresh needed
       }
     });
   }

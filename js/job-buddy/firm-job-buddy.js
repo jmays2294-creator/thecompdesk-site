@@ -15,7 +15,14 @@
   'use strict';
   var CD = global.CD = global.CD || {};
   function _hh() { return CD.h || global.h; }
-  var DISCLAIMER = 'This tool is for informational purposes only and does not constitute legal advice.';
+  // Resolved at RENDER time. As a plain constant this captured English when the file
+  // parsed — before a locale exists — so it never followed a language change. The
+  // English text remains the fallback argument for the pre-i18n boot window.
+  var DISCLAIMER = function () {
+    return (window.CD && CD.t)
+      ? CD.t('legal.informationalOnly', 'This tool is for informational purposes only and does not constitute legal advice.')
+      : 'This tool is for informational purposes only and does not constitute legal advice.';
+  };
 
   function _money(n) { if (n == null || isNaN(Number(n))) return '—'; return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function _dateStr(d) { if (!d) return ''; try { return new Date(String(d).length <= 10 ? d + 'T00:00:00' : d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return String(d); } }
@@ -148,7 +155,7 @@
     ]));
     var body = H('div', { className: 'cd-jb-body' });
     root.appendChild(body);
-    root.appendChild(H('p', { className: 'cd-jb-disclaimer' }, DISCLAIMER));
+    root.appendChild(H('p', { className: 'cd-jb-disclaimer' }, DISCLAIMER()));
 
     function paintList() {
       body.innerHTML = '';

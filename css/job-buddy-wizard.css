@@ -42,7 +42,7 @@ body.jbw-open { overflow: hidden; }
 }
 .jbw-eyebrow {
   font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--skin-accent-deep, #C85F0F); margin-bottom: 6px;
+  color: var(--v3-accent-text, #A74F0B); margin-bottom: 6px;
 }
 .jbw-titlerow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .jbw-title {
@@ -88,7 +88,7 @@ body.jbw-open { overflow: hidden; }
 
 .jbw-input {
   width: 100%; box-sizing: border-box;
-  min-height: 44px; padding: 10px 12px;
+  min-height: var(--v3-tap-min, 44px); padding: 10px 12px;
   font-size: 16px; font-family: inherit;       /* 16px avoids iOS zoom-on-focus */
   color: var(--skin-text, #2D3142);
   background: var(--skin-surface, #F8F6F1);
@@ -111,7 +111,7 @@ body.jbw-open { overflow: hidden; }
 .jbw-chips:empty { display: none; }
 .jbw-chip {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 6px 6px 12px; border-radius: 999px;
+  padding-block: 6px; padding-inline: 12px 6px; border-radius: 999px;
   background: rgba(232, 119, 34, 0.12);
   border: 1px solid rgba(232, 119, 34, 0.35);
   color: var(--skin-text, #2D3142); font-size: 14px; font-weight: 600;
@@ -123,13 +123,13 @@ body.jbw-open { overflow: hidden; }
 }
 .jbw-chip-x:hover { background: rgba(45,49,66,0.2); }
 .jbw-chip-add {
-  flex: 0 0 auto; min-height: 44px; padding: 0 16px; cursor: pointer;
+  flex: 0 0 auto; min-height: var(--v3-tap-min, 44px); padding: 0 16px; cursor: pointer;
   border-radius: 12px; border: 1px solid var(--skin-accent, #E87722);
   background: transparent; color: var(--skin-accent-deep, #C85F0F); font-weight: 700; font-size: 14px;
 }
 .jbw-presets { display: flex; flex-wrap: wrap; gap: 6px; }
 .jbw-preset {
-  min-height: 36px; padding: 4px 12px; cursor: pointer;
+  min-height: var(--v3-tap-min, 44px); padding: 4px 12px; cursor: pointer;
   border-radius: 999px; border: 1px dashed var(--skin-divider, rgba(45,49,66,0.30));
   background: transparent; color: var(--skin-text-soft, #4D5266); font-size: 13px; font-weight: 600;
 }
@@ -178,11 +178,11 @@ body.jbw-open { overflow: hidden; }
 }
 .jbw-foot-l, .jbw-foot-r { display: flex; gap: 10px; }
 .jbw-btn {
-  min-height: 44px; padding: 0 20px; cursor: pointer;
+  min-height: var(--v3-tap-min, 44px); padding: 0 20px; cursor: pointer;
   border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit;
   border: 1px solid transparent;
 }
-.jbw-btn.primary { background: var(--skin-accent, #E87722); color: #fff; }
+.jbw-btn.primary { background: var(--skin-accent, #E87722); color: var(--v3-on-accent, #241F1B); }
 .jbw-btn.primary:hover:not(:disabled) { background: var(--skin-accent-deep, #C85F0F); }
 .jbw-btn.primary:disabled { opacity: .5; cursor: not-allowed; }
 .jbw-btn.ghost { background: transparent; color: var(--skin-text-soft, #4D5266); border-color: var(--skin-divider, rgba(45,49,66,0.22)); }
@@ -192,12 +192,28 @@ body.jbw-open { overflow: hidden; }
 /* ── launcher button (e.g. "Edit my work profile") ── */
 .jbw-launcher {
   display: inline-flex; align-items: center; gap: 8px;
-  min-height: 44px; padding: 0 18px; cursor: pointer;
+  min-height: var(--v3-tap-min, 44px); padding: 0 18px; cursor: pointer;
   border-radius: 12px; font-size: 14.5px; font-weight: 700; font-family: inherit;
-  background: transparent; color: var(--skin-accent-deep, #C85F0F);
+  background: transparent; color: var(--v3-accent-text, #A74F0B);
   border: 1px solid var(--skin-accent, #E87722);
 }
 .jbw-launcher:hover { background: rgba(232, 119, 34, 0.10); }
 
 /* Host-page launcher placement (public /job-buddy hero) */
 .jb-hero-actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── ATTORNEY SKIN ───────────────────────────────────────────────────────────
+ * --skin-accent-deep is the accent's FILL-adjacent shade, not a text colour.
+ * Measured on the rendered wizard it is 4.28:1 on the white dialog and 3.62:1
+ * for the launcher on the navy field — the wizard had never been measured at
+ * all, because its own overlay occluded the screen the gate was rooted at and
+ * the case was reporting clean on zero text runs.
+ *
+ * In the APP both rules resolve through --v3-accent-text, which is already
+ * per-skin, so they agree. The second rule exists for the WEBSITE, which
+ * resolves no --v3-* and would otherwise take the worker literal on its navy
+ * skin. .jbw-dialog is --skin-surface-elev: #fff on worker, #16243F on
+ * attorney — genuinely two different surfaces, so one literal cannot serve
+ * both. */
+[data-audience="attorney"] .jbw-eyebrow,
+[data-audience="attorney"] .jbw-launcher { color: var(--v3-accent-text, #FFA95C); }

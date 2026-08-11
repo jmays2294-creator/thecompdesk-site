@@ -26,6 +26,14 @@
     <link rel="stylesheet" href="/css/dashboard-attorney.css">
     <link rel="stylesheet" href="/css/job-buddy.css">
     <link rel="stylesheet" href="/css/job-buddy-wizard.css">
+    <!-- LOAD-BEARING. Until 2026-08-07 c3-wizard.js and aww-wizard.js injected
+         their own CSS as a JS string array at first render. The Aurora Glass
+         conversion extracted both into real stylesheets, so the vendored JS now
+         carries NO styling of its own — without these two <link>s both wizards
+         render unstyled, including the C-3 statutory filing flow.
+         sync-dashboard.sh refuses to finish if they are missing. -->
+    <link rel="stylesheet" href="/css/wizard-c3.css">
+    <link rel="stylesheet" href="/css/wizard-aww.css">
     <!-- V2 web shell (P6–P11 design): token baseline + the window/rail chrome
          around the vendored dashboards. Web-only, never synced from the app.
          The 1040 cap + responsive padding moved into .dash-shell there. -->

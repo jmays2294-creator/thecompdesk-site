@@ -614,12 +614,15 @@ function _imeEl(tag, attrs, children) {
 function ensureIMEStyles() {
   if (document.getElementById('cd-ime-styles')) return;
   var css = [
-    '.cd-ime{--im-card:#1a1d28;--im-card2:#252836;--im-bd:#2e3145;--im-tx:#e8eaed;--im-tx2:#9ba1b0;--im-mut:#6b7280;--im-ac:#3b82f6;--im-acl:rgba(59,130,246,.15);--im-rd:#ef4444;--im-gn:#22c55e;--im-wn:#f59e0b;color:var(--im-tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5}',
+    /* Worker cream/dark-ink skin (2026-07-11): was a self-contained DARK palette
+       that rendered the whole IME screen dark. --im-ac = orange FILL; --im-ac-tx =
+       orange used as TEXT (AA-safe on cream). Font unified to DM Sans. */
+    '.cd-ime{--im-card:#FFFFFF;--im-card2:#F4EADB;--im-bd:#E7DECB;--im-tx:#241F1B;--im-tx2:#5A5148;--im-mut:#5A5148;--im-ac:#E87722;--im-ac-tx:#A8500C;--im-acl:rgba(232,119,34,.12);--im-rd:#C53A2B;--im-gn:#1E8E5A;--im-wn:#C77A0A;color:var(--im-tx);font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5}',
     '.cd-ime *{box-sizing:border-box}',
     '.cd-ime .im-title{font-size:18px;font-weight:700;margin:0 0 2px}',
     '.cd-ime .im-sub{font-size:13px;color:var(--im-tx2);margin:0 0 14px}',
     '.cd-ime .im-add{width:100%;padding:13px;background:var(--im-ac);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:14px;font-family:inherit}',
-    '.cd-ime .im-perm{background:var(--im-acl);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--im-tx2)}',
+    '.cd-ime .im-perm{background:var(--im-acl);border:1px solid rgba(232,119,34,.3);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--im-tx2)}',
     '.cd-ime .im-perm.warn{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3)}',
     '.cd-ime .im-perm button{margin-top:8px;background:var(--im-ac);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}',
     '.cd-ime .im-sec-title{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--im-mut);margin:6px 2px 8px;font-weight:700}',
@@ -628,7 +631,7 @@ function ensureIMEStyles() {
     '.cd-ime .im-card-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}',
     '.cd-ime .im-date{font-size:15px;font-weight:700;color:var(--im-tx)}',
     '.cd-ime .im-time{font-size:13px;color:var(--im-tx2)}',
-    '.cd-ime .im-cd{font-size:12px;font-weight:700;color:var(--im-ac);background:var(--im-acl);padding:3px 10px;border-radius:12px;white-space:nowrap}',
+    '.cd-ime .im-cd{font-size:12px;font-weight:700;color:var(--im-ac-tx);background:var(--im-acl);padding:3px 10px;border-radius:12px;white-space:nowrap}',
     '.cd-ime .im-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:capitalize}',
     '.cd-ime .im-badge.completed{background:rgba(34,197,94,.15);color:var(--im-gn)}',
     '.cd-ime .im-badge.missed{background:rgba(239,68,68,.15);color:var(--im-rd)}',
@@ -653,11 +656,11 @@ function ensureIMEStyles() {
     '.cd-ime .im-input:focus{outline:none;border-color:var(--im-ac)}',
     '.cd-ime .im-submit{width:100%;padding:13px;background:var(--im-ac);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit}',
     '.cd-ime .im-submit:disabled{opacity:.5;cursor:not-allowed}',
-    '.cd-ime .im-err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:10px}',
+    '.cd-ime .im-err{background:rgba(197,58,43,.10);border:1px solid rgba(197,58,43,.35);color:var(--im-rd);border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:10px}',
     '.cd-ime .im-prev{background:var(--im-card);border:1px solid var(--im-bd);border-radius:10px;padding:12px;margin-bottom:10px}',
     '.cd-ime .im-prev-row{display:flex;align-items:center;gap:10px;padding:5px 0}',
     '.cd-ime .im-empty{text-align:center;color:var(--im-mut);font-size:13px;padding:26px 16px;line-height:1.6}',
-    '.cd-ime .im-back{background:none;border:none;color:var(--im-ac);font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:8px;font-family:inherit}',
+    '.cd-ime .im-back{background:none;border:none;color:var(--im-ac-tx);font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:8px;font-family:inherit}',
     '.cd-ime .im-prep{margin-top:16px}',
     '.cd-ime .im-prep .im-card-title{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--im-mut);font-weight:700;margin-bottom:8px}',
     '.cd-ime .im-prep-item{font-size:13px;color:var(--im-tx2);padding:3px 0}',
@@ -751,7 +754,7 @@ function renderIMEReminders(ctx) {
     var past = all.filter(function (e) { return e.status !== 'upcoming' || new Date(e.ime_date) <= now; });
 
     if (upcoming.length === 0 && past.length === 0) {
-      frag.appendChild(_imeEl('div', { class: 'im-empty', html: '🔔<br>No IME appointments scheduled yet.<br><span style="font-size:11px;color:#6b7280">Tap the button above to add your first IME.</span>' }));
+      frag.appendChild(_imeEl('div', { class: 'im-empty', html: '🔔<br>No IME appointments scheduled yet.<br><span style="font-size:11px;color:#5A5148">Tap the button above to add your first IME.</span>' }));
     } else {
       if (upcoming.length) {
         frag.appendChild(_imeEl('div', { class: 'im-sec-title', text: 'Upcoming (' + upcoming.length + ')' }));
@@ -895,7 +898,7 @@ function renderIMEReminders(ctx) {
       row.appendChild(_imeEl('div', { class: 'im-dot ' + (willFire ? 'scheduled' : 'skipped') }));
       var info = _imeEl('div');
       info.appendChild(_imeEl('div', { style: 'font-size:13px;font-weight:600', text: offset.title }));
-      info.appendChild(_imeEl('div', { style: 'font-size:12px;color:#9ba1b0', text: willFire ? (fd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' at ' + fd.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })) : 'Skipped (too close)' }));
+      info.appendChild(_imeEl('div', { style: 'font-size:12px;color:#5A5148', text: willFire ? (fd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' at ' + fd.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })) : 'Skipped (too close)' }));
       row.appendChild(info);
       prev.appendChild(row);
       if (willFire) scheduled++;

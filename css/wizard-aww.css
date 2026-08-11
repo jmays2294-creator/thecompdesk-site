@@ -1,0 +1,137 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   wizard-aww.css — the Average Weekly Wage wizard (.awwz).
+
+   Extracted VERBATIM from js/dashboard/aww-wizard.js ensureStyles(), which
+   built this as a JS string array and injected <style id="awwz-styles"> at
+   runtime. Rules are byte-identical: the extraction evaluated each string
+   literal rather than transcribing it, and a comment-stripped diff against a
+   whole-array evaluation is what proves it.
+
+   The comments below came across from the array literal. They are the reason
+   the file is worth reading — in particular the 2026-07-11 record of the
+   worker cream/dark-ink retune, which is why --accent and --accent-text are
+   two different oranges (fill vs text, the latter for AA on cream).
+
+   LOAD ORDER: a runtime injection lands at the end of <head>, so these rules
+   used to win every specificity tie against every linked sheet. The <link>
+   sits last in index.html for that reason; only rtl.css follows, and it
+   targets none of the .awwz selectors.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Worker cream/dark-ink skin (2026-07-11): was a self-contained DARK palette.
+  --accent = orange FILL; --accent-text = orange used as TEXT (AA on cream).
+  Semantic status hues retuned darker for a light bg. Font unified to DM Sans. */
+/* AURORA GLASS 3.2 — already the brand palette, so near-identity; the point
+ * is that both wizards resolve through ONE token layer instead of two
+ * drifting private copies. Website-safe via the same fallbacks. --accent-text
+ * was #A8500C, which Phase 1 measured at 4.475:1 on glass and darkened to
+ * #A74F0B — this picks that fix up for free. */
+.awwz{--bg-primary:var(--v3-field-solid,#F8F6F1);--bg-card:var(--v3-g2-bg,#FFFFFF);--bg-card-hover:var(--v3-g1-bg,#F4EADB);--bg-input:var(--v3-g1-bg,#F8F6F1);--border:var(--v3-data-ghost,#E7DECB);--text-primary:var(--v3-text,#241F1B);--text-secondary:var(--v3-text-mute,#5A5148);--text-muted:var(--v3-text-micro,#5A5148);--accent:var(--v3-accent-text,#E87722);--accent-hover:var(--v3-accent-text,#C25E12);--accent-text:var(--v3-accent-text,#A8500C);--accent-light:var(--v3-accent-tint,rgba(232,119,34,.12));--success:#1E8E5A;--success-light:rgba(30,142,90,.12);--warning:#C77A0A;--warning-light:rgba(199,122,10,.12);--danger:#C53A2B;--danger-light:rgba(197,58,43,.12);--radius:12px;--radius-sm:8px;color:var(--text-primary);font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.awwz *{box-sizing:border-box}
+.awwz .awwz-header{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.awwz .awwz-header h1{font-size:17px;font-weight:600;margin:0}
+.awwz .awwz-badge{margin-left:auto;background:var(--accent-light);color:var(--accent-text);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.awwz .progress-container{padding:4px 0 14px}
+.awwz .progress-steps{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.awwz .progress-step{display:flex;align-items:center}
+.awwz .step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid var(--border);color:var(--text-muted);background:var(--bg-primary);transition:all .3s ease;flex-shrink:0}
+.awwz .step-dot.active{border-color:var(--accent-text);color:var(--accent-text);background:var(--accent-light)}
+.awwz .step-dot.completed{border-color:var(--success);color:#fff;background:#1E8E5A}
+.awwz .step-line{width:48px;height:2px;background:var(--border);transition:background .3s ease}
+.awwz .step-line.completed{background:#1E8E5A}
+.awwz .progress-label{text-align:center;font-size:12px;color:var(--text-muted)}
+.awwz .progress-label span{color:var(--accent-text);font-weight:600}
+.awwz .awwz-body{max-width:600px;margin:0 auto}
+.awwz .step-section{display:none}
+.awwz .step-section.active{display:block;animation:awwzFade .3s ease}
+@keyframes awwzFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.awwz .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px}
+.awwz .card-title{font-size:16px;font-weight:600;margin-bottom:4px}
+.awwz .card-subtitle{font-size:13px;color:var(--text-secondary);margin-bottom:18px}
+.awwz .step-intro{text-align:center;margin-bottom:22px}
+.awwz .step-intro-icon{font-size:30px;margin-bottom:6px}
+.awwz .step-intro h2{font-size:20px;font-weight:600;margin:0 0 4px}
+.awwz .step-intro p{font-size:14px;color:var(--text-secondary);margin:0}
+.awwz .form-group{margin-bottom:18px}
+.awwz .form-group:last-child{margin-bottom:0}
+.awwz .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.awwz .form-label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px}
+.awwz .form-label .req{color:var(--v3-overdue,var(--danger));margin-left:2px}
+.awwz .form-label .opt{color:var(--text-muted);font-weight:400;font-size:11px;margin-left:4px}
+.awwz .input-money{position:relative}
+.awwz .input-money>span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:15px}
+.awwz .input-money input{padding-left:26px}
+/* 16px, not 15px. iOS zooms the viewport on focus below 16px, so this wizard
+ * jumped on every field while the C-3 one (16px) did not — two drifted
+ * copies of the same rule and only one was right. */
+.awwz .form-input{width:100%;padding:12px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:16px;font-family:inherit;transition:border-color .2s ease;-webkit-appearance:none}
+.awwz .form-input:focus{outline:none;border-color:var(--accent-text)}
+.awwz .form-input::placeholder{color:var(--text-muted)}
+.awwz .form-input.error{border-color:var(--danger)}
+.awwz .form-error{font-size:12px;color:var(--danger);margin-top:4px;display:none}
+.awwz .form-error.visible{display:block}
+.awwz .form-hint{font-size:12px;color:var(--text-muted);margin-top:4px}
+.awwz .option-group{display:flex;flex-direction:column;gap:10px}
+.awwz .option-group.horizontal{flex-direction:row;flex-wrap:wrap}
+.awwz .option-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s ease}
+.awwz .option-card.compact{padding:10px 16px;flex:1 1 auto;justify-content:center}
+.awwz .option-card:hover{border-color:var(--accent-text)}
+.awwz .option-card.selected{border-color:var(--accent-text);background:var(--accent-light)}
+.awwz .option-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s ease}
+.awwz .option-card.compact .option-radio{display:none}
+.awwz .option-card.selected .option-radio{border-color:var(--accent-text)}
+.awwz .option-radio-inner{width:8px;height:8px;border-radius:50%;background:var(--accent);transform:scale(0);transition:transform .2s ease}
+.awwz .option-card.selected .option-radio-inner{transform:scale(1)}
+.awwz .option-label{font-size:14px;font-weight:500}
+.awwz .option-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
+.awwz .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm)}
+.awwz .toggle-text{font-size:14px;font-weight:500}
+.awwz .toggle-text-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
+.awwz .toggle-switch{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s ease;flex-shrink:0}
+.awwz .toggle-switch.on{background:var(--accent)}
+.awwz .toggle-knob{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .2s ease}
+.awwz .toggle-switch.on .toggle-knob{transform:translateX(20px)}
+.awwz .live-aww{background:var(--accent-light);border:1px solid rgba(232,119,34,.30);border-radius:var(--radius-sm);padding:12px 16px;margin-top:6px;display:flex;align-items:baseline;justify-content:space-between}
+.awwz .live-aww .lbl{font-size:12px;color:var(--text-secondary)}
+.awwz .live-aww .val{font-size:20px;font-weight:700;color:var(--accent-text);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.awwz .btn-row{display:flex;gap:12px;margin-top:22px}
+.awwz .btn{flex:1;padding:14px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s ease;font-family:inherit}
+/* --accent is a TEXT token here since 3.2 mapped it to --v3-accent-text, and
+ * white on it measured 1.88:1 — a text colour used as a fill. Take the fill
+ * from --v3-accent-fill and the label from --v3-on-accent, which is the pair
+ * those two tokens exist to be used as. */
+.awwz .btn-primary{background:var(--v3-accent-fill,var(--accent));color:var(--v3-on-accent,#fff)}
+.awwz .btn-primary:hover{background:var(--accent-hover)}
+.awwz .btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.awwz .btn-secondary{background:var(--bg-input);border:1px solid var(--border);color:var(--text-secondary)}
+.awwz .btn-secondary:hover{border-color:var(--text-muted);color:var(--text-primary)}
+.awwz .info-callout{background:var(--accent-light);border:1px solid rgba(232,119,34,.30);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);line-height:1.6}
+.awwz .info-callout strong{color:var(--accent-text)}
+/* result screen */
+.awwz .result-hero{text-align:center;padding:8px 8px 4px}
+.awwz .result-aww{font-size:46px;font-weight:800;color:var(--success);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.05;margin:6px 0 2px;animation:awwzPop .5s ease}
+@keyframes awwzPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.awwz .result-aww-lbl{font-size:13px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px}
+.awwz .result-method{display:inline-block;font-size:11px;font-weight:600;color:var(--accent-text);background:var(--accent-light);padding:3px 10px;border-radius:12px;margin-top:8px}
+.awwz .result-rate{display:flex;align-items:baseline;justify-content:space-between;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin:14px 0}
+.awwz .result-rate .lbl{font-size:13px;color:var(--text-secondary)}
+.awwz .result-rate .val{font-size:22px;font-weight:700;color:var(--text-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.awwz .result-formula{font-size:12px;color:var(--text-muted);text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:4px}
+.awwz .cap-note{font-size:12px;color:var(--warning);text-align:center;margin-top:2px}
+/* upload stub */
+.awwz .upload-stub{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-input);border:1px dashed var(--border);border-radius:var(--radius-sm);margin-top:14px;opacity:.7;cursor:not-allowed}
+.awwz .upload-stub .ico{font-size:22px;flex-shrink:0}
+.awwz .upload-stub .soon{margin-left:auto;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--warning);background:var(--warning-light);padding:3px 8px;border-radius:10px;flex-shrink:0}
+.awwz .upload-stub-title{font-size:13px;font-weight:600}
+.awwz .upload-stub-desc{font-size:12px;color:var(--text-muted);margin-top:1px}
+.awwz .disclaimer{text-align:center;font-size:11px;color:var(--text-muted);padding:16px 8px 8px;line-height:1.6}
+/* BUG (Aurora Glass 6.9): this rule was scoped `.awwz .awwz-toast`, but the
+ * toast is appended to document.BODY — which is not a descendant of .awwz — so
+ * the selector matched NOTHING and every error and success message in this
+ * wizard rendered as unstyled static text at the foot of the document.
+ * Verified in-browser: position:static, transparent background, no z-index.
+ * The custom properties (--danger/--success/--radius-sm) are declared ON .awwz
+ * too, so they do not reach body level either — hence the literals. */
+.awwz-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:520px;width:calc(100% - 32px);box-sizing:border-box;background:#C53A2B;color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;z-index:100050;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.awwz-toast.ok{background:#166942}
+@media (max-width:480px){.awwz .form-row{grid-template-columns:1fr}.awwz .step-line{width:30px}.awwz .card{padding:18px}.awwz .result-aww{font-size:38px}}

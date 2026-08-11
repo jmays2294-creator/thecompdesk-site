@@ -4,14 +4,14 @@
 .cd-jb-hd { margin-bottom: 14px; }
 .cd-jb-eyebrow { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted, #6b7280); font-weight: 600; }
 .cd-jb-title { font-size: 26px; font-weight: 800; margin: 2px 0 4px; }
-.cd-jb-beta { display: inline-block; vertical-align: middle; font-size: 11px; font-weight: 800; letter-spacing: .06em; color: #fff; background: var(--accent, #2563eb); border-radius: 999px; padding: 2px 8px; transform: translateY(-3px); }
+.cd-jb-beta { display: inline-block; vertical-align: middle; font-size: 11px; font-weight: 800; letter-spacing: .06em; color: #fff; background: var(--accent,#E87722); border-radius: 999px; padding: 2px 8px; transform: translateY(-3px); }
 .cd-jb-sub { font-size: 14px; color: var(--muted, #6b7280); line-height: 1.45; margin: 0; }
 .cd-jb-hd-actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
 .cd-jb-input-sm { width: auto; max-width: 130px; padding: 7px 9px; font-size: 13px; }
 
 .cd-jb-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line, #e5e7eb); margin: 14px 0 16px; flex-wrap: wrap; }
 .cd-jb-tab { appearance: none; background: none; border: 0; padding: 9px 12px; font-size: 14px; font-weight: 600; color: var(--muted, #6b7280); cursor: pointer; border-bottom: 2px solid transparent; }
-.cd-jb-tab.is-active { color: var(--accent, #2563eb); border-bottom-color: var(--accent, #2563eb); }
+.cd-jb-tab.is-active { color: var(--accent-ink,#A74F0B); border-bottom-color: var(--accent,#E87722); }
 
 .cd-jb-card { background: var(--surface, #fff); border: 1px solid var(--line, #e5e7eb); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
 .cd-jb-card-hd { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
@@ -29,14 +29,18 @@
 .cd-jb-input { width: 100%; box-sizing: border-box; padding: 9px 10px; font-size: 14px; border: 1px solid var(--line, #d1d5db); border-radius: 9px; background: var(--surface, #fff); color: inherit; }
 .cd-jb-ta { min-height: 64px; resize: vertical; font-family: inherit; }
 
-.cd-jb-confirm { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0 4px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+/* 34px. The label is the tap target for its checkbox, not the 13px box — and
+   this is the one the claimant ticks to confirm a C-258.1 work-search entry is
+   accurate, so it is a control that matters. 44px is also a repair for the
+   website, which resolves no --v3-* and takes the fallback. */
+.cd-jb-confirm { display: flex; align-items: flex-start; gap: 8px; min-height: var(--v3-tap-min, 44px); margin: 14px 0 4px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
 .cd-jb-confirm input { margin-top: 2px; }
 .cd-jb-actions { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
 .cd-jb-savemsg { font-size: 12.5px; color: var(--muted, #6b7280); }
 
 .cd-jb-btn { appearance: none; border: 1px solid var(--line, #d1d5db); background: var(--surface, #fff); color: inherit; padding: 9px 14px; font-size: 13.5px; font-weight: 600; border-radius: 10px; cursor: pointer; }
-.cd-jb-btn:hover { border-color: var(--accent, #2563eb); }
-.cd-jb-btn.primary { background: var(--accent, #2563eb); border-color: var(--accent, #2563eb); color: #fff; }
+.cd-jb-btn:hover { border-color: var(--accent,#E87722); }
+.cd-jb-btn.primary { background: var(--accent,#E87722); border-color: var(--accent,#E87722); color: #fff; }
 .cd-jb-btn.ghost { background: transparent; }
 .cd-jb-btn:disabled { opacity: .55; cursor: default; }
 
@@ -45,8 +49,11 @@
 .cd-jb-empty h3 { margin: 8px 0 4px; color: var(--ink, #0a0f1a); }
 .cd-jb-empty p { font-size: 13.5px; line-height: 1.5; max-width: 440px; margin: 0 auto; }
 
+.cd-jb-more { display: flex; justify-content: center; margin: 16px 0 4px; }
+.cd-jb-loadmore { min-width: 200px; }
+
 .cd-jb-feedbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-.cd-jb-ext { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.cd-jb-ext { display: flex; align-items: center; gap: 6px; margin-inline-start: auto; }
 .cd-jb-ext-lbl { font-size: 12.5px; color: var(--muted, #6b7280); }
 .cd-jb-chip { appearance: none; border: 1px solid var(--line, #d1d5db); background: var(--surface, #fff); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: inherit; }
 
@@ -62,13 +69,13 @@
 .cd-jb-fit-unknown { background: #f1f5f9; color: #475569; }
 .cd-jb-re { display: flex; flex-direction: column; gap: 2px; margin: 10px 0; padding: 9px 11px; background: var(--subtle, #f8fafc); border-radius: 9px; font-size: 13px; }
 .cd-jb-re-calc { font-size: 11.5px; color: var(--muted, #6b7280); }
-.cd-jb-flags { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; color: #b45309; }
+.cd-jb-flags { margin: 6px 0 0; padding-inline-start: 18px; font-size: 12.5px; color: #b45309; }
 .cd-jb-flags li { margin: 2px 0; }
 .cd-jb-job-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 
 .cd-jb-stats { display: flex; gap: 10px; margin-bottom: 14px; }
 .cd-jb-stat { flex: 1; text-align: center; border: 1px solid var(--line, #e5e7eb); border-radius: 12px; padding: 12px 8px; background: var(--surface, #fff); }
-.cd-jb-stat-n { font-size: 24px; font-weight: 800; color: var(--accent, #2563eb); }
+.cd-jb-stat-n { font-size: 24px; font-weight: 800; color: var(--accent-ink,#A74F0B); }
 .cd-jb-stat-l { font-size: 11.5px; color: var(--muted, #6b7280); text-transform: uppercase; letter-spacing: .03em; }
 .cd-jb-packet { width: 100%; margin-bottom: 14px; }
 
@@ -76,7 +83,7 @@
 .cd-jb-vr .cd-jb-input { width: auto; }
 
 .cd-jb-addform { border: 1px solid var(--line, #e5e7eb); border-radius: 12px; padding: 4px 14px; margin-bottom: 14px; background: var(--surface, #fff); }
-.cd-jb-addform summary { cursor: pointer; font-weight: 600; font-size: 13.5px; padding: 10px 0; color: var(--accent, #2563eb); }
+.cd-jb-addform summary { cursor: pointer; font-weight: 600; font-size: 13.5px; padding: 10px 0; color: var(--accent-ink,#A74F0B); }
 
 .cd-jb-ledger { display: flex; flex-direction: column; gap: 8px; }
 .cd-jb-lrow { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line, #e5e7eb); border-radius: 11px; padding: 11px 13px; background: var(--surface, #fff); }
@@ -85,23 +92,89 @@
 .cd-jb-lrow-date { font-size: 12px; color: var(--muted, #6b7280); white-space: nowrap; }
 .cd-jb-lrow-sub { font-size: 12.5px; color: var(--muted, #6b7280); margin-top: 2px; }
 .cd-jb-resp { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted, #6b7280); white-space: nowrap; }
-.cd-jb-del { appearance: none; border: 0; background: none; font-size: 20px; line-height: 1; color: var(--muted, #9ca3af); cursor: pointer; padding: 0 4px; }
+.cd-jb-del { appearance: none; border: 0; background: none; font-size: 20px; line-height: 1; color: var(--muted,#5A5148); cursor: pointer; padding: 0 4px; }
 .cd-jb-del:hover { color: #dc2626; }
 
-.cd-jb-disclaimer { font-size: 11px; color: var(--muted, #9ca3af); text-align: center; margin-top: 22px; line-height: 1.5; }
+.cd-jb-disclaimer { font-size: 11px; color: var(--muted,#5A5148); text-align: center; margin-top: 22px; line-height: 1.5; }
 
 /* ── Firm Tier "Client Work Search" view ─────────────────────────────────── */
 .cd-fjb-summary { font-size: 12.5px; color: var(--muted, #6b7280); margin-bottom: 12px; }
 .cd-fjb-row { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line, #e5e7eb); border-radius: 12px; padding: 12px 14px; margin-bottom: 9px; background: var(--surface, #fff); cursor: pointer; }
-.cd-fjb-row:hover { border-color: var(--accent, #2563eb); }
-.cd-fjb-row.has-alert { border-left: 3px solid #dc2626; }
+.cd-fjb-row:hover { border-color: var(--accent,#E87722); }
+.cd-fjb-row.has-alert { border-inline-start: 3px solid #dc2626; }
 .cd-fjb-row-main { flex: 1; min-width: 0; }
 .cd-fjb-row-name { font-size: 15px; font-weight: 700; }
 .cd-fjb-badge { font-size: 12px; font-weight: 700; color: #991b1b; background: #fee2e2; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
-.cd-jb-quick-arrow { color: var(--muted, #9ca3af); font-size: 16px; }
+.cd-jb-quick-arrow { color: var(--muted,#5A5148); font-size: 16px; }
 .cd-fjb-chead { margin-bottom: 10px; }
 .cd-fjb-alerts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .cd-fjb-alert { font-size: 12px; font-weight: 600; color: #991b1b; background: #fee2e2; border-radius: 8px; padding: 5px 10px; }
 .cd-fjb-ledger { margin-top: 14px; }
 
 /* Dark worker skin tolerance: surfaces inherit when the app sets dark tokens. */
+
+/* ── THE SHEET'S INK, per skin ───────────────────────────────────────────────
+ * The screen behind the onboarding wizard measured ZERO text runs for the whole
+ * time it sat in the gate's run set — the wizard overlay occluded every one of
+ * them — so none of the values below had ever been checked. With the wizard
+ * suppressed they were: --muted #6b7280 is 4.48:1 on the worker cream, and
+ * --accent used AS TEXT is 2.74:1.
+ *
+ * Both are declared here rather than edited at each of the 23 usages, so the
+ * attorney block below keeps overriding one vocabulary instead of two. The
+ * literals are the FIXED values: the website resolves no --v3-*, and its worker
+ * skin is the same cream, so it has the same defect and takes the same repair.
+ *
+ * --accent is deliberately untouched — it is a FILL (.cd-jb-beta,
+ * .cd-jb-btn.primary, the active tab's underline). --accent-ink is the text
+ * half of it, which is a different colour on a light surface. */
+.cd-jb {
+  --ink:        var(--v3-text,        #241F1B);
+  --muted:      var(--v3-text-mute,   #5A5148);
+  --accent-ink: var(--v3-accent-text, #A74F0B);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * ATTORNEY SKIN — the Firm "Client Work Search" screen.
+ *
+ * This sheet was authored against a private token vocabulary — --ink, --muted,
+ * --line, --surface, --subtle — and NOTHING in the app or the website defines
+ * any of them. Every value above has therefore always resolved to its
+ * light-mode fallback, on BOTH skins. On the worker cream that is correct by
+ * accident. On the navy attorney skin it is not: measured on the rendered
+ * screen, the page title is #0A0F1A on #0F1B33 at **1.12:1** and the empty
+ * state's heading with it — the text is there, and nobody can see it.
+ *
+ * It is fixed by DEFINING the vocabulary rather than by rewriting 40 rules to
+ * name different tokens: every rule above already reads through var(), so one
+ * block re-skins the whole screen and future rules inherit the fix for free.
+ *
+ * --accent is deliberately NOT redefined here. It is used as a FILL as well as
+ * as text (.cd-jb-beta, .cd-jb-btn.primary), so lightening it for legibility on
+ * navy would break the two places it is a background.
+ *
+ * FALLBACKS ARE THE FIXED VALUES, NOT THE OLD ONES. The shared-file rule exists
+ * so the website — which loads no v3 layer — keeps working; the website's
+ * attorney skin is the same #0F1B33 / #F0EBE0 (ops/website/css/skins.css:74),
+ * so it has the identical bug and these literals are the identical repair.
+ * Preserving the broken value here would protect nothing.
+ *
+ * Ratios on the attorney field #0F1B33 / card #16243F:
+ *   --ink    #F0EBE0   15.4:1 field · 13.0:1 card
+ *   --muted  #B7C0D4    9.4:1 field ·  8.5:1 card
+ * ══════════════════════════════════════════════════════════════════════════*/
+[data-audience="attorney"] .cd-jb {
+  --ink:     var(--v3-text,      #F0EBE0);
+  --muted:   var(--v3-text-mute, #B7C0D4);
+  --surface: var(--v3-g1-solid,  #16243F);
+  --subtle:  var(--v3-g1-solid,  #16243F);
+  --line:    rgba(240, 235, 224, .14);
+  --accent-ink: var(--v3-accent-text, #FFA95C);
+}
+/* WHITE ON ORANGE, both skins and the website: #FFF on #E87722 is 2.96:1.
+ * --v3-on-accent is the token that exists for exactly this ("navy-ink on
+ * orange; white fails AA") — 5.51:1 worker, 6.26:1 attorney, and #241F1B is
+ * correct on the website's #E87722 too. Neither element was in a measured
+ * state when the gate ran; both are the same defect it caught elsewhere. */
+.cd-jb-beta,
+.cd-jb-btn.primary { color: var(--v3-on-accent, #241F1B); }

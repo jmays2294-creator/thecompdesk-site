@@ -1,0 +1,223 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   wizard-c3.css — the C-3 Employee Claim filing wizard (.c3w).
+
+   The single most important surface in the app: a worker files their actual
+   claim with the Workers' Compensation Board here.
+
+   Extracted VERBATIM from js/dashboard/c3-wizard.js ensureStyles(), which built
+   this as a JS string array and injected <style id="c3w-styles"> at runtime.
+   Rules are byte-identical; the comment-stripped rule stream was diffed against
+   a whole-array evaluation to prove it.
+
+   NOTE the file still has a SECOND injector, cd-gloss-styles, for the inline
+   glossary popover. That one is nested inside a closure and deliberately left
+   in place — it is not one of the five this pass extracts.
+
+   The comments below came across from the array literal and are the most
+   valuable thing here. They record two measured production fixes:
+
+     · The viewport ALWAYS scrolls. It was overflow:hidden, which meant that
+       the moment the on-screen keyboard shrank the modal, any card taller than
+       the remaining space was clipped and physically unreachable — measured at
+       375x476 (iPhone + a 336px keyboard): 11 of 24 cards overflowed and 10
+       had their last field buried under the pinned footer.
+     · Vertical centring uses AUTO MARGINS, not justify-content:center, because
+       auto margins absorb only the free space that exists. A short card centres
+       while a tall card still scrolls from its true first pixel;
+       justify-content:center would make the overflowing top unreachable.
+
+   Do not "simplify" either of those without re-measuring with a keyboard open.
+
+   LOAD ORDER: a runtime injection lands at the end of <head>, so these rules
+   used to win every specificity tie against every linked sheet. The <link>
+   sits last for that reason; only rtl.css follows, and it targets none of the
+   .c3w selectors.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* dark tokens (question cards); chrome uses explicit cream values below. */
+/* ── PALETTE ────────────────────────────────────────────────────────────────
+ * AURORA GLASS 3.2. This wizard shipped its own DARK, BLUE theme —
+ * --bg-primary:#0f1117 with --accent:#3b82f6 — matching neither skin, and that
+ * accent is the third brand hue the design brief forbids. On the worker skin
+ * the app's most important flow rendered near-black behind a cream modal.
+ *
+ * THE FALLBACKS ARE LOAD-BEARING: this sheet is vendored to the website by
+ * sync-dashboard.sh and the website has no tokens-v3.css, so there every
+ * var(--v3-*) resolves to nothing and the original literal applies. Proved by
+ * computed-style diff with the v3 layer absent, not by reasoning. */
+.c3w{--bg-primary:var(--v3-field-solid,#0f1117);--bg-card:var(--v3-g2-bg,#1a1d28);--bg-input:var(--v3-g1-bg,#252836);--border:var(--v3-data-ghost,#2e3145);--text-primary:var(--v3-text,#e8eaed);--text-secondary:var(--v3-text-mute,#9ba1b0);--text-muted:var(--v3-text-micro,#8890a0);--accent:var(--v3-accent-text,#3b82f6);--accent-hover:var(--v3-accent-text,#2563eb);--accent-light:var(--v3-accent-tint,rgba(232, 119, 34,.15));--success:var(--v3-positive,#22c55e);--success-light:rgba(34,197,94,.15);--warning:#f59e0b;--warning-light:rgba(245,158,11,.15);--danger:var(--v3-overdue,#ef4444);--danger-light:rgba(239,68,68,.15);--radius:var(--v3-radius-tile,12px);--radius-sm:var(--v3-radius-well,8px);
+--cream:#F8F6F1;--line:#E7DECB;--ink:#241F1B;--cmuted:#5A5148;--orange:#E87722;--orange-deep:var(--v3-accent-text,#C25E12);
+position:fixed;inset:0;z-index:100040;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+.c3w *{box-sizing:border-box}
+.c3w-modal{position:absolute;left:0;top:0;width:100%;height:100%;display:flex;flex-direction:column;background:var(--bg-primary);overflow:hidden}
+/* top bar (cream) */
+.c3w-topbar{flex:0 0 auto;display:flex;align-items:center;gap:10px;background:var(--cream);border-bottom:1px solid var(--line);
+padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px}
+.c3w-title{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:16px;color:var(--ink);margin:0;line-height:1.2}
+.c3w-badge{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--orange-deep);background:rgba(232,119,34,.12);border:1px solid rgba(232,119,34,.3);padding:3px 8px;border-radius:999px}
+.c3w-atty-link{margin-left:auto;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--orange-deep);text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px}
+.c3w-close{background:none;border:none;font-size:20px;line-height:1;color:var(--cmuted);cursor:pointer;padding:2px 4px}
+/* progress (cream) */
+.c3w-progress{flex:0 0 auto;background:var(--cream);border-bottom:1px solid var(--line);padding:10px 16px 12px}
+.c3w-bar{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.c3w-bar-fill{height:100%;width:0;background:var(--orange);border-radius:999px;transition:width .35s ease}
+.c3w-metarow{display:flex;justify-content:space-between;align-items:baseline;margin-top:7px}
+.c3w-counter{font-size:12px;font-weight:600;color:var(--ink)}
+.c3w-counter .c3w-sec{font-weight:500;color:var(--cmuted)}
+.c3w-eta{font-size:11px;color:var(--cmuted)}
+/* viewport + card (dark) */
+/* color: base light text for the whole dark card area so any element that */
+/* doesn't set its own color still reads on the dark bg (was inheriting the */
+/* app's dark ink → invisible dark-on-dark, e.g. the review values). */
+/* The viewport ALWAYS scrolls. It used to be overflow:hidden, which meant */
+/* that the moment the on-screen keyboard shrank the modal (applyVV below), */
+/* any card taller than the remaining space was CLIPPED and physically */
+/* unreachable — measured at 375x476 (iPhone + 336px keyboard): 11 of 24 */
+/* cards overflowed and 10 had their last field buried under the footer. */
+/* Hidden overflow on a keyboard-resized container is never right. */
+.c3w-viewport{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;align-items:center;padding:16px 18px 12px;color:var(--text-primary)}
+/* Vertical centring via AUTO MARGINS, not justify-content:center. Auto */
+/* margins absorb only the free space that actually exists, so a short card */
+/* sits centred (was pinned to the top with up to 439px of dead space below */
+/* it) while a tall card still scrolls from its true first pixel. */
+/* justify-content:center would make the overflowing top unreachable. */
+.c3w-card{width:100%;max-width:560px;margin-block:auto;animation:c3wFade .28s ease}
+/* Review/success are long, top-aligned reading surfaces — no centring. */
+.c3w-viewport.scroll{justify-content:flex-start}
+.c3w-viewport.scroll .c3w-card,.c3w-viewport.scroll .success-screen{margin-block:0}
+@keyframes c3wFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.c3w-card-head{margin-bottom:14px}
+.c3w-card-icon{font-size:26px;line-height:1;margin-bottom:6px}
+.c3w-card-title{font-size:19px;font-weight:600;color:var(--text-primary);margin:0 0 4px}
+.c3w-card-sub{font-size:13px;color:var(--text-secondary);margin:0}
+/* form fields (dark) */
+.c3w .form-group{margin-bottom:14px}
+.c3w .form-group:last-child{margin-bottom:0}
+.c3w .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.c3w .form-label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px}
+.c3w .form-label .req{color:var(--v3-overdue,var(--danger));margin-left:2px}
+.c3w .form-label .opt{color:var(--text-muted);font-weight:400;font-size:11px;margin-left:4px}
+.c3w .form-input{width:100%;padding:12px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:16px;font-family:inherit;transition:border-color .2s ease;-webkit-appearance:none}
+.c3w .form-input:focus{outline:none;border-color:var(--accent)}
+.c3w .form-input::placeholder{color:var(--text-muted)}
+.c3w .form-input.error{border-color:var(--danger)}
+.c3w select.form-input{cursor:pointer}
+.c3w textarea.form-input{resize:none;min-height:70px}
+.c3w .form-error{font-size:12px;color:var(--danger);margin-top:5px;display:none}
+.c3w .form-error.visible{display:block}
+.c3w .form-hint{font-size:11.5px;color:var(--text-muted);margin-top:5px;line-height:1.45}
+.c3w .c3w-helper{font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:0 0 14px}
+/* inline-FLEX, not inline-block. index.html:733 gives every [role="button"]
+ * a 44px min-height (the tap-target floor) and this chip is a
+ * <span role="button"> — so its box has always been 44px tall while
+ * padding:1px 7px pinned the text to the top of it. Invisible while the
+ * wizard was dark-on-dark; obvious the moment the tint became legible.
+ * Centring the text is the fix; shrinking the box would break a tap target
+ * on a control that opens an editor. */
+/* The chip's TEXT, not the tint, is the binding constraint: --v3-accent-text
+ * on the tint composite measured 4.14:1 at .14 alpha and only 4.48:1 with the
+ * tint washed almost to nothing. Washing it further to buy 0.02 would cost
+ * the chip its identity, so the text takes --v3-text-mute — a measured token
+ * with real headroom — and the tint keeps enough alpha to still read. */
+.c3w .c3w-chip{display:inline-flex;align-items:center;font-size:10px;font-weight:600;color:var(--v3-text-mute,var(--accent));background:var(--accent-light);padding:1px 7px;border-radius:10px;margin-left:6px;cursor:pointer;white-space:nowrap;vertical-align:middle;-webkit-user-select:none;user-select:none}
+.c3w .c3w-chip:hover{background:rgba(232, 119, 34,.28)}
+.c3w .c3w-chip:focus{outline:2px solid var(--accent);outline-offset:1px}
+/* body-part chip grid */
+.c3w .chip-grid{display:flex;flex-wrap:wrap;gap:7px}
+.c3w .chip{padding:7px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:20px;color:var(--text-secondary);font-size:12.5px;cursor:pointer;transition:all .18s ease;user-select:none}
+.c3w .chip:hover{border-color:var(--accent);color:var(--text-primary)}
+.c3w .chip.selected{background:var(--accent-light);border-color:var(--accent);color:var(--accent);font-weight:500}
+.c3w .chip-grid.error{outline:1px solid var(--danger);outline-offset:4px;border-radius:var(--radius-sm)}
+/* option cards (Y/N etc.) */
+.c3w .option-group{display:flex;gap:9px;flex-wrap:wrap}
+.c3w .option-card{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .18s ease;flex:0 0 auto}
+.c3w .option-card:hover{border-color:var(--accent)}
+.c3w .option-card.selected{border-color:var(--accent);background:var(--accent-light)}
+.c3w .option-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s ease}
+.c3w .option-card.selected .option-radio{border-color:var(--accent)}
+.c3w .option-radio-inner{width:7px;height:7px;border-radius:50%;background:var(--accent);transform:scale(0);transition:transform .18s ease}
+.c3w .option-card.selected .option-radio-inner{transform:scale(1)}
+.c3w .option-label{font-size:13.5px;font-weight:500;color:var(--text-primary)}
+/* toggle */
+.c3w .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm)}
+.c3w .toggle-text{font-size:13.5px;font-weight:500;color:var(--text-primary)}
+.c3w .toggle-text-desc{font-size:11.5px;color:var(--text-muted);margin-top:2px;line-height:1.4}
+.c3w .toggle-switch{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s ease;flex-shrink:0}
+.c3w .toggle-switch.on{background:var(--accent)}
+.c3w .toggle-knob{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .2s ease}
+.c3w .toggle-switch.on .toggle-knob{transform:translateX(20px)}
+/* callouts / notices */
+.c3w .info-callout{background:var(--accent-light);border:1px solid rgba(232, 119, 34,.3);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:12px;font-size:12px;color:var(--text-secondary);line-height:1.55}
+.c3w .info-callout strong{color:var(--accent)}
+.c3w .legal-notice{background:var(--warning-light);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px}
+.c3w .legal-notice-title{font-size:12.5px;font-weight:600;color:var(--warning);margin-bottom:4px}
+.c3w .legal-notice p{font-size:11.5px;color:var(--text-secondary);line-height:1.55;margin:0}
+.c3w .c33-link{display:block;margin-top:14px;font-size:12px;color:var(--text-muted);text-align:center}
+.c3w .c33-link a{color:var(--accent);font-weight:600;cursor:pointer}
+/* employer-address offer chip (from the Google Places pick — never auto-writes) */
+.c3w .c3w-addr-offer{margin-top:12px;background:var(--accent-light);border:1px solid rgba(232, 119, 34,.3);border-radius:var(--radius-sm);padding:11px 13px}
+.c3w .c3w-addr-offer-label{font-size:11px;font-weight:600;color:var(--accent);margin-bottom:8px}
+.c3w .c3w-addr-offer-row{display:flex;align-items:center;gap:8px}
+.c3w .c3w-addr-use{flex:1;text-align:left;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:13px;padding:10px 12px;cursor:pointer;line-height:1.35}
+.c3w .c3w-addr-use:hover{border-color:var(--accent)}
+.c3w .c3w-addr-dismiss{flex:0 0 auto;background:none;border:none;color:var(--text-muted);font-size:15px;cursor:pointer;padding:6px 8px;line-height:1}
+/* review */
+.c3w .review-group{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.c3w .review-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.c3w .review-group-title{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.c3w .review-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:12px}
+.c3w .review-label{font-size:12.5px;color:var(--text-secondary);flex-shrink:0}
+.c3w .review-value{font-size:13.5px;font-weight:500;text-align:right;word-break:break-word;color:var(--text-primary)}
+.c3w .review-value.empty{color:var(--text-muted);font-style:italic;font-weight:400}
+.c3w .review-edit-btn{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;padding:2px 6px;font-family:inherit}
+/* signature */
+.c3w .sig-pad-wrap{position:relative;margin-top:6px}
+.c3w .sig-pad{width:100%;height:120px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);touch-action:none;cursor:crosshair;display:block}
+.c3w .sig-clear{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:6px;font-size:11px;padding:4px 8px;cursor:pointer}
+/* in-card buttons (dark surfaces: success, resume) */
+.c3w .btn{padding:13px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s ease;font-family:inherit}
+.c3w .btn-primary{background:var(--accent);color:#fff}
+.c3w .btn-primary:hover{background:var(--accent-hover)}
+.c3w .btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.c3w .btn-secondary{background:var(--bg-input);border:1px solid var(--border);color:var(--text-secondary)}
+.c3w .btn-secondary:hover{border-color:var(--text-muted);color:var(--text-primary)}
+/* success / next-steps (dark, scrollable terminal card) */
+.c3w .success-screen{text-align:center;padding:8px 4px 20px;width:100%;max-width:560px}
+.c3w .success-icon{width:66px;height:66px;background:var(--success-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;color:var(--success)}
+.c3w .success-screen h2{font-size:21px;font-weight:600;margin:0 0 8px;color:var(--text-primary)}
+.c3w .success-screen p{font-size:14px;color:var(--text-secondary);margin:0 0 18px;line-height:1.5}
+.c3w .file-steps{text-align:left;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:16px}
+.c3w .file-steps h3{font-size:13px;font-weight:600;margin:0 0 10px;color:var(--text-primary)}
+.c3w .file-step{display:flex;gap:10px;font-size:13px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5}
+.c3w .file-step:last-child{margin-bottom:0}
+.c3w .file-step b{color:var(--text-primary)}
+.c3w .file-step-num{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+/* resume + fatal */
+.c3w .c3w-resume-card{width:100%;max-width:560px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;text-align:center}
+.c3w .fatal{background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius);padding:20px;text-align:center;color:var(--text-primary);max-width:520px;margin:24px auto}
+.c3w .fatal h2{font-size:18px;margin:0 0 8px}
+.c3w .fatal p{font-size:13px;color:var(--text-secondary);margin:0 0 14px}
+/* footer nav (cream, pinned) */
+.c3w-foot{flex:0 0 auto;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 10px)}
+.c3w-foot-row{display:flex;gap:12px}
+.c3w-back,.c3w-next{flex:1;padding:14px 18px;border-radius:999px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;border:none;line-height:1;transition:background .16s ease,opacity .16s ease}
+.c3w-back{flex:0 0 auto;min-width:96px;background:transparent;border:1px solid var(--line);color:var(--cmuted)}
+.c3w-back:hover{color:var(--ink);border-color:var(--cmuted)}
+/* NOT white. White on this orange measures 2.88:1 — on the primary action of
+ * the flow that files a legal claim, and it has been that way since the
+ * button was written. --v3-on-accent exists for exactly this: tokens-v3.css
+ * states it as 'navy-ink on orange; white fails AA'. */
+.c3w-next{background:var(--orange);color:var(--v3-on-accent,#fff)}
+.c3w-next:hover{background:var(--orange-deep)}
+.c3w-next:disabled{opacity:.42;cursor:not-allowed}
+.c3w-foot-note{font-size:10.5px;color:var(--cmuted);text-align:center;margin-top:10px;line-height:1.4}
+/* toast */
+/* BUG (Aurora Glass 6.9): this rule was scoped `.c3w .c3w-toast`, but the
+ * toast is appended to document.BODY — which is not a descendant of .c3w — so
+ * the selector matched NOTHING and every error and success message in this
+ * wizard rendered as unstyled static text at the foot of the document.
+ * Verified in-browser: position:static, transparent background, no z-index.
+ * The custom properties (--danger/--success/--radius-sm) are declared ON .c3w
+ * too, so they do not reach body level either — hence the literals. */
+.c3w-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:520px;width:calc(100% - 32px);box-sizing:border-box;background:#C53A2B;color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;z-index:100050;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.c3w-toast.ok{background:#166942}

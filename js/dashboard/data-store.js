@@ -30,6 +30,9 @@ const S={
   // NS
   nsSub:'spine',nsSpineTbl:'11.1',
   nsReg:'cervical',nsImg:false,nsEMG:false,nsRef:'normal',nsTen:false,nsMot:'5',nsSen:'normal',nsRoot:'C7',nsAddR:'0',
+  // Date Calculator (free tool, no case data) — dcMode: 'add' (Add/Subtract) |
+  // 'between' (Between Dates). dcStart/dcEnd default to today at first render.
+  dcMode:'add',dcDir:'add',dcStart:'',dcY:'',dcM:'',dcW:'',dcD:'',dcBiz:false,dcRoll:false,dcEnd:'',dcIncEnd:false,
 };
 
 // Effective AWW considering toggles
@@ -95,43 +98,10 @@ const LWEC_BR=[
   {l:"41–50%",lo:41,hi:50,mw:300},{l:"31–40%",lo:31,hi:40,mw:275},{l:"16–30%",lo:16,hi:30,mw:250},
   {l:"15% or less",lo:0,hi:15,mw:225},
 ];
-// ROM Data
-const ROM_DATA={
-  Shoulder:{convertsTo:"Arm",movements:[
-    {name:"Fwd Flexion",full:180,tiers:[{l:"Full→Mild",f:180,t:150,s:0,e:.075,p:.0025},{l:"Mild→Mod",f:150,t:120,s:.075,e:.20,p:.004167},{l:"Mod→Mrkd",f:120,t:60,s:.20,e:.40,p:1/300},{l:"Mrkd→Anky",f:60,t:0,s:.40,e:.50,p:1/600}]},
-    {name:"Abduction",full:180,tiers:[{l:"Full→Mild",f:180,t:150,s:0,e:.05,p:1/600},{l:"Mild→Mod",f:150,t:90,s:.05,e:.15,p:1/600},{l:"Mod→Mrkd",f:90,t:45,s:.15,e:.25,p:1/450},{l:"Mrkd→Anky",f:45,t:0,s:.25,e:.35,p:1/450}]},
-    {name:"Int Rotation",full:80,tiers:[{l:"Full→Mild",f:80,t:60,s:0,e:.025,p:.00125},{l:"Mild→Mod",f:60,t:30,s:.025,e:.075,p:1/600},{l:"Mod→Mrkd",f:30,t:0,s:.075,e:.10,p:1/1200}]},
-    {name:"Ext Rotation",full:90,tiers:[{l:"Full→Mild",f:90,t:60,s:0,e:.025,p:1/1200},{l:"Mild→Mod",f:60,t:30,s:.025,e:.075,p:1/600},{l:"Mod→Mrkd",f:30,t:0,s:.075,e:.10,p:1/1200}]},
-  ]},
-  Elbow:{convertsTo:"Arm",movements:[
-    {name:"Flexion",full:140,tiers:[{l:"Full→Mild",f:140,t:110,s:0,e:.075,p:.0025},{l:"Mild→Mod",f:110,t:90,s:.075,e:.15,p:.00375},{l:"Mod→Mrkd",f:90,t:60,s:.15,e:.25,p:1/300},{l:"Mrkd→Anky",f:60,t:0,s:.25,e:.35,p:1/600}]},
-    {name:"Pronation",full:80,tiers:[{l:"Full→Mild",f:80,t:60,s:0,e:.025,p:.00125},{l:"Mild→Mod",f:60,t:30,s:.025,e:.075,p:1/600},{l:"Mod→Mrkd",f:30,t:0,s:.075,e:.10,p:1/1200}]},
-    {name:"Supination",full:80,tiers:[{l:"Full→Mild",f:80,t:60,s:0,e:.025,p:.00125},{l:"Mild→Mod",f:60,t:30,s:.025,e:.075,p:1/600},{l:"Mod→Mrkd",f:30,t:0,s:.075,e:.10,p:1/1200}]},
-  ]},
-  Wrist:{convertsTo:"Hand",movements:[
-    {name:"Palmar Flex",full:80,tiers:[{l:"Full→Mild",f:80,t:60,s:0,e:.05,p:.0025},{l:"Mild→Mod",f:60,t:30,s:.05,e:.15,p:1/300},{l:"Mod→Mrkd",f:30,t:0,s:.15,e:.25,p:1/300}]},
-    {name:"Dorsiflexion",full:70,tiers:[{l:"Full→Mild",f:70,t:50,s:0,e:.05,p:.0025},{l:"Mild→Mod",f:50,t:25,s:.05,e:.15,p:.004},{l:"Mod→Mrkd",f:25,t:0,s:.15,e:.25,p:.004}]},
-    {name:"Radial Dev",full:20,tiers:[{l:"Full→Mild",f:20,t:10,s:0,e:.025,p:.0025},{l:"Mild→Mod",f:10,t:0,s:.025,e:.05,p:.0025}]},
-    {name:"Ulnar Dev",full:30,tiers:[{l:"Full→Mild",f:30,t:20,s:0,e:.025,p:.0025},{l:"Mild→Mod",f:20,t:10,s:.025,e:.05,p:.0025},{l:"Mod→Mrkd",f:10,t:0,s:.05,e:.075,p:.0025}]},
-  ]},
-  Knee:{convertsTo:"Leg",movements:[
-    {name:"Flexion",full:140,tiers:[{l:"Full→Mild",f:140,t:120,s:0,e:.10,p:.005},{l:"Mild→Mod",f:120,t:90,s:.10,e:.40,p:.01},{l:"Mod→Mrkd",f:90,t:45,s:.40,e:.55,p:1/300},{l:"Mrkd→Anky",f:45,t:0,s:.55,e:.6667,p:1/300}]},
-    {name:"Ext Deficit",full:0,isDef:true,tiers:[{l:"Mild (5-10°)",flat:true,sr:[.075,.10]}],note:"5-10° deficit = 7.5–10% SLU of leg."},
-  ]},
-  Hip:{convertsTo:"Leg",movements:[
-    {name:"Flexion",full:130,tiers:[{l:"Full→Mild",f:130,t:100,s:0,e:.075,p:.0025},{l:"Mild→Mod",f:100,t:60,s:.075,e:.25,p:.004375},{l:"Mod→Mrkd",f:60,t:30,s:.25,e:.40,p:.005},{l:"Mrkd→Anky",f:30,t:0,s:.40,e:.50,p:1/300}]},
-    {name:"Abduction",full:40,tiers:[{l:"Full→Mild",f:40,t:30,s:0,e:.025,p:.0025},{l:"Mild→Mod",f:30,t:15,s:.025,e:.075,p:1/300},{l:"Mod→Mrkd",f:15,t:0,s:.075,e:.10,p:1/600}]},
-    {name:"Int Rotation",full:40,tiers:[{l:"Full→Mild",f:40,t:25,s:0,e:.025,p:1/600},{l:"Mild→Mod",f:25,t:15,s:.025,e:.05,p:.0025},{l:"Mod→Mrkd",f:15,t:0,s:.05,e:.075,p:1/600}]},
-    {name:"Ext Rotation",full:60,tiers:[{l:"Full→Mild",f:60,t:40,s:0,e:.025,p:.00125},{l:"Mild→Mod",f:40,t:20,s:.025,e:.05,p:.00125},{l:"Mod→Mrkd",f:20,t:0,s:.05,e:.075,p:.00125}]},
-  ]},
-  Ankle:{convertsTo:"Foot",movements:[
-    {name:"Dorsiflexion",full:20,tiers:[{l:"Full→Mild",f:20,t:10,s:0,e:.075,p:.0075},{l:"Mild→Mod",f:10,t:0,s:.075,e:.20,p:.0125}]},
-    {name:"Plantar Flex",full:50,tiers:[{l:"Full→Mild",f:50,t:30,s:0,e:.05,p:.0025},{l:"Mild→Mod",f:30,t:15,s:.05,e:.15,p:1/150},{l:"Mod→Mrkd",f:15,t:0,s:.15,e:.25,p:1/150}]},
-    {name:"Inversion",full:30,tiers:[{l:"Full→Mild",f:30,t:20,s:0,e:.05,p:.005},{l:"Mild→Mod",f:20,t:10,s:.05,e:.10,p:.005},{l:"Mod→Mrkd",f:10,t:0,s:.10,e:.15,p:.005}]},
-    {name:"Eversion",full:20,tiers:[{l:"Full→Mild",f:20,t:10,s:0,e:.05,p:.005},{l:"Mild→Mod",f:10,t:0,s:.05,e:.10,p:.005}]},
-  ]},
-};
-const ALL_BP_NAMES=Object.keys(ROM_DATA);
+// ROM tables removed 2026-07-12: the SLU ROM engine now lives in the
+// canonical module js/calc-core/slu-rom.js (window.CD.SLURom) — one source
+// of truth shared with the Pro workspace tile and the website. The old
+// per-movement tier tables here were NOT drawn from the 2018 Guidelines.
 const SPINE_T={"11.1":{n:"Soft Tissue–Non-Surg",cls:[{c:1,d:"No symptoms, no findings",cv:"None",th:"None",lu:"None"},{c:2,d:"Symptoms, no obj findings, no imaging",cv:"A",th:"A",lu:"A"},{c:3,d:"Symptoms, no obj findings, correlative imaging",cv:"B",th:"B",lu:"B"},{c:4,d:"Symptoms + obj findings + imaging/EMG",cv:"C–H",th:"C–G",lu:"D–J"}]},"11.2":{n:"Surgically Treated",cls:[{c:1,d:"Surgery, no residual symptoms",cv:"None",th:"None",lu:"None"},{c:2,d:"Surgery, symptoms, no findings/imaging",cv:"A",th:"A",lu:"A"},{c:3,d:"Surgery, symptoms, post-surg imaging",cv:"B",th:"B",lu:"B"},{c:4,d:"Surgery, symptoms + findings + imaging/EMG",cv:"C–H",th:"C–G",lu:"D–J"},{c:5,d:"Complications related to surgery",cv:"Varies",th:"Varies",lu:"Varies"}]}};
 const MOT_GR=[{g:0,d:"No contractions",p:20},{g:1,d:"Slight contraction",p:20},{g:2,d:"Gravity eliminated",p:18},{g:3,d:"Against gravity",p:6},{g:4,d:"Against gravity+resist",p:0},{g:5,d:"Full",p:0}];
 const C_ROOTS=[{r:"C5"},{r:"C6"},{r:"C7"},{r:"C8"},{r:"T1"}];
@@ -148,8 +118,6 @@ CD.MAX_RATES = MAX_RATES;
 CD.MIN_RATES = MIN_RATES;
 CD.SLU_BP = SLU_BP;
 CD.LWEC_BR = LWEC_BR;
-CD.ROM_DATA = ROM_DATA;
-CD.ALL_BP_NAMES = ALL_BP_NAMES;
 CD.SPINE_T = SPINE_T;
 CD.MOT_GR = MOT_GR;
 CD.C_ROOTS = C_ROOTS;

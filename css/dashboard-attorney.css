@@ -19,19 +19,44 @@
  * ==========================================================================*/
 
 .atty-dash {
-  /* ── Command-center palette (navy, the approved design's exact values) ── */
-  --cc-bg:#0a1424; --cc-bg2:#0c182b; --cc-surface:#13243f; --cc-surface2:#17294a; --cc-raise:#1d325a;
+  /* ── Command-center palette ─────────────────────────────────────────────
+   * AURORA GLASS 2E. Every --cc-* below now reads its Aurora Glass token
+   * FIRST and keeps the approved design's original literal as the fallback.
+   *
+   * WHY THE FALLBACK IS LOAD-BEARING, not defensive: this file is shared. It
+   * is copied verbatim to the website by ops/website/sync-dashboard.sh, and
+   * the website does NOT load tokens-v3.css. There, every var(--v3-*) below
+   * resolves to nothing and the fallback applies — so the site renders byte
+   * for byte what it renders today, while the app renders glass. One file,
+   * two correct results, and running the sync script stays safe. Verified by
+   * computed-style diff with the v3 layer absent, not by reasoning.
+   *
+   * This palette was always a sixth private colour vocabulary; it is now a
+   * thin alias layer over the shared one. Phase 6 deletes it outright, once
+   * the website carries the v3 layer too (backend/website follow-up list).
+   *
+   * ONE REAL FIX RIDES ALONG. --cc-text3 (#6c7689) is a TEXT colour in 19
+   * rules and measures 3.40:1 on --cc-surface — it has been failing AA in the
+   * shipping Command Center. --v3-text-micro is 6.87:1 on the same surface.
+   * --cc-accent is left alone deliberately: it is 13x colour but also 5x
+   * background, and at 5.64:1 as text it already passes. */
+  --cc-bg:var(--v3-field-solid,#0a1424); --cc-bg2:#0c182b;
+  --cc-surface:var(--v3-g2-bg,#13243f); --cc-surface2:var(--v3-g3-bg,#17294a); --cc-raise:#1d325a;
   --cc-border:rgba(231,237,247,.10); --cc-border2:rgba(231,237,247,.18);
-  --cc-text:#f3ede2; --cc-text2:#a7b2c4; --cc-text3:#939baa; /* was #6c7689 = 3.38:1 on --cc-surface, FAIL. Now 5.56/5.17/4.53. */
-  --cc-accent:#ef7d22; --cc-accent2:#ff9a4d; --cc-glow:rgba(239,125,34,.42);
-  --cc-good:#34c98a; --cc-bad:#f0584e; --cc-grid:rgba(231,237,247,.045);
-  --cc-ease:cubic-bezier(.22,.61,.36,1);
-  --cc-r-fast:160ms; --cc-r-base:340ms;
-  --cc-radius:16px;
-  --cc-inset:inset 0 1px 0 rgba(255,255,255,.06);
-  --cc-shadow:0 22px 46px -28px rgba(0,0,0,.85);
-  --cc-mono:'JetBrains Mono', var(--font-numeric, ui-monospace), monospace;
+  --cc-text:var(--v3-text,#f3ede2); --cc-text2:var(--v3-text-mute,#a7b2c4); --cc-text3:var(--v3-text-micro,#6c7689);
+  --cc-accent:#ef7d22; --cc-accent2:#ff9a4d; --cc-glow:var(--v3-bloom-warm,rgba(239,125,34,.42));
+  --cc-good:var(--v3-positive,#34c98a); --cc-bad:var(--v3-overdue,#f0584e); --cc-grid:var(--v3-grid,rgba(231,237,247,.045));
+  --cc-ease:var(--v3-ease,cubic-bezier(.22,.61,.36,1));
+  --cc-r-fast:var(--v3-dur-fast,160ms); --cc-r-base:var(--v3-dur-slow,340ms);
+  --cc-radius:var(--v3-radius-tile,16px);
+  --cc-inset:var(--v3-g2-inset,inset 0 1px 0 rgba(255,255,255,.06));
+  --cc-shadow:var(--v3-g2-shadow,0 22px 46px -28px rgba(0,0,0,.85));
+  --cc-mono:var(--v3-font-figure,'JetBrains Mono', var(--font-numeric, ui-monospace), monospace);
   --cc-disp:var(--font-display, 'Geist', system-ui, sans-serif);
+  /* The glass blur the translucent --cc-surface now needs. Undefined on the
+   * website → the declaration is invalid at computed-value time → `none`,
+   * which is exactly today's behaviour there. */
+  --cc-blur:var(--v3-g2-blur);
 
   position: relative;
   font-family: var(--font-body, 'Geist', system-ui, sans-serif);
@@ -103,6 +128,13 @@
   position: relative; overflow: hidden;
   background: var(--cc-surface);
   background: linear-gradient(180deg, var(--cc-surface2), var(--cc-surface));
+  /* Aurora Glass 2E: the card frosts what is behind it rather than sitting on
+   * top of it. --cc-blur is var(--v3-g2-blur), which is UNDEFINED on the
+   * website — an undefined var in a property value makes the declaration
+   * invalid at computed-value time, so it falls to `none` there and the site
+   * keeps its opaque card. -webkit- first, per the iOS 15.0 floor. */
+  -webkit-backdrop-filter: var(--cc-blur);
+          backdrop-filter: var(--cc-blur);
   border: 1px solid var(--cc-border); border-radius: var(--cc-radius);
   box-shadow: var(--cc-inset), var(--cc-shadow);
   padding: 20px;
@@ -122,11 +154,11 @@
   background: rgba(239,125,34,.14); border-radius: 999px; padding: 2px 9px;
 }
 .atty-dash .cc-card-meta {
-  margin-left: auto; font-family: var(--cc-mono); font-size: 11px; letter-spacing: .1em;
+  margin-inline-start: auto; font-family: var(--cc-mono); font-size: 11px; letter-spacing: .1em;
   text-transform: uppercase; color: var(--cc-text3); white-space: nowrap;
 }
 .atty-dash .cc-card-action {
-  margin-left: auto; font-family: var(--cc-mono); font-size: 11px; font-weight: 600;
+  margin-inline-start: auto; font-family: var(--cc-mono); font-size: 11px; font-weight: 600;
   color: var(--cc-accent); background: none; border: 0; cursor: pointer; padding: 4px 2px;
 }
 .atty-dash .cc-card-action:hover { color: var(--cc-accent2); }
@@ -146,7 +178,7 @@
   border: 1px solid var(--cc-border); border-radius: 13px; background: var(--cc-surface2); overflow: hidden;
 }
 .atty-dash .cc-evt-btn {
-  display: flex; align-items: stretch; gap: 16px; width: 100%; text-align: left;
+  display: flex; align-items: stretch; gap: 16px; width: 100%; text-align: start;
   background: transparent; border: 0; cursor: pointer; color: var(--cc-text);
   padding: 14px 16px; min-height: 64px;
   transition: background var(--cc-r-fast) var(--cc-ease);
@@ -154,7 +186,7 @@
 .atty-dash .cc-evt-btn:hover { background: rgba(255,255,255,.025); }
 .atty-dash .cc-evt-when {
   display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
-  min-width: 92px; padding-right: 16px; border-right: 1px solid var(--cc-border);
+  min-width: 92px; padding-inline-end: 16px; border-inline-end: 1px solid var(--cc-border);
 }
 .atty-dash .cc-evt-time {
   font-family: var(--cc-mono); font-size: 17px; font-weight: 600; color: var(--cc-text);
@@ -225,9 +257,9 @@
 .atty-dash .cc-gauge-cap .l2 { font-family: var(--cc-mono); font-size: 10.5px; color: var(--cc-text3); }
 .atty-dash .cc-conv { text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--cc-border); }
 .atty-dash .cc-conv b { font-family: var(--cc-mono); font-size: 18px; font-weight: 600; color: var(--cc-accent); }
-.atty-dash .cc-conv span { font-family: var(--cc-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--cc-text3); margin-left: 6px; }
+.atty-dash .cc-conv span { font-family: var(--cc-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--cc-text3); margin-inline-start: 6px; }
 .atty-dash .cc-demo {
-  margin-left: auto; font-family: var(--cc-mono); font-size: 10px; font-weight: 600; letter-spacing: .1em;
+  margin-inline-start: auto; font-family: var(--cc-mono); font-size: 10px; font-weight: 600; letter-spacing: .1em;
   padding: 3px 7px; border-radius: 5px; border: 1px solid var(--cc-border2); color: var(--cc-text3);
 }
 .atty-dash .cc-metric-edit { display: flex; gap: 12px; margin-top: 14px; }
@@ -244,13 +276,16 @@
 .atty-dash .cc-calc-btn {
   display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: 100%;
   min-height: 96px; padding: 14px; background: var(--cc-surface2); border: 1px solid var(--cc-border);
-  border-radius: 12px; text-align: left; cursor: pointer; color: var(--cc-text);
+  border-radius: 12px; text-align: start; cursor: pointer; color: var(--cc-text);
   transition: transform var(--cc-r-fast) var(--cc-ease), border-color var(--cc-r-fast) var(--cc-ease);
 }
 .atty-dash .cc-calc-btn:hover { transform: translateY(-2px); border-color: rgba(239,125,34,.4); }
 .atty-dash .cc-calc-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 .atty-dash .cc-calc-tag {
-  font-family: var(--cc-mono); font-size: 12px; font-weight: 600; color: var(--cc-accent);
+  /* --cc-accent (#ef7d22) on the navy card reads 4.26–4.35:1 depending on the
+   * tile behind it — under 4.5 on every one. The attorney skin's
+   * --v3-accent-text (#FFA95C) is the lifted variant for exactly this. */
+  font-family: var(--cc-mono); font-size: 12px; font-weight: 600; color: var(--v3-accent-text, var(--cc-accent));
   background: rgba(239,125,34,.13); border: 1px solid rgba(239,125,34,.28); border-radius: 7px; padding: 5px 9px;
 }
 .atty-dash .cc-calc-arrow { font-size: 18px; color: var(--cc-text3); }
@@ -262,7 +297,7 @@
 .atty-dash .cc-lead { border: 1px solid var(--cc-border); border-radius: 12px; background: var(--cc-surface2); overflow: hidden; }
 .atty-dash .cc-lead-row {
   display: flex; align-items: center; gap: 13px; padding: 13px 15px; min-height: 58px; width: 100%;
-  background: transparent; border: 0; text-align: left; color: var(--cc-text); cursor: pointer;
+  background: transparent; border: 0; text-align: start; color: var(--cc-text); cursor: pointer;
   transition: background var(--cc-r-fast) var(--cc-ease);
 }
 .atty-dash .cc-lead-row:hover { background: rgba(255,255,255,.025); }
@@ -286,10 +321,10 @@
 .atty-dash .cc-lead-clock.is-urgent, .atty-dash .cc-lead-clock.is-overdue { color: var(--cc-bad); }
 .atty-dash .cc-lead-kv { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; margin-bottom: 4px; }
 .atty-dash .cc-lead-kv span:first-child { color: var(--cc-text3); }
-.atty-dash .cc-lead-kv span:last-child { color: var(--cc-text); font-family: var(--cc-mono); text-align: right; }
+.atty-dash .cc-lead-kv span:last-child { color: var(--cc-text); font-family: var(--cc-mono); text-align: end; }
 .atty-dash .cc-lead-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
 .atty-dash .cc-btn {
-  flex: 1 1 auto; min-width: 76px; min-height: 42px; display: inline-flex; align-items: center; justify-content: center;
+  flex: 1 1 auto; min-width: 76px; min-height: var(--v3-tap-min, 44px); display: inline-flex; align-items: center; justify-content: center;
   padding: 8px 12px; border-radius: 10px; cursor: pointer; text-decoration: none;
   font-family: var(--cc-mono); font-size: 12px; font-weight: 600;
   background: var(--cc-surface); color: var(--cc-text2); border: 1px solid var(--cc-border);
@@ -306,8 +341,10 @@
 .atty-dash .cc-empty-title { font-family: var(--cc-disp); font-weight: 700; font-size: 15px; color: var(--cc-text); margin-bottom: 6px; }
 .atty-dash .cc-empty-sub { font-size: 12.5px; line-height: 1.5; color: var(--cc-text3); max-width: 42ch; margin: 0 auto; }
 .atty-dash .cc-retry {
-  margin-top: 14px; min-height: 42px; padding: 8px 18px; border-radius: 10px; cursor: pointer;
-  font-family: var(--cc-mono); font-size: 12px; font-weight: 600; background: var(--cc-accent); color: #fff; border: 0;
+  margin-top: 14px; min-height: var(--v3-tap-min, 44px); padding: 8px 18px; border-radius: 10px; cursor: pointer;
+  /* white on --cc-accent (#ef7d22) is 2.75:1 — see the --v3-on-accent note in
+   * tokens-v3.css. Dark ink on this orange measures 6.77:1. */
+  font-family: var(--cc-mono); font-size: 12px; font-weight: 600; background: var(--cc-accent); color: var(--v3-on-accent, #fff); border: 0;
 }
 .atty-dash .cc-retry:hover { filter: brightness(1.08); }
 .atty-dash .cc-skel { height: 56px; border-radius: 12px; background: var(--cc-surface2); margin-bottom: 9px; opacity: .55; animation: cc-pulse 1.4s ease-in-out infinite; }
@@ -332,7 +369,7 @@
 }
 .atty-dash .cc-tool-tier.is-free { background: rgba(52,201,138,.12); color: var(--cc-good); border-color: rgba(52,201,138,.3); }
 .atty-dash .cc-tool-flag {
-  position: absolute; top: 12px; right: 12px; font-size: 13px;
+  position: absolute; top: 12px; inset-inline-end: 12px; font-size: 13px;
 }
 .atty-dash .cc-tool-flag.is-soon {
   font-family: var(--cc-mono); font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
@@ -366,7 +403,7 @@
 .atty-dash .cc-upgrade h3 { margin: 0 0 6px; font-family: var(--cc-disp); font-size: 18px; color: var(--cc-text); }
 .atty-dash .cc-upgrade p { margin: 0 0 14px; font-size: 13px; color: var(--cc-text2); }
 .atty-dash .cc-upgrade-btn {
-  min-height: 44px; padding: 10px 18px; border-radius: 10px; cursor: pointer; border: 0;
+  min-height: var(--v3-tap-min, 44px); padding: 10px 18px; border-radius: 10px; cursor: pointer; border: 0;
   font-family: var(--cc-mono); font-size: 13px; font-weight: 600; background: var(--cc-accent); color: #fff;
 }
 
@@ -388,7 +425,7 @@
 }
 @media (max-width: 420px) {
   .atty-dash .cc-calc { grid-template-columns: 1fr; }
-  .atty-dash .cc-evt-when { min-width: 78px; padding-right: 12px; }
+  .atty-dash .cc-evt-when { min-width: 78px; padding-inline-end: 12px; }
   .atty-dash .cc-evt-btn { gap: 12px; padding: 12px 13px; }
 }
 

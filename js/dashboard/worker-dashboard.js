@@ -31,7 +31,9 @@
   var CD = window.CD = window.CD || {};
   var document = window.document;
 
-  var DISCLAIMER = 'This tool is for informational purposes only and does not constitute legal advice.';
+  // Resolved per-render (not module load) so a locale switch re-reads it.
+  var DISCLAIMER_EN = 'This tool is for informational purposes only and does not constitute legal advice.';
+  function DISCLAIMER_T() { return CD.t('legal.informationalOnly', null, DISCLAIMER_EN); }
   var LS_PREFIX = 'cd_worker_dash_v1::';
   var WORK_STATUS_LABELS = {
     working: 'Working (full duty)', light_duty: 'Light duty',
@@ -110,6 +112,15 @@
     var local = _readLocal();
     var reduced = _reduced();
 
+    // Aurora Glass 2E — reveal the shared field (glass-0), the same way
+    // CD.AdaptiveDashboard does. INERT ON THE WEBSITE: this file is vendored
+    // there by ops/website/sync-dashboard.sh, and the site has neither the
+    // .ag-field element nor aurora-glass.css, so the class matches nothing.
+    // The attorney Command Center deliberately does NOT do this — it carries
+    // its own .cc-bg aurora, now fed from the same --v3-* tokens, and two
+    // fields stacked would be two fields.
+    try { document.body.classList.add('ag-field-on'); } catch (e) { /* no-op */ }
+
     var cont = h('div', { className: 'dash-container worker-dash' });
 
     // ── 1. HERO GREETING ──────────────────────────────────────────────────
@@ -120,11 +131,11 @@
       h('div', { className: 'wd-hero-eyebrow' }, 'Comp Buddy · The Comp Desk'),
       h('h1', { className: 'wd-hero-title' },
         _known
-          ? ['Welcome back, ', h('span', { className: 'wd-hero-name' }, _firstName(profile, user))]
-          : ['Welcome']),
+          ? [CD.t('dashboard.welcomeBack', null, 'Welcome back, '), h('span', { className: 'wd-hero-name' }, _firstName(profile, user))]
+          : [CD.t('dashboard.welcome', null, 'Welcome')]),
       h('div', { className: 'wd-hero-sub' }, [
-        h('span', { className: 'wd-badge worker-badge' }, '👷 Injured Worker'),
-        h('span', { className: 'wd-hero-tagline' }, _known ? 'Here’s where your case stands today. Take it one step at a time.' : 'Start your claim and learn your rights. Take it one step at a time.')
+        h('span', { className: 'wd-badge worker-badge' }, '👷 ' + CD.t('dashboard.badgeWorker', null, 'Injured Worker')),
+        h('span', { className: 'wd-hero-tagline' }, _known ? CD.t('dashboard.taglineKnown', null, 'Here\u2019s where your case stands today. Take it one step at a time.') : CD.t('dashboard.taglineNew', null, 'Start your claim and learn your rights. Take it one step at a time.'))
       ])
     ]);
     cont.appendChild(hero);
@@ -133,7 +144,7 @@
     // The signature "Calm Path" header element: a gentle, auto-rotating
     // spotlight of the core free features. Sits between the greeting and the
     // primary claim CTA; every slide opens its feature via showScreen().
-    cont.appendChild(_featureSpotlight(h, showScreen, reduced));
+    cont.appendChild(_featureSpotlight(h, showScreen, reduced, openAttorneyIntake));
 
     // ── 1b. PRIMARY CTA — "Start your WC claim" (the visual #1 action) ─────
     // Launches the C-3 (Employee Claim) wizard directly. Works for guests:
@@ -144,15 +155,15 @@
       h('div', { className: 'wd-claim-head' }, [
         h('span', { className: 'wd-claim-icon', 'aria-hidden': 'true' }, '📝'),
         h('div', { className: 'wd-claim-copy' }, [
-          h('div', { className: 'wd-claim-eyebrow' }, 'Injured on the job?'),
+          h('div', { className: 'wd-claim-eyebrow' }, CD.t('dashboard.claimEyebrow', null, 'Injured on the job?')),
           h('p', { className: 'wd-claim-sub' },
-            'File your official C-3 Employee Claim with the NYS Workers’ Compensation Board — guided step by step. Free, no account needed.')
+            CD.t('dashboard.claimSub', null, 'File your official C-3 Employee Claim with the NYS Workers\u2019 Compensation Board — guided step by step. Free, no account needed.'))
         ])
       ]),
       h('button', {
         type: 'button', className: 'wd-btn wd-btn-accent wd-claim-btn',
         onclick: function () { showScreen('c3'); }
-      }, '📝  Start your Workers’ Compensation Claim')
+      }, '📝  ' + CD.t('dashboard.startClaimBtn', null, 'Start your Workers\u2019 Compensation Claim'))
     ]);
     cont.appendChild(h('section', { className: 'wd-section wd-claim' }, claimCard));
 
@@ -161,14 +172,14 @@
     [
       // GLOSSARY (P2-4): a friendly on-ramp for first-timers → the Learning Portal
       // (/learn: glossary, rights, timeline); Road to Recovery sits right beside it.
-      { icon: '📖', title: 'New to workers’ comp?', desc: 'Start here — glossary, your rights & the road ahead', screen: 'learning' },
-      { icon: '🎯', title: 'Job Buddy', desc: 'Find work within your restrictions + C-258.1 log', screen: 'job_buddy' },
-      { icon: '🛣️', title: 'Road to Recovery', desc: 'See every step of your case', screen: 'recovery' },
-      { icon: '🏥', title: 'Find a Doctor', desc: 'Find WCB-authorized doctors', screen: 'doctor' },
-      { icon: '📚', title: 'Learning Portal', desc: 'WC glossary, FAQ & timeline', screen: 'learning' }
+      { icon: '📖', title: CD.t('dashboard.tileNewToComp', null, 'New to workers\u2019 comp?'), desc: CD.t('dashboard.descNewToComp', null, 'Start here — glossary, your rights & the road ahead'), screen: 'learning' },
+      { icon: '🎯', title: 'Job Buddy', desc: CD.t('dashboard.descJobBuddy', null, 'Find work within your restrictions + C-258.1 log'), screen: 'job_buddy' },
+      { icon: '🛣️', title: 'Road to Recovery', desc: CD.t('dashboard.descRecovery', null, 'See every step of your case'), screen: 'recovery' },
+      { icon: '🏥', title: CD.t('dashboard.tileFindDoctor', null, 'Find a Doctor'), desc: CD.t('dashboard.descFindDoctor', null, 'Find WCB-authorized doctors'), screen: 'doctor' },
+      { icon: '📚', title: CD.t('dashboard.tileLearningPortal', null, 'Learning Portal'), desc: CD.t('dashboard.descLearningPortal', null, 'WC glossary, FAQ & timeline'), screen: 'learning' }
     ].forEach(function (q) {
       quickGrid.appendChild(_featureCard(h, {
-        icon: q.icon, title: q.title, desc: q.desc, badge: 'Free', badgeCls: 'is-free',
+        icon: q.icon, title: q.title, desc: q.desc, badge: CD.t('dashboard.badgeFree', null, 'Free'), badgeCls: 'is-free',
         onClick: function () { showScreen(q.screen); }
       }));
     });
@@ -245,18 +256,18 @@
     // ── 5. APPOINTMENTS SUMMARY ───────────────────────────────────────────
     var apptCard = h('div', { className: 'wd-card wd-appts' });
     apptCard.appendChild(h('div', { className: 'wd-card-hd' }, [
-      h('h2', { className: 'wd-card-title' }, '📅 Upcoming appointments'),
+      h('h2', { className: 'wd-card-title' }, '📅 ' + CD.t('dashboard.upcomingAppointments', null, 'Upcoming appointments')),
       h('button', {
         type: 'button', className: 'wd-link-btn',
         onclick: function () { showScreen('appointments'); }
-      }, 'View calendar →')
+      }, CD.t('dashboard.viewCalendar', null, 'View calendar →'))
     ]));
     var apptMount = h('div', { className: 'wd-appts-mount' });
     apptCard.appendChild(apptMount);
     apptCard.appendChild(h('button', {
       type: 'button', className: 'wd-btn wd-btn-ghost wd-appts-add',
       onclick: function () { showScreen('appointments'); }
-    }, '+ Add appointment'));
+    }, '+ ' + CD.t('dashboard.addAppointment', null, 'Add appointment')));
     cont.appendChild(h('section', { className: 'wd-section' }, apptCard));
     try {
       if (CD.Appointments && typeof CD.Appointments.renderUpcoming === 'function') {
@@ -280,35 +291,35 @@
     if (tier === 'free') {
       var ban = h('div', { className: 'wd-card wd-upgrade' }, [
         h('div', { className: 'wd-upgrade-text' }, [
-          h('h3', { className: 'wd-upgrade-title' }, 'Unlock Comp Buddy'),
-          h('p', { className: 'wd-upgrade-sub' }, 'IME reminders, settlement calculator, my-injury tools, recovery tracking & more.')
+          h('h3', { className: 'wd-upgrade-title' }, CD.t('dashboard.unlockAssistant', {assistant: 'Comp Buddy'}, 'Unlock Comp Buddy')),
+          h('p', { className: 'wd-upgrade-sub' }, CD.t('dashboard.unlockSub', null, 'IME reminders, settlement calculator, my-injury tools, recovery tracking & more.'))
         ]),
         h('button', {
           type: 'button', className: 'wd-btn wd-btn-primary',
           onclick: function () { handleUpgrade('comp_buddy'); }
-        }, 'Upgrade — $9.99/mo')
+        }, CD.t('dashboard.upgradePrice', {price: '$9.99'}, 'Upgrade — $9.99/mo'))
       ]);
       cont.appendChild(h('section', { className: 'wd-section' }, ban));
     }
 
     // ── 6b. Free tools grid ───────────────────────────────────────────────
-    cont.appendChild(h('div', { className: 'wd-section-label' }, 'Free tools'));
+    cont.appendChild(h('div', { className: 'wd-section-label' }, CD.t('dashboard.sectionFreeTools', null, 'Free tools')));
     var freeGrid = h('div', { className: 'wd-grid' });
     [
-      { icon: '📊', title: 'Average Weekly Wage', desc: 'Calculate your AWW & weekly rate', screen: 'aww' },
-      { icon: '🧮', title: 'Quick Calc', desc: 'Benefits & rate calculators', screen: 'calculator' },
-      { icon: '📚', title: 'Learn Your Rights', desc: 'WC glossary, FAQ, timeline', screen: 'learning' },
-      { icon: '🏥', title: 'Find a Doctor', desc: 'Find WCB-authorized doctors', screen: 'doctor' }
+      { icon: '📊', title: CD.t('dashboard.tileAww', null, 'Average Weekly Wage'), desc: CD.t('dashboard.descAww', null, 'Calculate your AWW & weekly rate'), screen: 'aww' },
+      { icon: '🧮', title: CD.t('dashboard.tileQuickCalc', null, 'Quick Calc'), desc: CD.t('dashboard.descQuickCalc', null, 'Benefits & rate calculators'), screen: 'calculator' },
+      { icon: '📚', title: CD.t('dashboard.tileLearnRights', null, 'Learn Your Rights'), desc: CD.t('dashboard.descLearnRights', null, 'WC glossary, FAQ, timeline'), screen: 'learning' },
+      { icon: '🏥', title: CD.t('dashboard.tileFindDoctor', null, 'Find a Doctor'), desc: CD.t('dashboard.descFindDoctor', null, 'Find WCB-authorized doctors'), screen: 'doctor' }
     ].forEach(function (ft) {
       freeGrid.appendChild(_featureCard(h, {
-        icon: ft.icon, title: ft.title, desc: ft.desc, badge: 'Free', badgeCls: 'is-free',
+        icon: ft.icon, title: ft.title, desc: ft.desc, badge: CD.t('dashboard.badgeFree', null, 'Free'), badgeCls: 'is-free',
         onClick: function () { showScreen(ft.screen); }
       }));
     });
     cont.appendChild(h('section', { className: 'wd-section' }, freeGrid));
 
     // ── 6c. Comp Buddy features grid ──────────────────────────────────────
-    cont.appendChild(h('div', { className: 'wd-section-label' }, 'Comp Buddy features'));
+    cont.appendChild(h('div', { className: 'wd-section-label' }, CD.t('dashboard.sectionAssistantFeatures', {assistant: 'Comp Buddy'}, 'Comp Buddy features')));
     // Surface ALL Comp Buddy features so an injured worker sees everything
     // available — honest tier gating (locked/Pro) + truthful "Coming soon".
     // Locked decision (2026-06-24): the core injured-worker features are FREE +
@@ -316,17 +327,17 @@
     // Doctor, Learning. The paywall stays only on the CALCULATORS (Settlement, My
     // Injury Tools) and attorney/marketplace surfaces.
     var buddy = [
-      { icon: '🛣️', title: 'Road to Recovery', desc: 'See every step of your case', tier: 'free', screen: 'recovery' },
-      { icon: '🔔', title: 'IME Reminders', desc: 'Never miss an IME appointment', tier: 'free', screen: 'ime' },
-      { icon: '⚖️', title: 'Settlement Calculator', desc: 'Estimate your SLU value', tier: 'comp_buddy', screen: 'settlement' },
-      { icon: '🛠️', title: 'My Injury Tools', desc: 'SLU estimator, radiculopathy & more', tier: 'comp_buddy', screen: 'advanced_tools' },
-      { icon: '🎯', title: 'Job Buddy (Beta)', desc: 'Free beta — find work within your restrictions + C-258.1 log', tier: 'free', screen: 'job_buddy' },
-      { icon: '📝', title: 'File a C-3 Claim', desc: 'Generate & file your Employee Claim', tier: 'free', screen: 'c3' },
-      { icon: '⚖️', title: 'Find an Attorney', desc: 'Get matched — free, no obligation', tier: 'free', attorney: true },
-      { icon: '🤖', title: 'AI Case Advisor', desc: 'Ask questions about your claim', tier: 'pro', soon: true },
-      { icon: '📋', title: 'UTDM Monitoring', desc: 'Track medical updates', tier: 'comp_buddy', soon: true },
-      { icon: '🚗', title: 'Mileage & Travel', desc: 'Log trips, fares & mileage for reimbursement', tier: 'free', screen: 'mt' },
-      { icon: '🧾', title: 'Accident & Notice Evidence', desc: 'Collect proof you reported your accident', tier: 'comp_buddy', screen: 'accident-notice' }
+      { icon: '🛣️', title: 'Road to Recovery', desc: CD.t('dashboard.descRecovery', null, 'See every step of your case'), tier: 'free', screen: 'recovery' },
+      { icon: '🔔', title: CD.t('dashboard.tileImeReminders', null, 'IME Reminders'), desc: CD.t('dashboard.descIme', null, 'Never miss an IME appointment'), tier: 'free', screen: 'ime' },
+      { icon: '⚖️', title: CD.t('dashboard.tileSettlement', null, 'Settlement Calculator'), desc: CD.t('dashboard.descSettlement', null, 'Estimate your SLU value'), tier: 'comp_buddy', screen: 'settlement' },
+      { icon: '🛠️', title: CD.t('dashboard.tileInjuryTools', null, 'My Injury Tools'), desc: CD.t('dashboard.descInjuryTools', null, 'SLU estimator, radiculopathy & more'), tier: 'comp_buddy', screen: 'advanced_tools' },
+      { icon: '🎯', title: 'Job Buddy (Beta)', desc: CD.t('dashboard.descJobBuddyBeta', null, 'Free beta — find work within your restrictions + C-258.1 log'), tier: 'free', screen: 'job_buddy' },
+      { icon: '📝', title: CD.t('dashboard.tileFileC3', null, 'File a C-3 Claim'), desc: CD.t('dashboard.descFileC3', null, 'Generate & file your Employee Claim'), tier: 'free', screen: 'c3' },
+      { icon: '⚖️', title: CD.t('dashboard.tileFindAttorney', null, 'Find an Attorney'), desc: CD.t('dashboard.descFindAttorney', null, 'Get matched — free, no obligation'), tier: 'free', attorney: true },
+      { icon: '🤖', title: CD.t('dashboard.tileCaseAdvisor', null, 'AI Case Advisor'), desc: CD.t('dashboard.descCaseAdvisor', null, 'Ask questions about your claim'), tier: 'pro', soon: true },
+      { icon: '📋', title: CD.t('dashboard.tileUtdm', null, 'UTDM Monitoring'), desc: CD.t('dashboard.descUtdm', null, 'Track medical updates'), tier: 'comp_buddy', soon: true },
+      { icon: '🚗', title: CD.t('dashboard.tileMileage', null, 'Mileage & Travel'), desc: CD.t('dashboard.descMileage', null, 'Log trips, fares & mileage for reimbursement'), tier: 'free', screen: 'mt' },
+      { icon: '🧾', title: CD.t('dashboard.tileAccidentNotice', null, 'Accident & Notice Evidence'), desc: CD.t('dashboard.descAccidentNotice', null, 'Collect proof you reported your accident'), tier: 'comp_buddy', screen: 'accident-notice' }
     ];
     var buddyGrid = h('div', { className: 'wd-grid' });
     buddy.forEach(function (f) {
@@ -337,7 +348,7 @@
       else if (!f.soon && locked) onClick = function () { handleUpgrade(f.tier === 'pro' ? 'pro' : 'comp_buddy'); };
       buddyGrid.appendChild(_featureCard(h, {
         icon: f.icon, title: f.title, desc: f.desc,
-        badge: f.tier === 'free' ? 'Free' : (f.tier === 'pro' ? 'Pro' : 'Comp Buddy'),
+        badge: f.tier === 'free' ? CD.t('dashboard.badgeFree', null, 'Free') : (f.tier === 'pro' ? 'Pro' : 'Comp Buddy'),
         badgeCls: f.tier === 'free' ? 'is-free' : (f.tier === 'pro' ? 'is-pro' : 'is-buddy'),
         soon: f.soon, locked: locked && !f.soon && !f.attorney, onClick: onClick
       }));
@@ -347,11 +358,13 @@
     // ── 6d. Attorney lead CTA ─────────────────────────────────────────────
     // The ONE unified affordance (CD.AttorneyCTA) — identical on every surface.
     if (!(profile && profile.has_attorney) && typeof CD.AttorneyCTA === 'function') {
-      cont.appendChild(h('section', { className: 'wd-section' },
-        CD.AttorneyCTA({ variant: 'card', source: 'dashboard' })));
+      // factory returns null for represented workers (anon pending intake) —
+      // skip the section wrapper too so no empty band is left behind
+      var dashCta = CD.AttorneyCTA({ variant: 'card', source: 'dashboard' });
+      if (dashCta) cont.appendChild(h('section', { className: 'wd-section' }, dashCta));
     }
 
-    cont.appendChild(h('p', { className: 'wd-disclaimer' }, DISCLAIMER));
+    cont.appendChild(h('p', { className: 'wd-disclaimer' }, DISCLAIMER_T()));
 
     // Re-animate gauge/money when the dashboard becomes the active screen again.
     // ui-controller re-renders on navigation, so each render replays naturally;
@@ -364,7 +377,166 @@
       try { if (benefit) benefit.play(); if (gauge) gauge.play(); } catch (e) {}
     }
 
+    // ── 7. First-open modal stack ─────────────────────────────────────────
+    // Deferred past first paint so the dashboard settles before the modals.
+    setTimeout(function () { try { _maybeFirstOpenStack(showScreen); } catch (e) {} }, 600);
+
     return cont;
+  }
+
+  // ── FIRST-OPEN MODAL STACK ──────────────────────────────────────────────
+  // Ordered, one card at a time:
+  //   1. LANGUAGE  — whenever no explicit language choice exists yet.
+  //   2. FILE A CLAIM — the one-time first-claim welcome.
+  // Language comes FIRST and the claim card is chained off its close, so the
+  // claim copy is built AFTER setLocale() and therefore renders in the language
+  // the worker just picked.
+  //
+  // _firstOpenRan is a per-session latch. Choosing a language dispatches
+  // 'cd:localechange' → ui-controller render() → this dashboard is rebuilt →
+  // another 600ms timer is queued. Without the latch that second timer would
+  // race the chain below and could double-show the claim card. (The claim card
+  // also has its own persisted once-ever key for across-session suppression.)
+  var _firstOpenRan = false;
+
+  function _maybeFirstOpenStack(showScreen) {
+    if (_firstOpenRan) return;
+    _firstOpenRan = true;
+    _maybeLanguagePrompt().then(function () {
+      try { _maybeFirstClaimPrompt(showScreen); } catch (e) {}
+    });
+  }
+
+  // Resolves when the language modal closes, or immediately when not needed.
+  // Never blocks the stack: any failure falls through to the claim card.
+  function _maybeLanguagePrompt() {
+    try {
+      if (!CD.LanguagePicker || !CD.LanguagePicker.shouldPrompt) return Promise.resolve(false);
+      if (!CD.LanguagePicker.shouldPrompt()) return Promise.resolve(false);
+      return CD.LanguagePicker.openModal().catch(function () { return false; });
+    } catch (e) { return Promise.resolve(false); }
+  }
+
+  // ── FIRST-CLAIM WELCOME (one-time, anonymous worker skin only) ──────────
+  // A calm, once-ever welcome for first-time downloaders that routes straight
+  // into the C-3 (File a Claim) wizard. Never shown to signed-in users or on
+  // the attorney skin. Persistence mirrors tou-gate.js: Capacitor Preferences
+  // on native, localStorage on web.
+  var FIRST_CLAIM_KEY = 'cd_first_claim_prompt_v1';
+  function _fcpIsNative() { return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); }
+  function _fcpPrefs() { return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) || null; }
+  function _fcpGet(key) {
+    var p = _fcpPrefs();
+    if (_fcpIsNative() && p) return p.get({ key: key }).then(function (r) { return r && r.value ? r.value : null; }).catch(function () { return null; });
+    try { return Promise.resolve(window.localStorage.getItem(key)); } catch (e) { return Promise.resolve(null); }
+  }
+  function _fcpSet(key, val) {
+    var p = _fcpPrefs();
+    try { if (_fcpIsNative() && p) return p.set({ key: key, value: val }).catch(function () {}); window.localStorage.setItem(key, val); }
+    catch (e) {}
+    return Promise.resolve();
+  }
+
+  function _maybeFirstClaimPrompt(showScreen) {
+    if (CD.currentUser) return;                                    // never for signed-in users
+    try {
+      if (document.documentElement.getAttribute('data-audience') === 'attorney') return;
+    } catch (e) {}
+    if (document.getElementById('cd-fcp-overlay')) return;         // already on screen
+    _fcpGet(FIRST_CLAIM_KEY).then(function (v) {
+      if (v) return;                                               // already shown once
+      _fcpSet(FIRST_CLAIM_KEY, '1');
+      _showFirstClaimModal(showScreen);
+    });
+  }
+
+  // Cream worker-skin look, matching tou-gate.js. Self-contained copy so this
+  // modal never depends on the TOU gate having injected its styles first.
+  function _fcpEnsureStyles() {
+    if (document.getElementById('cd-fcp-styles')) return;
+    var css = [
+      '.cd-fcp-overlay{position:fixed;inset:0;z-index:100060;background:rgba(20,17,14,.62);display:flex;align-items:center;justify-content:center;padding:16px;',
+        'font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;}',
+      '.cd-fcp{--cream:#F8F6F1;--line:#E7DECB;--ink:#241F1B;--muted:#5A5148;--orange:#E87722;--orange-deep:#C25E12;',
+        'width:100%;max-width:400px;background:var(--cream);border:1px solid var(--line);border-radius:18px;',
+        'box-shadow:0 18px 48px rgba(20,17,14,.4);color:var(--ink);padding:22px 20px 18px;}',
+      '.cd-fcp *{box-sizing:border-box;}',
+      '.cd-fcp-title{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-weight:600;font-size:20px;letter-spacing:-.01em;color:var(--ink);margin:0 0 10px;}',
+      '.cd-fcp-body{font-size:13.5px;line-height:1.62;color:var(--muted);margin:0 0 18px;}',
+      '.cd-fcp-btn{width:100%;font-family:inherit;font-weight:700;font-size:15px;border:none;cursor:pointer;background:var(--orange);color:#fff;',
+        'border-radius:999px;padding:14px 18px;line-height:1;transition:background 160ms ease;}',
+      '.cd-fcp-btn:hover{background:var(--orange-deep);}',
+      '.cd-fcp-btn:focus-visible{outline:3px solid rgba(232,119,34,.45);outline-offset:2px;}',
+      '.cd-fcp-later{display:block;width:100%;margin-top:8px;background:none;border:none;font-family:inherit;font-size:12.5px;',
+        'font-weight:600;color:var(--muted);text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:6px;}',
+      '@media (prefers-reduced-motion:reduce){.cd-fcp-btn{transition:none;}}'
+    ].join('');
+    var s = document.createElement('style'); s.id = 'cd-fcp-styles'; s.textContent = css; document.head.appendChild(s);
+  }
+
+  function _showFirstClaimModal(showScreen) {
+    _fcpEnsureStyles();
+    var overlay = document.createElement('div');
+    overlay.className = 'cd-fcp-overlay'; overlay.id = 'cd-fcp-overlay';
+    var box = document.createElement('div');
+    box.className = 'cd-fcp';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.setAttribute('aria-labelledby', 'cd-fcp-title');
+
+    var title = document.createElement('h2');
+    title.className = 'cd-fcp-title'; title.id = 'cd-fcp-title';
+    title.textContent = CD.t('wizard.firstClaimTitle', null, 'Take the first step when you\u2019re ready');
+    var body = document.createElement('p');
+    body.className = 'cd-fcp-body';
+    body.textContent = CD.t('wizard.firstClaimBody', null,
+      'If you were recently hurt at work, you can start your official workers\u2019 ' +
+      'compensation claim right here. We\u2019ll walk you through it gently, one step at a time — ' +
+      'there\u2019s no rush, and you can stop anytime.');
+
+    var _release = null;
+    function close() {
+      try { document.removeEventListener('keydown', onKey, true); } catch (e) {}
+      if (_release) { try { _release(); } catch (e) {} _release = null; }
+      try { overlay.remove(); } catch (e) {}
+    }
+    function onKey(e) { if (e && e.key === 'Escape') { e.preventDefault(); close(); } }
+
+    var start = document.createElement('button');
+    start.type = 'button'; start.className = 'cd-fcp-btn';
+    start.textContent = CD.t('wizard.startMyClaim', null, 'Start my claim');
+    start.addEventListener('click', function () { close(); try { showScreen('c3'); } catch (e) {} });
+    var later = document.createElement('button');
+    later.type = 'button'; later.className = 'cd-fcp-later';
+    later.textContent = CD.t('common.maybeLater', null, 'Maybe later');
+    later.addEventListener('click', close);
+
+    box.appendChild(title); box.appendChild(body);
+    box.appendChild(start); box.appendChild(later);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    /* a11y (Aurora Glass 6.20). This dialog announced itself correctly and
+     * closed on Escape, but it had NO TAB TRAP: two Tabs walked focus out of it
+     * and into the dashboard behind the scrim, where the user is typing into
+     * something they cannot see. That is the one thing every hand-rolled modal
+     * in the 6.4 audit got wrong, and it is the reason the contract exists.
+     *
+     * Initial focus is left at the contract's default — the dialog container,
+     * not "Start my claim". Chromium matches :focus-visible on a PROGRAMMATIC
+     * focus even for a tap-opened modal (measured in 6.8), so focusing the
+     * primary button draws a keyboard ring at every touch user; that cost two
+     * visual regressions before the default was changed in 6.15.
+     *
+     * GUARDED, and the legacy path stays: this file is copied verbatim to the
+     * website by sync-dashboard.sh and the website does not load
+     * js/modal-a11y.js. Deleting the hand-rolled listener would take Escape
+     * away there. */
+    if (CD.ModalA11y) {
+      _release = CD.ModalA11y.attach(overlay, { dialogEl: box, labelledBy: 'cd-fcp-title', onEscape: close });
+    } else {
+      document.addEventListener('keydown', onKey, true);
+      try { start.focus(); } catch (e) {}
+    }
   }
 
   // ── BENEFIT TRACKER ─────────────────────────────────────────────────────
@@ -466,7 +638,7 @@
       }, 'Save');
       editorWrap.appendChild(save);
       editorWrap.appendChild(h('p', { className: 'wd-input-note' },
-        'Saved on this device. We use your AWW to estimate two-thirds of your wage, capped at the state maximum.'));
+        CD.t('dashboard.awwSavedNote', null, 'Saved on this device. We use your AWW to estimate two-thirds of your wage, capped at the state maximum.')));
     }
 
     function replay() {
@@ -574,7 +746,8 @@
       sub: badge + (when ? ' · ' + when : ''),
       actions: [
         h('button', { type: 'button', className: 'wd-btn wd-btn-primary', onclick: function () { _viewEvidenceDoc(r.storage_path, title); } }, '👁 View'),
-        h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openEvidenceDoc(r.storage_path); } }, '⬇ Download')
+        h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openEvidenceDoc(r.storage_path); } }, '⬇ Download'),
+        h('button', { type: 'button', className: 'wd-btn wd-btn-danger', onclick: function (e) { _deleteEvidence(r, e.currentTarget.closest('.wd-doc-row')); } }, '🗑 Delete')
       ]
     });
   }
@@ -612,6 +785,40 @@
     row.appendChild(h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, (opts.actions || []).filter(Boolean)));
     return row;
   }
+  // Delete a stored C-3 filing: remove the PDF object(s) from storage (best-
+  // effort), then the c3_filings row (RLS scopes it to the owner via user_id),
+  // then drop the row from the DOM. Confirmed first — this is irreversible.
+  function _deleteFiling(r, rowEl) {
+    if (!CD.supa || !r || !r.id || !CD.currentUser) return;
+    if (!window.confirm('Delete this filing? This removes the saved PDF(s) from your documents and can’t be undone.')) return;
+    var byBucket = {};
+    [r.storage_path, r.c33_path].filter(Boolean).forEach(function (p) {
+      var bk = _bucketAndKey(p); if (bk) { (byBucket[bk.bucket] = byBucket[bk.bucket] || []).push(bk.key); }
+    });
+    var jobs = Object.keys(byBucket).map(function (b) { return CD.supa.storage.from(b).remove(byBucket[b]); });
+    Promise.all(jobs).catch(function (e) { console.warn('[worker-dash] DOC_STORAGE_DELETE_FAILED', e); })
+      .then(function () { return CD.supa.from('c3_filings').delete().eq('id', r.id).eq('user_id', CD.currentUser.id); })
+      .then(function (res) {
+        if (res && res.error) { console.warn('[worker-dash] DOC_DELETE_FAILED', res.error); alert('Could not delete that filing — please try again.'); return; }
+        if (rowEl && rowEl.parentNode) rowEl.parentNode.removeChild(rowEl);
+      })
+      .catch(function (e) { console.warn('[worker-dash] DOC_DELETE_FAILED', e); alert('Could not delete that filing — please try again.'); });
+  }
+  // Delete an Accident & Notice evidence file (bare key on the worker-evidence
+  // bucket), then the worker_evidence row, then the DOM row. Confirmed first.
+  function _deleteEvidence(r, rowEl) {
+    if (!CD.supa || !r || !r.id || !CD.currentUser) return;
+    if (!window.confirm('Delete this evidence file? This can’t be undone.')) return;
+    var key = r.storage_path ? String(r.storage_path).replace(/^worker-evidence\//, '') : null;
+    var rm = key ? CD.supa.storage.from('worker-evidence').remove([key]) : Promise.resolve();
+    rm.catch(function (e) { console.warn('[worker-dash] EV_STORAGE_DELETE_FAILED', e); })
+      .then(function () { return CD.supa.from('worker_evidence').delete().eq('id', r.id).eq('user_id', CD.currentUser.id); })
+      .then(function (res) {
+        if (res && res.error) { console.warn('[worker-dash] EV_DELETE_FAILED', res.error); alert('Could not delete that file — please try again.'); return; }
+        if (rowEl && rowEl.parentNode) rowEl.parentNode.removeChild(rowEl);
+      })
+      .catch(function (e) { console.warn('[worker-dash] EV_DELETE_FAILED', e); alert('Could not delete that file — please try again.'); });
+  }
   // One c3_filings row → a documents entry. Handles C-3-only, C-3+C-3.3 bundles,
   // and standalone C-3.3-only filings (storage_path null) without a broken button.
   function _docRow(h, r, profile) {
@@ -629,7 +836,8 @@
         hasC33 ? h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function () { _openSignedDoc(r.c33_path); } }, '⬇ C-3.3') : null,
         // Native mail composer with the PDF(s) attached (replaces the old mailto,
         // which couldn't carry attachments). On web it falls back to a mailto.
-        h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function (e) { _emailFilingToWCB(r, profile, hasC3, hasC33, e.currentTarget); } }, '✉️ Email to WCB')
+        h('button', { type: 'button', className: 'wd-btn wd-btn-ghost', onclick: function (e) { _emailFilingToWCB(r, profile, hasC3, hasC33, e.currentTarget); } }, '✉️ Email to WCB'),
+        h('button', { type: 'button', className: 'wd-btn wd-btn-danger', onclick: function (e) { _deleteFiling(r, e.currentTarget.closest('.wd-doc-row')); } }, '🗑 Delete')
       ]
     });
   }
@@ -639,7 +847,7 @@
     if (!profile || !profile.oc110a_signed || !profile.oc110a_doc_url) return null;
     var when = _fmtUSDate(profile.oc110a_signed_date);
     return _genericDocRow(h, {
-      title: 'OC-110a Medical Authorization',
+      title: CD.t('dashboard.docOc110a', null, 'OC-110a Medical Authorization'),
       sub: (when ? 'Signed ' + when : 'Signed') + ' · Authorization for Medical Records',
       actions: [
         h('button', { type: 'button', className: 'wd-btn wd-btn-primary', onclick: function () { _viewSignedDoc(profile.oc110a_doc_url, 'OC-110a Medical Authorization'); } }, '👁 View'),
@@ -838,26 +1046,29 @@
   // Autoplay pauses on hover/press and is disabled entirely (with no crossfade)
   // under prefers-reduced-motion. SELF-CLEANING: the rAF loop stops the instant
   // the node leaves the DOM, so a dashboard re-render never leaks a timer.
-  function _featureSpotlight(h, showScreen, reduced) {
+  function _featureSpotlight(h, showScreen, reduced, openAttorneyIntake) {
     var FEATURES = [
-      { icon: '📝', chip: 'C-3 · Free', title: 'Start Your Claim',
-        desc: 'File your official C-3 claim with the Workers’ Compensation Board. We’ll guide you gently, one step at a time.',
-        cta: 'Start my claim', screen: 'c3' },
-      { icon: '🎯', chip: 'C-258.1 · Free', title: 'Job Buddy',
-        desc: 'Find work that respects your medical restrictions — at your own pace, with a simple job-search log.',
-        cta: 'Open Job Buddy', screen: 'job_buddy' },
-      { icon: '🛣️', chip: 'Roadmap · Free', title: 'Road to Recovery',
-        desc: 'See exactly where your case stands today, laid out in plain, reassuring language.',
-        cta: 'See my road', screen: 'recovery' },
-      { icon: '🏥', chip: 'WCB · Free', title: 'Find a Doctor',
-        desc: 'Find WCB-authorized doctors near you, by body part and borough. No pressure, no rush.',
-        cta: 'Find a doctor', screen: 'doctor' },
-      { icon: '📚', chip: 'Guide · Free', title: 'Learning Portal',
-        desc: 'Plain-English answers whenever you need them — glossary, FAQ and timeline.',
-        cta: 'Start learning', screen: 'learning' },
-      { icon: '💬', chip: 'AI · Free', title: 'Ask Comp Buddy',
-        desc: 'Ask anything about your case, or upload a photo of a decision and we’ll explain it simply.',
-        cta: 'Ask a question', screen: 'chat' }
+      { icon: '📝', chip: 'C-3 · ' + CD.t('dashboard.badgeFree', null, 'Free'), title: CD.t('dashboard.tileFileClaim', null, 'File a Claim'),
+        desc: CD.t('dashboard.descFileClaim', null, 'File your official C-3 claim with the Workers\u2019 Compensation Board. We\u2019ll guide you gently, one step at a time.'),
+        cta: CD.t('wizard.startMyClaim', null, 'Start my claim'), screen: 'c3' },
+      { icon: '⚖️', chip: CD.t('dashboard.badgeFree', null, 'Free') + ' · ' + CD.t('dashboard.chipMinutes', {n: 2}, '2 min'), title: CD.t('dashboard.tileFindAttorneyFast', null, 'Find an Attorney in Less Than 2 Minutes'),
+        desc: CD.t('dashboard.descFindAttorneyFast', null, 'Get matched with a licensed New York workers\u2019 comp attorney near you — free, no obligation, no pressure.'),
+        cta: CD.t('dashboard.stepFindAttorney', null, 'Find an attorney'), action: function () { openAttorneyIntake({ source: 'spotlight' }); } },
+      { icon: '🏥', chip: 'WCB · ' + CD.t('dashboard.badgeFree', null, 'Free'), title: CD.t('dashboard.tileFindDoctor', null, 'Find a Doctor'),
+        desc: CD.t('dashboard.descFindDoctorLong', null, 'Find WCB-authorized doctors near you, by body part and borough. No pressure, no rush.'),
+        cta: CD.t('dashboard.ctaFindDoctor', null, 'Find a doctor'), screen: 'doctor' },
+      { icon: '🎯', chip: 'C-258.1 · ' + CD.t('dashboard.badgeFree', null, 'Free'), title: 'Job Buddy',
+        desc: CD.t('dashboard.descJobBuddyLong', null, 'Find work that respects your medical restrictions — at your own pace, with a simple job-search log.'),
+        cta: CD.t('dashboard.ctaOpen', {name: 'Job Buddy'}, 'Open Job Buddy'), screen: 'job_buddy' },
+      { icon: '🛣️', chip: CD.t('dashboard.chipRoadmap', null, 'Roadmap') + ' · ' + CD.t('dashboard.badgeFree', null, 'Free'), title: 'Road to Recovery',
+        desc: CD.t('dashboard.descRecoveryLong', null, 'See exactly where your case stands today, laid out in plain, reassuring language.'),
+        cta: CD.t('dashboard.ctaSeeRoad', null, 'See my road'), screen: 'recovery' },
+      { icon: '📚', chip: CD.t('dashboard.chipGuide', null, 'Guide') + ' · ' + CD.t('dashboard.badgeFree', null, 'Free'), title: CD.t('dashboard.tileLearningPortal', null, 'Learning Portal'),
+        desc: CD.t('dashboard.descLearningPortalLong', null, 'Plain-English answers whenever you need them — glossary, FAQ and timeline.'),
+        cta: CD.t('dashboard.ctaStartLearning', null, 'Start learning'), screen: 'learning' },
+      { icon: '💬', chip: 'AI · ' + CD.t('dashboard.badgeFree', null, 'Free'), title: 'Ask Comp Buddy',
+        desc: CD.t('dashboard.descAskAssistant', null, 'Ask anything about your case, or upload a photo of a decision and we\u2019ll explain it simply.'),
+        cta: CD.t('dashboard.ctaAskQuestion', null, 'Ask a question'), screen: 'chat' }
     ];
     var DWELL = 7000;
     var state = { i: 0, paused: false };
@@ -873,7 +1084,13 @@
       title, desc, cta
     ]);
 
-    function open(idx) { try { showScreen(FEATURES[idx].screen); } catch (e) {} }
+    function open(idx) {
+      try {
+        var f = FEATURES[idx];
+        if (f && typeof f.action === 'function') { f.action(); return; }
+        showScreen(f.screen);
+      } catch (e) {}
+    }
 
     var card = h('div', {
       className: 'wd-sp-card', role: 'button', tabindex: '0',
@@ -906,7 +1123,7 @@
     ]);
 
     var root = h('section', { className: 'wd-section wd-spotlight' }, [
-      h('div', { className: 'wd-section-label wd-sp-label' }, 'Where to start'),
+      h('div', { className: 'wd-section-label wd-sp-label' }, CD.t('dashboard.sectionWhereToStart', null, 'Where to start')),
       card, controls
     ]);
 
@@ -958,8 +1175,8 @@
   function _featureCard(h, o) {
     var cls = 'wd-fcard' + (o.locked ? ' is-locked' : '') + (o.soon ? ' is-soon' : '');
     var c = h('div', { className: cls });
-    if (o.soon) c.appendChild(h('span', { className: 'wd-fcard-flag' }, 'Coming soon'));
-    else if (o.locked) c.appendChild(h('span', { className: 'wd-fcard-lock' }, '🔒 Unlock'));
+    if (o.soon) c.appendChild(h('span', { className: 'wd-fcard-flag' }, CD.t('dashboard.comingSoon', null, 'Coming soon')));
+    else if (o.locked) c.appendChild(h('span', { className: 'wd-fcard-lock' }, '🔒 ' + CD.t('dashboard.unlock', null, 'Unlock')));
     c.appendChild(h('div', { className: 'wd-fcard-icon' }, o.icon));
     c.appendChild(h('div', { className: 'wd-fcard-title' }, o.title));
     c.appendChild(h('div', { className: 'wd-fcard-desc' }, o.desc));
@@ -1004,14 +1221,14 @@
       h('span', { className: 'wd-aww-spark wd-aww-spark-1' }, '＋'),
       h('span', { className: 'wd-aww-spark wd-aww-spark-2' }, '✓')
     ]));
-    cardEl.appendChild(h('h2', { className: 'wd-card-title wd-aww-empty-title' }, 'Set your Average Weekly Wage'));
+    cardEl.appendChild(h('h2', { className: 'wd-card-title wd-aww-empty-title' }, CD.t('dashboard.setAwwTitle', null, 'Set your Average Weekly Wage')));
     cardEl.appendChild(h('p', { className: 'wd-aww-empty-sub' },
-      'Your weekly check is two-thirds of your Average Weekly Wage, up to the state maximum. ' +
-      'Tell us how you were paid and we’ll calculate it — then your real weekly rate shows up right here.'));
+      CD.t('dashboard.setAwwSub', null, 'Your weekly check is two-thirds of your Average Weekly Wage, up to the state maximum. ') +
+      CD.t('dashboard.setAwwSub2', null, 'Tell us how you were paid and we\u2019ll calculate it — then your real weekly rate shows up right here.')));
     cardEl.appendChild(h('button', {
       type: 'button', className: 'wd-btn wd-btn-primary wd-aww-empty-cta',
       onclick: function () { showScreen('aww'); }
-    }, 'Calculate my AWW →'));
+    }, CD.t('dashboard.calculateAww', null, 'Calculate my AWW →')));
     return cardEl;
   }
 
@@ -1022,7 +1239,7 @@
     profile = profile || {};
     var wrap = h('div', { className: 'wd-card wd-casestatus' });
     wrap.appendChild(h('div', { className: 'wd-card-hd' }, [
-      h('h2', { className: 'wd-card-title' }, '🧭 Your case at a glance')
+      h('h2', { className: 'wd-card-title' }, '🧭 ' + CD.t('dashboard.caseAtAGlance', null, 'Your case at a glance'))
     ]));
 
     // present-value snapshot — ONLY real values
@@ -1043,14 +1260,14 @@
 
     // next-step tiles for each MISSING real field (actionable empty-states)
     var steps = [];
-    if (!profile.wcb_case_number) steps.push({ icon: '📝', title: 'File your claim (C-3)', desc: 'Generate & file your Employee Claim with the WCB.', screen: 'c3' });
-    if (!profile.treating_doctor) steps.push({ icon: '🏥', title: 'Find a treating doctor', desc: 'Find a WCB-authorized doctor near you.', screen: 'doctor' });
-    if (!profile.has_attorney) steps.push({ icon: '⚖️', title: 'Find an attorney', desc: 'Get matched with a workers’ comp attorney — free.', attorney: true });
-    steps.push({ icon: '🔔', title: 'Add your IME / appointment', desc: 'Track IME & appointment dates so you never miss one.', screen: 'ime' });
-    if (!profile.oc110a_signed) steps.push({ icon: '🖊️', title: 'Complete your medical authorization', desc: 'Sign your OC-110a so we can monitor your case.', screen: 'onboarding' });
+    if (!profile.wcb_case_number) steps.push({ icon: '📝', title: CD.t('dashboard.stepFileClaim', null, 'File your claim (C-3)'), desc: CD.t('dashboard.stepFileClaimDesc', null, 'Generate & file your Employee Claim with the WCB.'), screen: 'c3' });
+    if (!profile.treating_doctor) steps.push({ icon: '🏥', title: CD.t('dashboard.stepFindDoctor', null, 'Find a treating doctor'), desc: CD.t('dashboard.stepFindDoctorDesc', null, 'Find a WCB-authorized doctor near you.'), screen: 'doctor' });
+    if (!profile.has_attorney) steps.push({ icon: '⚖️', title: CD.t('dashboard.stepFindAttorney', null, 'Find an attorney'), desc: CD.t('dashboard.stepFindAttorneyDesc', null, 'Get matched with a workers\u2019 comp attorney — free.'), attorney: true });
+    steps.push({ icon: '🔔', title: CD.t('dashboard.stepAddIme', null, 'Add your IME / appointment'), desc: CD.t('dashboard.stepAddImeDesc', null, 'Track IME & appointment dates so you never miss one.'), screen: 'ime' });
+    if (!profile.oc110a_signed) steps.push({ icon: '🖊️', title: CD.t('dashboard.stepOc110a', null, 'Complete your medical authorization'), desc: CD.t('dashboard.stepOc110aDesc', null, 'Sign your OC-110a so we can monitor your case.'), screen: 'onboarding' });
 
     if (steps.length) {
-      wrap.appendChild(h('div', { className: 'wd-steps-label' }, 'Next steps'));
+      wrap.appendChild(h('div', { className: 'wd-steps-label' }, CD.t('dashboard.nextSteps', null, 'Next steps')));
       var list = h('div', { className: 'wd-steps' });
       steps.forEach(function (s) {
         var go = s.attorney ? function () { openAttorneyIntake({ source: 'dashboard' }); } : function () { showScreen(s.screen); };
@@ -1107,7 +1324,11 @@
     var x = document.createElement('button'); x.type = 'button'; x.className = 'cd-docview-x'; x.setAttribute('aria-label', 'Close'); x.textContent = '✕'; x.onclick = close;
     bar.appendChild(ttl); bar.appendChild(openBtn); bar.appendChild(x);
     var frame = document.createElement('iframe'); frame.className = 'cd-docview-frame'; frame.src = url; frame.setAttribute('title', title || 'Document');
-    ov.appendChild(bar); ov.appendChild(frame);
+    // Bottom-right "Done": the top-right ✕ sits in the iOS status-bar dead-zone
+    // where touches don't always register — this is the reliable thumb-reach close.
+    var done = document.createElement('button'); done.type = 'button'; done.className = 'cd-docview-done';
+    done.textContent = 'Done'; done.setAttribute('aria-label', 'Close document'); done.onclick = close;
+    ov.appendChild(bar); ov.appendChild(frame); ov.appendChild(done);
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
     document.addEventListener('keydown', onKey);
     document.body.appendChild(ov);

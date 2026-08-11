@@ -82,21 +82,24 @@
   function ensureStyles() {
     if (document.getElementById('cbi-styles')) return;
     var css = [
-      '.cbi{--bg-primary:#0f1117;--bg-card:#1a1d28;--bg-card-hover:#242736;--bg-input:#252836;--border:#2e3145;--text-primary:#e8eaed;--text-secondary:#9ba1b0;--text-muted:#6b7280;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:rgba(59,130,246,.15);--success:#22c55e;--success-light:rgba(34,197,94,.15);--warning:#f59e0b;--warning-light:rgba(245,158,11,.15);--danger:#ef4444;--danger-light:rgba(239,68,68,.15);--radius:12px;--radius-sm:8px;color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5}',
+    /* Worker cream/dark-ink skin (2026-07-11): was a self-contained DARK palette.
+       --accent = orange FILL; --accent-text = orange used as TEXT (AA on cream).
+       Semantic status hues retuned darker for a light bg. Font unified to DM Sans. */
+      '.cbi{--bg-primary:#F8F6F1;--bg-card:#FFFFFF;--bg-card-hover:#F4EADB;--bg-input:#F8F6F1;--border:#E7DECB;--text-primary:#241F1B;--text-secondary:#5A5148;--text-muted:#5A5148;--accent:#E87722;--accent-hover:#C25E12;--accent-text:#A8500C;--accent-light:rgba(232,119,34,.12);--success:#1E8E5A;--success-light:rgba(30,142,90,.12);--warning:#C77A0A;--warning-light:rgba(199,122,10,.12);--danger:#C53A2B;--danger-light:rgba(197,58,43,.12);--radius:12px;--radius-sm:8px;color:var(--text-primary);font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5}',
       '.cbi *{box-sizing:border-box}',
       '.cbi .cbi-header{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:9px 14px;display:flex;align-items:center;gap:12px;margin-bottom:10px}',
       '.cbi .cbi-header h1{font-size:15px;font-weight:600;margin:0}',
-      '.cbi .cbi-badge{margin-left:auto;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}',
+      '.cbi .cbi-badge{margin-left:auto;background:var(--accent-light);color:var(--accent-text);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}',
       '.cbi .progress-container{padding:2px 0 10px}',
       '.cbi .progress-steps{display:flex;align-items:center;justify-content:center;margin-bottom:6px}',
       '.cbi .progress-step{display:flex;align-items:center}',
       '.cbi .step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid var(--border);color:var(--text-muted);background:var(--bg-primary);transition:all .3s ease;flex-shrink:0}',
-      '.cbi .step-dot.active{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}',
+      '.cbi .step-dot.active{border-color:var(--accent-text);color:var(--accent-text);background:var(--accent-light)}',
       '.cbi .step-dot.completed{border-color:var(--success);color:#fff;background:var(--success)}',
       '.cbi .step-line{width:40px;height:2px;background:var(--border);transition:background .3s ease}',
       '.cbi .step-line.completed{background:var(--success)}',
       '.cbi .progress-label{text-align:center;font-size:12px;color:var(--text-muted)}',
-      '.cbi .progress-label span{color:var(--accent);font-weight:600}',
+      '.cbi .progress-label span{color:var(--accent-text);font-weight:600}',
       '.cbi .cbi-body{max-width:600px;margin:0 auto}',
       '.cbi .step-section{display:none}',
       '.cbi .step-section.active{display:block;animation:cbiFade .3s ease}',
@@ -115,7 +118,7 @@
       '.cbi .form-label .req{color:var(--danger);margin-left:2px}',
       '.cbi .form-label .opt{color:var(--text-muted);font-weight:400;font-size:11px;margin-left:4px}',
       '.cbi .form-input{width:100%;padding:12px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:15px;font-family:inherit;transition:border-color .2s ease;-webkit-appearance:none}',
-      '.cbi .form-input:focus{outline:none;border-color:var(--accent)}',
+      '.cbi .form-input:focus{outline:none;border-color:var(--accent-text)}',
       '.cbi .form-input::placeholder{color:var(--text-muted)}',
       '.cbi .form-input.error{border-color:var(--danger)}',
       '.cbi select.form-input{cursor:pointer}',
@@ -124,16 +127,16 @@
       '.cbi .form-error.visible{display:block}',
       '.cbi .form-hint{font-size:12px;color:var(--text-muted);margin-top:4px}',
       '.cbi .chip-grid{display:flex;flex-wrap:wrap;gap:8px}',
-      '.cbi .chip{min-height:44px;display:inline-flex;align-items:center;padding:8px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:20px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;user-select:none}',
-      '.cbi .chip:hover{border-color:var(--accent);color:var(--text-primary)}',
-      '.cbi .chip.selected{background:var(--accent-light);border-color:var(--accent);color:var(--accent);font-weight:500}',
+      '.cbi .chip{min-height:var(--v3-tap-min,44px);display:inline-flex;align-items:center;padding:8px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:20px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;user-select:none}',
+      '.cbi .chip:hover{border-color:var(--accent-text);color:var(--text-primary)}',
+      '.cbi .chip.selected{background:var(--accent-light);border-color:var(--accent-text);color:var(--accent-text);font-weight:500}',
       '.cbi .chip-grid.error{outline:1px solid var(--danger);outline-offset:4px;border-radius:var(--radius-sm)}',
       '.cbi .option-group{display:flex;flex-direction:column;gap:10px}',
       '.cbi .option-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s ease}',
-      '.cbi .option-card:hover{border-color:var(--accent)}',
-      '.cbi .option-card.selected{border-color:var(--accent);background:var(--accent-light)}',
+      '.cbi .option-card:hover{border-color:var(--accent-text)}',
+      '.cbi .option-card.selected{border-color:var(--accent-text);background:var(--accent-light)}',
       '.cbi .option-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s ease}',
-      '.cbi .option-card.selected .option-radio{border-color:var(--accent)}',
+      '.cbi .option-card.selected .option-radio{border-color:var(--accent-text)}',
       '.cbi .option-radio-inner{width:8px;height:8px;border-radius:50%;background:var(--accent);transform:scale(0);transition:transform .2s ease}',
       '.cbi .option-card.selected .option-radio-inner{transform:scale(1)}',
       '.cbi .option-label{font-size:14px;font-weight:500}',
@@ -162,10 +165,10 @@
       '.cbi .review-label{font-size:13px;color:var(--text-secondary)}',
       '.cbi .review-value{font-size:14px;font-weight:500;text-align:right;max-width:60%}',
       '.cbi .review-value.empty{color:var(--text-muted);font-style:italic;font-weight:400}',
-      '.cbi .review-edit-btn{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;padding:2px 6px;font-family:inherit}',
-      '.cbi .info-callout{background:var(--accent-light);border:1px solid rgba(59,130,246,.3);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);line-height:1.6}',
-      '.cbi .info-callout strong{color:var(--accent)}',
-      '.cbi .legal-notice{background:var(--warning-light);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}',
+      '.cbi .review-edit-btn{background:none;border:none;color:var(--accent-text);font-size:12px;cursor:pointer;padding:2px 6px;font-family:inherit}',
+      '.cbi .info-callout{background:var(--accent-light);border:1px solid rgba(232,119,34,.30);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);line-height:1.6}',
+      '.cbi .info-callout strong{color:var(--accent-text)}',
+      '.cbi .legal-notice{background:var(--warning-light);border:1px solid rgba(199,122,10,.35);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}',
       '.cbi .legal-notice-title{font-size:13px;font-weight:600;color:var(--warning);margin-bottom:4px}',
       '.cbi .legal-notice p{font-size:12px;color:var(--text-secondary);line-height:1.6;margin:0}',
       '.cbi .sig-pad-wrap{position:relative;margin-top:6px}',
@@ -257,6 +260,47 @@
   function fmtDate(d) { if (!d) return ''; var p = d.split('-'); return p.length === 3 ? p[1] + '/' + p[2] + '/' + p[0] : d; }
   function todayISO() { return new Date().toISOString().split('T')[0]; }
   function capWords(s) { return s.split(' ').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' '); }
+
+  /* ---- typed date fields (DOB + DOA) -----------------------------------
+   * We do NOT use <input type="date">. Its .value silently reads '' whenever the
+   * native control judges the entry incomplete or out-of-order (locale that
+   * expects DD/MM, partial entry, and several iOS/Android in-app webviews) — that
+   * is what made the DOB "disappear" mid-intake and blocked Continue. Instead we
+   * accept a typed MM/DD/YYYY string identically on EVERY platform and normalize
+   * to the ISO 'YYYY-MM-DD' the profiles table stores. State always holds ISO.
+   * ------------------------------------------------------------------------- */
+  function isoToDisplay(iso) {
+    if (!iso) return '';
+    var p = String(iso).split('-');
+    return p.length === 3 ? p[1] + '/' + p[2] + '/' + p[0] : '';
+  }
+  function maskDateInput(v) {
+    v = String(v == null ? '' : v).replace(/[^\d/]/g, '');   // digits + slashes only
+    if (v.indexOf('/') !== -1) {
+      // Respect the user's own slashes so single-digit month/day (5/1/1990) work.
+      var parts = v.split('/').slice(0, 3);
+      parts[0] = parts[0].slice(0, 2);
+      if (parts[1] != null) parts[1] = parts[1].slice(0, 2);
+      if (parts[2] != null) parts[2] = parts[2].slice(0, 4);
+      return parts.join('/');
+    }
+    // No slashes typed — auto-insert as the digit stream grows (MMDDYYYY).
+    var d = v.replace(/\D/g, '').slice(0, 8), out = d.slice(0, 2);
+    if (d.length > 2) out += '/' + d.slice(2, 4);
+    if (d.length > 4) out += '/' + d.slice(4, 8);
+    return out;
+  }
+  function displayToIso(v) {
+    // Return 'YYYY-MM-DD' ONLY for a complete, real calendar date; else ''.
+    var m = String(v == null ? '' : v).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!m) return '';
+    var mm = +m[1], dd = +m[2], yyyy = +m[3];
+    if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || yyyy < 1900 || yyyy > 2100) return '';
+    var dt = new Date(yyyy, mm - 1, dd);
+    if (dt.getFullYear() !== yyyy || dt.getMonth() !== mm - 1 || dt.getDate() !== dd) return '';  // e.g. 02/31
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    return yyyy + '-' + pad(mm) + '-' + pad(dd);
+  }
 
   /* ======================================================================
    *  render(ctx)
@@ -359,7 +403,7 @@
     ]));
     c1.appendChild(el('div', { class: 'form-group' }, [
       el('div', { class: 'form-row' }, [
-        el('div', null, [el('label', { class: 'form-label', html: 'Date of Birth<span class="req">*</span>' }), el('input', { type: 'date', class: 'form-input', id: 'cbi-dob', max: todayISO() }), el('div', { class: 'form-error', id: 'cbi-err-dob', text: 'Date of birth is required' })]),
+        el('div', null, [el('label', { class: 'form-label', html: 'Date of Birth<span class="req">*</span>' }), el('input', { type: 'text', class: 'form-input', id: 'cbi-dob', inputmode: 'numeric', autocomplete: 'bday', placeholder: 'MM/DD/YYYY', maxlength: '10' }), el('div', { class: 'form-error', id: 'cbi-err-dob', text: 'Enter your date of birth as MM/DD/YYYY' })]),
         el('div', null, [el('label', { class: 'form-label', html: 'Phone<span class="req">*</span>' }), el('input', { type: 'tel', class: 'form-input', id: 'cbi-phone', placeholder: '(212) 555-1234', inputmode: 'tel', autocomplete: 'tel', value: state.phone }), el('div', { class: 'form-error', id: 'cbi-err-phone', text: 'Phone number is required' })])
       ])
     ]));
@@ -385,7 +429,7 @@
     ]);
     c2.appendChild(el('div', { class: 'form-group' }, [
       el('label', { class: 'form-label', html: 'Date of Accident<span class="req">*</span>' }),
-      el('input', { type: 'date', class: 'form-input', id: 'cbi-doa', max: todayISO() }),
+      el('input', { type: 'text', class: 'form-input', id: 'cbi-doa', inputmode: 'numeric', autocomplete: 'off', placeholder: 'MM/DD/YYYY', maxlength: '10' }),
       el('div', { class: 'form-error', id: 'cbi-err-doa', text: 'A valid date of accident (today or earlier) is required' })
     ]));
     c2.appendChild(el('div', { class: 'form-group' }, [
@@ -566,7 +610,7 @@
       ['cbi-atty-email', 'attorney_email'], ['cbi-restrictions', 'medical_restrictions'], ['cbi-oc-name', 'oc110a_name']
     ];
     function saveStep(step) {
-      TEXT_FIELDS.forEach(function (f) { var n = $(f[0]); if (n) { var v = n.value; state[f[1]] = (f[1] === 'dob' || f[1] === 'doa') ? v : v.trim(); } });
+      TEXT_FIELDS.forEach(function (f) { var n = $(f[0]); if (n) { var v = n.value; state[f[1]] = (f[1] === 'dob' || f[1] === 'doa') ? displayToIso(v) : v.trim(); } });
       var lang = $('cbi-lang'); if (lang) state.language_pref = lang.value;
       // body_parts, work_status, toggles tracked live via their handlers.
     }
@@ -574,6 +618,21 @@
     root.querySelectorAll('input,select,textarea').forEach(function (n) {
       n.addEventListener('blur', function () { saveStep(state.step); persist(); });
       n.addEventListener('change', function () { saveStep(state.step); persist(); });
+    });
+    // Live MM/DD/YYYY masking for the typed date fields (DOB + DOA). Reformats the
+    // visible text on every keystroke and mirrors a normalized ISO value into
+    // state, so a valid date is captured on every input path — and, being plain
+    // text, the field can never be silently blanked by a native date picker.
+    ['cbi-dob', 'cbi-doa'].forEach(function (id) {
+      var n = $(id); if (!n) return;
+      var key = (id === 'cbi-dob') ? 'dob' : 'doa';
+      n.addEventListener('input', function () {
+        var masked = maskDateInput(n.value);
+        if (masked !== n.value) n.value = masked;
+        state[key] = displayToIso(masked);      // '' until a complete valid date
+        clearError(key === 'dob' ? 'dob' : 'doa');
+        persist();
+      });
     });
 
     /* ---------- validation ------------------------------------------- */
@@ -584,7 +643,7 @@
       var ok = true;
       if (step === 1) {
         if (!state.first_name || !state.last_name) { showError('name'); ok = false; } else clearError('name');
-        if (!state.dob) { showError('dob'); ok = false; } else clearError('dob');
+        if (!state.dob || state.dob > todayISO()) { showError('dob'); ok = false; } else clearError('dob');
         if (!state.phone) { showError('phone'); ok = false; } else clearError('phone');
       } else if (step === 2) {
         if (!state.doa || state.doa > todayISO()) { showError('doa'); ok = false; } else clearError('doa');
@@ -808,7 +867,7 @@
       saveStep(4);
       if (!supabase || !user || !user.id) { console.error('[CBI] SUBMIT_NO_SESSION'); toast('We couldn’t verify your session. Please sign in again.'); return; }
       // re-validate the required gates server-side has no CHECK for
-      if (!state.dob || !state.doa || state.doa > todayISO() || !state.employer_name || state.body_parts.length === 0 || WORK_STATUS.indexOf(state.work_status) < 0 || !state.first_name || !state.last_name || !state.phone) {
+      if (!state.dob || state.dob > todayISO() || !state.doa || state.doa > todayISO() || !state.employer_name || state.body_parts.length === 0 || WORK_STATUS.indexOf(state.work_status) < 0 || !state.first_name || !state.last_name || !state.phone) {
         toast('Some required fields are missing. Please review steps 1 and 2.');
         return;
       }
@@ -889,13 +948,30 @@
       var snap = {};
       Object.keys(state).forEach(function (k) { if (k !== 'oc110a_agreed') snap[k] = state[k]; });
       store.set(STORE_KEY, snap);
+      // CONTINUITY: feed the ONE local worker profile so a no-account user's intake
+      // answers prefill the C-3, attorney intake, etc. (SSN is never collected here).
+      try {
+        if (CD.WorkerProfile && CD.WorkerProfile.merge) {
+          CD.WorkerProfile.merge({
+            full_name: [state.first_name, state.last_name].filter(Boolean).join(' ') || undefined,
+            first_name: state.first_name || undefined, last_name: state.last_name || undefined,
+            dob: state.dob || undefined, phone: state.phone || undefined, language_pref: state.language_pref || undefined,
+            date_of_injury: state.doa || undefined, employer_name: state.employer_name || undefined,
+            body_parts: (state.body_parts && state.body_parts.length) ? state.body_parts.slice() : undefined,
+            home_address: state.home_address || undefined, treating_provider: state.treating_doctor || undefined,
+            needs_transportation: state.needs_transportation === true ? true : undefined,
+            lost_time: (state.work_status === 'not_working' || state.work_status === 'terminated') ? true : (state.work_status === 'working' || state.work_status === 'light_duty' ? false : undefined),
+            returned_to_work: (state.work_status === 'working' || state.work_status === 'light_duty') ? true : undefined
+          }, { source: 'intake' });
+        }
+      } catch (e) {}
     }
     function restore() {
       return store.get(STORE_KEY).then(function (saved) {
         if (!saved) return;
         Object.keys(saved).forEach(function (k) { if (k in state) state[k] = saved[k]; });
         // reflect into DOM
-        TEXT_FIELDS.forEach(function (f) { if (f[1] === 'oc110a_name') return; var n = $(f[0]); if (n && state[f[1]] != null) n.value = state[f[1]]; });
+        TEXT_FIELDS.forEach(function (f) { if (f[1] === 'oc110a_name') return; var n = $(f[0]); if (n && state[f[1]] != null) n.value = (f[1] === 'dob' || f[1] === 'doa') ? isoToDisplay(state[f[1]]) : state[f[1]]; });
         var lang = $('cbi-lang'); if (lang) lang.value = state.language_pref || 'en';
         (state.body_parts || []).forEach(function (p) { var chip = chipGrid.querySelector('.chip[data-part="' + p + '"]'); if (chip) chip.classList.add('selected'); });
         if (state.work_status) { var wc = wsGroup.querySelector('.option-card[data-value="' + state.work_status + '"]'); if (wc) wc.classList.add('selected'); }
@@ -906,7 +982,17 @@
     }
 
     // boot: init signature + restore autosave (deferred so it's in the DOM)
-    setTimeout(function () { initSig(); restore(); }, 0);
+    setTimeout(function () {
+      initSig(); restore();
+      // Prompt C: same NY address typeahead as the C-3 wizard (no fork). No-ops to
+      // a plain field if the service/token is unavailable.
+      try {
+        if (CD.AddressAutocomplete && CD.AddressAutocomplete.attach) {
+          var a = $('cbi-address'); if (a) CD.AddressAutocomplete.attach(a, { region: 'NY' });
+          var d = $('cbi-doctor-addr'); if (d) CD.AddressAutocomplete.attach(d, { region: 'NY' });
+        }
+      } catch (e) {}
+    }, 0);
 
     return root;
   }

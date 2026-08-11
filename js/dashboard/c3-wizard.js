@@ -41,6 +41,19 @@
   'use strict';
   var CD = (window.CD = window.CD || {});
 
+  /* ---- Phase 7 i18n seam ------------------------------------------------
+   * Every WIZARD-UI string resolves through CD.t at RENDER time via T().
+   * PDF PAYLOAD is deliberately NOT routed through this: anything written
+   * onto the C-3/C-3.3 (field values, the [Body parts: ...] bracket, the
+   * WCB filing email, OCC_LABELS job-title seeds) stays English — the form
+   * is filed with the Board in English. EXPLAIN in the worker's language,
+   * FILE in English. T(key, fallback) or T(key, vars, fallback). */
+  function T(key, vars, fallback) {
+    if (fallback === undefined) { fallback = vars; vars = null; }
+    try { if (window.CD && typeof CD.t === 'function') return CD.t(key, vars, fallback); } catch (e) {}
+    return fallback;
+  }
+
   /* ---- shared glossary tooltip (CD.Glossary) — create if absent ---------
    * A tiny, self-contained "tap an acronym for a plain-language definition"
    * helper. Authored here (first place that needed it) but attached to CD so
@@ -52,14 +65,22 @@
     CD.Glossary = (function () {
       // Plain-English, injured-worker-voice definitions (no legalese). Add terms
       // here as new surfaces need them.
+      // [catalog key, English fallback] pairs — resolved at SHOW time via
+      // CD.t so a locale switch is honored (never captured at parse time).
       var TERMS = {
-        'AWW': 'Average Weekly Wage — the average amount you earned each week before your injury. Your weekly benefit checks are based on this number.',
-        'C-3': 'The Employee Claim — the official form that opens your workers’ comp case with the Board.',
-        'C-3.3': 'A short HIPAA release that lets the insurer get records from a doctor who treated an earlier injury to the same body part.',
-        'IME': 'Independent Medical Exam — a one-time exam by a doctor the insurance company picks, not your own doctor.',
-        'WCB': 'The New York State Workers’ Compensation Board — the state agency that runs your claim.',
-        'DOI': 'Date of Injury — the day you got hurt, or the day you first noticed a work-related illness.'
+        'AWW': ['c3.glossary.aww', 'Average Weekly Wage — the average amount you earned each week before your injury. Your weekly benefit checks are based on this number.'],
+        'C-3': ['c3.glossary.c3', 'The Employee Claim — the official form that opens your workers’ comp case with the Board.'],
+        'C-3.3': ['c3.glossary.c33', 'A short HIPAA release that lets the insurer get records from a doctor who treated an earlier injury to the same body part.'],
+        'IME': ['c3.glossary.ime', 'Independent Medical Exam — a one-time exam by a doctor the insurance company picks, not your own doctor.'],
+        'WCB': ['c3.glossary.wcb', 'The New York State Workers’ Compensation Board — the state agency that runs your claim.'],
+        'DOI': ['c3.glossary.doi', 'Date of Injury — the day you got hurt, or the day you first noticed a work-related illness.']
       };
+      function termText(abbr) {
+        var d = TERMS[abbr];
+        if (!d) return null;
+        if (typeof d === 'string') return d;                 // define(abbr, string) API
+        return (window.CD && typeof CD.t === 'function') ? CD.t(d[0], null, d[1]) : d[1];
+      }
       var pop = null, openAbbr = null;
       function ensureStyles() {
         if (document.getElementById('cd-gloss-styles')) return;
@@ -91,7 +112,7 @@
       }
       function hide() { if (pop) { pop.style.display = 'none'; openAbbr = null; } }
       function showFor(node) {
-        var abbr = node.getAttribute('data-abbr'); var def = TERMS[abbr]; if (!def) return;
+        var abbr = node.getAttribute('data-abbr'); var def = termText(abbr); if (!def) return;
         var p = ensurePop();
         p.innerHTML = ''; var b = document.createElement('b'); b.textContent = abbr;
         p.appendChild(b); p.appendChild(document.createTextNode(' — ' + def));
@@ -107,7 +128,7 @@
         var s = document.createElement('span');
         s.className = 'cd-gloss'; s.setAttribute('data-abbr', abbr);
         s.setAttribute('role', 'button'); s.setAttribute('tabindex', '0');
-        s.setAttribute('aria-label', abbr + ' — tap for what this means');
+        s.setAttribute('aria-label', abbr + ' — ' + ((window.CD && CD.t) ? CD.t('c3.glossary.tapHint', null, 'tap for what this means') : 'tap for what this means'));
         s.textContent = label || abbr;
         s.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); if (openAbbr === abbr) hide(); else showFor(s); });
         s.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (openAbbr === abbr) hide(); else showFor(s); } });
@@ -118,13 +139,19 @@
   }
 
   /* ---- constants -------------------------------------------------------- */
-  var STEP_NAMES = { 1: 'You & Your Job', 2: 'The Injury', 3: 'Employer & Notice', 4: 'Medical & Work', 5: 'Review & Sign' };
-  var TOTAL_STEPS = 5;
-  // Honest per-step time-to-complete (minutes) for a worker filling by hand, with
-  // most of step 1 pre-filled. Drives the "about N min left" estimate: remaining =
-  // sum of the CURRENT step through step 5 (see etaRemaining). Kept modest and
-  // labelled "about" — better to slightly over-promise speed than to intimidate.
-  var STEP_MIN = { 1: 2, 2: 3, 3: 2, 4: 2, 5: 2 };
+  // Card-deck sections. Every card declares one (see CARDS below) so the Review
+  // card can group answers by section and its Edit buttons can jump to the first
+  // card in that section.
+  var SECTIONS = ['You & Job', 'The Injury', 'Employer', 'Medical & Work'];
+  // SECTIONS values are IDENTITY keys (cards + review match on them) — the
+  // user-visible label resolves per render here.
+  var SECTION_LABEL_KEYS = {
+    'You & Job': 'c3.sections.youJob', 'The Injury': 'c3.sections.injury',
+    'Employer': 'c3.sections.employer', 'Medical & Work': 'c3.sections.medicalWork'
+  };
+  function secLabel(section) {
+    return T(SECTION_LABEL_KEYS[section] || '', section);
+  }
   var STORAGE_PREFIX = 'c3:filing:';
   var INTAKE_PREFIX = 'cbi:intake:';   // the Comp Buddy intake's own autosave key
 
@@ -138,17 +165,38 @@
     ['psychological', 'Psychological']
   ];
   var BODY_LABELS = {}; BODY_PARTS.forEach(function (b) { BODY_LABELS[b[0]] = b[1]; });
+  // BODY_LABELS is PDF PAYLOAD (the [Body parts: ...] bracket + attorney
+  // off-ramp) and stays English. bodyPartLabel() is what the CHIPS and the
+  // review card display — the worker reads their language, the form gets
+  // the English value.
+  var BODY_PART_KEYS = {
+    'head': 'head', 'neck': 'neck', 'left shoulder': 'leftShoulder', 'right shoulder': 'rightShoulder',
+    'left arm': 'leftArm', 'right arm': 'rightArm', 'left hand': 'leftHand', 'right hand': 'rightHand',
+    'upper back': 'upperBack', 'lower back': 'lowerBack', 'left hip': 'leftHip', 'right hip': 'rightHip',
+    'left knee': 'leftKnee', 'right knee': 'rightKnee', 'left ankle': 'leftAnkle', 'right ankle': 'rightAnkle',
+    'left foot': 'leftFoot', 'right foot': 'rightFoot', 'chest': 'chest', 'abdomen': 'abdomen',
+    'psychological': 'psychological'
+  };
+  function bodyPartLabel(value) {
+    var k = BODY_PART_KEYS[value];
+    return k ? T('c3.bodyParts.' + k, BODY_LABELS[value] || value) : (BODY_LABELS[value] || value);
+  }
 
   var JOB_TIME = [['Full_Time', 'Full Time'], ['Part_Time', 'Part Time'], ['Seasonal', 'Seasonal'], ['Volunteer', 'Volunteer'], ['Other', 'Other']];
   var TREAT_TYPE = [['Emergency_Room', 'Emergency Room'], ['Doctors_office', 'Doctor’s office'], ['ClinicHospitalUrgent_Care', 'Clinic / Hospital / Urgent Care'], ['Hospital_Stay_over_24_hours', 'Hospital stay over 24 hours'], ['none_received', 'None received']];
+  var TREAT_TYPE_KEYS = { Emergency_Room: 'emergencyRoom', Doctors_office: 'doctorsOffice', ClinicHospitalUrgent_Care: 'clinic', Hospital_Stay_over_24_hours: 'hospitalStay', none_received: 'noneReceived' };
+  function treatTypeOptions() {
+    return TREAT_TYPE.map(function (o) { return [o[0], T('c3.treatType.' + TREAT_TYPE_KEYS[o[0]], o[1])]; });
+  }
   // occupation slug -> C-3 job-title seed text
   var OCC_LABELS = { construction: 'Construction worker', nurse: 'Nurse', delivery: 'Delivery driver', warehouse: 'Warehouse worker', office: 'Office worker', food: 'Food service worker' };
 
-  var DISCLAIMER =
-    'This tool is for informational purposes only and does not constitute legal advice. ' +
-    'The Comp Desk is not a law firm and is not filing this claim on your behalf. You are ' +
-    'preparing and filing your own C-3 (Employee Claim) with the New York State Workers’ ' +
-    'Compensation Board.';
+  // First sentence is legal.informationalOnly verbatim; the rest got its own
+  // key in the Phase 7 extraction (it was flagged for exactly this).
+  var DISCLAIMER = function () {
+    var lead = (window.CD && CD.t) ? CD.t('legal.informationalOnly', 'This tool is for informational purposes only and does not constitute legal advice.') : 'This tool is for informational purposes only and does not constitute legal advice.';
+    return lead + ' ' + T('c3.disclaimerRest', 'The Comp Desk is not a law firm and is not filing this claim on your behalf. You are preparing and filing your own C-3 (Employee Claim) with the New York State Workers’ Compensation Board.');
+  };
 
   // VERBATIM certification + penalty-of-perjury language from the bottom of WCB
   // Form C-3 (C-3.0 (6-22)), Page 2. Pulled exactly from the form's certification
@@ -284,148 +332,75 @@
     unableName: 'Text24', unableDate: 'Text25'                // unable-to-sign block — N/A in self-file
   };
 
-  /* ---- styles (scoped under .c3w; same tokens/components as .cbi) -------- */
-  function ensureStyles() {
-    if (document.getElementById('c3w-styles')) return;
-    var css = [
-      '.c3w{--bg-primary:#0f1117;--bg-card:#1a1d28;--bg-card-hover:#242736;--bg-input:#252836;--border:#2e3145;--text-primary:#e8eaed;--text-secondary:#9ba1b0;--text-muted:#6b7280;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:rgba(59,130,246,.15);--success:#22c55e;--success-light:rgba(34,197,94,.15);--warning:#f59e0b;--warning-light:rgba(245,158,11,.15);--danger:#ef4444;--danger-light:rgba(239,68,68,.15);--radius:12px;--radius-sm:8px;color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5}',
-      '.c3w *{box-sizing:border-box}',
-      '.c3w .c3w-header{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:14px}',
-      '.c3w .c3w-header h1{font-size:17px;font-weight:600;margin:0}',
-      '.c3w .c3w-badge{margin-left:auto;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}',
-      '.c3w .progress-container{padding:4px 0 14px}',
-      '.c3w .progress-steps{display:flex;align-items:center;justify-content:center;margin-bottom:8px}',
-      '.c3w .progress-step{display:flex;align-items:center}',
-      '.c3w .step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid var(--border);color:var(--text-muted);background:var(--bg-primary);transition:all .3s ease;flex-shrink:0}',
-      '.c3w .step-dot.active{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}',
-      '.c3w .step-dot.completed{border-color:var(--success);color:#fff;background:var(--success)}',
-      '.c3w .step-line{width:34px;height:2px;background:var(--border);transition:background .3s ease}',
-      '.c3w .step-line.completed{background:var(--success)}',
-      '.c3w .progress-label{text-align:center;font-size:12px;color:var(--text-muted)}',
-      '.c3w .progress-label span{color:var(--accent);font-weight:600}',
-      '.c3w .c3w-body{max-width:600px;margin:0 auto}',
-      '.c3w .step-section{display:none}',
-      '.c3w .step-section.active{display:block;animation:c3wFade .3s ease}',
-      '@keyframes c3wFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}',
-      '.c3w .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px}',
-      '.c3w .card-title{font-size:16px;font-weight:600;margin-bottom:4px}',
-      '.c3w .card-subtitle{font-size:13px;color:var(--text-secondary);margin-bottom:18px}',
-      '.c3w .step-intro{text-align:center;margin-bottom:22px}',
-      '.c3w .step-intro-icon{font-size:30px;margin-bottom:6px}',
-      '.c3w .step-intro h2{font-size:20px;font-weight:600;margin:0 0 4px}',
-      '.c3w .step-intro p{font-size:14px;color:var(--text-secondary);margin:0}',
-      '.c3w .form-group{margin-bottom:18px}',
-      '.c3w .form-group:last-child{margin-bottom:0}',
-      '.c3w .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}',
-      '.c3w .form-label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px}',
-      '.c3w .form-label .req{color:var(--danger);margin-left:2px}',
-      '.c3w .form-label .opt{color:var(--text-muted);font-weight:400;font-size:11px;margin-left:4px}',
-      '.c3w .form-input{width:100%;padding:12px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:15px;font-family:inherit;transition:border-color .2s ease;-webkit-appearance:none}',
-      '.c3w .form-input:focus{outline:none;border-color:var(--accent)}',
-      '.c3w .form-input::placeholder{color:var(--text-muted)}',
-      '.c3w .form-input.error{border-color:var(--danger)}',
-      '.c3w select.form-input{cursor:pointer}',
-      '.c3w textarea.form-input{resize:vertical;min-height:80px}',
-      '.c3w .form-error{font-size:12px;color:var(--danger);margin-top:4px;display:none}',
-      '.c3w .form-error.visible{display:block}',
-      '.c3w .form-hint{font-size:12px;color:var(--text-muted);margin-top:4px}',
-      // "Filled in from your profile — tap to edit" chip: subtle, tappable (focuses the field).
-      '.c3w .prefill-tag{display:inline-block;font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-light);padding:1px 7px;border-radius:10px;margin-left:6px;cursor:pointer;white-space:nowrap;vertical-align:middle;-webkit-user-select:none;user-select:none}',
-      '.c3w .prefill-tag:hover{background:rgba(59,130,246,.28)}',
-      '.c3w .prefill-tag:focus{outline:2px solid var(--accent);outline-offset:1px}',
-      // one plain-language, worker-voice sentence under a field group.
-      '.c3w .c3w-helper{font-size:12.5px;color:var(--text-secondary);line-height:1.5;margin:-4px 0 16px}',
-      // persistent progress bar + ETA under the step dots.
-      '.c3w .c3w-progress-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin:2px 0 8px}',
-      '.c3w .c3w-progress-fill{height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .35s ease}',
-      '.c3w .c3w-eta{text-align:center;font-size:11px;color:var(--text-muted);margin-top:2px}',
-      // resume banner shown on re-entry when a saved draft exists.
-      '.c3w .c3w-resume{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--accent-light);border:1px solid rgba(59,130,246,.35);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}',
-      '.c3w .c3w-resume-icon{font-size:22px;flex-shrink:0}',
-      '.c3w .c3w-resume-body{flex:1;min-width:160px}',
-      '.c3w .c3w-resume-title{font-size:14px;font-weight:600;color:var(--text-primary)}',
-      '.c3w .c3w-resume-sub{font-size:12px;color:var(--text-secondary);margin-top:2px}',
-      '.c3w .c3w-resume-actions{display:flex;gap:8px;flex-shrink:0}',
-      '.c3w .c3w-resume-actions .btn{flex:0 0 auto;padding:9px 16px;font-size:13px}',
-      '.c3w .chip-grid{display:flex;flex-wrap:wrap;gap:8px}',
-      '.c3w .chip{padding:8px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:20px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all .2s ease;user-select:none}',
-      '.c3w .chip:hover{border-color:var(--accent);color:var(--text-primary)}',
-      '.c3w .chip.selected{background:var(--accent-light);border-color:var(--accent);color:var(--accent);font-weight:500}',
-      '.c3w .chip-grid.error{outline:1px solid var(--danger);outline-offset:4px;border-radius:var(--radius-sm)}',
-      '.c3w .option-group{display:flex;flex-direction:column;gap:10px}',
-      '.c3w .option-group.horizontal{flex-direction:row;flex-wrap:wrap}',
-      '.c3w .option-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s ease}',
-      '.c3w .option-card.compact{padding:10px 14px;flex:0 0 auto}',
-      '.c3w .option-card:hover{border-color:var(--accent)}',
-      '.c3w .option-card.selected{border-color:var(--accent);background:var(--accent-light)}',
-      '.c3w .option-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s ease}',
-      '.c3w .option-card.selected .option-radio{border-color:var(--accent)}',
-      '.c3w .option-radio-inner{width:8px;height:8px;border-radius:50%;background:var(--accent);transform:scale(0);transition:transform .2s ease}',
-      '.c3w .option-card.selected .option-radio-inner{transform:scale(1)}',
-      '.c3w .option-label{font-size:14px;font-weight:500}',
-      '.c3w .option-desc{font-size:12px;color:var(--text-muted);margin-top:2px}',
-      '.c3w .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm)}',
-      '.c3w .toggle-text{font-size:14px;font-weight:500}',
-      '.c3w .toggle-text-desc{font-size:12px;color:var(--text-muted);margin-top:2px}',
-      '.c3w .toggle-switch{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s ease;flex-shrink:0}',
-      '.c3w .toggle-switch.on{background:var(--accent)}',
-      '.c3w .toggle-knob{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .2s ease}',
-      '.c3w .toggle-switch.on .toggle-knob{transform:translateX(20px)}',
-      '.c3w .btn-row{display:flex;gap:12px;margin-top:22px}',
-      '.c3w .btn{flex:1;padding:14px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s ease;font-family:inherit}',
-      '.c3w .btn-primary{background:var(--accent);color:#fff}',
-      '.c3w .btn-primary:hover{background:var(--accent-hover)}',
-      '.c3w .btn-primary:disabled{opacity:.4;cursor:not-allowed}',
-      '.c3w .btn-secondary{background:var(--bg-input);border:1px solid var(--border);color:var(--text-secondary)}',
-      '.c3w .btn-secondary:hover{border-color:var(--text-muted);color:var(--text-primary)}',
-      '.c3w .btn-skip{background:none;border:none;color:var(--text-muted);font-size:13px;cursor:pointer;padding:8px;text-align:center;margin-top:8px;width:100%}',
-      '.c3w .btn-skip:hover{color:var(--text-secondary)}',
-      '.c3w .review-group{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}',
-      '.c3w .review-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}',
-      '.c3w .review-group-title{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}',
-      '.c3w .review-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:12px}',
-      '.c3w .review-label{font-size:13px;color:var(--text-secondary);flex-shrink:0}',
-      '.c3w .review-value{font-size:14px;font-weight:500;text-align:right}',
-      '.c3w .review-value.empty{color:var(--text-muted);font-style:italic;font-weight:400}',
-      '.c3w .review-edit-btn{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;padding:2px 6px;font-family:inherit}',
-      '.c3w .info-callout{background:var(--accent-light);border:1px solid rgba(59,130,246,.3);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);line-height:1.6}',
-      '.c3w .info-callout strong{color:var(--accent)}',
-      '.c3w .c3w-offramp{position:relative}',
-      '.c3w .c3w-ad-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}',
-      '.c3w .c3w-ad-disc{font-size:10px;line-height:1.5;color:var(--text-muted);margin:12px 0 0;padding-top:10px;border-top:1px solid var(--border)}',
-      '.c3w .c3w-nudge-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px}',
-      '.c3w .c3w-nudge-sub{font-size:13px;color:var(--text-secondary);margin:0 0 12px;line-height:1.5}',
-      '.c3w .c3w-nudge-x{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;line-height:1;padding:4px}',
-      '.c3w .legal-notice{background:var(--warning-light);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px}',
-      '.c3w .legal-notice-title{font-size:13px;font-weight:600;color:var(--warning);margin-bottom:4px}',
-      '.c3w .legal-notice p{font-size:12px;color:var(--text-secondary);line-height:1.6;margin:0}',
-      '.c3w .branch-card{display:flex;align-items:flex-start;gap:12px;padding:16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;margin-bottom:12px;transition:all .2s ease}',
-      '.c3w .branch-card:hover{border-color:var(--accent);background:var(--accent-light)}',
-      '.c3w .branch-icon{font-size:22px;flex-shrink:0}',
-      '.c3w .branch-title{font-size:14px;font-weight:600;margin-bottom:2px}',
-      '.c3w .branch-desc{font-size:12px;color:var(--text-secondary)}',
-      '.c3w .sig-pad-wrap{position:relative;margin-top:6px}',
-      '.c3w .sig-pad{width:100%;height:160px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);touch-action:none;cursor:crosshair;display:block}',
-      '.c3w .sig-clear{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:6px;font-size:11px;padding:4px 8px;cursor:pointer}',
-      '.c3w .success-screen{text-align:center;padding:24px 16px}',
-      '.c3w .success-icon{width:72px;height:72px;background:var(--success-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:34px;color:var(--success)}',
-      '.c3w .success-screen h2{font-size:22px;font-weight:600;margin:0 0 8px}',
-      '.c3w .success-screen p{font-size:14px;color:var(--text-secondary);margin:0 0 18px}',
-      '.c3w .file-steps{text-align:left;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:16px}',
-      '.c3w .file-steps h3{font-size:13px;font-weight:600;margin:0 0 10px;color:var(--text-primary)}',
-      '.c3w .file-step{display:flex;gap:10px;font-size:13px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5}',
-      '.c3w .file-step:last-child{margin-bottom:0}',
-      '.c3w .file-step b{color:var(--text-primary)}',
-      '.c3w .file-step-num{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}',
-      '.c3w .disclaimer{text-align:center;font-size:11px;color:var(--text-muted);padding:16px 8px 8px;line-height:1.6}',
-      '.c3w .fatal{background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius);padding:20px;text-align:center;color:var(--text-primary)}',
-      '.c3w .fatal h2{font-size:18px;margin:0 0 8px}',
-      '.c3w .fatal p{font-size:13px;color:var(--text-secondary);margin:0 0 14px}',
-      '.c3w .c3w-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:520px;width:calc(100% - 32px);background:var(--danger);color:#fff;padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.4)}',
-      '.c3w .c3w-toast.ok{background:var(--success)}',
-      '@media (max-width:480px){.c3w .form-row{grid-template-columns:1fr}.c3w .step-line{width:20px}.c3w .card{padding:18px}}'
-    ].join('\n');
-    var s = document.createElement('style'); s.id = 'c3w-styles'; s.textContent = css; document.head.appendChild(s);
+  /* ---- portal: the wizard is a TOP-LEVEL overlay, not a child of #app -----
+   * .c3w is position:fixed; z-index:100040, but ui-controller mounts it via
+   * renderScreenSafe(app,'c3',…) — i.e. INSIDE #app, which is
+   * overflow-y:scroll; -webkit-overflow-scrolling:touch. On iOS that scroller
+   * gets its own compositing layer, which is a STACKING CONTEXT, and a z-index
+   * only ever competes inside its own context: 100040 stopped meaning
+   * "above everything" and started meaning "top item within #app", where #app
+   * itself is z-index:auto and therefore loses to the body-level #cd-floatnav
+   * at 400. Measured, by forcing the same context in Chromium: the bottom third
+   * of the Back/Next row stops hit-testing to the buttons and starts hitting
+   * the tab bar. A 100,040 that loses to 400 is a symptom — raising it to
+   * 999999 would change nothing, because the number was never being compared
+   * to 400 in the first place.
+   *
+   * Fix: mount the wizard on document.body, where it is a true top-level
+   * overlay and its z-index means what it says. (TouGate is 100060 and also
+   * body-level, so the gate still covers the wizard.)
+   *
+   * Teardown is anchored, not enumerated. renderScreenSafe puts the returned
+   * ANCHOR into #app; every exit — the ✕, Back off card 0, goDash(),
+   * onComplete, or any CD.showScreen from anywhere else — ends in
+   * ui-controller render()'s `app.innerHTML=''`, which disconnects that anchor.
+   * Watching the anchor therefore covers every route out, including ones added
+   * later, without this file having to know what they are. The ✕'s own
+   * syncFromDom() + persist() run before goDash() exactly as before; nothing
+   * about the wizard's own state handling changes.
+   * ---------------------------------------------------------------------- */
+  var IMMERSIVE_ID = 'c3';
+  function _markImmersive(on) {
+    try {
+      if (CD.Immersive) { on ? CD.Immersive.enter(IMMERSIVE_ID) : CD.Immersive.exit(IMMERSIVE_ID); return; }
+      // The attribute IS the contract; the helper is only bookkeeping.
+      if (on) document.body.setAttribute('data-immersive', IMMERSIVE_ID);
+      else document.body.removeAttribute('data-immersive');
+    } catch (e) { /* no-op */ }
+  }
+
+  function portal(root) {
+    var app = document.getElementById('app');
+    // Nothing to anchor to → keep the old in-#app mount rather than orphan a
+    // fixed overlay on body that nothing can ever remove.
+    if (!app || !document.body || typeof MutationObserver !== 'function') return root;
+
+    var anchor = document.createElement('div');
+    anchor.className = 'c3w-portal-anchor';
+    anchor.setAttribute('aria-hidden', 'true');
+    anchor.style.cssText = 'display:none';
+
+    document.body.appendChild(root);
+    _markImmersive(true);
+
+    var obs = null;
+    function teardown() {
+      if (obs) { try { obs.disconnect(); } catch (e) { /* no-op */ } obs = null; }
+      if (root.parentNode) root.parentNode.removeChild(root);
+      _markImmersive(false);
+    }
+    try {
+      obs = new MutationObserver(function () {
+        // Registered BEFORE renderScreenSafe appends the anchor, so the first
+        // record is that append and isConnected is already true.
+        if (!anchor.isConnected) teardown();
+      });
+      obs.observe(app, { childList: true });
+    } catch (e) {
+      teardown();
+      return root;
+    }
+    return anchor;
   }
 
   /* ---- small DOM helper (identical to intake) --------------------------- */
@@ -515,13 +490,20 @@
     return { first: parts[0], mi: parts[1].charAt(0), last: parts.slice(2).join(' ') };
   }
 
+  // Second disclaimer constant in this file — the module-scope sweep found it after
+  // FIX 1 converted the other one. Same parse-time capture, same fix.
+  function FOOTER_DISCLAIMER() {
+    return (window.CD && CD.t) ? CD.t('legal.informationalOnly', 'This tool is for informational purposes only and does not constitute legal advice.') : 'This tool is for informational purposes only and does not constitute legal advice.';
+  }
+
   /* ======================================================================
-   *  render(ctx)
+   *  render(ctx) — a full-screen MODAL DECK of no-scroll cards
    * ==================================================================== */
   function render(ctx) {
     ctx = ctx || {};
-    ensureStyles();
     var root = el('div', { class: 'c3w' });
+    var modal = el('div', { class: 'c3w-modal' });
+    root.appendChild(modal);
 
     var supabase = ctx.supabase;
     var user = ctx.user || (ctx.profile && { id: ctx.profile.id }) || null;
@@ -532,51 +514,55 @@
 
     function toast(msg, type) {
       if (typeof ctx.toast === 'function') { try { ctx.toast(msg, type); return; } catch (e) {} }
+      // Same probe mt-tracker/accident-notice/evidence-uploader/worker-profile
+      // already carried. CD.toast is app-only (js/toast.js is not synced to
+      // the website), so on thecompdesk.com this falls through to the local
+      // pill below — which is why that pill's CSS had to be fixed too.
+      if (typeof CD.toast === 'function') { try { CD.toast(msg, type); return; } catch (e) {} }
       var t = el('div', { class: 'c3w-toast' + (type === 'ok' ? ' ok' : ''), text: msg });
       document.body.appendChild(t);
       setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 5000);
     }
+    function fatalCard(title, msg, withReload) {
+      var f = el('div', { class: 'fatal' }, [el('h2', { text: title }), el('p', { text: msg })]);
+      if (withReload) f.appendChild(el('button', { class: 'btn btn-primary', style: 'max-width:220px;margin:0 auto', onclick: function () { try { window.location.reload(); } catch (e) {} } }, [T('c3.fatal.reload', 'Reload')]));
+      return f;
+    }
 
-    // ANONYMOUS mode: no session is fine — the wizard still produces a complete,
-    // signed C-3, generated client-side and offered as a local download (no cloud
-    // save, since c3-filings storage + rows are owner-scoped). Prefill is simply
-    // empty. A SIGNED-IN user with a failed profile read is still a hard error
-    // (we won't start their claim blank when we should have had prefill).
     var anon = !user || !user.id;
-    if (!supabase) {
-      root.appendChild(el('div', { class: 'fatal' }, [
-        el('h2', { text: 'Something went wrong' }),
-        el('p', { text: 'Please reload and try again.' })
-      ]));
-      return root;
-    }
+    // The fatal cards portal too — .c3w is position:fixed either way, so an
+    // un-portalled fatal would be the same stacking bug with a dead end behind it.
+    if (!supabase) { modal.appendChild(fatalCard(T('c3.fatal.genericTitle', 'Something went wrong'), T('c3.fatal.genericBody', 'Please reload and try again.'), true)); return portal(root); }
     if (!anon && !profile) {
-      // never silently blank-fill — the whole value of the wizard is the prefill
-      root.appendChild(el('div', { class: 'fatal' }, [
-        el('h2', { text: 'We couldn’t load your profile' }),
-        el('p', { text: 'Your C-3 pre-fills from your Comp Buddy profile, and that read failed. Please reload and try again — we don’t want to start your claim form blank.' }),
-        el('button', { class: 'btn btn-primary', style: 'max-width:220px;margin:0 auto', onclick: function () { try { window.location.reload(); } catch (e) {} } }, ['Reload'])
-      ]));
+      modal.appendChild(fatalCard(T('c3.fatal.profileTitle', 'We couldn’t load your profile'), T('c3.fatal.profileBody', 'Your C-3 pre-fills from your Comp Buddy profile, and that read failed. Please reload and try again — we don’t want to start your claim form blank.'), true));
       console.error('[C3] PREFILL_NO_PROFILE — refusing to render the wizard without a profile row');
-      return root;
+      return portal(root);
     }
-    if (!profile) profile = {}; // anonymous: empty prefill, user fills it in
-    var signedIn = !anon;       // drives prefill-aware copy (e.g. "From your profile")
+    if (!profile) profile = {};
+    var signedIn = !anon;
 
     /* ---- working state (prefilled from profile) ------------------------ */
-    // City/State/ZIP live in three profile columns; the Comp Buddy intake only
-    // captures home_address today, so mailing2 is usually blank until edited.
     var mailingCityLine = [profile.home_city, [profile.home_state, profile.home_zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
-    // Treating-doctor prefill spans two column names: the intake writes the doctor
-    // NAME to profiles.treating_doctor, while the older column is treating_doctor_name.
-    // Prefer whichever is populated so an intake-entered doctor actually carries over.
     var docName = profile.treating_doctor_name || profile.treating_doctor || '';
     var state = {
-      step: 0, branch: '', // '' | 'self' | 'attorney'
-      // A. you
+      step: 0, cardKey: '', branch: '',
+      // Claim type drives COPY ONLY — the C-3 itself has no occupational-disease
+      // section. Verified against the blank form (ops/rd/c3.pdf, 159 named
+      // AcroForm fields): there is no date-of-disablement, no last-exposure and
+      // no first-noticed box anywhere on it. OD is filed through the SAME fields
+      // as an accident — "_1_Date_of_injury_or_date_of_onset_of_illness",
+      // "..._injured_or_became_ill", "..._nature_of_your_injuryillness". So the
+      // PDF field map below is deliberately UNCHANGED; what changes is that the
+      // wizard stops saying only "injury"/"accident" at a worker whose claim
+      // built up over time. Vocabulary matches profiles.claim_type exactly.
+      claimType: (profile.claim_type === 'occupational_disease' || profile.segment === 'occupational')
+        ? 'occupational_disease' : 'accident',
+      // A. you  (email is collected for the attorney off-ramp only — the C-3 PDF
+      // has no email box, so it is never written to the form; SSN is never stored.)
       name: profile.full_name || '', dob: profile.dob || '', ssn: '', gender: '',
       mailing: profile.home_address || '', mailing2: mailingCityLine,
-      phone: profile.phone || '', translator: '', language: (profile.language_pref && profile.language_pref !== 'en') ? profile.language_pref : '',
+      phone: profile.phone || '', email: (user && user.email) || profile.email || '',
+      translator: '', language: (profile.language_pref && profile.language_pref !== 'en') ? profile.language_pref : '',
       // B. employer
       employer: profile.employer_name || '', employerPhone: '', workAddress: '', supervisor: '', otherEmployers: '',
       // C. job
@@ -587,7 +573,7 @@
       bodyParts: Array.isArray(profile.body_parts) ? profile.body_parts.slice() : [], nature: '',
       // page 2: third party / notice / witnesses
       objectInvolved: '', objectWhat: '', motorVehicle: '', vehicleType: '', licensePlate: '', mvCarrier: '',
-      gaveNotice: '', noticeMethod: '', noticeTo: '', noticeDate: '',
+      gaveNotice: '', noticeMethod: '', noticeHow: '', noticeTo: '', noticeDate: '',
       witnessed: '', witnessNames: '',
       // E. return to work
       stoppedWork: profile.work_status && profile.work_status !== 'working' ? 'yes' : '', stopWorkDate: '',
@@ -600,21 +586,48 @@
       // F5/F6 prior injury (triggers C-3.3)
       priorInjury: '', priorWorkRelated: '', priorSameEmployer: '', priorTreatedByDoctor: '',
       c33_priorDesc: '', c33_providers: '', c33_releaseMentalHealth: false,
-      c33Only: false,                            // standalone HIPAA-release-only flow
-      // cert
+      c33Only: false, c33Idx: 0,
       certName: profile.full_name || ''
     };
-    // Snapshot of the pure profile-prefill baseline, taken BEFORE any saved draft
-    // or intake data is merged in. "Start over" on the resume banner reverts to this.
+    // CONTINUITY: fill any state field STILL EMPTY (after the signed-in profile
+    // prefill above) from the ONE local worker profile, so a no-account user who
+    // typed this elsewhere never re-types it. SSN is NEVER read from the store (it
+    // isn't in the store). `storeSourced` flags these for the chip variant below.
+    var storeSourced = {};
+    try {
+      if (CD.WorkerProfile && CD.WorkerProfile.get) {
+        var _wp = CD.WorkerProfile.get();
+        var _fs = function (sk, val) {
+          if (val == null) return;
+          if (Array.isArray(val)) { if (state[sk] && state[sk].length) return; state[sk] = val.slice(); storeSourced[sk] = true; return; }
+          if (String(val).trim() === '' || (state[sk] && String(state[sk]).trim() !== '')) return;
+          state[sk] = val; storeSourced[sk] = true;
+        };
+        _fs('name', _wp.full_name); _fs('dob', _wp.dob); _fs('gender', _wp.gender); _fs('phone', _wp.phone); _fs('email', _wp.email);
+        _fs('mailing', _wp.home_address); _fs('jobTitle', _wp.job_title); _fs('activities', _wp.job_duties); _fs('employer', _wp.employer_name);
+        _fs('workAddress', _wp.employer_address); _fs('supervisor', _wp.supervisor_name); _fs('doi', _wp.date_of_injury); _fs('bodyParts', _wp.body_parts);
+        _fs('howHappened', _wp.injury_description); _fs('stopWorkDate', _wp.last_day_worked); _fs('grossPay', _wp.wage_rate); _fs('payFreq', _wp.pay_frequency);
+        _fs('firstTreatDate', _wp.first_treatment_date); _fs('treatingDoctors', _wp.treating_provider); _fs('language', _wp.language_pref);
+        if ((!state.certName || !state.certName.trim()) && _wp.full_name) state.certName = _wp.full_name;
+      }
+    } catch (e) {}
     function cloneState(s) { var o = {}; Object.keys(s).forEach(function (k) { o[k] = Array.isArray(s[k]) ? s[k].slice() : s[k]; }); return o; }
     var BASELINE = cloneState(state);
+    // Which fields arrived pre-filled (profile or intake) — drives the small
+    // "From your profile · Edit" chip. Seeded from the non-empty baseline values.
+    var PREFILLABLE = { name: 1, dob: 1, mailing: 1, mailing2: 1, phone: 1, email: 1, jobTitle: 1, employer: 1, doi: 1, treatingDoctors: 1 };
+    var prefilled = {};
+    Object.keys(PREFILLABLE).forEach(function (k) { if (state[k] && String(state[k]).trim()) prefilled[k] = true; });
 
-    /* ---------- attorney off-ramps (3 places; always skippable) --------
-     * Each SAVES the draft then opens the in-app lead intake (submit-attorney-lead,
-     * source:'app') PRE-FILLED from what's collected. The intake is an overlay on
-     * TOP of the wizard, so closing it returns the user to the same step — never
-     * blocks the self-file path. Area labelled "Attorney Advertising" + the shared
-     * neutral referral disclosure (CD.REFERRAL_DISCLOSURE). */
+    var hasAtty = !!profile.has_attorney;
+    var sig = { drawn: false, canvas: null };
+    var sigCanvas = null;
+    var working = false;
+    var certAgreed = { v: false }, certAgreedC33 = { v: false };
+    var curKey = null;
+    function $(id) { return root.querySelector('#' + id); }
+
+    /* ---- attorney off-ramp (unchanged behaviour; walls removed) -------- */
     function _offRampPrefill() {
       var nm = String(state.name || state.certName || '').trim().split(/\s+/).filter(Boolean);
       var bodies = (state.bodyParts && state.bodyParts.length) ? state.bodyParts.map(function (p) { return BODY_LABELS[p] || p; }).join(', ') : '';
@@ -622,544 +635,667 @@
         doa: state.doi || '', employer: state.employer || '',
         desc: state.howHappened || '', injuries: [state.nature, bodies].filter(Boolean).join(' — '),
         fname: nm[0] || '', lname: nm.length > 1 ? nm.slice(1).join(' ') : '',
-        phone: state.phone || '', email: (user && user.email) || (profile && profile.email) || ''
+        phone: state.phone || '', email: state.email || (user && user.email) || (profile && profile.email) || ''
       };
     }
     function openAttorneyOfframp() {
       try { syncFromDom(); } catch (e) {}
-      try { persist(); } catch (e) {}                 // never lose progress
+      try { persist(); } catch (e) {}
       try { if (CD.openAttorneyIntake) CD.openAttorneyIntake(_offRampPrefill()); }
       catch (e) { console.warn('[C3] OFFRAMP_OPEN_FAILED', e); }
     }
-    function _attyAdLabel() { return el('div', { class: 'c3w-ad-label', text: 'Attorney Advertising' }); }
-    function _attyDisclosure() { return el('p', { class: 'c3w-ad-disc', text: (CD.REFERRAL_DISCLOSURE || '') }); }
-    function _preStartGate() {
-      // CTAs FIRST (worker can act without scrolling past the notice), warning + disclosure below.
-      return el('div', { class: 'card c3w-offramp' }, [
-        _attyAdLabel(),
-        el('div', { class: 'btn-row' }, [
-          el('button', { type: 'button', class: 'btn btn-primary', onclick: function () { openAttorneyOfframp(); } }, ['Talk to an attorney first']),
-          el('button', { type: 'button', class: 'btn btn-secondary', onclick: function () { state.branch = 'self'; persist(); goToStep(1); } }, ['Continue on my own'])
-        ]),
-        el('div', { class: 'legal-notice' }, [
-          el('div', { class: 'legal-notice-title', html: '⚖️ Consider an attorney first' }),
-          el('p', { text: 'It is strongly advisable to consult a workers’ compensation attorney to make sure your claim is filed correctly. Filing errors can hurt your case.' })
-        ]),
-        _attyDisclosure()
-      ]);
-    }
-    function _midNudge() {
-      var c = el('div', { class: 'card c3w-offramp' });
-      var x = el('button', { type: 'button', class: 'c3w-nudge-x', 'aria-label': 'Dismiss', text: '✕' });
-      x.addEventListener('click', function () { if (c.parentNode) c.parentNode.removeChild(c); });
-      c.appendChild(x);
-      c.appendChild(_attyAdLabel());
-      c.appendChild(el('div', { class: 'c3w-nudge-title', text: 'Not sure how to answer?' }));
-      c.appendChild(el('p', { class: 'c3w-nudge-sub', text: 'A free attorney consult can help you get it right.' }));
-      c.appendChild(el('button', { type: 'button', class: 'btn btn-secondary', onclick: function () { openAttorneyOfframp(); } }, ['Talk to an attorney — free']));
-      c.appendChild(_attyDisclosure());
-      return c;
-    }
-    function _preExportNudge() {
-      return el('div', { class: 'card c3w-offramp' }, [
-        _attyAdLabel(),
-        el('div', { class: 'c3w-nudge-title', text: 'Want an attorney to review this before you file?' }),
-        el('p', { class: 'c3w-nudge-sub', text: 'It’s free — a participating attorney can look it over before you submit.' }),
-        el('button', { type: 'button', class: 'btn btn-secondary', onclick: function () { openAttorneyOfframp(); } }, ['Have an attorney review it — free']),
-        _attyDisclosure()
-      ]);
-    }
-    var sig = { drawn: false, canvas: null };
-    var working = false;
 
-    function $(id) { return root.querySelector('#' + id); }
-
-    /* ---------- header + progress ------------------------------------- */
-    root.appendChild(el('div', { class: 'c3w-header' }, [
-      el('h1', { text: 'File Your C-3 Claim' }),
-      el('span', { class: 'c3w-badge', text: 'Employee Claim' })
-    ]));
-    var pSteps = el('div', { class: 'progress-steps' });
-    for (var i = 1; i <= TOTAL_STEPS; i++) {
-      pSteps.appendChild(el('div', { class: 'progress-step' }, [el('div', { class: 'step-dot', id: 'c3w-dot-' + i, text: String(i) })]));
-      if (i < TOTAL_STEPS) pSteps.appendChild(el('div', { class: 'step-line', id: 'c3w-line-' + i }));
-    }
-    var progress = el('div', { class: 'progress-container', id: 'c3w-progress', style: 'display:none' }, [
-      pSteps,
-      el('div', { class: 'c3w-progress-bar' }, [el('div', { class: 'c3w-progress-fill', id: 'c3w-bar-fill' })]),
-      el('div', { class: 'progress-label' }, [
-        document.createTextNode('Step '), el('span', { id: 'c3w-step-current', text: '1' }),
-        document.createTextNode(' of ' + TOTAL_STEPS + ' — '), el('span', { id: 'c3w-step-name', text: STEP_NAMES[1] })
-      ]),
-      el('div', { class: 'c3w-eta', id: 'c3w-eta' })
+    /* ---- modal chrome (cream): top bar + slim progress + pinned footer -- */
+    var topbar = el('div', { class: 'c3w-topbar' }, [
+      el('div', { class: 'c3w-title', text: T('c3.title', 'File Your Claim') }),
+      el('span', { class: 'c3w-badge', text: T('c3.badge', 'Employee Claim') })
     ]);
-    root.appendChild(progress);
+    if (!hasAtty) topbar.appendChild(el('button', { type: 'button', class: 'c3w-atty-link', onclick: function () { openAttorneyOfframp(); } }, ['⚖️ ' + T('c3.talkToAttorney', 'Talk to an attorney')]));
+    topbar.appendChild(el('button', { type: 'button', class: 'c3w-close', 'aria-label': T('c3.close', 'Close'), onclick: function () { try { syncFromDom(); persist(); } catch (e) {} goDash(); } }, ['✕']));
 
-    var bodyWrap = el('div', { class: 'c3w-body' });
-    root.appendChild(bodyWrap);
+    var barFill = el('div', { class: 'c3w-bar-fill' });
+    var counterEl = el('div', { class: 'c3w-counter' });
+    var etaEl = el('div', { class: 'c3w-eta' });
+    var progress = el('div', { class: 'c3w-progress', style: 'display:none' }, [
+      el('div', { class: 'c3w-bar' }, [barFill]),
+      el('div', { class: 'c3w-metarow' }, [counterEl, etaEl])
+    ]);
 
-    /* ================= STEP 0 — gate & route ========================== */
-    var step0 = el('div', { class: 'step-section active', id: 'c3w-step-0' });
-    step0.appendChild(el('div', { class: 'step-intro' }, [
-      el('div', { class: 'step-intro-icon', text: '📝' }),
-      el('h2', { text: 'File your C-3 Employee Claim' }),
-      el('p', { text: signedIn
-        ? 'We’ll build your signed C-3 from what we already know about your case, then show you exactly how to file it with the WCB.'
-        : 'We’ll build your signed C-3 from your answers, then show you exactly how to file it with the WCB. No account needed.' })
-    ]));
-    var gateCard = el('div', { class: 'card' });
-    gateCard.appendChild(el('div', { class: 'legal-notice' }, [
-      el('div', { class: 'legal-notice-title', html: '⚠️ Please read' }),
-      el('p', { text: DISCLAIMER })
-    ]));
-    gateCard.appendChild(el('div', { class: 'info-callout', html: '<strong>What this does:</strong> generates a complete, signed C-3 PDF and gives you the fastest way to file it yourself. <strong>What it does not do:</strong> we do not electronically submit it to the WCB for you — electronic filing isn’t available yet, so you’ll file the PDF we create.' }));
-    step0.appendChild(gateCard);
+    var viewport = el('div', { class: 'c3w-viewport' });
 
-    var hasAtty = !!profile.has_attorney;
-    if (hasAtty) {
-      var branchCard = el('div', { class: 'card' }, [
-        el('div', { class: 'card-title', text: 'You told us you have an attorney' }),
-        el('div', { class: 'card-subtitle', text: 'Your attorney may prefer to file this for you. How would you like to proceed?' })
-      ]);
-      branchCard.appendChild(el('div', { class: 'branch-card', onclick: function () { state.branch = 'attorney'; persist(); goToStep(1); } }, [
-        el('div', { class: 'branch-icon', text: '⚖️' }),
-        el('div', null, [el('div', { class: 'branch-title', text: 'Prepare it and send to my attorney' }), el('div', { class: 'branch-desc', text: 'We’ll build the C-3, then give you the PDF and your attorney’s email so you can send it to them.' })])
-      ]));
-      branchCard.appendChild(el('div', { class: 'branch-card', onclick: function () { state.branch = 'self'; persist(); goToStep(1); } }, [
-        el('div', { class: 'branch-icon', text: '🙋' }),
-        el('div', null, [el('div', { class: 'branch-title', text: 'File it myself' }), el('div', { class: 'branch-desc', text: 'Build the C-3 and file it with the WCB on your own.' })])
-      ]));
-      step0.appendChild(branchCard);
-    } else {
-      // (a) PRE-START off-ramp gate — replaces the plain "Get Started" button.
-      step0.appendChild(_preStartGate());
+    var backBtn = el('button', { type: 'button', class: 'c3w-back', text: T('c3.back', 'Back') });
+    var nextBtn = el('button', { type: 'button', class: 'c3w-next', text: T('c3.continue', 'Continue') });
+    var foot = el('div', { class: 'c3w-foot' }, [
+      el('div', { class: 'c3w-foot-row' }, [backBtn, nextBtn]),
+      el('div', { class: 'c3w-foot-note', text: FOOTER_DISCLAIMER() })
+    ]);
+
+    modal.appendChild(topbar);
+    modal.appendChild(progress);
+    modal.appendChild(viewport);
+    modal.appendChild(foot);
+
+    // Keyboard-safe height: drive the modal height from window.visualViewport so
+    // the on-screen keyboard shrinks the card area instead of covering the pinned
+    // Next button (never position:fixed guesswork).
+    function applyVV() {
+      var vv = window.visualViewport; if (!vv) return;
+      modal.style.height = vv.height + 'px';
+      modal.style.top = (vv.offsetTop || 0) + 'px';
     }
-    // Standalone HIPAA-release entry — the C-3.3 is its own authorization and can
-    // be needed even when you're not filing a fresh C-3 right now.
-    step0.appendChild(el('div', { class: 'info-callout', style: 'margin-top:16px', html: 'Just need the medical-records release? <a href="#" id="c3w-c33-only-link" style="color:var(--accent);font-weight:700">Complete Form C-3.3 (HIPAA) on its own →</a><br><span style="color:var(--text-muted)">The C-3.3 authorizes the doctors who treated a previous injury to release those records to the insurer. File it with your C-3, or by itself.</span>' }));
-    bodyWrap.appendChild(step0);
-
-    /* ================= STEP 1 — You & Your Job (A + C) ================ */
-    var step1 = el('div', { class: 'step-section', id: 'c3w-step-1' });
-    step1.appendChild(stepIntro('👤', 'You & Your Job', 'Confirm your details — we’ve pre-filled what we know.'));
-    var c1 = card('About You', 'From your profile. Edit anything that’s changed.');
-    c1.appendChild(helper('Double-check the basics — we filled in what we already had. If anything looks off, just tap the box and fix it.'));
-    c1.appendChild(fieldRow([
-      textField('c3w-name', 'Full Legal Name', 'req', state.name, 'First MI Last', !!state.name),
-      dateField('c3w-dob', 'Date of Birth', 'req', state.dob, !!state.dob)
-    ]));
-    c1.appendChild(fieldRow([
-      textField('c3w-ssn', 'Social Security Number', 'opt', state.ssn, 'XXX-XX-XXXX', false),
-      selectField('c3w-gender', 'Gender', 'req', [['', 'Select…'], ['M', 'Male'], ['F', 'Female']], state.gender)
-    ]));
-    c1.appendChild(el('div', { class: 'form-hint', style: 'margin-top:-10px', text: 'SSN is voluntary on the C-3 — you may leave it blank. We never store it; it only goes onto the form you download.' }));
-    c1.appendChild(group([el('label', { class: 'form-label', html: 'Mailing Address<span class="req">*</span>' + prefillTag(!!state.mailing) }), el('input', { type: 'text', class: 'form-input', id: 'c3w-mailing', value: state.mailing, placeholder: 'Number and street' }), errEl('c3w-err-mailing', 'Your mailing address is required')]));
-    c1.appendChild(fieldRow([
-      textField('c3w-mailing2', 'City, State, ZIP', 'opt', state.mailing2, 'City, NY 10001', !!state.mailing2),
-      textField('c3w-phone', 'Phone', 'req', state.phone, '(212) 555-1234', !!state.phone)
-    ]));
-    var transWrap = optionRow('c3w-translator', 'Need a translator at a Board hearing?', [['no', 'No'], ['yes', 'Yes']], state.translator, function (v) {
-      state.translator = v; $('c3w-lang-wrap').style.display = v === 'yes' ? 'block' : 'none'; persist();
+    // Keep the focused field visible when the keyboard opens. Shrinking the modal
+    // (applyVV) stops the keyboard COVERING the footer, but it does nothing about
+    // a field that is now below the fold of the shrunken viewport — the worker is
+    // typing into something they cannot see. Re-centre on focus, and again after
+    // the viewport actually resizes (iOS fires focus BEFORE the keyboard animates,
+    // so a single scroll on focus lands on the pre-keyboard geometry and is wrong).
+    var _focused = null;
+    function revealFocused() {
+      if (!_focused || !_focused.isConnected) return;
+      try { _focused.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' }); }
+      catch (e) { try { _focused.scrollIntoView(false); } catch (e2) {} }
+    }
+    viewport.addEventListener('focusin', function (e) {
+      var t = e.target;
+      if (!t || !/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+      _focused = t;
+      setTimeout(revealFocused, 60);
+      setTimeout(revealFocused, 340);   // after the keyboard animation settles
     });
-    c1.appendChild(group([el('label', { class: 'form-label', text: 'Translator at a Hearing?' }), transWrap]));
-    c1.appendChild(el('div', { id: 'c3w-lang-wrap', style: state.translator === 'yes' ? 'display:block' : 'display:none' }, [
-      group([el('label', { class: 'form-label', text: 'What language?' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-language', value: state.language, placeholder: 'e.g. Spanish' })])
-    ]));
-    step1.appendChild(c1);
+    viewport.addEventListener('focusout', function () { _focused = null; });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function () { applyVV(); setTimeout(revealFocused, 40); });
+      window.visualViewport.addEventListener('scroll', applyVV);
+    }
 
-    var c1b = card('Your Job', 'On the date of your injury or illness.');
-    c1b.appendChild(helper('Tell us about the job you were doing when you got hurt. Your pay here helps set your ', gloss('AWW'), ' — the weekly wage your benefit checks are based on.'));
-    c1b.appendChild(group([el('label', { class: 'form-label', html: 'Job Title or Description<span class="req">*</span>' + prefillTag(!!state.jobTitle) }), el('input', { type: 'text', class: 'form-input', id: 'c3w-jobTitle', value: state.jobTitle, placeholder: 'e.g. Warehouse associate' }), errEl('c3w-err-jobTitle', 'Your job title is required')]));
-    c1b.appendChild(group([el('label', { class: 'form-label', html: 'What did you normally do at work?<span class="opt">(optional)</span>' }), el('textarea', { class: 'form-input', id: 'c3w-activities', placeholder: 'Day-to-day duties' }, [state.activities])]));
-    var jobTimeGroup = optionRow('c3w-jobTime', 'Was your job?', JOB_TIME.map(function (j) { return [j[0], j[1]]; }), state.jobTime, function (v) { state.jobTime = v; $('c3w-jobOther-wrap').style.display = v === 'Other' ? 'block' : 'none'; persist(); });
-    c1b.appendChild(group([el('label', { class: 'form-label', text: 'Employment Type' }), jobTimeGroup]));
-    c1b.appendChild(el('div', { id: 'c3w-jobOther-wrap', style: state.jobTime === 'Other' ? 'display:block' : 'display:none' }, [group([el('label', { class: 'form-label', text: 'Describe (Other)' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-jobOther', value: state.jobOther })])]));
-    c1b.appendChild(fieldRow([
-      textField('c3w-grossPay', 'Gross Pay per Pay Period', 'opt', state.grossPay, '$0.00', false),
-      textField('c3w-payFreq', 'How Often Paid?', 'opt', state.payFreq, 'e.g. Weekly', false)
-    ]));
-    step1.appendChild(c1b);
-    step1.appendChild(navRow(0, function () { validateAndNext(1); }));
-    bodyWrap.appendChild(step1);
-
-    /* ================= STEP 2 — The Injury (D) ======================== */
-    var step2 = el('div', { class: 'step-section', id: 'c3w-step-2' });
-    step2.appendChild(stepIntro('🩹', 'The Injury', 'Tell us exactly what happened — this is the heart of your claim.'));
-    step2.appendChild(_midNudge()); // (b) dismissible mid-wizard soft nudge
-    var c2 = card('When & Where');
-    c2.appendChild(helper('Tell us when and where it happened. The date of injury (your ', gloss('DOI'), ') is the day you got hurt, or the day you first noticed a work-related illness.'));
-    c2.appendChild(fieldRow([
-      dateField('c3w-doi', 'Date of Injury / Onset', 'req', state.doi, !!state.doi),
-      textField('c3w-timeOfInjury', 'Time of Injury', 'opt', state.timeOfInjury, 'e.g. 2:30', false)
-    ]));
-    c2.appendChild(group([el('label', { class: 'form-label', text: 'AM or PM?' }), optionRow('c3w-ampm', '', [['AM', 'AM'], ['PM', 'PM']], state.ampm, function (v) { state.ampm = v; persist(); })]));
-    c2.appendChild(group([el('label', { class: 'form-label', html: 'Where did it happen?<span class="req">*</span>' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-whereHappened', value: state.whereHappened, placeholder: 'e.g. 1 Main Street, Pottersville, at the loading dock' }), errEl('c3w-err-whereHappened', 'Tell us where the injury happened')]));
-    c2.appendChild(group([el('label', { class: 'form-label', text: 'Was this your usual work location?' }), optionRow('c3w-usualLocation', '', [['yes', 'Yes'], ['no', 'No']], state.usualLocation, function (v) { state.usualLocation = v; $('c3w-usualloc-detail').style.display = v === 'no' ? 'block' : 'none'; persist(); })]));
-    c2.appendChild(el('div', { id: 'c3w-usualloc-detail', style: state.usualLocation === 'no' ? 'display:block' : 'display:none' }, [group([el('label', { class: 'form-label', text: 'If no, why were you at this location?' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-usualLocationWhy', value: state.usualLocationWhy })])]));
-    step2.appendChild(c2);
-
-    var c2b = card('What Happened');
-    c2b.appendChild(helper('Describe it like you’d tell a friend — what you were doing, and how you got hurt. Everyday words are perfect.'));
-    c2b.appendChild(group([el('label', { class: 'form-label', html: 'What were you doing when injured?<span class="req">*</span>' }), el('textarea', { class: 'form-input', id: 'c3w-whatDoing', placeholder: 'e.g. unloading a truck, typing a report' }, [state.whatDoing]), errEl('c3w-err-whatDoing', 'Describe what you were doing')]));
-    c2b.appendChild(group([el('label', { class: 'form-label', html: 'How did the injury/illness happen?<span class="req">*</span>' }), el('textarea', { class: 'form-input', id: 'c3w-howHappened', placeholder: 'e.g. I tripped over a pipe and fell on the floor' }, [state.howHappened]), errEl('c3w-err-howHappened', 'Describe how it happened')]));
-    step2.appendChild(c2b);
-
-    var c2c = card('Injured Body Parts', 'We pre-checked the parts from your profile. Add the nature of the injury.');
-    c2c.appendChild(helper('Tap every part of your body that was hurt — you can pick more than one.'));
-    var chipGrid = el('div', { class: 'chip-grid', id: 'c3w-body-grid' });
-    BODY_PARTS.forEach(function (bp) {
-      var chip = el('div', { class: 'chip' + (state.bodyParts.indexOf(bp[0]) >= 0 ? ' selected' : ''), 'data-part': bp[0], text: bp[1] });
-      chip.addEventListener('click', function () {
-        chip.classList.toggle('selected');
-        if (chip.classList.contains('selected')) { if (state.bodyParts.indexOf(bp[0]) < 0) state.bodyParts.push(bp[0]); }
-        else state.bodyParts = state.bodyParts.filter(function (x) { return x !== bp[0]; });
-        chipGrid.classList.remove('error'); clearError('body'); persist();
-      });
-      chipGrid.appendChild(chip);
-    });
-    c2c.appendChild(group([el('label', { class: 'form-label', html: 'Body Parts Affected<span class="req">*</span>' }), chipGrid, errEl('c3w-err-body', 'Select at least one body part')]));
-    c2c.appendChild(group([el('label', { class: 'form-label', html: 'Explain the nature of the injury<span class="req">*</span>' }), el('textarea', { class: 'form-input', id: 'c3w-nature', placeholder: 'e.g. twisted left ankle and cut to forehead' }, [state.nature]), errEl('c3w-err-nature', 'Describe the nature of your injury')]));
-    step2.appendChild(c2c);
-    step2.appendChild(navRow(1, function () { validateAndNext(2); }));
-    bodyWrap.appendChild(step2);
-
-    /* ================= STEP 3 — Employer & Notice (B + notice) ======== */
-    var step3 = el('div', { class: 'step-section', id: 'c3w-step-3' });
-    step3.appendChild(stepIntro('🏢', 'Employer & Notice', 'Your employer, and whether you reported the injury.'));
-    var c3a = card('Your Employer');
-    c3a.appendChild(helper('This is the company you worked for when you got hurt — the one your claim is filed against.'));
-    c3a.appendChild(group([el('label', { class: 'form-label', html: 'Employer When Injured<span class="req">*</span>' + prefillTag(!!state.employer) }), el('input', { type: 'text', class: 'form-input', id: 'c3w-employer', value: state.employer, placeholder: 'Company name' }), errEl('c3w-err-employer', 'Employer name is required')]));
-    c3a.appendChild(fieldRow([
-      textField('c3w-employerPhone', 'Employer Phone', 'opt', state.employerPhone, '(212) 555-1234', false),
-      textField('c3w-supervisor', 'Supervisor’s Name', 'opt', state.supervisor, '', false)
-    ]));
-    c3a.appendChild(fieldRow([dateField('c3w-dateHired', 'Date You Were Hired', 'opt', state.dateHired, false), null]));
-    c3a.appendChild(group([el('label', { class: 'form-label', html: 'Your Work Address<span class="opt">(optional)</span>' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-workAddress', value: state.workAddress, placeholder: 'Where you worked' })]));
-    c3a.appendChild(group([el('label', { class: 'form-label', html: 'Other Employers at the Time<span class="opt">(optional)</span>' }), el('textarea', { class: 'form-input', id: 'c3w-otherEmployers', placeholder: 'Names/addresses of any other employers' }, [state.otherEmployers])]));
-    step3.appendChild(c3a);
-
-    var c3b = card('Notice & Witnesses');
-    c3b.appendChild(helper('Telling your boss you were hurt matters. The ', gloss('WCB'), ' wants to know who you told, and when.'));
-    c3b.appendChild(group([el('label', { class: 'form-label', text: 'Did you tell your employer/supervisor?' }), optionRow('c3w-gaveNotice', '', [['yes', 'Yes'], ['no', 'No']], state.gaveNotice, function (v) { state.gaveNotice = v; $('c3w-notice-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
-    c3b.appendChild(el('div', { id: 'c3w-notice-detail', style: state.gaveNotice === 'yes' ? 'display:block' : 'display:none' }, [
-      group([el('label', { class: 'form-label', text: 'How?' }), optionRow('c3w-noticeMethod', '', [['orally', 'Orally'], ['in_writing', 'In writing']], state.noticeMethod, function (v) { state.noticeMethod = v; persist(); })]),
-      fieldRow([textField('c3w-noticeTo', 'Given to whom?', 'opt', state.noticeTo, 'Name', false), dateField('c3w-noticeDate', 'Date notice given', 'opt', state.noticeDate, false)])
-    ]));
-    c3b.appendChild(group([el('label', { class: 'form-label', text: 'Did anyone witness it?' }), optionRow('c3w-witnessed', '', [['no', 'No'], ['yes', 'Yes']], state.witnessed, function (v) { state.witnessed = v; $('c3w-witness-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
-    c3b.appendChild(el('div', { id: 'c3w-witness-detail', style: state.witnessed === 'yes' ? 'display:block' : 'display:none' }, [
-      group([el('label', { class: 'form-label', text: 'Witness name(s)' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-witnessNames', value: state.witnessNames })])
-    ]));
-    step3.appendChild(c3b);
-
-    var c3c = card('Was a Vehicle or Object Involved?', 'Optional — only if relevant.');
-    c3c.appendChild(helper('Only fill this in if a vehicle or piece of equipment was part of what happened. Otherwise, skip it.'));
-    c3c.appendChild(group([el('label', { class: 'form-label', text: 'Was an object (forklift, tool, etc.) involved?' }), optionRow('c3w-objectInvolved', '', [['no', 'No'], ['yes', 'Yes']], state.objectInvolved, function (v) { state.objectInvolved = v; $('c3w-object-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
-    c3c.appendChild(el('div', { id: 'c3w-object-detail', style: state.objectInvolved === 'yes' ? 'display:block' : 'display:none' }, [group([el('label', { class: 'form-label', text: 'What object?' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-objectWhat', value: state.objectWhat })])]));
-    c3c.appendChild(group([el('label', { class: 'form-label', text: 'Was a licensed motor vehicle involved?' }), optionRow('c3w-motorVehicle', '', [['no', 'No'], ['yes', 'Yes']], state.motorVehicle, function (v) { state.motorVehicle = v; $('c3w-mv-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
-    c3c.appendChild(el('div', { id: 'c3w-mv-detail', style: state.motorVehicle === 'yes' ? 'display:block' : 'display:none' }, [
-      group([el('label', { class: 'form-label', text: 'Whose vehicle?' }), optionRow('c3w-vehicleType', '', [['your_vehicle', 'Yours'], ['employers_vehicle', 'Employer’s'], ['other_vehicle', 'Other']], state.vehicleType, function (v) { state.vehicleType = v; persist(); })]),
-      fieldRow([textField('c3w-licensePlate', 'License Plate', 'opt', state.licensePlate, '', false), textField('c3w-mvCarrier', 'Your Auto Insurance Carrier', 'opt', state.mvCarrier, 'Name & address', false)])
-    ]));
-    step3.appendChild(c3c);
-    step3.appendChild(navRow(2, function () { validateAndNext(3); }));
-    bodyWrap.appendChild(step3);
-
-    /* ================= STEP 4 — Medical & Work (F + E + C-3.3) ======== */
-    var step4 = el('div', { class: 'step-section', id: 'c3w-step-4' });
-    step4.appendChild(stepIntro('🩺', 'Medical & Work Status', 'Your treatment and whether you’ve been back to work.'));
-    var c4a = card('Medical Treatment');
-    c4a.appendChild(helper('List the doctors treating you for this injury. If the insurer later sends you to an ', gloss('IME'), ', that’s a different exam — this is about your own care.'));
-    c4a.appendChild(fieldRow([
-      dateField('c3w-firstTreatDate', 'Date of First Treatment', 'opt', state.firstTreatDate, false),
-      selectField('c3w-treatType', 'Where first treated?', 'opt', [['', 'Select…']].concat(TREAT_TYPE), state.treatType)
-    ]));
-    c4a.appendChild(fieldRow([
-      textField('c3w-firstTreatName', 'Name & address where first treated', 'opt', state.firstTreatName, '', false),
-      textField('c3w-firstTreatPhone', 'Their phone', 'opt', state.firstTreatPhone, '(212) 555-1234', false)
-    ]));
-    c4a.appendChild(group([el('label', { class: 'form-label', html: 'Doctor(s) currently treating you<span class="opt">(optional)</span>' + prefillTag(!!state.treatingDoctors) }), el('input', { type: 'text', class: 'form-input', id: 'c3w-treatingDoctors', value: state.treatingDoctors, placeholder: 'Name & address' })]));
-    step4.appendChild(c4a);
-
-    var c4b = card('Return to Work');
-    c4b.appendChild(helper('Let us know if you stopped working or went back. Light duty still counts as going back.'));
-    c4b.appendChild(group([el('label', { class: 'form-label', html: 'Did you stop work because of the injury?' + prefillTag(!!state.stoppedWork) }), optionRow('c3w-stoppedWork', '', [['yes', 'Yes'], ['no', 'No']], state.stoppedWork, function (v) { state.stoppedWork = v; $('c3w-stop-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
-    c4b.appendChild(el('div', { id: 'c3w-stop-detail', style: state.stoppedWork === 'yes' ? 'display:block' : 'display:none' }, [group([el('label', { class: 'form-label', text: 'On what date?' }), dateInput('c3w-stopWorkDate', state.stopWorkDate)])]));
-    c4b.appendChild(group([el('label', { class: 'form-label', html: 'Have you returned to work?' + prefillTag(!!state.returnedWork) }), optionRow('c3w-returnedWork', '', [['no', 'No'], ['yes', 'Yes']], state.returnedWork, function (v) { state.returnedWork = v; $('c3w-return-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
-    c4b.appendChild(el('div', { id: 'c3w-return-detail', style: state.returnedWork === 'yes' ? 'display:block' : 'display:none' }, [
-      fieldRow([dateField('c3w-returnDate', 'Return date', 'opt', state.returnDate, false), null]),
-      group([el('label', { class: 'form-label', text: 'Duty type' }), optionRow('c3w-returnDuty', '', [['regular', 'Regular duty'], ['limited', 'Limited duty']], state.returnDuty, function (v) { state.returnDuty = v; persist(); })]),
-      group([el('label', { class: 'form-label', text: 'Returned with which employer?' }), optionRow('c3w-returnEmployer', '', [['same', 'Same employer'], ['new', 'New employer'], ['self', 'Self-employed']], state.returnEmployer, function (v) { state.returnEmployer = v; persist(); })]),
-      fieldRow([
-        textField('c3w-grossPay2', 'Current gross pay per pay period', 'opt', state.grossPay2, 'e.g. $800', false),
-        textField('c3w-payFreq2', 'How often paid now?', 'opt', state.payFreq2, 'e.g. Weekly', false)
-      ])
-    ]));
-    step4.appendChild(c4b);
-
-    var c4c = card('Prior Injury', 'If you injured this same body part before, NY requires a short HIPAA release (Form C-3.3).');
-    c4c.appendChild(helper('If you hurt this same body part before, New York needs a short release — the ', gloss('C-3.3'), '. We’ll build it for you automatically.'));
-    c4c.appendChild(group([el('label', { class: 'form-label', text: 'Have you had another injury to the same body part, or a similar illness?' }), optionRow('c3w-priorInjury', '', [['no', 'No'], ['yes', 'Yes']], state.priorInjury, function (v) { state.priorInjury = v; $('c3w-c33-detail').style.display = v === 'yes' ? 'block' : 'none'; persist(); })]));
-    var c33Detail = el('div', { id: 'c3w-c33-detail', style: state.priorInjury === 'yes' ? 'display:block' : 'display:none' });
-    c33Detail.appendChild(el('div', { class: 'info-callout', html: '<strong>We’ll generate Form C-3.3 too.</strong> It authorizes the doctors who treated your previous injury to release those records to the insurer. File it together with your C-3.' }));
-    c33Detail.appendChild(group([el('label', { class: 'form-label', text: 'Describe the previous injury/illness' }), el('textarea', { class: 'form-input', id: 'c3w-c33-priorDesc', placeholder: 'What happened, and when' }, [state.c33_priorDesc])]));
-    c33Detail.appendChild(group([el('label', { class: 'form-label', text: 'Doctor(s) who treated the previous injury (name & address)' }), el('textarea', { class: 'form-input', id: 'c3w-c33-providers', placeholder: 'One per line' }, [state.c33_providers])]));
-    var mhToggle = el('div', { class: 'toggle-switch' + (state.c33_releaseMentalHealth ? ' on' : ''), id: 'c3w-mh-toggle' }, [el('div', { class: 'toggle-knob' })]);
-    mhToggle.addEventListener('click', function () { mhToggle.classList.toggle('on'); state.c33_releaseMentalHealth = mhToggle.classList.contains('on'); persist(); });
-    c33Detail.appendChild(el('div', { class: 'toggle-row' }, [
-      el('div', null, [el('div', { class: 'toggle-text', text: 'Also release mental health records' }), el('div', { class: 'toggle-text-desc', text: 'Optional and extra-sensitive — only turn this on if you intend to authorize mental health record release. Off by default.' })]),
-      mhToggle
-    ]));
-    c4c.appendChild(c33Detail);
-    step4.appendChild(c4c);
-    step4.appendChild(navRow(3, function () { validateAndNext(4); }));
-    bodyWrap.appendChild(step4);
-
-    /* ================= STEP 5 — Review & Sign ========================= */
-    var step5 = el('div', { class: 'step-section', id: 'c3w-step-5' });
-    step5.appendChild(stepIntro('✅', 'Review & Sign', 'Check your answers, then certify and sign.'));
-    var revCard = card('Review', 'Tap “Edit” to change a section.');
-    revCard.appendChild(helper('Read it over. Tap “Edit” on any section to fix it before you sign.'));
-    revCard.appendChild(reviewGroup('You & Job', 1, [['Name', 'c3w-rev-name'], ['DOB', 'c3w-rev-dob'], ['Job', 'c3w-rev-job']]));
-    revCard.appendChild(reviewGroup('Injury', 2, [['Date', 'c3w-rev-doi'], ['Where', 'c3w-rev-where'], ['Body Parts', 'c3w-rev-body']]));
-    revCard.appendChild(reviewGroup('Employer', 3, [['Employer', 'c3w-rev-employer'], ['Gave Notice', 'c3w-rev-notice']]));
-    revCard.appendChild(reviewGroup('Medical & Work', 4, [['Treating Dr', 'c3w-rev-doctor'], ['Returned to Work', 'c3w-rev-return'], ['Prior Injury (C-3.3)', 'c3w-rev-prior']]));
-    step5.appendChild(revCard);
-
-    var certCard = card('Certify & Sign');
-    certCard.appendChild(helper('Your ', gloss('C-3'), ' is a sworn legal form. Only sign once everything above is true and complete.'));
-    certCard.appendChild(el('div', { class: 'legal-notice' }, [
-      el('div', { class: 'legal-notice-title', html: '⚠️ Certification' }),
-      el('p', { text: 'I am making a claim for benefits under the Workers’ Compensation Law. My signature affirms that the information I am providing is true and accurate to the best of my knowledge and belief. Any person who knowingly and with intent to defraud presents false information may be guilty of a crime subject to fines and imprisonment.' })
-    ]));
-    certCard.appendChild(group([el('label', { class: 'form-label', text: 'Type your full legal name to certify' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-certName', value: state.certName, placeholder: 'Your full legal name' })]));
-    var sigCanvas = el('canvas', { class: 'sig-pad', id: 'c3w-sig' });
-    certCard.appendChild(group([el('label', { class: 'form-label', text: 'Draw your signature' }), el('div', { class: 'sig-pad-wrap' }, [sigCanvas, el('button', { class: 'sig-clear', type: 'button', onclick: function () { clearSig(); } }, ['Clear'])])]));
-    var certToggle = el('div', { class: 'toggle-switch', id: 'c3w-cert-toggle' }, [el('div', { class: 'toggle-knob' })]);
-    var certAgreed = { v: false };
-    certToggle.addEventListener('click', function () { certToggle.classList.toggle('on'); certAgreed.v = certToggle.classList.contains('on'); });
-    certCard.appendChild(el('div', { class: 'toggle-row' }, [el('div', null, [el('div', { class: 'toggle-text', text: 'I certify the above is true' })]), certToggle]));
-    step5.appendChild(certCard);
-
-    step5.appendChild(_preExportNudge()); // (c) pre-export off-ramp, above the export button
-
-    step5.appendChild(el('div', { class: 'btn-row' }, [
-      el('button', { class: 'btn btn-secondary', onclick: function () { goToStep(4); } }, ['Back']),
-      el('button', { class: 'btn btn-primary', id: 'c3w-generate', onclick: function () { beforeExport(certAgreed.v); } }, ['Generate & File My C-3'])
-    ]));
-    bodyWrap.appendChild(step5);
-
-    /* ============ STANDALONE C-3.3 (HIPAA release on its own) ========= */
-    var certAgreedC33 = { v: false };
-    var stepC33 = el('div', { class: 'step-section', id: 'c3w-step-c33' });
-    stepC33.appendChild(stepIntro('🔏', 'Medical Records Release (C-3.3)', 'Authorize the doctors who treated a previous injury to release those records to the insurer. You can file this with — or independently of — your C-3.'));
-    stepC33.appendChild(el('div', { class: 'legal-notice' }, [
-      el('div', { class: 'legal-notice-title', html: '⚠️ Please read' }),
-      el('p', { text: DISCLAIMER })
-    ]));
-    var sc1 = card('Your Information', signedIn ? 'From your profile. Edit anything that’s changed.' : 'Who the release is for.');
-    sc1.appendChild(helper('This ', gloss('C-3.3'), ' release only covers records from a doctor who treated an earlier injury to the same body part.'));
-    sc1.appendChild(fieldRow([
-      textField('c3w-c33s-name', 'Full Legal Name', 'req', state.name, 'First MI Last', !!state.name),
-      dateField('c3w-c33s-dob', 'Date of Birth', 'req', state.dob, !!state.dob)
-    ]));
-    sc1.appendChild(fieldRow([
-      textField('c3w-c33s-ssn', 'Social Security Number', 'opt', state.ssn, 'XXX-XX-XXXX', false),
-      dateField('c3w-c33s-doi', 'Date of Current Injury/Illness', 'opt', state.doi, !!state.doi)
-    ]));
-    sc1.appendChild(group([el('label', { class: 'form-label', html: 'Mailing Address<span class="opt">(optional)</span>' + prefillTag(!!state.mailing) }), el('input', { type: 'text', class: 'form-input', id: 'c3w-c33s-mailing', value: state.mailing, placeholder: 'Number and street' })]));
-    sc1.appendChild(group([el('label', { class: 'form-label', html: 'City, State, ZIP<span class="opt">(optional)</span>' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-c33s-mailing2', value: state.mailing2, placeholder: 'City, NY 10001' })]));
-    sc1.appendChild(group([el('label', { class: 'form-label', html: 'Current injury/illness (all body parts)<span class="req">*</span>' }), el('textarea', { class: 'form-input', id: 'c3w-c33s-injury', placeholder: 'e.g. lower back and left hip' }, [state.nature]), errEl('c3w-err-c33s-injury', 'Describe your current injury/illness')]));
-    stepC33.appendChild(sc1);
-
-    var sc2 = card('Previous Treating Providers', 'List the doctors who treated your PREVIOUS injury to the same body part (the records being released). One per line — “Name — Address”.');
-    sc2.appendChild(group([el('label', { class: 'form-label', html: 'Provider(s) (name &amp; address)<span class="req">*</span>' }), el('textarea', { class: 'form-input', id: 'c3w-c33s-providers', placeholder: 'Dr. Jane Smith — 1 Main St, Albany NY 12203\nUrgent Care — 9 Market St, Troy NY 12180' }, [state.c33_providers]), errEl('c3w-err-c33s-providers', 'List at least one provider')]));
-    var mhToggleS = el('div', { class: 'toggle-switch' + (state.c33_releaseMentalHealth ? ' on' : ''), id: 'c3w-c33s-mh-toggle' }, [el('div', { class: 'toggle-knob' })]);
-    mhToggleS.addEventListener('click', function () { mhToggleS.classList.toggle('on'); state.c33_releaseMentalHealth = mhToggleS.classList.contains('on'); persist(); });
-    sc2.appendChild(el('div', { class: 'toggle-row' }, [
-      el('div', null, [el('div', { class: 'toggle-text', text: 'Also release mental health records' }), el('div', { class: 'toggle-text-desc', text: 'Optional and extra-sensitive — only turn this on if you intend to authorize mental health record release. Off by default.' })]),
-      mhToggleS
-    ]));
-    stepC33.appendChild(sc2);
-
-    var sc3 = card('Certify & Sign');
-    sc3.appendChild(el('div', { class: 'legal-notice' }, [
-      el('div', { class: 'legal-notice-title', html: '⚠️ Authorization' }),
-      el('p', { text: 'I request that the health care provider(s) listed above give my employer’s workers’ compensation insurer copies of all health records related to any previous injury/illness, to all body parts described above. My signature affirms this authorization is voluntary and accurate.' })
-    ]));
-    sc3.appendChild(group([el('label', { class: 'form-label', text: 'Type your full legal name to certify' }), el('input', { type: 'text', class: 'form-input', id: 'c3w-c33s-certName', value: state.certName, placeholder: 'Your full legal name' })]));
-    var sigCanvasC33 = el('canvas', { class: 'sig-pad', id: 'c3w-sig-c33' });
-    sc3.appendChild(group([el('label', { class: 'form-label', text: 'Draw your signature' }), el('div', { class: 'sig-pad-wrap' }, [sigCanvasC33, el('button', { class: 'sig-clear', type: 'button', onclick: function () { clearSig(); } }, ['Clear'])])]));
-    var certToggleC33 = el('div', { class: 'toggle-switch', id: 'c3w-c33s-cert-toggle' }, [el('div', { class: 'toggle-knob' })]);
-    certToggleC33.addEventListener('click', function () { certToggleC33.classList.toggle('on'); certAgreedC33.v = certToggleC33.classList.contains('on'); });
-    sc3.appendChild(el('div', { class: 'toggle-row' }, [el('div', null, [el('div', { class: 'toggle-text', text: 'I certify this authorization is true' })]), certToggleC33]));
-    stepC33.appendChild(sc3);
-    stepC33.appendChild(el('div', { class: 'btn-row' }, [
-      el('button', { class: 'btn btn-secondary', onclick: function () { state.c33Only = false; persist(); goToStep(0); } }, ['Back']),
-      el('button', { class: 'btn btn-primary', id: 'c3w-c33-generate', onclick: function () { beforeExport(certAgreedC33.v); } }, ['Generate Form C-3.3'])
-    ]));
-    bodyWrap.appendChild(stepC33);
-
-    /* ================= SUCCESS ======================================== */
-    var stepSuccess = el('div', { class: 'step-section', id: 'c3w-step-success' });
-    bodyWrap.appendChild(stepSuccess);
-
-    root.appendChild(el('div', { class: 'disclaimer', html: 'This tool is for informational purposes only and does not constitute legal advice.<br>The Comp Desk &copy; 2026' }));
-
-    /* ---------- component builders (local) ---------------------------- */
-    function stepIntro(icon, h, p) { return el('div', { class: 'step-intro' }, [el('div', { class: 'step-intro-icon', text: icon }), el('h2', { text: h }), el('p', { text: p })]); }
-    function card(title, sub) { var c = el('div', { class: 'card' }, [el('div', { class: 'card-title', text: title })]); if (sub) c.appendChild(el('div', { class: 'card-subtitle', text: sub })); return c; }
-    function group(children) { return el('div', { class: 'form-group' }, children); }
-    function fieldRow(cells) { return el('div', { class: 'form-group' }, [el('div', { class: 'form-row' }, cells.map(function (c) { return c || el('div'); }))]); }
-    function errEl(id, msg) { return el('div', { class: 'form-error', id: id, text: msg }); }
-    // Subtle, tappable "we filled this in" chip. Tapping it focuses the field so
-    // the worker can correct it (handled by the delegated click handler below).
-    function prefillTag(on) { return on ? '<span class="prefill-tag" role="button" tabindex="0" title="Filled in from your profile — tap to edit">From your profile · Edit</span>' : ''; }
-    // one plain-language, worker-voice line under a field group. `parts` is an
-    // array of strings and/or DOM nodes (e.g. CD.Glossary.term('AWW')).
+    /* ---- field builders (el-based) ------------------------------------ */
+    // Is this an occupational-disease claim? Copy-only fork — see state.claimType.
+    function isOD() { return state.claimType === 'occupational_disease'; }
+    // title/sub may be a plain string OR a function, so a card's heading can
+    // follow claimType without the deck needing to know why.
+    function _txt(v) { return (typeof v === 'function') ? v() : v; }
+    function cardHead(c) {
+      var h = el('div', { class: 'c3w-card-head' });
+      if (c.icon) h.appendChild(el('div', { class: 'c3w-card-icon', text: c.icon }));
+      h.appendChild(el('h2', { class: 'c3w-card-title', text: _txt(c.title) }));
+      var sub = _txt(c.sub);
+      if (sub) h.appendChild(el('p', { class: 'c3w-card-sub', text: sub }));
+      return h;
+    }
     function helper() { var parts = Array.prototype.slice.call(arguments); return el('div', { class: 'c3w-helper' }, parts); }
-    // a tappable glossary acronym (falls back to plain text if CD.Glossary absent).
     function gloss(abbr, label) { return (CD.Glossary && CD.Glossary.term) ? CD.Glossary.term(abbr, label) : el('span', { text: label || abbr }); }
-    function labelHtml(label, mode) { return label + (mode === 'req' ? '<span class="req">*</span>' : (mode === 'opt' ? '<span class="opt">(optional)</span>' : '')); }
-    function textField(id, label, mode, val, ph, pre) { return el('div', null, [el('label', { class: 'form-label', html: labelHtml(label, mode) + prefillTag(pre) }), el('input', { type: 'text', class: 'form-input', id: id, value: val || '', placeholder: ph || '' }), errEl('c3w-err-' + id.replace('c3w-', ''), label + ' is required')]); }
-    function dateInput(id, val) { var n = el('input', { type: 'date', class: 'form-input', id: id, max: todayISO() }); if (val) n.value = val; return n; }
-    function dateField(id, label, mode, val, pre) { return el('div', null, [el('label', { class: 'form-label', html: labelHtml(label, mode) + prefillTag(pre) }), dateInput(id, val), errEl('c3w-err-' + id.replace('c3w-', ''), label + ' is required')]); }
-    function selectField(id, label, mode, opts, val) { var s = el('select', { class: 'form-input', id: id }); opts.forEach(function (o) { var op = el('option', { value: o[0], text: o[1] }); if (o[0] === val) op.selected = true; s.appendChild(op); }); return el('div', null, [el('label', { class: 'form-label', html: labelHtml(label, mode) }), s]); }
-    function optionRow(id, label, opts, val, onpick) {
-      var grp = el('div', { class: 'option-group horizontal', id: id });
+    function prefillChip(key) {
+      var fromStore = !!storeSourced[key];
+      return el('span', { class: 'c3w-chip', role: 'button', tabindex: '0', 'data-focuskey': key,
+        title: fromStore ? T('c3.chip.toldEarlierTitle', 'You told us this earlier — tap to edit') : T('c3.chip.fromProfileTitle', 'Filled in from your profile — tap to edit'),
+        text: fromStore ? T('c3.chip.toldEarlier', 'You told us this earlier · Edit') : T('c3.chip.fromProfile', 'From your profile · Edit') });
+    }
+    function fid(key) { return 'c3w-' + key; }
+    function labelFor(text, mode, key) {
+      var l = el('label', { class: 'form-label' });
+      l.appendChild(document.createTextNode(text));
+      if (mode === 'req') l.appendChild(el('span', { class: 'req', text: '*' }));
+      else if (mode === 'opt') l.appendChild(el('span', { class: 'opt', text: T('c3.optional', '(optional)') }));
+      if (prefilled[key]) l.appendChild(prefillChip(key));
+      return l;
+    }
+    function errFor(key, msg) { return el('div', { class: 'form-error', id: 'c3w-err-' + key, text: msg }); }
+    function inputField(key, label, mode, ph) {
+      var g = el('div', { class: 'form-group' });
+      g.appendChild(labelFor(label, mode, key));
+      g.appendChild(el('input', { type: 'text', class: 'form-input', id: fid(key), value: state[key] || '', placeholder: ph || '' }));
+      if (mode === 'req') g.appendChild(errFor(key, T('c3.validation.required', { field: label }, '{field} is required')));
+      return g;
+    }
+    function areaField(key, label, mode, ph) {
+      var g = el('div', { class: 'form-group' });
+      g.appendChild(labelFor(label, mode, key));
+      g.appendChild(el('textarea', { class: 'form-input', id: fid(key), placeholder: ph || '', rows: '3' }, [state[key] || '']));
+      if (mode === 'req') g.appendChild(errFor(key, T('c3.validation.required', { field: label }, '{field} is required')));
+      return g;
+    }
+    function dateFieldB(key, label, mode) {
+      var g = el('div', { class: 'form-group' });
+      g.appendChild(labelFor(label, mode, key));
+      var n = el('input', { type: 'date', class: 'form-input', id: fid(key), max: todayISO() }); if (state[key]) n.value = state[key];
+      g.appendChild(n);
+      if (mode === 'req') g.appendChild(errFor(key, T('c3.validation.required', { field: label }, '{field} is required')));
+      return g;
+    }
+    function selectFieldB(key, label, mode, opts) {
+      var g = el('div', { class: 'form-group' });
+      g.appendChild(labelFor(label, mode, key));
+      var s = el('select', { class: 'form-input', id: fid(key) });
+      opts.forEach(function (o) { var op = el('option', { value: o[0], text: o[1] }); if (o[0] === (state[key] || '')) op.selected = true; s.appendChild(op); });
+      g.appendChild(s);
+      if (mode === 'req') g.appendChild(errFor(key, T('c3.validation.required', { field: label }, '{field} is required')));
+      return g;
+    }
+    function pairRow(a, b) {
+      var w = el('div', { class: 'form-group' });
+      var g = el('div', { class: 'form-row' });
+      [a, b].forEach(function (c) { if (c) { c.style.marginBottom = '0'; g.appendChild(c); } else g.appendChild(el('div')); });
+      w.appendChild(g); return w;
+    }
+    function optRow(key, opts, onpick) {
+      var grp = el('div', { class: 'option-group', id: fid(key) });
       opts.forEach(function (o) {
-        var c = el('div', { class: 'option-card compact' + (o[0] === val ? ' selected' : ''), 'data-value': o[0] }, [el('div', { class: 'option-radio' }, [el('div', { class: 'option-radio-inner' })]), el('div', { class: 'option-label', text: o[1] })]);
-        c.addEventListener('click', function () { grp.querySelectorAll('.option-card').forEach(function (x) { x.classList.remove('selected'); }); c.classList.add('selected'); onpick(o[0]); });
-        grp.appendChild(c);
+        var card = el('div', { class: 'option-card' + (state[key] === o[0] ? ' selected' : ''), 'data-value': o[0] }, [
+          el('div', { class: 'option-radio' }, [el('div', { class: 'option-radio-inner' })]),
+          el('div', { class: 'option-label', text: o[1] })
+        ]);
+        card.addEventListener('click', function () {
+          grp.querySelectorAll('.option-card').forEach(function (x) { x.classList.remove('selected'); });
+          card.classList.add('selected');
+          state[key] = o[0];
+          if (onpick) onpick(o[0]);
+          persist(); refreshNext();
+        });
+        grp.appendChild(card);
       });
       return grp;
     }
-    function reviewGroup(title, step, rows) {
-      var g = el('div', { class: 'review-group' }, [el('div', { class: 'review-group-title' }, [document.createTextNode(title), el('button', { class: 'review-edit-btn', onclick: function () { goToStep(step); } }, ['Edit'])])]);
-      rows.forEach(function (r) { g.appendChild(el('div', { class: 'review-row' }, [el('span', { class: 'review-label', text: r[0] }), el('span', { class: 'review-value', id: r[1], text: '—' })])); });
-      return g;
-    }
-    function navRow(backStep, nextFn) {
-      return el('div', { class: 'btn-row' }, [
-        el('button', { class: 'btn btn-secondary', onclick: function () { goToStep(backStep); } }, ['Back']),
-        el('button', { class: 'btn btn-primary', onclick: nextFn }, ['Continue'])
+    function optGroup(key, label, opts, onpick) { var g = el('div', { class: 'form-group' }); if (label) g.appendChild(labelFor(label, '', key)); g.appendChild(optRow(key, opts, onpick)); return g; }
+    function mhToggleRow() {
+      var t = el('div', { class: 'toggle-switch' + (state.c33_releaseMentalHealth ? ' on' : '') }, [el('div', { class: 'toggle-knob' })]);
+      t.addEventListener('click', function () { t.classList.toggle('on'); state.c33_releaseMentalHealth = t.classList.contains('on'); persist(); });
+      return el('div', { class: 'toggle-row' }, [
+        el('div', null, [el('div', { class: 'toggle-text', text: T('c3.mh.toggle', 'Also release mental-health records') }), el('div', { class: 'toggle-text-desc', text: T('c3.mh.toggleDesc', 'Optional and extra-sensitive. Off by default — only turn on to authorize it.') })]),
+        t
       ]);
     }
-
-    /* ---------- field <-> state plumbing ------------------------------ */
-    var TEXT_FIELDS = [
-      ['c3w-name', 'name'], ['c3w-dob', 'dob'], ['c3w-ssn', 'ssn'], ['c3w-mailing', 'mailing'], ['c3w-mailing2', 'mailing2'],
-      ['c3w-phone', 'phone'], ['c3w-language', 'language'], ['c3w-jobTitle', 'jobTitle'], ['c3w-activities', 'activities'],
-      ['c3w-jobOther', 'jobOther'], ['c3w-grossPay', 'grossPay'], ['c3w-payFreq', 'payFreq'], ['c3w-doi', 'doi'],
-      ['c3w-timeOfInjury', 'timeOfInjury'], ['c3w-whereHappened', 'whereHappened'], ['c3w-whatDoing', 'whatDoing'],
-      ['c3w-howHappened', 'howHappened'], ['c3w-nature', 'nature'], ['c3w-employer', 'employer'], ['c3w-employerPhone', 'employerPhone'],
-      ['c3w-supervisor', 'supervisor'], ['c3w-workAddress', 'workAddress'], ['c3w-otherEmployers', 'otherEmployers'],
-      ['c3w-dateHired', 'dateHired'], ['c3w-usualLocationWhy', 'usualLocationWhy'],
-      ['c3w-noticeTo', 'noticeTo'], ['c3w-noticeDate', 'noticeDate'], ['c3w-witnessNames', 'witnessNames'],
-      ['c3w-objectWhat', 'objectWhat'], ['c3w-licensePlate', 'licensePlate'], ['c3w-mvCarrier', 'mvCarrier'],
-      ['c3w-stopWorkDate', 'stopWorkDate'], ['c3w-returnDate', 'returnDate'], ['c3w-grossPay2', 'grossPay2'], ['c3w-payFreq2', 'payFreq2'],
-      ['c3w-firstTreatDate', 'firstTreatDate'], ['c3w-firstTreatPhone', 'firstTreatPhone'],
-      ['c3w-treatType', 'treatType'], ['c3w-firstTreatName', 'firstTreatName'], ['c3w-treatingDoctors', 'treatingDoctors'],
-      ['c3w-c33-priorDesc', 'c33_priorDesc'], ['c3w-c33-providers', 'c33_providers'], ['c3w-certName', 'certName']
-    ];
-    var SENSITIVE = { ssn: 1 }; // never persisted to the draft store
-    function syncFromDom() {
-      if (state.c33Only) { syncC33(); return; }   // standalone fields only — don't clobber blank C-3 inputs
-      TEXT_FIELDS.forEach(function (f) { var n = $(f[0]); if (n) { var v = n.value; state[f[1]] = (/dob|doi|Date/.test(f[1])) ? v : v; } });
-      var g = $('c3w-gender'); if (g) state.gender = g.value;
+    // Address / places hooks — Prompt C wires these; clean no-ops until then.
+    // Prompt C typeahead hooks. Each degrades to a plain field when its service /
+    // key is absent (the service modules no-op cleanly, never throw).
+    var employerAddrSuggestion = ''; // Place Details address offered on card 14
+    function attachAddress(key) { var n = $(fid(key)); if (n && CD.AddressAutocomplete && CD.AddressAutocomplete.attach) { try { CD.AddressAutocomplete.attach(n, { region: 'NY' }); } catch (e) {} } }
+    function attachEmployer(key) {
+      var n = $(fid(key));
+      if (n && CD.EmployerAutocomplete && CD.EmployerAutocomplete.attach) {
+        // On selection, the module fetches Place Details and offers the address on
+        // the employer-address card — never auto-writes.
+        try { CD.EmployerAutocomplete.attach(n, { onAddress: function (addr) { if (addr) employerAddrSuggestion = addr; } }); } catch (e) {}
+      }
     }
-    // Standalone C-3.3 inputs → shared state keys (own ids so they don't collide with the C-3 flow).
+    function attachDuties() {
+      if (!CD.JobDuties || !CD.JobDuties.attach) return;
+      try { CD.JobDuties.attach({ jobTitle: state.jobTitle, textarea: $(fid('activities')), host: $('c3w-duty-host'), supabase: supabase }); } catch (e) { console.warn('[C3] DUTIES_ATTACH', e); }
+    }
+    // "Use <employer address>?" — a dismissible offer chip on the employer-address
+    // card. Never auto-writes; a TAP fills the field (the user's choice), dismiss
+    // ignores it. If they already typed an address, the chip still just offers.
+    function makeEmployerAddrChip(addr) {
+      var wrap = el('div', { class: 'c3w-addr-offer' });
+      wrap.appendChild(el('div', { class: 'c3w-addr-offer-label', text: T('c3.addrChip.label', 'Address of the employer you picked:') }));
+      var use = el('button', { type: 'button', class: 'c3w-addr-use' }, [T('c3.addrChip.use', { addr: addr }, 'Use “{addr}”')]);
+      use.addEventListener('click', function () { var n = $(fid('workAddress')); if (n) n.value = addr; state.workAddress = addr; persist(); refreshNext(); if (wrap.parentNode) wrap.parentNode.removeChild(wrap); });
+      var x = el('button', { type: 'button', class: 'c3w-addr-dismiss', 'aria-label': T('c3.addrChip.dismiss', 'Dismiss'), text: '✕' });
+      x.addEventListener('click', function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); });
+      wrap.appendChild(el('div', { class: 'c3w-addr-offer-row' }, [use, x]));
+      return wrap;
+    }
+
+    /* ---- field <-> state plumbing ------------------------------------- */
+    var TEXT_KEYS = ['name', 'dob', 'ssn', 'gender', 'mailing', 'mailing2', 'phone', 'email', 'jobTitle', 'activities',
+      'doi', 'timeOfInjury', 'whereHappened', 'whatDoing', 'howHappened', 'nature', 'employer', 'workAddress',
+      'supervisor', 'noticeDate', 'stopWorkDate', 'returnDate', 'grossPay', 'payFreq', 'firstTreatDate', 'treatType',
+      'firstTreatName', 'treatingDoctors', 'treatingDoctorsPhone', 'c33_priorDesc', 'c33_providers', 'certName'];
+    var TEXT_FIELDS = TEXT_KEYS.map(function (k) { return [fid(k), k]; });
+    var SENSITIVE = { ssn: 1 }; // never persisted to the draft store; written only onto the PDF in memory
     var C33_FIELDS = [['c3w-c33s-name', 'name'], ['c3w-c33s-dob', 'dob'], ['c3w-c33s-ssn', 'ssn'], ['c3w-c33s-doi', 'doi'], ['c3w-c33s-mailing', 'mailing'], ['c3w-c33s-mailing2', 'mailing2'], ['c3w-c33s-injury', 'nature'], ['c3w-c33s-providers', 'c33_providers'], ['c3w-c33s-certName', 'certName']];
+    function syncFromDom() {
+      if (state.c33Only) { syncC33(); return; }
+      TEXT_FIELDS.forEach(function (f) { var n = $(f[0]); if (n) state[f[1]] = n.value; });
+    }
     function syncC33() { C33_FIELDS.forEach(function (f) { var n = $(f[0]); if (n) state[f[1]] = n.value; }); }
-    root.addEventListener('blur', function (e) { if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { syncFromDom(); persist(); } }, true);
-    root.addEventListener('change', function (e) { if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { syncFromDom(); persist(); } });
-    // "tap to edit": tapping a prefill chip focuses (and selects) the field it labels.
-    function focusFieldFor(chip) {
-      var lbl = chip.closest ? chip.closest('label') : null;
-      var wrap = lbl ? lbl.parentNode : (chip.parentNode);
-      var inp = wrap && wrap.querySelector ? wrap.querySelector('input,select,textarea') : null;
-      if (inp) { try { inp.focus(); if (inp.select) inp.select(); } catch (x) {} }
-    }
-    root.addEventListener('click', function (e) {
-      var chip = e.target && e.target.closest ? e.target.closest('.prefill-tag') : null;
-      if (chip) { e.preventDefault(); focusFieldFor(chip); }
+
+    // Delegated events on the single live card in the viewport.
+    viewport.addEventListener('input', function () { syncFromDom(); refreshNext(); });
+    viewport.addEventListener('change', function () { syncFromDom(); persist(); refreshNext(); });
+    viewport.addEventListener('blur', function (e) { if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { syncFromDom(); persist(); } }, true);
+    viewport.addEventListener('click', function (e) {
+      var chip = e.target && e.target.closest ? e.target.closest('.c3w-chip') : null;
+      if (chip) { var g = chip.closest('.form-group'); var inp = g && g.querySelector('input,select,textarea'); if (inp) { try { inp.focus(); if (inp.select) inp.select(); } catch (x) {} } }
     });
-    root.addEventListener('keydown', function (e) {
-      if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.classList && e.target.classList.contains('prefill-tag')) { e.preventDefault(); focusFieldFor(e.target); }
-    });
-    // Add a prefill chip to a field's label after the fact (used when the Comp
-    // Buddy intake hydrates a field that the profile left blank). Marked dynamic
-    // so "Start over" can strip these while leaving the baked-in profile chips.
-    function markPrefilled(inputId) {
-      var inp = $(inputId); if (!inp) return;
-      var wrap = inp.parentNode; var lbl = wrap && wrap.querySelector ? wrap.querySelector('label') : null; if (!lbl) return;
-      if (lbl.querySelector('.prefill-tag')) return;
-      var s = el('span', { class: 'prefill-tag c3w-chip-dyn', role: 'button', tabindex: '0', title: 'Filled in from your profile — tap to edit', text: 'From your profile · Edit' });
-      lbl.appendChild(s);
+
+    /* ---- validation --------------------------------------------------- */
+    function showErr(key) { var e = $('c3w-err-' + key); if (e) e.classList.add('visible'); var inp = $(fid(key)); if (inp && inp.classList) inp.classList.add('error'); }
+    function clearErr(key) { var e = $('c3w-err-' + key); if (e) e.classList.remove('visible'); var inp = $(fid(key)); if (inp && inp.classList) inp.classList.remove('error'); }
+    function isEmpty(key) { var v = state[key]; return !v || (Array.isArray(v) ? v.length === 0 : String(v).trim() === ''); }
+    function validateCard(c, showErrors) {
+      if (c.validate) return c.validate(showErrors);
+      var ok = true;
+      (c.required || []).forEach(function (key) { if (isEmpty(key)) { ok = false; if (showErrors) showErr(key); } else clearErr(key); });
+      return ok;
     }
 
-    /* ---------- validation -------------------------------------------- */
-    function showError(id) { var e = $('c3w-err-' + id); if (e) e.classList.add('visible'); }
-    function clearError(id) { var e = $('c3w-err-' + id); if (e) e.classList.remove('visible'); }
-    function validateAndNext(step) {
-      syncFromDom(); var ok = true;
-      function req(stKey, errId) { if (!state[stKey] || !String(state[stKey]).trim()) { showError(errId); ok = false; } else clearError(errId); }
-      if (step === 1) { req('name', 'name'); req('mailing', 'mailing'); req('phone', 'phone'); req('jobTitle', 'jobTitle'); if (!state.dob) { showError('dob'); ok = false; } else clearError('dob'); if (!state.gender) { ok = false; toast('Please select gender (required on the C-3).'); } }
-      else if (step === 2) { if (!state.doi) { showError('doi'); ok = false; } else clearError('doi'); req('whereHappened', 'whereHappened'); req('whatDoing', 'whatDoing'); req('howHappened', 'howHappened'); req('nature', 'nature'); if (state.bodyParts.length === 0) { showError('body'); $('c3w-body-grid').classList.add('error'); ok = false; } else clearError('body'); }
-      else if (step === 3) { req('employer', 'employer'); }
-      // step 4 has no hard requirements
-      if (ok) goToStep(step + 1);
+    /* ---- standalone C-3.3 entry link (card 1 only) -------------------- */
+    function c33EntryLink() {
+      var wrap = el('div', { class: 'c33-link' });
+      var a = el('a', { text: T('c3.c33link', 'Just need the medical-records release? Complete Form C-3.3 (HIPAA) on its own →') });
+      a.addEventListener('click', function (e) { e.preventDefault(); try { syncFromDom(); } catch (x) {} goToStandaloneC33(); });
+      wrap.appendChild(a);
+      return wrap;
     }
 
-    /* ---------- navigation -------------------------------------------- */
-    // Honest "about N min left": sum of the current step through the last step.
-    function etaRemaining(n) { var m = 0; for (var i = Math.max(1, n); i <= TOTAL_STEPS; i++) m += (STEP_MIN[i] || 2); return m; }
-    function goToStep(n) {
+    /* ================= THE CARD DECK ==================================== */
+    // One card = 2–3 related fields, sized to never scroll at 320×568. Each card
+    // declares a `section` so Review can group by it. Conditional cards carry a
+    // `skip()` and drop out of the live deck (and the denominator) when their gate
+    // answer removes them. Prompt C wires the address / places / duties hooks.
+    var S0 = SECTIONS[0], S1 = SECTIONS[1], S2 = SECTIONS[2], S3 = SECTIONS[3];
+    var CARDS = [
+      { key: 'route', section: S0, skip: function () { return !hasAtty; }, icon: '⚖️', title: T('c3.cards.route.title', 'How would you like to file?'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.route.helper', 'You told us you have an attorney. They may prefer to file this for you — choose how to proceed.')));
+          function branchCard(icon, title, desc, branch) {
+            var b = el('div', { class: 'option-card', style: 'width:100%;align-items:flex-start;margin-bottom:10px' }, [
+              el('div', { style: 'font-size:20px;line-height:1', text: icon }),
+              el('div', null, [el('div', { class: 'option-label', text: title }), el('div', { class: 'toggle-text-desc', text: desc })])
+            ]);
+            b.addEventListener('click', function () { state.branch = branch; persist(); var l = deckList(); var j = stepIndex(l, 'route'); if (j >= 0 && j < l.length - 1) goToCard(l[j + 1].key); });
+            return b;
+          }
+          card.appendChild(branchCard('🙋', T('c3.cards.route.selfTitle', 'File it myself'), T('c3.cards.route.selfDesc', 'Build the C-3 and file it with the WCB on your own.'), 'self'));
+          card.appendChild(branchCard('⚖️', T('c3.cards.route.attyTitle', 'Prepare it and send to my attorney'), T('c3.cards.route.attyDesc', 'We’ll build the C-3, then give you the PDF and your attorney’s email.'), 'attorney'));
+        } },
+      { key: 'name_dob', section: S0, required: ['name', 'dob'], icon: '👤', title: T('c3.cards.nameDob.title', 'Your legal name'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.nameDob.helper', 'We filled in what we already had. Tap any box to fix it.')));
+          card.appendChild(inputField('name', T('c3.fields.name', 'Full legal name'), 'req', T('c3.fields.namePh', 'First MI Last')));
+          card.appendChild(dateFieldB('dob', T('c3.fields.dob', 'Date of birth'), 'req'));
+          card.appendChild(c33EntryLink());
+        } },
+      { key: 'ssn_gender', section: S0, required: ['gender'], icon: '🪪', title: T('c3.cards.ssnGender.title', 'A couple more details'),
+        build: function (card) {
+          card.appendChild(inputField('ssn', T('c3.fields.ssn', 'Social Security Number'), 'opt', 'XXX-XX-XXXX'));
+          card.appendChild(el('div', { class: 'form-hint', text: T('c3.fields.ssnHint', 'SSN is voluntary on the C-3 — you may leave it blank. We never store it; it only goes onto the form you download.') }));
+          card.appendChild(selectFieldB('gender', T('c3.fields.gender', 'Gender'), 'req', [['', T('c3.selectPlaceholder', 'Select…')], ['M', T('c3.genderM', 'Male')], ['F', T('c3.genderF', 'Female')]]));
+        } },
+      { key: 'mailing', section: S0, required: ['mailing'], icon: '✉️', title: T('c3.cards.mailing.title', 'Your mailing address'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.mailing.helper', 'This is where the Board will mail letters about your claim.')));
+          card.appendChild(inputField('mailing', T('c3.fields.mailing', 'Mailing address'), 'req', T('c3.fields.mailingPh', 'Number and street')));
+          card.appendChild(inputField('mailing2', T('c3.fields.mailing2', 'City, State, ZIP'), 'opt', T('c3.fields.mailing2Ph', 'City, NY 10001')));
+        }, after: function () { attachAddress('mailing'); } },
+      { key: 'contact', section: S0, required: ['phone'], icon: '📞', title: T('c3.cards.contact.title', 'How to reach you'),
+        build: function (card) {
+          card.appendChild(inputField('phone', T('c3.fields.phone', 'Phone'), 'req', '(212) 555-1234'));
+          card.appendChild(inputField('email', T('c3.fields.email', 'Email'), 'opt', 'you@example.com'));
+        } },
+      { key: 'job', section: S0, required: ['jobTitle'], icon: '🧰', title: T('c3.cards.job.title', 'Your job'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.job.helperPre', 'Tell us the job you were doing when you got hurt. Your pay later helps set your '), gloss('AWW'), T('c3.cards.job.helperPost', '.')));
+          card.appendChild(inputField('jobTitle', T('c3.fields.jobTitle', 'Job title or description'), 'req', T('c3.fields.jobTitlePh', 'e.g. Warehouse associate')));
+        } },
+      { key: 'duties', section: S0, icon: '🛠️', title: T('c3.cards.duties.title', 'Your job duties'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.duties.helper', 'What did you physically do on this job? Everyday words are perfect.')));
+          card.appendChild(areaField('activities', T('c3.fields.activities', 'What were your physical job duties?'), 'opt', T('c3.fields.activitiesPh', 'e.g. lifting boxes, driving a forklift, standing all day')));
+          // Job-duties suggestion chips (issue #5) render here — local-first, AI on
+          // a miss. Chips APPEND lines; the textarea is never auto-filled.
+          card.appendChild(el('div', { id: 'c3w-duty-host' }));
+        }, after: function () { attachDuties(); } },
+      { key: 'when', section: S1, required: ['doi'], icon: '📅',
+        title: function () { return isOD() ? T('c3.cards.when.titleOD', 'When it began') : T('c3.cards.when.title', 'When it happened'); },
+        build: function (card) {
+          // The claim-type fork lives on the FIRST card of Section D (the C-3's
+          // "Your injury or illness"), because it changes how every question in
+          // that section should read. Re-renders the card so the date label and
+          // the time-of-injury question follow the pick immediately.
+          card.appendChild(optGroup('claimType', T('c3.fields.claimType', 'What kind of claim is this?'), [
+            ['accident', T('c3.claimTypeAccident', 'One accident or event')],
+            ['occupational_disease', T('c3.claimTypeOD', 'Built up over time')]
+          ], function () { syncFromDom(); persist(); goToCard('when', true); }));
+          if (isOD()) {
+            card.appendChild(helper(T('c3.cards.when.helperODPre', 'For an illness that built up over time, the '), gloss('DOI'),
+              T('c3.cards.when.helperODPost', ' is your date of disablement — generally when the condition first stopped you working, changed your duties, or sent you for care. An approximate date is fine; the Board can refine it.')));
+            card.appendChild(dateFieldB('doi', T('c3.fields.doiOD', 'Date of disablement or onset'), 'req'));
+            // No time-of-injury for an occupational disease — there is no single
+            // moment to name, and the C-3's time box is optional.
+          } else {
+            card.appendChild(helper(T('c3.cards.when.helperPre', 'The date of injury (your '), gloss('DOI'), T('c3.cards.when.helperPost', ') is the day you got hurt, or first noticed a work-related illness.')));
+            card.appendChild(dateFieldB('doi', T('c3.fields.doi', 'Date of injury / onset'), 'req'));
+            card.appendChild(inputField('timeOfInjury', T('c3.fields.timeOfInjury', 'Time of injury'), 'opt', T('c3.fields.timeOfInjuryPh', 'e.g. 2:30')));
+            card.appendChild(optGroup('ampm', T('c3.fields.ampm', 'AM or PM?'), [['AM', T('c3.ampmAm', 'AM')], ['PM', T('c3.ampmPm', 'PM')]]));
+          }
+        } },
+      { key: 'where', section: S1, required: ['whereHappened'], icon: '📍', title: T('c3.cards.where.title', 'Where it happened'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.where.helper', 'The address or place where the injury happened.')));
+          card.appendChild(inputField('whereHappened', T('c3.fields.whereHappened', 'Where did it happen?'), 'req', T('c3.fields.whereHappenedPh', 'e.g. 1 Main Street, at the loading dock')));
+        }, after: function () { attachAddress('whereHappened'); } },
+      { key: 'doing', section: S1, required: ['whatDoing'], icon: '🏃',
+        title: function () { return isOD() ? T('c3.cards.doing.titleOD', 'The work that caused it') : T('c3.cards.doing.title', 'What you were doing'); },
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.doing.helper', 'Describe it like you’d tell a friend.')));
+          // The C-3's own box reads "...when you were injured OR BECAME ILL" —
+          // the wizard asked only the accident half of its own question.
+          card.appendChild(isOD()
+            ? areaField('whatDoing', T('c3.fields.whatDoingOD', 'What work were you doing that made you ill?'), 'req', T('c3.fields.whatDoingODPh', 'e.g. running a jackhammer daily, spraying paint in a closed booth'))
+            : areaField('whatDoing', T('c3.fields.whatDoing', 'What were you doing when it happened?'), 'req', T('c3.fields.whatDoingPh', 'e.g. unloading a truck, typing a report')));
+        } },
+      { key: 'how', section: S1, required: ['howHappened'], icon: '⚠️',
+        title: function () { return isOD() ? T('c3.cards.how.titleOD', 'How it developed') : T('c3.cards.how.title', 'How it happened'); },
+        build: function (card) {
+          card.appendChild(isOD()
+            ? areaField('howHappened', T('c3.fields.howHappenedOD', 'How did the illness develop?'), 'req', T('c3.fields.howHappenedODPh', 'e.g. after years of loud machinery my hearing got worse and worse'))
+            : areaField('howHappened', T('c3.fields.howHappened', 'How did the injury / illness happen?'), 'req', T('c3.fields.howHappenedPh', 'e.g. I tripped over a pipe and fell on the floor')));
+        } },
+      { key: 'body', section: S1, icon: '🩹',
+        title: function () { return isOD() ? T('c3.cards.body.titleOD', 'Body parts affected') : T('c3.cards.body.title', 'Body parts injured'); },
+        sub: function () { return isOD() ? T('c3.cards.body.subOD', 'Tap every part the condition affects — pick more than one.') : T('c3.cards.body.sub', 'Tap every part that was hurt — pick more than one.'); },
+        build: function (card) {
+          var grid = el('div', { class: 'chip-grid', id: 'c3w-body-grid' });
+          BODY_PARTS.forEach(function (bp) {
+            var chip = el('div', { class: 'chip' + (state.bodyParts.indexOf(bp[0]) >= 0 ? ' selected' : ''), 'data-part': bp[0], text: bodyPartLabel(bp[0]) });
+            chip.addEventListener('click', function () {
+              chip.classList.toggle('selected');
+              if (chip.classList.contains('selected')) { if (state.bodyParts.indexOf(bp[0]) < 0) state.bodyParts.push(bp[0]); }
+              else state.bodyParts = state.bodyParts.filter(function (x) { return x !== bp[0]; });
+              grid.classList.remove('error'); var e = $('c3w-err-bodyParts'); if (e) e.classList.remove('visible'); persist(); refreshNext();
+            });
+            grid.appendChild(chip);
+          });
+          card.appendChild(grid);
+          card.appendChild(errFor('bodyParts', T('c3.validation.selectBodyPart', 'Select at least one body part')));
+        },
+        validate: function (showErrors) { var ok = state.bodyParts.length > 0; if (!ok && showErrors) { var e = $('c3w-err-bodyParts'); if (e) e.classList.add('visible'); var g = $('c3w-body-grid'); if (g) g.classList.add('error'); } return ok; } },
+      { key: 'nature', section: S1, required: ['nature'], icon: '📝', title: T('c3.cards.nature.title', 'Nature of injury'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.nature.helper', 'In plain words, what’s wrong?')));
+          card.appendChild(areaField('nature', T('c3.fields.nature', 'What’s wrong? (e.g. torn rotator cuff, herniated disc)'), 'req', T('c3.fields.naturePh', 'List what’s hurt')));
+        } },
+      { key: 'employer', section: S2, required: ['employer'], icon: '🏢', title: T('c3.cards.employer.title', 'Your employer'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.employer.helper', 'The company you worked for when you got hurt — the claim is filed against them.')));
+          card.appendChild(inputField('employer', T('c3.fields.employer', 'Employer name'), 'req', T('c3.fields.employerPh', 'Company name')));
+        }, after: function () { attachEmployer('employer'); } },
+      { key: 'employer_addr', section: S2, icon: '🏢', title: T('c3.cards.employerAddr.title', 'Employer address'),
+        build: function (card) {
+          card.appendChild(inputField('workAddress', T('c3.fields.workAddress', 'Employer address'), 'opt', T('c3.fields.workAddressPh', 'Where you worked')));
+          if (employerAddrSuggestion) card.appendChild(makeEmployerAddrChip(employerAddrSuggestion));
+        }, after: function () { attachAddress('workAddress'); } },
+      { key: 'supervisor_notice', section: S2, icon: '🗣️', title: T('c3.cards.supervisorNotice.title', 'Reporting it'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.supervisorNotice.helperPre', 'Telling your boss you were hurt matters to the '), gloss('WCB'), T('c3.cards.supervisorNotice.helperPost', '.')));
+          card.appendChild(inputField('supervisor', T('c3.fields.supervisor', 'Supervisor’s name'), 'opt', ''));
+          card.appendChild(optGroup('gaveNotice', T('c3.fields.gaveNotice', 'Did you tell them?'), [['yes', T('c3.yes', 'Yes')], ['no', T('c3.no', 'No')]]));
+        } },
+      { key: 'notice_detail', section: S2, icon: '📨', title: T('c3.cards.noticeDetail.title', 'How you reported it'),
+        build: function (card) {
+          card.appendChild(dateFieldB('noticeDate', T('c3.fields.noticeDate', 'Date you notified your employer'), 'opt'));
+          // The C-3 records oral vs written notice; a text message is filed as
+          // "in writing" (state.noticeMethod stays canonical for the PDF).
+          card.appendChild(optGroup('noticeHow', T('c3.fields.noticeHow', 'How did you tell them?'), [['orally', T('c3.noticeVerbal', 'Verbal')], ['in_writing', T('c3.noticeWritten', 'Written')], ['text', T('c3.noticeText', 'Text')]], function (v) { state.noticeMethod = (v === 'orally') ? 'orally' : 'in_writing'; }));
+        } },
+      { key: 'lost_time', section: S3, icon: '🛌', title: T('c3.cards.lostTime.title', 'Time off work'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.lostTime.helper', 'Light duty still counts as working.')));
+          card.appendChild(optGroup('stoppedWork', T('c3.fields.stoppedWork', 'Did you lose time from work?'), [['yes', T('c3.yes', 'Yes')], ['no', T('c3.no', 'No')]], function () { rerender(); }));
+          if (state.stoppedWork === 'yes') card.appendChild(dateFieldB('stopWorkDate', T('c3.fields.stopWorkDate', 'Last day you worked'), 'opt'));
+        } },
+      { key: 'returned', section: S3, skip: function () { return state.stoppedWork === 'no'; }, icon: '🔄', title: T('c3.cards.returned.title', 'Back to work?'),
+        build: function (card) {
+          card.appendChild(optGroup('returnedWork', T('c3.fields.returnedWork', 'Have you returned to work?'), [['no', T('c3.no', 'No')], ['yes', T('c3.yes', 'Yes')]], function () { rerender(); }));
+          if (state.returnedWork === 'yes') {
+            card.appendChild(dateFieldB('returnDate', T('c3.fields.returnDate', 'Date you returned'), 'opt'));
+            card.appendChild(optGroup('returnDuty', T('c3.fields.returnDuty', 'Duty type'), [['regular', T('c3.dutyRegular', 'Regular duty')], ['limited', T('c3.dutyLimited', 'Limited duty')]]));
+          }
+        } },
+      { key: 'wages', section: S3, icon: '💵', title: T('c3.cards.wages.title', 'Your wages'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.wages.helperPre', 'Your pay before taxes — helps set your '), gloss('AWW'), T('c3.cards.wages.helperPost', '.')));
+          card.appendChild(inputField('grossPay', T('c3.fields.grossPay', 'Rate of pay per pay period'), 'opt', '$0.00'));
+          card.appendChild(inputField('payFreq', T('c3.fields.payFreq', 'Pay frequency'), 'opt', T('c3.fields.payFreqPh', 'e.g. Weekly')));
+        } },
+      { key: 'first_treat', section: S3, icon: '🩺', title: T('c3.cards.firstTreat.title', 'First treatment'),
+        build: function (card) {
+          card.appendChild(dateFieldB('firstTreatDate', T('c3.fields.firstTreatDate', 'Date of first treatment'), 'opt'));
+          card.appendChild(selectFieldB('treatType', T('c3.fields.treatType', 'Where first treated?'), 'opt', [['', T('c3.selectPlaceholder', 'Select…')]].concat(treatTypeOptions())));
+          card.appendChild(inputField('firstTreatName', T('c3.fields.firstTreatName', 'Name & address where first treated'), 'opt', ''));
+        } },
+      { key: 'provider', section: S3, icon: '👩‍⚕️', title: T('c3.cards.provider.title', 'Your treating doctor'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.provider.helperPre', 'The doctor treating you now for this injury. An '), gloss('IME'), T('c3.cards.provider.helperPost', ' is a different exam the insurer may send you to.')));
+          card.appendChild(inputField('treatingDoctors', T('c3.fields.treatingDoctors', 'Provider name & address'), 'opt', T('c3.fields.treatingDoctorsPh', 'Name & address')));
+          card.appendChild(inputField('treatingDoctorsPhone', T('c3.fields.treatingDoctorsPhone', 'Their phone'), 'opt', '(212) 555-1234'));
+        } },
+      { key: 'prior', section: S3, icon: '🕓', title: T('c3.cards.prior.title', 'Prior injury'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.prior.helperPre', 'If you hurt this same body part before, New York needs a short release — the '), gloss('C-3.3'), T('c3.cards.prior.helperPost', '. We’ll build it automatically.')));
+          card.appendChild(optGroup('priorInjury', T('c3.fields.priorInjury', 'Any prior injury to the same body part, or a similar illness?'), [['no', T('c3.no', 'No')], ['yes', T('c3.yes', 'Yes')]], function () { refreshNext(); }));
+        } },
+      { key: 'prior_desc', section: S3, skip: function () { return state.priorInjury !== 'yes'; }, icon: '🔏', title: T('c3.cards.priorDesc.title', 'About the prior injury'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.priorDesc.helper', 'We’ll generate Form C-3.3 too, so the doctors who treated your earlier injury can release those records to the insurer.')));
+          card.appendChild(areaField('c33_priorDesc', T('c3.fields.c33PriorDesc', 'Describe the previous injury / illness'), 'opt', T('c3.fields.c33PriorDescPh', 'What happened, and when')));
+          card.appendChild(areaField('c33_providers', T('c3.fields.c33Providers', 'Doctor(s) who treated it (name & address)'), 'opt', T('c3.fields.c33ProvidersPh', 'One per line')));
+          card.appendChild(mhToggleRow());
+        } },
+      { key: 'review', icon: '✅', title: T('c3.cards.review.title', 'Review your answers'), sub: T('c3.cards.review.sub', 'Tap Edit to change a section.'), scrolls: true,
+        build: function (card) { buildReview(card); } },
+      { key: 'certify', icon: '✍️', title: T('c3.cards.certify.title', 'Certify & sign'),
+        build: function (card) { buildCertify(card); }, after: function () { afterCertify(); },
+        validate: function (showErrors) { syncFromDom(); var ok = true; if (isEmpty('certName')) { ok = false; if (showErrors) showErr('certName'); } else clearErr('certName'); if (!certAgreed.v) ok = false; if (!sig.drawn) ok = false; return ok; } }
+    ];
+
+    /* ---- Review + Certify builders ------------------------------------ */
+    function buildReview(card) {
+      syncFromDom();
+      function grp(section, rows) {
+        var g = el('div', { class: 'review-group' });
+        g.appendChild(el('div', { class: 'review-group-title' }, [
+          document.createTextNode(secLabel(section)),
+          el('button', { class: 'review-edit-btn', onclick: function () { var k = firstCardKeyInSection(section); if (k) goToCard(k); } }, [T('c3.review.edit', 'Edit')])
+        ]));
+        rows.forEach(function (r) { g.appendChild(el('div', { class: 'review-row' }, [el('span', { class: 'review-label', text: r[0] }), el('span', { class: 'review-value' + (r[1] ? '' : ' empty'), text: r[1] || T('c3.review.notProvided', 'Not provided') })])); });
+        return g;
+      }
+      var YES = T('c3.yes', 'Yes'), NO = T('c3.no', 'No');
+      card.appendChild(grp(S0, [[T('c3.review.name', 'Name'), state.name], [T('c3.review.dob', 'DOB'), fmtDate(state.dob)], [T('c3.review.job', 'Job'), state.jobTitle]]));
+      card.appendChild(grp(S1, [[T('c3.review.date', 'Date'), fmtDate(state.doi)], [T('c3.review.where', 'Where'), state.whereHappened], [T('c3.review.bodyParts', 'Body parts'), state.bodyParts.length ? state.bodyParts.map(function (p) { return bodyPartLabel(p); }).join(', ') : '']]));
+      card.appendChild(grp(S2, [[T('c3.review.employer', 'Employer'), state.employer], [T('c3.review.toldEmployer', 'Told employer'), state.gaveNotice === 'yes' ? YES : (state.gaveNotice === 'no' ? NO : '')]]));
+      card.appendChild(grp(S3, [[T('c3.review.treatingDoctor', 'Treating doctor'), state.treatingDoctors], [T('c3.review.returnedToWork', 'Returned to work'), state.returnedWork === 'yes' ? YES : (state.returnedWork === 'no' ? NO : '')], [T('c3.review.priorInjury', 'Prior injury (C-3.3)'), state.priorInjury === 'yes' ? T('c3.review.yesIncluded', 'Yes — included') : (state.priorInjury === 'no' ? NO : '')]]));
+      if (!hasAtty && state.branch !== 'attorney' && typeof CD.AttorneyCTA === 'function') {
+        var _reviewCta = CD.AttorneyCTA({ variant: 'inline', source: 'c3_complete', context: _offRampPrefill() });
+        if (_reviewCta) card.appendChild(el('div', { style: 'margin-top:16px' }, [_reviewCta]));
+      }
+    }
+    function buildCertify(card) {
+      // Signatures are NEVER persisted (like the SSN) — reset on every (re)build.
+      sig.drawn = false; sig.canvas = null;
+      // The attestation is a certification, not a footnote — .agw-certify exists
+      // because burying one in small print is how a filing becomes a problem
+      // later. .c3w-helper is KEPT and listed first: this file is vendored to the
+      // website, which loads neither widgets.css nor aurora-glass.css, so
+      // .agw-certify / .ag-glass-2 are inert there and the site renders as today.
+      // The wording is untouched.
+      card.appendChild(el('div', { class: 'c3w-helper agw-certify ag-glass-2' }, [
+        el('span', { class: 'agw-certify-txt' }, [
+          T('c3.cards.certify.helperPre', 'Your '),
+          gloss('C-3'),
+          T('c3.cards.certify.helperPost', ' is a sworn legal form. Only sign once everything above is true.')
+        ])
+      ]));
+      card.appendChild(inputField('certName', T('c3.fields.certName', 'Type your full legal name to certify'), 'req', T('c3.fields.certNamePh', 'Your full legal name')));
+      sigCanvas = el('canvas', { class: 'sig-pad', id: 'c3w-sig' });
+      card.appendChild(el('div', { class: 'form-group' }, [
+        el('label', { class: 'form-label', text: T('c3.fields.drawSignature', 'Draw your signature') }),
+        el('div', { class: 'sig-pad-wrap' }, [sigCanvas, el('button', { class: 'sig-clear', type: 'button', onclick: function () { clearSig(); refreshNext(); } }, [T('c3.fields.clear', 'Clear')])])
+      ]));
+      var ct = el('div', { class: 'toggle-switch' + (certAgreed.v ? ' on' : '') }, [el('div', { class: 'toggle-knob' })]);
+      ct.addEventListener('click', function () { ct.classList.toggle('on'); certAgreed.v = ct.classList.contains('on'); refreshNext(); });
+      card.appendChild(el('div', { class: 'toggle-row' }, [el('div', null, [el('div', { class: 'toggle-text', text: T('c3.certifyToggle', 'I certify the above is true') })]), ct]));
+    }
+    function afterCertify() {
+      initSig(sigCanvas);
+      // Enable Next the moment a stroke lands (initSig sets sig.drawn but can't
+      // reach refreshNext from module scope).
+      if (sigCanvas) { sigCanvas.addEventListener('pointerdown', function () { setTimeout(refreshNext, 0); }); sigCanvas.addEventListener('pointerup', function () { refreshNext(); }); }
+    }
+
+    /* ---- navigation --------------------------------------------------- */
+    function deckList() { return CARDS.filter(function (c) { return !(c.skip && c.skip()); }); }
+    function stepIndex(list, key) { for (var i = 0; i < list.length; i++) if (list[i].key === key) return i; return -1; }
+    function firstCardKeyInSection(section) { var l = deckList(); for (var i = 0; i < l.length; i++) if (l[i].section === section) return l[i].key; return null; }
+    function firstDataKey() { var l = deckList(); return l.length ? l[0].key : 'name_dob'; }
+    // CONTINUITY: push the C-3's collected fields into the ONE local worker
+    // profile on every card advance. SSN is DELIBERATELY not mapped — it never
+    // enters the store (it lives only in in-memory state + on the PDF).
+    function syncToStore() {
       try {
-        syncFromDom(); state.step = n; persist();
-        progress.style.display = n >= 1 ? 'block' : 'none';
-        root.querySelectorAll('.step-section').forEach(function (s) { s.classList.remove('active'); });
-        var sec = $('c3w-step-' + n); if (sec) sec.classList.add('active');
-        for (var i = 1; i <= TOTAL_STEPS; i++) {
-          var dot = $('c3w-dot-' + i); if (dot) { dot.className = 'step-dot'; if (i < n) dot.classList.add('completed'); else if (i === n) dot.classList.add('active'); }
-          if (i < TOTAL_STEPS) { var line = $('c3w-line-' + i); if (line) { line.className = 'step-line'; if (i < n) line.classList.add('completed'); } }
-        }
-        var sc = $('c3w-step-current'); if (sc) sc.textContent = String(n);
-        var sn = $('c3w-step-name'); if (sn) sn.textContent = STEP_NAMES[n] || '';
-        var fill = $('c3w-bar-fill'); if (fill) fill.style.width = Math.round((Math.min(n, TOTAL_STEPS) / TOTAL_STEPS) * 100) + '%';
-        var eta = $('c3w-eta'); if (eta) eta.textContent = (n >= 1 && n <= TOTAL_STEPS) ? ('about ' + etaRemaining(n) + ' min left') : '';
-        if (n === 5) populateReview();
-      } catch (e) {
-        console.error('[C3] STEP_TOGGLE_FAILED', e);
-      }
-      // FAIL-SAFE: never leave the wizard with nothing visible. If the toggle above
-      // threw (or somehow left no section active), fall back to Step 1 so the
-      // claimant always sees a usable form rather than a blank screen.
-      if (!root.querySelector('.step-section.active')) {
-        var fb = $('c3w-step-1') || $('c3w-step-0');
-        if (fb) { fb.classList.add('active'); progress.style.display = 'block'; }
-      }
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+        if (!CD.WorkerProfile || !CD.WorkerProfile.merge) return;
+        var nm = splitName(state.name || '');
+        CD.WorkerProfile.merge({
+          full_name: state.name || undefined,
+          first_name: nm.first || undefined,
+          last_name: nm.last || undefined,
+          dob: state.dob || undefined,
+          gender: state.gender || undefined,
+          phone: state.phone || undefined,
+          email: state.email || undefined,
+          home_address: state.mailing || undefined,
+          job_title: state.jobTitle || undefined,
+          job_duties: state.activities || undefined,
+          employer_name: state.employer || undefined,
+          employer_address: state.workAddress || undefined,
+          supervisor_name: state.supervisor || undefined,
+          date_of_injury: state.doi || undefined,
+          body_parts: (state.bodyParts && state.bodyParts.length) ? state.bodyParts.slice() : undefined,
+          injury_description: state.howHappened || undefined,
+          lost_time: state.stoppedWork === 'yes' ? true : (state.stoppedWork === 'no' ? false : undefined),
+          last_day_worked: state.stopWorkDate || undefined,
+          returned_to_work: state.returnedWork === 'yes' ? true : (state.returnedWork === 'no' ? false : undefined),
+          wage_rate: state.grossPay || undefined,
+          pay_frequency: state.payFreq || undefined,
+          first_treatment_date: state.firstTreatDate || undefined,
+          treating_provider: state.treatingDoctors || undefined,
+          language_pref: state.language || undefined
+        }, { source: 'c3' });
+      } catch (e) {}
     }
-    // Route into the standalone HIPAA-release-only flow (no numbered stepper).
-    function goToStandaloneC33() {
-      state.c33Only = true; persist();
-      progress.style.display = 'none';
-      root.querySelectorAll('.step-section').forEach(function (s) { s.classList.remove('active'); });
-      var sec = $('c3w-step-c33'); if (sec) sec.classList.add('active');
-      clearSig(); initSig(sigCanvasC33);
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+    function goToCard(key, noSync) {
+      if (!noSync) { try { syncFromDom(); } catch (e) {} }
+      var list = deckList();
+      var i = stepIndex(list, key);
+      if (i < 0) { i = 0; key = list[0].key; }
+      curKey = key; state.cardKey = key; state.step = i; persist(); syncToStore();
+      renderCard(list[i], i, list.length);
+    }
+    function rerender() { var list = deckList(); var i = stepIndex(list, curKey); if (i < 0) i = 0; renderCard(list[i], i, list.length); }
+    function renderCard(c, i, total) {
+      viewport.className = 'c3w-viewport' + (c.scrolls ? ' scroll' : '');
+      viewport.innerHTML = '';
+      var card = el('div', { class: 'c3w-card' });
+      card.appendChild(cardHead(c));
+      try { c.build(card); } catch (e) { console.error('[C3] CARD_BUILD_FAILED', c.key, e); }
+      viewport.appendChild(card);
+      if (c.after) { try { c.after(); } catch (e) { console.warn('[C3] CARD_AFTER', c.key, e); } }
+      updateChrome(c, i, total);
+      wireFooter(c, i, total);
+      try { viewport.scrollTop = 0; } catch (e) {}
+      applyVV();
+      refreshNext();
+    }
+    function updateChrome(c, i, total) {
+      progress.style.display = '';
+      barFill.style.width = Math.round(((i + 1) / total) * 100) + '%';
+      counterEl.innerHTML = '';
+      counterEl.appendChild(document.createTextNode(T('c3.progress.step', { n: String(i + 1), total: String(total) }, 'Step {n} of {total}')));
+      if (c.section) counterEl.appendChild(el('span', { class: 'c3w-sec', text: ' · ' + secLabel(c.section) }));
+      var left = total - (i + 1);
+      etaEl.textContent = left > 0 ? T('c3.progress.eta', { min: String(Math.max(1, Math.round(left * 0.5))) }, 'about {min} min left') : T('c3.progress.lastStep', 'Last step');
+    }
+    function wireFooter(c, i, total) {
+      var list = deckList();
+      backBtn.textContent = i > 0 ? T('c3.back', 'Back') : T('c3.exit', 'Exit');
+      backBtn.onclick = function () { if (i > 0) goToCard(list[i - 1].key); else { try { syncFromDom(); persist(); } catch (e) {} goDash(); } };
+      nextBtn.removeAttribute('id'); nextBtn.disabled = false;
+      if (c.key === 'certify') {
+        nextBtn.textContent = T('c3.generateC3', 'Generate & File My C-3'); nextBtn.id = 'c3w-generate';
+        nextBtn.onclick = function () { if (nextBtn.disabled) return; syncFromDom(); beforeExport(certAgreed.v); };
+      } else if (c.key === 'review') {
+        nextBtn.textContent = T('c3.looksGoodSign', 'Looks good — sign');
+        nextBtn.onclick = function () { goToCard('certify'); };
+      } else {
+        nextBtn.textContent = T('c3.continue', 'Continue');
+        nextBtn.onclick = function () { if (nextBtn.disabled) return; if (validateCard(c, true)) { var l = deckList(); var j = stepIndex(l, c.key); if (j >= 0 && j < l.length - 1) goToCard(l[j + 1].key); } };
+      }
+    }
+    function refreshNext() {
+      var list = deckList(); var i = stepIndex(list, curKey); if (i < 0) return; var c = list[i];
+      if (c.key === 'review') { nextBtn.disabled = false; return; }
+      nextBtn.disabled = !validateCard(c, false);
     }
 
-    /* ---------- review ------------------------------------------------ */
-    function setRev(id, val) { var e = $(id); if (!e) return; if (val) { e.textContent = val; e.classList.remove('empty'); } else { e.textContent = 'Not provided'; e.classList.add('empty'); } }
-    function populateReview() {
-      setRev('c3w-rev-name', state.name); setRev('c3w-rev-dob', fmtDate(state.dob)); setRev('c3w-rev-job', state.jobTitle);
-      setRev('c3w-rev-doi', fmtDate(state.doi)); setRev('c3w-rev-where', state.whereHappened);
-      setRev('c3w-rev-body', state.bodyParts.length ? state.bodyParts.map(function (p) { return BODY_LABELS[p] || capWords(p); }).join(', ') : '');
-      setRev('c3w-rev-employer', state.employer); setRev('c3w-rev-notice', state.gaveNotice === 'yes' ? 'Yes' : (state.gaveNotice === 'no' ? 'No' : ''));
-      setRev('c3w-rev-doctor', state.treatingDoctors); setRev('c3w-rev-return', state.returnedWork === 'yes' ? ('Yes' + (state.returnDuty ? ' — ' + state.returnDuty : '')) : (state.returnedWork === 'no' ? 'No' : ''));
-      setRev('c3w-rev-prior', state.priorInjury === 'yes' ? 'Yes — C-3.3 included' : (state.priorInjury === 'no' ? 'No' : ''));
+    /* ---- standalone C-3.3 mini-deck (no numbered progress) ------------ */
+    var c33Cards = [
+      { key: 'c33_identity', icon: '🔏', title: T('c3.c33cards.identity.title', 'Medical Records Release (C-3.3)'), sub: T('c3.c33cards.identity.sub', 'Authorize the doctors who treated a previous injury to release those records to the insurer.'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.c33cards.identity.helperPre', 'This '), gloss('C-3.3'), T('c3.c33cards.identity.helperPost', ' release only covers records from a doctor who treated an earlier injury to the same body part.')));
+          card.appendChild(c33Text('c3w-c33s-name', T('c3.fields.name', 'Full legal name'), state.name, T('c3.fields.namePh', 'First MI Last')));
+          card.appendChild(el('div', { class: 'form-error', id: 'c3w-err-c33s-name', text: T('c3.validation.c33Name', 'Your full legal name is required') }));
+          card.appendChild(c33Date('c3w-c33s-dob', T('c3.fields.dob', 'Date of birth'), state.dob));
+          card.appendChild(c33Text('c3w-c33s-ssn', T('c3.fields.ssnOptional', 'Social Security Number (optional)'), state.ssn, 'XXX-XX-XXXX'));
+          card.appendChild(c33Date('c3w-c33s-doi', T('c3.fields.doiCurrent', 'Date of current injury / illness'), state.doi));
+        } },
+      { key: 'c33_injury', icon: '🩹', title: T('c3.c33cards.injury.title', 'Your current injury'),
+        build: function (card) {
+          card.appendChild(c33Text('c3w-c33s-mailing', T('c3.fields.mailingOptional', 'Mailing address (optional)'), state.mailing, T('c3.fields.mailingPh', 'Number and street')));
+          card.appendChild(c33Text('c3w-c33s-mailing2', T('c3.fields.mailing2Optional', 'City, State, ZIP (optional)'), state.mailing2, T('c3.fields.mailing2Ph', 'City, NY 10001')));
+          card.appendChild(c33Area('c3w-c33s-injury', T('c3.fields.currentInjury', 'Current injury / illness (all body parts)'), state.nature, T('c3.fields.currentInjuryPh', 'e.g. lower back and left hip')));
+          card.appendChild(el('div', { class: 'form-error', id: 'c3w-err-c33s-injury', text: T('c3.validation.c33Injury', 'Describe your current injury/illness') }));
+        } },
+      { key: 'c33_providers', icon: '👩‍⚕️', title: T('c3.c33cards.providers.title', 'Previous providers'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.c33cards.providers.helper', 'List the doctors who treated your PREVIOUS injury to the same body part — one per line, “Name — Address”.')));
+          card.appendChild(c33Area('c3w-c33s-providers', T('c3.fields.c33ProvidersFull', 'Provider(s) (name & address)'), state.c33_providers, T('c3.fields.c33ProvidersFullPh', 'Dr. Jane Smith — 1 Main St, Albany NY 12203')));
+          card.appendChild(el('div', { class: 'form-error', id: 'c3w-err-c33s-providers', text: T('c3.validation.c33Providers', 'List at least one provider') }));
+          card.appendChild(mhToggleRow());
+        } },
+      { key: 'c33_certify', icon: '✍️', title: T('c3.cards.certify.title', 'Certify & sign'),
+        build: function (card) {
+          sig.drawn = false; sig.canvas = null;
+          card.appendChild(c33Text('c3w-c33s-certName', T('c3.fields.certName', 'Type your full legal name to certify'), state.certName, T('c3.fields.certNamePh', 'Your full legal name')));
+          var cv = el('canvas', { class: 'sig-pad', id: 'c3w-sig-c33' });
+          card.appendChild(el('div', { class: 'form-group' }, [el('label', { class: 'form-label', text: T('c3.fields.drawSignature', 'Draw your signature') }), el('div', { class: 'sig-pad-wrap' }, [cv, el('button', { class: 'sig-clear', type: 'button', onclick: function () { clearSig(); } }, [T('c3.fields.clear', 'Clear')])])]));
+          var ct = el('div', { class: 'toggle-switch' + (certAgreedC33.v ? ' on' : '') }, [el('div', { class: 'toggle-knob' })]);
+          ct.addEventListener('click', function () { ct.classList.toggle('on'); certAgreedC33.v = ct.classList.contains('on'); });
+          card.appendChild(el('div', { class: 'toggle-row' }, [el('div', null, [el('div', { class: 'toggle-text', text: T('c3.certifyToggleC33', 'I certify this authorization is true') })]), ct]));
+          card._sig = cv;
+        }, after: function () { var cv = viewport.querySelector('#c3w-sig-c33'); if (cv) initSig(cv); } }
+    ];
+    function c33Text(id, label, val, ph) { return el('div', { class: 'form-group' }, [el('label', { class: 'form-label', text: label }), el('input', { type: 'text', class: 'form-input', id: id, value: val || '', placeholder: ph || '' })]); }
+    function c33Date(id, label, val) { var n = el('input', { type: 'date', class: 'form-input', id: id, max: todayISO() }); if (val) n.value = val; return el('div', { class: 'form-group' }, [el('label', { class: 'form-label', text: label }), n]); }
+    function c33Area(id, label, val, ph) { return el('div', { class: 'form-group' }, [el('label', { class: 'form-label', text: label }), el('textarea', { class: 'form-input', id: id, placeholder: ph || '', rows: '3' }, [val || ''])]); }
+    function goToStandaloneC33() { state.c33Only = true; state.c33Idx = 0; persist(); renderC33Card(0); }
+    function renderC33Card(i) {
+      state.c33Idx = i;
+      progress.style.display = 'none';
+      viewport.className = 'c3w-viewport';
+      viewport.innerHTML = '';
+      var c = c33Cards[i];
+      var card = el('div', { class: 'c3w-card' });
+      card.appendChild(cardHead(c));
+      c.build(card);
+      viewport.appendChild(card);
+      if (c.after) { try { c.after(); } catch (e) {} }
+      backBtn.textContent = i > 0 ? T('c3.back', 'Back') : T('c3.exit', 'Exit');
+      backBtn.onclick = function () { if (i > 0) { syncC33(); renderC33Card(i - 1); } else { state.c33Only = false; persist(); progress.style.display = ''; goToCard(firstDataKey(), true); } };
+      nextBtn.removeAttribute('id'); nextBtn.disabled = false;
+      if (c.key === 'c33_certify') {
+        nextBtn.textContent = T('c3.generateC33', 'Generate Form C-3.3'); nextBtn.id = 'c3w-c33-generate';
+        nextBtn.onclick = function () { if (nextBtn.disabled) return; syncC33(); beforeExport(certAgreedC33.v); };
+      } else {
+        nextBtn.textContent = T('c3.continue', 'Continue');
+        nextBtn.onclick = function () { syncC33(); renderC33Card(i + 1); };
+      }
+      try { viewport.scrollTop = 0; } catch (e) {}
+      applyVV();
     }
+
+    function startDeck() { progress.style.display = ''; restore(); }
 
     /* ---------- signature canvas -------------------------------------- */
     function initSig(canvas) {
@@ -1189,9 +1325,25 @@
       // OC-400/OC-110a templates aren't signed so they never hit this. ignoreEncryption
       // + Fastest parse loads it in ~140ms. (The C-3.3 is plain and loads either way.)
       var LOAD_OPTS = { ignoreEncryption: true, throwOnInvalidObject: false, parseSpeed: (window.PDFLib && window.PDFLib.ParseSpeeds) ? window.PDFLib.ParseSpeeds.Fastest : 1500 };
-      return supabase.storage.from('c3-template').download(bucketFile)
-        .then(function (res) { return (res && res.data && !res.error) ? res.data.arrayBuffer() : null; })
-        .catch(function () { return null; })
+      // Storage read, but it must never be able to take generation down with it.
+      // This was `supabase.storage.from(...).download(...)` bare: the .catch()
+      // under it only catches a REJECTED PROMISE, so a client without .storage
+      // threw SYNCHRONOUSLY out of loadTemplate and the bundled fallback right
+      // below — the one whose entire job is to cover a missing bucket — could
+      // never run. Generation died with "Cannot read properties of undefined
+      // (reading 'from')" instead of quietly using the blank form we ship.
+      // Every branch here resolves to null so the fallback stays reachable.
+      function fromStorage() {
+        try {
+          if (!supabase || !supabase.storage || typeof supabase.storage.from !== 'function') return Promise.resolve(null);
+          var bucket = supabase.storage.from('c3-template');
+          if (!bucket || typeof bucket.download !== 'function') return Promise.resolve(null);
+          return Promise.resolve(bucket.download(bucketFile))
+            .then(function (res) { return (res && res.data && !res.error) ? res.data.arrayBuffer() : null; })
+            .catch(function () { return null; });
+        } catch (e) { return Promise.resolve(null); }
+      }
+      return fromStorage()
         .then(function (bytes) {
           if (bytes) return PDFDocument.load(bytes, LOAD_OPTS);
           // dev/pre-bucket fallback: the bundled blank form
@@ -1419,13 +1571,20 @@
     function validateForExport(certAgreed) {
       var c33Only = !!state.c33Only;
       var formLabel = c33Only ? 'C-3.3' : 'C-3';
-      if (!certAgreed) { toast('Please toggle “I certify the above is true” before signing.'); return false; }
-      if (!state.certName || !state.certName.trim()) { toast('Type your full legal name to certify.'); return false; }
-      if (!sig.drawn) { toast('Please draw your signature to sign the ' + formLabel + '.'); return false; }
+      if (!certAgreed) { toast(T('c3.toasts.certToggle', 'Please toggle “I certify the above is true” before signing.')); return false; }
+      if (!state.certName || !state.certName.trim()) { toast(T('c3.toasts.typeName', 'Type your full legal name to certify.')); return false; }
+      if (!sig.drawn) { toast(T('c3.toasts.drawSig', { form: formLabel }, 'Please draw your signature to sign the {form}.')); return false; }
       if (c33Only) {
-        if (!state.name || !state.name.trim()) { showError('c33s-name'); toast('Your full legal name is required.'); return false; }
-        if (!state.nature || !state.nature.trim()) { showError('c33s-injury'); toast('Describe your current injury/illness.'); return false; }
-        if (!state.c33_providers || !state.c33_providers.trim()) { showError('c33s-providers'); toast('List at least one previous treating provider.'); return false; }
+        // Navigate to the card that OWNS the missing field first, then mark
+        // it, then toast. The inline error div only exists while its card is
+        // rendered — export runs from the certify card, so without the
+        // navigation the toast fades and the worker is stranded with no
+        // indication of which card to go back to (the OD/HIPAA path).
+        // Card indices: 0 = c33_identity, 1 = c33_injury, 2 = c33_providers.
+        var c33Fail = function (cardIdx, key, msg) { renderC33Card(cardIdx); showErr(key); toast(msg); return false; };
+        if (!state.name || !state.name.trim()) return c33Fail(0, 'c33s-name', T('c3.toasts.nameRequired', 'Your full legal name is required.'));
+        if (!state.nature || !state.nature.trim()) return c33Fail(1, 'c33s-injury', T('c3.toasts.injuryRequired', 'Describe your current injury/illness.'));
+        if (!state.c33_providers || !state.c33_providers.trim()) return c33Fail(2, 'c33s-providers', T('c3.toasts.providersRequired', 'List at least one previous treating provider.'));
       }
       return true;
     }
@@ -1451,17 +1610,38 @@
       persist();
       var ov = el('div', { style: 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px' });
       function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
+      // #1d4ed8, not #3b82f6: white on #3b82f6 measures 3.68:1 and 14px/600 is
+      // not WCAG "large text", so it needed 4.5. #1d4ed8 is 6.70:1. This literal
+      // is deliberately IDENTICAL to the deploy repo's own fix (thecompdesk-site
+      // 4215c49) — the two copies of this file must not disagree, or the next
+      // ops/website -> deploy copy silently reverts a live accessibility fix.
       var BTN_P = 'width:100%;margin-bottom:8px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit';
       var BTN_S = 'width:100%;background:transparent;color:#9ba1b0;border:1px solid #2e3145;border-radius:8px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit';
       var card = el('div', { style: 'background:#1a1d28;border:1px solid #2e3145;border-radius:14px;padding:24px 22px;max-width:380px;width:100%;text-align:center;color:#e8eaed;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif' }, [
         el('div', { style: 'font-size:34px;line-height:1;margin-bottom:12px', text: '🗂️' }),
-        el('h3', { style: 'font-size:18px;font-weight:600;margin:0 0 8px;line-height:1.3', text: 'Create a free account to save this filing and track your case?' }),
-        el('p', { style: 'font-size:13px;color:#9ba1b0;line-height:1.5;margin:0 0 20px', text: 'We’ll save your signed C-3 to your account so you can download it again and follow what happens next. You’ll still get your forms right now if you skip.' }),
-        el('button', { type: 'button', style: BTN_P, onclick: function () { close(); try { if (CD.showAuth) CD.showAuth('Create a free account to save your C-3 filing'); } catch (e) {} } }, ['Create account']),
-        el('button', { type: 'button', style: BTN_S, onclick: function () { close(); showCertAckGate(certAgreed); } }, ['Skip, just give me my forms'])
+        el('h3', { id: 'c3w-offer-title', style: 'font-size:18px;font-weight:600;margin:0 0 8px;line-height:1.3', text: T('c3.offer.title', 'Create a free account to save this filing and track your case?') }),
+        el('p', { style: 'font-size:13px;color:#9ba1b0;line-height:1.5;margin:0 0 20px', text: T('c3.offer.body', 'We’ll save your signed C-3 to your account so you can download it again and follow what happens next. You’ll still get your forms right now if you skip.') }),
+        el('button', { type: 'button', style: BTN_P, onclick: function () { close(); try { if (CD.showAuth) CD.showAuth(T('c3.offer.authPrompt', 'Create a free account to save your C-3 filing')); } catch (e) {} } }, [T('c3.offer.create', 'Create account')]),
+        el('button', { type: 'button', style: BTN_S, onclick: function () { close(); showCertAckGate(certAgreed); } }, [T('c3.offer.skip', 'Skip, just give me my forms')])
       ]);
       ov.appendChild(card);
       document.body.appendChild(ov);
+      /* a11y (Aurora Glass 6.17): this overlay shipped with NO role, NO
+       * aria-modal, no focus management and no Tab cycle — it is the last
+       * screen of the C-3 filing flow, so a keyboard user reached the end of a
+       * statutory form and fell straight through the dialog into the page.
+       *
+       * NO onEscape, deliberately. Both buttons act: "Create account" opens
+       * auth, "Skip" proceeds to the certification gate and the export. There
+       * is no cancel for Escape to mirror, and mapping it to Skip would fire
+       * the export flow off a keystroke. Same call as showSetPasswordModal
+       * (6.5) and the TOU gate (6.14).
+       *
+       * Guarded: this file is SHARED via sync-dashboard.sh and the website does
+       * not load js/modal-a11y.js, so there it stays exactly as it was. */
+      if (CD.ModalA11y) {
+        CD.ModalA11y.attach(ov, { dialogEl: card, labelledBy: 'c3w-offer-title' });
+      }
     }
 
     // MANDATORY pre-export acknowledgment — bold, loud, shown EVERY time before
@@ -1471,25 +1651,49 @@
     // claimant checks the certify box. Never permanently dismissible.
     function showCertAckGate(certAgreed) {
       var formLabel = state.c33Only ? 'C-3.3' : 'C-3';
-      var ov = el('div', { style: 'position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto' });
-      function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
+      // This gate stays a hard, opaque, red-bordered alarm surface — DELIBERATELY
+      // not glass. It is a stop sign in front of a sworn filing; softening or
+      // blurring it would work against the one job it has.
+      var ov = el('div', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'c3w-ack-title', style: 'position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto' });
+      var prevFocus = document.activeElement;
+      var _release = null;
+      function close() {
+        document.removeEventListener('keydown', onAckKey, true);
+        if (_release) { try { _release(); } catch (e) {} _release = null; }
+        if (ov.parentNode) ov.parentNode.removeChild(ov);
+        try { if (prevFocus && prevFocus.focus) prevFocus.focus(); } catch (e) {}
+      }
+      // Escape is the keyboard equivalent of "Cancel — go back". It does NOT
+      // dismiss the gate permanently: it fires again on the next export attempt.
+      function onAckKey(e) {
+        if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+        if (e.key !== 'Tab') return;
+        var f = Array.prototype.filter.call(card.querySelectorAll('button, input, [href], [tabindex]:not([tabindex="-1"])'), function (n) { return !n.disabled && n.offsetParent !== null; });
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
       var card = el('div', { style: 'background:#15171f;border:2px solid #ef4444;border-radius:14px;max-width:480px;width:100%;max-height:94vh;overflow:auto;padding:22px 20px;color:#e8eaed;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;box-shadow:0 0 0 6px rgba(239,68,68,.18)' });
-      card.appendChild(el('div', { style: 'font-size:21px;font-weight:800;line-height:1.25;color:#fca5a5;text-align:center;margin-bottom:14px', text: '⚠️ YOU ARE ABOUT TO SUBMIT A SWORN LEGAL DOCUMENT.' }));
-      card.appendChild(el('p', { style: 'font-size:14px;line-height:1.55;color:#e8eaed;margin:0 0 14px', text: 'Emailing this ' + formLabel + ' to the New York State Workers’ Compensation Board files an official legal claim. The information on it must be TRUE and COMPLETE. Knowingly making a false statement is a crime.' }));
+      card.appendChild(el('div', { id: 'c3w-ack-title', style: 'font-size:21px;font-weight:800;line-height:1.25;color:#fca5a5;text-align:center;margin-bottom:14px', text: '⚠️ ' + T('c3.ack.title', 'YOU ARE ABOUT TO SUBMIT A SWORN LEGAL DOCUMENT.') }));
+      card.appendChild(el('p', { style: 'font-size:14px;line-height:1.55;color:#e8eaed;margin:0 0 14px', text: T('c3.ack.body', { form: formLabel }, 'Emailing this {form} to the New York State Workers’ Compensation Board files an official legal claim. The information on it must be TRUE and COMPLETE. Knowingly making a false statement is a crime.') }));
       var callout = el('div', { style: 'border:1px solid #f59e0b;background:rgba(245,158,11,.08);border-radius:10px;padding:14px;margin:0 0 16px' });
-      callout.appendChild(el('div', { style: 'font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#f59e0b;margin-bottom:8px', text: 'Certification on Form C-3 — read carefully' }));
+      callout.appendChild(el('div', { style: 'font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#f59e0b;margin-bottom:8px', text: T('c3.ack.calloutLabel', 'Certification on Form C-3 — read carefully') }));
       callout.appendChild(el('p', { style: 'font-size:12.5px;line-height:1.6;color:#dce4f0;margin:0 0 10px', text: C3_CERT_AFFIRMATION }));
       callout.appendChild(el('p', { style: 'font-size:12.5px;line-height:1.6;color:#f0d9b5;margin:0;font-weight:600', text: C3_FRAUD_WARNING }));
       card.appendChild(callout);
       var cbRow = el('label', { style: 'display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0 0 16px' });
       var cb = el('input', { type: 'checkbox', style: 'margin-top:2px;width:20px;height:20px;flex:0 0 auto;accent-color:#3b82f6' });
       cbRow.appendChild(cb);
-      cbRow.appendChild(el('span', { style: 'font-size:13.5px;line-height:1.5;color:#e8eaed', text: 'I have reviewed my answers and certify they are true to the best of my knowledge.' }));
+      cbRow.appendChild(el('span', { style: 'font-size:13.5px;line-height:1.5;color:#e8eaed', text: T('c3.ack.checkbox', 'I have reviewed my answers and certify they are true to the best of my knowledge.') }));
       card.appendChild(cbRow);
-      var GO_OFF = 'width:100%;margin-bottom:8px;background:#ef4444;color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:not-allowed;opacity:.5';
-      var GO_ON = 'width:100%;margin-bottom:8px;background:#ef4444;color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;opacity:1';
-      var go = el('button', { type: 'button', disabled: 'disabled', style: GO_OFF }, ['Export & email my ' + formLabel + ' to the WCB']);
-      var cancel = el('button', { type: 'button', style: 'width:100%;background:transparent;color:#9ba1b0;border:1px solid #2e3145;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit' }, ['Cancel — go back']);
+      // #dc2626, not #ef4444: white on #ef4444 measures 3.76:1 and 15px/700 is
+      // NOT WCAG "large text", so it needed 4.5:1 and failed. #dc2626 is 4.83:1.
+      // The 2px #ef4444 card border and its glow keep the alarm read.
+      var GO_OFF = 'width:100%;margin-bottom:8px;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:not-allowed;opacity:.5';
+      var GO_ON = 'width:100%;margin-bottom:8px;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;opacity:1';
+      var go = el('button', { type: 'button', disabled: 'disabled', style: GO_OFF }, [T('c3.ack.export', { form: formLabel }, 'Export & email my {form} to the WCB')]);
+      var cancel = el('button', { type: 'button', style: 'width:100%;background:transparent;color:#9ba1b0;border:1px solid #2e3145;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit' }, [T('c3.ack.cancel', 'Cancel — go back')]);
       cb.addEventListener('change', function () { if (cb.checked) { go.disabled = false; go.setAttribute('style', GO_ON); } else { go.disabled = true; go.setAttribute('style', GO_OFF); } });
       go.addEventListener('click', function () { if (go.disabled) return; close(); generate(certAgreed); });
       cancel.addEventListener('click', function () { close(); });
@@ -1497,16 +1701,39 @@
       card.appendChild(cancel);
       ov.appendChild(card);
       document.body.appendChild(ov);
+      /* a11y (Aurora Glass 6.20) — the LAST of the fourteen. This gate was
+       * already correct by hand: role, aria-modal, aria-labelledby, Escape, a
+       * Tab cycle and focus restore. It adopts the contract anyway, because
+       * fourteen correct-by-hand implementations is the condition the audit
+       * found, and the one that drifts is the one nobody re-reads. Behaviour is
+       * unchanged: initialFocus stays the certify checkbox — the one thing the
+       * claimant must act on, and what the visual baseline photographs — and
+       * onEscape points at the SAME close() the Cancel button calls, so the two
+       * cannot drift apart.
+       *
+       * Escape does not dismiss the gate permanently; it fires again on the
+       * next export attempt. The sworn-document warning is never skippable.
+       *
+       * GUARDED, legacy path retained: shared to the website via
+       * sync-dashboard.sh, which does not carry js/modal-a11y.js. */
+      if (CD.ModalA11y) {
+        _release = CD.ModalA11y.attach(ov, { labelledBy: 'c3w-ack-title', onEscape: close, initialFocus: cb });
+      } else {
+        document.addEventListener('keydown', onAckKey, true);
+        // Land on the certify checkbox — the one thing the claimant must act on.
+        setTimeout(function () { try { cb.focus(); } catch (e) {} }, 0);
+      }
     }
 
     function generate(certAgreed) {
       if (working) return;
       syncFromDom();
+      syncToStore();
       if (!validateForExport(certAgreed)) return;
       var c33Only = !!state.c33Only;
       var formLabel = c33Only ? 'C-3.3' : 'C-3';
       working = true;
-      var btn = $(c33Only ? 'c3w-c33-generate' : 'c3w-generate'); if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+      var btn = $(c33Only ? 'c3w-c33-generate' : 'c3w-generate'); if (btn) { btn.disabled = true; btn.textContent = T('c3.generating', 'Generating…'); }
       ensurePdfLib().then(function (PDFLib) {
         var submitter = anon ? new LocalDownloadPackage() : new SelfFilePackage(supabase);
         if (c33Only) {
@@ -1518,6 +1745,9 @@
         return fillC3(PDFLib).then(function (c3Bytes) {
           var c33P = state.priorInjury === 'yes' ? fillC33(PDFLib) : Promise.resolve(null);
           return c33P.then(function (c33Bytes) {
+            // Anon: stash the PDF bytes IN MEMORY (never persisted — the PDF holds
+            // the SSN) so a signup this session can attach it to the new account.
+            if (anon) { try { if (CD.WorkerProfile && CD.WorkerProfile.stashC3) CD.WorkerProfile.stashC3({ name: 'C-3_Employee_Claim.pdf', pdfBytes: c3Bytes, c33Bytes: c33Bytes, hasAttorney: !!(profile && profile.has_attorney), wcbCaseNumber: (profile && profile.wcb_case_number) || null }); } catch (e) {} }
             return submitter.submit(c3Bytes, c33Bytes);
           });
         });
@@ -1526,6 +1756,7 @@
         return store.remove(STORE_KEY).then(function () { return dbClearDraft(); }).then(function () { return result; });
       }).then(function (result) {
         working = false;
+        try { saveClaimTypeToProfile(); } catch (e) {}
         // onComplete reloads tier + returns to the dashboard (where signed-in
         // users see the new filing in "My Documents"). Guests have no Documents
         // card and the local download link lives ONLY on the success screen, so
@@ -1534,9 +1765,9 @@
         showSuccess(result);
       }).catch(function (e) {
         working = false;
-        if (btn) { btn.disabled = false; btn.textContent = c33Only ? 'Generate Form C-3.3' : 'Generate & File My C-3'; }
+        if (btn) { btn.disabled = false; btn.textContent = c33Only ? T('c3.generateC33', 'Generate Form C-3.3') : T('c3.generateC3', 'Generate & File My C-3'); }
         console.error('[C3] GENERATE_FAILED', e);
-        toast('We couldn’t generate your ' + formLabel + '. Your answers are still here — please try again.');
+        toast(T('c3.toasts.genFailed', { form: formLabel }, 'We couldn’t generate your {form}. Your answers are still here — please try again.'));
       });
     }
 
@@ -1550,39 +1781,35 @@
       } catch (e) {}
     }
 
-    /* ---------- success (truthful) ------------------------------------ */
+    /* ---------- success (truthful) — terminal view in the card viewport - */
+    function terminalView() { progress.style.display = 'none'; foot.style.display = 'none'; viewport.className = 'c3w-viewport scroll'; viewport.innerHTML = ''; }
     function showSuccess(result) {
-      root.querySelectorAll('.step-section').forEach(function (s) { s.classList.remove('active'); });
-      for (var i = 1; i <= TOTAL_STEPS; i++) { var d = $('c3w-dot-' + i); if (d) d.className = 'step-dot completed'; if (i < TOTAL_STEPS) { var l = $('c3w-line-' + i); if (l) l.className = 'step-line completed'; } }
+      terminalView();
       var toAttorney = state.branch === 'attorney' && profile.attorney_email;
       var hasC3 = !!result.signedUrl || !!result.path;
       var c33Only = !hasC3 && !!result.c33path;
       var both = hasC3 && !!result.c33path;
       var _formType = both ? 'c3_c33' : (c33Only ? 'c33' : 'c3');
-      var pktNoun = both ? 'both PDFs (your C-3 and C-3.3)' : 'the PDF';
-      var headline = c33Only ? 'Your Form C-3.3 is ready' : 'Your C-3 is ready';
-      var formName = c33Only ? 'Form C-3.3 (HIPAA medical release)' : 'C-3 Employee Claim';
-      var c33Note = both ? ' Your Form C-3.3 (HIPAA release) is included — file it together with your C-3.' : '';
-      var c33OnlyNote = c33Only ? ' File it together with your C-3 to commence the claim.' : '';
-      // Honest about persistence: signed-in filings are saved to the account;
-      // anonymous filings live only in this browser (no SSN/medical sent to us).
+      var pktNoun = both ? T('c3.success.packetBoth', 'both PDFs (your C-3 and C-3.3)') : T('c3.success.packetOne', 'the PDF');
+      var headline = c33Only ? T('c3.success.headlineC33', 'Your Form C-3.3 is ready') : T('c3.success.headlineC3', 'Your C-3 is ready');
+      var formName = c33Only ? T('c3.success.formNameC33', 'Form C-3.3 (HIPAA medical release)') : T('c3.success.formNameC3', 'C-3 Employee Claim');
+      var c33Note = both ? ' ' + T('c3.success.c33Note', 'Your Form C-3.3 (HIPAA release) is included — file it together with your C-3.') : '';
+      var c33OnlyNote = c33Only ? ' ' + T('c3.success.c33OnlyNote', 'File it together with your C-3 to commence the claim.') : '';
       var savedClause = anon
-        ? ' It’s on this device only — your answers and Social Security number were not uploaded to us.'
-        : ' We saved it to your account.';
+        ? ' ' + T('c3.success.savedAnon', 'It’s on this device only — your answers and Social Security number were not uploaded to us.')
+        : ' ' + T('c3.success.savedAccount', 'We saved it to your account.');
       var screen = el('div', { class: 'success-screen' }, [
         el('div', { class: 'success-icon', text: '✓' }),
         el('h2', { text: headline }),
-        el('p', { text: 'We generated your signed ' + formName + '.' + savedClause + c33Note + c33OnlyNote + ' It has not been submitted to the WCB — here’s how to file it.' })
+        el('p', { text: T('c3.success.generated', { formName: formName }, 'We generated your signed {formName}.') + savedClause + c33Note + c33OnlyNote + ' ' + T('c3.success.notSubmitted', 'It has not been submitted to the WCB — here’s how to file it.') })
       ]);
-      // download buttons — native-safe. A blob: <a download> is a no-op inside a
-      // WKWebView, so we route through CD.NativeMail.savePdf (writes to disk + opens
-      // the iOS share sheet on device; real blob download on web).
       function dlBtn(label, cls, fileName, url) {
         var b = el('button', { type: 'button', class: cls, style: 'display:block;width:100%;text-align:center;margin-bottom:10px' }, [label]);
         b.addEventListener('click', function () {
           logUsage('download', _formType);
           if (CD.NativeMail && CD.NativeMail.savePdf) {
-            var orig = b.textContent; b.disabled = true; b.textContent = 'Preparing…';
+            var orig = b.textContent; b.disabled = true;
+            b.textContent = T('c3.success.preparing', 'Preparing…');
             CD.NativeMail.savePdf({ name: fileName, url: url })
               .catch(function (e) { console.warn('[C3] SAVE_FAILED', e); })
               .then(function () { b.disabled = false; b.textContent = orig; });
@@ -1590,17 +1817,10 @@
         });
         return b;
       }
-      if (result.signedUrl) screen.appendChild(dlBtn('⬇ Download your C-3 (PDF)', 'btn btn-primary', 'C-3_Employee_Claim.pdf', result.signedUrl));
-      if (result.c33SignedUrl) screen.appendChild(dlBtn('⬇ Download Form C-3.3', c33Only ? 'btn btn-primary' : 'btn btn-secondary', 'C-3.3_HIPAA_Release.pdf', result.c33SignedUrl));
+      if (result.signedUrl) screen.appendChild(dlBtn('⬇ ' + T('c3.success.downloadC3', 'Download your C-3 (PDF)'), 'btn btn-primary', 'C-3_Employee_Claim.pdf', result.signedUrl));
+      if (result.c33SignedUrl) screen.appendChild(dlBtn('⬇ ' + T('c3.success.downloadC33', 'Download Form C-3.3'), c33Only ? 'btn btn-primary' : 'btn btn-secondary', 'C-3.3_HIPAA_Release.pdf', result.c33SignedUrl));
 
       var WCB_EMAIL = 'wcbclaimsfiling@wcb.ny.gov';
-
-      // ── Native "email to the WCB" with the in-memory PDF(s) ATTACHED ──────
-      // Uses the bytes we just generated (fetched from the in-memory blob / signed
-      // URL) — never re-generates. The C-3 and C-3.3 go in ONE email (the Board
-      // needs both to commence the case). Opens the composer; the worker reviews
-      // and taps Send — we never auto-send. Gated by Item 6: the success screen is
-      // only reachable after the sworn-document acknowledgment.
       var _emailAtts = [];
       if (result.signedUrl) _emailAtts.push({ name: 'C-3_Employee_Claim.pdf', url: result.signedUrl });
       if (result.c33SignedUrl) _emailAtts.push({ name: 'C-3.3_HIPAA_Release.pdf', url: result.c33SignedUrl });
@@ -1615,10 +1835,10 @@
         if (profile && profile.wcb_case_number) _bodyLines.push('WCB case number: ' + profile.wcb_case_number);
         _bodyLines.push('', 'I am filing my own claim. Thank you.');
         var _emailBody = _bodyLines.join('\n');
-        var emailBtn = el('button', { type: 'button', class: 'btn btn-primary', style: 'display:block;width:100%;margin-bottom:10px' }, ['✉️ Email my claim to the WCB']);
+        var emailBtn = el('button', { type: 'button', class: 'btn btn-primary', style: 'display:block;width:100%;margin-bottom:10px' }, ['✉️ ' + T('c3.success.emailBtn', 'Email my claim to the WCB')]);
         emailBtn.addEventListener('click', function () {
           logUsage('email', _formType);
-          emailBtn.disabled = true; var orig = emailBtn.textContent; emailBtn.textContent = 'Opening mail…';
+          emailBtn.disabled = true; var orig = emailBtn.textContent; emailBtn.textContent = T('c3.success.openingMail', 'Opening mail…');
           CD.NativeMail.emailClaimToWCB({ to: WCB_EMAIL, subject: _emailSubject, body: _emailBody, attachments: _emailAtts })
             .catch(function (e) { console.warn('[C3] EMAIL_TO_WCB_FAILED', e); })
             .then(function () { emailBtn.disabled = false; emailBtn.textContent = orig; });
@@ -1626,85 +1846,68 @@
         screen.appendChild(emailBtn);
       }
 
-      // filing instructions (truthful) — shown to BOTH anonymous and signed-in users
-      var steps = el('div', { class: 'file-steps' }, [el('h3', { text: 'How to file with the WCB' })]);
+      var steps = el('div', { class: 'file-steps' }, [el('h3', { text: T('c3.success.howToFile', 'How to file with the WCB') })]);
       function fstep(n, html) { return el('div', { class: 'file-step' }, [el('div', { class: 'file-step-num', text: String(n) }), el('div', { html: html })]); }
-      // The C-3.3 must travel WITH the C-3 in the SAME email/submission whenever a
-      // prior injury to the same body part was indicated.
-      if (both) steps.appendChild(fstep('!', '<b>Send both in the same email.</b> Because you indicated a prior injury to the same body part, your C-3.3 (HIPAA release) must be filed <b>together with your C-3, in one email/submission</b> — never sent separately.'));
-      if (c33Only) steps.appendChild(fstep('!', '<b>Pair it with your C-3.</b> File the C-3.3 in the <b>same email/submission</b> as your C-3 so the Board can act on the release.'));
+      if (both) steps.appendChild(fstep('!', T('c3.success.stepBothWarning', '<b>Send both in the same email.</b> Because you indicated a prior injury to the same body part, your C-3.3 (HIPAA release) must be filed <b>together with your C-3, in one email/submission</b> — never sent separately.')));
+      if (c33Only) steps.appendChild(fstep('!', T('c3.success.stepPairWarning', '<b>Pair it with your C-3.</b> File the C-3.3 in the <b>same email/submission</b> as your C-3 so the Board can act on the release.')));
       var stepNo = 0;
       if (toAttorney) {
-        steps.appendChild(fstep(++stepNo, 'Send ' + pktNoun + ' to your attorney at <b>' + escapeHtml(profile.attorney_email) + '</b> — they may file for you. Download above and attach to an email.'));
-        steps.appendChild(fstep(++stepNo, 'Prefer to file it yourself? Use any of the options below.'));
+        steps.appendChild(fstep(++stepNo, T('c3.success.stepAttorney', { packet: pktNoun, email: escapeHtml(profile.attorney_email) }, 'Send {packet} to your attorney at <b>{email}</b> — they may file for you. Download above and attach to an email.')));
+        steps.appendChild(fstep(++stepNo, T('c3.success.stepPreferSelf', 'Prefer to file it yourself? Use any of the options below.')));
       }
-      // Email to the WCB (per Item 7 of the C-3 filing instructions) — the button above opens your mail app with the PDF(s) already attached.
-      steps.appendChild(fstep(++stepNo, '<b>Email it to the WCB (fastest):</b> tap <b>“✉️ Email my claim to the WCB”</b> above — it opens your mail app with ' + pktNoun + ' attached, addressed to <b>' + WCB_EMAIL + '</b>. This is the email filing described in <b>Item 7</b> of the C-3.'));
-      steps.appendChild(fstep(++stepNo, '<b>Online:</b> upload ' + pktNoun + ' at the WCB Forms Submission portal, <b>wcb.ny.gov</b> → “File a Claim / Submit Forms.”'));
-      steps.appendChild(fstep(++stepNo, '<b>By mail:</b> NYS Workers’ Compensation Board, Centralized Mailing, PO Box 5205, Binghamton, NY 13902-5205.'));
-      steps.appendChild(fstep(++stepNo, '<b>By fax:</b> (877) 533-0337.'));
+      steps.appendChild(fstep(++stepNo, T('c3.success.stepEmail', { packet: pktNoun, email: WCB_EMAIL }, '<b>Email it to the WCB (fastest):</b> tap <b>“✉️ Email my claim to the WCB”</b> above — it opens your mail app with {packet} attached, addressed to <b>{email}</b>. This is the email filing described in <b>Item 7</b> of the C-3.')));
+      steps.appendChild(fstep(++stepNo, T('c3.success.stepOnline', { packet: pktNoun }, '<b>Online:</b> upload {packet} at the WCB Forms Submission portal, <b>wcb.ny.gov</b> → “File a Claim / Submit Forms.”')));
+      steps.appendChild(fstep(++stepNo, T('c3.success.stepMail', '<b>By mail:</b> NYS Workers’ Compensation Board, Centralized Mailing, PO Box 5205, Binghamton, NY 13902-5205.')));
+      steps.appendChild(fstep(++stepNo, T('c3.success.stepFax', '<b>By fax:</b> (877) 533-0337.')));
       screen.appendChild(steps);
 
-      // What the WCB does next — shown to everyone.
-      var nextBox = el('div', { class: 'file-steps' }, [el('h3', { text: 'What the WCB does next' })]);
-      nextBox.appendChild(el('div', { class: 'file-step' }, [el('div', { html: 'Once they receive your claim, the Board <b>indexes it and assigns a WCB case number</b>, then notifies your employer and its insurance carrier. The carrier must accept or dispute the claim, and the Board will mail you about any hearings or next steps. <b>Keep a copy of everything you file.</b>' })]));
+      var nextBox = el('div', { class: 'file-steps' }, [el('h3', { text: T('c3.success.whatNextTitle', 'What the WCB does next') })]);
+      nextBox.appendChild(el('div', { class: 'file-step' }, [el('div', { html: T('c3.success.whatNextBody', 'Once they receive your claim, the Board <b>indexes it and assigns a WCB case number</b>, then notifies your employer and its insurance carrier. The carrier must accept or dispute the claim, and the Board will mail you about any hearings or next steps. <b>Keep a copy of everything you file.</b>') })]));
       screen.appendChild(nextBox);
 
-      // The ONE unified attorney affordance (CD.AttorneyCTA) — same component the
-      // worker meets on the dashboard, settlement result, recovery step panel and
-      // chat. Offered here as a "have a lawyer look at what you filed" moment,
-      // wrapped in the wizard's standard Attorney-Advertising label + referral
-      // disclosure. Suppressed for workers who already have an attorney.
+      // The ONE unified attorney affordance — carries its own ATTORNEY ADVERTISING
+      // chip + "How this works" link (attorney-cta.js), so no wall is needed here.
       if (!(profile && profile.has_attorney) && !toAttorney && typeof CD.AttorneyCTA === 'function') {
-        var attyCard = el('div', { class: 'card c3w-offramp' });
-        attyCard.appendChild(_attyAdLabel());
-        attyCard.appendChild(CD.AttorneyCTA({ variant: 'inline', source: 'c3_complete' }));
-        attyCard.appendChild(_attyDisclosure());
-        screen.appendChild(attyCard);
+        var _doneCta = CD.AttorneyCTA({ variant: 'inline', source: 'c3_complete' });
+        if (_doneCta) screen.appendChild(el('div', { style: 'margin:4px 0 16px' }, [_doneCta]));
       }
 
       screen.appendChild(el('div', { class: 'info-callout', html: c33Only
-        ? '<strong>Before you file:</strong> open the PDF and review it. Sign in ink if a viewer didn’t carry your drawn signature, then file. Your answers are saved on the form.'
-        : '<strong>Before you file:</strong> open the PDF and review it. A few Yes/No checkboxes may be blank — mark any that apply to you, then file. Your answers are saved on the form.' }));
-      screen.appendChild(el('button', { class: 'btn btn-primary', style: 'width:100%;margin-bottom:10px', onclick: function () { showNextSteps(_formType); } }, ['✅ I’ve sent it — what happens next?']));
-      screen.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, ['Back to Dashboard']));
-      stepSuccess.innerHTML = '';
-      stepSuccess.appendChild(screen);
-      stepSuccess.classList.add('active');
-      progress.style.display = 'none';
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+        ? T('c3.success.beforeFileC33', '<strong>Before you file:</strong> open the PDF and review it. Sign in ink if a viewer didn’t carry your drawn signature, then file. Your answers are saved on the form.')
+        : T('c3.success.beforeFileC3', '<strong>Before you file:</strong> open the PDF and review it. A few Yes/No checkboxes may be blank — mark any that apply to you, then file. Your answers are saved on the form.') }));
+      screen.appendChild(el('button', { class: 'btn btn-primary', style: 'width:100%;margin-bottom:10px', onclick: function () { showNextSteps(_formType); } }, ['✅ ' + T('c3.success.sentBtn', 'I’ve sent it — what happens next?')]));
+      screen.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, [T('c3.success.backToDash', 'Back to Dashboard')]));
+      viewport.appendChild(screen);
+      try { viewport.scrollTop = 0; } catch (e) {}
     }
 
-    // Dedicated "what happens next" page — reached from the success screen after
-    // the worker sends/downloads. Ends with a last-chance account offer for
-    // anonymous filers (whose C-3 lives only on this device).
     function showNextSteps(formType) {
+      terminalView();
       var v = el('div', { class: 'success-screen' });
       v.appendChild(el('div', { style: 'text-align:center;font-size:34px;margin-bottom:6px', text: '📬' }));
-      v.appendChild(el('h2', { style: 'text-align:center', text: 'What happens next' }));
-      v.appendChild(el('p', { style: 'text-align:center', text: 'You’ve filed your claim with the New York State Workers’ Compensation Board. Here’s what to expect over the coming weeks.' }));
+      v.appendChild(el('h2', { style: 'text-align:center', text: T('c3.next.title', 'What happens next') }));
+      v.appendChild(el('p', { style: 'text-align:center', text: T('c3.next.sub', 'You’ve filed your claim with the New York State Workers’ Compensation Board. Here’s what to expect over the coming weeks.') }));
       var box = el('div', { class: 'file-steps' });
       function nstep(n, html) { return el('div', { class: 'file-step' }, [el('div', { class: 'file-step-num', text: String(n) }), el('div', { html: html })]); }
-      box.appendChild(nstep(1, 'The Board <b>receives and indexes your claim</b> and assigns it a <b>WCB case number</b>.'));
-      box.appendChild(nstep(2, '<b>Watch your mailbox.</b> The Board contacts you <b>by mail at the address on your form</b> over the coming weeks. Open everything and keep it.'));
-      box.appendChild(nstep(3, 'Your <b>employer and its insurance carrier are notified</b>. The carrier must then <b>accept or dispute (deny)</b> your claim.'));
-      box.appendChild(nstep(4, 'If it’s <b>accepted</b>, your benefits move forward. If it’s <b>disputed</b>, the Board schedules a <b>hearing</b> and mails you the date.'));
-      box.appendChild(nstep(5, '<b>Keep a copy of everything</b> you filed and every letter you receive.'));
+      box.appendChild(nstep(1, T('c3.next.s1', 'The Board <b>receives and indexes your claim</b> and assigns it a <b>WCB case number</b>.')));
+      box.appendChild(nstep(2, T('c3.next.s2', '<b>Watch your mailbox.</b> The Board contacts you <b>by mail at the address on your form</b> over the coming weeks. Open everything and keep it.')));
+      box.appendChild(nstep(3, T('c3.next.s3', 'Your <b>employer and its insurance carrier are notified</b>. The carrier must then <b>accept or dispute (deny)</b> your claim.')));
+      box.appendChild(nstep(4, T('c3.next.s4', 'If it’s <b>accepted</b>, your benefits move forward. If it’s <b>disputed</b>, the Board schedules a <b>hearing</b> and mails you the date.')));
+      box.appendChild(nstep(5, T('c3.next.s5', '<b>Keep a copy of everything</b> you filed and every letter you receive.')));
       v.appendChild(box);
-      v.appendChild(el('div', { class: 'info-callout', html: 'This can take a few weeks — that’s normal. If you’re unsure about anything, it’s wise to speak with a workers’ compensation attorney.' }));
+      v.appendChild(el('div', { class: 'info-callout', html: T('c3.next.callout', 'This can take a few weeks — that’s normal. If you’re unsure about anything, it’s wise to speak with a workers’ compensation attorney.') }));
       if (anon) {
         var card = el('div', { style: 'border:2px solid #f59e0b;background:rgba(245,158,11,.08);border-radius:12px;padding:18px 16px;margin:4px 0 14px;text-align:center' });
-        card.appendChild(el('div', { style: 'font-size:15px;font-weight:700;color:#f0d9b5;margin-bottom:6px', text: '⚠️ Don’t lose your completed C-3' }));
-        card.appendChild(el('p', { style: 'font-size:13px;color:#cbd2dd;line-height:1.5;margin:0 0 14px', text: 'Your filing lives only on this phone right now — if you close or delete the app, it’s gone for good. Create a free account to save it and track your case.' }));
-        card.appendChild(el('button', { class: 'btn btn-primary', style: 'width:100%;margin-bottom:8px', onclick: function () { try { if (CD.showAuth) CD.showAuth('Create a free account to save your C-3 filing'); } catch (e) {} } }, ['Create my free account']));
-        card.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, ['No thanks — done']));
+        card.appendChild(el('div', { style: 'font-size:15px;font-weight:700;color:#f0d9b5;margin-bottom:6px', text: '⚠️ ' + T('c3.next.dontLose', 'Don’t lose your completed C-3') }));
+        card.appendChild(el('p', { style: 'font-size:13px;color:#cbd2dd;line-height:1.5;margin:0 0 14px', text: T('c3.next.dontLoseBody', 'Your filing lives only on this phone right now — if you close or delete the app, it’s gone for good. Create a free account to save it and track your case.') }));
+        card.appendChild(el('button', { class: 'btn btn-primary', style: 'width:100%;margin-bottom:8px', onclick: function () { try { if (CD.showAuth) CD.showAuth(T('c3.offer.authPrompt', 'Create a free account to save your C-3 filing')); } catch (e) {} } }, [T('c3.next.createAccount', 'Create my free account')]));
+        card.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, [T('c3.next.noThanks', 'No thanks — done')]));
         v.appendChild(card);
       } else {
-        v.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, ['Back to Dashboard']));
+        v.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, [T('c3.success.backToDash', 'Back to Dashboard')]));
       }
-      stepSuccess.innerHTML = '';
-      stepSuccess.appendChild(v);
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+      viewport.appendChild(v);
+      try { viewport.scrollTop = 0; } catch (e) {}
     }
     function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
     function goDash() {
@@ -1713,55 +1916,16 @@
       try { window.location.reload(); } catch (e) {}
     }
 
-    /* ---------- autosave persist + restore ---------------------------- */
-    // Option-card groups + their state key (so a resumed draft re-selects them),
-    // and the conditional detail sections that show based on those picks.
-    var OPTION_GROUPS = [
-      ['c3w-translator', 'translator'], ['c3w-jobTime', 'jobTime'], ['c3w-ampm', 'ampm'],
-      ['c3w-usualLocation', 'usualLocation'], ['c3w-gaveNotice', 'gaveNotice'], ['c3w-noticeMethod', 'noticeMethod'],
-      ['c3w-witnessed', 'witnessed'], ['c3w-objectInvolved', 'objectInvolved'], ['c3w-motorVehicle', 'motorVehicle'],
-      ['c3w-vehicleType', 'vehicleType'], ['c3w-stoppedWork', 'stoppedWork'], ['c3w-returnedWork', 'returnedWork'],
-      ['c3w-returnDuty', 'returnDuty'], ['c3w-returnEmployer', 'returnEmployer'], ['c3w-priorInjury', 'priorInjury']
-    ];
-    var COND_WRAPS = [
-      ['c3w-lang-wrap', function () { return state.translator === 'yes'; }],
-      ['c3w-jobOther-wrap', function () { return state.jobTime === 'Other'; }],
-      ['c3w-usualloc-detail', function () { return state.usualLocation === 'no'; }],
-      ['c3w-notice-detail', function () { return state.gaveNotice === 'yes'; }],
-      ['c3w-witness-detail', function () { return state.witnessed === 'yes'; }],
-      ['c3w-object-detail', function () { return state.objectInvolved === 'yes'; }],
-      ['c3w-mv-detail', function () { return state.motorVehicle === 'yes'; }],
-      ['c3w-stop-detail', function () { return state.stoppedWork === 'yes'; }],
-      ['c3w-return-detail', function () { return state.returnedWork === 'yes'; }],
-      ['c3w-c33-detail', function () { return state.priorInjury === 'yes'; }]
-    ];
-    // Push the whole `state` back onto the DOM — text inputs, gender, body-part
-    // chips, option cards, mental-health toggles, and conditional sections. Used
-    // when applying a saved draft or resetting to the profile baseline.
-    function reflectStateToDom() {
-      TEXT_FIELDS.forEach(function (f) { if (SENSITIVE[f[1]]) return; var n = $(f[0]); if (n) n.value = (state[f[1]] != null ? state[f[1]] : ''); });
-      var g = $('c3w-gender'); if (g) g.value = state.gender || '';
-      C33_FIELDS.forEach(function (f) { if (SENSITIVE[f[1]]) return; var n = $(f[0]); if (n) n.value = (state[f[1]] != null ? state[f[1]] : ''); });
-      if (chipGrid) chipGrid.querySelectorAll('.chip').forEach(function (chip) { var part = chip.getAttribute('data-part'); if (state.bodyParts && state.bodyParts.indexOf(part) >= 0) chip.classList.add('selected'); else chip.classList.remove('selected'); });
-      OPTION_GROUPS.forEach(function (o) { var grp = $(o[0]); if (!grp) return; grp.querySelectorAll('.option-card').forEach(function (c) { c.classList[(state[o[1]] && c.getAttribute('data-value') === state[o[1]]) ? 'add' : 'remove']('selected'); }); });
-      ['c3w-mh-toggle', 'c3w-c33s-mh-toggle'].forEach(function (id) { var t = $(id); if (t) t.classList[state.c33_releaseMentalHealth ? 'add' : 'remove']('on'); });
-      COND_WRAPS.forEach(function (w) { var node = $(w[0]); if (node) node.style.display = w[1]() ? 'block' : 'none'; });
-    }
-
-    /* ---------- server-side draft (c3_drafts, signed-in only) ----------
-     * One open draft per user (unique user_id), owner-only RLS. Answers-only —
-     * SSN + signature are already stripped by persist(). Fire-and-forget and
-     * fully fail-safe: if the table isn't there yet (migration 079 unapplied) or
-     * the network is down, the local autosave still carries the draft. */
+    /* ---------- autosave persist + restore (card-index keyed) ---------- */
     var DRAFT_TABLE = 'c3_drafts';
     var _dbTimer = null;
     function nowMs() { try { return Date.now(); } catch (e) { return 0; } }
     function relTime(ms) {
       if (!ms) return '';
-      var s = Math.round((nowMs() - ms) / 1000); if (s < 45) return 'just now';
-      var m = Math.round(s / 60); if (m < 60) return m + (m === 1 ? ' minute ago' : ' minutes ago');
-      var h = Math.round(m / 60); if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
-      var d = Math.round(h / 24); return d + (d === 1 ? ' day ago' : ' days ago');
+      var s = Math.round((nowMs() - ms) / 1000); if (s < 45) return T('c3.relTime.justNow', 'just now');
+      var m = Math.round(s / 60); if (m < 60) return m === 1 ? T('c3.relTime.minuteAgo', '1 minute ago') : T('c3.relTime.minutesAgo', { n: String(m) }, '{n} minutes ago');
+      var h = Math.round(m / 60); if (h < 24) return h === 1 ? T('c3.relTime.hourAgo', '1 hour ago') : T('c3.relTime.hoursAgo', { n: String(h) }, '{n} hours ago');
+      var d = Math.round(h / 24); return d === 1 ? T('c3.relTime.dayAgo', '1 day ago') : T('c3.relTime.daysAgo', { n: String(d) }, '{n} days ago');
     }
     function dbSaveDraftDebounced(snap) {
       if (anon || !supabase || !user || !user.id) return;
@@ -1785,57 +1949,59 @@
           .then(function (res) { return (res && res.data && res.data[0]) ? res.data[0] : null; }, function () { return null; });
       } catch (e) { return Promise.resolve(null); }
     }
-
+    // Save on every card advance, keyed to the card index. SSN is EXEMPT — it is
+    // never written to the draft store (in-memory only, straight onto the PDF).
+    // Push claim_type (+ the disablement date, which for an OD claim IS the date
+    // this wizard collected as `doi`) onto the profiles row.
+    //
+    // WHY THIS EXISTS: deadlines.js anchors the WCL §18/§45 clock on
+    // profiles.date_of_disablement when it is present and falls back to the
+    // accident date otherwise; tile-manifest.js ships a whole `disablement` tile
+    // and an "Occupational deadlines run from your date of disablement — add it"
+    // empty state; adaptive-dashboard.js reads p.date_of_disablement directly.
+    // Every one of those was permanently empty for a worker who had just typed
+    // the date into this wizard, because the C-3 only ever wrote to the LOCAL
+    // WorkerProfile store — which models date_of_injury and has no claim_type or
+    // date_of_disablement key at all. Fire-and-forget: a failed write must never
+    // block a generated filing.
+    function saveClaimTypeToProfile() {
+      if (anon || !user || !user.id || !supabase) return;
+      var patch = { claim_type: state.claimType };
+      if (isOD() && state.doi) patch.date_of_disablement = state.doi;
+      try {
+        supabase.from('profiles').update(patch).eq('id', user.id).then(function (res) {
+          if (res && res.error) console.warn('[C3] CLAIM_TYPE_SAVE_FAILED', res.error);
+        }, function (e) { console.warn('[C3] CLAIM_TYPE_SAVE_FAILED', e); });
+      } catch (e) { console.warn('[C3] CLAIM_TYPE_SAVE_FAILED', e); }
+    }
     function persist() {
       var snap = {};
-      Object.keys(state).forEach(function (k) { if (!SENSITIVE[k]) snap[k] = state[k]; }); // never persist SSN or signature
+      Object.keys(state).forEach(function (k) { if (!SENSITIVE[k]) snap[k] = state[k]; });
       snap.__savedAt = nowMs();
       store.set(STORE_KEY, snap);
       dbSaveDraftDebounced(snap);
     }
-
-    // Merge a saved snapshot onto state (SSN/signature excluded) and reflect it.
     function applyDraft(saved) {
       if (!saved) return;
       Object.keys(saved).forEach(function (k) { if (k === '__savedAt') return; if (k in state && !SENSITIVE[k]) state[k] = saved[k]; });
-      reflectStateToDom();
     }
-    // "Start over": discard the in-progress draft and revert every field to the
-    // original profile-prefill baseline (removes intake-added chips too).
     function resetToBaseline() {
       Object.keys(state).forEach(function (k) { state[k] = Array.isArray(BASELINE[k]) ? BASELINE[k].slice() : (k in BASELINE ? BASELINE[k] : (Array.isArray(state[k]) ? [] : '')); });
-      state.step = 0; state.c33Only = false;
-      reflectStateToDom();
-      root.querySelectorAll('.prefill-tag.c3w-chip-dyn').forEach(function (c) { if (c.parentNode) c.parentNode.removeChild(c); });
+      state.step = 0; state.cardKey = ''; state.c33Only = false;
+      prefilled = {}; Object.keys(PREFILLABLE).forEach(function (k) { if (state[k] && String(state[k]).trim()) prefilled[k] = true; });
     }
-
-    // Pull the Comp Buddy intake's OWN autosave (cbi:intake:<uid>) and fill any
-    // C-3 field the profile left blank — so a half-finished intake still enriches
-    // the claim. Profile + the user's own C-3 draft always win (we only fill blanks).
     function hydrateFromIntake() {
       if (anon || !user || !user.id) return Promise.resolve();
       return store.get(INTAKE_PREFIX + user.id).then(function (intk) {
         if (!intk) return;
         function blank(k) { return state[k] == null || String(state[k]).trim() === ''; }
-        function fill(stateKey, val, inputId) {
-          if (val == null || String(val).trim() === '' || !blank(stateKey)) return;
-          state[stateKey] = val;
-          if (inputId) { var n = $(inputId); if (n) { n.value = val; markPrefilled(inputId); } }
-        }
+        function fill(stateKey, val) { if (val == null || String(val).trim() === '' || !blank(stateKey)) return; state[stateKey] = val; if (PREFILLABLE[stateKey]) prefilled[stateKey] = true; }
         var nm2 = [intk.first_name, intk.last_name].filter(Boolean).join(' ');
-        fill('name', nm2, 'c3w-name');
-        if (blank('certName') && nm2) state.certName = nm2;
-        fill('dob', intk.dob, 'c3w-dob');
-        fill('phone', intk.phone, 'c3w-phone');
-        fill('mailing', intk.home_address, 'c3w-mailing');
-        fill('doi', intk.doa, 'c3w-doi');
-        fill('employer', intk.employer_name, 'c3w-employer');
-        fill('treatingDoctors', [intk.treating_doctor, intk.treating_doctor_address].filter(Boolean).join(', '), 'c3w-treatingDoctors');
+        fill('name', nm2); if (blank('certName') && nm2) state.certName = nm2;
+        fill('dob', intk.dob); fill('phone', intk.phone); fill('mailing', intk.home_address); fill('doi', intk.doa); fill('employer', intk.employer_name);
+        fill('treatingDoctors', [intk.treating_doctor, intk.treating_doctor_address].filter(Boolean).join(', '));
         if (intk.language_pref && intk.language_pref !== 'en' && blank('language')) state.language = intk.language_pref;
-        if ((!state.bodyParts || !state.bodyParts.length) && Array.isArray(intk.body_parts) && intk.body_parts.length) {
-          state.bodyParts = intk.body_parts.slice();
-          state.bodyParts.forEach(function (p) { var chip = chipGrid.querySelector('.chip[data-part="' + p + '"]'); if (chip) chip.classList.add('selected'); });
-        }
+        if ((!state.bodyParts || !state.bodyParts.length) && Array.isArray(intk.body_parts) && intk.body_parts.length) state.bodyParts = intk.body_parts.slice();
         if (intk.work_status) {
           if (blank('stoppedWork')) state.stoppedWork = (intk.work_status !== 'working') ? 'yes' : '';
           if (blank('returnedWork')) state.returnedWork = (intk.work_status === 'working' || intk.work_status === 'light_duty') ? 'yes' : '';
@@ -1844,58 +2010,48 @@
         persist();
       }).catch(function () {});
     }
-
     // On re-entry, OFFER to resume (don't silently jump) — the worker chooses.
-    function offerResume(step, atMs) {
-      var host = $('c3w-step-0'); if (!host || $('c3w-resume')) return;
+    function offerResume(savedKey, atMs) {
+      progress.style.display = 'none'; foot.style.display = 'none';
+      viewport.className = 'c3w-viewport'; viewport.innerHTML = '';
       var when = relTime(atMs);
-      var banner = el('div', { class: 'c3w-resume', id: 'c3w-resume' }, [
-        el('div', { class: 'c3w-resume-icon', text: '⏳' }),
-        el('div', { class: 'c3w-resume-body' }, [
-          el('div', { class: 'c3w-resume-title', text: 'Resume your claim' }),
-          el('div', { class: 'c3w-resume-sub', text: when ? ('Saved ' + when + ' — pick up right where you left off.') : 'Pick up right where you left off.' })
-        ]),
-        el('div', { class: 'c3w-resume-actions' }, [
-          el('button', { type: 'button', class: 'btn btn-primary', onclick: function () { var b = $('c3w-resume'); if (b && b.parentNode) b.parentNode.removeChild(b); goToStep(Math.min(Math.max(step, 1), TOTAL_STEPS)); } }, ['Resume']),
-          el('button', { type: 'button', class: 'btn btn-secondary', onclick: function () { dismissResume(); } }, ['Start over'])
-        ])
+      var card = el('div', { class: 'c3w-resume-card' }, [
+        el('div', { style: 'font-size:34px;margin-bottom:10px', text: '⏳' }),
+        el('h2', { class: 'c3w-card-title', style: 'font-size:20px', text: T('c3.resume.title', 'Resume your claim') }),
+        el('p', { class: 'c3w-card-sub', style: 'margin:6px 0 18px', text: when ? T('c3.resume.savedWhen', { when: when }, 'Saved {when} — pick up right where you left off.') : T('c3.resume.pickUp', 'Pick up right where you left off.') }),
+        el('button', { class: 'btn btn-primary', style: 'width:100%;margin-bottom:10px', onclick: function () { foot.style.display = ''; goToCard(savedKey, true); } }, [T('c3.resume.resumeBtn', 'Resume')]),
+        el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { try { store.remove(STORE_KEY); } catch (e) {} dbClearDraft(); resetToBaseline(); foot.style.display = ''; goToCard(firstDataKey(), true); } }, [T('c3.resume.startOver', 'Start over')])
       ]);
-      host.insertBefore(banner, host.firstChild);
+      viewport.appendChild(card);
     }
-    function dismissResume() {
-      try { store.remove(STORE_KEY); } catch (e) {}
-      dbClearDraft();
-      resetToBaseline();
-      var b = $('c3w-resume'); if (b && b.parentNode) b.parentNode.removeChild(b);
-    }
-
     function restore() {
       return store.get(STORE_KEY).then(function (localSaved) {
         return dbGetDraft().then(function (dbRow) {
           var localAt = (localSaved && localSaved.__savedAt) ? localSaved.__savedAt : 0;
           var dbAt = (dbRow && dbRow.updated_at) ? new Date(dbRow.updated_at).getTime() : 0;
-          // Prefer whichever copy is newer (cross-device); ties go to the server.
-          var chosen = null, chosenAt = 0, chosenStep = 0;
-          if (dbRow && dbRow.data && dbAt >= localAt) { chosen = dbRow.data; chosenAt = dbAt; chosenStep = dbRow.step || dbRow.data.step || 0; }
-          else if (localSaved) { chosen = localSaved; chosenAt = localAt; chosenStep = localSaved.step || 0; }
+          var chosen = null, chosenAt = 0, chosenKey = '';
+          if (dbRow && dbRow.data && dbAt >= localAt) { chosen = dbRow.data; chosenAt = dbAt; chosenKey = dbRow.data.cardKey || ''; }
+          else if (localSaved) { chosen = localSaved; chosenAt = localAt; chosenKey = localSaved.cardKey || ''; }
           if (chosen) applyDraft(chosen);
           return hydrateFromIntake().then(function () {
             if (chosen && chosen.c33Only) { goToStandaloneC33(); return; }
-            if (chosen && chosenStep >= 1) offerResume(chosenStep, chosenAt);
-            // otherwise: fresh start on step 0 with profile + intake prefill in place.
+            if (chosenKey && stepIndex(deckList(), chosenKey) > 0) offerResume(chosenKey, chosenAt);
+            else goToCard(firstDataKey(), true);
           });
         });
-      }).catch(function (e) { console.warn('[C3] RESTORE_FAILED', e); });
+      }).catch(function (e) { console.warn('[C3] RESTORE_FAILED', e); goToCard(firstDataKey(), true); });
     }
 
-    // boot
+    // boot — show the Terms-of-Use gate at C-3 start EVERY time; start the deck on
+    // accept, leave the flow on "Not now".
     setTimeout(function () {
-      initSig(sigCanvas);
-      var c33Link = $('c3w-c33-only-link');
-      if (c33Link) c33Link.addEventListener('click', function (e) { e.preventDefault(); syncFromDom(); goToStandaloneC33(); });
-      restore();
+      applyVV();
+      try {
+        if (CD.TouGate && CD.TouGate.open) CD.TouGate.open({ onAccept: startDeck, onCancel: goDash });
+        else startDeck();
+      } catch (e) { startDeck(); }
     }, 0);
-    return root;
+    return portal(root);
   }
 
   CD.C3Wizard = { render: render };
