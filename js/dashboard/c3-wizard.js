@@ -1647,156 +1647,186 @@
       console.log('[C3] APPEARANCES filled=' + checked + ' missingAP=' + missing + ' needAppearances=' + (!ok));
       return ok;
     }
+    // THE permanent fix. Clearing NeedAppearances was necessary and still not
+    // sufficient: a form WIDGET is a live object, and several viewers — iOS
+    // PDFKit among them — lay one out themselves no matter what that flag says,
+    // applying their own ~2pt-per-side padding. Measured against a filed C-3:
+    //
+    //   box 27.4pt → viewer has 23.4 → "2026" at 9pt needs 20.0 → fine
+    //   box 22.8pt → viewer has 18.8 → "2026" at 9pt needs 20.0 → CLIPS   (D10, E1, E2)
+    //   box 20.5pt → viewer has 16.5 → "2026" at 8pt needs 17.8 → CLIPS   (certification)
+    //
+    // which is precisely the set of boxes Joel reported and precisely the set he
+    // did not. You cannot win that argument field by field, because the padding
+    // belongs to the viewer. So take the widgets away: flatten() paints each
+    // appearance stream into the page and deletes the field. After it there is
+    // no widget to re-lay-out, no /DA to re-read and no NeedAppearances to
+    // honour — every viewer draws the same marks. That is also the right shape
+    // for a SWORN document: what the worker signed is what the Board receives,
+    // and nobody can retype a field afterwards.
+    //
+    // Fails soft: if flatten throws, the form is left interactive and correct as
+    // before, which is strictly no worse than shipping without this.
+    function flattenForm(form) {
+      try {
+        // updateFieldAppearances:false — the streams were already generated at
+        // the sizes we measured; letting flatten regenerate would re-run
+        // pdf-lib's own sizing and undo the group unification.
+        form.flatten({ updateFieldAppearances: false });
+        console.log('[C3] FLATTENED ok');
+        return true;
+      } catch (e) {
+        console.warn('[C3] FLATTEN_SKIPPED — shipping an interactive form', e);
+        return false;
+      }
+    }
+
+    // Sizing + appearance toolkit, shared by BOTH forms. It lived inside fillC3
+    // while only the C-3 was known to clip; the C-3.3 is the same class of sworn
+    // document with the same three-box M/D/Y dates and had the identical
+    // NeedAppearances defect, so one implementation now serves both.
+    function fitKit(form, PDFLib) {
+      // Helvetica advance widths (AFM, /1000 em) for ASCII 32–126, three digits
+      // each. /Helv IS Helvetica, so this is EXACT rather than an estimate —
+      // which matters because a per-character average that guesses high shrinks
+      // type that would have fitted. '@' is clamped to 999 (true 1015) to keep
+      // the table fixed-width; it appears on neither form.
+      var HELV_W = '278278355556556889667191333333389584278333278278'
+        + '556556556556556556556556556556278278584584584556999'
+        + '667667722722667611778722278500667556833722778667778722667611722667944667667611'
+        + '278278278469556333'
+        + '556556500556556278556556222222500222833556556556556333500278556500722500500500'
+        + '334260334584';
+      function helvEm(txt) {
+        var t = 0;
+        for (var i = 0; i < txt.length; i++) {
+          var c = txt.charCodeAt(i) - 32;
+          // Anything outside Latin-1 printable (an em dash, a curly quote) gets
+          // the ~average width rather than being ignored — under-counting a
+          // character is how text creeps past the edge of a box.
+          t += (c >= 0 && c < 95) ? parseInt(HELV_W.substr(c * 3, 3), 10) : 556;
+        }
+        return t / 1000;
+      }
+      // pdf-lib insets its appearance clip by exactly 1pt per side and starts
+      // the text run at x=1 — decoded from a generated stream:
+      //   1 1 m … 19.52 … W n   ·   1 0 0 1 1 5.467 Tm
+      // so a 20.52pt box gives 18.52pt of drawable width.
+      var CLIP_PAD = 2;
+      function setSz(name, sz) { try { form.getTextField(name).setFontSize(sz); } catch (e) {} }
+      // The largest size at which this field's text fits its own box, capped at
+      // maxSz. Returns maxSz for anything it should not shrink.
+      function sizeForField(f, maxSz) {
+        maxSz = maxSz || 9;
+        try {
+          var txt = String(f.getText() || '');
+          if (!txt) return maxSz;
+          var wdgs = f.acroField.getWidgets();
+          if (!wdgs.length) return maxSz;
+          var w = wdgs[0].getRectangle().width;
+          if (!w) return maxSz;
+          var multi = false; try { multi = !!f.isMultiline(); } catch (e) {}
+          if (multi || txt.indexOf('\n') >= 0) return maxSz;
+          var em = helvEm(txt);
+          if (!em) return maxSz;
+          return Math.max(5, Math.min(maxSz, Math.floor((w - CLIP_PAD) / em)));
+        } catch (e) { return maxSz; }
+      }
+      // Shrink ONE filled single-line field until its text fits its own box.
+      // Multi-line fields are left alone — they wrap, which is correct.
+      function fitField(f, maxSz) {
+        try {
+          var txt = String(f.getText() || '');
+          if (!txt || txt.indexOf('\n') >= 0) return;
+          var multi = false; try { multi = !!f.isMultiline(); } catch (e) {}
+          if (multi) return;
+          f.setFontSize(sizeForField(f, maxSz || 9));
+        } catch (e) {}
+      }
+      // A date is THREE boxes and a phone is TWO, and they read as one value.
+      // Sizing them independently is what put a 7pt year beside a 9pt month on
+      // the certification line — pdf-lib centres vertically by font size, so the
+      // year also floated above its own rule. Takes RESOLVED field names so both
+      // forms' maps can drive it. Must run LAST: fitAllFields re-fits every field
+      // independently and would undo the unification.
+      function fitGroup(names, maxSz) {
+        maxSz = maxSz || 9;
+        var sz = maxSz, any = false;
+        names.forEach(function (nm) {
+          try {
+            var f = form.getTextField(nm);
+            if (!f.getText()) return;
+            any = true;
+            sz = Math.min(sz, sizeForField(f, maxSz));
+          } catch (e) {}
+        });
+        if (!any) return;
+        names.forEach(function (nm) { setSz(nm, sz); });
+      }
+      // Every filled single-line field, not just the dates. The year was the one
+      // that got noticed; the same arithmetic applies to a long employer name or
+      // a treating-doctor address in a narrow box.
+      function fitAllFields() {
+        try {
+          form.getFields().forEach(function (f) {
+            if (typeof f.getText !== 'function' || typeof f.setFontSize !== 'function') return;
+            var cur = 9;
+            try { var m = String(f.acroField.dict.get(PDFLib.PDFName.of('DA')) || '').match(/([\d.]+)\s+Tf/); if (m) cur = parseFloat(m[1]) || 9; } catch (e) {}
+            fitField(f, Math.max(cur, 9));
+          });
+        } catch (e) { console.warn('[C3] FIT_ALL_SKIPPED', e); }
+      }
+      // Point every /DA at /Helv — a font the /DR actually defines — preserving
+      // the size the appearance streams were generated at. This only matters to a
+      // viewer that regenerates (an Acrobat user editing a field); the streams
+      // themselves are what normally paints. Runs AFTER updateFieldAppearances,
+      // which rewrites /DA on every field it touches.
+      function repairDA() {
+        var K = PDFLib.PDFName.of('DA');
+        try {
+          form.getFields().forEach(function (f) {
+            try {
+              if (typeof f.getText !== 'function') return;
+              if (!f.getText()) return;
+              var da = String(f.acroField.dict.get(K) || '');
+              var m = da.match(/([\d.]+)\s+Tf/);
+              var sz = m ? parseFloat(m[1]) : 9;
+              if (!(sz > 0)) sz = 9;
+              var nda = PDFLib.PDFString.of('/Helv ' + sz + ' Tf 0 g');
+              f.acroField.dict.set(K, nda);
+              f.acroField.getWidgets().forEach(function (wdg) { try { wdg.dict.set(K, nda); } catch (e) {} });
+            } catch (e) {}
+          });
+        } catch (e) { console.warn('[C3] DA_REPAIR_SKIPPED', e); }
+      }
+      // Generate appearances, unify the groups, repair /DA, and stop telling
+      // viewers to regenerate — the whole sequence, in the one order that works.
+      // Order matters:
+      //   1. size every field to its own box;
+      //   2. THEN unify each date/phone group (must be last of the two);
+      //   3. generate the appearance streams at those sizes — what a viewer paints;
+      //   4. repair /DA for the regenerating-viewer case;
+      //   5. the caller saves with updateFieldAppearances:false, or pdf-lib
+      //      rewrites /DA back to its own unresolvable /Helvetica and undoes 4.
+      function finish(groups) {
+        fitAllFields();
+        (groups || []).forEach(function (g) { fitGroup(g, 9); });
+        try { form.updateFieldAppearances(); } catch (e) { console.warn('[C3] APPEARANCE_UPDATE_SKIPPED', e); }
+        repairDA();
+      }
+      return { helvEm: helvEm, setSz: setSz, sizeForField: sizeForField, fitField: fitField,
+        fitGroup: fitGroup, fitAllFields: fitAllFields, repairDA: repairDA, finish: finish };
+    }
     function fillC3(PDFLib) {
       var PDFDocument = PDFLib.PDFDocument;
       return loadTemplate(PDFDocument, 'template.pdf', 'forms/c3.pdf').then(function (pdf) {
         var form = pdf.getForm();
         function setT(name, v) { try { if (v != null && v !== '') form.getTextField(name).setText(String(v)); } catch (e) {} }
         function setC(name) { try { form.getCheckBox(name).check(); } catch (e) {} }
-        function setSz(name, sz) { try { form.getTextField(name).setFontSize(sz); } catch (e) {} }
-        // A font size that provably FITS the box, written in a font the form can
-        // actually RESOLVE. TWO separate defects made the certification-date year
-        // render as "202" on a filed C-3:
-        //
-        //  1. SIZE. That year box is 21pt wide — the narrowest on the form (the
-        //     others are 23 and 27). Four digits at the old flat size 9 is ~20pt
-        //     of glyphs before any padding.
-        //
-        //  2. FONT NAME — which is why fixing the size alone changed nothing.
-        //     pdf-lib's setFontSize() rewrites the field's /DA using ITS OWN font
-        //     name, "/Helvetica". The C-3's resource dictionary (/DR) defines
-        //     /ArialMT, /CourierNewPSMT, /Helv and /ZaDb — there is no
-        //     /Helvetica. deXFA sets NeedAppearances, so a viewer REGENERATES the
-        //     appearance from /DA, fails to resolve /Helvetica, and falls back to
-        //     its own default size, which clips again no matter what we asked
-        //     for. Measured on the delivered file: /DA read "/Helvetica 7 Tf"
-        //     against a /DR containing no such font, and it still clipped.
-        //
-        // So: size to the box AND name /Helv, which the /DR actually defines.
-        // Sizes are applied here (so pdf-lib generates appearance streams at the
-        // right size for viewers that use them) and the /DA font is repaired
-        // afterwards for viewers that regenerate from it — both classes covered.
-        function fitSz(name, maxSz) { try { fitField(form.getTextField(name), maxSz); } catch (e) {} }
-
-        // Helvetica advance widths (AFM, /1000 em) for ASCII 32–126, three digits
-        // each. /Helv IS Helvetica, so this is EXACT rather than an estimate —
-        // which matters because the alternative is a flat per-character average,
-        // and an average that guesses high shrinks type that would have fitted.
-        // The certification year is the worst case: "2026" is four digits at
-        // 0.556 em, so a 0.56 average over-measures by nothing at all for the
-        // glyphs but the 6pt padding allowance pushed it down to 6pt — three
-        // sizes smaller than the month and day boxes beside it, on the same row.
-        // '@' is clamped to 999 (true 1015) to keep the table fixed-width; it
-        // does not appear anywhere on a C-3.
-        var HELV_W = '278278355556556889667191333333389584278333278278'
-          + '556556556556556556556556556556278278584584584556999'
-          + '667667722722667611778722278500667556833722778667778722667611722667944667667611'
-          + '278278278469556333'
-          + '556556500556556278556556222222500222833556556556556333500278556500722500500500'
-          + '334260334584';
-        function helvEm(txt) {
-          var t = 0;
-          for (var i = 0; i < txt.length; i++) {
-            var c = txt.charCodeAt(i) - 32;
-            // Anything outside Latin-1 printable (an em dash, a curly quote) gets
-            // the ~average width rather than being ignored — under-counting a
-            // character is how text creeps past the edge of a box.
-            t += (c >= 0 && c < 95) ? parseInt(HELV_W.substr(c * 3, 3), 10) : 556;
-          }
-          return t / 1000;
-        }
-        // pdf-lib insets its appearance clip by exactly 1pt per side and starts
-        // the text run at x=1 — decoded from a generated stream:
-        //   1 1 m … 19.52 … W n   ·   1 0 0 1 1 5.467 Tm
-        // so a 20.52pt box gives 18.52pt of drawable width. Guessing 4pt here
-        // (never mind the 6 before it) cost the year a whole size for no reason.
-        var CLIP_PAD = 2;
-        // The largest size at which this field's text fits its own box, capped
-        // at maxSz. Returns maxSz for anything it should not shrink.
-        function sizeForField(f, maxSz) {
-          maxSz = maxSz || 9;
-          try {
-            var txt = String(f.getText() || '');
-            if (!txt) return maxSz;
-            var wdgs = f.acroField.getWidgets();
-            if (!wdgs.length) return maxSz;
-            var w = wdgs[0].getRectangle().width;
-            if (!w) return maxSz;
-            var multi = false; try { multi = !!f.isMultiline(); } catch (e) {}
-            if (multi || txt.indexOf('\n') >= 0) return maxSz;
-            var em = helvEm(txt);
-            if (!em) return maxSz;
-            return Math.max(5, Math.min(maxSz, Math.floor((w - CLIP_PAD) / em)));
-          } catch (e) { return maxSz; }
-        }
-        // Shrink ONE filled single-line field until its text fits its own box.
-        // Multi-line fields are left alone — they wrap, which is correct.
-        function fitField(f, maxSz) {
-          try {
-            var txt = String(f.getText() || '');
-            if (!txt || txt.indexOf('\n') >= 0) return;
-            var multi = false; try { multi = !!f.isMultiline(); } catch (e) {}
-            if (multi) return;
-            f.setFontSize(sizeForField(f, maxSz || 9));
-          } catch (e) {}
-        }
-        // A date is THREE boxes and a phone is TWO, and they read as one value.
-        // Sizing them independently is what put a 7pt year beside a 9pt month on
-        // the certification line — pdf-lib centres vertically by font size, so
-        // the year also floated above its own rule. Size the group to whichever
-        // member is tightest and they render as one field again.
-        function fitGroup(keys, maxSz) {
-          maxSz = maxSz || 9;
-          var sz = maxSz, any = false;
-          keys.forEach(function (k) {
-            try {
-              var f = form.getTextField(F[k]);
-              if (!f.getText()) return;
-              any = true;
-              sz = Math.min(sz, sizeForField(f, maxSz));
-            } catch (e) {}
-          });
-          if (!any) return;
-          keys.forEach(function (k) { setSz(F[k], sz); });
-        }
-        // Every filled single-line field, not just the dates. The year was the
-        // one that got noticed; the same arithmetic applies to a long employer
-        // name or a treating-doctor address in a narrow box.
-        function fitAllFields() {
-          try {
-            form.getFields().forEach(function (f) {
-              if (typeof f.getText !== 'function' || typeof f.setFontSize !== 'function') return;
-              var cur = 9;
-              try { var m = String(f.acroField.dict.get(PDFLib.PDFName.of('DA')) || '').match(/([\d.]+)\s+Tf/); if (m) cur = parseFloat(m[1]) || 9; } catch (e) {}
-              fitField(f, Math.max(cur, 9));
-            });
-          } catch (e) { console.warn('[C3] FIT_ALL_SKIPPED', e); }
-        }
-        // Point every /DA at /Helv — a font this form's /DR actually defines —
-        // while preserving the size the appearance streams were generated at.
-        // pdf-lib names its own /Helvetica, which the /DR does not contain, so a
-        // viewer honouring NeedAppearances cannot resolve it and falls back to a
-        // default size. That is what rendered the certification year as "202"
-        // even after the size was corrected. Runs AFTER updateFieldAppearances,
-        // which rewrites /DA on every field it touches.
-        function repairDA() {
-          var K = PDFLib.PDFName.of('DA');
-          try {
-            form.getFields().forEach(function (f) {
-              try {
-                if (typeof f.getText !== 'function') return;
-                if (!f.getText()) return;
-                var da = String(f.acroField.dict.get(K) || '');
-                var m = da.match(/([\d.]+)\s+Tf/);
-                var sz = m ? parseFloat(m[1]) : 9;
-                if (!(sz > 0)) sz = 9;
-                var nda = PDFLib.PDFString.of('/Helv ' + sz + ' Tf 0 g');
-                f.acroField.dict.set(K, nda);
-                f.acroField.getWidgets().forEach(function (wdg) { try { wdg.dict.set(K, nda); } catch (e) {} });
-              } catch (e) {}
-            });
-          } catch (e) { console.warn('[C3] DA_REPAIR_SKIPPED', e); }
-        }
+        // Sizing + appearances come from the shared kit (see fitKit) — the
+        // C-3.3 is the same class of document and uses the identical toolkit.
+        var KIT = fitKit(form, PDFLib);
+        var setSz = KIT.setSz;
         // Spread long text across the form's existing continuation-line fields so it
         // uses every ruled line instead of clipping in the first (stub) box.
         // Per-line character capacity has to AGREE with fitField's metric, or the
@@ -1913,25 +1943,15 @@
           ['phone', 'phone2'], ['employerPhone', 'employerPhone2'],
           ['firstTreatPhone', 'firstTreatPhone2'],
           ['treatingDoctorsPhone', 'treatingDoctorsPhone2']];
-        // Order matters:
-        //   1. size every field to its own box;
-        //   2. THEN unify each date/phone group (see above — this must be last);
-        //   3. generate the appearance streams at those sizes — this is what a
-        //      viewer actually renders now;
-        //   4. repair /DA to a font the /DR defines, for the narrow case where a
-        //      viewer regenerates anyway (an Acrobat user editing a field);
-        //   5. save with updateFieldAppearances:false, or pdf-lib rewrites /DA
-        //      back to its own unresolvable /Helvetica and undoes step 4.
-        fitAllFields();
-        DATE_PHONE_GROUPS.forEach(function (g) { fitGroup(g, 9); });
-        try { form.updateFieldAppearances(); } catch (e) { console.warn('[C3] APPEARANCE_UPDATE_SKIPPED', e); }
-        repairDA();
+        KIT.finish(DATE_PHONE_GROUPS.map(function (g) { return g.map(function (k) { return F[k]; }); }));
         // signature image on page 2 (no AcroForm field for the ink line)
         return embedSig(pdf, PDFLib).then(function () {
           deXFA(pdf);
-          // Only AFTER the appearances exist: prove every filled field has one,
-          // then stop telling viewers to regenerate. See lockAppearances().
+          // Order: verify coverage while the fields still EXIST, then flatten
+          // them away. lockAppearances also clears NeedAppearances, which stays
+          // correct for the fail-soft path where flatten throws.
           lockAppearances(pdf, form, PDFLib);
+          flattenForm(form);
           return pdf.save({ updateFieldAppearances: false });
         });
       });
@@ -1976,12 +1996,9 @@
         });
       } catch (e) { console.warn('[C3] C33_SIG_SKIPPED', e); return Promise.resolve(); }
     }
-    // C-3.3 is plain AcroForm (no XFA to strip) but still set NeedAppearances so
-    // viewers regenerate field appearances from our values.
-    function setNeedAppearances(pdf) {
-      try { var acro = pdf.catalog.lookup(window.PDFLib.PDFName.of('AcroForm')); if (acro) acro.set(window.PDFLib.PDFName.of('NeedAppearances'), window.PDFLib.PDFBool.True); }
-      catch (e) { console.warn('[C3] C33_NEEDAPP_SKIPPED', e); }
-    }
+    // (The C-3.3 used to force NeedAppearances=true here, exactly as the C-3 did,
+    // and for the same wrong reason. It now runs the shared kit and clears the
+    // flag through lockAppearances — see fillC33.)
     function fillC33(PDFLib) {
       var PDFDocument = PDFLib.PDFDocument;
       return loadTemplate(PDFDocument, 'c33-template.pdf', 'forms/c3_3.pdf').then(function (pdf) {
@@ -2013,7 +2030,21 @@
         if (state.c33_releaseMentalHealth) setC(C33.releaseMH);
         // C. Certification date (ink signature drawn separately)
         setT(C33.certDate, fmtDate(todayISO()));
-        return embedSigC33(pdf, PDFLib).then(function () { setNeedAppearances(pdf); return pdf.save(); });
+        // Same treatment as the C-3, for the same reason: this is a sworn HIPAA
+        // release with the same three-box M/D/Y dates and a 3-2-4 SSN, and it was
+        // forcing NeedAppearances too — telling every viewer to discard the
+        // appearances pdf-lib generates at save() and redraw from /DA.
+        var K33 = fitKit(form, PDFLib);
+        K33.finish([
+          [C33.dobM, C33.dobD, C33.dobY],
+          [C33.injM, C33.injD, C33.injY],
+          [C33.ssn1, C33.ssn2, C33.ssn3]
+        ]);
+        return embedSigC33(pdf, PDFLib).then(function () {
+          lockAppearances(pdf, form, PDFLib);
+          flattenForm(form);
+          return pdf.save({ updateFieldAppearances: false });
+        });
       }).catch(function (e) { console.warn('[C3] C33_FILL_FAILED', e); return null; });
     }
 
