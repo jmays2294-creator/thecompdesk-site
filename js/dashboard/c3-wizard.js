@@ -22,7 +22,13 @@
  *   user          { id, email }        signed-in user (auth.uid)
  *   profile       profiles row         REQUIRED for prefill — fail loud if absent
  *   isNative      bool                 true inside Capacitor
- *   onComplete    fn()                 called after a successful generation
+ *   onDataChanged fn()                 REFRESH-ONLY — reload tier/profile behind
+ *                                      the success screen. MUST NOT navigate.
+ *   onComplete    fn()                 legacy "refresh AND go to the dashboard";
+ *                                      still honoured by goDash() as a fallback,
+ *                                      never called on successful generation (it
+ *                                      re-rendered the host over the success
+ *                                      screen — see generate()).
  *   goToDashboard fn()                 navigate back to the dashboard
  *   toast         fn(msg,type)         optional host toast; module has a fallback
  *
@@ -237,7 +243,11 @@
     employerPhone: P1 + '_2_Phone_Number[0]', employerPhone2: P1 + 'undefined_4[0]',   // B2: area-code box + rest
     workAddress: P1 + '_3_Your_work_address[0]',
     supervisor: P1 + '_5_Your_supervisors_name[0]',
+    // B6 is a stub box (214pt) followed by TWO full-width ruled lines — the form
+    // expects a list, so a concurrent employer's name AND address fit without
+    // shrinking anything.
     otherEmployers: P1 + '_6_List_namesaddresses_of_any_other_employers_at_the_time_of_your_injuryillness[0]',
+    otherEmployers2: P1 + '_1[0]', otherEmployers3: P1 + '_2[0]',
     // C. Your job
     jobTitle: P1 + '_1_What_was_your_job_title_or_description[0]',
     activities: P1 + '_2_What_types_of_activities_did_you_normally_perform_at_work[0]',
@@ -278,15 +288,20 @@
     noneReceived: P2 + 'None_received_skip_to_question_F5[0]',
     firstTreatName1: P2 + 'Name_and_address_where_you_were_first_treated_1[0]',
     firstTreatName2: P2 + 'Name_and_address_where_you_were_first_treated_2[0]',
-    firstTreatPhone: P2 + 'Phone_Number[0]',
+    // Both F-section phones are the SAME two-box "(___) ___-____" layout as A5
+    // and B2: a 23pt area-code stub plus a 68pt rest-of-number box. Writing the
+    // whole number into the stub is what rendered a treating-doctor phone at 5pt
+    // inside the area-code parentheses on a filed C-3.
+    firstTreatPhone: P2 + 'Phone_Number[0]', firstTreatPhone2: P2 + 'undefined_21[0]',
     treatingDoctors1: P2 + 'Give_the_name_and_address_of_the_doctors_treating_you_for_this_injuryillness_1[0]',
     treatingDoctors2: P2 + 'Give_the_name_and_address_of_the_doctors_treating_you_for_this_injuryillness_2[0]',
-    treatingDoctorsPhone: P2 + 'Phone_Number_2[0]',
+    treatingDoctorsPhone: P2 + 'Phone_Number_2[0]', treatingDoctorsPhone2: P2 + 'undefined_22[0]',
     // --- Completeness pass (2026-06-24): newly mapped fields. Y/N checkbox
     //     polarity confirmed by widget-rect + nearby-label extraction against
     //     the real form (label sits ~7-12px right of its box). ---
     dateHiredM: P1 + '_4_Date_you_were_hired[0]', dateHiredD: P1 + 'undefined_5[0]', dateHiredY: P1 + 'undefined_6[0]',
-    usualLocYes: P1 + 'Check_Box12[0]', usualLocNo: P1 + 'Check_Box13[0]', usualLocWhy: P1 + 'If_no_why_were_you_at_this_location[0]',
+    usualLocYes: P1 + 'Check_Box12[0]', usualLocNo: P1 + 'Check_Box13[0]',
+    usualLocWhy: P1 + 'If_no_why_were_you_at_this_location[0]', usualLocWhy2: P1 + '_4_Was_this_your_usual_work_location[0]',
     noticeDateM: P2 + 'Date_notice_given[0]', noticeDateD: P2 + 'undefined_13[0]', noticeDateY: P2 + 'undefined_14[0]',
     gaveNoticeYes: P2 + 'Check_Box19[0]', gaveNoticeNo: P2 + 'Check_Box20[0]',
     stoppedYes: P2 + 'Check_Box24[0]', stoppedNo: P2 + 'Check_Box25[0]',
@@ -389,6 +404,24 @@
       if (root.parentNode) root.parentNode.removeChild(root);
       _markImmersive(false);
     }
+    // The auto-teardown is correct MID-FLOW: any re-render of #app means the app
+    // navigated away, and an abandoned wizard must not be left floating over the
+    // new screen. It is dead wrong once the wizard reaches a TERMINAL screen.
+    //
+    // The success screen carries the download buttons, the ✉️ "Email my claim to
+    // the WCB" button — the only in-wizard path to actually filing — and the
+    // how-to-file steps. Any stray re-render of #app from anywhere in the app
+    // (an auth-state tick, a tier refresh, a background listener) disconnects the
+    // anchor and deletes all of it, with the PDF already generated. The worker
+    // sees the flow "stall" on the previous card and taps Generate again.
+    //
+    // So: terminalView() disarms this, and goDash() tears down explicitly
+    // instead. Leaving is then something the worker chooses, never something a
+    // repaint does to them.
+    root.__c3portal = {
+      teardown: teardown,
+      disarm: function () { if (obs) { try { obs.disconnect(); } catch (e) {} obs = null; } }
+    };
     try {
       obs = new MutationObserver(function () {
         // Registered BEFORE renderScreenSafe appends the anchor, so the first
@@ -439,17 +472,79 @@
     };
   }
 
-  /* ---- pdf-lib loader --------------------------------------------------- */
+  /* ---- pdf-lib loader ---------------------------------------------------
+   * Vendored copy FIRST, CDN only as a last resort — the same candidate-list
+   * probe js/workspace/feeapp.js already uses (one pattern, not two).
+   *
+   * This was CDN-only, which meant a worker on flaky wifi — or an App Review
+   * device behind a hotel captive portal — could not generate a C-3 AT ALL, on
+   * the one screen where the whole feature pays off.
+   *
+   * The CDN entry is load-bearing, not vestigial: this file is vendored
+   * byte-for-byte to thecompdesk.com, which has no js/vendor/ directory. There
+   * the local candidates 404, the probe falls through, and the site behaves
+   * exactly as it does today. Never make the local path the only path.
+   * -------------------------------------------------------------------- */
+  var PDF_LIB_CANDIDATES = [
+    'js/vendor/pdf-lib.min.js',
+    '/js/vendor/pdf-lib.min.js',
+    'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js'
+  ];
+  var _pdfLibPromise = null;
   function ensurePdfLib() {
     if (window.PDFLib) return Promise.resolve(window.PDFLib);
-    return new Promise(function (resolve, reject) {
-      var s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
-      s.onload = function () { resolve(window.PDFLib); };
-      s.onerror = function () { reject(new Error('pdf-lib failed to load')); };
-      document.head.appendChild(s);
+    if (_pdfLibPromise) return _pdfLibPromise;
+    _pdfLibPromise = new Promise(function (resolve, reject) {
+      var i = 0;
+      function tryNext() {
+        if (window.PDFLib) return resolve(window.PDFLib);
+        if (i >= PDF_LIB_CANDIDATES.length) { _pdfLibPromise = null; return reject(new Error('pdf-lib failed to load')); }
+        var s = document.createElement('script');
+        s.src = PDF_LIB_CANDIDATES[i++];
+        s.onload = function () { if (window.PDFLib) resolve(window.PDFLib); else tryNext(); };
+        s.onerror = function () { tryNext(); };
+        document.head.appendChild(s);
+      }
+      tryNext();
+    });
+    return _pdfLibPromise;
+  }
+
+  /* ---- network deadline -------------------------------------------------
+   * Resolve `p`, or resolve `fallback` after `ms` — never reject, never hang.
+   *
+   * WHY THIS IS MODULE-SCOPE AND USED EVERYWHERE: a .catch() only fires on a
+   * REJECTED promise. A dead connection, a captive portal or a half-open socket
+   * does not reject — it HANGS until the OS gives up, which iOS reports as
+   * `nw_read_request_report [Cn] Receive failed with error "Operation timed
+   * out"` and can sit there for 60s+ (longer with CapacitorHttp routing through
+   * native URLSession). Every unbounded read in the filing path is therefore a
+   * silent, error-free stall that reaches the worker as a dead button.
+   *
+   * ONLY EVER WRAP READS. Reads are idempotent and side-effect free, so
+   * abandoning one is safe. The WRITES in this flow (the storage upload and the
+   * c3_filings insert) are deliberately left unbounded: a client-side deadline
+   * cannot cancel a request the server may still be completing, so abandoning
+   * one and letting the worker retry is exactly how one claim becomes two
+   * filings — the duplicate this wizard was fixed for. A slow upload is waited
+   * out, not raced.
+   * -------------------------------------------------------------------- */
+  function withDeadline(p, ms, label, fallback) {
+    if (fallback === undefined) fallback = null;
+    return new Promise(function (resolve) {
+      var settled = false;
+      function finish(v) { if (settled) return; settled = true; try { clearTimeout(timer); } catch (e) {} resolve(v); }
+      var timer = setTimeout(function () {
+        console.warn('[C3] NET_TIMEOUT ' + label + ' exceeded ' + ms + 'ms — continuing without it');
+        finish(fallback);
+      }, ms);
+      try { Promise.resolve(p).then(finish, function (e) { console.warn('[C3] NET_FAILED ' + label, e); finish(fallback); }); }
+      catch (e) { console.warn('[C3] NET_THREW ' + label, e); finish(fallback); }
     });
   }
+  // Read budgets. Generous enough for a slow-but-alive connection, short enough
+  // that a dead one degrades while the worker is still watching.
+  var NET_MS = { template: 6000, signedUrl: 12000 };
 
   /* ---- helpers ---------------------------------------------------------- */
   function fmtDate(d) { if (!d) return ''; var p = d.split('-'); return p.length === 3 ? p[1] + '/' + p[2] + '/' + p[0] : d; }
@@ -468,6 +563,36 @@
     }
     if (i < words.length) out[out.length - 1] = (out[out.length - 1] + ' ' + words.slice(i).join(' ')).trim();
     return out;
+  }
+  // Textareas in this wizard hold ONE ANSWER PER LINE — that is how the
+  // suggestion chips add and remove their contributions. The C-3's text boxes are
+  // single-line AcroForm fields, and a literal "\n" inside one renders as nothing:
+  // three separate job duties collapsed onto one crowded line on a filed C-3.
+  // Join to "; " so each answer stays visibly separate before any wrapping.
+  function joinLines(s) {
+    return String(s == null ? '' : s).split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean).join('; ');
+  }
+  // A3 is ONE ruled line on the C-3. The address box's typeahead commits a full
+  // canonical address, so:
+  //   - the apartment/unit belongs next to the STREET, not tacked on after the
+  //     ZIP, which is where a plain append would put it;
+  //   - Mapbox's trailing ", United States" is noise on a New York State form and
+  //     costs ~15 characters of a 443pt box;
+  //   - the profile's city/state/ZIP line is appended ONLY when the address has
+  //     no ZIP of its own, so someone who typed a bare street still gets a
+  //     complete address and someone who used the typeahead is not given two.
+  function composeMailing(line1, unit, cityLine) {
+    var a = String(line1 || '').trim().replace(/[,\s]+(United States|USA|U\.S\.A\.|US)\s*$/i, '');
+    var u = String(unit || '').trim().replace(/^[,\s]+|[,\s]+$/g, '');
+    if (u) {
+      // "4B" reads as an apartment; "Apt 4B" / "Suite 200" / "#3" already say so.
+      if (!/^(apt|apartment|unit|ste|suite|fl|floor|rm|room|bldg|building|#)/i.test(u)) u = 'Apt ' + u;
+      var c = a.indexOf(',');
+      a = c > 0 ? (a.slice(0, c) + ', ' + u + a.slice(c)) : (a ? a + ', ' + u : u);
+    }
+    var city = String(cityLine || '').trim();
+    if (city && !/\b\d{5}(-\d{4})?\b/.test(a)) a = a ? (a + ', ' + city) : city;
+    return a;
   }
   function capWords(s) { return (s || '').split(' ').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' '); }
   // Split a long string across a 2-line form field on a word boundary near n1.
@@ -560,11 +685,20 @@
       // A. you  (email is collected for the attorney off-ramp only — the C-3 PDF
       // has no email box, so it is never written to the form; SSN is never stored.)
       name: profile.full_name || '', dob: profile.dob || '', ssn: '', gender: '',
-      mailing: profile.home_address || '', mailing2: mailingCityLine,
+      // mailing2 is the profile's city/state/ZIP line. It is NO LONGER a visible
+      // box: the address field's typeahead commits a full canonical address, so
+      // asking for the city again produced a second field with nothing to put in
+      // it. It survives as a FALLBACK for anyone who types a bare street with no
+      // ZIP (see composeMailing). mailingUnit is what the second box asks now.
+      mailing: profile.home_address || '', mailing2: mailingCityLine, mailingUnit: '',
       phone: profile.phone || '', email: (user && user.email) || profile.email || '',
       translator: '', language: (profile.language_pref && profile.language_pref !== 'en') ? profile.language_pref : '',
       // B. employer
       employer: profile.employer_name || '', employerPhone: '', workAddress: '', supervisor: '', otherEmployers: '',
+      // B6 concurrent employment — a second job held AT THE TIME of the injury.
+      // It belongs on the C-3 because concurrent wages raise the AWW the award is
+      // built from, and B6 was the one section the wizard never asked about.
+      hasConcurrent: false, concurrentEmployer: '', concurrentAddress: '', concurrentJob: '',
       // C. job
       jobTitle: OCC_LABELS[profile.occupation] || '', activities: '', jobTime: '', jobOther: '', grossPay: '', payFreq: '',
       // D. injury
@@ -808,7 +942,37 @@
     // Prompt C typeahead hooks. Each degrades to a plain field when its service /
     // key is absent (the service modules no-op cleanly, never throw).
     var employerAddrSuggestion = ''; // Place Details address offered on card 14
-    function attachAddress(key) { var n = $(fid(key)); if (n && CD.AddressAutocomplete && CD.AddressAutocomplete.attach) { try { CD.AddressAutocomplete.attach(n, { region: 'NY' }); } catch (e) {} } }
+    // mode 'place' searches POIs and streets as well as mailable addresses — see
+    // address-autocomplete.js. "Where did the injury happen" is a PLACE ("One
+    // State Street Plaza", "PS 9", the loading dock) far more often than it is a
+    // deliverable address, and the address-only index returns nothing for those,
+    // so that card looked like it had no typeahead at all.
+    function attachAddress(key, mode) {
+      var n = $(fid(key));
+      if (!n || !CD.AddressAutocomplete || !CD.AddressAutocomplete.attach) return;
+      try { CD.AddressAutocomplete.attach(n, { region: 'NY', mode: mode || 'address' }); } catch (e) {}
+    }
+    // Tailored-answer chips for the three free-text cards after the job card.
+    // Each kind sees every answer given BEFORE it — that is what makes the
+    // nature-of-injury suggestions name the body parts the worker actually
+    // tapped. Fails silently to a plain textarea if the service is absent (the
+    // website vendors this file without js/services/).
+    function attachSuggest(kind, key, hostId) {
+      if (!CD.C3Suggest || !CD.C3Suggest.attach) return;
+      try {
+        CD.C3Suggest.attach({
+          kind: kind, textarea: $(fid(key)), host: $(hostId), supabase: supabase,
+          ctx: {
+            jobTitle: state.jobTitle, activities: state.activities, whatDoing: state.whatDoing,
+            bodyParts: state.bodyParts,
+            // ENGLISH labels on purpose: a chip's text is appended verbatim into
+            // the textarea and lands on the PDF, which stays English exactly like
+            // the "[Body parts: ...]" bracket written from the same BODY_LABELS.
+            partLabel: function (p) { return BODY_LABELS[p] || p; }
+          }
+        });
+      } catch (e) { console.warn('[C3] SUGGEST_ATTACH', e); }
+    }
     function attachEmployer(key) {
       var n = $(fid(key));
       if (n && CD.EmployerAutocomplete && CD.EmployerAutocomplete.attach) {
@@ -836,10 +1000,11 @@
     }
 
     /* ---- field <-> state plumbing ------------------------------------- */
-    var TEXT_KEYS = ['name', 'dob', 'ssn', 'gender', 'mailing', 'mailing2', 'phone', 'email', 'jobTitle', 'activities',
-      'doi', 'timeOfInjury', 'whereHappened', 'whatDoing', 'howHappened', 'nature', 'employer', 'workAddress',
-      'supervisor', 'noticeDate', 'stopWorkDate', 'returnDate', 'grossPay', 'payFreq', 'firstTreatDate', 'treatType',
-      'firstTreatName', 'treatingDoctors', 'treatingDoctorsPhone', 'c33_priorDesc', 'c33_providers', 'certName'];
+    var TEXT_KEYS = ['name', 'dob', 'ssn', 'gender', 'mailing', 'mailing2', 'mailingUnit', 'phone', 'email', 'jobTitle', 'activities',
+      'doi', 'timeOfInjury', 'whereHappened', 'whatDoing', 'howHappened', 'nature', 'employer', 'workAddress', 'employerPhone',
+      'concurrentEmployer', 'concurrentAddress', 'concurrentJob',
+      'supervisor', 'noticeTo', 'noticeDate', 'stopWorkDate', 'returnDate', 'grossPay', 'payFreq', 'firstTreatDate', 'treatType',
+      'firstTreatName', 'firstTreatPhone', 'treatingDoctors', 'treatingDoctorsPhone', 'c33_priorDesc', 'c33_providers', 'certName'];
     var TEXT_FIELDS = TEXT_KEYS.map(function (k) { return [fid(k), k]; });
     var SENSITIVE = { ssn: 1 }; // never persisted to the draft store; written only onto the PDF in memory
     var C33_FIELDS = [['c3w-c33s-name', 'name'], ['c3w-c33s-dob', 'dob'], ['c3w-c33s-ssn', 'ssn'], ['c3w-c33s-doi', 'doi'], ['c3w-c33s-mailing', 'mailing'], ['c3w-c33s-mailing2', 'mailing2'], ['c3w-c33s-injury', 'nature'], ['c3w-c33s-providers', 'c33_providers'], ['c3w-c33s-certName', 'certName']];
@@ -916,7 +1081,10 @@
         build: function (card) {
           card.appendChild(helper(T('c3.cards.mailing.helper', 'This is where the Board will mail letters about your claim.')));
           card.appendChild(inputField('mailing', T('c3.fields.mailing', 'Mailing address'), 'req', T('c3.fields.mailingPh', 'Number and street')));
-          card.appendChild(inputField('mailing2', T('c3.fields.mailing2', 'City, State, ZIP'), 'opt', T('c3.fields.mailing2Ph', 'City, NY 10001')));
+          // Was "City, State, ZIP" — dead weight, because picking a suggestion in
+          // the box above commits the city, state and ZIP already. The apartment
+          // is the one part of an address the typeahead genuinely cannot know.
+          card.appendChild(inputField('mailingUnit', T('c3.fields.mailingUnit', 'Apartment / unit number'), 'opt', T('c3.fields.mailingUnitPh', 'Apt 4B, if any')));
         }, after: function () { attachAddress('mailing'); } },
       { key: 'contact', section: S0, required: ['phone'], icon: '📞', title: T('c3.cards.contact.title', 'How to reach you'),
         build: function (card) {
@@ -964,7 +1132,7 @@
         build: function (card) {
           card.appendChild(helper(T('c3.cards.where.helper', 'The address or place where the injury happened.')));
           card.appendChild(inputField('whereHappened', T('c3.fields.whereHappened', 'Where did it happen?'), 'req', T('c3.fields.whereHappenedPh', 'e.g. 1 Main Street, at the loading dock')));
-        }, after: function () { attachAddress('whereHappened'); } },
+        }, after: function () { attachAddress('whereHappened', 'place'); } },
       { key: 'doing', section: S1, required: ['whatDoing'], icon: '🏃',
         title: function () { return isOD() ? T('c3.cards.doing.titleOD', 'The work that caused it') : T('c3.cards.doing.title', 'What you were doing'); },
         build: function (card) {
@@ -974,14 +1142,16 @@
           card.appendChild(isOD()
             ? areaField('whatDoing', T('c3.fields.whatDoingOD', 'What work were you doing that made you ill?'), 'req', T('c3.fields.whatDoingODPh', 'e.g. running a jackhammer daily, spraying paint in a closed booth'))
             : areaField('whatDoing', T('c3.fields.whatDoing', 'What were you doing when it happened?'), 'req', T('c3.fields.whatDoingPh', 'e.g. unloading a truck, typing a report')));
-        } },
+          card.appendChild(el('div', { id: 'c3w-doing-host' }));
+        }, after: function () { attachSuggest('what_doing', 'whatDoing', 'c3w-doing-host'); } },
       { key: 'how', section: S1, required: ['howHappened'], icon: '⚠️',
         title: function () { return isOD() ? T('c3.cards.how.titleOD', 'How it developed') : T('c3.cards.how.title', 'How it happened'); },
         build: function (card) {
           card.appendChild(isOD()
             ? areaField('howHappened', T('c3.fields.howHappenedOD', 'How did the illness develop?'), 'req', T('c3.fields.howHappenedODPh', 'e.g. after years of loud machinery my hearing got worse and worse'))
             : areaField('howHappened', T('c3.fields.howHappened', 'How did the injury / illness happen?'), 'req', T('c3.fields.howHappenedPh', 'e.g. I tripped over a pipe and fell on the floor')));
-        } },
+          card.appendChild(el('div', { id: 'c3w-how-host' }));
+        }, after: function () { attachSuggest('how_happened', 'howHappened', 'c3w-how-host'); } },
       { key: 'body', section: S1, icon: '🩹',
         title: function () { return isOD() ? T('c3.cards.body.titleOD', 'Body parts affected') : T('c3.cards.body.title', 'Body parts injured'); },
         sub: function () { return isOD() ? T('c3.cards.body.subOD', 'Tap every part the condition affects — pick more than one.') : T('c3.cards.body.sub', 'Tap every part that was hurt — pick more than one.'); },
@@ -1005,7 +1175,8 @@
         build: function (card) {
           card.appendChild(helper(T('c3.cards.nature.helper', 'In plain words, what’s wrong?')));
           card.appendChild(areaField('nature', T('c3.fields.nature', 'What’s wrong? (e.g. torn rotator cuff, herniated disc)'), 'req', T('c3.fields.naturePh', 'List what’s hurt')));
-        } },
+          card.appendChild(el('div', { id: 'c3w-nature-host' }));
+        }, after: function () { attachSuggest('nature', 'nature', 'c3w-nature-host'); } },
       { key: 'employer', section: S2, required: ['employer'], icon: '🏢', title: T('c3.cards.employer.title', 'Your employer'),
         build: function (card) {
           card.appendChild(helper(T('c3.cards.employer.helper', 'The company you worked for when you got hurt — the claim is filed against them.')));
@@ -1015,15 +1186,58 @@
         build: function (card) {
           card.appendChild(inputField('workAddress', T('c3.fields.workAddress', 'Employer address'), 'opt', T('c3.fields.workAddressPh', 'Where you worked')));
           if (employerAddrSuggestion) card.appendChild(makeEmployerAddrChip(employerAddrSuggestion));
+          // B2 on the C-3. Its two boxes were mapped but nothing ever filled them.
+          card.appendChild(inputField('employerPhone', T('c3.fields.employerPhone', 'Employer phone'), 'opt', '(212) 555-1234'));
+          // B6 lives on its own card, which only joins the deck once this is
+          // tapped — a worker with one job never sees an extra step.
+          if (!state.hasConcurrent) {
+            var add = el('button', { type: 'button', class: 'c3w-add-btn' }, [T('c3.cards.concurrent.add', '+ Add a concurrent employer')]);
+            add.addEventListener('click', function () { syncFromDom(); state.hasConcurrent = true; persist(); goToCard('concurrent'); });
+            card.appendChild(add);
+            card.appendChild(el('div', { class: 'form-hint', text: T('c3.cards.concurrent.hint', 'Had a second job at the time of the injury? Those wages count toward your benefit rate.') }));
+          }
         }, after: function () { attachAddress('workAddress'); } },
+      // B6 — "List names/addresses of any other employers at the time of your
+      // injury/illness". Conditional, so the deck stays 24 cards for everyone who
+      // had one job. Written across B6's stub box plus its two full-width ruled
+      // lines, so a name AND an address fit at the same size as the rest of the
+      // form rather than being shrunk into the stub.
+      { key: 'concurrent', section: S2, skip: function () { return !state.hasConcurrent; }, icon: '🧾',
+        title: T('c3.cards.concurrent.title', 'Your other employer'),
+        build: function (card) {
+          card.appendChild(helper(T('c3.cards.concurrent.helper', 'The other job you were working at the time you got hurt. The Board counts those wages too.')));
+          card.appendChild(inputField('concurrentEmployer', T('c3.fields.concurrentEmployer', 'Other employer name'), 'opt', T('c3.fields.concurrentEmployerPh', 'Company name')));
+          card.appendChild(inputField('concurrentAddress', T('c3.fields.concurrentAddress', 'Their address'), 'opt', T('c3.fields.concurrentAddressPh', 'Where that job was')));
+          var rm = el('button', { type: 'button', class: 'c3w-remove-btn' }, [T('c3.cards.concurrent.remove', 'Remove this employer')]);
+          rm.addEventListener('click', function () {
+            syncFromDom();
+            state.hasConcurrent = false; state.concurrentEmployer = ''; state.concurrentAddress = '';
+            persist(); goToCard('employer_addr');
+          });
+          card.appendChild(rm);
+        },
+        after: function () {
+          var n = $(fid('concurrentEmployer'));
+          if (n && CD.EmployerAutocomplete && CD.EmployerAutocomplete.attach) { try { CD.EmployerAutocomplete.attach(n, {}); } catch (e) {} }
+          attachAddress('concurrentAddress');
+        } },
       { key: 'supervisor_notice', section: S2, icon: '🗣️', title: T('c3.cards.supervisorNotice.title', 'Reporting it'),
         build: function (card) {
           card.appendChild(helper(T('c3.cards.supervisorNotice.helperPre', 'Telling your boss you were hurt matters to the '), gloss('WCB'), T('c3.cards.supervisorNotice.helperPost', '.')));
           card.appendChild(inputField('supervisor', T('c3.fields.supervisor', 'Supervisor’s name'), 'opt', ''));
           card.appendChild(optGroup('gaveNotice', T('c3.fields.gaveNotice', 'Did you tell them?'), [['yes', T('c3.yes', 'Yes')], ['no', T('c3.no', 'No')]]));
         } },
-      { key: 'notice_detail', section: S2, icon: '📨', title: T('c3.cards.noticeDetail.title', 'How you reported it'),
+      // Only asked of someone who SAID they reported it — the C-3's whole notice
+      // block is conditional on that Yes, and asking "how did you tell them" of
+      // someone who answered No collected an answer the form has nowhere to put.
+      { key: 'notice_detail', section: S2, skip: function () { return state.gaveNotice === 'no'; }, icon: '📨', title: T('c3.cards.noticeDetail.title', 'How you reported it'),
         build: function (card) {
+          // The C-3 asks WHO notice was given to, and the wizard never did — so
+          // that box came off the printer blank on every filing. Defaults to the
+          // supervisor named on the previous card, and stays editable: notice
+          // often goes to a foreman, a dispatcher or an HR office instead.
+          if (!state.noticeTo && state.supervisor) { state.noticeTo = state.supervisor; prefilled.noticeTo = true; }
+          card.appendChild(inputField('noticeTo', T('c3.fields.noticeTo', 'Who did you tell?'), 'opt', T('c3.fields.noticeToPh', 'Supervisor, foreman, or HR')));
           card.appendChild(dateFieldB('noticeDate', T('c3.fields.noticeDate', 'Date you notified your employer'), 'opt'));
           // The C-3 records oral vs written notice; a text message is filed as
           // "in writing" (state.noticeMethod stays canonical for the PDF).
@@ -1054,13 +1268,18 @@
           card.appendChild(dateFieldB('firstTreatDate', T('c3.fields.firstTreatDate', 'Date of first treatment'), 'opt'));
           card.appendChild(selectFieldB('treatType', T('c3.fields.treatType', 'Where first treated?'), 'opt', [['', T('c3.selectPlaceholder', 'Select…')]].concat(treatTypeOptions())));
           card.appendChild(inputField('firstTreatName', T('c3.fields.firstTreatName', 'Name & address where first treated'), 'opt', ''));
-        } },
+          // F2's phone boxes were mapped but never collected — same two-box
+          // layout as the treating-doctor phone below.
+          card.appendChild(inputField('firstTreatPhone', T('c3.fields.firstTreatPhone', 'Their phone'), 'opt', '(212) 555-1234'));
+          // 'place' mode: a hospital or urgent care is a POI ("Mount Sinai
+          // Brooklyn"), which the address-only index does not return.
+        }, after: function () { attachAddress('firstTreatName', 'place'); } },
       { key: 'provider', section: S3, icon: '👩‍⚕️', title: T('c3.cards.provider.title', 'Your treating doctor'),
         build: function (card) {
           card.appendChild(helper(T('c3.cards.provider.helperPre', 'The doctor treating you now for this injury. An '), gloss('IME'), T('c3.cards.provider.helperPost', ' is a different exam the insurer may send you to.')));
           card.appendChild(inputField('treatingDoctors', T('c3.fields.treatingDoctors', 'Provider name & address'), 'opt', T('c3.fields.treatingDoctorsPh', 'Name & address')));
           card.appendChild(inputField('treatingDoctorsPhone', T('c3.fields.treatingDoctorsPhone', 'Their phone'), 'opt', '(212) 555-1234'));
-        } },
+        }, after: function () { attachAddress('treatingDoctors', 'place'); } },
       { key: 'prior', section: S3, icon: '🕓', title: T('c3.cards.prior.title', 'Prior injury'),
         build: function (card) {
           card.appendChild(helper(T('c3.cards.prior.helperPre', 'If you hurt this same body part before, New York needs a short release — the '), gloss('C-3.3'), T('c3.cards.prior.helperPost', '. We’ll build it automatically.')));
@@ -1343,7 +1562,25 @@
             .catch(function () { return null; });
         } catch (e) { return Promise.resolve(null); }
       }
-      return fromStorage()
+      // ...and it must never be able to STALL generation either.
+      //
+      // The .catch() above only fires on a REJECTED promise. A dead connection,
+      // a captive portal or a half-open socket does not reject — it HANGS until
+      // the OS gives up, which iOS reports as `nw_read_request_report [Cn]
+      // Receive failed with error "Operation timed out"` and can sit there for
+      // 60s+ (longer with CapacitorHttp routing through native URLSession). This
+      // is the FIRST network call in generate(), and the template is ~1.6 MB, so
+      // for that entire window the worker is holding a disabled "Generating…"
+      // button with no success screen and no error toast — the exact symptom the
+      // success-screen defect produced, from a completely unrelated cause. It is
+      // also what made "the vendored pdf-lib means it works offline" untrue: the
+      // library stopped needing the network, the TEMPLATE still did.
+      //
+      // Bounded because this is a READ: idempotent, side-effect free, and safe
+      // to abandon — we already ship the same blank form at `bundledPath`.
+      // See withDeadline() at module scope for why reads are bounded and the
+      // upload/insert writes deliberately are not.
+      return withDeadline(fromStorage(), NET_MS.template, 'c3-template read')
         .then(function (bytes) {
           if (bytes) return PDFDocument.load(bytes, LOAD_OPTS);
           // dev/pre-bucket fallback: the bundled blank form
@@ -1365,25 +1602,155 @@
         function setT(name, v) { try { if (v != null && v !== '') form.getTextField(name).setText(String(v)); } catch (e) {} }
         function setC(name) { try { form.getCheckBox(name).check(); } catch (e) {} }
         function setSz(name, sz) { try { form.getTextField(name).setFontSize(sz); } catch (e) {} }
+        // A font size that provably FITS the box, written in a font the form can
+        // actually RESOLVE. TWO separate defects made the certification-date year
+        // render as "202" on a filed C-3:
+        //
+        //  1. SIZE. That year box is 21pt wide — the narrowest on the form (the
+        //     others are 23 and 27). Four digits at the old flat size 9 is ~20pt
+        //     of glyphs before any padding.
+        //
+        //  2. FONT NAME — which is why fixing the size alone changed nothing.
+        //     pdf-lib's setFontSize() rewrites the field's /DA using ITS OWN font
+        //     name, "/Helvetica". The C-3's resource dictionary (/DR) defines
+        //     /ArialMT, /CourierNewPSMT, /Helv and /ZaDb — there is no
+        //     /Helvetica. deXFA sets NeedAppearances, so a viewer REGENERATES the
+        //     appearance from /DA, fails to resolve /Helvetica, and falls back to
+        //     its own default size, which clips again no matter what we asked
+        //     for. Measured on the delivered file: /DA read "/Helvetica 7 Tf"
+        //     against a /DR containing no such font, and it still clipped.
+        //
+        // So: size to the box AND name /Helv, which the /DR actually defines.
+        // Sizes are applied here (so pdf-lib generates appearance streams at the
+        // right size for viewers that use them) and the /DA font is repaired
+        // afterwards for viewers that regenerate from it — both classes covered.
+        function fitSz(name, maxSz) { try { fitField(form.getTextField(name), maxSz); } catch (e) {} }
+
+        // Helvetica advance widths (AFM, /1000 em) for ASCII 32–126, three digits
+        // each. /Helv IS Helvetica, so this is EXACT rather than an estimate —
+        // which matters because the alternative is a flat per-character average,
+        // and an average that guesses high shrinks type that would have fitted.
+        // The certification year is the worst case: "2026" is four digits at
+        // 0.556 em, so a 0.56 average over-measures by nothing at all for the
+        // glyphs but the 6pt padding allowance pushed it down to 6pt — three
+        // sizes smaller than the month and day boxes beside it, on the same row.
+        // '@' is clamped to 999 (true 1015) to keep the table fixed-width; it
+        // does not appear anywhere on a C-3.
+        var HELV_W = '278278355556556889667191333333389584278333278278'
+          + '556556556556556556556556556556278278584584584556999'
+          + '667667722722667611778722278500667556833722778667778722667611722667944667667611'
+          + '278278278469556333'
+          + '556556500556556278556556222222500222833556556556556333500278556500722500500500'
+          + '334260334584';
+        function helvEm(txt) {
+          var t = 0;
+          for (var i = 0; i < txt.length; i++) {
+            var c = txt.charCodeAt(i) - 32;
+            // Anything outside Latin-1 printable (an em dash, a curly quote) gets
+            // the ~average width rather than being ignored — under-counting a
+            // character is how text creeps past the edge of a box.
+            t += (c >= 0 && c < 95) ? parseInt(HELV_W.substr(c * 3, 3), 10) : 556;
+          }
+          return t / 1000;
+        }
+        // Shrink ONE filled single-line field until its text fits its own box.
+        // Multi-line fields are left alone — they wrap, which is correct.
+        function fitField(f, maxSz) {
+          try {
+            var txt = String(f.getText() || '');
+            if (!txt) return;
+            var wdgs = f.acroField.getWidgets();
+            if (!wdgs.length) return;
+            var w = wdgs[0].getRectangle().width;
+            if (!w) return;
+            var multi = false; try { multi = !!f.isMultiline(); } catch (e) {}
+            if (multi || txt.indexOf('\n') >= 0) return;
+            // 4pt of padding = the ~2pt-per-side an AcroForm text field insets
+            // from its border. The old allowance was 6pt to cover a guessed
+            // metric; the metric is exact now, so the guard does not need to be.
+            var em = helvEm(txt);
+            if (!em) return;
+            var sz = Math.floor((w - 4) / em);
+            f.setFontSize(Math.max(5, Math.min(maxSz || 9, sz)));
+          } catch (e) {}
+        }
+        // Every filled single-line field, not just the dates. The year was the
+        // one that got noticed; the same arithmetic applies to a long employer
+        // name or a treating-doctor address in a narrow box.
+        function fitAllFields() {
+          try {
+            form.getFields().forEach(function (f) {
+              if (typeof f.getText !== 'function' || typeof f.setFontSize !== 'function') return;
+              var cur = 9;
+              try { var m = String(f.acroField.dict.get(PDFLib.PDFName.of('DA')) || '').match(/([\d.]+)\s+Tf/); if (m) cur = parseFloat(m[1]) || 9; } catch (e) {}
+              fitField(f, Math.max(cur, 9));
+            });
+          } catch (e) { console.warn('[C3] FIT_ALL_SKIPPED', e); }
+        }
+        // Point every /DA at /Helv — a font this form's /DR actually defines —
+        // while preserving the size the appearance streams were generated at.
+        // pdf-lib names its own /Helvetica, which the /DR does not contain, so a
+        // viewer honouring NeedAppearances cannot resolve it and falls back to a
+        // default size. That is what rendered the certification year as "202"
+        // even after the size was corrected. Runs AFTER updateFieldAppearances,
+        // which rewrites /DA on every field it touches.
+        function repairDA() {
+          var K = PDFLib.PDFName.of('DA');
+          try {
+            form.getFields().forEach(function (f) {
+              try {
+                if (typeof f.getText !== 'function') return;
+                if (!f.getText()) return;
+                var da = String(f.acroField.dict.get(K) || '');
+                var m = da.match(/([\d.]+)\s+Tf/);
+                var sz = m ? parseFloat(m[1]) : 9;
+                if (!(sz > 0)) sz = 9;
+                var nda = PDFLib.PDFString.of('/Helv ' + sz + ' Tf 0 g');
+                f.acroField.dict.set(K, nda);
+                f.acroField.getWidgets().forEach(function (wdg) { try { wdg.dict.set(K, nda); } catch (e) {} });
+              } catch (e) {}
+            });
+          } catch (e) { console.warn('[C3] DA_REPAIR_SKIPPED', e); }
+        }
         // Spread long text across the form's existing continuation-line fields so it
         // uses every ruled line instead of clipping in the first (stub) box.
-        function setMulti(names, widths, text) { if (!text) return; var caps = widths.map(function (w) { return Math.max(6, Math.floor(w / 5)); }); var parts = wrapFields(text, caps); for (var k = 0; k < names.length; k++) { setT(names[k], parts[k] || ''); setSz(names[k], 9); } }
+        // Per-line character capacity has to AGREE with fitField's metric, or the
+        // two fight: fitField measures at 0.56em with 6pt of padding, so a cap
+        // computed at a looser 0.2em/pt produced lines fitField then shrank to
+        // 8pt — a page of subtly different type sizes. Deriving the cap from the
+        // same numbers means a wrapped line always fits at 9 and nothing shrinks.
+        //   maxChars = (w - padding) / (0.56 * 9pt)
+        function capFor(w) { return Math.max(6, Math.floor((w - 6) / 5.05)); }
+        function setMulti(names, widths, text) {
+          text = joinLines(text);
+          if (!text) return;
+          var parts = wrapFields(text, widths.map(capFor));
+          for (var k = 0; k < names.length; k++) { setT(names[k], parts[k] || ''); setSz(names[k], 9); }
+        }
         var dobP = dateParts(state.dob), doiP = dateParts(state.doi);
         // A. you
         setT(F.wcb, profile.wcb_case_number || '');
         setT(F.name, state.name);
         setT(F.dobM, dobP[0]); setT(F.dobD, dobP[1]); setT(F.dobY, dobP[2]);
-        setT(F.mailing, [state.mailing, state.mailing2].filter(Boolean).join(' '));
+        setT(F.mailing, composeMailing(state.mailing, state.mailingUnit, state.mailing2));
         setT(F.ssn, state.ssn);
         var phP = phoneParts(state.phone); setT(F.phone, phP[0]); setT(F.phone2, phP[1]);
         if (state.gender === 'M') setC(F.genderM); else if (state.gender === 'F') setC(F.genderF);
         if (state.translator === 'yes') { setC(F.translatorY); setT(F.language, state.language); } else if (state.translator === 'no') setC(F.translatorN);
         // B. employer
         setT(F.employer, state.employer); var ephP = phoneParts(state.employerPhone); setT(F.employerPhone, ephP[0]); setT(F.employerPhone2, ephP[1]);
-        setT(F.workAddress, state.workAddress); setT(F.supervisor, state.supervisor); setT(F.otherEmployers, state.otherEmployers);
+        setT(F.workAddress, state.workAddress); setT(F.supervisor, state.supervisor);
+        // B6 — concurrent employment across the stub box and its two ruled lines.
+        // A legacy free-text otherEmployers draft still wins if one is present.
+        var b6 = String(state.otherEmployers || '').trim();
+        if (!b6 && state.hasConcurrent) b6 = [state.concurrentEmployer, state.concurrentAddress].map(function (s) { return String(s || '').trim(); }).filter(Boolean).join(' — ');
+        setMulti([F.otherEmployers, F.otherEmployers2, F.otherEmployers3], [214, 504, 503], b6);
         var dhP = dateParts(state.dateHired); setT(F.dateHiredM, dhP[0]); setT(F.dateHiredD, dhP[1]); setT(F.dateHiredY, dhP[2]);
-        // C. job
-        setT(F.jobTitle, state.jobTitle); setT(F.activities, state.activities);
+        // C. job — C2 is a 296pt stub with a 506pt ruled line under it. Writing
+        // the duties textarea straight into the stub put three newline-separated
+        // duties on one crowded line and left the ruled line empty.
+        setT(F.jobTitle, state.jobTitle);
+        setMulti([F.activities, F.activities2], [296, 506], state.activities);
         if (state.jobTime && JOBTIME_FIELDS[state.jobTime]) setC(JOBTIME_FIELDS[state.jobTime]);
         if (state.jobTime === 'Other') setT(F.jobOtherText, state.jobOther);
         setT(F.grossPay, state.grossPay); setT(F.payFreq, state.payFreq);
@@ -1392,7 +1759,7 @@
         setT(F.timeOfInjury, state.timeOfInjury); if (state.ampm === 'AM') setC(F.am); else if (state.ampm === 'PM') setC(F.pm);
         setMulti([F.whereHappened, F.whereHappened2], [190, 506], state.whereHappened);
         if (state.usualLocation === 'yes') setC(F.usualLocYes);
-        else if (state.usualLocation === 'no') { setC(F.usualLocNo); setT(F.usualLocWhy, state.usualLocationWhy); }
+        else if (state.usualLocation === 'no') { setC(F.usualLocNo); setMulti([F.usualLocWhy, F.usualLocWhy2], [155, 504], state.usualLocationWhy); }
         setMulti([F.whatDoing, F.whatDoing2], [141, 503], state.whatDoing);
         setMulti([F.howHappened, F.howHappened2, F.howHappened3], [204, 506, 506], state.howHappened);
         var natureText = state.nature + (state.bodyParts.length ? ('  [Body parts: ' + state.bodyParts.map(function (p) { return BODY_LABELS[p] || p; }).join(', ') + ']') : '');
@@ -1401,7 +1768,7 @@
         setT(F.nameP2, state.name); setT(F.doiP2M, doiP[0]); setT(F.doiP2D, doiP[1]); setT(F.doiP2Y, doiP[2]);
         // third party
         if (state.objectInvolved === 'yes') setT(F.objectWhat, state.objectWhat);
-        if (state.motorVehicle === 'yes') { if (state.vehicleType === 'your_vehicle') setC(F.yourVehicle); else if (state.vehicleType === 'employers_vehicle') setC(F.employersVehicle); else if (state.vehicleType === 'other_vehicle') setC(F.otherVehicle); setT(F.licensePlate, state.licensePlate); setT(F.mvCarrier1, state.mvCarrier); }
+        if (state.motorVehicle === 'yes') { if (state.vehicleType === 'your_vehicle') setC(F.yourVehicle); else if (state.vehicleType === 'employers_vehicle') setC(F.employersVehicle); else if (state.vehicleType === 'other_vehicle') setC(F.otherVehicle); setT(F.licensePlate, state.licensePlate); setMulti([F.mvCarrier1, F.mvCarrier2], [167, 503], state.mvCarrier); }
         // notice
         if (state.gaveNotice === 'yes') {
           setC(F.gaveNoticeYes);
@@ -1424,24 +1791,42 @@
         var ftP = dateParts(state.firstTreatDate); setT(F.firstTreatDate, ftP[0]); setT(F.firstTreatD, ftP[1]); setT(F.firstTreatY, ftP[2]);
         if (state.treatType && TREAT_FIELDS[state.treatType]) setC(TREAT_FIELDS[state.treatType]);
         if (state.treatType === 'none_received') setC(F.noneReceived);
-        setT(F.firstTreatName1, state.firstTreatName); setT(F.firstTreatPhone, state.firstTreatPhone);
-        setT(F.treatingDoctors1, state.treatingDoctors); setT(F.treatingDoctorsPhone, state.treatingDoctorsPhone);
+        // Both F-section entries are "name AND address" questions with a second
+        // ruled line the form provides and the wizard never used, and both phones
+        // are two-box layouts whose second box was never mapped — which is how a
+        // 9-digit number ended up rendered at 5pt inside the area-code box.
+        setMulti([F.firstTreatName1, F.firstTreatName2], [326, 345], state.firstTreatName);
+        var ftPh = phoneParts(state.firstTreatPhone); setT(F.firstTreatPhone, ftPh[0]); setT(F.firstTreatPhone2, ftPh[1]);
+        setMulti([F.treatingDoctors1, F.treatingDoctors2], [224, 349], state.treatingDoctors);
+        var tdPh = phoneParts(state.treatingDoctorsPhone); setT(F.treatingDoctorsPhone, tdPh[0]); setT(F.treatingDoctorsPhone2, tdPh[1]);
         // Prior injury (F4) — mark Yes/No on the C-3 itself and describe it across
         // the three "complete & file Form C-3.3 together" lines. The separate
         // C-3.3 is still generated + bundled (see generate()); this makes the C-3
         // self-reference it instead of leaving the block blank.
         if (state.priorInjury === 'yes') {
           setC(F.priorYes);
-          var pw = String(state.c33_priorDesc || '').trim();
-          if (pw) { var l1 = wrap2(pw, 64), rest = wrap2(l1[1], 64); setT(F.c33Together1, l1[0]); setT(F.c33Together2, rest[0]); setT(F.c33Together3, rest[1]); }
+          setMulti([F.c33Together1, F.c33Together2, F.c33Together3], [505, 505, 505], state.c33_priorDesc);
         } else if (state.priorInjury === 'no') setC(F.priorNo);
         // certification
         setT(F.printName, state.certName || state.name);
         var cdP = dateParts(todayISO()); setT(F.certDate, cdP[0]); setT(F.certDateD, cdP[1]); setT(F.certDateY, cdP[2]);
-        // Shrink every narrow date/phone box so the year (or area code) can't clip.
-        ['dobM', 'dobD', 'dobY', 'dateHiredM', 'dateHiredD', 'dateHiredY', 'doiM', 'doiD', 'doiY', 'doiP2M', 'doiP2D', 'doiP2Y', 'noticeDateM', 'noticeDateD', 'noticeDateY', 'stopWorkDate', 'stopWorkD', 'stopWorkY', 'returnedDate', 'returnedD', 'returnedY', 'firstTreatDate', 'firstTreatD', 'firstTreatY', 'certDate', 'certDateD', 'certDateY', 'phone', 'phone2', 'employerPhone', 'employerPhone2'].forEach(function (k) { setSz(F[k], 9); });
+        // Size every narrow date/phone box to the width it ACTUALLY has, so a
+        // 4-digit year or an area code can never clip. Must run after the values
+        // are set — fitSz measures the text it is going to render.
+        ['dobM', 'dobD', 'dobY', 'dateHiredM', 'dateHiredD', 'dateHiredY', 'doiM', 'doiD', 'doiY', 'doiP2M', 'doiP2D', 'doiP2Y', 'noticeDateM', 'noticeDateD', 'noticeDateY', 'stopWorkDate', 'stopWorkD', 'stopWorkY', 'returnedDate', 'returnedD', 'returnedY', 'firstTreatDate', 'firstTreatD', 'firstTreatY', 'certDate', 'certDateD', 'certDateY', 'phone', 'phone2', 'employerPhone', 'employerPhone2',
+          'firstTreatPhone', 'firstTreatPhone2', 'treatingDoctorsPhone', 'treatingDoctorsPhone2'].forEach(function (k) { fitSz(F[k], 9); });
+        // Order matters, and getting it wrong is what shipped a truncated year:
+        //   1. generate appearance streams at the sizes fitSz chose, for viewers
+        //      that render the stored AP;
+        //   2. THEN repair /DA to a font the /DR defines, for viewers that honour
+        //      NeedAppearances and regenerate from /DA;
+        //   3. save with updateFieldAppearances:false, or pdf-lib rewrites /DA
+        //      back to its own unresolvable /Helvetica and undoes step 2.
+        fitAllFields();
+        try { form.updateFieldAppearances(); } catch (e) { console.warn('[C3] APPEARANCE_UPDATE_SKIPPED', e); }
+        repairDA();
         // signature image on page 2 (no AcroForm field for the ink line)
-        return embedSig(pdf, PDFLib).then(function () { deXFA(pdf); return pdf.save(); });
+        return embedSig(pdf, PDFLib).then(function () { deXFA(pdf); return pdf.save({ updateFieldAppearances: false }); });
       });
     }
     function embedSig(pdf, PDFLib) {
@@ -1450,11 +1835,24 @@
         var dataUrl = sig.canvas.toDataURL('image/png');
         return pdf.embedPng(dataUrl).then(function (png) {
           var pages = pdf.getPages(); var page2 = pages[1]; if (!page2) return;
-          // EMPLOYEE'S Signature line — same row as the employee "Date" box (y≈129),
-          // to the right of the "Employee's Signature:" label. (NOT the attorney row
-          // lower down.) Render-verified 2026-06-25.
-          var w = 150, h = Math.min(w * (png.height / png.width), 22);
-          page2.drawImage(png, { x: 150, y: 132, width: w, height: h });
+          // EMPLOYEE'S Signature line — the same row as "Print Name" and the
+          // employee Date boxes. (NOT the attorney row lower down.)
+          //
+          // Derived from the Print_Name widget rather than hard-coded, so a WCB
+          // form revision that moves the row moves the signature with it. The
+          // old literals (y:132, height up to 22) put the image at 132→154 on a
+          // row that ends at 146, so ~8pt of every signature climbed into the
+          // text above and overlapped it. Measured against the shipped template:
+          // Print_Name is x=317 y=130 w=159 h=16 on a 612×792 page.
+          var rect = null;
+          try { rect = pdf.getForm().getTextField(F.printName).acroField.getWidgets()[0].getRectangle(); } catch (e) {}
+          var lineY = rect ? rect.y : 130;          // sit ON the ruled line
+          var rowH = rect ? rect.height : 16;       // and never grow past the row
+          var SIG_X = 150;                          // right of the "Employee's Signature:" label
+          var maxW = rect ? Math.max(90, rect.x - 12 - SIG_X) : 150;
+          var w = Math.min(150, maxW);
+          var h = Math.min(w * (png.height / png.width), rowH);
+          page2.drawImage(png, { x: SIG_X, y: lineY, width: w, height: h });
         });
       } catch (e) { console.warn('[C3] SIG_EMBED_SKIPPED', e); return Promise.resolve(); }
     }
@@ -1520,6 +1918,8 @@
     // storage_path (C-3 absent) and a populated c33_path.
     SelfFilePackage.prototype.submit = function (pdfBytes, c33Bytes) {
       var api = this.api, uid = user.id, ts = Date.now();
+      var phase = this.onPhase || function () {};
+      phase('upload');
       var c3path = pdfBytes ? (uid + '/' + ts + '.pdf') : null;
       var first = c3path
         ? api.storage.from('c3-filings').upload(c3path, new Blob([pdfBytes], { type: 'application/pdf' }), { contentType: 'application/pdf', upsert: false }).then(function (up) { if (up && up.error) throw up.error; })
@@ -1532,17 +1932,40 @@
             .then(function (up2) { if (up2 && up2.error) throw up2.error; return c33path; });
         })
         .then(function (c33path) {
+          console.log('[C3] STAGE upload-done c3=' + !!c3path + ' c33=' + !!c33path);
+          phase('save');
           var row = { user_id: uid, status: 'generated', storage_path: c3path ? ('c3-filings/' + c3path) : null, c33_path: c33path ? ('c3-filings/' + c33path) : null, wcb_case_number: profile.wcb_case_number || null, has_attorney: !!profile.has_attorney, generated_at: new Date().toISOString() };
-          return api.from('c3_filings').insert(row).then(function (res) { if (res && res.error) throw res.error; return { kind: 'self_file', path: c3path, c33path: c33path }; });
+          return api.from('c3_filings').insert(row).then(function (res) {
+            if (res && res.error) throw res.error;
+            console.log('[C3] STAGE insert-done — the filing is now SAVED on the server');
+            return { kind: 'self_file', path: c3path, c33path: c33path };
+          });
         })
         .then(function (out) {
-          // mint short-TTL signed URLs for immediate download (only for present forms)
+          phase('link');
+          // Mint short-TTL signed URLs for immediate download (present forms only).
+          //
+          // THE FILING IS ALREADY SAVED by the time we get here — the upload and
+          // the c3_filings insert have both succeeded. These two reads are a
+          // CONVENIENCE (they power the download + "Email my claim to the WCB"
+          // buttons), so they must never be able to hold the success screen
+          // hostage. Unbounded, they did exactly that: on a stalled connection
+          // createSignedUrl is the LAST call in submit(), so it hung, submit()
+          // never resolved, and the worker sat on "Generating…" forever with a
+          // filing already on the server and nothing on screen to prove it.
+          // That is what produced three identical filings on 2026-08-11.
+          //
+          // Bounded and non-fatal: on timeout the URL is simply null, submit()
+          // still resolves, and showSuccess() renders the "saved, but we can't
+          // link it right now" variant that points at My documents.
           var p = out.path
-            ? api.storage.from('c3-filings').createSignedUrl(out.path, 3600).then(function (s) { out.signedUrl = (s && s.data && s.data.signedUrl) || null; })
+            ? withDeadline(api.storage.from('c3-filings').createSignedUrl(out.path, 3600), NET_MS.signedUrl, 'signed URL (C-3)')
+                .then(function (s) { out.signedUrl = (s && s.data && s.data.signedUrl) || null; })
             : Promise.resolve();
           return p.then(function () {
             if (!out.c33path) return out;
-            return api.storage.from('c3-filings').createSignedUrl(out.c33path, 3600).then(function (s2) { out.c33SignedUrl = (s2 && s2.data && s2.data.signedUrl) || null; return out; });
+            return withDeadline(api.storage.from('c3-filings').createSignedUrl(out.c33path, 3600), NET_MS.signedUrl, 'signed URL (C-3.3)')
+              .then(function (s2) { out.c33SignedUrl = (s2 && s2.data && s2.data.signedUrl) || null; return out; });
           });
         });
     };
@@ -1594,9 +2017,19 @@
     // anyone who skips) go straight to generate(). Skipping fully completes the
     // flow — a local export with full filing instructions.
     function beforeExport(certAgreed) {
-      if (working) return;
+      // Never a silent tap — see generate() for what this cost.
+      if (working) { toast(T('c3.toasts.stillWorking', 'Still working on your C-3 — one moment.')); return; }
       syncFromDom();
       if (!validateForExport(certAgreed)) return;
+      // POINT OF COMMITMENT. From here the worker is exporting a sworn filing and
+      // the wizard owns the screen until it reaches a terminal state or they
+      // cancel out of it. Stop the portal observer now, BEFORE the multi-second
+      // generation window — an #app re-render from anywhere else in the app (an
+      // auth tick, a tier refresh, a failed analytics POST) would otherwise tear
+      // the wizard out mid-build, and the success screen would be assembled
+      // inside a detached node that nobody can see. Exits still tear down
+      // explicitly via goDash().
+      disarmPortal();
       // Optional account offer (anon) → then the MANDATORY sworn-document ack gate,
       // which is the final, non-dismissible step before generate for EVERYONE.
       if (!anon) { showCertAckGate(certAgreed); return; }
@@ -1608,7 +2041,17 @@
     // app's auth screen, and "Skip" generates + exports the forms locally.
     function showAccountOffer(certAgreed) {
       persist();
-      var ov = el('div', { style: 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px' });
+      // z-index 100044, ABOVE the wizard's own .c3w root (100040).
+      //
+      // This was 100000. Both this overlay and .c3w are children of
+      // document.body, so once the Aurora Glass 6.x fix portalled .c3w out of
+      // #app and gave it 100040, this modal started rendering BEHIND the
+      // full-screen wizard. A guest tapped "Generate & File My C-3" and the
+      // account offer opened where they could not see it — the flow looked
+      // frozen, and the only way to reach the modal was to tap ✕, which tore
+      // the wizard down and revealed it. Order now: wizard 100040 < offer
+      // 100044 < ack gate 100045 < toasts 100050/100060 < ToU gate 100060.
+      var ov = el('div', { style: 'position:fixed;inset:0;z-index:100044;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px' });
       function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
       // #1d4ed8, not #3b82f6: white on #3b82f6 measures 3.68:1 and 14px/600 is
       // not WCAG "large text", so it needed 4.5. #1d4ed8 is 6.70:1. This literal
@@ -1654,7 +2097,11 @@
       // This gate stays a hard, opaque, red-bordered alarm surface — DELIBERATELY
       // not glass. It is a stop sign in front of a sworn filing; softening or
       // blurring it would work against the one job it has.
-      var ov = el('div', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'c3w-ack-title', style: 'position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto' });
+      // z-index 100045 — above .c3w (100040) and the account offer (100044).
+      // Was 100001, i.e. BEHIND the portalled wizard: the mandatory sworn-document
+      // gate opened invisibly and export looked like a dead button. See
+      // showAccountOffer for the full stacking order.
+      var ov = el('div', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'c3w-ack-title', style: 'position:fixed;inset:0;z-index:100045;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto' });
       var prevFocus = document.activeElement;
       var _release = null;
       function close() {
@@ -1725,8 +2172,47 @@
       }
     }
 
+    // The filing this wizard SESSION produced, once submit() has resolved.
+    //
+    // WHY: on 2026-08-11 one worker's three taps became three complete filings —
+    // three 1.7 MB uploads and three c3_filings rows in 64 seconds — because the
+    // success screen never appeared and there was nothing to stop a retry from
+    // building and filing the whole thing again. `working` cannot cover this: it
+    // is cleared the moment the chain settles, so it only guards a double-tap
+    // DURING generation, not a retry after it.
+    //
+    // Scoped to render(), NOT the module: a worker who legitimately opens the
+    // wizard again — a second injury, a second claim — must still be able to
+    // file. One session, one filing.
+    var filedResult = null;
+
+    // WHERE the flow currently is. Two jobs:
+    //
+    //  1. It drives the button label, so "stuck" is never a mystery to the
+    //     worker OR to whoever reads the bug report — "stuck on Uploading" is a
+    //     diagnosis, "stuck on Generating…" was three debugging cycles.
+    //  2. The watchdog needs it to decide whether a retry is SAFE. Before the
+    //     upload starts nothing has been written, so retrying is free. After it
+    //     starts the server may already hold the filing, and re-running would
+    //     produce the duplicate claim this wizard was fixed for.
+    var PHASE = { build: 'build', upload: 'upload', save: 'save', link: 'link' };
+    var _phase = null;
+    var _watchdog = null;
+    // Long enough that a slow-but-alive 1.7 MB upload finishes; short enough
+    // that a dead flow surfaces while the worker is still holding the phone.
+    var WATCHDOG_MS = 90000;
+    function clearWatchdog() { if (_watchdog) { try { clearTimeout(_watchdog); } catch (e) {} _watchdog = null; } }
+
     function generate(certAgreed) {
-      if (working) return;
+      // NEVER silent. `working` used to swallow the tap and return, so once
+      // anything in this chain hung, every later tap of "Generate & File My
+      // C-3" did nothing at all — no modal, no message — and the wizard was
+      // dead until the app was force-closed. That is indistinguishable from a
+      // broken button, and it is what "it just stays stuck" reported.
+      if (working) { toast(T('c3.toasts.stillWorking', 'Still working on your C-3 — one moment.')); return; }
+      // Already filed in this session. The claim is on the server; re-show the
+      // screen that proves it rather than filing a duplicate.
+      if (filedResult) { showSuccess(filedResult); return; }
       syncFromDom();
       syncToStore();
       if (!validateForExport(certAgreed)) return;
@@ -1734,8 +2220,38 @@
       var formLabel = c33Only ? 'C-3.3' : 'C-3';
       working = true;
       var btn = $(c33Only ? 'c3w-c33-generate' : 'c3w-generate'); if (btn) { btn.disabled = true; btn.textContent = T('c3.generating', 'Generating…'); }
+      function setPhase(p) {
+        _phase = p;
+        console.log('[C3] STAGE phase=' + p);
+        if (!btn) return;
+        btn.textContent =
+          p === PHASE.upload ? T('c3.phase.uploading', 'Uploading your C-3…') :
+          p === PHASE.save ? T('c3.phase.saving', 'Saving your claim…') :
+          p === PHASE.link ? T('c3.phase.linking', 'Finishing up…') :
+          T('c3.generating', 'Generating…');
+      }
+      setPhase(PHASE.build);
+      // The backstop. Every previous failure here ended as an indefinite wait,
+      // because a stalled read never rejects and nothing was watching the clock
+      // for the flow as a whole. Individual reads have deadlines now; this
+      // catches anything they don't — including a hung WRITE, which cannot be
+      // bounded at the call site without risking a duplicate filing.
+      clearWatchdog();
+      _watchdog = setTimeout(function () {
+        if (!working) return;
+        console.error('[C3] WATCHDOG_FIRED phase=' + _phase + ' after ' + WATCHDOG_MS + 'ms');
+        working = false;
+        showStuck(_phase, formLabel, certAgreed);
+      }, WATCHDOG_MS);
+      // Permanent, low-volume stage log (5 lines per filing). This flow's failure
+      // modes are SILENT — a stalled read throws nothing, so an Xcode log shows
+      // only OS-level `nw_read_request_report … Operation timed out` with no way
+      // to tell which call stalled. Two rounds of guessing bought that lesson.
+      console.log('[C3] STAGE generate-start anon=' + anon + ' c33Only=' + c33Only);
       ensurePdfLib().then(function (PDFLib) {
+        console.log('[C3] STAGE pdf-lib-ready');
         var submitter = anon ? new LocalDownloadPackage() : new SelfFilePackage(supabase);
+        submitter.onPhase = setPhase;
         if (c33Only) {
           return fillC33(PDFLib).then(function (c33Bytes) {
             if (!c33Bytes) throw new Error('C-3.3 generation failed');
@@ -1752,23 +2268,80 @@
           });
         });
       }).then(function (result) {
-        // Draft is fulfilled — clear both the local autosave and the server row.
-        return store.remove(STORE_KEY).then(function () { return dbClearDraft(); }).then(function () { return result; });
-      }).then(function (result) {
         working = false;
+        clearWatchdog();
+        filedResult = result;
         try { saveClaimTypeToProfile(); } catch (e) {}
-        // onComplete reloads tier + returns to the dashboard (where signed-in
-        // users see the new filing in "My Documents"). Guests have no Documents
-        // card and the local download link lives ONLY on the success screen, so
-        // skip the navigate-away for them — keep the success screen up.
-        try { if (!anon && typeof ctx.onComplete === 'function') ctx.onComplete(); } catch (e) {}
+
+        // Housekeeping, NOT part of the filing. These two used to sit in the main
+        // promise chain, so a rejected draft-clear dropped a COMPLETED filing into
+        // the .catch below and told the worker "We couldn't generate your C-3" —
+        // the worst possible lie, because the claim is already on the server.
+        // Fire-and-forget, each swallowed independently: nothing after a resolved
+        // submit() may turn a real filing into an error.
+        try { Promise.resolve(store.remove(STORE_KEY)).catch(function () {}); } catch (e) {}
+        try { Promise.resolve(dbClearDraft()).catch(function () {}); } catch (e) {}
+
+        // THE SUCCESS SCREEN OWNS THE END OF THE FLOW. Render it FIRST and leave
+        // it up: the download buttons, the ✉️ "Email my claim to the WCB" button
+        // (the only in-wizard path to actually filing), the how-to-file steps and
+        // the what-happens-next panel all live on it, and the worker stays there
+        // until they choose "Back to Dashboard".
         showSuccess(result);
+
+        // ...and only THEN refresh state behind it. This used to be ctx.onComplete(),
+        // which reloads the tier AND navigates — its awaited loadTier() resolved a
+        // beat later, re-rendered the dashboard, disconnected the wizard's portal
+        // anchor and tore the success screen we had just built out of the DOM. The
+        // worker saw nothing, so they tapped Generate again: three identical
+        // filings in 64 seconds on 2026-08-11. onDataChanged is the refresh-only
+        // half of that seam — it reloads entitlement/profile state and NEVER
+        // navigates, so "Back to Dashboard" (goDash) stays the one way out and the
+        // dashboard shows the new filing in My documents when the worker chooses it.
+        try { if (!anon && typeof ctx.onDataChanged === 'function') ctx.onDataChanged(); } catch (e) {}
       }).catch(function (e) {
         working = false;
+        clearWatchdog();
         if (btn) { btn.disabled = false; btn.textContent = c33Only ? T('c3.generateC33', 'Generate Form C-3.3') : T('c3.generateC3', 'Generate & File My C-3'); }
-        console.error('[C3] GENERATE_FAILED', e);
+        console.error('[C3] GENERATE_FAILED phase=' + _phase, e);
+        // A toast fades in five seconds and is easy to miss on a phone that was
+        // put down mid-upload; if the failure happened AFTER the write started,
+        // the worker needs a persistent, actionable screen instead — retrying
+        // blind is how a duplicate claim gets filed.
+        if (_phase === PHASE.upload || _phase === PHASE.save || _phase === PHASE.link) { showStuck(_phase, formLabel, certAgreed); return; }
         toast(T('c3.toasts.genFailed', { form: formLabel }, 'We couldn’t generate your {form}. Your answers are still here — please try again.'));
       });
+    }
+
+    // Terminal-but-recoverable screen for a flow that stalled or failed after it
+    // had started writing. NEVER just re-enable the button in that case: the
+    // upload and the c3_filings insert may already have landed, and a blind
+    // retry is exactly how one claim becomes two filings.
+    //
+    // Before the write starts (PHASE.build) nothing has been persisted, so a
+    // retry is free and is offered directly.
+    function showStuck(phase, formLabel, certAgreed) {
+      var mayHaveFiled = (phase === PHASE.upload || phase === PHASE.save || phase === PHASE.link);
+      console.warn('[C3] STUCK_SCREEN phase=' + phase + ' mayHaveFiled=' + mayHaveFiled);
+      terminalView();
+      var v = el('div', { class: 'success-screen' });
+      v.appendChild(el('div', { style: 'text-align:center;font-size:34px;margin-bottom:6px', text: '⏳' }));
+      v.appendChild(el('h2', { style: 'text-align:center', text: T('c3.stuck.title', 'This is taking longer than expected') }));
+      v.appendChild(el('div', { class: 'info-callout', html: mayHaveFiled
+        ? T('c3.stuck.mayHaveFiled', { form: formLabel }, '<strong>Your {form} may already have been submitted.</strong> We started sending it but lost the connection before we could confirm. Open <b>My documents</b> on your dashboard to check <b>before</b> trying again — filing twice creates a duplicate claim.')
+        : T('c3.stuck.notFiled', { form: formLabel }, '<strong>Your {form} was not submitted.</strong> We couldn’t finish building it — this is almost always a connection problem. Your answers are saved, so you can try again.') }));
+      if (mayHaveFiled) {
+        v.appendChild(el('button', { class: 'btn btn-primary', style: 'width:100%;margin-bottom:10px', onclick: function () { goDash(); } }, [T('c3.stuck.checkDocs', 'Check My documents')]));
+      } else {
+        v.appendChild(el('button', { class: 'btn btn-primary', style: 'width:100%;margin-bottom:10px', onclick: function () {
+          // Rebuild the deck at the certify card and let them re-sign + retry.
+          progress.style.display = ''; foot.style.display = '';
+          goToCard('certify', true);
+        } }, [T('c3.stuck.tryAgain', 'Try again')]));
+      }
+      v.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, [T('c3.success.backToDash', 'Back to Dashboard')]));
+      viewport.appendChild(v);
+      try { viewport.scrollTop = 0; } catch (e) {}
     }
 
     // Anonymous usage ping — records ONLY { action, form_type, timestamp } so Joel
@@ -1782,8 +2355,16 @@
     }
 
     /* ---------- success (truthful) — terminal view in the card viewport - */
-    function terminalView() { progress.style.display = 'none'; foot.style.display = 'none'; viewport.className = 'c3w-viewport scroll'; viewport.innerHTML = ''; }
+    // Disarm the portal's auto-teardown, then clear the deck chrome. From here
+    // on the wizard is TERMINAL and only goDash() may remove it — see portal().
+    function terminalView() {
+      disarmPortal();
+      reattachPortal();
+      progress.style.display = 'none'; foot.style.display = 'none'; viewport.className = 'c3w-viewport scroll'; viewport.innerHTML = '';
+    }
     function showSuccess(result) {
+      console.log('[C3] STAGE success-screen path=' + (result && result.path) + ' c33=' + (result && result.c33path) +
+        ' signedUrl=' + !!(result && result.signedUrl) + ' c33SignedUrl=' + !!(result && result.c33SignedUrl));
       terminalView();
       var toAttorney = state.branch === 'attorney' && profile.attorney_email;
       var hasC3 = !!result.signedUrl || !!result.path;
@@ -1846,6 +2427,20 @@
         screen.appendChild(emailBtn);
       }
 
+      // The connection dropped between saving the filing and minting its
+      // download links. The claim IS on the server — the upload and the
+      // c3_filings insert both succeeded — but with no signed URL there is no
+      // download button and no email button to render, and the "tap ✉️ Email my
+      // claim to the WCB above" step below would be pointing at nothing. Say so
+      // plainly and send them to My documents, whose own ✉️ Email to WCB button
+      // (worker-dashboard.js) mints a fresh link and has always worked.
+      var _linksMissing = !anon && !result.signedUrl && !result.c33SignedUrl && !!(result.path || result.c33path);
+      if (_linksMissing) {
+        console.warn('[C3] SIGNED_URL_UNAVAILABLE — filing saved, links not minted');
+        screen.appendChild(el('div', { class: 'info-callout', html: T('c3.success.linksUnavailable',
+          '<strong>Your claim is saved to your account.</strong> We couldn’t create the download link just now — your connection dropped. Open <b>My documents</b> on your dashboard to download it or email it to the WCB.') }));
+      }
+
       var steps = el('div', { class: 'file-steps' }, [el('h3', { text: T('c3.success.howToFile', 'How to file with the WCB') })]);
       function fstep(n, html) { return el('div', { class: 'file-step' }, [el('div', { class: 'file-step-num', text: String(n) }), el('div', { html: html })]); }
       if (both) steps.appendChild(fstep('!', T('c3.success.stepBothWarning', '<b>Send both in the same email.</b> Because you indicated a prior injury to the same body part, your C-3.3 (HIPAA release) must be filed <b>together with your C-3, in one email/submission</b> — never sent separately.')));
@@ -1855,7 +2450,8 @@
         steps.appendChild(fstep(++stepNo, T('c3.success.stepAttorney', { packet: pktNoun, email: escapeHtml(profile.attorney_email) }, 'Send {packet} to your attorney at <b>{email}</b> — they may file for you. Download above and attach to an email.')));
         steps.appendChild(fstep(++stepNo, T('c3.success.stepPreferSelf', 'Prefer to file it yourself? Use any of the options below.')));
       }
-      steps.appendChild(fstep(++stepNo, T('c3.success.stepEmail', { packet: pktNoun, email: WCB_EMAIL }, '<b>Email it to the WCB (fastest):</b> tap <b>“✉️ Email my claim to the WCB”</b> above — it opens your mail app with {packet} attached, addressed to <b>{email}</b>. This is the email filing described in <b>Item 7</b> of the C-3.')));
+      // Only promise the one-tap email when the button is actually on screen.
+      if (!_linksMissing) steps.appendChild(fstep(++stepNo, T('c3.success.stepEmail', { packet: pktNoun, email: WCB_EMAIL }, '<b>Email it to the WCB (fastest):</b> tap <b>“✉️ Email my claim to the WCB”</b> above — it opens your mail app with {packet} attached, addressed to <b>{email}</b>. This is the email filing described in <b>Item 7</b> of the C-3.')));
       steps.appendChild(fstep(++stepNo, T('c3.success.stepOnline', { packet: pktNoun }, '<b>Online:</b> upload {packet} at the WCB Forms Submission portal, <b>wcb.ny.gov</b> → “File a Claim / Submit Forms.”')));
       steps.appendChild(fstep(++stepNo, T('c3.success.stepMail', '<b>By mail:</b> NYS Workers’ Compensation Board, Centralized Mailing, PO Box 5205, Binghamton, NY 13902-5205.')));
       steps.appendChild(fstep(++stepNo, T('c3.success.stepFax', '<b>By fax:</b> (877) 533-0337.')));
@@ -1879,6 +2475,14 @@
       screen.appendChild(el('button', { class: 'btn btn-secondary', style: 'width:100%', onclick: function () { goDash(); } }, [T('c3.success.backToDash', 'Back to Dashboard')]));
       viewport.appendChild(screen);
       try { viewport.scrollTop = 0; } catch (e) {}
+      // The STAGE line above only proves showSuccess was ENTERED. This proves it
+      // finished AND that the screen is still on screen a beat later — the exact
+      // gap that made "the wizard stalls" ambiguous for three debugging rounds.
+      console.log('[C3] STAGE success-rendered connected=' + screen.isConnected + ' rootInDoc=' + root.isConnected);
+      setTimeout(function () {
+        console.log('[C3] STAGE success-alive+2s connected=' + screen.isConnected + ' rootInDoc=' + root.isConnected +
+          ' visible=' + (screen.getBoundingClientRect().height > 0));
+      }, 2000);
     }
 
     function showNextSteps(formType) {
@@ -1910,7 +2514,35 @@
       try { viewport.scrollTop = 0; } catch (e) {}
     }
     function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+    function disarmPortal() { try { if (root.__c3portal) root.__c3portal.disarm(); } catch (e) {} }
+    // Last line of defence, and the one that actually had to exist.
+    //
+    // Disarming only stops FUTURE teardowns. On 2026-08-11 the device log showed
+    // `success-rendered connected=false rootInDoc=false` — the wizard had already
+    // been removed from the DOM *during* the 6-10s generation window (an #app
+    // re-render from elsewhere in the app; the same log carries a failed
+    // analytics POST and a burst of biometric re-init). showSuccess then built a
+    // perfect success screen inside a detached node and the worker saw the
+    // previous card, or a black screen behind the account-offer modal.
+    //
+    // Disarming at the terminal screen was too late by definition. So the
+    // terminal view also PUTS THE WIZARD BACK if something took it: the C-3 is
+    // generated, the worker is owed the screen with the download and ✉️ WCB
+    // buttons, and no repaint elsewhere in the app gets to deny them that.
+    function reattachPortal() {
+      try {
+        if (!root.isConnected && document.body) {
+          document.body.appendChild(root);
+          _markImmersive(true);
+          console.warn('[C3] PORTAL_REATTACHED — the wizard had been removed from the DOM mid-flow');
+        }
+      } catch (e) { console.warn('[C3] PORTAL_REATTACH_FAILED', e); }
+    }
+    // Leaving is the worker's choice, so THIS is where the portal comes down.
+    // Once terminalView() has disarmed the observer, nothing else removes the
+    // root — without this the wizard would be orphaned over the dashboard.
     function goDash() {
+      try { if (root.__c3portal) root.__c3portal.teardown(); } catch (e) {}
       if (typeof ctx.goToDashboard === 'function') { try { ctx.goToDashboard(); return; } catch (e) {} }
       if (typeof ctx.onComplete === 'function') { try { ctx.onComplete(); return; } catch (e) {} }
       try { window.location.reload(); } catch (e) {}

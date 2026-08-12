@@ -408,6 +408,13 @@
       if (screen === 'c3' && CD.C3Wizard) {
         renderScreenInPlace(CD.C3Wizard.render({
           supabase: CD.supa, user: CD.currentUser, profile: CD.currentProfile, isNative: false,
+          // onDataChanged is the REFRESH-ONLY completion hook: it must not
+          // re-render the host. The wizard used to call onComplete the instant a
+          // filing landed, and CD.render() below destroyed the success screen —
+          // and with it the ✉️ "Email my claim to the WCB" button, the only
+          // in-wizard path to actually filing. The success screen owns the end
+          // of the flow now; goToDashboard is the one way out.
+          onDataChanged: function () { /* no server-side tier to reload here */ },
           onComplete: function () { CD.render(); }, goToDashboard: function () { CD.render(); }
         }));
         return;

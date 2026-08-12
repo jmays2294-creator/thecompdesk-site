@@ -161,6 +161,12 @@ padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px}
 .c3w .c3w-addr-use{flex:1;text-align:left;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:13px;padding:10px 12px;cursor:pointer;line-height:1.35}
 .c3w .c3w-addr-use:hover{border-color:var(--accent)}
 .c3w .c3w-addr-dismiss{flex:0 0 auto;background:none;border:none;color:var(--text-muted);font-size:15px;cursor:pointer;padding:6px 8px;line-height:1}
+/* opt-in "add a concurrent employer" (C-3 B6) and its paired remove. min-height
+   48px keeps both above the tap floor the 6.2x accessibility pass set. */
+.c3w .c3w-add-btn{display:block;width:100%;min-height:48px;margin-top:12px;background:var(--accent-light);border:1px dashed rgba(232,119,34,.45);border-radius:var(--radius-sm);color:var(--accent);font-family:inherit;font-size:14px;font-weight:600;padding:12px;cursor:pointer;line-height:1.3}
+.c3w .c3w-add-btn:hover{border-style:solid}
+.c3w .c3w-remove-btn{display:block;width:100%;min-height:48px;margin-top:12px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-family:inherit;font-size:13px;padding:12px;cursor:pointer;line-height:1.3}
+.c3w .c3w-remove-btn:hover{color:var(--text-secondary);border-color:var(--text-muted)}
 /* review */
 .c3w .review-group{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
 .c3w .review-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
