@@ -181,19 +181,48 @@
 
   /**
    * Reduce an arbitrary DOM-derived string to a field IDENTIFIER.
-   * Deliberately lossy: lowercased, non-alphanumerics collapsed, digits
-   * stripped, truncated. "Claimant Name (WCB #G2845571)" becomes
-   * "claimant_name_wcb" — a label we can group by, carrying nothing about the
-   * claimant. Digits go because that is where identifiers hide.
+   *
+   * Deliberately lossy: lowercased, digits stripped, punctuation collapsed,
+   * and — critically — TRUNCATED TO THE FIRST FOUR TOKENS.
+   *
+   * The token cap is not cosmetic. A first version stripped digits and
+   * truncated at 40 characters, and the privacy test caught it turning
+   * "Claimant Name (WCB #G2845571) — Maria Rodriguez" into
+   * "claimant_name_wcb_g_maria_rodriguez". The case number was gone; the
+   * claimant's NAME was not. Nothing downstream would have flagged that: it has
+   * no digits, no '@', no date, and it is under the length limit, so the
+   * database guard would have accepted it. A person's name would have sat in a
+   * telemetry table indefinitely.
+   *
+   * Real field labels are one to four words — "Average Weekly Wage", "Date of
+   * Injury", "Percentage". Interpolated case data is what makes a label long.
+   * So: four tokens, and anything that arrives as prose is refused outright
+   * rather than trimmed, because trimming prose still keeps its first four
+   * words.
    */
+  // Five, not eight. Eight was the first guess and the privacy test showed it
+  // still let "Claimant Name (WCB #G2845571) — Maria Rodriguez" through as
+  // "claimant_name_wcb_maria": seven words squeaked under the prose gate, and
+  // the four-token cap then kept the first name. The longest legitimate label
+  // on this surface is "Loss of Wage Earning Capacity" — five words. So the
+  // limit is five, which refuses that string outright.
+  var MAX_LABEL_WORDS = 5;
+  var MAX_SLUG_TOKENS = 4;
+
   function slugField(s) {
     if (!s) return null;
-    return String(s)
+    var raw = String(s);
+    // Prose is where names live. Do not attempt to salvage it.
+    if (raw.split(/\s+/).length > MAX_LABEL_WORDS) return 'long_label';
+    var tokens = raw
       .toLowerCase()
-      .replace(/[0-9]+/g, '')
-      .replace(/[^a-z]+/g, '_')
-      .replace(/^_+|_+$/g, '')
-      .slice(0, 40) || null;
+      .replace(/[0-9]+/g, ' ')
+      .replace(/[^a-z]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(function (t) { return t.length > 1; });   // drops stray initials
+    if (!tokens.length) return null;
+    return tokens.slice(0, MAX_SLUG_TOKENS).join('_').slice(0, 40) || null;
   }
 
   // ── queue + transport ─────────────────────────────────────────────────────
@@ -318,9 +347,14 @@
       var filled = (el.type === 'checkbox' || el.type === 'radio')
         ? el.checked
         : !!(el.value && String(el.value).length);
+      // Attribute order is a privacy decision, not a convenience one.
+      // data-field / name / id are authored by us and are structural.
+      // aria-label and placeholder are user-facing copy and are the two most
+      // likely to have a case detail interpolated into them, so they are last
+      // resorts rather than first choices.
       var name = slugField(
-        el.getAttribute('name') || el.getAttribute('aria-label') ||
-        el.getAttribute('data-field') || el.getAttribute('placeholder') || el.id
+        el.getAttribute('data-field') || el.getAttribute('name') || el.id ||
+        el.getAttribute('aria-label') || el.getAttribute('placeholder')
       );
       if (!name) return;
       emit(filled ? 'field_filled' : 'field_cleared', {

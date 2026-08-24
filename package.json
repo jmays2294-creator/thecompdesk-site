@@ -14,7 +14,9 @@
     "a11y:baseline": "node scripts/a11y-audit.mjs --update",
     "sweep": "node scripts/workspace-sweep.mjs",
     "sweep:selftest": "node scripts/workspace-sweep.mjs --self-test",
-    "sweep:live": "node scripts/workspace-sweep.mjs --url https://thecompdesk.com --persona pro"
+    "sweep:live": "node scripts/workspace-sweep.mjs --url https://thecompdesk.com --persona pro",
+    "telemetry:privacy": "node tests/telemetry-privacy.test.mjs",
+    "guards": "npm run a11y && npm run check:refs && npm run check:tiles && npm run sweep:selftest && npm run telemetry:privacy"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

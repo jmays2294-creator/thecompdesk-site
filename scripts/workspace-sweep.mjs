@@ -653,15 +653,32 @@ if (!PERSIST) {
       console_errors: consoleErrorCount, tiers, report_path: path.relative(ROOT, reportPath),
       summary: { p0, p1, findings: findings.length, notes },
     }]);
-    if (findings.length) {
-      await sb('workspace_improvements', 'POST', findings.map((f) => ({
+    // DEDUPE. This runs every night against the same site, so the same defect
+    // would otherwise file the same row 30 times a month and drown the planner
+    // in noise it has already seen. An open item (anything not yet closed out)
+    // suppresses a re-report; a rejected or verified one does not, so a
+    // regression after a fix files fresh and gets looked at again.
+    const openRows = await sb(
+      'workspace_improvements?select=title,route,status&status=in.(proposed,planned,approved,in_progress,implemented)',
+      'GET',
+    );
+    const seen = new Set((openRows || []).map((r) => `${r.title}||${r.route || ''}`));
+    const fresh = findings.filter((f) => !seen.has(`${f.title.slice(0, 200)}||${f.route || ''}`));
+    const suppressed = findings.length - fresh.length;
+
+    if (fresh.length) {
+      await sb('workspace_improvements', 'POST', fresh.map((f) => ({
         run_id: run.id, source: 'sweep', title: f.title.slice(0, 200), surface: f.surface,
         route: f.route, category: f.category, severity: f.severity, risk_class: f.risk_class,
         problem: f.problem, evidence: f.evidence, proposal: f.proposal, status: 'proposed',
       })));
     }
+    await sb(`workspace_e2e_runs?id=eq.${run.id}`, 'PATCH', {
+      summary: { p0, p1, findings: findings.length, filed: fresh.length, suppressed_as_duplicate: suppressed, notes },
+    });
     tier('persist', 'ran');
-    console.log(`  persisted: run ${run.id} · ${findings.length} proposed improvement(s)`);
+    console.log(`  persisted: run ${run.id} · ${fresh.length} new improvement(s) filed`
+      + (suppressed ? ` · ${suppressed} already open, not refiled` : ''));
   } catch (e) {
     tier('persist', 'did_not_run', String(e).slice(0, 200));
     console.error('  PERSIST FAILED:', String(e).slice(0, 300));
