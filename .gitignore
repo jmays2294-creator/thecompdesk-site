@@ -9,3 +9,6 @@
 
 # Node
 node_modules/
+
+# Sweep artifacts — regenerated every night, never reviewed as a diff
+tests/workspace-sweep/reports/

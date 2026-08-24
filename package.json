@@ -11,7 +11,10 @@
     "i18n:derive-zh-hant": "node scripts/i18n/derive-zh-hant.mjs",
     "build:directory": "node scripts/build-directory.mjs",
     "a11y": "node scripts/a11y-audit.mjs",
-    "a11y:baseline": "node scripts/a11y-audit.mjs --update"
+    "a11y:baseline": "node scripts/a11y-audit.mjs --update",
+    "sweep": "node scripts/workspace-sweep.mjs",
+    "sweep:selftest": "node scripts/workspace-sweep.mjs --self-test",
+    "sweep:live": "node scripts/workspace-sweep.mjs --url https://thecompdesk.com --persona pro"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

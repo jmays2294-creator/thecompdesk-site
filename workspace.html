@@ -187,6 +187,13 @@
 <div id="root"></div>
 <div class="ws-bootstrap-status" id="ws-bootstrap-status"></div>
 
+<!-- Usage telemetry. Loads BEFORE the bootstrap and before the workspace bundle
+     so the delegated change listener is attached for the first keystroke and
+     session_start is stamped at page open rather than after auth resolves.
+     Plain script, no module graph, no second Supabase client. Records structure
+     and bucketed shape only — never case data. See js/workspace-telemetry.js. -->
+<script src="/js/workspace-telemetry.js"></script>
+
 <script type="module">
   // Site-level auth + nav. The workspace bundle loads as plain <script>
   // (Babel-transformed) and reads window.supa / window.workspaceUserId /

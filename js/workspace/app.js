@@ -1093,6 +1093,13 @@ function Tile({ tile, cell, dragging, global, onUpdate, onRemove, onTilePointerD
   return (
     <div ref={tileRef}
       className={'tile ' + (isRecent ? 'recent ' : '') + (dragging ? 'dragging' : '')}
+      /* Structural markers for workspace-telemetry.js. It delegates a single
+         'change' listener at the document and walks up to these to learn WHICH
+         tile a field belongs to — so the emitter needs no hooks inside any of
+         the twelve tile components. tile.instance is a per-tab counter, not an
+         identifier: it carries nothing about the case. */
+      data-tile-type={tile.type}
+      data-tile-ref={'t' + tile.instance}
       style={{
         left: c.x, top: c.y,
         width: c.w, height: c.h,
@@ -1727,11 +1734,18 @@ function App() {
         } catch (e) {}
         dirtyRef.current = false;
         setSaveStatus('saved');
+        if (window.wsTelemetry) {
+          window.wsTelemetry.event('save', {
+            buckets: { tabs: window.wsTelemetry.bucketCount(syncedTabs.length) },
+          });
+        }
       } else if (result.conflict) {
         setSaveStatus('error');
         // Realtime channel will emit workspace:remote-change; we'll surface a toast there
+        if (window.wsTelemetry) window.wsTelemetry.event('save_failed', { error_code: 'conflict' });
       } else {
         setSaveStatus('error');
+        if (window.wsTelemetry) window.wsTelemetry.event('save_failed', { error_code: 'save_error' });
       }
     }, 2000);
     return () => clearTimeout(saveTimerRef.current);
@@ -1973,6 +1987,7 @@ function App() {
     // both entry points.
     if (spec.pro && !isPro) {
       setPaywallState({ reason: 'pro-tile', tileName: spec.name });
+      if (window.wsTelemetry) window.wsTelemetry.tile('paywall_view', type, { props: { reason: 'pro-tile' } });
       return;
     }
     // Auto-arrange: positions are derived by the packer from row-major order,
@@ -2019,6 +2034,16 @@ function App() {
     };
     setActiveTiles(prev => [...prev, newT]);
     setMostRecentId(id);
+    // How the tile was reached (palette click vs canvas drop) and how many are
+    // already open. Co-occurrence across a session is what tells us which
+    // pairings deserve to be one click instead of two.
+    if (window.wsTelemetry) {
+      window.wsTelemetry.tile('tile_add', type, {
+        tile_ref: 't' + sameTypeCount,
+        props: { via: isDrop ? 'drop' : 'click' },
+        buckets: { open_tiles: window.wsTelemetry.bucketCount(activeTab.tiles.length + 1) },
+      });
+    }
   };
 
   const updateTile = (next) => {
@@ -2027,7 +2052,17 @@ function App() {
   };
 
   const removeTile = (id) => {
+    // Captured before the filter, so the type is still knowable. A tile added
+    // and removed inside a minute is the loudest "this was not what I wanted"
+    // signal the workspace produces.
+    const gone = activeTab.tiles.find(t => t.id === id);
     setActiveTiles(prev => prev.filter(t => t.id !== id));
+    if (window.wsTelemetry && gone) {
+      window.wsTelemetry.tile('tile_remove', gone.type, {
+        tile_ref: 't' + gone.instance,
+        buckets: { lifetime: window.wsTelemetry.bucketMs(Date.now() - (gone.addedAt || Date.now())) },
+      });
+    }
   };
 
   // ---------- Save to My Cases ----------
@@ -2168,8 +2203,14 @@ function App() {
       } catch (e) { /* tile-specific failure is non-fatal */ }
     }
     window.WorkspaceFeeAppContext = ctx;
+    // ctx carries claimant name, WCB number and DOI — none of it goes to
+    // telemetry. Only the fact that a fee app was opened, from which tile.
+    if (window.wsTelemetry) window.wsTelemetry.tile('feeapp_open', tile && tile.type, {});
     if (typeof window.triggerFeeApp === 'function') window.triggerFeeApp(ctx);
-    else setPaywallState({ reason: 'fee-app' });
+    else {
+      setPaywallState({ reason: 'fee-app' });
+      if (window.wsTelemetry) window.wsTelemetry.event('paywall_view', { props: { reason: 'fee-app' } });
+    }
   };
 
   // feeapp.js dispatches 'feeapp:paywall' when a non-Pro user invokes the
